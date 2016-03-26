@@ -50,5 +50,6 @@
     <module>textdb-api</module>
     <module>textdb-storage</module>
     <module>textdb-common</module>
+    <module>textdb-dataflow</module>
   </modules>
 </project>
