@@ -7,7 +7,6 @@ cache:
 # build matrix
 jdk:
     - oraclejdk8
-    - openjdk8
 
 # run steps
 install:
