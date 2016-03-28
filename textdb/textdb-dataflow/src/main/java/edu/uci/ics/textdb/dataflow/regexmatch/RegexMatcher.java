@@ -1,11 +1,9 @@
 package edu.uci.ics.textdb.dataflow.regexmatch;
 
-import edu.uci.ics.textdb.api.common.IDocument;
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.dataflow.IOperator;
 import edu.uci.ics.textdb.api.dataflow.ISourceOperator;
-
-import java.util.List;
+import org.apache.lucene.search.Query;
 
 /**
  * Created by chenli on 3/25/16.
@@ -13,10 +11,12 @@ import java.util.List;
 public class RegexMatcher implements IOperator {
     private final String regex;
     private ISourceOperator sourceOperator;
+    private Query luceneQuery;
 
     public RegexMatcher(String regex, ISourceOperator sourceOperator) {
         this.regex = regex;
         this.sourceOperator = sourceOperator;
+        //TODO build the luceneQuery by given regex.
     }
 
     public ITuple getNextTuple() {
