@@ -1,0 +1,16 @@
+# configuration
+language: java
+cache:
+    - apt
+    - $HOME/.m2
+
+# build matrix
+jdk:
+    - oraclejdk8
+
+# run steps
+install:
+
+script:
+    - cd textdb 
+    - mvn test
