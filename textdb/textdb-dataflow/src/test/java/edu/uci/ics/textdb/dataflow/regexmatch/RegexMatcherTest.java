@@ -14,7 +14,7 @@ public class RegexMatcherTest {
 
     @Test
     public void testConstructionWillSucceed() throws Exception {
-        RegexMatcher matcher = new RegexMatcher(new ArrayList<IDocument>(),"regex*", null);
+        RegexMatcher matcher = new RegexMatcher("regex*", null);
     }
 
 }

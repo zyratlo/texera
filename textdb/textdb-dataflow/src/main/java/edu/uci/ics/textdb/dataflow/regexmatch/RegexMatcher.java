@@ -11,13 +11,10 @@ import java.util.List;
  * Created by chenli on 3/25/16.
  */
 public class RegexMatcher implements IOperator {
-
-    private final List<IDocument> documentSet;
     private final String regex;
     private ISourceOperator sourceOperator;
 
-    public RegexMatcher(List<IDocument> documentSet, String regex, ISourceOperator sourceOperator) {
-        this.documentSet = documentSet;
+    public RegexMatcher(String regex, ISourceOperator sourceOperator) {
         this.regex = regex;
         this.sourceOperator = sourceOperator;
     }
