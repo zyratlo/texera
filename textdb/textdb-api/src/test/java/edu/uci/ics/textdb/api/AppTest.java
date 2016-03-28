@@ -1,5 +1,6 @@
 package edu.uci.ics.textdb.api;
 
+
 import org.junit.Test;
 
 /**
