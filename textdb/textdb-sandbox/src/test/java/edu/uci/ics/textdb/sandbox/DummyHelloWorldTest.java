@@ -5,7 +5,7 @@ import org.junit.Test;
 /**
  * Unit test for simple App.
  */
-public class AppTest
+public class DummyHelloWorldTest
 {
     @Test
     public void testApp() {}
