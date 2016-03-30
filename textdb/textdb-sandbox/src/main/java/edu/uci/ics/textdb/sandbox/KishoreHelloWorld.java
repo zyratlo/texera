@@ -7,15 +7,7 @@ public class KishoreHelloWorld {
 
     public static void main(String args[]) {
 
-        //Really bad Hello World program
-        for(int i = 0; i < 1; i++) {
-            if(true) {
-                System.out.println("Hello, World!");
-            }
-        }
-
-        //Unecessary comments and assignments
-        int a = 10;
-        String c = new String();
+        //A simple Hello World program
+        System.out.println("Hello, World!");
     }
 }
