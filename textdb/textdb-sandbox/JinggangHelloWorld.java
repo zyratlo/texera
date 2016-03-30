@@ -1,5 +1,6 @@
+#include<iostream>
 public class JinggangHelloWorld{
 	public static void main(String[] args){
-		System.out.println("Hello World!");
+		cout << "Hello World!" << endl;
 	}
 }
