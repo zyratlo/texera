@@ -8,11 +8,7 @@ public class SandeepHelloWorld
 {
     public static void main( String[] args )
     {
-        //Bad comments
+        //Printing Hello World! to console
         System.out.println( "Hello World!" );
-        // TOBE deleted
-        while (true){
-            System.out.println( "Stop me!" );
-        }
     }
 }
