@@ -8,11 +8,7 @@
 public class ShiladityaHelloWorld
 {
     public static void main( String[] args )
-    {
-        //Australia celebrates Christmas in summer 
-
-        System.out.println( "Hello" ); // TODO: Please merge these two statements into one.
-
-        System.out.println("World!");
+    { 
+        System.out.println( "Hello, World!" );
     }
 }
