@@ -13,10 +13,6 @@ public class ShiladityaHelloWorld
 
         System.out.println( "Hello" );
 
-        // TODO: to be deleted
-        if(args.length != 0)
-        	System.out.println("Command line arguments should not be passed");
-
         System.out.println("World!");
     }
 }
