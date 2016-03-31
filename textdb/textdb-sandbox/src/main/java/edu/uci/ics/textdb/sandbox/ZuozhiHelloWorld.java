@@ -4,7 +4,7 @@ package edu.uci.ics.textdb.sandbox;
  * Hello world!
  *
  */
-public class DummyHelloWorld
+public class ZuozhiHelloWorld
 {
     public static void main( String[] args )
     {
