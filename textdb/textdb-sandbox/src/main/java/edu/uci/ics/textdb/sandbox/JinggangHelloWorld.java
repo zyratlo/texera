@@ -1,5 +1,4 @@
 package edu.uci.ics.textdb.sandbox;
-
 /**
  * Hello world!
  *
