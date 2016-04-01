@@ -1,5 +1,5 @@
 //package edu.uci.ics.textdb.sandbox;
-//TODO: REMOVE the notation.
+//TODO: REMOVE the notation!
 /**
  * Hello world!
  * Shiladitya Sen
