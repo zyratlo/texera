@@ -1,5 +1,4 @@
 package edu.uci.ics.textdb.sandbox;
-
 /**
  * Hello world!
  *
@@ -8,11 +7,7 @@ public class PrakulHelloWorld
 {
     public static void main( String[] args )
     {
-        //Bad comments
-        System.out.println( "Hello World!" );
-        // TOBE deleted
-        while (true){
-            System.out.println( "Stop me!" );
-        }
+    	//Printing Hello world! on console
+    	System.out.println( "Hello World!" );
     }
 }
