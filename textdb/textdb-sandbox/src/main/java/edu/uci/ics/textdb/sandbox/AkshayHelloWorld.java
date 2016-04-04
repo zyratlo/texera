@@ -10,9 +10,6 @@ public class AkshayHelloWorld
     {
         //Bad comments
         System.out.println( "Hello World!" );
-        // TOBE deleted
-        while (true){
-            System.out.println( "Stop me!" );
-        }
+        //Removed while loop
     }
 }
