@@ -9,7 +9,7 @@ public class ShiladityaHelloWorld
 {
     public static void main( String[] args )
     {
-        //Australia celebrates Christmas in summer 
+        //Printing Hello, World!
 
         System.out.println( "Hello, World!" );
     }
