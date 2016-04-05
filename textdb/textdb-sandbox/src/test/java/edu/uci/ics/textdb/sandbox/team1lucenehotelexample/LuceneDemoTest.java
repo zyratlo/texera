@@ -1,7 +1,6 @@
 package edu.uci.ics.textdb.sandbox.team1lucenehotelexample;
 
 import java.io.IOException;
-import java.util.Scanner;
 
 import org.apache.lucene.document.Document;
 import org.apache.lucene.queryparser.classic.ParseException;
@@ -18,7 +17,6 @@ public class LuceneDemoTest {
 	@Before
 	public void setUp() throws IOException {
 		indexer = new Indexer();
-		searcher = new Searcher();
 	}
 
 	@Test
@@ -29,19 +27,21 @@ public class LuceneDemoTest {
 	}
 
 	@Test
-	public void testSearching() throws IOException, ParseException {
+	public void testIndexingAndSearching() throws IOException, ParseException {
+		System.out.println("Building Indexes");
+		indexer.rebuildIndexes();
+		System.out.println("Finished Indexing");
+
+		searcher = new Searcher();
 		// perform search on user queries
 		// and retrieve the top 10 result
 		int maxResults = 100;
 
-		Scanner reader = new Scanner(System.in); // Reading from System.in
-		System.out.println("Enter a search string: ");
-		String s = reader.next(); // Scans the next token of the input as an
-		                          // int.
-		reader.close();
-		System.out.println(" performSearch ");
+		// Modify this to try different queries
+		String queryString = "*:*";
+		System.out.println("\nperformSearch");
 
-		TopDocs topDocs = searcher.performSearch(s, maxResults);
+		TopDocs topDocs = searcher.performSearch(queryString, maxResults);
 
 		System.out.println("Results found: " + topDocs.totalHits);
 		ScoreDoc[] hits = topDocs.scoreDocs;
