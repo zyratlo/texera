@@ -1,4 +1,4 @@
-package edu.uci.ics.textdb.sandbox;
+package edu.uci.ics.textdb.sandbox.helloworldexamples;
 
 /**
  * Created by kishorenarendran on 29/03/16.

@@ -1,4 +1,4 @@
-package edu.uci.ics.textdb.sandbox;
+package edu.uci.ics.textdb.sandbox.helloworldexamples;
 
 public class VarunHelloWorld {
 	public static void main( String[] args )

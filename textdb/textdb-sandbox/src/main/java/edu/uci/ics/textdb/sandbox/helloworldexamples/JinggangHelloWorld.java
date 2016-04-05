@@ -1,10 +1,9 @@
-package edu.uci.ics.textdb.sandbox;
-
+package edu.uci.ics.textdb.sandbox.helloworldexamples;
 /**
  * Hello world!
  *
  */
-public class ShuyingHelloWorld
+public class JinggangHelloWorld
 {
     public static void main( String[] args )
     {

@@ -1,4 +1,4 @@
-package edu.uci.ics.textdb.sandbox;
+package edu.uci.ics.textdb.sandbox.helloworldexamples;
 //TODO: REMOVE the notation!
 /**
  * Hello world!
