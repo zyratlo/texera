@@ -19,22 +19,24 @@ import org.apache.lucene.store.FSDirectory;
 /** Simple command-line based search demo. */
 public class Searcher {
 
-	private IndexSearcher searcher = null;
-	private QueryParser parser = null;
+    private IndexSearcher searcher = null;
+    private QueryParser parser = null;
 
-	/** Creates a new instance of SearchEngine */
-	public Searcher() throws IOException {
-		searcher = new IndexSearcher(DirectoryReader.open(FSDirectory.open(Paths.get(INDEX_DIR))));
-		parser = new QueryParser(CONTENT_FIELD, new StandardAnalyzer());
-	}
+    /** Creates a new instance of SearchEngine */
+    public Searcher() throws IOException {
+        searcher = new IndexSearcher(DirectoryReader.open(FSDirectory
+                .open(Paths.get(INDEX_DIR))));
+        parser = new QueryParser(CONTENT_FIELD, new StandardAnalyzer());
+    }
 
-	public TopDocs performSearch(String queryString, int n) throws IOException, ParseException {
-		Query query = parser.parse(queryString);
-		return searcher.search(query, n);
-	}
+    public TopDocs performSearch(String queryString, int n) throws IOException,
+            ParseException {
+        Query query = parser.parse(queryString);
+        return searcher.search(query, n);
+    }
 
-	public Document getDocument(int docId) throws IOException {
-		return searcher.doc(docId);
-	}
+    public Document getDocument(int docId) throws IOException {
+        return searcher.doc(docId);
+    }
 
 }

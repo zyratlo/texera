@@ -1,27 +1,23 @@
 package edu.uci.ics.textdb.sandbox.team1lucenehotelexample;
 
-
 /**
  *
  * @author Rajesh
  */
 public class Hotel {
-    
+
     /** Creates a new instance of Accommodation */
     public Hotel() {
     }
 
     /** Creates a new instance of Accommodation */
-    public Hotel(String id, 
-                 String name, 
-                 String city, 
-                 String description) {
-        this.id = id;     
-        this.name = name;     
-        this.description = description;     
-        this.city = city;     
+    public Hotel(String id, String name, String city, String description) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.city = city;
     }
-    
+
     /**
      * Holds value of property name.
      */
@@ -29,6 +25,7 @@ public class Hotel {
 
     /**
      * Getter for property title.
+     * 
      * @return Value of property title.
      */
     public String getName() {
@@ -37,7 +34,9 @@ public class Hotel {
 
     /**
      * Setter for property title.
-     * @param title New value of property title.
+     * 
+     * @param title
+     *            New value of property title.
      */
     public void setName(String name) {
         this.name = name;
@@ -50,6 +49,7 @@ public class Hotel {
 
     /**
      * Getter for property id.
+     * 
      * @return Value of property id.
      */
     public String getId() {
@@ -58,7 +58,9 @@ public class Hotel {
 
     /**
      * Setter for property id.
-     * @param id New value of property id.
+     * 
+     * @param id
+     *            New value of property id.
      */
     public void setId(String id) {
         this.id = id;
@@ -71,6 +73,7 @@ public class Hotel {
 
     /**
      * Getter for property details.
+     * 
      * @return Value of property details.
      */
     public String getDescription() {
@@ -79,7 +82,9 @@ public class Hotel {
 
     /**
      * Setter for property details.
-     * @param details New value of property details.
+     * 
+     * @param details
+     *            New value of property details.
      */
     public void setDescription(String description) {
         this.description = description;
@@ -92,6 +97,7 @@ public class Hotel {
 
     /**
      * Getter for property city.
+     * 
      * @return Value of property city.
      */
     public String getCity() {
@@ -100,19 +106,16 @@ public class Hotel {
 
     /**
      * Setter for property city.
-     * @param city New value of property city.
+     * 
+     * @param city
+     *            New value of property city.
      */
     public void setCity(String city) {
         this.city = city;
     }
 
+    @Override
     public String toString() {
-        return "Hotel "
-               + getId()
-               +": "
-               + getName()
-               +" ("
-               + getCity()
-               +")";
+        return "Hotel " + getId() + ": " + getName() + " (" + getCity() + ")";
     }
 }
