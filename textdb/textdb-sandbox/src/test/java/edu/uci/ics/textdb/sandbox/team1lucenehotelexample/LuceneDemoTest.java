@@ -37,22 +37,23 @@ public class LuceneDemoTest {
 		System.out.println("Finished Indexing");
 
 		searcher = new Searcher();
-		// perform search on user queries
-		// and retrieve the top 10 result
+		// max docs retrieved will be 100
 		int maxResults = 100;
 
+		// *:* performs a full scan
 		// Modify this to try different queries
 		String queryString = "*:*";
 		System.out.println("\nperformSearch");
 
+		// TopDocs contains a reference to the documents
 		TopDocs topDocs = searcher.performSearch(queryString, maxResults);
 
 		System.out.println("Results found: " + topDocs.totalHits);
 		ScoreDoc[] hits = topDocs.scoreDocs;
 		for (int i = 0; i < hits.length; i++) {
 			Document doc = searcher.getDocument(hits[i].doc);
-			System.out.println(
-			        "Id: " + doc.get(ID_FIELD) + ", Name: " + doc.get(NAME_FIELD) + " " + ", City: " + doc.get(CITY_FIELD));
+			System.out.println("Id: " + doc.get(ID_FIELD) + ", Name: " + doc.get(NAME_FIELD) + " " + ", City: "
+			        + doc.get(CITY_FIELD));
 
 		}
 
