@@ -1,5 +1,8 @@
 package edu.uci.ics.textdb.sandbox.team1lucenehotelexample;
 
+import static edu.uci.ics.textdb.sandbox.team1lucenehotelexample.LuceneIndexConstants.CONTENT_FIELD;
+import static edu.uci.ics.textdb.sandbox.team1lucenehotelexample.LuceneIndexConstants.INDEX_DIR;
+
 import java.io.IOException;
 import java.nio.file.Paths;
 
@@ -21,8 +24,8 @@ public class Searcher {
 
 	/** Creates a new instance of SearchEngine */
 	public Searcher() throws IOException {
-		searcher = new IndexSearcher(DirectoryReader.open(FSDirectory.open(Paths.get("index"))));
-		parser = new QueryParser("content", new StandardAnalyzer());
+		searcher = new IndexSearcher(DirectoryReader.open(FSDirectory.open(Paths.get(INDEX_DIR))));
+		parser = new QueryParser(CONTENT_FIELD, new StandardAnalyzer());
 	}
 
 	public TopDocs performSearch(String queryString, int n) throws IOException, ParseException {

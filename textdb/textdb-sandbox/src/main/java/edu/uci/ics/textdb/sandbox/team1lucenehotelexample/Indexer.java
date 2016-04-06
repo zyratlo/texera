@@ -1,5 +1,11 @@
 package edu.uci.ics.textdb.sandbox.team1lucenehotelexample;
 
+import static edu.uci.ics.textdb.sandbox.team1lucenehotelexample.LuceneIndexConstants.CITY_FIELD;
+import static edu.uci.ics.textdb.sandbox.team1lucenehotelexample.LuceneIndexConstants.CONTENT_FIELD;
+import static edu.uci.ics.textdb.sandbox.team1lucenehotelexample.LuceneIndexConstants.ID_FIELD;
+import static edu.uci.ics.textdb.sandbox.team1lucenehotelexample.LuceneIndexConstants.INDEX_DIR;
+import static edu.uci.ics.textdb.sandbox.team1lucenehotelexample.LuceneIndexConstants.NAME_FIELD;
+
 import java.io.IOException;
 import java.nio.file.Paths;
 
@@ -28,7 +34,7 @@ public class Indexer {
 
 	public IndexWriter getIndexWriter() throws IOException {
 		if (indexWriter == null) {
-			FSDirectory indexDir = FSDirectory.open(Paths.get("index"));
+			FSDirectory indexDir = FSDirectory.open(Paths.get(INDEX_DIR));
 			Analyzer analyzer = new StandardAnalyzer();
 			IndexWriterConfig iwc = new IndexWriterConfig(analyzer);
 			indexWriter = new IndexWriter(indexDir, iwc);
@@ -47,11 +53,11 @@ public class Indexer {
 		System.out.println("Indexing hotel: " + hotel);
 		IndexWriter writer = getIndexWriter();
 		Document doc = new Document();
-		doc.add(new StringField("id", hotel.getId(), Field.Store.YES));
-		doc.add(new StringField("name", hotel.getName(), Field.Store.YES));
-		doc.add(new StringField("city", hotel.getCity(), Field.Store.YES));
+		doc.add(new StringField(ID_FIELD, hotel.getId(), Field.Store.YES));
+		doc.add(new StringField(NAME_FIELD, hotel.getName(), Field.Store.YES));
+		doc.add(new StringField(CITY_FIELD, hotel.getCity(), Field.Store.YES));
 		String fullSearchableText = hotel.getName() + " " + hotel.getCity() + " " + hotel.getDescription();
-		doc.add(new TextField("content", fullSearchableText, Field.Store.NO));
+		doc.add(new TextField(CONTENT_FIELD, fullSearchableText, Field.Store.NO));
 		writer.addDocument(doc);
 	}
 
