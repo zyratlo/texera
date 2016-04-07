@@ -1,24 +1,59 @@
 package edu.uci.ics.textdb.dataflow.regexmatch;
 
-import edu.uci.ics.textdb.api.common.IPredicate;
-import edu.uci.ics.textdb.dataflow.common.SampleRegexPredicate;
-import edu.uci.ics.textdb.dataflow.source.SampleSourceOperator;
-import junit.framework.Assert;
+import java.util.Arrays;
+import java.util.List;
+
+import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
+
+import edu.uci.ics.textdb.api.common.IPredicate;
+import edu.uci.ics.textdb.api.common.ITuple;
+import edu.uci.ics.textdb.api.dataflow.ISourceOperator;
+import edu.uci.ics.textdb.dataflow.common.RegexPredicate;
+import edu.uci.ics.textdb.dataflow.constants.LuceneConstants;
+import edu.uci.ics.textdb.dataflow.source.SampleDataStore;
+import edu.uci.ics.textdb.dataflow.source.ScanBasedSourceOperator;
+import edu.uci.ics.textdb.dataflow.source.TestConstants;
 
 /**
  * Created by chenli on 3/25/16.
  */
 public class RegexMatcherTest {
-
+    
+    private RegexMatcher regexMatcher;
+    
+    @Before
+    public void setUp() throws Exception{
+        SampleDataStore dataStore = new SampleDataStore();
+        dataStore.clearData();
+        dataStore.storeData();
+    }
+    
     @Test
-    public void testSamplePipeline() throws Exception {
-        IPredicate predicate = new SampleRegexPredicate("f*", SampleSourceOperator.FIRST_NAME);
-
-        RegexMatcher matcher = new RegexMatcher(predicate, new SampleSourceOperator());
-        for (int i = 0; i < SampleSourceOperator.SAMPLE_TUPLES.size(); i++) {
-            Assert.assertEquals(matcher.getNextTuple(), SampleSourceOperator.SAMPLE_TUPLES.get(i));
+    public void testGetNextTuple() throws Exception{
+        String regex = "f.";
+        String fieldName = TestConstants.FIRST_NAME;
+        IPredicate predicate = new RegexPredicate(regex, fieldName);
+        String dataDirectory = LuceneConstants.INDEX_DIR;
+        List<String> schema = Arrays.asList(TestConstants.FIRST_NAME, TestConstants.LAST_NAME);
+        ISourceOperator sourceOperator = new ScanBasedSourceOperator(dataDirectory, schema);
+        sourceOperator.open();
+        regexMatcher = new RegexMatcher(predicate, sourceOperator);
+        
+        ITuple nextTuple = null;
+        int counter = 0;
+        while((nextTuple = regexMatcher.getNextTuple()) != null){
+            assertEquality(TestConstants.SAMPLE_TUPLES.get(counter++), nextTuple);
         }
+    }
+    
+    private void assertEquality(ITuple expectedTuple, ITuple actualTuple) {
+        int schemaSize = TestConstants.SAMPLE_SCHEMA.size();
+        for (int i = 0; i < schemaSize; i++) {
+            Assert.assertEquals(expectedTuple.getField(i), actualTuple.getField(i));
+        }
+        
     }
 
 }

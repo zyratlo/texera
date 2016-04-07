@@ -7,9 +7,9 @@ import edu.uci.ics.textdb.api.common.ITuple;
  */
 public interface IOperator {
 
-    void open();
+    void open() throws Exception;
 
-    ITuple getNextTuple();
+    ITuple getNextTuple() throws Exception;
 
-    void close();
+    void close() throws Exception;
 }
