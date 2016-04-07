@@ -103,15 +103,4 @@ public class GetPokemonInfo {
         }
         return pokemonInfos;
     }
-
-    public static void main(String args[])throws Exception {
-        GetPokemonInfo ob = new GetPokemonInfo(2);
-        Pokemon result[] = ob.getPokemonInfoObjects();
-        for(int i = 1; i <= 2; i++) {
-            System.out.println(result[i-1].getName());
-            System.out.println(result[i-1].getId());
-            System.out.println(result[i-1].getMoves());
-            System.out.println(result[i-1].getTypes());
-        }
-    }
 }
