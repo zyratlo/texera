@@ -1,8 +1,10 @@
 package edu.uci.ics.textdb.dataflow.regexmatch;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,12 +24,18 @@ import edu.uci.ics.textdb.dataflow.source.TestConstants;
 public class RegexMatcherTest {
     
     private RegexMatcher regexMatcher;
+    private SampleDataStore dataStore;
     
     @Before
     public void setUp() throws Exception{
-        SampleDataStore dataStore = new SampleDataStore();
+        dataStore = new SampleDataStore();
         dataStore.clearData();
         dataStore.storeData();
+    }
+    
+    @After
+    public void cleanUp() throws IOException{
+        dataStore.clearData();
     }
     
     @Test

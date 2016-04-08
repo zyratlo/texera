@@ -52,6 +52,7 @@ public class ScanBasedSourceOperator implements ISourceOperator {
             Directory directory = FSDirectory.open(Paths.get(dataDir));
             indexReader = DirectoryReader.open(directory);
             indexSearcher = new IndexSearcher(indexReader);
+            //TODO we don't need analyzer for scanning all the docs!!
             Analyzer analyzer = new StandardAnalyzer();
             //TODO ideally default field should be combination of all the fields
             String defaultField = schema.get(0);
@@ -102,11 +103,11 @@ public class ScanBasedSourceOperator implements ISourceOperator {
         if(indexReader != null){
             try {
                 indexReader.close();
+                indexReader = null;
             } catch (IOException e) {
                 e.printStackTrace();
                 throw new DataFlowException(e.getMessage(), e);
             }
         }
-        
     }
 }
