@@ -8,7 +8,7 @@ package edu.uci.ics.textdb.sandbox.team2luceneexample;
 
 public class Data
 {
-    public Pokemon[] POKEMONS = {
+    public static Pokemon[] POKEMONS = {
             new Pokemon(
                     1,
                     "Pikachu",
