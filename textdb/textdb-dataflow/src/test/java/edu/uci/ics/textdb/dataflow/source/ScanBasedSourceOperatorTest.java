@@ -44,7 +44,7 @@ public class ScanBasedSourceOperatorTest {
         ITuple nextTuple = null;
         int numTuples = 0;
         while((nextTuple  = scanBasedSourceOperator.getNextTuple()) != null){
-            //Checking if the tuple retieved is present in the samplesTuples
+            //Checking if the tuple retrieved is present in the samplesTuples
             boolean contains = contains(TestConstants.SAMPLE_TUPLES, nextTuple);
             Assert.assertTrue(contains);
             numTuples ++;
