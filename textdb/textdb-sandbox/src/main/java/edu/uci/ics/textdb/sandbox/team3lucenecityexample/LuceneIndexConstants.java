@@ -1,4 +1,4 @@
-package edu.uci.ics.textdb.sandbox.team3lucenehotelexample;
+package edu.uci.ics.textdb.sandbox.team3lucenecityexample;
 
 public class LuceneIndexConstants {
     public static final String INDEX_DIR = "index";

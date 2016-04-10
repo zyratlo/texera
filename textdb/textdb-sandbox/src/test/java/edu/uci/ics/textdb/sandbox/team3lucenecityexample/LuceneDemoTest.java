@@ -1,4 +1,4 @@
-package edu.uci.ics.textdb.sandbox.team1lucenehotelexample;
+package edu.uci.ics.textdb.sandbox.team3lucenecityexample;
 
 import static edu.uci.ics.textdb.sandbox.team1lucenehotelexample.LuceneIndexConstants.CITY_FIELD;
 import static edu.uci.ics.textdb.sandbox.team1lucenehotelexample.LuceneIndexConstants.ID_FIELD;
