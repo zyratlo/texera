@@ -4,7 +4,6 @@ package edu.uci.ics.textdb.sandbox.team2luceneexample;
  * Created by shiladityasen on 06/04/16.
  */
 
-import org.apache.lucene.analysis.de.GermanAnalyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
@@ -19,23 +18,29 @@ import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 
 import java.nio.file.Paths;
-import java.util.Arrays;
 
 import java.io.IOException;
-import java.util.ArrayList;
-
-import static com.sun.tools.doclint.Entity.ge;
 
 public class Pokedexer {
 
-    private IndexWriter ix_writer;
+    private IndexWriter indexWriter;
+    private int numberOfPokemon;
 
-    public Pokedexer(String indexDirectoryPath) throws IOException {
+    public Pokedexer(String indexDirectoryPath, int numberOfPokemon) throws IOException {
         Directory direc = FSDirectory.open(Paths.get(indexDirectoryPath));
         IndexWriterConfig ixWriteConf = new IndexWriterConfig(new StandardAnalyzer());
-        ix_writer = new IndexWriter(direc, ixWriteConf);
+        indexWriter = new IndexWriter(direc, ixWriteConf);
+        indexWriter.deleteAll();
+        this.numberOfPokemon = numberOfPokemon;
     }
 
+    public int getNumberOfPokemon() {
+        return numberOfPokemon;
+    }
+
+    public void setNumberOfPokemon(int numberOfPokemon) {
+        this.numberOfPokemon = numberOfPokemon;
+    }
 
     private Document getDocument(Pokemon pokemon) throws IOException {
         Document doc = new Document();
@@ -72,28 +77,27 @@ public class Pokedexer {
 
     public void addPokemon(Pokemon pokemon) throws IOException {
         Document doc = getDocument(pokemon);
-        ix_writer.addDocument(doc);
+        indexWriter.addDocument(doc);
     }
 
-    public void addPokemon(int numberOfPokemon) throws IOException{
+    public void addPokemon() throws IOException{
         GetPokemonInfo getPokemonInfo = new GetPokemonInfo(numberOfPokemon);
         getPokemonInfo.aggregatePokemonInfo();
         Pokemon[] pokemons = getPokemonInfo.getPokemonInfo();
         for(Pokemon pokemon: pokemons) {
             Document document = getDocument(pokemon);
-            ix_writer.addDocument(document);
+            indexWriter.addDocument(document);
         }
     }
 
     public void closeIndexWriter() throws IOException {
-        if (ix_writer != null) {
-            ix_writer.close();
+        if (indexWriter != null) {
+            indexWriter.close();
         }
     }
 
-    public static void main(String args[]) throws IOException {
-        Pokedexer pokedexer = new Pokedexer(LuceneConstants.INDEX);
-        pokedexer.addPokemon(10);
-        pokedexer.closeIndexWriter();
+    public void buildIndexes()throws IOException {
+        this.addPokemon();
+        this.closeIndexWriter();
     }
 }
