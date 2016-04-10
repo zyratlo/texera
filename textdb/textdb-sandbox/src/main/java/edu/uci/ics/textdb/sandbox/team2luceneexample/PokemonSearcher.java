@@ -43,7 +43,7 @@ public class PokemonSearcher {
 
     public static void main(String args[])throws IOException, ParseException {
         PokemonSearcher pokemonSearcher = new PokemonSearcher(LuceneConstants.TYPES_FIELD);
-        TopDocs topDocs = pokemonSearcher.performSearch("f*", 10);
+        TopDocs topDocs = pokemonSearcher.performSearch("flying fire", 10);
         ScoreDoc[] scoreDocs = topDocs.scoreDocs;
         for(ScoreDoc scoreDoc: scoreDocs) {
             Document document = pokemonSearcher.getDocument(scoreDoc.doc);

@@ -12,6 +12,7 @@ import org.apache.lucene.document.IntField;
 
 //import edu.uci.ics.textdb.sandbox.team2luceneexample.LuceneConstants;
 import org.apache.lucene.document.StringField;
+import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.store.Directory;
@@ -31,8 +32,8 @@ public class Pokedexer {
 
     public Pokedexer(String indexDirectoryPath) throws IOException {
         Directory direc = FSDirectory.open(Paths.get(indexDirectoryPath));
-        IndexWriterConfig ix_write_conf = new IndexWriterConfig(new StandardAnalyzer());
-        ix_writer = new IndexWriter(direc, ix_write_conf);
+        IndexWriterConfig ixWriteConf = new IndexWriterConfig(new StandardAnalyzer());
+        ix_writer = new IndexWriter(direc, ixWriteConf);
     }
 
 
@@ -47,13 +48,13 @@ public class Pokedexer {
 //        ArrayList<Field> types = new ArrayList();
 //        for (int i = 0; i < types.size(); i++)
 //            types.add(new StringField(LuceneConstants.TYPES_FIELD, all_types.get(i), Field.Store.YES));
-        Field types = new StringField(LuceneConstants.TYPES_FIELD, pokemon.getTypes(), Field.Store.YES);
+        Field types = new TextField(LuceneConstants.TYPES_FIELD, pokemon.getTypes(), Field.Store.YES);
 
 //        ArrayList<String> all_moves = new ArrayList(Arrays.asList(pokemon.getMoves().split("\\s*,\\s*")));
 //        ArrayList<Field> moves = new ArrayList();
 //        for (int i = 0; i < moves.size(); i++)
 //            moves.add(new StringField(LuceneConstants.MOVES_FIELD, all_moves.get(i), Field.Store.NO));
-        Field moves = new StringField(LuceneConstants.MOVES_FIELD, pokemon.getMoves(), Field.Store.NO);
+        Field moves = new TextField(LuceneConstants.MOVES_FIELD, pokemon.getMoves(), Field.Store.NO);
 
         //add fields to doc
         doc.add(id);
