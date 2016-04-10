@@ -1,7 +1,7 @@
-package edu.uci.ics.textdb.sandbox.team1lucenehotelexample;
+package edu.uci.ics.textdb.sandbox.team3lucenehotelexample;
 
-import static edu.uci.ics.textdb.sandbox.team1lucenehotelexample.LuceneIndexConstants.CONTENT_FIELD;
-import static edu.uci.ics.textdb.sandbox.team1lucenehotelexample.LuceneIndexConstants.INDEX_DIR;
+import static edu.uci.ics.textdb.sandbox.team3lucenehotelexample.LuceneIndexConstants.CONTENT_FIELD;
+import static edu.uci.ics.textdb.sandbox.team3lucenehotelexample.LuceneIndexConstants.INDEX_DIR;
 
 import java.io.IOException;
 import java.nio.file.Paths;

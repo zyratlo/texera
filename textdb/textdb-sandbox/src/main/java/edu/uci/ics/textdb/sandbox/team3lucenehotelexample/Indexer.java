@@ -1,10 +1,10 @@
-package edu.uci.ics.textdb.sandbox.team1lucenehotelexample;
+package edu.uci.ics.textdb.sandbox.team3lucenehotelexample;
 
-import static edu.uci.ics.textdb.sandbox.team1lucenehotelexample.LuceneIndexConstants.CITY_FIELD;
-import static edu.uci.ics.textdb.sandbox.team1lucenehotelexample.LuceneIndexConstants.CONTENT_FIELD;
-import static edu.uci.ics.textdb.sandbox.team1lucenehotelexample.LuceneIndexConstants.ID_FIELD;
-import static edu.uci.ics.textdb.sandbox.team1lucenehotelexample.LuceneIndexConstants.INDEX_DIR;
-import static edu.uci.ics.textdb.sandbox.team1lucenehotelexample.LuceneIndexConstants.NAME_FIELD;
+import static edu.uci.ics.textdb.sandbox.team3lucenehotelexample.LuceneIndexConstants.COUNTRY_FIELD;
+import static edu.uci.ics.textdb.sandbox.team3lucenehotelexample.LuceneIndexConstants.CONTENT_FIELD;
+import static edu.uci.ics.textdb.sandbox.team3lucenehotelexample.LuceneIndexConstants.ID_FIELD;
+import static edu.uci.ics.textdb.sandbox.team3lucenehotelexample.LuceneIndexConstants.INDEX_DIR;
+import static edu.uci.ics.textdb.sandbox.team3lucenehotelexample.LuceneIndexConstants.NAME_FIELD;
 
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -48,15 +48,15 @@ public class Indexer {
         }
     }
 
-    public void indexHotel(Hotel hotel) throws IOException {
+    public void indexCity(City city) throws IOException {
 
-        System.out.println("Indexing hotel: " + hotel);
+        System.out.println("Indexing city: " + city);
         IndexWriter writer = getIndexWriter();
         Document doc = new Document();
-        doc.add(new StringField(ID_FIELD, hotel.getId(), Field.Store.YES));
-        doc.add(new StringField(NAME_FIELD, hotel.getName(), Field.Store.YES));
-        doc.add(new StringField(CITY_FIELD, hotel.getCity(), Field.Store.YES));
-        String fullSearchableText = hotel.getName() + " " + hotel.getCity()
+        doc.add(new StringField(ID_FIELD, city.getId(), Field.Store.YES));
+        doc.add(new StringField(NAME_FIELD, city.getName(), Field.Store.YES));
+        doc.add(new StringField(COUNTRY_FIELD, city.getCountry(), Field.Store.YES));
+        String fullSearchableText = hotel.getName() + " " + hotel.getCountry()
                 + " " + hotel.getDescription();
         doc.add(new TextField(CONTENT_FIELD, fullSearchableText, Field.Store.NO));
         writer.addDocument(doc);
@@ -66,9 +66,9 @@ public class Indexer {
         getIndexWriter();
         indexWriter.deleteAll();
         // Index all Accommodation entries
-        Hotel[] hotels = Data.getHotels();
-        for (Hotel hotel : hotels) {
-            indexHotel(hotel);
+        City[] cities = Data.getCities();
+        for (City city : cities) {
+            indexCity(city);
         }
 
         // Closing the Index
