@@ -1,10 +1,12 @@
 package edu.uci.ics.textdb.dataflow.regexmatch;
 
+import org.apache.lucene.search.Query;
+
 import edu.uci.ics.textdb.api.common.IPredicate;
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.dataflow.IOperator;
 import edu.uci.ics.textdb.api.dataflow.ISourceOperator;
-import org.apache.lucene.search.Query;
+import edu.uci.ics.textdb.common.exception.DataFlowException;
 
 /**
  * Created by chenli on 3/25/16.
@@ -25,13 +27,22 @@ public class RegexMatcher implements IOperator {
 
     }
 
-    public ITuple getNextTuple() {
+    @Override
+    public ITuple getNextTuple() throws DataFlowException {
 
-        ITuple sourceTuple = sourceOperator.getNextTuple();
-        if (predicate.satisfy(sourceTuple)) {
-            return sourceTuple;
-        } else {
-            return getNextTuple();
+        try {
+            ITuple sourceTuple = sourceOperator.getNextTuple();
+            if(sourceTuple == null){
+                return null;
+            }
+            if (predicate.satisfy(sourceTuple)) {
+                return sourceTuple;
+            } else {
+                return getNextTuple();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new DataFlowException(e.getMessage(), e);
         }
 
     }

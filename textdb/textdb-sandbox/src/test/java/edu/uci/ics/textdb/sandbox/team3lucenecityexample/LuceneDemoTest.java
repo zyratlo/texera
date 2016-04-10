@@ -1,6 +1,17 @@
 package edu.uci.ics.textdb.sandbox.team3lucenecityexample;
 
+<<<<<<< HEAD
 import static edu.uci.ics.textdb.sandbox.team3lucenecityexample.LuceneIndexConstants.*;
+||||||| merged common ancestors
+import static edu.uci.ics.textdb.sandbox.team1lucenehotelexample.LuceneIndexConstants.CITY_FIELD;
+import static edu.uci.ics.textdb.sandbox.team1lucenehotelexample.LuceneIndexConstants.ID_FIELD;
+import static edu.uci.ics.textdb.sandbox.team1lucenehotelexample.LuceneIndexConstants.NAME_FIELD;
+=======
+import static edu.uci.ics.textdb.sandbox.team3lucenecityexample.LuceneIndexConstants.CONTENT_FIELD;
+import static edu.uci.ics.textdb.sandbox.team3lucenecityexample.LuceneIndexConstants.ID_FIELD;
+import static edu.uci.ics.textdb.sandbox.team3lucenecityexample.LuceneIndexConstants.NAME_FIELD;
+import static edu.uci.ics.textdb.sandbox.team3lucenecityexample.LuceneIndexConstants.COUNTRY_FIELD;
+>>>>>>> c963bf24769ca5b26ef59d1c4d62167689cd0de9
 
 import java.io.IOException;
 
@@ -50,8 +61,16 @@ public class LuceneDemoTest {
 		ScoreDoc[] hits = topDocs.scoreDocs;
 		for (int i = 0; i < hits.length; i++) {
 			Document doc = searcher.getDocument(hits[i].doc);
+<<<<<<< HEAD
 			System.out.println("Id: " + doc.get(ID_FIELD) + ", Name: " + doc.get(NAME_FIELD) + " " + ", Country: "
 			        + doc.get(COUNTRY_FIELD));
+||||||| merged common ancestors
+			System.out.println("Id: " + doc.get(ID_FIELD) + ", Name: " + doc.get(NAME_FIELD) + " " + ", City: "
+			        + doc.get(CITY_FIELD));
+=======
+			System.out.println("Id: " + doc.get(ID_FIELD) + ", Name: " + doc.get(NAME_FIELD) + " " + ", Country: "
+			        + doc.get(Country_FIELD));
+>>>>>>> c963bf24769ca5b26ef59d1c4d62167689cd0de9
 
 		}
 

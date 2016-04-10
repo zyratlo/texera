@@ -14,7 +14,7 @@ public class StringField implements IField {
         this.value = value;
     }
 
-    String getValue(){
+    public String getValue(){
         return value;
     }
 
@@ -33,4 +33,10 @@ public class StringField implements IField {
     public int hashCode() {
         return value != null ? value.hashCode() : 0;
     }
+
+    @Override
+    public String toString() {
+        return "StringField [value=" + value + "]";
+    }
+    
 }
