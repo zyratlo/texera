@@ -52,16 +52,14 @@ public class ScanBasedSourceOperator implements ISourceOperator {
             Directory directory = FSDirectory.open(Paths.get(dataDir));
             indexReader = DirectoryReader.open(directory);
             indexSearcher = new IndexSearcher(indexReader);
-            //TODO we don't need analyzer for scanning all the docs!!
             Analyzer analyzer = new StandardAnalyzer();
-            //TODO ideally default field should be combination of all the fields
             String defaultField = schema.get(0);
             QueryParser queryParser = new QueryParser(defaultField, analyzer);
             Query query = queryParser.parse(LuceneConstants.SCAN_QUERY);
             
             TopDocs topDocs = indexSearcher.search(query, Integer.MAX_VALUE);
             scoreDocs = topDocs.scoreDocs;
-            cursor = 0;
+            cursor = OPENED;
         } catch (IOException e) {
             e.printStackTrace();
             throw new DataFlowException(e.getMessage(), e);
@@ -73,7 +71,7 @@ public class ScanBasedSourceOperator implements ISourceOperator {
 
     @Override
     public ITuple getNextTuple() throws DataFlowException {
-        if(cursor == -1){
+        if(cursor == CLOSED){
             throw new DataFlowException(ErrorMessages.OPERATOR_NOT_OPENED);
         }
         try {
@@ -99,7 +97,7 @@ public class ScanBasedSourceOperator implements ISourceOperator {
 
     @Override
     public void close() throws DataFlowException {
-        cursor = -1;
+        cursor = CLOSED;
         if(indexReader != null){
             try {
                 indexReader.close();

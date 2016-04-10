@@ -4,6 +4,7 @@
 package edu.uci.ics.textdb.dataflow.source;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -41,18 +42,31 @@ public class ScanBasedSourceOperatorTest {
     public void testFlow() throws DataFlowException{
         scanBasedSourceOperator.open();
         ITuple nextTuple = null;
-        int counter = 0;
+        int numTuples = 0;
         while((nextTuple  = scanBasedSourceOperator.getNextTuple()) != null){
-            assertEquality(TestConstants.SAMPLE_TUPLES.get(counter++), nextTuple);
+            //Checking if the tuple retieved is present in the samplesTuples
+            boolean contains = contains(TestConstants.SAMPLE_TUPLES, nextTuple);
+            Assert.assertTrue(contains);
+            numTuples ++;
         }
+        Assert.assertEquals(TestConstants.SAMPLE_TUPLES.size(), numTuples);
         scanBasedSourceOperator.close();
     }
     
-    private void assertEquality(ITuple expectedTuple, ITuple actualTuple) {
+    private boolean contains(List<ITuple> sampleTuples, ITuple actualTuple) {
+        boolean contains = false;
         int schemaSize = TestConstants.SAMPLE_SCHEMA.size();
-        for (int i = 0; i < schemaSize; i++) {
-            Assert.assertEquals(expectedTuple.getField(i), actualTuple.getField(i));
+        for (ITuple sampleTuple : sampleTuples) {
+            contains = true;
+            for (int i = 0; i < schemaSize; i++) {
+                if(!sampleTuple.getField(i).equals(actualTuple.getField(i))){
+                    contains = false;
+                }
+            }
+            if(contains){
+                return contains;
+            }
         }
-        
+        return contains;
     }
 }
