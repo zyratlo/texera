@@ -22,26 +22,38 @@ import java.io.IOException;
 
 public class Pokedexer {
 
+    //Data members of the Pokemon Indexer class
     private IndexWriter indexWriter;
     private int numberOfPokemon;
 
+    /**
+     * Parametrized constructor for the indexer class
+     * @param indexDirectoryPath - Takes the path to where the index is to be built/already exists
+     * @param numberOfPokemon - Takes the number of pokemon whose information the index is to haev
+     * @throws IOException
+     */
     public Pokedexer(String indexDirectoryPath, int numberOfPokemon) throws IOException {
         Directory direc = FSDirectory.open(Paths.get(indexDirectoryPath));
         IndexWriterConfig ixWriteConf = new IndexWriterConfig(new StandardAnalyzer());
         indexWriter = new IndexWriter(direc, ixWriteConf);
-        indexWriter.deleteAll();
         this.numberOfPokemon = numberOfPokemon;
     }
 
+    /**
+     * Getter function that returns the value of a the numberOfPokemon variable
+     * @return - int - value of the numberOfPokemon variable
+     */
     public int getNumberOfPokemon() {
         return numberOfPokemon;
     }
 
-    public void setNumberOfPokemon(int numberOfPokemon) {
-        this.numberOfPokemon = numberOfPokemon;
-    }
-
-    private Document getDocument(Pokemon pokemon) throws IOException {
+    /**
+     * Function that makes and returns a Document on accepting a Pokemon object.
+     * @param pokemon - pokemon object that needs to be converted to a document
+     * @return - Document - Document version of the pokemon object
+     * @throws IOException
+     */
+    private Document makeDocument(Pokemon pokemon) throws IOException {
         Document doc = new Document();
 
         //index pokemon info
@@ -73,29 +85,60 @@ public class Pokedexer {
         return doc;
     }
 
-
+    /**
+     * Adds a pokemon object to the index after creating a document out of it
+     * @param pokemon - pokemon object that needs to be added to the index
+     * @throws IOException
+     */
     public void addPokemon(Pokemon pokemon) throws IOException {
-        Document doc = getDocument(pokemon);
+        Document doc = makeDocument(pokemon);
         indexWriter.addDocument(doc);
     }
 
+    /**
+     * Adds all pokemon as described by the number of pokemon data member
+     * Makes socuments out of these pokemon objects and adds it to the index
+     * @throws IOException
+     */
     public void addPokemon() throws IOException{
         GetPokemonInfo getPokemonInfo = new GetPokemonInfo(numberOfPokemon);
         getPokemonInfo.aggregatePokemonInfo();
         Pokemon[] pokemons = getPokemonInfo.getPokemonInfo();
         for(Pokemon pokemon: pokemons) {
-            Document document = getDocument(pokemon);
+            Document document = makeDocument(pokemon);
             indexWriter.addDocument(document);
         }
     }
 
+    /**
+     * Closes the IndexWriter object
+     * @throws IOException
+     */
     public void closeIndexWriter() throws IOException {
         if (indexWriter != null) {
             indexWriter.close();
         }
     }
 
-    public void buildIndexes()throws IOException {
+    /**
+     * Clears the index of all documents
+     * @throws IOException
+     */
+    public void clearIndex() throws IOException{
+        if(indexWriter != null) {
+            indexWriter.deleteAll();
+        }
+    }
+
+    /**
+     * Build Index function
+     * @param clearAndBuildFlag - if this flag is enabled, all existing documents in the index are deleted before indexing is done
+     * @throws IOException
+     */
+    public void buildIndexes(boolean clearAndBuildFlag)throws IOException {
+        if(clearAndBuildFlag) {
+            clearIndex();
+        }
         this.addPokemon();
         this.closeIndexWriter();
     }
