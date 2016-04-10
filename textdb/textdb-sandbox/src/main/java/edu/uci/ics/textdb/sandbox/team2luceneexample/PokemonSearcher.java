@@ -11,12 +11,8 @@ import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.FSDirectory;
 
-import edu.uci.ics.textdb.sandbox.team2luceneexample.LuceneConstants;
-
 import java.io.IOException;
 import java.nio.file.Paths;
-
-import static sun.jvm.hotspot.oops.CellTypeState.top;
 
 /**
  * Created by kishorenarendran on 08/04/16.
