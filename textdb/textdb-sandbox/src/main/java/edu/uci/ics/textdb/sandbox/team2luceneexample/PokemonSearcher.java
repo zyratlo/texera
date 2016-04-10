@@ -25,10 +25,10 @@ public class PokemonSearcher {
     private IndexSearcher indexSearcher;
     private QueryParser queryParser;
 
-    public PokemonSearcher() throws IOException {
+    public PokemonSearcher(String fieldName) throws IOException {
         indexSearcher = new IndexSearcher(DirectoryReader.open(
                 FSDirectory.open(Paths.get(LuceneConstants.INDEX))));
-        queryParser = new QueryParser(LuceneConstants.NAME_FIELD, new StandardAnalyzer());
+        queryParser = new QueryParser(fieldName, new StandardAnalyzer());
     }
 
     public TopDocs performSearch(String queryString, int n) throws IOException,
@@ -42,12 +42,12 @@ public class PokemonSearcher {
     }
 
     public static void main(String args[])throws IOException, ParseException {
-        PokemonSearcher pokemonSearcher = new PokemonSearcher();
-        TopDocs topDocs = pokemonSearcher.performSearch("squirtle", 3);
+        PokemonSearcher pokemonSearcher = new PokemonSearcher(LuceneConstants.TYPES_FIELD);
+        TopDocs topDocs = pokemonSearcher.performSearch("f*", 10);
         ScoreDoc[] scoreDocs = topDocs.scoreDocs;
         for(ScoreDoc scoreDoc: scoreDocs) {
             Document document = pokemonSearcher.getDocument(scoreDoc.doc);
-            System.out.println(document.get(LuceneConstants.NAME_FIELD) + " " + document.get(LuceneConstants.ID_FIELD));
+            System.out.println(document.get(LuceneConstants.TYPES_FIELD) + " " + document.get(LuceneConstants.NAME_FIELD));
         }
     }
 }

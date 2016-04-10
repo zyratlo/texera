@@ -14,6 +14,7 @@ public class Pokemon {
         this.name = name;
         this.moves = moves;
         this.types = types;
+        System.out.println(name + " : " + types);
     }
 
     public int getId() {
