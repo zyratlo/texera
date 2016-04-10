@@ -27,23 +27,19 @@ public class PokemonSearcher {
         queryParser = new QueryParser(fieldName, new StandardAnalyzer());
     }
 
-    public TopDocs performSearch(String queryString, int n) throws IOException,
+    public Document[] performSearch(String queryString, int n) throws IOException,
             ParseException {
         Query query = queryParser.parse(queryString);
-        return indexSearcher.search(query, n);
+        TopDocs topDocs = indexSearcher.search(query, n);
+        ScoreDoc[] scoreDocs = topDocs.scoreDocs;
+        Document[] documents = new Document[scoreDocs.length];
+        for(int i = 0; i < documents.length; i++) {
+            documents[i] = getDocument(scoreDocs[i].doc);
+        }
+        return documents;
     }
 
     public Document getDocument(int docId) throws IOException {
         return indexSearcher.doc(docId);
-    }
-
-    public static void main(String args[])throws IOException, ParseException {
-        PokemonSearcher pokemonSearcher = new PokemonSearcher(LuceneConstants.TYPES_FIELD);
-        TopDocs topDocs = pokemonSearcher.performSearch("grass", 10);
-        ScoreDoc[] scoreDocs = topDocs.scoreDocs;
-        for(ScoreDoc scoreDoc: scoreDocs) {
-            Document document = pokemonSearcher.getDocument(scoreDoc.doc);
-            System.out.println(document.get(LuceneConstants.TYPES_FIELD) + " " + document.get(LuceneConstants.NAME_FIELD));
-        }
     }
 }
