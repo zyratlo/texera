@@ -122,7 +122,7 @@ public class GetPokemonInfo {
      * with necessary information as described by the data members of the Pokemon class
      * @throws IOException
      */
-    private void aggregatePokemonInfo() throws IOException {
+    public void aggregatePokemonInfo() throws IOException {
         String[] pokemonInfoStrs = getPokemonInfoStrings();
         for(int i = 1; i <= numberOfPokemon; i++) {
             //Converting the info string to JSON object
