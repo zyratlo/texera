@@ -1,8 +1,6 @@
 package edu.uci.ics.textdb.sandbox.team3lucenecityexample;
 
-import static edu.uci.ics.textdb.sandbox.team1lucenehotelexample.LuceneIndexConstants.CITY_FIELD;
-import static edu.uci.ics.textdb.sandbox.team1lucenehotelexample.LuceneIndexConstants.ID_FIELD;
-import static edu.uci.ics.textdb.sandbox.team1lucenehotelexample.LuceneIndexConstants.NAME_FIELD;
+import static edu.uci.ics.textdb.sandbox.team3lucenecityexample.LuceneIndexConstants.*;
 
 import java.io.IOException;
 
@@ -52,8 +50,8 @@ public class LuceneDemoTest {
 		ScoreDoc[] hits = topDocs.scoreDocs;
 		for (int i = 0; i < hits.length; i++) {
 			Document doc = searcher.getDocument(hits[i].doc);
-			System.out.println("Id: " + doc.get(ID_FIELD) + ", Name: " + doc.get(NAME_FIELD) + " " + ", City: "
-			        + doc.get(CITY_FIELD));
+			System.out.println("Id: " + doc.get(ID_FIELD) + ", Name: " + doc.get(NAME_FIELD) + " " + ", Country: "
+			        + doc.get(COUNTRY_FIELD));
 
 		}
 

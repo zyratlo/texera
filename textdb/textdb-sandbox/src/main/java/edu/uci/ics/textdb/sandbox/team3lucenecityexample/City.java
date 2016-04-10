@@ -5,7 +5,10 @@ public class City {
 	}
 	
 	public City(String id, String name, String country, String description) {
-		
+		this.id = id;
+		this.name = name;
+		this.country = country;
+		this.description = description;
 	}
 	
 	private String id;
