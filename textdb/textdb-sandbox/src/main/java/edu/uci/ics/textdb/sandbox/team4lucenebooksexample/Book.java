@@ -10,7 +10,7 @@ public class Book {
     public Book() {
     }
 
-    /** Creates a new instance of Accommodation */
+    /** Creates a new instance of Book */
     public Book(String id, String name, String author, String description) {
         this.id = id;
         this.name = name;
@@ -72,19 +72,19 @@ public class Book {
     private String description;
 
     /**
-     * Getter for property details.
+     * Getter for property description.
      * 
-     * @return Value of property details.
+     * @return Value of property description.
      */
     public String getDescription() {
         return this.description;
     }
 
     /**
-     * Setter for property details.
+     * Setter for property description.
      * 
-     * @param details
-     *            New value of property details.
+     * @param description
+     *            New value of property description.
      */
     public void setDescription(String description) {
         this.description = description;

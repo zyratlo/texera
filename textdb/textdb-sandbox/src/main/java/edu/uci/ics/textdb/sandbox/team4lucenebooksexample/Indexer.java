@@ -55,7 +55,7 @@ public class Indexer {
         Document doc = new Document();
         doc.add(new StringField(ID_FIELD, book.getId(), Field.Store.YES));
         doc.add(new StringField(NAME_FIELD, book.getName(), Field.Store.YES));
-        doc.add(new StringField(CITY_FIELD, book.getAuthor(), Field.Store.YES));
+        doc.add(new StringField(AUTHOR_FIELD, book.getAuthor(), Field.Store.YES));
         String fullSearchableText = book.getName() + " " + book.getAuthor()
                 + " " + book.getDescription();
         doc.add(new TextField(CONTENT_FIELD, fullSearchableText, Field.Store.NO));
@@ -65,7 +65,7 @@ public class Indexer {
     public void rebuildIndexes() throws IOException {
         getIndexWriter();
         indexWriter.deleteAll();
-        // Index all Accommodation entries
+        // Index all book entries
         Book[] Books = Data.getBooks();
         for (Book book : Books) {
             indexBooks(book);
