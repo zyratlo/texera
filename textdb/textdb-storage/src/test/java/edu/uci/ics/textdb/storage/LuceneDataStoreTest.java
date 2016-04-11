@@ -13,12 +13,12 @@ import edu.uci.ics.textdb.common.constants.LuceneConstants;
 import edu.uci.ics.textdb.common.constants.TestConstants;
 import edu.uci.ics.textdb.common.field.Attribute;
 
-public class DataStoreTest {
-    private DataStore dataStore;
+public class LuceneDataStoreTest {
+    private LuceneDataStore dataStore;
     
     @Before
     public void setUp(){
-        dataStore = new DataStore(LuceneConstants.INDEX_DIR);
+        dataStore = new LuceneDataStore(LuceneConstants.INDEX_DIR);
     }
     
     @Test

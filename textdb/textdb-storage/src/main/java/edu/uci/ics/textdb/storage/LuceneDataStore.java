@@ -2,34 +2,28 @@ package edu.uci.ics.textdb.storage;
 
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.Date;
 import java.util.List;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.apache.lucene.document.DateTools;
-import org.apache.lucene.document.DateTools.Resolution;
 import org.apache.lucene.document.Document;
-import org.apache.lucene.document.DoubleField;
-import org.apache.lucene.document.Field.Store;
-import org.apache.lucene.document.IntField;
-import org.apache.lucene.document.StringField;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
-import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 
 import edu.uci.ics.textdb.api.common.IField;
 import edu.uci.ics.textdb.api.common.ITuple;
+import edu.uci.ics.textdb.api.storage.IDataStore;
 import edu.uci.ics.textdb.common.field.Attribute;
 import edu.uci.ics.textdb.common.field.FieldType;
+import edu.uci.ics.textdb.common.utils.Utils;
 
-public class DataStore {
+public class LuceneDataStore implements IDataStore{
     
     private String indexDir;
 
-    public DataStore(String indexDir) {
+    public LuceneDataStore(String indexDir) {
         this.indexDir = indexDir;
     }
     
@@ -85,27 +79,7 @@ public class DataStore {
             IField field = fields.get(count);
             Attribute attr = schema.get(count);
             FieldType fieldType = attr.getFieldType();
-            IndexableField luceneField = null;
-            switch(fieldType){
-                case STRING:
-                    luceneField = new StringField(
-                            attr.getFieldName(), (String) field.getValue(), Store.YES);
-                    break;
-                case INTEGER:
-                    luceneField = new IntField(
-                            attr.getFieldName(), (Integer) field.getValue(), Store.YES);
-                    break;
-                case DOUBLE:
-                    double value = (Double) field.getValue();
-                    luceneField = new DoubleField(
-                            attr.getFieldName(), value, Store.YES);
-                    break;
-                case DATE:
-                    String dateString = DateTools.dateToString((Date) field.getValue(), Resolution.MILLISECOND);
-                    luceneField = new StringField(attr.getFieldName(), dateString, Store.YES);
-                    break;
-            }
-            doc.add(luceneField);
+            doc.add(Utils.getLuceneField(fieldType, attr.getFieldName(), field.getValue()));
         }
         return doc;
     }

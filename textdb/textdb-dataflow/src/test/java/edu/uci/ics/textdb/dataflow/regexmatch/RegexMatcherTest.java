@@ -15,7 +15,7 @@ import edu.uci.ics.textdb.common.constants.TestConstants;
 import edu.uci.ics.textdb.dataflow.common.RegexPredicate;
 import edu.uci.ics.textdb.dataflow.source.ScanBasedSourceOperator;
 import edu.uci.ics.textdb.dataflow.utils.TestUtils;
-import edu.uci.ics.textdb.storage.DataStore;
+import edu.uci.ics.textdb.storage.LuceneDataStore;
 
 /**
  * Created by chenli on 3/25/16.
@@ -23,11 +23,11 @@ import edu.uci.ics.textdb.storage.DataStore;
 public class RegexMatcherTest {
     
     private RegexMatcher regexMatcher;
-    private DataStore dataStore;
+    private LuceneDataStore dataStore;
     
     @Before
     public void setUp() throws Exception{
-        dataStore = new DataStore(LuceneConstants.INDEX_DIR);
+        dataStore = new LuceneDataStore(LuceneConstants.INDEX_DIR);
         dataStore.clearData();
         dataStore.storeData(TestConstants.SAMPLE_SCHEMA, TestConstants.getSampleTuples());
     }

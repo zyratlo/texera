@@ -16,7 +16,7 @@ import edu.uci.ics.textdb.common.constants.LuceneConstants;
 import edu.uci.ics.textdb.common.constants.TestConstants;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
 import edu.uci.ics.textdb.dataflow.utils.TestUtils;
-import edu.uci.ics.textdb.storage.DataStore;
+import edu.uci.ics.textdb.storage.LuceneDataStore;
 
 /**
  * @author sandeepreddy602
@@ -24,12 +24,12 @@ import edu.uci.ics.textdb.storage.DataStore;
  */
 public class ScanBasedSourceOperatorTest {
     
-    private DataStore dataStore;
+    private LuceneDataStore dataStore;
     private ScanBasedSourceOperator scanBasedSourceOperator;
     
     @Before
     public void setUp() throws Exception{
-        dataStore = new DataStore(LuceneConstants.INDEX_DIR);
+        dataStore = new LuceneDataStore(LuceneConstants.INDEX_DIR);
         dataStore.clearData();
         dataStore.storeData(TestConstants.SAMPLE_SCHEMA, TestConstants.getSampleTuples());
         scanBasedSourceOperator = new ScanBasedSourceOperator(

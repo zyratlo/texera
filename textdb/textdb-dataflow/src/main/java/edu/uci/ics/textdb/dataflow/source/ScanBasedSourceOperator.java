@@ -7,7 +7,6 @@ import java.util.List;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.apache.lucene.document.DateTools;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
@@ -28,11 +27,8 @@ import edu.uci.ics.textdb.common.exception.DataFlowException;
 import edu.uci.ics.textdb.common.exception.ErrorMessages;
 import edu.uci.ics.textdb.common.field.Attribute;
 import edu.uci.ics.textdb.common.field.DataTuple;
-import edu.uci.ics.textdb.common.field.DateField;
-import edu.uci.ics.textdb.common.field.DoubleField;
 import edu.uci.ics.textdb.common.field.FieldType;
-import edu.uci.ics.textdb.common.field.IntegerField;
-import edu.uci.ics.textdb.common.field.StringField;
+import edu.uci.ics.textdb.common.utils.Utils;
 
 /**
  * Created by chenli on 3/28/16.
@@ -89,26 +85,8 @@ public class ScanBasedSourceOperator implements ISourceOperator {
             List<IField> fields = new ArrayList<IField>();
             for (Attribute  attr : schema) {
                 FieldType fieldType = attr.getFieldType();
-                IField field = null;
                 String fieldValue = document.get(attr.getFieldName());
-                switch (fieldType) {
-                    case STRING:
-                        field = new StringField(fieldValue);
-                        break;
-                    case INTEGER:
-                        field = new IntegerField(Integer.parseInt(fieldValue));
-                        break;
-                    case DOUBLE:
-                        field = new DoubleField(Double.parseDouble(fieldValue));
-                        break;
-                    case DATE:
-                        field = new DateField(DateTools.stringToDate(fieldValue));
-                        break;
-                    default:
-                        break;
-                }
-                
-                fields.add(field);
+                fields.add(Utils.getField(fieldType, fieldValue));
             }
             
             DataTuple dataTuple = new DataTuple(schema, fields.toArray(new IField[fields.size()]));
