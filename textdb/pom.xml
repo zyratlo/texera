@@ -12,6 +12,7 @@
         <jvm.extraargs />
         <junit.version>4.8.1</junit.version>
         <lucene.version>5.5.0</lucene.version>
+        <textdb.version>1.0-SNAPSHOT</textdb.version>
     </properties>
     <dependencyManagement>
         <dependencies>

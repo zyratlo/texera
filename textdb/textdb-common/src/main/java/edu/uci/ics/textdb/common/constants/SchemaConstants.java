@@ -1,7 +1,7 @@
 /**
  * 
  */
-package edu.uci.ics.textdb.dataflow.constants;
+package edu.uci.ics.textdb.common.constants;
 
 /**
  * @author sandeepreddy602

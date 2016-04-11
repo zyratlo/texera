@@ -3,7 +3,7 @@
  */
 package edu.uci.ics.textdb.dataflow.source;
 
-import java.io.IOException;
+import java.text.ParseException;
 import java.util.List;
 
 import org.junit.After;
@@ -12,8 +12,11 @@ import org.junit.Before;
 import org.junit.Test;
 
 import edu.uci.ics.textdb.api.common.ITuple;
+import edu.uci.ics.textdb.common.constants.LuceneConstants;
+import edu.uci.ics.textdb.common.constants.TestConstants;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
-import edu.uci.ics.textdb.dataflow.constants.LuceneConstants;
+import edu.uci.ics.textdb.dataflow.utils.TestUtils;
+import edu.uci.ics.textdb.storage.DataStore;
 
 /**
  * @author sandeepreddy602
@@ -21,52 +24,37 @@ import edu.uci.ics.textdb.dataflow.constants.LuceneConstants;
  */
 public class ScanBasedSourceOperatorTest {
     
-    private SampleDataStore dataStore;
+    private DataStore dataStore;
     private ScanBasedSourceOperator scanBasedSourceOperator;
     
     @Before
     public void setUp() throws Exception{
-        dataStore = new SampleDataStore();
+        dataStore = new DataStore(LuceneConstants.INDEX_DIR);
         dataStore.clearData();
-        dataStore.storeData();
+        dataStore.storeData(TestConstants.SAMPLE_SCHEMA, TestConstants.getSampleTuples());
         scanBasedSourceOperator = new ScanBasedSourceOperator(
                 LuceneConstants.INDEX_DIR, TestConstants.SAMPLE_SCHEMA);
     }
     
     @After
-    public void cleanUp() throws IOException{
+    public void cleanUp() throws Exception{
         dataStore.clearData();
     }
     
     @Test
-    public void testFlow() throws DataFlowException{
+    public void testFlow() throws DataFlowException, ParseException{
+        List<ITuple> tuples = TestConstants.getSampleTuples();
         scanBasedSourceOperator.open();
         ITuple nextTuple = null;
         int numTuples = 0;
         while((nextTuple  = scanBasedSourceOperator.getNextTuple()) != null){
             //Checking if the tuple retrieved is present in the samplesTuples
-            boolean contains = contains(TestConstants.SAMPLE_TUPLES, nextTuple);
+            boolean contains = TestUtils.contains(tuples, nextTuple);
             Assert.assertTrue(contains);
             numTuples ++;
         }
-        Assert.assertEquals(TestConstants.SAMPLE_TUPLES.size(), numTuples);
+        Assert.assertEquals(tuples.size(), numTuples);
         scanBasedSourceOperator.close();
     }
     
-    private boolean contains(List<ITuple> sampleTuples, ITuple actualTuple) {
-        boolean contains = false;
-        int schemaSize = TestConstants.SAMPLE_SCHEMA.size();
-        for (ITuple sampleTuple : sampleTuples) {
-            contains = true;
-            for (int i = 0; i < schemaSize; i++) {
-                if(!sampleTuple.getField(i).equals(actualTuple.getField(i))){
-                    contains = false;
-                }
-            }
-            if(contains){
-                return contains;
-            }
-        }
-        return contains;
-    }
 }

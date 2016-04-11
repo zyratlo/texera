@@ -1,4 +1,4 @@
-package edu.uci.ics.textdb.dataflow.source;
+package edu.uci.ics.textdb.storage;
 
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -22,7 +22,7 @@ import org.apache.lucene.store.FSDirectory;
 
 import edu.uci.ics.textdb.api.common.IField;
 import edu.uci.ics.textdb.api.common.ITuple;
-import edu.uci.ics.textdb.api.dataflow.ISourceOperator;
+import edu.uci.ics.textdb.api.dataflow.IOperator;
 import edu.uci.ics.textdb.common.constants.LuceneConstants;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
 import edu.uci.ics.textdb.common.exception.ErrorMessages;
@@ -34,10 +34,8 @@ import edu.uci.ics.textdb.common.field.FieldType;
 import edu.uci.ics.textdb.common.field.IntegerField;
 import edu.uci.ics.textdb.common.field.StringField;
 
-/**
- * Created by chenli on 3/28/16.
- */
-public class ScanBasedSourceOperator implements ISourceOperator {
+public class SampleScanBasedOperator implements IOperator{
+
     
     private String dataDir;
     private List<Attribute> schema;
@@ -46,7 +44,7 @@ public class ScanBasedSourceOperator implements ISourceOperator {
     private ScoreDoc[] scoreDocs;
     private IndexReader indexReader;
     
-    public ScanBasedSourceOperator(String dataDirectory, List<Attribute> schema) {
+    public SampleScanBasedOperator(String dataDirectory, List<Attribute> schema) {
         this.dataDir = dataDirectory;
         this.schema = schema;
     }
@@ -136,4 +134,5 @@ public class ScanBasedSourceOperator implements ISourceOperator {
             }
         }
     }
+
 }
