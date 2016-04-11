@@ -2,7 +2,7 @@ package edu.uci.ics.textdb.sandbox.team4lucenebooksexample;
 
 /**
  *
- * @author Akshay
+ * @author Akshay, Prakul
  */
 public class Book {
 
@@ -100,7 +100,7 @@ public class Book {
      * 
      * @return Value of property author.
      */
-    public String getauthor() {
+    public String getAuthor() {
         return this.author;
     }
 
@@ -110,12 +110,12 @@ public class Book {
      * @param author
      *            New value of property author.
      */
-    public void setauthor(String author) {
+    public void setAuthor(String author) {
         this.author = author;
     }
 
     @Override
     public String toString() {
-        return "Books " + getId() + ": " + getName() + " (" + getauthor() + ")";
+        return "Books " + getId() + ": " + getName() + " (" + getAuthor() + ")";
     }
 }

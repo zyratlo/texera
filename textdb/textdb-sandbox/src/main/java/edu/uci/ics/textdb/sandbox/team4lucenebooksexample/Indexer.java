@@ -1,6 +1,6 @@
 package edu.uci.ics.textdb.sandbox.team4lucenebooksexample;
 
-import static edu.uci.ics.textdb.sandbox.team4lucenebooksexample.LuceneIndexConstants.CITY_FIELD;
+import static edu.uci.ics.textdb.sandbox.team4lucenebooksexample.LuceneIndexConstants.AUTHOR_FIELD;
 import static edu.uci.ics.textdb.sandbox.team4lucenebooksexample.LuceneIndexConstants.CONTENT_FIELD;
 import static edu.uci.ics.textdb.sandbox.team4lucenebooksexample.LuceneIndexConstants.ID_FIELD;
 import static edu.uci.ics.textdb.sandbox.team4lucenebooksexample.LuceneIndexConstants.INDEX_DIR;
