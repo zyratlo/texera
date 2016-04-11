@@ -56,10 +56,13 @@ public class TestConstants {
                 new DoubleField(5.69), new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-13-1990"))};
         
         
+        ITuple tuple1 = new DataTuple(SAMPLE_SCHEMA, fields1);
+        ITuple tuple2 = new DataTuple(SAMPLE_SCHEMA, fields2);
+        ITuple tuple3 = new DataTuple(SAMPLE_SCHEMA, fields3);
+        ITuple tuple4 = new DataTuple(SAMPLE_SCHEMA, fields4);
+        ITuple tuple5 = new DataTuple(SAMPLE_SCHEMA, fields5);
         
-        return Arrays.asList(new DataTuple(SAMPLE_SCHEMA, fields1), 
-                new DataTuple(SAMPLE_SCHEMA, fields2), new DataTuple(SAMPLE_SCHEMA, fields3), 
-                new DataTuple(SAMPLE_SCHEMA, fields4), new DataTuple(SAMPLE_SCHEMA, fields5) );
+        return Arrays.asList(tuple1, tuple2, tuple3, tuple4, tuple5);
                 
     }
 }
