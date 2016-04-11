@@ -1,4 +1,4 @@
-package edu.uci.ics.textdb.sandbox.team7lucenenewsexample;
+package edu.uci.ics.textdb.sandbox.team8lucenenewsexample;
 
 /**
  * Created by Sam on 16/4/10.

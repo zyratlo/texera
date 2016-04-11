@@ -1,7 +1,7 @@
-package edu.uci.ics.textdb.sandbox.team7lucenenewsexample;
+package edu.uci.ics.textdb.sandbox.team8lucenenewsexample;
 
 
-import static edu.uci.ics.textdb.sandbox.team7lucenenewsexample.LuceneIndexConstants.*;
+import static edu.uci.ics.textdb.sandbox.team8lucenenewsexample.LuceneIndexConstants.*;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
@@ -13,7 +13,6 @@ import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.store.FSDirectory;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
 

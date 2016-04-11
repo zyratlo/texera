@@ -1,4 +1,4 @@
-package edu.uci.ics.textdb.sandbox.team7lucenenewsexample;
+package edu.uci.ics.textdb.sandbox.team8lucenenewsexample;
 
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
@@ -12,9 +12,8 @@ import org.apache.lucene.store.FSDirectory;
 
 import java.io.IOException;
 import java.nio.file.Paths;
+import static edu.uci.ics.textdb.sandbox.team8lucenenewsexample.LuceneIndexConstants.*;
 
-import static edu.uci.ics.textdb.sandbox.team6lucenetweetexample.LuceneIndexConstants.CONTENT_FIELD;
-import static edu.uci.ics.textdb.sandbox.team6lucenetweetexample.LuceneIndexConstants.INDEX_DIR;
 
 /**
  * Created by Sam on 16/4/10.
