@@ -31,9 +31,9 @@ public class ScanBasedSourceOperatorTest {
     public void setUp() throws Exception{
         dataStore = new LuceneDataStore(LuceneConstants.INDEX_DIR);
         dataStore.clearData();
-        dataStore.storeData(TestConstants.SAMPLE_SCHEMA, TestConstants.getSampleTuples());
+        dataStore.storeData(TestConstants.SAMPLE_SCHEMA_TEAM_1, TestConstants.getTeam1SampleTuples());
         scanBasedSourceOperator = new ScanBasedSourceOperator(
-                LuceneConstants.INDEX_DIR, TestConstants.SAMPLE_SCHEMA);
+                LuceneConstants.INDEX_DIR, TestConstants.SAMPLE_SCHEMA_TEAM_1);
     }
     
     @After
@@ -43,7 +43,7 @@ public class ScanBasedSourceOperatorTest {
     
     @Test
     public void testFlow() throws DataFlowException, ParseException{
-        List<ITuple> tuples = TestConstants.getSampleTuples();
+        List<ITuple> tuples = TestConstants.getTeam1SampleTuples();
         scanBasedSourceOperator.open();
         ITuple nextTuple = null;
         int numTuples = 0;

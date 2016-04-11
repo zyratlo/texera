@@ -9,7 +9,7 @@ public class TestUtils {
 
     public static boolean contains(List<ITuple> sampleTuples, ITuple actualTuple) {
         boolean contains = false;
-        int schemaSize = TestConstants.SAMPLE_SCHEMA.size();
+        int schemaSize = TestConstants.SAMPLE_SCHEMA_TEAM_1.size();
         for (ITuple sampleTuple : sampleTuples) {
             contains = true;
             for (int i = 0; i < schemaSize; i++) {

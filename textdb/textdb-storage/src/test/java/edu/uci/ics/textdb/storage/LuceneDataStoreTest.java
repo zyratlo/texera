@@ -24,13 +24,13 @@ public class LuceneDataStoreTest {
     @Test
     public void testStoreData() throws Exception{
         dataStore.clearData();
-        List<Attribute> schema = TestConstants.SAMPLE_SCHEMA;
-        List<ITuple> tuples = TestConstants.getSampleTuples();
+        List<Attribute> schema = TestConstants.SAMPLE_SCHEMA_TEAM_1;
+        List<ITuple> tuples = TestConstants.getTeam1SampleTuples();
         dataStore.storeData(schema, tuples);
         
         //Using SampleScanBased Operator since we cannot use ScanBasedSourceOperator present in textdb-dataflow project.
         //If textdb-storage references textdb-dataflow it creates a cyclic dependency.
-        IOperator operator = new SampleScanBasedOperator(LuceneConstants.INDEX_DIR, TestConstants.SAMPLE_SCHEMA);
+        IOperator operator = new SampleScanBasedOperator(LuceneConstants.INDEX_DIR, TestConstants.SAMPLE_SCHEMA_TEAM_1);
         operator.open();
         ITuple tuple = null;
         int numTuples = 0;
