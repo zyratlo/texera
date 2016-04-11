@@ -39,7 +39,7 @@ public class RegexMatcherTest {
     
     @Test
     public void testGetNextTuple() throws Exception{
-        String regex = "s.*"; //matches sandeep and sudeep
+        String regex = "b.*"; //matches bruce and brad
         String fieldName = TestConstants.FIRST_NAME;
         IPredicate predicate = new RegexPredicate(regex, fieldName);
         String dataDirectory = LuceneConstants.INDEX_DIR;
