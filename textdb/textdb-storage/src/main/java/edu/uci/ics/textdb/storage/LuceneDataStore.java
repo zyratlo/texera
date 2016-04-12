@@ -12,11 +12,12 @@ import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 
+import edu.uci.ics.textdb.api.common.Attribute;
+import edu.uci.ics.textdb.api.common.FieldType;
 import edu.uci.ics.textdb.api.common.IField;
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.storage.IDataStore;
-import edu.uci.ics.textdb.common.field.Attribute;
-import edu.uci.ics.textdb.common.field.FieldType;
+import edu.uci.ics.textdb.common.exception.StorageException;
 import edu.uci.ics.textdb.common.utils.Utils;
 
 public class LuceneDataStore implements IDataStore{
@@ -27,7 +28,8 @@ public class LuceneDataStore implements IDataStore{
         this.indexDir = indexDir;
     }
     
-    public void clearData() throws Exception{
+    @Override
+    public void clearData() throws StorageException{
         IndexWriter indexWriter = null;
         try {
             Directory directory = FSDirectory.open(Paths
@@ -38,16 +40,22 @@ public class LuceneDataStore implements IDataStore{
             indexWriter.deleteAll();
         } catch (Exception e) {
             e.printStackTrace();
-            throw e;
+            throw new StorageException(e.getMessage(), e);
         } finally {
             if (indexWriter != null) {
-                indexWriter.close();
+                try {
+                    indexWriter.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    throw new StorageException(e.getMessage(), e);
+                }
             }
         }
         
     }
     
-    public void storeData(List<Attribute> schema, List<ITuple> tuples) throws Exception {
+    @Override
+    public void storeData(List<Attribute> schema, List<ITuple> tuples) throws StorageException {
         IndexWriter indexWriter = null;
         try {
             Directory directory = FSDirectory.open(Paths
@@ -64,10 +72,15 @@ public class LuceneDataStore implements IDataStore{
 
         } catch (IOException e) {
             e.printStackTrace();
-            throw e;
+            throw new StorageException(e.getMessage(), e);
         } finally {
             if (indexWriter != null) {
-                indexWriter.close();
+                try {
+                    indexWriter.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    throw new StorageException(e.getMessage(), e);
+                }
             }
         }
     }

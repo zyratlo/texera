@@ -6,6 +6,7 @@ package edu.uci.ics.textdb.common.field;
 import java.util.Arrays;
 import java.util.List;
 
+import edu.uci.ics.textdb.api.common.Attribute;
 import edu.uci.ics.textdb.api.common.IField;
 import edu.uci.ics.textdb.api.common.ITuple;
 

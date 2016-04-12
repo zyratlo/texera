@@ -1,4 +1,4 @@
-package edu.uci.ics.textdb.dataflow.source;
+package edu.uci.ics.textdb.storage;
 
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -23,33 +23,26 @@ import edu.uci.ics.textdb.api.common.Attribute;
 import edu.uci.ics.textdb.api.common.FieldType;
 import edu.uci.ics.textdb.api.common.IField;
 import edu.uci.ics.textdb.api.common.ITuple;
-import edu.uci.ics.textdb.api.dataflow.ISourceOperator;
 import edu.uci.ics.textdb.common.constants.LuceneConstants;
-import edu.uci.ics.textdb.common.exception.DataFlowException;
-import edu.uci.ics.textdb.common.exception.ErrorMessages;
 import edu.uci.ics.textdb.common.field.DataTuple;
 import edu.uci.ics.textdb.common.utils.Utils;
 
-/**
- * Created by chenli on 3/28/16.
- */
-public class ScanBasedSourceOperator implements ISourceOperator {
+public class LuceneDataReader{
+
     
     private String dataDir;
     private List<Attribute> schema;
-    private int cursor = -1;
     private IndexSearcher indexSearcher;
     private ScoreDoc[] scoreDocs;
     private IndexReader indexReader;
     
-    public ScanBasedSourceOperator(String dataDirectory, List<Attribute> schema) {
+    public LuceneDataReader(String dataDirectory, List<Attribute> schema) {
         this.dataDir = dataDirectory;
         this.schema = schema;
     }
-
-    @Override
-    public void open() throws DataFlowException {
-
+    
+    public List<ITuple> getTuples(){
+        List<ITuple> retList = new ArrayList<ITuple>();
         try {
             Directory directory = FSDirectory.open(Paths.get(dataDir));
             indexReader = DirectoryReader.open(directory);
@@ -61,57 +54,39 @@ public class ScanBasedSourceOperator implements ISourceOperator {
             
             TopDocs topDocs = indexSearcher.search(query, Integer.MAX_VALUE);
             scoreDocs = topDocs.scoreDocs;
-            cursor = OPENED;
+            int numDocs = scoreDocs.length;
+            int cursor = 0;
+            while(cursor < numDocs){
+                Document document = indexSearcher.doc(scoreDocs[cursor++].doc);
+                
+                List<IField> fields = new ArrayList<IField>();
+                for (Attribute  attr : schema) {
+                    FieldType fieldType = attr.getFieldType();
+                    
+                    String fieldValue = document.get(attr.getFieldName());
+                    IField field = Utils.getField(fieldType, fieldValue);
+                    fields.add(field);
+                }
+                
+                DataTuple dataTuple = new DataTuple(schema, fields.toArray(new IField[fields.size()]));
+                retList.add(dataTuple);
+            }
         } catch (IOException e) {
             e.printStackTrace();
-            throw new DataFlowException(e.getMessage(), e);
         } catch (ParseException e) {
             e.printStackTrace();
-            throw new DataFlowException(e.getMessage(), e);
-        }        
-    }
-
-    @Override
-    public ITuple getNextTuple() throws DataFlowException {
-        if(cursor == CLOSED){
-            throw new DataFlowException(ErrorMessages.OPERATOR_NOT_OPENED);
-        }
-        try {
-            if(cursor >= scoreDocs.length){
-                return null;
-            }
-            Document document = indexSearcher.doc(scoreDocs[cursor++].doc);
-            
-            List<IField> fields = new ArrayList<IField>();
-            for (Attribute  attr : schema) {
-                FieldType fieldType = attr.getFieldType();
-                String fieldValue = document.get(attr.getFieldName());
-                fields.add(Utils.getField(fieldType, fieldValue));
-            }
-            
-            DataTuple dataTuple = new DataTuple(schema, fields.toArray(new IField[fields.size()]));
-            return dataTuple;
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new DataFlowException(e.getMessage(), e);
         } catch (java.text.ParseException e) {
             e.printStackTrace();
-            throw new DataFlowException(e.getMessage(), e);
-        }
-        
-    }
-
-    @Override
-    public void close() throws DataFlowException {
-        cursor = CLOSED;
-        if(indexReader != null){
-            try {
-                indexReader.close();
-                indexReader = null;
-            } catch (IOException e) {
-                e.printStackTrace();
-                throw new DataFlowException(e.getMessage(), e);
+        } finally{
+            if(indexReader != null){
+                try {
+                    indexReader.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
+        return retList;
     }
+
 }

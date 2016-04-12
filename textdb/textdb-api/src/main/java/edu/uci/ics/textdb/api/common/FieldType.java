@@ -1,4 +1,4 @@
-package edu.uci.ics.textdb.common.field;
+package edu.uci.ics.textdb.api.common;
 
 public enum FieldType {
     STRING,
