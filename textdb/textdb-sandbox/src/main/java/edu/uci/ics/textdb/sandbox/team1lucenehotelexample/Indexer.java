@@ -59,7 +59,7 @@ public class Indexer {
         doc.add(new StringField(CITY_FIELD, hotel.getCity(), Field.Store.YES));
         String fullSearchableText = hotel.getName() + " " + hotel.getCity()
                 + " " + hotel.getDescription();
-        doc.add(new TextField(CONTENT_FIELD, fullSearchableText, Field.Store.NO));
+        doc.add(new TextField(CONTENT_FIELD, fullSearchableText, Field.Store.YES));
         writer.addDocument(doc);
     }
 
