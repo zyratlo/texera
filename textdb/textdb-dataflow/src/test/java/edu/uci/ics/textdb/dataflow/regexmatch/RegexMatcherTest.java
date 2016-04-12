@@ -29,7 +29,7 @@ public class RegexMatcherTest {
     public void setUp() throws Exception{
         dataStore = new LuceneDataStore(LuceneConstants.INDEX_DIR);
         dataStore.clearData();
-        dataStore.storeData(TestConstants.SAMPLE_SCHEMA_TEAM_1, TestConstants.getTeam1SampleTuples());
+        dataStore.storeData(TestConstants.SAMPLE_SCHEMA_PEOPLE, TestConstants.getSamplePeopleTuples());
     }
     
     @After
@@ -43,8 +43,8 @@ public class RegexMatcherTest {
         String fieldName = TestConstants.FIRST_NAME;
         IPredicate predicate = new RegexPredicate(regex, fieldName);
         String dataDirectory = LuceneConstants.INDEX_DIR;
-        ISourceOperator sourceOperator = new ScanBasedSourceOperator(dataDirectory, TestConstants.SAMPLE_SCHEMA_TEAM_1);
-        List<ITuple> tuples = TestConstants.getTeam1SampleTuples();
+        ISourceOperator sourceOperator = new ScanBasedSourceOperator(dataDirectory, TestConstants.SAMPLE_SCHEMA_PEOPLE);
+        List<ITuple> tuples = TestConstants.getSamplePeopleTuples();
         
         regexMatcher = new RegexMatcher(predicate, sourceOperator);
         regexMatcher.open();

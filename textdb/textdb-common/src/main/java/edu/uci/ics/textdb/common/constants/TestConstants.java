@@ -39,10 +39,10 @@ public class TestConstants {
     public static final Attribute DATE_OF_BIRTH_ATTR = new Attribute(DATE_OF_BIRTH, FieldType.DATE);
 
     // Sample Schema
-    public static final List<Attribute> SAMPLE_SCHEMA_TEAM_1 = Arrays.asList(
+    public static final List<Attribute> SAMPLE_SCHEMA_PEOPLE = Arrays.asList(
             FIRST_NAME_ATTR, LAST_NAME_ATTR, AGE_ATTR, HEIGHT_ATTR, DATE_OF_BIRTH_ATTR);
     
-    public static List<ITuple> getTeam1SampleTuples() throws ParseException{
+    public static List<ITuple> getSamplePeopleTuples() throws ParseException{
         
         IField[] fields1 = {new StringField("bruce"), new StringField("lee"), new IntegerField(46), 
                 new DoubleField(5.50), new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-14-1970"))};
@@ -56,11 +56,11 @@ public class TestConstants {
                 new DoubleField(5.99), new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-13-1974"))};
         
         
-        ITuple tuple1 = new DataTuple(SAMPLE_SCHEMA_TEAM_1, fields1);
-        ITuple tuple2 = new DataTuple(SAMPLE_SCHEMA_TEAM_1, fields2);
-        ITuple tuple3 = new DataTuple(SAMPLE_SCHEMA_TEAM_1, fields3);
-        ITuple tuple4 = new DataTuple(SAMPLE_SCHEMA_TEAM_1, fields4);
-        ITuple tuple5 = new DataTuple(SAMPLE_SCHEMA_TEAM_1, fields5);
+        ITuple tuple1 = new DataTuple(SAMPLE_SCHEMA_PEOPLE, fields1);
+        ITuple tuple2 = new DataTuple(SAMPLE_SCHEMA_PEOPLE, fields2);
+        ITuple tuple3 = new DataTuple(SAMPLE_SCHEMA_PEOPLE, fields3);
+        ITuple tuple4 = new DataTuple(SAMPLE_SCHEMA_PEOPLE, fields4);
+        ITuple tuple5 = new DataTuple(SAMPLE_SCHEMA_PEOPLE, fields5);
         
         return Arrays.asList(tuple1, tuple2, tuple3, tuple4, tuple5);
                 
