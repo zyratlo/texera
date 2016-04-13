@@ -11,6 +11,7 @@ import edu.uci.ics.textdb.api.common.Attribute;
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.common.constants.LuceneConstants;
 import edu.uci.ics.textdb.common.constants.TestConstants;
+import edu.uci.ics.textdb.common.dataflow.LuceneDataReader;
 
 public class LuceneDataStoreTest {
     private LuceneDataStore dataStore;
@@ -28,10 +29,35 @@ public class LuceneDataStoreTest {
         dataStore.storeData(schema, tuples);
         
         LuceneDataReader luceneDataReader = new LuceneDataReader(
-                LuceneConstants.INDEX_DIR, TestConstants.SAMPLE_SCHEMA_PEOPLE);
-        List<ITuple> tuplesFetched = luceneDataReader.getTuples();
+                LuceneConstants.INDEX_DIR, TestConstants.SAMPLE_SCHEMA_PEOPLE, 
+                LuceneConstants.SCAN_QUERY, TestConstants.SAMPLE_SCHEMA_PEOPLE.get(0).getFieldName());
+        luceneDataReader.open();
+        ITuple nextTuple = null;
+        int numTuples = 0;
+        while((nextTuple  = luceneDataReader.getNextTuple()) != null){
+            //Checking if the tuple retrieved is present in the samplesTuples
+            boolean contains = contains(tuples, nextTuple);
+            Assert.assertTrue(contains);
+            numTuples ++;
+        }
+        Assert.assertEquals(tuples.size(), numTuples);
+        luceneDataReader.close();
+    }
 
-        Assert.assertEquals(tuples.size(), tuplesFetched.size());
-        
+    private boolean contains(List<ITuple> sampleTuples, ITuple actualTuple) {
+        boolean contains = false;
+        int schemaSize = TestConstants.SAMPLE_SCHEMA_PEOPLE.size();
+        for (ITuple sampleTuple : sampleTuples) {
+            contains = true;
+            for (int i = 0; i < schemaSize; i++) {
+                if(!sampleTuple.getField(i).equals(actualTuple.getField(i))){
+                    contains = false;
+                }
+            }
+            if(contains){
+                return contains;
+            }
+        }
+        return contains;
     }
 }
