@@ -7,6 +7,7 @@ import static edu.uci.ics.textdb.sandbox.team1lucenehotelexample.LuceneIndexCons
 import static edu.uci.ics.textdb.sandbox.team1lucenehotelexample.LuceneIndexConstants.NAME_FIELD;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Paths;
 
 import org.apache.lucene.analysis.Analyzer;
@@ -21,7 +22,6 @@ import org.apache.lucene.store.FSDirectory;
 
 /**
  * Index all text files under a directory.
- * <p>
  * 
  */
 public class Indexer {
@@ -73,6 +73,11 @@ public class Indexer {
 
         // Closing the Index
         closeIndexWriter();
+    }
+
+    public static void main(String args[]) throws IOException {
+        Indexer ind = new Indexer();
+        ind.rebuildIndexes();
     }
 
 }

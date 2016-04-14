@@ -23,7 +23,22 @@
         <dependency>
             <groupId>edu.uci.ics.textdb</groupId>
             <artifactId>textdb-api</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>${textdb.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-core</artifactId>
+            <version>${lucene.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-analyzers-common</artifactId>
+            <version>${lucene.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-queryparser</artifactId>
+            <version>${lucene.version}</version>
         </dependency>
     </dependencies>
 </project>
