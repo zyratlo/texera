@@ -29,8 +29,14 @@ public class RegexMatcherTest {
     public void setUp() throws Exception{
         dataStore = new LuceneDataStore(LuceneConstants.INDEX_DIR);
         dataStore.clearData();
+        setUpPeople();
+ 
+    }
+    
+    private void setUpPeople() throws Exception {
         dataStore.storeData(TestConstants.SAMPLE_SCHEMA_PEOPLE, TestConstants.getSamplePeopleTuples());
     }
+    
     
     @After
     public void cleanUp() throws Exception{
@@ -38,7 +44,7 @@ public class RegexMatcherTest {
     }
     
     @Test
-    public void testGetNextTuple() throws Exception{
+    public void testNameGetNextTuple() throws Exception{
         String regex = "b.*"; //matches bruce and brad
         String fieldName = TestConstants.FIRST_NAME;
         IPredicate predicate = new RegexPredicate(regex, fieldName);
@@ -56,6 +62,28 @@ public class RegexMatcherTest {
             numTuples ++;
         }
         Assert.assertEquals(2, numTuples);
+        regexMatcher.close();
+    }
+    
+    @Test
+    public void testURLGetNextTuple() throws Exception {
+    	String urlRegex = "^(https?:\\/\\/)?([\\da-z\\.-]+)\\.([a-z\\.]{2,6})([\\/\\w \\.-]*)*\\/?$";
+    	String fieldName = TestConstants.URL;
+    	IPredicate predicate = new RegexPredicate(urlRegex, fieldName);
+        String dataDirectory = LuceneConstants.INDEX_DIR;
+        ISourceOperator sourceOperator = new ScanBasedSourceOperator(dataDirectory, TestConstants.SAMPLE_SCHEMA_CORP);
+        List<ITuple> tuples = TestConstants.getSampleCorpTuples();
+        
+        regexMatcher = new RegexMatcher(predicate, sourceOperator);
+        regexMatcher.open();
+        ITuple nextTuple = null;
+        int numTuples = 0;
+        while((nextTuple = regexMatcher.getNextTuple()) != null){
+            boolean contains = TestUtils.contains(tuples, nextTuple);
+            Assert.assertTrue(contains);
+            numTuples ++;
+        }
+        Assert.assertEquals(3, numTuples);
         regexMatcher.close();
     }
 
