@@ -66,6 +66,7 @@ public class TestConstants {
                 
     }
     
+    //sample created by team3
     public static final String CORP_NAME = "name";
     public static final String URL = "url";
     public static final String IP_ADDRESS = "ip";
