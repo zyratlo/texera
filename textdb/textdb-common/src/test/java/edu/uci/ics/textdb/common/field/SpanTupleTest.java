@@ -52,8 +52,18 @@ public class SpanTupleTest {
         
         
         spanTuple = new DataTuple(schema, fields.toArray(new IField[fields.size()]));
+        
         IField beginField = spanTuple.getField(SchemaConstants.SPAN_BEGIN);
         Assert.assertEquals(spanBegin, beginField.getValue());
+        
+        IField endField = spanTuple.getField(SchemaConstants.SPAN_END);
+        Assert.assertEquals(spanEnd, endField.getValue());
+        
+        IField keyField = spanTuple.getField(SchemaConstants.SPAN_KEY);
+        Assert.assertEquals(spanKey, keyField.getValue());
+        
+        IField fieldNameField = spanTuple.getField(SchemaConstants.SPAN_FIELD_NAME);
+        Assert.assertEquals(spanFieldName, fieldNameField.getValue());
         
     }
     
