@@ -1,15 +1,34 @@
 package edu.uci.ics.textdb.storage;
 
-public class LuceneDataStore {
-    public static final String DATA_STORE_DIRECTORY = "../index";
-    private static int numDocuments = 0;
+import java.util.List;
+
+import edu.uci.ics.textdb.api.common.Attribute;
+import edu.uci.ics.textdb.api.storage.IDataStore;
+
+public class LuceneDataStore implements IDataStore{
+    private String dataDirectory;
+    private int numDocuments;
+    private List<Attribute> schema;
     
-    public static void incrementNumDocuments(int incrementBy) {
+    public LuceneDataStore(String dataDirectory, List<Attribute> schema){
+        this.dataDirectory = dataDirectory;
+        this.schema = schema;
+    }
+    
+    public void incrementNumDocuments(int incrementBy) {
         numDocuments += incrementBy;
     }
     
-    public static int getNumDocuments() {
+    public int getNumDocuments() {
         return numDocuments;
+    }
+    
+    public String getDataDirectory() {
+        return dataDirectory;
+    }
+    
+    public List<Attribute> getSchema() {
+        return schema;
     }
     
 }

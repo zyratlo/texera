@@ -11,6 +11,7 @@ import edu.uci.ics.textdb.api.common.IPredicate;
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.dataflow.ISourceOperator;
 import edu.uci.ics.textdb.api.storage.IDataReader;
+import edu.uci.ics.textdb.api.storage.IDataStore;
 import edu.uci.ics.textdb.api.storage.IDataWriter;
 import edu.uci.ics.textdb.common.constants.LuceneConstants;
 import edu.uci.ics.textdb.common.constants.TestConstants;
@@ -27,22 +28,23 @@ import edu.uci.ics.textdb.storage.writer.LuceneDataWriter;
 public class RegexMatcherTest {
     
     private RegexMatcher regexMatcher;
-    private IDataWriter dataStore;
+    private IDataWriter dataWriter;
     private IDataReader dataReader;
+    private IDataStore dataStore;
     
     @Before
     public void setUp() throws Exception{
-        dataStore = new LuceneDataWriter(LuceneDataStore.DATA_STORE_DIRECTORY);
-        dataStore.clearData();
-        dataStore.writeData(TestConstants.SAMPLE_SCHEMA_PEOPLE, TestConstants.getSamplePeopleTuples());
-        dataReader = new LuceneDataReader(
-                LuceneDataStore.DATA_STORE_DIRECTORY, TestConstants.SAMPLE_SCHEMA_PEOPLE, 
-                LuceneConstants.SCAN_QUERY, TestConstants.SAMPLE_SCHEMA_PEOPLE.get(0).getFieldName());
+        dataStore = new LuceneDataStore(LuceneConstants.INDEX_DIR, TestConstants.SAMPLE_SCHEMA_PEOPLE);
+        dataWriter = new LuceneDataWriter(dataStore);
+        dataWriter.clearData();
+        dataWriter.writeData(TestConstants.getSamplePeopleTuples());
+        dataReader = new LuceneDataReader(dataStore,LuceneConstants.SCAN_QUERY, 
+            TestConstants.SAMPLE_SCHEMA_PEOPLE.get(0).getFieldName());
     }
     
     @After
     public void cleanUp() throws Exception{
-        dataStore.clearData();
+        dataWriter.clearData();
     }
     
     @Test
@@ -50,7 +52,6 @@ public class RegexMatcherTest {
         String regex = "b.*"; //matches bruce and brad
         String fieldName = TestConstants.FIRST_NAME;
         IPredicate predicate = new RegexPredicate(regex, fieldName);
-        String dataDirectory = LuceneDataStore.DATA_STORE_DIRECTORY;
         ISourceOperator sourceOperator = new ScanBasedSourceOperator(dataReader);
         List<ITuple> tuples = TestConstants.getSamplePeopleTuples();
         

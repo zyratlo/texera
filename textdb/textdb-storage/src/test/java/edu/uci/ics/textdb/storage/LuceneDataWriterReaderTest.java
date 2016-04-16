@@ -10,6 +10,7 @@ import org.junit.Test;
 import edu.uci.ics.textdb.api.common.Attribute;
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.storage.IDataReader;
+import edu.uci.ics.textdb.api.storage.IDataStore;
 import edu.uci.ics.textdb.api.storage.IDataWriter;
 import edu.uci.ics.textdb.common.constants.LuceneConstants;
 import edu.uci.ics.textdb.common.constants.TestConstants;
@@ -19,13 +20,14 @@ import edu.uci.ics.textdb.storage.writer.LuceneDataWriter;
 public class LuceneDataWriterReaderTest {
     private IDataWriter dataWriter;
     private IDataReader dataReader;
+    private IDataStore dataStore;
     
     @Before
     public void setUp(){
-        dataWriter = new LuceneDataWriter(LuceneDataStore.DATA_STORE_DIRECTORY);
-        dataReader = new LuceneDataReader(
-                LuceneDataStore.DATA_STORE_DIRECTORY, TestConstants.SAMPLE_SCHEMA_PEOPLE, 
-                LuceneConstants.SCAN_QUERY, TestConstants.SAMPLE_SCHEMA_PEOPLE.get(0).getFieldName());
+        dataStore = new LuceneDataStore(LuceneConstants.INDEX_DIR, TestConstants.SAMPLE_SCHEMA_PEOPLE);
+        dataWriter = new LuceneDataWriter(dataStore);
+        dataReader = new LuceneDataReader(dataStore, LuceneConstants.SCAN_QUERY, 
+                TestConstants.SAMPLE_SCHEMA_PEOPLE.get(0).getFieldName());
     }
     
     @Test
@@ -33,8 +35,8 @@ public class LuceneDataWriterReaderTest {
         dataWriter.clearData();
         List<Attribute> schema = TestConstants.SAMPLE_SCHEMA_PEOPLE;
         List<ITuple> tuples = TestConstants.getSamplePeopleTuples();
-        dataWriter.writeData(schema, tuples);
-        Assert.assertEquals(tuples.size(), LuceneDataStore.getNumDocuments());
+        dataWriter.writeData(tuples);
+        Assert.assertEquals(tuples.size(), dataStore.getNumDocuments());
         dataReader.open();
         ITuple nextTuple = null;
         int numTuples = 0;

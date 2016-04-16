@@ -16,17 +16,17 @@ import edu.uci.ics.textdb.api.common.Attribute;
 import edu.uci.ics.textdb.api.common.FieldType;
 import edu.uci.ics.textdb.api.common.IField;
 import edu.uci.ics.textdb.api.common.ITuple;
+import edu.uci.ics.textdb.api.storage.IDataStore;
 import edu.uci.ics.textdb.api.storage.IDataWriter;
 import edu.uci.ics.textdb.common.exception.StorageException;
 import edu.uci.ics.textdb.common.utils.Utils;
-import edu.uci.ics.textdb.storage.LuceneDataStore;
 
 public class LuceneDataWriter implements IDataWriter{
     
-    private String indexDir;
+    private IDataStore dataStore;
 
-    public LuceneDataWriter(String indexDir) {
-        this.indexDir = indexDir;
+    public LuceneDataWriter(IDataStore dataStore) {
+        this.dataStore = dataStore;
     }
     
     @Override
@@ -34,7 +34,7 @@ public class LuceneDataWriter implements IDataWriter{
         IndexWriter indexWriter = null;
         try {
             Directory directory = FSDirectory.open(Paths
-                    .get(indexDir));
+                    .get(dataStore.getDataDirectory()));
             Analyzer analyzer = new StandardAnalyzer();
             IndexWriterConfig conf = new IndexWriterConfig(analyzer);
             indexWriter = new IndexWriter(directory, conf);
@@ -56,21 +56,21 @@ public class LuceneDataWriter implements IDataWriter{
     }
     
     @Override
-    public void writeData(List<Attribute> schema, List<ITuple> tuples) throws StorageException {
+    public void writeData(List<ITuple> tuples) throws StorageException {
         IndexWriter indexWriter = null;
         try {
             Directory directory = FSDirectory.open(Paths
-                    .get(indexDir));
+                    .get(dataStore.getDataDirectory()));
             Analyzer analyzer = new StandardAnalyzer();
             IndexWriterConfig conf = new IndexWriterConfig(analyzer);
             indexWriter = new IndexWriter(directory, conf);
             
             for (ITuple sampleTuple : tuples) {
 
-                Document document = getDocument(schema, sampleTuple);
+                Document document = getDocument(dataStore.getSchema(), sampleTuple);
                 indexWriter.addDocument(document);
             }
-            LuceneDataStore.incrementNumDocuments(tuples.size());
+            dataStore.incrementNumDocuments(tuples.size());
 
         } catch (IOException e) {
             e.printStackTrace();
