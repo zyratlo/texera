@@ -22,7 +22,6 @@ import org.apache.lucene.store.FSDirectory;
 
 /**
  * Index all text files under a directory.
- * <p>
  * 
  */
 public class Indexer {
