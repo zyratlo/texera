@@ -1,7 +1,7 @@
 /**
  * 
  */
-package edu.uci.ics.textdb.common.dataflow;
+package edu.uci.ics.textdb.storage.reader;
 
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -26,7 +26,7 @@ import edu.uci.ics.textdb.api.common.Attribute;
 import edu.uci.ics.textdb.api.common.FieldType;
 import edu.uci.ics.textdb.api.common.IField;
 import edu.uci.ics.textdb.api.common.ITuple;
-import edu.uci.ics.textdb.api.dataflow.IDataReader;
+import edu.uci.ics.textdb.api.storage.IDataReader;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
 import edu.uci.ics.textdb.common.exception.ErrorMessages;
 import edu.uci.ics.textdb.common.field.DataTuple;
