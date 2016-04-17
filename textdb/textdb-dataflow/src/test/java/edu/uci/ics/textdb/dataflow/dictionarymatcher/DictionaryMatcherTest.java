@@ -1,6 +1,8 @@
 
 package edu.uci.ics.textdb.dataflow.dictionarymatcher;
 
+
+
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -17,6 +19,7 @@ import edu.uci.ics.textdb.api.storage.IDataWriter;
 import edu.uci.ics.textdb.common.constants.LuceneConstants;
 import edu.uci.ics.textdb.common.constants.TestConstants;
 import edu.uci.ics.textdb.dataflow.source.ScanBasedSourceOperator;
+import edu.uci.ics.textdb.dataflow.utils.TestUtils;
 import edu.uci.ics.textdb.storage.LuceneDataStore;
 import edu.uci.ics.textdb.storage.reader.LuceneDataReader;
 import edu.uci.ics.textdb.storage.writer.LuceneDataWriter;
@@ -31,8 +34,7 @@ public class DictionaryMatcherTest {
     private LuceneDataStore dataStore;
     private IDataWriter dataWriter;
     private IDataReader dataReader;
-    private ScanBasedSourceOperator scanBasedSourceOperator;
-
+    
     @Before
     public void setUp() throws Exception {
 
@@ -42,7 +44,7 @@ public class DictionaryMatcherTest {
         dataWriter.writeData(TestConstants.getSamplePeopleTuples());
         dataReader = new LuceneDataReader(dataStore, LuceneConstants.SCAN_QUERY,
                 TestConstants.SAMPLE_SCHEMA_PEOPLE.get(0).getFieldName());
-        scanBasedSourceOperator = new ScanBasedSourceOperator(dataReader);
+        
     }
 
     @After
@@ -55,7 +57,7 @@ public class DictionaryMatcherTest {
    	 */
 
        @Test
-       public void testGetNext() throws Exception {
+       public void testGetNextDictionaryItem() throws Exception {
 
            ArrayList<String> names = new ArrayList<String>(
                    Arrays.asList("rajesh","sudeep","chen", "sandeep"));
@@ -90,5 +92,35 @@ public class DictionaryMatcherTest {
         Assert.assertEquals(4, numTuples);
         dictionaryMatcher.close();
     }
+    
+    /**
+   	 * Scenario S3:verifies ITuple returned by DictionaryMatcher
+   	 */
+
+       @Test
+       public void testTuple() throws Exception {
+
+           ArrayList<String> names = new ArrayList<String>(
+                   Arrays.asList("bruce","tom","lee", "brad","chen","rajesh","sandeep","sudeep"));
+           IDictionary dict = new Dictionary(names);
+           ISourceOperator sourceOperator = new ScanBasedSourceOperator(dataReader);
+
+           dictionaryMatcher = new DictionaryMatcher(dict, sourceOperator);
+           dictionaryMatcher.open();
+           
+           ITuple it;
+           int numTuples = 0;
+           while ( (it=dictionaryMatcher.getNextTuple()) != null) {
+            
+            String returnedString= (String)it.getField(6).getValue();
+            boolean contains = TestUtils.contains(names, returnedString);
+            Assert.assertTrue(contains);
+            numTuples++;
+            
+           }
+           Assert.assertEquals(4, numTuples);
+           dictionaryMatcher.close();
+       }
+
 
 }

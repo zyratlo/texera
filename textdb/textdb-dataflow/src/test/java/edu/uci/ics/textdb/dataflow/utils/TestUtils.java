@@ -1,5 +1,6 @@
 package edu.uci.ics.textdb.dataflow.utils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import edu.uci.ics.textdb.api.common.ITuple;
@@ -24,6 +25,20 @@ public class TestUtils {
                 return contains;
             }
         }
+        return contains;
+    }
+    
+    public static boolean contains(ArrayList<String> Dictionary, String returnedString) {
+        boolean contains = false;
+        
+        for (String dictItem : Dictionary) {
+        		if(dictItem.equals(returnedString))
+        		{
+        			contains = true;
+        			return contains;
+        		}
+            }
+            
         return contains;
     }
 }
