@@ -9,39 +9,45 @@ import org.junit.Test;
 
 import edu.uci.ics.textdb.api.common.Attribute;
 import edu.uci.ics.textdb.api.common.ITuple;
+import edu.uci.ics.textdb.api.storage.IDataReader;
+import edu.uci.ics.textdb.api.storage.IDataStore;
+import edu.uci.ics.textdb.api.storage.IDataWriter;
 import edu.uci.ics.textdb.common.constants.LuceneConstants;
 import edu.uci.ics.textdb.common.constants.TestConstants;
-import edu.uci.ics.textdb.common.dataflow.LuceneDataReader;
+import edu.uci.ics.textdb.storage.reader.LuceneDataReader;
+import edu.uci.ics.textdb.storage.writer.LuceneDataWriter;
 
-public class LuceneDataStoreTest {
-    private LuceneDataStore dataStore;
+public class LuceneDataWriterReaderTest {
+    private IDataWriter dataWriter;
+    private IDataReader dataReader;
+    private IDataStore dataStore;
     
     @Before
     public void setUp(){
-        dataStore = new LuceneDataStore(LuceneConstants.INDEX_DIR);
+        dataStore = new LuceneDataStore(LuceneConstants.INDEX_DIR, TestConstants.SAMPLE_SCHEMA_PEOPLE);
+        dataWriter = new LuceneDataWriter(dataStore);
+        dataReader = new LuceneDataReader(dataStore, LuceneConstants.SCAN_QUERY, 
+                TestConstants.SAMPLE_SCHEMA_PEOPLE.get(0).getFieldName());
     }
     
     @Test
-    public void testStoreData() throws Exception{
-        dataStore.clearData();
+    public void testReadWriteData() throws Exception{
+        dataWriter.clearData();
         List<Attribute> schema = TestConstants.SAMPLE_SCHEMA_PEOPLE;
         List<ITuple> tuples = TestConstants.getSamplePeopleTuples();
-        dataStore.storeData(schema, tuples);
-        
-        LuceneDataReader luceneDataReader = new LuceneDataReader(
-                LuceneConstants.INDEX_DIR, TestConstants.SAMPLE_SCHEMA_PEOPLE, 
-                LuceneConstants.SCAN_QUERY, TestConstants.SAMPLE_SCHEMA_PEOPLE.get(0).getFieldName());
-        luceneDataReader.open();
+        dataWriter.writeData(tuples);
+        Assert.assertEquals(tuples.size(), dataStore.getNumDocuments());
+        dataReader.open();
         ITuple nextTuple = null;
         int numTuples = 0;
-        while((nextTuple  = luceneDataReader.getNextTuple()) != null){
+        while((nextTuple  = dataReader.getNextTuple()) != null){
             //Checking if the tuple retrieved is present in the samplesTuples
             boolean contains = contains(tuples, nextTuple);
             Assert.assertTrue(contains);
             numTuples ++;
         }
         Assert.assertEquals(tuples.size(), numTuples);
-        luceneDataReader.close();
+        dataReader.close();
     }
 
     private boolean contains(List<ITuple> sampleTuples, ITuple actualTuple) {
