@@ -49,24 +49,49 @@ public class DictionaryMatcherTest {
     public void cleanUp() throws Exception {
         dataWriter.clearData();
     }
+    
+    /**
+   	 * Scenario S1:verifies GetNextTuple of Dictionary
+   	 */
+
+       @Test
+       public void testGetNext() throws Exception {
+
+           ArrayList<String> names = new ArrayList<String>(
+                   Arrays.asList("rajesh","sudeep","chen", "sandeep"));
+
+           IDictionary dict = new Dictionary(names);
+           int numTuples = 0;
+           while ( dict.getNextTuple()!= null) {
+             numTuples++;
+           }
+           Assert.assertEquals(4, numTuples);
+          
+       }
+
+    
+    
+    
+    /**
+	 * Scenario S2:verifies GetNextTuple of DictionaryMatcher
+	 */
 
     @Test
     public void testGetNextTuple() throws Exception {
 
         ArrayList<String> names = new ArrayList<String>(
-                Arrays.asList("bruce", "rajesh", "tom", "9261", "636483", "lee", "brad"));
+                Arrays.asList("bruce","tom","lee", "brad"));
 
         IDictionary dict = new Dictionary(names);
-        String dataDirectory = LuceneConstants.INDEX_DIR;
+        
         ISourceOperator sourceOperator = new ScanBasedSourceOperator(dataReader);
 
         dictionaryMatcher = new DictionaryMatcher(dict, sourceOperator);
         dictionaryMatcher.open();
-        ITuple nextTuple = null;
+        
         int numTuples = 0;
-        while ((nextTuple = dictionaryMatcher.getNextTuple()) != null) {
-            System.out.println("numTuples:" + numTuples);
-            numTuples++;
+        while ( dictionaryMatcher.getNextTuple()!= null) {
+          numTuples++;
         }
         Assert.assertEquals(4, numTuples);
         dictionaryMatcher.close();
