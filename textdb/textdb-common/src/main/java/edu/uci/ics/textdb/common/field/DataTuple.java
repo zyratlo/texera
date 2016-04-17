@@ -78,4 +78,14 @@ public class DataTuple implements ITuple {
         fields.add(field);
 
     }
+
+    @Override
+    public ITuple clone() {
+
+        List<Attribute> schemaCloned = new ArrayList<>(schema);
+        List<IField> fieldListCloned = new ArrayList<>(fields);
+        IField[] fieldsCloned = fieldListCloned.toArray(new IField[fieldListCloned.size()]);
+        return new DataTuple(schemaCloned, fieldsCloned);
+    }
+
 }
