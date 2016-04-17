@@ -81,7 +81,7 @@ public class TestConstants {
     
     public static List<ITuple> getSampleCorpTuples() throws ParseException {
     	IField [] fields1 = {new StringField("Facebook"), new StringField("https://www.facebook.com/"), new StringField("66.220.144.0")};
-    	IField [] fields2 = {new StringField("Weibo"), new StringField("http://weibo.com/u/2784698200/home?wvr=5&lf=reg"), new StringField("180.149.134.141")};
+    	IField [] fields2 = {new StringField("Weibo"), new StringField("http://weibo.com"), new StringField("180.149.134.141")};
     	IField [] fields3 = {new StringField("Microsoft"), new StringField("https://www.microsoft.com/en-us/"), new StringField("131.107.0.89")};
     	
     	ITuple tuple1 = new DataTuple(SAMPLE_SCHEMA_CORP, fields1);
