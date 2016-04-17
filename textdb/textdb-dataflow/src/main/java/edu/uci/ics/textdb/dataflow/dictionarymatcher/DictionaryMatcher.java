@@ -76,7 +76,9 @@ public class DictionaryMatcher implements IOperator {
                     Attribute attribute = spanTuple.getSchema().get(fieldIndex);
                     String fieldName = attribute.getFieldName();
 
-                    // Create a new span tuple with span results and return.
+                    //Creating a clone of the spanTuple and returning the cloned one,
+                    //so that the changes are not reflected in the original spanTuple.
+                    //The cloned SpanTuple is populated with the span related data.
                     ITuple spanTupleCloned = spanTuple.clone();
                     spanTupleCloned.addField(SchemaConstants.SPAN_FIELD_NAME_ATTRIBUTE, new StringField(fieldName));
                     spanTupleCloned.addField(SchemaConstants.SPAN_KEY_ATTRIBUTE, new StringField(dictValue));
@@ -110,9 +112,11 @@ public class DictionaryMatcher implements IOperator {
         }
         // Get the next dictionary value
         else if ((dictValue = dict.getNextDictValue()) != null) {
+            //At this point all the documents in the dataStore are scanned 
+            //and we need to scan them again for a different dictionary value
             fieldIndex = 0;
             positionIndex = 0;
-
+            
             operator.close();
             operator.open();
             spanTuple = operator.getNextTuple();
