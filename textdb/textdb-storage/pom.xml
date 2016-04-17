@@ -44,7 +44,6 @@
             <groupId>org.apache.lucene</groupId>
             <artifactId>lucene-queryparser</artifactId>
             <version>${lucene.version}</version>
-            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>

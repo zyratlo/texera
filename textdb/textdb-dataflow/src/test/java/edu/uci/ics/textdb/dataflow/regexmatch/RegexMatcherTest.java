@@ -10,12 +10,17 @@ import org.junit.Test;
 import edu.uci.ics.textdb.api.common.IPredicate;
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.dataflow.ISourceOperator;
+import edu.uci.ics.textdb.api.storage.IDataReader;
+import edu.uci.ics.textdb.api.storage.IDataStore;
+import edu.uci.ics.textdb.api.storage.IDataWriter;
 import edu.uci.ics.textdb.common.constants.LuceneConstants;
 import edu.uci.ics.textdb.common.constants.TestConstants;
 import edu.uci.ics.textdb.dataflow.common.RegexPredicate;
 import edu.uci.ics.textdb.dataflow.source.ScanBasedSourceOperator;
 import edu.uci.ics.textdb.dataflow.utils.TestUtils;
 import edu.uci.ics.textdb.storage.LuceneDataStore;
+import edu.uci.ics.textdb.storage.reader.LuceneDataReader;
+import edu.uci.ics.textdb.storage.writer.LuceneDataWriter;
 
 /**
  * Created by chenli on 3/25/16.
@@ -23,30 +28,50 @@ import edu.uci.ics.textdb.storage.LuceneDataStore;
 public class RegexMatcherTest {
     
     private RegexMatcher regexMatcher;
-    private LuceneDataStore dataStore;
+    private IDataWriter dataWriter;
+    private IDataReader dataReader;
+    private IDataStore dataStore;
     
     @Before
     public void setUp() throws Exception{
-        dataStore = new LuceneDataStore(LuceneConstants.INDEX_DIR);
-        dataStore.clearData();
+//        dataStore = new LuceneDataStore(LuceneConstants.INDEX_DIR);
+//        dataStore.clearData();
     }
     
     private void setUpPeople() throws Exception {
-        dataStore.storeData(TestConstants.SAMPLE_SCHEMA_PEOPLE, TestConstants.getSamplePeopleTuples());
+//        dataStore.storeData(TestConstants.SAMPLE_SCHEMA_PEOPLE, TestConstants.getSamplePeopleTuples());
+
+        dataStore = new LuceneDataStore(LuceneConstants.INDEX_DIR, TestConstants.SAMPLE_SCHEMA_PEOPLE);
+        dataWriter = new LuceneDataWriter(dataStore);
+        dataWriter.clearData();
+        dataWriter.writeData(TestConstants.getSamplePeopleTuples());
+        dataReader = new LuceneDataReader(dataStore,LuceneConstants.SCAN_QUERY, 
+            TestConstants.SAMPLE_SCHEMA_PEOPLE.get(0).getFieldName());
+
     }
     
     private void setUpCrops() throws Exception {
-    	dataStore.storeData(TestConstants.SAMPLE_SCHEMA_CORP, TestConstants.getSampleCorpTuples());
+    	dataStore = new LuceneDataStore(LuceneConstants.INDEX_DIR, TestConstants.SAMPLE_SCHEMA_CORP);
+    	dataWriter = new LuceneDataWriter(dataStore);
+    	dataWriter.clearData();
+    	dataWriter.writeData(TestConstants.getSampleCorpTuples());
+    	dataReader = new LuceneDataReader(dataStore, LuceneConstants.SCAN_QUERY,
+    			TestConstants.SAMPLE_SCHEMA_CORP.get(0).getFieldName());
     }
     
     private void setUpStaff() throws Exception {
-    	dataStore.storeData(TestConstants.SAMPLE_SCHEMA_STAFF, TestConstants.getSampleStaffTuples());
+    	dataStore = new LuceneDataStore(LuceneConstants.INDEX_DIR, TestConstants.SAMPLE_SCHEMA_STAFF);
+    	dataWriter = new LuceneDataWriter(dataStore);
+    	dataWriter.clearData();
+    	dataWriter.writeData(TestConstants.getSampleStaffTuples());
+    	dataReader = new LuceneDataReader(dataStore, LuceneConstants.SCAN_QUERY,
+    			TestConstants.SAMPLE_SCHEMA_STAFF.get(0).getFieldName());
     }
     
     
     @After
     public void cleanUp() throws Exception{
-        dataStore.clearData();
+        dataWriter.clearData();
     }
     
     @Test
@@ -56,8 +81,7 @@ public class RegexMatcherTest {
         String regex = "b.*"; //matches bruce and brad
         String fieldName = TestConstants.FIRST_NAME;
         IPredicate predicate = new RegexPredicate(regex, fieldName);
-        String dataDirectory = LuceneConstants.INDEX_DIR;
-        ISourceOperator sourceOperator = new ScanBasedSourceOperator(dataDirectory, TestConstants.SAMPLE_SCHEMA_PEOPLE);
+        ISourceOperator sourceOperator = new ScanBasedSourceOperator(dataReader);
         List<ITuple> tuples = TestConstants.getSamplePeopleTuples();
         
         regexMatcher = new RegexMatcher(predicate, sourceOperator);
@@ -80,8 +104,7 @@ public class RegexMatcherTest {
     	String urlRegex = "^(https?:\\/\\/)?([\\da-z\\.-]+)\\.([a-z\\.]{2,6})([\\/\\w \\.-]*)*\\/?$";
     	String fieldName = TestConstants.URL;
     	IPredicate predicate = new RegexPredicate(urlRegex, fieldName);
-        String dataDirectory = LuceneConstants.INDEX_DIR;
-        ISourceOperator sourceOperator = new ScanBasedSourceOperator(dataDirectory, TestConstants.SAMPLE_SCHEMA_CORP);
+        ISourceOperator sourceOperator = new ScanBasedSourceOperator(dataReader);
         List<ITuple> tuples = TestConstants.getSampleCorpTuples();
         
         regexMatcher = new RegexMatcher(predicate, sourceOperator);
@@ -104,8 +127,7 @@ public class RegexMatcherTest {
     	String urlRegex = "^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$";
     	String fieldName = TestConstants.IP_ADDRESS;
     	IPredicate predicate = new RegexPredicate(urlRegex, fieldName);
-        String dataDirectory = LuceneConstants.INDEX_DIR;
-        ISourceOperator sourceOperator = new ScanBasedSourceOperator(dataDirectory, TestConstants.SAMPLE_SCHEMA_CORP);
+        ISourceOperator sourceOperator = new ScanBasedSourceOperator(dataReader);
         List<ITuple> tuples = TestConstants.getSampleCorpTuples();
         
         regexMatcher = new RegexMatcher(predicate, sourceOperator);
@@ -128,8 +150,7 @@ public class RegexMatcherTest {
     	String urlRegex = "^([a-z0-9_\\.-]+)@([\\da-z\\.-]+)\\.([a-z\\.]{2,6})$";
     	String fieldName = TestConstants.EMAIL;
     	IPredicate predicate = new RegexPredicate(urlRegex, fieldName);
-        String dataDirectory = LuceneConstants.INDEX_DIR;
-        ISourceOperator sourceOperator = new ScanBasedSourceOperator(dataDirectory, TestConstants.SAMPLE_SCHEMA_STAFF);
+        ISourceOperator sourceOperator = new ScanBasedSourceOperator(dataReader);
         List<ITuple> tuples = TestConstants.getSampleStaffTuples();
         
         regexMatcher = new RegexMatcher(predicate, sourceOperator);
