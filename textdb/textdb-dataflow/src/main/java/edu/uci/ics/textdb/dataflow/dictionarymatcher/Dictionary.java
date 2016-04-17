@@ -19,8 +19,10 @@ public class Dictionary implements IDictionary {
     }
 
     @Override
-    // TODO
-    public String getNextTuple() {
+    /**
+     * Gets next value from the dictionary
+     */
+    public String getNextDictValue() {
         if (cursor >= dict.size()) {
             cursor = 0;
             return null;
