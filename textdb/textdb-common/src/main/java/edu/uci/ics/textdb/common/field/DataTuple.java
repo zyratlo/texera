@@ -18,7 +18,7 @@ public class DataTuple implements ITuple {
 
     public DataTuple(List<Attribute> schema, IField... fields) {
         this.schema = schema;
-        this.fields = new ArrayList<>(Arrays.asList(fields));
+        this.fields = new ArrayList<IField>(Arrays.asList(fields));
     }
 
     @Override
