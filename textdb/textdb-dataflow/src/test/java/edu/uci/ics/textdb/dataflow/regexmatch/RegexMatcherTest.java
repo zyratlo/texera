@@ -29,9 +29,6 @@ public class RegexMatcherTest {
     public void setUp() throws Exception{
         dataStore = new LuceneDataStore(LuceneConstants.INDEX_DIR);
         dataStore.clearData();
-        setUpPeople();
-        setUpCrops();
-        setUpStaff();
     }
     
     private void setUpPeople() throws Exception {
@@ -54,6 +51,8 @@ public class RegexMatcherTest {
     
     @Test
     public void testNameGetNextTuple() throws Exception{
+    	setUpPeople();
+    	
         String regex = "b.*"; //matches bruce and brad
         String fieldName = TestConstants.FIRST_NAME;
         IPredicate predicate = new RegexPredicate(regex, fieldName);
@@ -76,6 +75,8 @@ public class RegexMatcherTest {
     
     @Test
     public void testURLGetNextTuple() throws Exception {
+    	setUpCrops();
+    	
     	String urlRegex = "^(https?:\\/\\/)?([\\da-z\\.-]+)\\.([a-z\\.]{2,6})([\\/\\w \\.-]*)*\\/?$";
     	String fieldName = TestConstants.URL;
     	IPredicate predicate = new RegexPredicate(urlRegex, fieldName);
@@ -98,6 +99,8 @@ public class RegexMatcherTest {
     
     @Test
     public void testIPGetNextTuple() throws Exception {
+    	setUpCrops();
+    	
     	String urlRegex = "^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$";
     	String fieldName = TestConstants.IP_ADDRESS;
     	IPredicate predicate = new RegexPredicate(urlRegex, fieldName);
@@ -120,6 +123,8 @@ public class RegexMatcherTest {
     
     @Test
     public void testEmailGetNextTuple() throws Exception {
+    	setUpStaff();
+    	
     	String urlRegex = "^([a-z0-9_\\.-]+)@([\\da-z\\.-]+)\\.([a-z\\.]{2,6})$";
     	String fieldName = TestConstants.EMAIL;
     	IPredicate predicate = new RegexPredicate(urlRegex, fieldName);
