@@ -1,7 +1,7 @@
 /**
  * 
  */
-package edu.uci.ics.textdb.common.dataflow;
+package edu.uci.ics.textdb.storage.reader;
 
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -26,7 +26,8 @@ import edu.uci.ics.textdb.api.common.Attribute;
 import edu.uci.ics.textdb.api.common.FieldType;
 import edu.uci.ics.textdb.api.common.IField;
 import edu.uci.ics.textdb.api.common.ITuple;
-import edu.uci.ics.textdb.api.dataflow.IDataReader;
+import edu.uci.ics.textdb.api.storage.IDataReader;
+import edu.uci.ics.textdb.api.storage.IDataStore;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
 import edu.uci.ics.textdb.common.exception.ErrorMessages;
 import edu.uci.ics.textdb.common.field.DataTuple;
@@ -38,8 +39,7 @@ import edu.uci.ics.textdb.common.utils.Utils;
  */
 public class LuceneDataReader implements IDataReader{
     
-    private String dataDir;
-    private List<Attribute> schema;
+    private IDataStore dataStore;
     private int cursor = -1;
     private IndexSearcher indexSearcher;
     private ScoreDoc[] scoreDocs;
@@ -47,10 +47,9 @@ public class LuceneDataReader implements IDataReader{
     private String query;
     private String defaultField;
     
-    public LuceneDataReader(String dataDirectory, List<Attribute> schema, 
+    public LuceneDataReader(IDataStore dataStore, 
             String query, String defaultField) {
-        this.dataDir = dataDirectory;
-        this.schema = schema;
+        this.dataStore = dataStore;
         this.query = query;
         this.defaultField = defaultField;
     }
@@ -60,7 +59,7 @@ public class LuceneDataReader implements IDataReader{
 
 
         try {
-            Directory directory = FSDirectory.open(Paths.get(dataDir));
+            Directory directory = FSDirectory.open(Paths.get(dataStore.getDataDirectory()));
             indexReader = DirectoryReader.open(directory);
             indexSearcher = new IndexSearcher(indexReader);
             Analyzer analyzer = new StandardAnalyzer();
@@ -91,13 +90,13 @@ public class LuceneDataReader implements IDataReader{
             Document document = indexSearcher.doc(scoreDocs[cursor++].doc);
             
             List<IField> fields = new ArrayList<IField>();
-            for (Attribute  attr : schema) {
+            for (Attribute  attr : dataStore.getSchema()) {
                 FieldType fieldType = attr.getFieldType();
                 String fieldValue = document.get(attr.getFieldName());
                 fields.add(Utils.getField(fieldType, fieldValue));
             }
             
-            DataTuple dataTuple = new DataTuple(schema, fields.toArray(new IField[fields.size()]));
+            DataTuple dataTuple = new DataTuple(dataStore.getSchema(), fields.toArray(new IField[fields.size()]));
             return dataTuple;
         } catch (IOException e) {
             e.printStackTrace();
