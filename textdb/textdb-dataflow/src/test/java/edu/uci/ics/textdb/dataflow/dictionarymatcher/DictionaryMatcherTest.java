@@ -60,7 +60,7 @@ public class DictionaryMatcherTest {
        public void testGetNextDictionaryItem() throws Exception {
 
            ArrayList<String> names = new ArrayList<String>(
-                   Arrays.asList("rajesh","sudeep","chen", "sandeep"));
+                   Arrays.asList("brad","clooney","george", "lee"));
            IDictionary dict = new Dictionary(names);
            int numTuples = 0;
            while ( dict.getNextDictValue()!= null) {
@@ -78,7 +78,7 @@ public class DictionaryMatcherTest {
     public void testGetNextTuple() throws Exception {
 
         ArrayList<String> names = new ArrayList<String>(
-                Arrays.asList("bruce","tom","lee", "brad","rajesh"));
+                Arrays.asList("bruce","tom","lee", "brad","cena"));
         IDictionary dict = new Dictionary(names);
         ISourceOperator sourceOperator = new ScanBasedSourceOperator(dataReader);
 
@@ -101,7 +101,7 @@ public class DictionaryMatcherTest {
        public void testTuple() throws Exception {
 
            ArrayList<String> names = new ArrayList<String>(
-                   Arrays.asList("bruce","tom","lee", "brad","chen","rajesh","sandeep","sudeep"));
+                   Arrays.asList("bruce","tom","lee", "brad","george","cena","rock","brande"));
            IDictionary dict = new Dictionary(names);
            ISourceOperator sourceOperator = new ScanBasedSourceOperator(dataReader);
 
@@ -118,7 +118,7 @@ public class DictionaryMatcherTest {
             numTuples++;
             
            }
-           Assert.assertEquals(4, numTuples);
+           Assert.assertEquals(5, numTuples);
            dictionaryMatcher.close();
        }
 
