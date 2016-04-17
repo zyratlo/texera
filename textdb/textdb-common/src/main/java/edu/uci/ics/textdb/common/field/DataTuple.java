@@ -1,5 +1,6 @@
 package edu.uci.ics.textdb.common.field;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -17,7 +18,7 @@ public class DataTuple implements ITuple {
 
     public DataTuple(List<Attribute> schema, IField... fields) {
         this.schema = schema;
-        this.fields = Arrays.asList(fields);
+        this.fields = new ArrayList<>(Arrays.asList(fields));
     }
 
     @Override

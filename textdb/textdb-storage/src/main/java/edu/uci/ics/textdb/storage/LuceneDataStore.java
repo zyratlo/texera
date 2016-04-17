@@ -28,7 +28,7 @@ public class LuceneDataStore implements IDataStore{
         this.indexDir = indexDir;
     }
     
-    @Override
+    
     public void clearData() throws StorageException{
         IndexWriter indexWriter = null;
         try {
@@ -54,7 +54,7 @@ public class LuceneDataStore implements IDataStore{
         
     }
     
-    @Override
+    
     public void storeData(List<Attribute> schema, List<ITuple> tuples) throws StorageException {
         IndexWriter indexWriter = null;
         try {
