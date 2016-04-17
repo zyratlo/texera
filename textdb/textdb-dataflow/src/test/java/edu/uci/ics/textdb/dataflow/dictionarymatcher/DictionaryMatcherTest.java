@@ -59,7 +59,6 @@ public class DictionaryMatcherTest {
 
            ArrayList<String> names = new ArrayList<String>(
                    Arrays.asList("rajesh","sudeep","chen", "sandeep"));
-
            IDictionary dict = new Dictionary(names);
            int numTuples = 0;
            while ( dict.getNextTuple()!= null) {
@@ -69,10 +68,7 @@ public class DictionaryMatcherTest {
           
        }
 
-    
-    
-    
-    /**
+     /**
 	 * Scenario S2:verifies GetNextTuple of DictionaryMatcher
 	 */
 
@@ -81,9 +77,7 @@ public class DictionaryMatcherTest {
 
         ArrayList<String> names = new ArrayList<String>(
                 Arrays.asList("bruce","tom","lee", "brad"));
-
         IDictionary dict = new Dictionary(names);
-        
         ISourceOperator sourceOperator = new ScanBasedSourceOperator(dataReader);
 
         dictionaryMatcher = new DictionaryMatcher(dict, sourceOperator);
