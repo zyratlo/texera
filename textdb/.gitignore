@@ -1,13 +1,14 @@
 *.iml
-/.idea
-/.idea_modules
-/.project
-/.settings
+.idea
+.idea_modules
+.project
+.settings/
 target/
 out/
+index/
 
 # Ignoring Mac OSX specific files
 .DS_Store
 
-# Ignoring IntelliJ related files
-.idea
+# Ignoring self
+.gitignore
