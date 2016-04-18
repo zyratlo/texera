@@ -18,10 +18,10 @@ public class Dictionary implements IDictionary {
         cursor = 0;
     }
 
-    @Override
     /**
      * Gets next value from the dictionary
      */
+    @Override
     public String getNextDictValue() {
         if (cursor >= dict.size()) {
             cursor = 0;
