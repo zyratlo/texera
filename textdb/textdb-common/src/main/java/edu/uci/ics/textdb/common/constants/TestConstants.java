@@ -44,7 +44,7 @@ public class TestConstants {
     
     public static List<ITuple> getSamplePeopleTuples() throws ParseException{
         
-        IField[] fields1 = {new StringField("bruce banner"), new StringField("lee"), new IntegerField(46), 
+        IField[] fields1 = {new StringField("bruce banner"), new StringField("john lee"), new IntegerField(46), 
                 new DoubleField(5.50), new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-14-1970"))};
         IField[] fields2 = {new StringField("tom hanks"), new StringField("cruise"), new IntegerField(45), 
                 new DoubleField(5.95), new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-13-1971"))};

@@ -78,7 +78,7 @@ public class DictionaryMatcherTest {
     @Test
     public void testGetNextTuple() throws Exception {
 
-        ArrayList<String> names = new ArrayList<String>(Arrays.asList("bruce", "tom", "lee", "brad", "cena"));
+        ArrayList<String> names = new ArrayList<String>(Arrays.asList("bruce", "tom", "lee", "brad", "cena","john"));
         IDictionary dict = new Dictionary(names);
         ISourceOperator sourceOperator = new ScanBasedSourceOperator(dataReader);
 
@@ -92,7 +92,7 @@ public class DictionaryMatcherTest {
             Assert.assertTrue(contains);
             numTuples++;
         }
-        Assert.assertEquals(4, numTuples);
+        Assert.assertEquals(6, numTuples);
         dictionaryMatcher.close();
     }
 
