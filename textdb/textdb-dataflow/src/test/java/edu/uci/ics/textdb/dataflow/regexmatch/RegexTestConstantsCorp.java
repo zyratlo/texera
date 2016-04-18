@@ -1,0 +1,46 @@
+package edu.uci.ics.textdb.dataflow.regexmatch;
+
+import java.text.ParseException;
+import java.util.Arrays;
+import java.util.List;
+
+import edu.uci.ics.textdb.api.common.Attribute;
+import edu.uci.ics.textdb.api.common.FieldType;
+import edu.uci.ics.textdb.api.common.IField;
+import edu.uci.ics.textdb.api.common.ITuple;
+import edu.uci.ics.textdb.common.field.DataTuple;
+import edu.uci.ics.textdb.common.field.StringField;
+
+/**
+ * Author:
+ * 		@laisycs
+ * 		@zuozhi
+ *
+ * Test Data Corporations 
+ */
+public class RegexTestConstantsCorp {
+    // Sample test data about Corporations
+    public static final String CORP_NAME = "name";
+    public static final String URL = "url";
+    public static final String IP_ADDRESS = "ip";
+    
+    public static final Attribute CORP_NAME_ATTR = new Attribute(CORP_NAME, FieldType.STRING);
+    public static final Attribute URL_ATTR = new Attribute(URL, FieldType.STRING);
+    public static final Attribute IP_ADDRESS_ATTR = new Attribute(IP_ADDRESS, FieldType.STRING);
+    
+    
+    public static final List<Attribute> SAMPLE_SCHEMA_CORP = Arrays.asList(
+    		CORP_NAME_ATTR, URL_ATTR, IP_ADDRESS_ATTR);
+    
+    public static List<ITuple> getSampleCorpTuples() throws ParseException {
+    	IField [] fields1 = {new StringField("Facebook"), new StringField("https://www.facebook.com/"), new StringField("66.220.144.0")};
+    	IField [] fields2 = {new StringField("Weibo"), new StringField("http://weibo.com"), new StringField("180.149.134.141")};
+    	IField [] fields3 = {new StringField("Microsoft"), new StringField("https://www.microsoft.com/en-us/"), new StringField("131.107.0.89")};
+    	
+    	ITuple tuple1 = new DataTuple(SAMPLE_SCHEMA_CORP, fields1);
+    	ITuple tuple2 = new DataTuple(SAMPLE_SCHEMA_CORP, fields2);
+    	ITuple tuple3 = new DataTuple(SAMPLE_SCHEMA_CORP, fields3);
+    	
+    	return Arrays.asList(tuple1, tuple2, tuple3);
+    }
+}

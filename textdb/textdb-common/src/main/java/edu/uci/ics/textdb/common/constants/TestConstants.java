@@ -65,52 +65,7 @@ public class TestConstants {
         return Arrays.asList(tuple1, tuple2, tuple3, tuple4, tuple5);
                 
     }
-    
-    //sample created by team3
-    public static final String CORP_NAME = "name";
-    public static final String URL = "url";
-    public static final String IP_ADDRESS = "ip";
-    
-    public static final Attribute CORP_NAME_ATTR = new Attribute(CORP_NAME, FieldType.STRING);
-    public static final Attribute URL_ATTR = new Attribute(URL, FieldType.STRING);
-    public static final Attribute IP_ADDRESS_ATTR = new Attribute(IP_ADDRESS, FieldType.STRING);
-    
-    
-    public static final List<Attribute> SAMPLE_SCHEMA_CORP = Arrays.asList(
-    		CORP_NAME_ATTR, URL_ATTR, IP_ADDRESS_ATTR);
-    
-    public static List<ITuple> getSampleCorpTuples() throws ParseException {
-    	IField [] fields1 = {new StringField("Facebook"), new StringField("https://www.facebook.com/"), new StringField("66.220.144.0")};
-    	IField [] fields2 = {new StringField("Weibo"), new StringField("http://weibo.com"), new StringField("180.149.134.141")};
-    	IField [] fields3 = {new StringField("Microsoft"), new StringField("https://www.microsoft.com/en-us/"), new StringField("131.107.0.89")};
-    	
-    	ITuple tuple1 = new DataTuple(SAMPLE_SCHEMA_CORP, fields1);
-    	ITuple tuple2 = new DataTuple(SAMPLE_SCHEMA_CORP, fields2);
-    	ITuple tuple3 = new DataTuple(SAMPLE_SCHEMA_CORP, fields3);
-    	
-    	return Arrays.asList(tuple1, tuple2, tuple3);
-    }
-    
-    public static final String EMAIL = "email";
-    public static final String PHONE = "phone";
-    
-    public static final Attribute EMAIL_ATTR = new Attribute(EMAIL, FieldType.STRING);
-    public static final Attribute PHONE_ATTR = new Attribute(PHONE, FieldType.STRING);
-    
-    public static final List<Attribute> SAMPLE_SCHEMA_STAFF = Arrays.asList(
-    		FIRST_NAME_ATTR, LAST_NAME_ATTR, EMAIL_ATTR, PHONE_ATTR);
-    
-    public static List<ITuple> getSampleStaffTuples() throws ParseException {
-    	IField[] fields1 = {new StringField("Karina"), new StringField("Bocanegra"), new StringField("k.bocanegra@uci.edu"), new StringField("(949) 824-5156")};
-    	IField[] fields2 = {new StringField("Lumen"), new StringField("Hwang"), new StringField("hwangl@ics.uci.edu"), new StringField("(949) 824-8088")};
-    	IField[] fields3 = {new StringField("Jessica"), new StringField("Shanahan "), new StringField("shanahan@uci.edu"), new StringField("(949) 824-7550")};
-    	IField[] fields4 = {new StringField("Mare"), new StringField("Stasik"), new StringField("mstasik@ics.uci.edu"), new StringField("(949) 824-7047")};
-    	
-    	ITuple tuple1 = new DataTuple(SAMPLE_SCHEMA_STAFF, fields1);
-    	ITuple tuple2 = new DataTuple(SAMPLE_SCHEMA_STAFF, fields2);
-    	ITuple tuple3 = new DataTuple(SAMPLE_SCHEMA_STAFF, fields3);
-    	ITuple tuple4 = new DataTuple(SAMPLE_SCHEMA_STAFF, fields4);
+   
+   
 
-    	return Arrays.asList(tuple1, tuple2, tuple3, tuple4);
-    }
 }
