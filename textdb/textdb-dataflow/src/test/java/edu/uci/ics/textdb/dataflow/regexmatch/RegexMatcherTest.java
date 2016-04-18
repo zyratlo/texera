@@ -29,7 +29,7 @@ public class RegexMatcherTest {
 		expected.add(data.get(0));
 		expected.add(data.get(2));
 		test.runTest("b.*", TestConstants.FIRST_NAME);
-		Assert.assertTrue(test.expectResult(expected));
+		Assert.assertTrue(test.matchExpectedResults(expected));
 		
 		test.cleanUp();
 	}
@@ -45,7 +45,7 @@ public class RegexMatcherTest {
 		expected.add(data.get(3));
 		test.runTest("^(https?:\\/\\/)?([\\da-z\\.-]+)\\.([a-z\\.]{2,6})([\\/\\w \\.-]*)*\\/?$",
 				RegexTestConstantsCorp.URL);
-		Assert.assertTrue(test.expectResult(expected));
+		Assert.assertTrue(test.matchExpectedResults(expected));
 		
 		test.cleanUp();
 	}
@@ -61,7 +61,7 @@ public class RegexMatcherTest {
 		expected.add(data.get(2));
 		test.runTest("^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$",
 				RegexTestConstantsCorp.IP_ADDRESS);
-		Assert.assertTrue(test.expectResult(expected));
+		Assert.assertTrue(test.matchExpectedResults(expected));
 		
 		test.cleanUp();
 	}
@@ -78,7 +78,7 @@ public class RegexMatcherTest {
 		expected.add(data.get(3));
 		test.runTest("^([a-z0-9_\\.-]+)@([\\da-z\\.-]+)\\.([a-z\\.]{2,6})$",
 				RegexTestConstantStaff.EMAIL);
-		Assert.assertTrue(test.expectResult(expected));
+		Assert.assertTrue(test.matchExpectedResults(expected));
 		
 		test.cleanUp();
 	}

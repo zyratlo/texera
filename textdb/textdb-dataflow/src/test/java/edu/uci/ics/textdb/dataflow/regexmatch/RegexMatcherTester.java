@@ -32,19 +32,19 @@ public class RegexMatcherTester {
 	private IDataReader dataReader;
 	private IDataStore dataStore;
 	
-	private List<ITuple> result;
+	private List<ITuple> results;
 	
 	public RegexMatcherTester(List<Attribute> schema, List<ITuple> data) throws Exception {
 		dataStore = new LuceneDataStore(LuceneConstants.INDEX_DIR, schema);
 		dataWriter = new LuceneDataWriter(dataStore);
 		dataWriter.clearData();
 		dataWriter.writeData(data);	
-		result = new ArrayList<ITuple>();
+		results = new ArrayList<ITuple>();
 	}
 	
 	
 	public void runTest(String regex, String fieldName) throws Exception {
-		result.clear();
+		results.clear();
 		dataReader = new LuceneDataReader(dataStore,
 				LuceneConstants.SCAN_QUERY, TestConstants.FIRST_NAME);
 
@@ -56,14 +56,14 @@ public class RegexMatcherTester {
 		regexMatcher.open();
 		ITuple nextTuple = null;
 		while ((nextTuple = regexMatcher.getNextTuple()) != null) {
-			result.add(nextTuple);
+			results.add(nextTuple);
 		}
 		regexMatcher.close();
 	}
 	
 	
-	public boolean expectResult(List<ITuple> expected) {
-		return TestUtils.equalTo(result, expected);
+	public boolean matchExpectedResults(List<ITuple> expected) {
+		return TestUtils.equalTo(results, expected);
 	}
 	
 	
