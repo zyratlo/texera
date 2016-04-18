@@ -25,7 +25,7 @@ import edu.uci.ics.textdb.api.common.Attribute;
  * 	
  * Helper class to quickly create unit test
  */
-public class RegexMatcherTester {
+public class RegexMatcherTestHelper {
 
 	private RegexMatcher regexMatcher;
 	private IDataWriter dataWriter;
@@ -34,7 +34,7 @@ public class RegexMatcherTester {
 	
 	private List<ITuple> results;
 	
-	public RegexMatcherTester(List<Attribute> schema, List<ITuple> data) throws Exception {
+	public RegexMatcherTestHelper(List<Attribute> schema, List<ITuple> data) throws Exception {
 		dataStore = new LuceneDataStore(LuceneConstants.INDEX_DIR, schema);
 		dataWriter = new LuceneDataWriter(dataStore);
 		dataWriter.clearData();
