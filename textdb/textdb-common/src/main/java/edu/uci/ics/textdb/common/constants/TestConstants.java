@@ -44,15 +44,15 @@ public class TestConstants {
     
     public static List<ITuple> getSamplePeopleTuples() throws ParseException{
         
-        IField[] fields1 = {new StringField("bruce"), new StringField("lee"), new IntegerField(46), 
+        IField[] fields1 = {new StringField("bruce banner"), new StringField("lee"), new IntegerField(46), 
                 new DoubleField(5.50), new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-14-1970"))};
-        IField[] fields2 = {new StringField("tom"), new StringField("cruise"), new IntegerField(45), 
+        IField[] fields2 = {new StringField("tom hanks"), new StringField("cruise"), new IntegerField(45), 
                 new DoubleField(5.95), new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-13-1971"))};
-        IField[] fields3 = {new StringField("brad"), new StringField("pitt"), new IntegerField(44), 
+        IField[] fields3 = {new StringField("brad lie angelina"), new StringField("pitt"), new IntegerField(44), 
                 new DoubleField(6.10), new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-12-1972"))};
-        IField[] fields4 = {new StringField("george"), new StringField("clooney"), new IntegerField(43), 
+        IField[] fields4 = {new StringField("george"), new StringField("M clooney"), new IntegerField(43), 
                 new DoubleField(6.06), new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-13-1973"))};
-        IField[] fields5 = {new StringField("christian"), new StringField("bale"), new IntegerField(42), 
+        IField[] fields5 = {new StringField("christian john wayne"), new StringField("rock bale"), new IntegerField(42), 
                 new DoubleField(5.99), new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-13-1974"))};
         
         

@@ -58,18 +58,21 @@ public class DictionaryMatcherTest {
     @Test
     public void testGetNextDictionaryItem() throws Exception {
 
-        ArrayList<String> names = new ArrayList<String>(Arrays.asList("brad", "clooney", "george", "lee"));
-        IDictionary dict = new Dictionary(names);
+        ArrayList<String> names = new ArrayList<String>(Arrays.asList("brad cooper", "clooney", "george", "lee"));
+        IDictionary dictionary = new Dictionary(names);
         int numTuples = 0;
-        while (dict.getNextValue() != null) {
-            numTuples++;
+        String dictionaryItem;
+        while ((dictionaryItem = dictionary.getNextValue()) != null) {
+        	 boolean contains = TestUtils.contains(names, dictionaryItem);
+             Assert.assertTrue(contains);
+        	 numTuples++;
         }
         Assert.assertEquals(4, numTuples);
 
     }
 
     /**
-     * Scenario S2:verifies GetNextTuple of DictionaryMatcher
+     * Scenario S2:verifies GetNextTuple of DictionaryMatcher and single word queries
      */
 
     @Test
@@ -81,9 +84,12 @@ public class DictionaryMatcherTest {
 
         dictionaryMatcher = new DictionaryMatcher(dict, sourceOperator);
         dictionaryMatcher.open();
-
+        ITuple iTuple;
         int numTuples = 0;
-        while (dictionaryMatcher.getNextTuple() != null) {
+        while ((iTuple = dictionaryMatcher.getNextTuple()) != null) {
+        	String returnedString = (String) iTuple.getField(SchemaConstants.SPAN_KEY).getValue();
+            boolean contains = TestUtils.contains(names, returnedString);
+            Assert.assertTrue(contains);
             numTuples++;
         }
         Assert.assertEquals(4, numTuples);
@@ -91,14 +97,14 @@ public class DictionaryMatcherTest {
     }
 
     /**
-     * Scenario S3:verifies ITuple returned by DictionaryMatcher
+     * Scenario S3:verifies ITuple returned by DictionaryMatcher and multiple word queries
      */
 
     @Test
     public void testTuple() throws Exception {
 
         ArrayList<String> names = new ArrayList<String>(
-                Arrays.asList("bruce", "tom", "lee", "brad", "george", "cena", "rock", "brande"));
+                Arrays.asList("bruce banner", "tom hanks", "lee", "brad lie", "clooney", "cena", "christian john wayne","rock", "brande","angelina"));
         IDictionary dict = new Dictionary(names);
         ISourceOperator sourceOperator = new ScanBasedSourceOperator(dataReader);
 
@@ -115,7 +121,7 @@ public class DictionaryMatcherTest {
             numTuples++;
 
         }
-        Assert.assertEquals(5, numTuples);
+        Assert.assertEquals(8, numTuples);
         dictionaryMatcher.close();
     }
 
