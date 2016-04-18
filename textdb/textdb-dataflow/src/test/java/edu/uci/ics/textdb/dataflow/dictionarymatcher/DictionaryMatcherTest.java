@@ -15,6 +15,7 @@ import edu.uci.ics.textdb.api.dataflow.ISourceOperator;
 import edu.uci.ics.textdb.api.storage.IDataReader;
 import edu.uci.ics.textdb.api.storage.IDataWriter;
 import edu.uci.ics.textdb.common.constants.LuceneConstants;
+import edu.uci.ics.textdb.common.constants.SchemaConstants;
 import edu.uci.ics.textdb.common.constants.TestConstants;
 import edu.uci.ics.textdb.dataflow.source.ScanBasedSourceOperator;
 import edu.uci.ics.textdb.dataflow.utils.TestUtils;
@@ -108,7 +109,7 @@ public class DictionaryMatcherTest {
         int numTuples = 0;
         while ((iTuple = dictionaryMatcher.getNextTuple()) != null) {
 
-            String returnedString = (String) iTuple.getField(6).getValue();
+            String returnedString = (String) iTuple.getField(SchemaConstants.SPAN_KEY).getValue();
             boolean contains = TestUtils.contains(names, returnedString);
             Assert.assertTrue(contains);
             numTuples++;

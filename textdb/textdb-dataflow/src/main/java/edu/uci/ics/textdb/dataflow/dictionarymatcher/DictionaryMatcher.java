@@ -26,7 +26,7 @@ public class DictionaryMatcher implements IOperator {
     private int fieldIndex; // Index of the next field to be checked.
     private int spanIndexVal; // Starting position of the matched dictionary
                               // string
-    private ITuple spanTuple;
+    private ITuple dataTuple;
     private List<IField> fields;
 
     public DictionaryMatcher(IDictionary dict, IOperator operator) {
@@ -45,8 +45,8 @@ public class DictionaryMatcher implements IOperator {
             fieldIndex = 0;
             operator.open();
             dictValue = dict.getNextDictValue();
-            spanTuple = operator.getNextTuple();
-            fields = spanTuple.getFields();
+            dataTuple = operator.getNextTuple();
+            fields = dataTuple.getFields();
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -62,9 +62,9 @@ public class DictionaryMatcher implements IOperator {
     @Override
     public ITuple getNextTuple() throws Exception {
         if (fieldIndex < fields.size()) {
-            IField field = spanTuple.getField(fieldIndex);
-            if (field instanceof StringField) {
-                String fieldValue = ((StringField) field).getValue();
+            IField dataField = dataTuple.getField(fieldIndex);
+            if (dataField instanceof StringField) {
+                String fieldValue = ((StringField) dataField).getValue();
 
                 // Get position of dict value in the field.
                 if ((spanIndexVal = fieldValue.indexOf(dictValue, positionIndex)) != -1) {
@@ -73,18 +73,21 @@ public class DictionaryMatcher implements IOperator {
                     // new positionIndex.
                     positionIndex = spanIndexVal + fieldValue.length();
 
-                    Attribute attribute = spanTuple.getSchema().get(fieldIndex);
+                    Attribute attribute = dataTuple.getSchema().get(fieldIndex);
                     String fieldName = attribute.getFieldName();
 
-                    //Creating a clone of the spanTuple and returning the cloned one,
-                    //so that the changes are not reflected in the original spanTuple.
-                    //The cloned SpanTuple is populated with the span related data.
-                    ITuple spanTupleCloned = spanTuple.clone();
-                    spanTupleCloned.addField(SchemaConstants.SPAN_FIELD_NAME_ATTRIBUTE, new StringField(fieldName));
-                    spanTupleCloned.addField(SchemaConstants.SPAN_KEY_ATTRIBUTE, new StringField(dictValue));
-                    spanTupleCloned.addField(SchemaConstants.SPAN_BEGIN_ATTRIBUTE, new IntegerField(spanIndexVal));
-                    spanTupleCloned.addField(SchemaConstants.SPAN_END_ATTRIBUTE, new IntegerField(positionIndex - 1));
-                    return spanTupleCloned;
+                    // Creating a clone of the spanTuple and returning the
+                    // cloned one,
+                    // so that the changes are not reflected in the original
+                    // spanTuple.
+                    // The cloned SpanTuple is populated with the span related
+                    // data.
+                    ITuple spanTuple = dataTuple.clone();
+                    spanTuple.addField(SchemaConstants.SPAN_FIELD_NAME_ATTRIBUTE, new StringField(fieldName));
+                    spanTuple.addField(SchemaConstants.SPAN_KEY_ATTRIBUTE, new StringField(dictValue));
+                    spanTuple.addField(SchemaConstants.SPAN_BEGIN_ATTRIBUTE, new IntegerField(spanIndexVal));
+                    spanTuple.addField(SchemaConstants.SPAN_END_ATTRIBUTE, new IntegerField(positionIndex - 1));
+                    return spanTuple;
 
                 } else {
                     // Increment the fieldIndex and call getNextTuple to search
@@ -103,24 +106,24 @@ public class DictionaryMatcher implements IOperator {
 
         }
         // Get the next document
-        else if ((spanTuple = operator.getNextTuple()) != null) {
+        else if ((dataTuple = operator.getNextTuple()) != null) {
             fieldIndex = 0;
             positionIndex = 0;
-            fields = spanTuple.getFields();
+            fields = dataTuple.getFields();
             return getNextTuple();
 
         }
         // Get the next dictionary value
         else if ((dictValue = dict.getNextDictValue()) != null) {
-            //At this point all the documents in the dataStore are scanned 
-            //and we need to scan them again for a different dictionary value
+            // At this point all the documents in the dataStore are scanned
+            // and we need to scan them again for a different dictionary value
             fieldIndex = 0;
             positionIndex = 0;
-            
+
             operator.close();
             operator.open();
-            spanTuple = operator.getNextTuple();
-            fields = spanTuple.getFields();
+            dataTuple = operator.getNextTuple();
+            fields = dataTuple.getFields();
             return getNextTuple();
         }
 

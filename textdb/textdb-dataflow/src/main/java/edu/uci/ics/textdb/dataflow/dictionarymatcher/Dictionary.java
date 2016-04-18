@@ -24,7 +24,6 @@ public class Dictionary implements IDictionary {
     @Override
     public String getNextDictValue() {
         if (cursor >= dict.size()) {
-            cursor = 0;
             return null;
         }
         String dictval = dict.get(cursor++);
