@@ -5,7 +5,7 @@ import java.util.List;
 /**
  * Created by chenli on 3/25/16.
  */
-public interface ITuple extends Cloneable {
+public interface ITuple {
     IField getField(int index);
 
     IField getField(String fieldName);
@@ -13,8 +13,4 @@ public interface ITuple extends Cloneable {
     List<IField> getFields();
 
     List<Attribute> getSchema();
-
-    void addField(Attribute attribute, IField field);
-
-    ITuple clone();
 }

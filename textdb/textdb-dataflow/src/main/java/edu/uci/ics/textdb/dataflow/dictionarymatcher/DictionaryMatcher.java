@@ -1,6 +1,7 @@
 
 package edu.uci.ics.textdb.dataflow.dictionarymatcher;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import edu.uci.ics.textdb.api.common.Attribute;
@@ -10,6 +11,7 @@ import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.dataflow.IOperator;
 import edu.uci.ics.textdb.common.constants.SchemaConstants;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
+import edu.uci.ics.textdb.common.field.DataTuple;
 import edu.uci.ics.textdb.common.field.IntegerField;
 import edu.uci.ics.textdb.common.field.StringField;
 
@@ -26,8 +28,10 @@ public class DictionaryMatcher implements IOperator {
     private int fieldIndex; // Index of the next field to be checked.
     private int spanIndexVal; // Starting position of the matched dictionary
                               // string
+    private String fieldName;
     private ITuple dataTuple;
     private List<IField> fields;
+    private List<Attribute> schema;
 
     public DictionaryMatcher(IDictionary dict, IOperator operator) {
         this.operator = operator;
@@ -47,6 +51,7 @@ public class DictionaryMatcher implements IOperator {
             dictValue = dict.getNextDictValue();
             dataTuple = operator.getNextTuple();
             fields = dataTuple.getFields();
+            schema = dataTuple.getSchema();
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -74,20 +79,9 @@ public class DictionaryMatcher implements IOperator {
                     positionIndex = spanIndexVal + fieldValue.length();
 
                     Attribute attribute = dataTuple.getSchema().get(fieldIndex);
-                    String fieldName = attribute.getFieldName();
+                    fieldName = attribute.getFieldName();
 
-                    // Creating a clone of the spanTuple and returning the
-                    // cloned one,
-                    // so that the changes are not reflected in the original
-                    // spanTuple.
-                    // The cloned SpanTuple is populated with the span related
-                    // data.
-                    ITuple spanTuple = dataTuple.clone();
-                    spanTuple.addField(SchemaConstants.SPAN_FIELD_NAME_ATTRIBUTE, new StringField(fieldName));
-                    spanTuple.addField(SchemaConstants.SPAN_KEY_ATTRIBUTE, new StringField(dictValue));
-                    spanTuple.addField(SchemaConstants.SPAN_BEGIN_ATTRIBUTE, new IntegerField(spanIndexVal));
-                    spanTuple.addField(SchemaConstants.SPAN_END_ATTRIBUTE, new IntegerField(positionIndex - 1));
-                    return spanTuple;
+                    return getSpanTuple();
 
                 } else {
                     // Increment the fieldIndex and call getNextTuple to search
@@ -128,6 +122,26 @@ public class DictionaryMatcher implements IOperator {
         }
 
         return null;
+    }
+
+    /**
+     * @about Modifies schema, fields and creates a new span tuple
+     */
+    private ITuple getSpanTuple() {
+        List<Attribute> schemaDuplicate = new ArrayList<>(schema);
+        schemaDuplicate.add(SchemaConstants.SPAN_FIELD_NAME_ATTRIBUTE);
+        schemaDuplicate.add(SchemaConstants.SPAN_KEY_ATTRIBUTE);
+        schemaDuplicate.add(SchemaConstants.SPAN_BEGIN_ATTRIBUTE);
+        schemaDuplicate.add(SchemaConstants.SPAN_END_ATTRIBUTE);
+
+        List<IField> fieldListDuplicate = new ArrayList<>(fields);
+        fieldListDuplicate.add(new StringField(fieldName));
+        fieldListDuplicate.add(new StringField(dictValue));
+        fieldListDuplicate.add(new IntegerField(spanIndexVal));
+        fieldListDuplicate.add(new IntegerField(positionIndex - 1));
+
+        IField[] fieldsDuplicate = fieldListDuplicate.toArray(new IField[fieldListDuplicate.size()]);
+        return new DataTuple(schemaDuplicate, fieldsDuplicate);
     }
 
     /**
