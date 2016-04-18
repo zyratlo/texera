@@ -63,22 +63,23 @@ public class DictionaryMatcherTest {
         int numTuples = 0;
         String dictionaryItem;
         while ((dictionaryItem = dictionary.getNextValue()) != null) {
-        	 boolean contains = TestUtils.contains(names, dictionaryItem);
-             Assert.assertTrue(contains);
-        	 numTuples++;
+            boolean contains = TestUtils.contains(names, dictionaryItem);
+            Assert.assertTrue(contains);
+            numTuples++;
         }
         Assert.assertEquals(4, numTuples);
 
     }
 
     /**
-     * Scenario S2:verifies GetNextTuple of DictionaryMatcher and single word queries
+     * Scenario S2:verifies GetNextTuple of DictionaryMatcher and single word
+     * queries
      */
 
     @Test
     public void testGetNextTuple() throws Exception {
 
-        ArrayList<String> names = new ArrayList<String>(Arrays.asList("bruce", "tom", "lee", "brad", "cena","john"));
+        ArrayList<String> names = new ArrayList<String>(Arrays.asList("bruce", "tom", "lee", "brad", "cena", "john"));
         IDictionary dict = new Dictionary(names);
         ISourceOperator sourceOperator = new ScanBasedSourceOperator(dataReader);
 
@@ -87,7 +88,7 @@ public class DictionaryMatcherTest {
         ITuple iTuple;
         int numTuples = 0;
         while ((iTuple = dictionaryMatcher.getNextTuple()) != null) {
-        	String returnedString = (String) iTuple.getField(SchemaConstants.SPAN_KEY).getValue();
+            String returnedString = (String) iTuple.getField(SchemaConstants.SPAN_KEY).getValue();
             boolean contains = TestUtils.contains(names, returnedString);
             Assert.assertTrue(contains);
             numTuples++;
@@ -97,14 +98,15 @@ public class DictionaryMatcherTest {
     }
 
     /**
-     * Scenario S3:verifies ITuple returned by DictionaryMatcher and multiple word queries
+     * Scenario S3:verifies ITuple returned by DictionaryMatcher and multiple
+     * word queries
      */
 
     @Test
     public void testTuple() throws Exception {
 
-        ArrayList<String> names = new ArrayList<String>(
-                Arrays.asList("bruce banner", "tom hanks", "lee", "brad lie", "clooney", "cena", "christian john wayne","rock", "brande","angelina"));
+        ArrayList<String> names = new ArrayList<String>(Arrays.asList("bruce banner", "tom hanks", "lee", "brad lie",
+                "clooney", "cena", "christian john wayne", "rock", "brande", "angelina"));
         IDictionary dict = new Dictionary(names);
         ISourceOperator sourceOperator = new ScanBasedSourceOperator(dataReader);
 
@@ -116,6 +118,7 @@ public class DictionaryMatcherTest {
         while ((iTuple = dictionaryMatcher.getNextTuple()) != null) {
 
             String returnedString = (String) iTuple.getField(SchemaConstants.SPAN_KEY).getValue();
+            System.out.println("string : " + returnedString);
             boolean contains = TestUtils.contains(names, returnedString);
             Assert.assertTrue(contains);
             numTuples++;
@@ -124,17 +127,16 @@ public class DictionaryMatcherTest {
         Assert.assertEquals(8, numTuples);
         dictionaryMatcher.close();
     }
-    
+
     /**
-     * Scenario S4:verifies: data source has multiple attributes,
-     *  and an entity can appear in all the fields and multiple times.
+     * Scenario S4:verifies: data source has multiple attributes, and an entity
+     * can appear in all the fields and multiple times.
      */
 
     @Test
     public void testMultipleFields() throws Exception {
 
-        ArrayList<String> names = new ArrayList<String>(
-                Arrays.asList("lin lin", "lin", "clooney", "cena"));
+        ArrayList<String> names = new ArrayList<String>(Arrays.asList("lin lin", "lin", "clooney", "cena"));
         IDictionary dict = new Dictionary(names);
         ISourceOperator sourceOperator = new ScanBasedSourceOperator(dataReader);
 

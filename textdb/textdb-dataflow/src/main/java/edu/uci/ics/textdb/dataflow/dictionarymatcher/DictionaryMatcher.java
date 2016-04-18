@@ -75,6 +75,8 @@ public class DictionaryMatcher implements IOperator {
             IField dataField = dataTuple.getField(fieldIndex);
             if (dataField instanceof StringField) {
                 String fieldValue = ((StringField) dataField).getValue();
+                fieldValue = fieldValue.toLowerCase();
+                dictionaryValue = dictionaryValue.toLowerCase();
 
                 // Get position of dict value in the field.
                 if ((spanIndexValue = fieldValue.indexOf(dictionaryValue, positionIndex)) != -1) {
