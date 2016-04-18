@@ -124,5 +124,35 @@ public class DictionaryMatcherTest {
         Assert.assertEquals(8, numTuples);
         dictionaryMatcher.close();
     }
+    
+    /**
+     * Scenario S4:verifies: data source has multiple attributes,
+     *  and an entity can appear in all the fields and multiple times.
+     */
+
+    @Test
+    public void testMultipleFields() throws Exception {
+
+        ArrayList<String> names = new ArrayList<String>(
+                Arrays.asList("lin lin", "lin", "clooney", "cena"));
+        IDictionary dict = new Dictionary(names);
+        ISourceOperator sourceOperator = new ScanBasedSourceOperator(dataReader);
+
+        dictionaryMatcher = new DictionaryMatcher(dict, sourceOperator);
+        dictionaryMatcher.open();
+
+        ITuple iTuple;
+        int numTuples = 0;
+        while ((iTuple = dictionaryMatcher.getNextTuple()) != null) {
+
+            String returnedString = (String) iTuple.getField(SchemaConstants.SPAN_KEY).getValue();
+            boolean contains = TestUtils.contains(names, returnedString);
+            Assert.assertTrue(contains);
+            numTuples++;
+
+        }
+        Assert.assertEquals(5, numTuples);
+        dictionaryMatcher.close();
+    }
 
 }
