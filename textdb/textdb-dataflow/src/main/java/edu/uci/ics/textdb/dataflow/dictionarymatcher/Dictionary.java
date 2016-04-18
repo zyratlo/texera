@@ -11,10 +11,10 @@ import edu.uci.ics.textdb.api.common.IDictionary;
 public class Dictionary implements IDictionary {
 
     private int cursor = -1;
-    private List<String> dict;
+    private List<String> stringList;
 
     public Dictionary(List<String> dict) {
-        this.dict = dict;
+        this.stringList = dict;
         cursor = 0;
     }
 
@@ -22,11 +22,11 @@ public class Dictionary implements IDictionary {
      * Gets next value from the dictionary
      */
     @Override
-    public String getNextDictValue() {
-        if (cursor >= dict.size()) {
+    public String getNextValue() {
+        if (cursor >= stringList.size()) {
             return null;
         }
-        String dictval = dict.get(cursor++);
+        String dictval = stringList.get(cursor++);
         return dictval;
     }
 

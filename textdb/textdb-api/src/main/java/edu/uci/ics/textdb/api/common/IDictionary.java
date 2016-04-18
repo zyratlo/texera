@@ -8,5 +8,5 @@ package edu.uci.ics.textdb.api.common;
  *
  */
 public interface IDictionary {
-    String getNextDictValue();
+    String getNextValue();
 }

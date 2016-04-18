@@ -22,20 +22,20 @@ import edu.uci.ics.textdb.common.field.StringField;
 public class DictionaryMatcher implements IOperator {
 
     private IOperator operator;
-    private IDictionary dict;
-    private String dictValue;
+    private IDictionary dictionary;
+    private String dictionaryValue;
     private int positionIndex; // next position in the field to be checked.
     private int fieldIndex; // Index of the next field to be checked.
-    private int spanIndexVal; // Starting position of the matched dictionary
-                              // string
+    private int spanIndexValue; // Starting position of the matched dictionary
+                                // string
     private String fieldName;
     private ITuple dataTuple;
     private List<IField> fields;
     private List<Attribute> schema;
 
-    public DictionaryMatcher(IDictionary dict, IOperator operator) {
+    public DictionaryMatcher(IDictionary dictionary, IOperator operator) {
         this.operator = operator;
-        this.dict = dict;
+        this.dictionary = dictionary;
     }
 
     /**
@@ -48,7 +48,7 @@ public class DictionaryMatcher implements IOperator {
             positionIndex = 0;
             fieldIndex = 0;
             operator.open();
-            dictValue = dict.getNextDictValue();
+            dictionaryValue = dictionary.getNextValue();
             dataTuple = operator.getNextTuple();
             fields = dataTuple.getFields();
             schema = dataTuple.getSchema();
@@ -63,6 +63,11 @@ public class DictionaryMatcher implements IOperator {
      * @about Gets next matched tuple. Returns a new span tuple including the
      *        span results. Performs a scan based search, gets the dictionary
      *        value and scans all the documents for matches
+     * 
+     * @overview Loop through the dictionary entries. For each dictionary entry,
+     *           loop through the tuples in the operator. For each tuple, loop
+     *           through all the fields. For each field, loop through all the
+     *           matches.
      */
     @Override
     public ITuple getNextTuple() throws Exception {
@@ -72,11 +77,11 @@ public class DictionaryMatcher implements IOperator {
                 String fieldValue = ((StringField) dataField).getValue();
 
                 // Get position of dict value in the field.
-                if ((spanIndexVal = fieldValue.indexOf(dictValue, positionIndex)) != -1) {
+                if ((spanIndexValue = fieldValue.indexOf(dictionaryValue, positionIndex)) != -1) {
 
                     // Increment positionIndex so that next search occurs from
                     // new positionIndex.
-                    positionIndex = spanIndexVal + fieldValue.length();
+                    positionIndex = spanIndexValue + fieldValue.length();
 
                     Attribute attribute = dataTuple.getSchema().get(fieldIndex);
                     fieldName = attribute.getFieldName();
@@ -108,7 +113,7 @@ public class DictionaryMatcher implements IOperator {
 
         }
         // Get the next dictionary value
-        else if ((dictValue = dict.getNextDictValue()) != null) {
+        else if ((dictionaryValue = dictionary.getNextValue()) != null) {
             // At this point all the documents in the dataStore are scanned
             // and we need to scan them again for a different dictionary value
             fieldIndex = 0;
@@ -136,8 +141,8 @@ public class DictionaryMatcher implements IOperator {
 
         List<IField> fieldListDuplicate = new ArrayList<>(fields);
         fieldListDuplicate.add(new StringField(fieldName));
-        fieldListDuplicate.add(new StringField(dictValue));
-        fieldListDuplicate.add(new IntegerField(spanIndexVal));
+        fieldListDuplicate.add(new StringField(dictionaryValue));
+        fieldListDuplicate.add(new IntegerField(spanIndexValue));
         fieldListDuplicate.add(new IntegerField(positionIndex - 1));
 
         IField[] fieldsDuplicate = fieldListDuplicate.toArray(new IField[fieldListDuplicate.size()]);

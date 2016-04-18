@@ -61,7 +61,7 @@ public class DictionaryMatcherTest {
         ArrayList<String> names = new ArrayList<String>(Arrays.asList("brad", "clooney", "george", "lee"));
         IDictionary dict = new Dictionary(names);
         int numTuples = 0;
-        while (dict.getNextDictValue() != null) {
+        while (dict.getNextValue() != null) {
             numTuples++;
         }
         Assert.assertEquals(4, numTuples);
