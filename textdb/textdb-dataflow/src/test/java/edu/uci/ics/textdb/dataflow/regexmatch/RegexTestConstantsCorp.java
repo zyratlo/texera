@@ -12,9 +12,8 @@ import edu.uci.ics.textdb.common.field.DataTuple;
 import edu.uci.ics.textdb.common.field.StringField;
 
 /**
- * Author:
- * 		@laisycs
- * 		@zuozhi
+ * @author laisycs
+ * @author zuozhi
  *
  * Test Data Corporations 
  */
@@ -33,14 +32,16 @@ public class RegexTestConstantsCorp {
     		CORP_NAME_ATTR, URL_ATTR, IP_ADDRESS_ATTR);
     
     public static List<ITuple> getSampleCorpTuples() throws ParseException {
-    	IField [] fields1 = {new StringField("Facebook"), new StringField("https://www.facebook.com/"), new StringField("66.220.144.0")};
+    	IField [] fields1 = {new StringField("Facebook"), new StringField("404 Not Found"), new StringField("66.220.144.0")};
     	IField [] fields2 = {new StringField("Weibo"), new StringField("http://weibo.com"), new StringField("180.149.134.141")};
     	IField [] fields3 = {new StringField("Microsoft"), new StringField("https://www.microsoft.com/en-us/"), new StringField("131.107.0.89")};
+    	IField [] fields4 = {new StringField("Google"), new StringField("www.google.com"), new StringField("8.8.8.8.8.8")};
     	
     	ITuple tuple1 = new DataTuple(SAMPLE_SCHEMA_CORP, fields1);
     	ITuple tuple2 = new DataTuple(SAMPLE_SCHEMA_CORP, fields2);
     	ITuple tuple3 = new DataTuple(SAMPLE_SCHEMA_CORP, fields3);
+    	ITuple tuple4 = new DataTuple(SAMPLE_SCHEMA_CORP, fields4);
     	
-    	return Arrays.asList(tuple1, tuple2, tuple3);
+    	return Arrays.asList(tuple1, tuple2, tuple3, tuple4);
     }
 }

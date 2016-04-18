@@ -12,9 +12,8 @@ import edu.uci.ics.textdb.common.field.DataTuple;
 import edu.uci.ics.textdb.common.field.StringField;
 
 /**
- * Author:
- * 		@laisycs
- * 		@zuozhi
+ * @author laisycs
+ * @author zuozhi
  *
  * Test Data Staff 
  */
