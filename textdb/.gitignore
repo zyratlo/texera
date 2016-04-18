@@ -1,0 +1,22 @@
+*.iml
+/.idea
+/.idea_modules
+/.project
+/.settings
+target/
+out/
+
+
+# Ignoring IntelliJ related files
+.idea
+
+
+# Ignoring Eclipse files
+.classpath
+.project
+.settings
+index
+
+
+# Ignoring Mac OSX specific files
+.DS_Store
