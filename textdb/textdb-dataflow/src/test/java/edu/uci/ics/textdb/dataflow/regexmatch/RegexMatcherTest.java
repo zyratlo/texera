@@ -39,8 +39,6 @@ public class RegexMatcherTest {
     }
     
     private void setUpPeople() throws Exception {
-//        dataStore.storeData(TestConstants.SAMPLE_SCHEMA_PEOPLE, TestConstants.getSamplePeopleTuples());
-
         dataStore = new LuceneDataStore(LuceneConstants.INDEX_DIR, TestConstants.SAMPLE_SCHEMA_PEOPLE);
         dataWriter = new LuceneDataWriter(dataStore);
         dataWriter.clearData();
