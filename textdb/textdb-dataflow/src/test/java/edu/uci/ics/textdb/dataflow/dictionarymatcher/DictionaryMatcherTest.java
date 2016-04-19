@@ -17,7 +17,6 @@ import edu.uci.ics.textdb.api.dataflow.ISourceOperator;
 import edu.uci.ics.textdb.api.storage.IDataReader;
 import edu.uci.ics.textdb.api.storage.IDataWriter;
 import edu.uci.ics.textdb.common.constants.LuceneConstants;
-import edu.uci.ics.textdb.common.constants.SchemaConstants;
 import edu.uci.ics.textdb.common.constants.TestConstants;
 import edu.uci.ics.textdb.dataflow.source.ScanBasedSourceOperator;
 import edu.uci.ics.textdb.dataflow.utils.TestUtils;
@@ -81,24 +80,22 @@ public class DictionaryMatcherTest {
     @Test
     public void testGetNextTuple() throws Exception {
 
-        ArrayList<String> names = new ArrayList<String>(Arrays.asList("bruce"));
-        IDictionary dict = new Dictionary(names);
+        ArrayList<String> names = new ArrayList<String>(Arrays.asList("bruce","cena","lin","george"));
+        IDictionary dictionary = new Dictionary(names);
         ISourceOperator sourceOperator = new ScanBasedSourceOperator(dataReader);
         List<ITuple> data = TestConstants.getSamplePeopleTuples();
-        
         List<Attribute> schema = TestConstants.SAMPLE_SCHEMA_PEOPLE;
-        
-        dictionaryMatcher = new DictionaryMatcher(dict, sourceOperator);
+        dictionaryMatcher = new DictionaryMatcher(dictionary, sourceOperator);
         dictionaryMatcher.open();
         ITuple iTuple;
-        
+        int numTuples=0;
         while ((iTuple = dictionaryMatcher.getNextTuple()) != null) {
             
             boolean contains = TestUtils.checkSpan(data, iTuple, schema);
             Assert.assertTrue(contains);
-            
+            numTuples++;
         }
-        
+        Assert.assertEquals(6, numTuples);
         dictionaryMatcher.close();
     }
 
@@ -110,26 +107,22 @@ public class DictionaryMatcherTest {
     @Test
     public void testTuple() throws Exception {
 
-        ArrayList<String> names = new ArrayList<String>(Arrays.asList("bruce banner", "tom hanks", "lee", "brad lie",
-                "clooney", "cena", "christian john wayne", "rock", "brande", "angelina"));
-        IDictionary dict = new Dictionary(names);
+    	ArrayList<String> names = new ArrayList<String>(Arrays.asList("bruce banner","cena rock","lin clooney","george lin"));
+        IDictionary dictionary = new Dictionary(names);
         ISourceOperator sourceOperator = new ScanBasedSourceOperator(dataReader);
-
-        dictionaryMatcher = new DictionaryMatcher(dict, sourceOperator);
+        List<ITuple> data = TestConstants.getSamplePeopleTuples();
+        List<Attribute> schema = TestConstants.SAMPLE_SCHEMA_PEOPLE;
+        dictionaryMatcher = new DictionaryMatcher(dictionary, sourceOperator);
         dictionaryMatcher.open();
-
         ITuple iTuple;
-        int numTuples = 0;
+        int numTuples=0;
         while ((iTuple = dictionaryMatcher.getNextTuple()) != null) {
-
-            String returnedString = (String) iTuple.getField(SchemaConstants.SPAN_KEY).getValue();
-            System.out.println("string : " + returnedString);
-            boolean contains = TestUtils.contains(names, returnedString);
+            
+            boolean contains = TestUtils.checkSpan(data, iTuple, schema);
             Assert.assertTrue(contains);
             numTuples++;
-
         }
-        Assert.assertEquals(8, numTuples);
+        Assert.assertEquals(3, numTuples);
         dictionaryMatcher.close();
     }
 
@@ -141,27 +134,22 @@ public class DictionaryMatcherTest {
     @Test
     public void testMultipleFields() throws Exception {
 
-        ArrayList<String> names = new ArrayList<String>(Arrays.asList("lin"));
-        IDictionary dict = new Dictionary(names);
+    	ArrayList<String> names = new ArrayList<String>(Arrays.asList("bruce","cena","lin","george lin lin","lin lin"));
+        IDictionary dictionary = new Dictionary(names);
         ISourceOperator sourceOperator = new ScanBasedSourceOperator(dataReader);
-
-        dictionaryMatcher = new DictionaryMatcher(dict, sourceOperator);
+        List<ITuple> data = TestConstants.getSamplePeopleTuples();
+        List<Attribute> schema = TestConstants.SAMPLE_SCHEMA_PEOPLE;
+        dictionaryMatcher = new DictionaryMatcher(dictionary, sourceOperator);
         dictionaryMatcher.open();
-
         ITuple iTuple;
-        int numTuples = 0;
+        int numTuples=0;
         while ((iTuple = dictionaryMatcher.getNextTuple()) != null) {
-
-            String returnedString = (String) iTuple.getField(SchemaConstants.SPAN_KEY).getValue();
-            System.out.println("string : " + returnedString);
-            System.out.println((int) iTuple.getField(SchemaConstants.SPAN_BEGIN).getValue());
-            boolean contains = TestUtils.contains(names, returnedString);
+            
+            boolean contains = TestUtils.checkSpan(data, iTuple, schema);
             Assert.assertTrue(contains);
             numTuples++;
-
         }
-        System.out.println(numTuples);
-        Assert.assertEquals(3, numTuples);
+        Assert.assertEquals(7, numTuples);
         dictionaryMatcher.close();
     }
 
