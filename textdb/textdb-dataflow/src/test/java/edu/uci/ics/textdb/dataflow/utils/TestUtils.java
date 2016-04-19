@@ -11,6 +11,7 @@ import edu.uci.ics.textdb.common.constants.SchemaConstants;
 /**
  * @author sandeepreddy602
  * @author zuozhi
+ * @author rajeshyarlagadda
  */
 public class TestUtils {
 
@@ -51,13 +52,10 @@ public class TestUtils {
                 		contains = true;
                 		return contains;
                     }
-                	
                 	else contains = false;
                 }
-                
                 else contains = false;
             }
-            
         }
         return contains;
     }
