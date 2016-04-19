@@ -3,9 +3,15 @@
  */
 package edu.uci.ics.textdb.dataflow.common;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import edu.uci.ics.textdb.api.common.IField;
 import edu.uci.ics.textdb.api.common.IPredicate;
 import edu.uci.ics.textdb.api.common.ITuple;
+import edu.uci.ics.textdb.common.field.Span;
 import edu.uci.ics.textdb.common.field.StringField;
 
 /**
@@ -35,6 +41,28 @@ public class RegexPredicate implements IPredicate{
             }
         }
         return false;
+    }
+    
+    public Span[] statisfySpan(ITuple tuple) {
+    	List<Span> res = new ArrayList<>();
+    	if (tuple == null) {
+    		return res.toArray(new Span[res.size()]); //empty array
+    	}
+    	IField field = tuple.getField(fieldName);
+    	if (field instanceof StringField) {
+    		String fieldValue = ((StringField) field).getValue();
+    		if (fieldValue == null) {
+    			return res.toArray(new Span[res.size()]);
+    		} else {
+    			Pattern p = Pattern.compile(regex);
+    			Matcher m = p.matcher(fieldValue);
+    			while (m.find()) {
+    				res.add(new Span(m.start(), m.end()));
+    			}
+    		}
+    	}
+    	
+    	return res.toArray(new Span[res.size()]);
     }
 
 }

@@ -7,8 +7,6 @@ import org.junit.Assert;
 
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.common.constants.TestConstants;
-import edu.uci.ics.textdb.dataflow.regexmatch.RegexTestConstantsCorp;
-import edu.uci.ics.textdb.dataflow.regexmatch.RegexTestConstantStaff;
 
 /**
  * @author zuozhi
