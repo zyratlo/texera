@@ -6,6 +6,7 @@ import java.util.List;
 import edu.uci.ics.textdb.api.common.Attribute;
 import edu.uci.ics.textdb.api.common.IField;
 import edu.uci.ics.textdb.api.common.ITuple;
+import edu.uci.ics.textdb.common.constants.SchemaConstants;
 
 /**
  * @author sandeepreddy602
@@ -26,6 +27,35 @@ public class TestUtils {
             if (contains) {
                 return contains;
             }
+        }
+        return contains;
+    }
+    
+    public static boolean checkSpan(List<ITuple> sampleTuples, ITuple actualTuple, List<Attribute> schema) {
+        boolean contains = false;
+        int schemaSize = schema.size();
+        for (ITuple sampleTuple : sampleTuples) {
+            
+            for (int i = 0; i < schemaSize; i++) {
+            	contains = true;
+            	String field =  (String) actualTuple.getField(SchemaConstants.SPAN_FIELD_NAME).getValue();
+            	String fieldValue = (String) sampleTuple.getField(field).getValue();
+            	String actualValue =  (String) actualTuple.getField(SchemaConstants.SPAN_KEY).getValue();
+            	int actualStart = (int) actualTuple.getField(SchemaConstants.SPAN_BEGIN).getValue();
+            	int actualEnd = (int) actualTuple.getField(SchemaConstants.SPAN_END).getValue();
+            	
+                if (actualStart == fieldValue.indexOf(actualValue, actualStart)) {
+                	
+                	if(actualEnd == (actualStart + actualValue.length() - 1))
+                    {
+                		contains = true;
+                		return contains;
+                    }
+                }
+                
+                else contains = false;
+            }
+            
         }
         return contains;
     }

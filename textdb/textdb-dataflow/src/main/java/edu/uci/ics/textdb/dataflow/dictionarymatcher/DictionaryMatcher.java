@@ -83,7 +83,7 @@ public class DictionaryMatcher implements IOperator {
 
                     // Increment positionIndex so that next search occurs from
                     // new positionIndex.
-                    positionIndex = spanIndexValue + fieldValue.length();
+                    positionIndex = spanIndexValue + dictionaryValue.length();
 
                     Attribute attribute = dataTuple.getSchema().get(fieldIndex);
                     fieldName = attribute.getFieldName();
