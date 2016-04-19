@@ -6,6 +6,7 @@ import org.junit.Test;
 import org.junit.Assert;
 
 import edu.uci.ics.textdb.api.common.ITuple;
+import edu.uci.ics.textdb.common.constants.SchemaConstants;
 import edu.uci.ics.textdb.common.constants.TestConstants;
 
 /**
@@ -22,10 +23,14 @@ public class RegexMatcherTest {
 		RegexMatcherTestHelper test = new RegexMatcherTestHelper(TestConstants.SAMPLE_SCHEMA_PEOPLE, data);
 		
 		List<ITuple> expected = new ArrayList<ITuple>();
-		expected.add(data.get(0));
-		expected.add(data.get(2));
-		test.runTest("b.*", TestConstants.FIRST_NAME);
+		expected.add(data.get(3));
+		test.runTest("g.*", TestConstants.FIRST_NAME);
 		Assert.assertTrue(test.matchExpectedResults(expected));
+		
+//		List<ITuple> res = test.getResults();
+//		Assert.assertEquals(res.size(), 1);
+//		System.out.println(res.get(0).getField(7).getValue());
+//		System.out.println(res.get(0).getField(8).getValue());
 		
 		test.cleanUp();
 	}

@@ -34,7 +34,7 @@ public class RegexMatcher implements IOperator {
     private List<IField> fields;
     private List<Attribute> schema;
     
-    private Span[] spans;
+    private List<Span> spans;
     private int nextSpanIndex = -1; //index of next span object to be returned 
 
     public RegexMatcher(IPredicate predicate, ISourceOperator sourceOperator) {
@@ -55,7 +55,7 @@ public class RegexMatcher implements IOperator {
 
     @Override
     public ITuple getNextTuple() throws DataFlowException {
-    	if (nextSpanIndex == -1 || nextSpanIndex == spans.length) {
+    	if (nextSpanIndex == -1 || nextSpanIndex == spans.size()) {
     		try {
                 ITuple sourceTuple = sourceOperator.getNextTuple();
                 if(sourceTuple == null){
@@ -64,15 +64,17 @@ public class RegexMatcher implements IOperator {
                 
                 RegexPredicate rPredicate = (RegexPredicate)predicate; 
                 fields = sourceTuple.getFields();
+                schema = sourceTuple.getSchema();
                 spanFieldName = rPredicate.getFieldName();
                 spanKey = (String)sourceTuple.getField(spanFieldName).getValue();
                 
                 spans = rPredicate.statisfySpan(sourceTuple);
                 
-                if (spans.length != 0) { // at least one match found
+                if (spans.size() != 0) { // at least one match found
                 	nextSpanIndex = 1;
-                	return getSpanTuple(spans[0]);
+                	return getSpanTuple(spans.get(0));
                 } else { // no match found
+                	nextSpanIndex = -1;
                 	return getNextTuple();
                 }
             } catch (Exception e) {
@@ -81,7 +83,7 @@ public class RegexMatcher implements IOperator {
             }
     	} else { //if current field (current list of span) has not been consumed
     		nextSpanIndex ++;
-    		return getSpanTuple(spans[nextSpanIndex]); //return the next span in the list
+    		return getSpanTuple(spans.get(nextSpanIndex-1)); //return the next span in the list
     	}
         
 

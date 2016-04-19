@@ -47,16 +47,16 @@ public class RegexPredicate implements IPredicate{
         return false;
     }
     
-    public Span[] statisfySpan(ITuple tuple) {
+    public List<Span> statisfySpan(ITuple tuple) {
     	List<Span> res = new ArrayList<>();
     	if (tuple == null) {
-    		return res.toArray(new Span[res.size()]); //empty array
+    		return res; //empty array
     	}
     	IField field = tuple.getField(fieldName);
     	if (field instanceof StringField) {
     		String fieldValue = ((StringField) field).getValue();
     		if (fieldValue == null) {
-    			return res.toArray(new Span[res.size()]);
+    			return res;
     		} else {
     			Pattern p = Pattern.compile(regex);
     			Matcher m = p.matcher(fieldValue);
@@ -66,7 +66,7 @@ public class RegexPredicate implements IPredicate{
     		}
     	}
     	
-    	return res.toArray(new Span[res.size()]);
+    	return res;
     }
 
 }

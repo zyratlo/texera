@@ -42,7 +42,15 @@ public class RegexMatcherTestHelper {
 		results = new ArrayList<ITuple>();
 	}
 	
-	
+	public List<ITuple> getResults() {
+		return results;
+	}
+
+	public void setResults(List<ITuple> results) {
+		this.results = results;
+	}
+
+
 	public void runTest(String regex, String fieldName) throws Exception {
 		results.clear();
 		dataReader = new LuceneDataReader(dataStore,
