@@ -14,25 +14,28 @@ import edu.uci.ics.textdb.api.dataflow.ISourceOperator;
 import edu.uci.ics.textdb.common.constants.SchemaConstants;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
 import edu.uci.ics.textdb.common.field.DataTuple;
+import edu.uci.ics.textdb.common.field.IntegerField;
+import edu.uci.ics.textdb.common.field.Span;
 import edu.uci.ics.textdb.common.field.StringField;
+import edu.uci.ics.textdb.dataflow.common.RegexPredicate;
 
 /**
  * Created by chenli on 3/25/16.
+ * @author laishuying
  */
 public class RegexMatcher implements IOperator {
     private final IPredicate predicate;
     private ISourceOperator sourceOperator;
     private Query luceneQuery;
     
-    private int positionIndex; // next position in the field to be checked.
-    private int fieldIndex; // Index of the next field to be checked.
-    private int spanIndexValue; // Starting position of the matched dictionary
-                                // string
-    
-    private String fieldName;
-    private ITuple dataTuple;
+    private String spanFieldName;
+    private String spanKey;
+
     private List<IField> fields;
     private List<Attribute> schema;
+    
+    private Span[] spans;
+    private int nextSpanIndex = -1; //index of next span object to be returned 
 
     public RegexMatcher(IPredicate predicate, ISourceOperator sourceOperator) {
         this.predicate = predicate;
@@ -52,25 +55,39 @@ public class RegexMatcher implements IOperator {
 
     @Override
     public ITuple getNextTuple() throws DataFlowException {
-
-        try {
-            ITuple sourceTuple = sourceOperator.getNextTuple();
-            if(sourceTuple == null){
-                return null;
+    	if (nextSpanIndex == -1 || nextSpanIndex == spans.length) {
+    		try {
+                ITuple sourceTuple = sourceOperator.getNextTuple();
+                if(sourceTuple == null){
+                    return null;
+                }
+                
+                RegexPredicate rPredicate = (RegexPredicate)predicate; 
+                fields = sourceTuple.getFields();
+                spanFieldName = rPredicate.getFieldName();
+                spanKey = (String)sourceTuple.getField(spanFieldName).getValue();
+                
+                spans = rPredicate.statisfySpan(sourceTuple);
+                
+                if (spans.length != 0) { // at least one match found
+                	nextSpanIndex = 1;
+                	return getSpanTuple(spans[0]);
+                } else { // no match found
+                	return getNextTuple();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new DataFlowException(e.getMessage(), e);
             }
-            if (predicate.satisfy(sourceTuple)) {
-                return sourceTuple;
-            } else {
-                return getNextTuple();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new DataFlowException(e.getMessage(), e);
-        }
+    	} else { //if current field (current list of span) has not been consumed
+    		nextSpanIndex ++;
+    		return getSpanTuple(spans[nextSpanIndex]); //return the next span in the list
+    	}
+        
 
     }
     
-    private ITuple getSpanTuple() {
+    private ITuple getSpanTuple(Span span) {
     	List<Attribute> schemaDuplicate = new ArrayList<>(schema);
     	schemaDuplicate.add(SchemaConstants.SPAN_FIELD_NAME_ATTRIBUTE);
     	schemaDuplicate.add(SchemaConstants.SPAN_KEY_ATTRIBUTE);
@@ -78,9 +95,10 @@ public class RegexMatcher implements IOperator {
     	schemaDuplicate.add(SchemaConstants.SPAN_END_ATTRIBUTE);
     	
     	List<IField> fieldListDuplicate = new ArrayList<>(fields);
-//    	fieldListDuplicate.add(new StringField(fieldName));
-//    	fieldListDuplicate.add(new StringField(fieldName));
-//    	fieldListDuplicate.add(new StringField(fieldName));
+    	fieldListDuplicate.add(new StringField(spanFieldName));
+    	fieldListDuplicate.add(new StringField(spanKey));
+    	fieldListDuplicate.add(new IntegerField(span.getStart()));
+    	fieldListDuplicate.add(new IntegerField(span.getEnd()));
     	
     	IField[]  fieldsDuplicate = fieldListDuplicate.toArray(new IField[fieldListDuplicate.size()]);
     	return new DataTuple(schemaDuplicate, fieldsDuplicate);

@@ -23,10 +23,14 @@ public class RegexPredicate implements IPredicate{
     private final String fieldName;
     private final String regex;
 
-    public RegexPredicate(String regex, String fieldName){
+	public RegexPredicate(String regex, String fieldName){
         this.regex = regex;
         this.fieldName = fieldName;
     }
+	
+    public String getFieldName() {
+		return fieldName;
+	}
 
     @Override
     public boolean satisfy(ITuple tuple) {
