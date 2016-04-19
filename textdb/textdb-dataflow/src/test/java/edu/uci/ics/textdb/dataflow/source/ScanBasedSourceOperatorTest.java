@@ -58,7 +58,7 @@ public class ScanBasedSourceOperatorTest {
         int numTuples = 0;
         while((nextTuple  = scanBasedSourceOperator.getNextTuple()) != null){
             //Checking if the tuple retrieved is present in the samplesTuples
-            boolean contains = TestUtils.contains(tuples, nextTuple);
+            boolean contains = TestUtils.contains(tuples, nextTuple, TestConstants.SAMPLE_SCHEMA_PEOPLE);
             Assert.assertTrue(contains);
             numTuples ++;
         }

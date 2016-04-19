@@ -6,8 +6,17 @@
 target/
 out/
 
-# Ignoring Mac OSX specific files
-.DS_Store
 
 # Ignoring IntelliJ related files
 .idea
+
+
+# Ignoring Eclipse files
+.classpath
+.project
+.settings
+index
+
+
+# Ignoring Mac OSX specific files
+.DS_Store
