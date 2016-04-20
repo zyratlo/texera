@@ -66,7 +66,7 @@ public class RegexMatcher implements IOperator {
                 fields = sourceTuple.getFields();
                 schema = sourceTuple.getSchema();
                 spanFieldName = rPredicate.getFieldName();
-                spanKey = (String)sourceTuple.getField(spanFieldName).getValue();
+                spanKey = rPredicate.getRegex();
                 
                 spans = rPredicate.statisfySpan(sourceTuple);
                 

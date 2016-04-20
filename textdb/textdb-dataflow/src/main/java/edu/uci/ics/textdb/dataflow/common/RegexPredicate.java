@@ -31,6 +31,10 @@ public class RegexPredicate implements IPredicate{
     public String getFieldName() {
 		return fieldName;
 	}
+    
+    public String getRegex() {
+    	return regex;
+    }
 
     @Override
     public boolean satisfy(ITuple tuple) {
