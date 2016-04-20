@@ -1,8 +1,6 @@
-/**
- * 
- */
 package edu.uci.ics.textdb.common.field;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -14,24 +12,26 @@ import edu.uci.ics.textdb.api.common.ITuple;
  * @author sandeepreddy602
  *
  */
-public class DataTuple implements ITuple{
+public class DataTuple implements ITuple {
     private final List<Attribute> schema;
     private final List<IField> fields;
 
     public DataTuple(List<Attribute> schema, IField... fields) {
         this.schema = schema;
-        this.fields = Arrays.asList(fields);
+        this.fields = new ArrayList<IField>(Arrays.asList(fields));
     }
-    
+
+    @Override
     public IField getField(int index) {
         return fields.get(index);
     }
 
+    @Override
     public IField getField(String fieldName) {
         int index = -1;
         for (int count = 0; count < schema.size(); count++) {
             Attribute attr = schema.get(count);
-            if(attr.getFieldName().equalsIgnoreCase(fieldName)){
+            if (attr.getFieldName().equalsIgnoreCase(fieldName)) {
                 index = count;
                 break;
             }
@@ -44,12 +44,15 @@ public class DataTuple implements ITuple{
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
 
         DataTuple that = (DataTuple) o;
 
-        if (schema != that.schema) return false;
+        if (schema != that.schema)
+            return false;
         return fields.equals(that.fields);
 
     }
@@ -59,11 +62,20 @@ public class DataTuple implements ITuple{
         return "DataTuple [schema=" + schema + ", fields=" + fields + "]";
     }
 
+    @Override
     public List<IField> getFields() {
         return fields;
     }
-    
+
+    @Override
     public List<Attribute> getSchema() {
         return schema;
     }
+
+    public void addField(Attribute attribute, IField field) {
+        schema.add(attribute);
+        fields.add(field);
+
+    }
+
 }
