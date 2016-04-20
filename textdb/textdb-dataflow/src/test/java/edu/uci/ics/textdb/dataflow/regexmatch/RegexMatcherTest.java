@@ -24,15 +24,14 @@ public class RegexMatcherTest {
 		
 		List<ITuple> expected = new ArrayList<ITuple>();
 		expected.add(data.get(3));
-		test.runTest("g.*", TestConstants.FIRST_NAME);
+		test.runTest("g[^\\s]*", TestConstants.FIRST_NAME);
+//		System.out.println(test.getResults().size());
 		Assert.assertTrue(test.matchExpectedResults(expected));
 		
 //		List<ITuple> res = test.getResults();
 //		Assert.assertEquals(res.size(), 1);
 //		System.out.println(res.get(0).getField(7).getValue());
 //		System.out.println(res.get(0).getField(8).getValue());
-		
-		test.cleanUp();
 	}
 	
 	@Test
