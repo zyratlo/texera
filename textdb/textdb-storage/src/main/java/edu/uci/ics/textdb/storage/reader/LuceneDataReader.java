@@ -12,12 +12,7 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
-import org.apache.lucene.index.Fields;
 import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.index.MultiFields;
-import org.apache.lucene.index.Term;
-import org.apache.lucene.index.Terms;
-import org.apache.lucene.index.TermsEnum;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.IndexSearcher;
@@ -26,7 +21,6 @@ import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
-import org.apache.lucene.util.BytesRef;
 
 import edu.uci.ics.textdb.api.common.Attribute;
 import edu.uci.ics.textdb.api.common.FieldType;
@@ -34,7 +28,6 @@ import edu.uci.ics.textdb.api.common.IField;
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.storage.IDataReader;
 import edu.uci.ics.textdb.api.storage.IDataStore;
-import edu.uci.ics.textdb.common.constants.TestConstants;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
 import edu.uci.ics.textdb.common.exception.ErrorMessages;
 import edu.uci.ics.textdb.common.field.DataTuple;
@@ -64,32 +57,18 @@ public class LuceneDataReader implements IDataReader{
     @Override
     public void open() throws DataFlowException {
 
+
         try {
             Directory directory = FSDirectory.open(Paths.get(dataStore.getDataDirectory()));
             indexReader = DirectoryReader.open(directory);
-
-//Leave this code to test the index and query in future.
-            
-//    		Fields fields = MultiFields.getFields(indexReader);
-//    		for (String field : fields) {
-//    		    System.out.println(field);
-//	            Terms terms = fields.terms(field);
-//	            TermsEnum termsEnum = terms.iterator();
-//	            BytesRef byteRef = null;
-//	            while((byteRef = termsEnum.next()) != null) {
-//	                String term = new String(byteRef.bytes, byteRef.offset, byteRef.length);
-//	                System.out.println(term);
-//	            }
-//	        }
-                		
             indexSearcher = new IndexSearcher(indexReader);
             Analyzer analyzer = new StandardAnalyzer();
             QueryParser queryParser = new QueryParser(defaultField, analyzer);
             Query queryObj = queryParser.parse(query);
+            
             TopDocs topDocs = indexSearcher.search(queryObj, Integer.MAX_VALUE);
             scoreDocs = topDocs.scoreDocs;
             cursor = OPENED;
-            
         } catch (IOException e) {
             e.printStackTrace();
             throw new DataFlowException(e.getMessage(), e);
