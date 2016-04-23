@@ -10,39 +10,39 @@ import edu.uci.ics.textdb.common.exception.DataFlowException;
  */
 public class IndexSearchSourceOperator implements ISourceOperator {
 
-private IDataReader dataReader;
-    
-    public IndexSearchSourceOperator(IDataReader dataReader) throws DataFlowException {
-        this.dataReader = dataReader;
-    }
+	private IDataReader dataReader;
 
-    @Override
-    public void open() throws DataFlowException {
-        try {
-            dataReader.open();
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new DataFlowException(e.getMessage(), e);
-        }
-    }
+	public IndexSearchSourceOperator(IDataReader dataReader) throws DataFlowException {
+		this.dataReader = dataReader;
+	}
 
-    @Override
-    public ITuple getNextTuple() throws DataFlowException {
-        try {
-            return dataReader.getNextTuple();
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new DataFlowException(e.getMessage(), e);
-        }
-    }
+	@Override
+	public void open() throws DataFlowException {
+		try {
+			dataReader.open();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new DataFlowException(e.getMessage(), e);
+		}
+	}
 
-    @Override
-    public void close() throws DataFlowException {
-        try {
-            dataReader.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new DataFlowException(e.getMessage(), e);
-        }
-    }
+	@Override
+	public ITuple getNextTuple() throws DataFlowException {
+		try {
+			return dataReader.getNextTuple();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new DataFlowException(e.getMessage(), e);
+		}
+	}
+
+	@Override
+	public void close() throws DataFlowException {
+		try {
+			dataReader.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new DataFlowException(e.getMessage(), e);
+		}
+	}
 }
