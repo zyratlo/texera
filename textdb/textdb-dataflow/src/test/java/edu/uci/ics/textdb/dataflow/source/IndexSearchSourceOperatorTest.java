@@ -52,7 +52,7 @@ public class IndexSearchSourceOperatorTest {
 		dataWriter.clearData();
 	}
 
-	public List<ITuple> getTupleCount(String query) throws DataFlowException, ParseException {
+	public List<ITuple> getQueryResults(String query) throws DataFlowException, ParseException {
 		String defaultField = TestConstants.ATTRIBUTES_PEOPLE.get(0).getFieldName();
 		QueryParser queryParser = new QueryParser(defaultField, analyzer);
 		Query queryObject = queryParser.parse(query);
@@ -75,7 +75,7 @@ public class IndexSearchSourceOperatorTest {
 	 */
 	@Test
 	public void testTextSearcWithMultipleTokens() throws DataFlowException, ParseException {
-		List<ITuple> results = getTupleCount(TestConstants.DESCRIPTION + ":Tall,Brown");
+		List<ITuple> results = getQueryResults(TestConstants.DESCRIPTION + ":Tall,Brown");
 		int numTuples = results.size();
 		Assert.assertEquals(3, numTuples);
 
@@ -93,7 +93,7 @@ public class IndexSearchSourceOperatorTest {
 	 */
 	@Test
 	public void testTextSearchWithSingleToken() throws DataFlowException, ParseException {
-		List<ITuple> results = getTupleCount(TestConstants.DESCRIPTION + ":angry");
+		List<ITuple> results = getQueryResults(TestConstants.DESCRIPTION + ":angry");
 		int numTuples = results.size();
 		for (ITuple tuple : results) {
 			String value = (String) tuple.getField(TestConstants.DESCRIPTION).getValue();
@@ -111,7 +111,7 @@ public class IndexSearchSourceOperatorTest {
 	 */
 	@Test
 	public void testStringSearchWithSubstring() throws DataFlowException, ParseException {
-		List<ITuple> results = getTupleCount("lin");
+		List<ITuple> results = getQueryResults("lin");
 		int numTuples = results.size();
 		Assert.assertEquals(0, numTuples);
 	}
@@ -125,7 +125,7 @@ public class IndexSearchSourceOperatorTest {
 	 */
 	@Test
 	public void testMultipleFields() throws DataFlowException, ParseException {
-		List<ITuple> results = getTupleCount(
+		List<ITuple> results = getQueryResults(
 				TestConstants.DESCRIPTION + ":(Tall,Brown)" + " AND " + TestConstants.LAST_NAME + ":cruise");
 		int numTuples = results.size();
 		Assert.assertEquals(1, numTuples);
