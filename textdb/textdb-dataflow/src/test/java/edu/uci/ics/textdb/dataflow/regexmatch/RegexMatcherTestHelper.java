@@ -3,6 +3,11 @@ package edu.uci.ics.textdb.dataflow.regexmatch;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.queryparser.classic.QueryParser;
+import org.apache.lucene.search.Query;
+
 import edu.uci.ics.textdb.api.common.IPredicate;
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.common.Schema;
@@ -33,10 +38,13 @@ public class RegexMatcherTestHelper {
 	private IDataStore dataStore;
 	
 	private List<ITuple> results;
+    private Analyzer analyzer;
+    private Query query;
 	
 	public RegexMatcherTestHelper(Schema schema, List<ITuple> data) throws Exception {
 		dataStore = new LuceneDataStore(LuceneConstants.INDEX_DIR, schema);
-		dataWriter = new LuceneDataWriter(dataStore);
+		analyzer = new  StandardAnalyzer();
+        dataWriter = new LuceneDataWriter(dataStore, analyzer);
 		dataWriter.clearData();
 		dataWriter.writeData(data);	
 		results = new ArrayList<ITuple>();
@@ -45,8 +53,10 @@ public class RegexMatcherTestHelper {
 	
 	public void runTest(String regex, String fieldName) throws Exception {
 		results.clear();
-		dataReader = new LuceneDataReader(dataStore,
-				LuceneConstants.SCAN_QUERY, TestConstants.FIRST_NAME);
+		QueryParser queryParser = new QueryParser(
+                TestConstants.FIRST_NAME, analyzer);
+        query = queryParser.parse(LuceneConstants.SCAN_QUERY);
+        dataReader = new LuceneDataReader(dataStore, query);
 
 		IPredicate predicate = new RegexPredicate(regex, fieldName);
 		ISourceOperator sourceOperator = new ScanBasedSourceOperator(dataReader);

@@ -25,9 +25,11 @@ import edu.uci.ics.textdb.common.utils.Utils;
 public class LuceneDataWriter implements IDataWriter{
     
     private IDataStore dataStore;
+    private Analyzer analyzer;
 
-    public LuceneDataWriter(IDataStore dataStore) {
+    public LuceneDataWriter(IDataStore dataStore, Analyzer analyzer) {
         this.dataStore = dataStore;
+        this.analyzer = analyzer;
     }
     
     @Override
@@ -36,7 +38,6 @@ public class LuceneDataWriter implements IDataWriter{
         try {
             Directory directory = FSDirectory.open(Paths
                     .get(dataStore.getDataDirectory()));
-            Analyzer analyzer = new StandardAnalyzer();
             IndexWriterConfig conf = new IndexWriterConfig(analyzer);
             indexWriter = new IndexWriter(directory, conf);
             indexWriter.deleteAll();
