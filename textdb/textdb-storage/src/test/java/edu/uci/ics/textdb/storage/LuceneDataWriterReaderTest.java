@@ -4,6 +4,11 @@ import java.util.List;
 
 import junit.framework.Assert;
 
+import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.queryparser.classic.ParseException;
+import org.apache.lucene.queryparser.classic.QueryParser;
+import org.apache.lucene.search.Query;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -20,13 +25,18 @@ public class LuceneDataWriterReaderTest {
     private IDataWriter dataWriter;
     private IDataReader dataReader;
     private IDataStore dataStore;
+    private Analyzer analyzer;
+    private Query query;
     
     @Before
-    public void setUp(){
+    public void setUp() throws ParseException{
         dataStore = new LuceneDataStore(LuceneConstants.INDEX_DIR, TestConstants.SCHEMA_PEOPLE);
-        dataWriter = new LuceneDataWriter(dataStore);
-        dataReader = new LuceneDataReader(dataStore, LuceneConstants.SCAN_QUERY, 
-                TestConstants.ATTRIBUTES_PEOPLE.get(0).getFieldName());
+        analyzer = new  StandardAnalyzer();
+        dataWriter = new LuceneDataWriter(dataStore, analyzer );
+        QueryParser queryParser = new QueryParser(
+                TestConstants.ATTRIBUTES_PEOPLE.get(0).getFieldName(), analyzer);
+        query = queryParser.parse(LuceneConstants.SCAN_QUERY);
+        dataReader = new LuceneDataReader(dataStore, query);
     }
     
     @Test
