@@ -29,7 +29,7 @@ public class TextField implements IField {
 
 		TextField that = (TextField) o;
 
-		return !(value != null ? !value.equals(that.value) : that.value != null);
+		return value != null ? value.equals(that.value) : that.value == null;
 
 	}
 
