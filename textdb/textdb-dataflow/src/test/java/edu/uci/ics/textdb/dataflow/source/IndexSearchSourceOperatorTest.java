@@ -3,10 +3,14 @@
  */
 package edu.uci.ics.textdb.dataflow.source;
 
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.queryparser.classic.ParseException;
+import org.apache.lucene.queryparser.classic.QueryParser;
+import org.apache.lucene.search.Query;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -32,11 +36,13 @@ public class IndexSearchSourceOperatorTest {
 	private IDataWriter dataWriter;
 	private IndexSearchSourceOperator indexSearchSourceOperator;
 	private IDataStore dataStore;
+	private Analyzer analyzer;
 
 	@Before
 	public void setUp() throws Exception {
-		dataStore = new LuceneDataStore(LuceneConstants.INDEX_DIR, TestConstants.SAMPLE_SCHEMA_PEOPLE);
-		dataWriter = new LuceneDataWriter(dataStore);
+		dataStore = new LuceneDataStore(LuceneConstants.INDEX_DIR, TestConstants.SCHEMA_PEOPLE);
+		analyzer = new StandardAnalyzer();
+		dataWriter = new LuceneDataWriter(dataStore, analyzer);
 		dataWriter.clearData();
 		dataWriter.writeData(TestConstants.getSamplePeopleTuples());
 	}
@@ -47,8 +53,10 @@ public class IndexSearchSourceOperatorTest {
 	}
 
 	public List<ITuple> getTupleCount(String query) throws DataFlowException, ParseException {
-		String defaultField = TestConstants.FIRST_NAME;
-		IDataReader dataReader = new LuceneDataReader(dataStore, query, defaultField);
+		String defaultField = TestConstants.ATTRIBUTES_PEOPLE.get(0).getFieldName();
+		QueryParser queryParser = new QueryParser(defaultField, analyzer);
+		Query queryObject = queryParser.parse(query);
+		IDataReader dataReader = new LuceneDataReader(dataStore, queryObject);
 		indexSearchSourceOperator = new IndexSearchSourceOperator(dataReader);
 		indexSearchSourceOperator.open();
 
