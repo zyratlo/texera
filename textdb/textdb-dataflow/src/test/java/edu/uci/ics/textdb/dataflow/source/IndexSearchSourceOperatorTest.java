@@ -81,7 +81,11 @@ public class IndexSearchSourceOperatorTest {
 		indexSearchSourceOperator.close();
 		return results;
 	}
-
+	/**
+	 * Search in a text field with multiple tokens.
+	 * @throws DataFlowException
+	 * @throws ParseException
+	 */
 	@Test
 	public void testTextSearcWithMultipleTokens() throws DataFlowException, ParseException {
 		List<ITuple> results = getTupleCount(TestConstants.DESCRIPTION + ":Tall,Brown");
@@ -94,18 +98,30 @@ public class IndexSearchSourceOperatorTest {
 		}
 	}
 
+	/**
+	 * Search in a text field with a single token
+	 * 
+	 * @throws DataFlowException
+	 * @throws ParseException
+	 */
 	@Test
 	public void testTextSearchWithSingleToken() throws DataFlowException, ParseException {
-		List<ITuple> results = getTupleCount(TestConstants.DESCRIPTION + ":Tall");
+		List<ITuple> results = getTupleCount(TestConstants.DESCRIPTION + ":angry");
 		int numTuples = results.size();
 		for (ITuple tuple : results) {
 			String value = (String) tuple.getField(TestConstants.DESCRIPTION).getValue();
-			Assert.assertTrue(value.toLowerCase().contains("tall"));
+			Assert.assertTrue(value.toLowerCase().contains("angry"));
 		}
-
-		Assert.assertEquals(2, numTuples);
+		Assert.assertEquals(3, numTuples);
 	}
 
+	/**
+	 * Test a query on the string field, with a substring as the query 
+	 * 			Should return no result
+	 * 
+	 * @throws DataFlowException
+	 * @throws ParseException
+	 */
 	@Test
 	public void testStringSearchWithSubstring() throws DataFlowException, ParseException {
 		List<ITuple> results = getTupleCount("lin");
@@ -113,6 +129,13 @@ public class IndexSearchSourceOperatorTest {
 		Assert.assertEquals(0, numTuples);
 	}
 
+	/**
+	 * 
+	 * Test a query which has multiple field
+	 * 
+	 * @throws DataFlowException
+	 * @throws ParseException
+	 */
 	@Test
 	public void testMultipleFields() throws DataFlowException, ParseException {
 		List<ITuple> results = getTupleCount(

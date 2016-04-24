@@ -30,7 +30,7 @@ public class StringField implements IField {
 
 		StringField that = (StringField) o;
 
-		return !(value != null ? !value.equals(that.value) : that.value != null);
+		return value != null ? value.equals(that.value) : that.value == null;
 
 	}
 
