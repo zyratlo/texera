@@ -3,10 +3,16 @@
  */
 package edu.uci.ics.textdb.dataflow.source;
 
-import java.text.ParseException;
+
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.core.StopAnalyzer;
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.queryparser.classic.ParseException;
+import org.apache.lucene.queryparser.classic.QueryParser;
+import org.apache.lucene.search.Query;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -30,13 +36,22 @@ import edu.uci.ics.textdb.storage.writer.LuceneDataWriter;
 public class IndexSearchSourceOperatorTest {
 
 	private IDataWriter dataWriter;
+	private IDataReader dataReader;
 	private IndexSearchSourceOperator indexSearchSourceOperator;
 	private IDataStore dataStore;
+	private Analyzer analyzer;
+	private Query query;
 
 	@Before
 	public void setUp() throws Exception {
-		dataStore = new LuceneDataStore(LuceneConstants.INDEX_DIR, TestConstants.SAMPLE_SCHEMA_PEOPLE);
-		dataWriter = new LuceneDataWriter(dataStore);
+		dataStore = new LuceneDataStore(LuceneConstants.INDEX_DIR, TestConstants.SCHEMA_PEOPLE);
+		analyzer = new  StandardAnalyzer();
+		dataWriter = new LuceneDataWriter(dataStore,analyzer );
+
+		QueryParser queryParser = new QueryParser(
+				TestConstants.ATTRIBUTES_PEOPLE.get(0).getFieldName(), analyzer);
+		query = queryParser.parse(LuceneConstants.SCAN_QUERY);
+		dataReader = new LuceneDataReader(dataStore, query);
 		dataWriter.clearData();
 		dataWriter.writeData(TestConstants.getSamplePeopleTuples());
 	}
@@ -46,11 +61,17 @@ public class IndexSearchSourceOperatorTest {
 		dataWriter.clearData();
 	}
 
-	public List<ITuple> getTupleCount(String query) throws DataFlowException, ParseException {
+	public List<ITuple> getTupleCount(String q) throws DataFlowException, ParseException {
 		String defaultField = TestConstants.FIRST_NAME;
-		IDataReader dataReader = new LuceneDataReader(dataStore, query, defaultField);
+        QueryParser queryParser = new QueryParser(
+                TestConstants.ATTRIBUTES_PEOPLE.get(0).getFieldName(), analyzer);
+        query  = queryParser.parse(q);
+		dataReader = new LuceneDataReader(dataStore, query);
+
+		IDataReader dataReader = new LuceneDataReader(dataStore, query);
 		indexSearchSourceOperator = new IndexSearchSourceOperator(dataReader);
 		indexSearchSourceOperator.open();
+
 
 		List<ITuple> results = new ArrayList<ITuple>();
 		ITuple nextTuple = null;
