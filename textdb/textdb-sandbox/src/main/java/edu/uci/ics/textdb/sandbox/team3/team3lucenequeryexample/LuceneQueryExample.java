@@ -24,17 +24,32 @@ import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 
 public class LuceneQueryExample {
-	public static void main(String[] args) throws Exception {
-		String dataFileName = "/Users/laishuying/Desktop/lucenetext.txt";
+	String dataFileName;
+	Analyzer analyzer;
+	IndexSearcher searcher;
+	
+	public LuceneQueryExample(String dfn, int n_min, int n_max) {
+		dataFileName = dfn;
 		
-		Analyzer analyzer = new Analyzer() {
+		analyzer = new Analyzer() {
 			@Override
 			protected TokenStreamComponents createComponents(String fieldName) {
-				Tokenizer source = new NGramTokenizer(3,3);
+				Tokenizer source = new NGramTokenizer(n_min, n_max);
 				return new TokenStreamComponents(source);
 			}
 		};
-		
+	}
+	
+	public void initiateSearcher() throws Exception {
+		searcher = new IndexSearcher(
+				DirectoryReader.open(FSDirectory.open(Paths.get("index"))));
+	}
+	
+	public IndexSearcher getSearcher() {
+		return searcher;
+	}
+	
+	public void buildNGramIndex() throws Exception {
 		Directory indexDir = FSDirectory.open(Paths.get("index"));
 		try {
 			IndexWriterConfig config = new IndexWriterConfig(analyzer);
@@ -59,20 +74,14 @@ public class LuceneQueryExample {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public TopDocs search(String queryText, int n) throws Exception{
 		
-		//perform search "network"
-		String querytext = "data:\"net\" AND data:\"etw\" AND data:\"two\" AND data:\"wor\" AND data: \"ork\" ";
-		IndexSearcher searcher = new IndexSearcher(
-				DirectoryReader.open(FSDirectory.open(Paths.get("index"))));
 		QueryParser parser = new QueryParser("data", analyzer);
-		Query query = parser.parse(querytext);
-		TopDocs res = searcher.search(query, 100);
-		ScoreDoc[] scoredocs= res.scoreDocs;
-		for (ScoreDoc scoredoc: scoredocs) {
-			System.out.println("Hit document id: " + scoredoc.doc);
-			Document document = searcher.doc(scoredoc.doc);
-			String text = document.getField("data").stringValue();
-			System.out.println("Hit document text: " + text);
-		}
+		Query query = parser.parse(queryText);
+		TopDocs res = searcher.search(query, n);
+		return res;
+
 	}
 }
