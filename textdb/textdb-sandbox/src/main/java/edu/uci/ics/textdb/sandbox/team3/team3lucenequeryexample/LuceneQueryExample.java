@@ -1,4 +1,4 @@
-package edu.uci.ics.textdb.sandbox.team3lucenequeryexample;
+package edu.uci.ics.textdb.sandbox.team3.team3lucenequeryexample;
 
 import java.io.File;
 import java.io.IOException;
