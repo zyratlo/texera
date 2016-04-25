@@ -2,22 +2,21 @@ package edu.uci.ics.textdb.dataflow.queryrewriter;
 
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.dataflow.IOperator;
-import org.apache.lucene.search.Query;
 
 /**
  * Created by kishorenarendran on 25/04/16.
  */
 public class QueryRewriter implements IOperator{
 
-    private Query searchQuery;
-    private QueryParser queryParser;
+    private String searchQuery;
+    private FuzzyTokenizer fuzzyTokenizer;
 
     /**
-     * Parameterized constructor that requires a Lucene Search Query that
+     * Parameterized constructor that requires a Search Query String that
      * is to be rewritten
      * @param searchQuery
      */
-    public QueryRewriter(Query searchQuery) {
+    public QueryRewriter(String searchQuery) {
         this.searchQuery = searchQuery;
     }
 
@@ -28,13 +27,13 @@ public class QueryRewriter implements IOperator{
      */
     @Override
     public void open() throws Exception {
-        queryParser = new QueryParser(searchQuery.toString());
+        fuzzyTokenizer = new FuzzyTokenizer(searchQuery);
     }
 
     /**
-     * Calling appropriate queryParser method to populate the list
+     * Calling appropriate fuzzyTokenizer method to populate the list
      * of rewritten search queries
-     * @return
+     * @return - Tuple with the rewritten queries as a comma separated string
      * @throws Exception
      */
     @Override
@@ -48,6 +47,6 @@ public class QueryRewriter implements IOperator{
      */
     @Override
     public void close() throws Exception {
-        queryParser = null;
+        fuzzyTokenizer = null;
     }
 }
