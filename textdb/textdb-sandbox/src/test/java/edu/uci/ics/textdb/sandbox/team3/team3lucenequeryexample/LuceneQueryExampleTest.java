@@ -2,9 +2,6 @@ package edu.uci.ics.textdb.sandbox.team3.team3lucenequeryexample;
 
 import static org.junit.Assert.*;
 
-import java.io.IOException;
-import java.nio.file.Paths;
-
 import org.apache.lucene.document.Document;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.ScoreDoc;
@@ -21,7 +18,7 @@ public class LuceneQueryExampleTest {
 
 	@Before
 	public void setUp() throws Exception {
-		queryExample = new LuceneQueryExample("lucenetext.txt", 3, 3);
+		queryExample = new LuceneQueryExample("team3datafile.txt", 3, 3);
 		queryExample.initiateSearcher();
 	}
 
@@ -34,7 +31,8 @@ public class LuceneQueryExampleTest {
 		queryExample.buildNGramIndex();
 		
 		//perform search "network"
-		String queryText = "data:\"net\" AND data:\"etw\" AND data:\"two\" AND data:\"wor\" AND data: \"ork\" ";
+//		String queryText = "data:\"net\" AND data:\"etw\" AND data:\"two\" AND data:\"wor\" AND data: \"ork\" ";
+		String queryText = "data:\"net\" AND \"etw\" AND \"two\" AND \"wor\" AND \"ork\" ";
 		TopDocs topdoc = queryExample.search(queryText, 100);
 		ScoreDoc[] scoredocs = topdoc.scoreDocs;
 		
