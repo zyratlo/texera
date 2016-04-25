@@ -1,8 +1,9 @@
-package edu.uci.ics.textdb.sandbox.team3.team3.lucenequeryexample;
+package edu.uci.ics.textdb.sandbox.team3.team3lucenequeryexample;
 
 import static org.junit.Assert.*;
 
 import java.io.IOException;
+import java.nio.file.Paths;
 
 import org.apache.lucene.document.Document;
 import org.apache.lucene.search.IndexSearcher;
@@ -20,7 +21,7 @@ public class LuceneQueryExampleTest {
 
 	@Before
 	public void setUp() throws Exception {
-		queryExample = new LuceneQueryExample("", 3, 3);
+		queryExample = new LuceneQueryExample("lucenetext.txt", 3, 3);
 		queryExample.initiateSearcher();
 	}
 
@@ -45,7 +46,7 @@ public class LuceneQueryExampleTest {
 			String text = document.getField("data").stringValue();
 			assertTrue(text.contains("network"));
 		}
-		assertEquals(hitCount, 0);
+		assertEquals(hitCount, 26);
 	}
 
 }
