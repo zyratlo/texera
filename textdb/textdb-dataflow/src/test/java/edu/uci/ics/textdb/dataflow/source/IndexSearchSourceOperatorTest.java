@@ -23,6 +23,7 @@ import edu.uci.ics.textdb.api.storage.IDataWriter;
 import edu.uci.ics.textdb.common.constants.LuceneConstants;
 import edu.uci.ics.textdb.common.constants.TestConstants;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
+import edu.uci.ics.textdb.dataflow.utils.TestUtils;
 import edu.uci.ics.textdb.storage.LuceneDataStore;
 import edu.uci.ics.textdb.storage.reader.LuceneDataReader;
 import edu.uci.ics.textdb.storage.writer.LuceneDataWriter;
@@ -79,10 +80,8 @@ public class IndexSearchSourceOperatorTest {
 		int numTuples = results.size();
 		Assert.assertEquals(3, numTuples);
 
-		for (ITuple tuple : results) {
-			String value = (String) tuple.getField(TestConstants.DESCRIPTION).getValue();
-			Assert.assertTrue(value.toLowerCase().contains("tall") || value.toLowerCase().contains("brown"));
-		}
+		boolean check = TestUtils.checkResults(results,"Tall,Brown" , this.analyzer,TestConstants.DESCRIPTION);
+		Assert.assertTrue(check);
 	}
 
 	/**
@@ -95,10 +94,8 @@ public class IndexSearchSourceOperatorTest {
 	public void testTextSearchWithSingleToken() throws DataFlowException, ParseException {
 		List<ITuple> results = getQueryResults(TestConstants.DESCRIPTION + ":angry");
 		int numTuples = results.size();
-		for (ITuple tuple : results) {
-			String value = (String) tuple.getField(TestConstants.DESCRIPTION).getValue();
-			Assert.assertTrue(value.toLowerCase().contains("angry"));
-		}
+		boolean check = TestUtils.checkResults(results,"angry" , this.analyzer,TestConstants.DESCRIPTION);
+		Assert.assertTrue(check);
 		Assert.assertEquals(3, numTuples);
 	}
 
