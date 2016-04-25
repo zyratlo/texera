@@ -38,6 +38,15 @@ public class TestUtils {
         return contains;
     }
     
+    public static boolean containsAllResults(List<ITuple> expectedResults, List<ITuple> exactResults) {
+        if(expectedResults.size() != exactResults.size())
+        	return false;
+        if(!(expectedResults.containsAll(exactResults)) || !(exactResults.containsAll(expectedResults)))
+        	return false;
+        
+        return true;
+    }
+    
     public static boolean checkResults(List<ITuple> results, String queryString, Analyzer queryAnalyzer, String searchField) throws ParseException {
         
     	
@@ -46,6 +55,7 @@ public class TestUtils {
         parser = new QueryParser(searchField, queryAnalyzer);
         Query query = parser.parse(queryString);
         String searchString = query.toString(searchField);
+        System.out.println(query.toString(searchField));
         String[] listOfQueryWords = searchString.split(" ");
         
         for (ITuple sampleTuple : results) {
