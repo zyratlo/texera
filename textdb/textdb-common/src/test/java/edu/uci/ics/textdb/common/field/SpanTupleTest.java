@@ -1,22 +1,20 @@
 package edu.uci.ics.textdb.common.field;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import junit.framework.Assert;
-
-import org.junit.Before;
-import org.junit.Test;
-
 import edu.uci.ics.textdb.api.common.Attribute;
 import edu.uci.ics.textdb.api.common.IField;
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.common.Schema;
 import edu.uci.ics.textdb.common.constants.SchemaConstants;
 import edu.uci.ics.textdb.common.constants.TestConstants;
+import junit.framework.Assert;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class SpanTupleTest {
     
@@ -34,7 +32,7 @@ public class SpanTupleTest {
         List<IField> fields = new ArrayList<IField>(
                 Arrays.asList(new IField[]{new StringField("bruce"), new StringField("lee"), new IntegerField(46), 
                 new DoubleField(5.50), new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-14-1970")),
-                new TextField("Tall Brown")}));
+                new TextField("Tall Brown"), new TextField("New York City")}));
         
         //populate span related fields
         attributes.add(SchemaConstants.SPAN_FIELD_NAME_ATTRIBUTE);
