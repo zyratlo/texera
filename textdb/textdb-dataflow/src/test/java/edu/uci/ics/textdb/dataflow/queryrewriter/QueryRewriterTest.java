@@ -10,11 +10,12 @@ import java.util.List;
 
 /**
  * Created by kishorenarendran on 25/04/16.
+ * Testing QueryRewriter
  */
 public class QueryRewriterTest {
 
     @Test
-    public void testHorsesSearchString() throws Exception {
+    public void testHORSESHOE() throws Exception {
         String query = "horseshoe";
 
         QueryRewriter queryRewriter = new QueryRewriter(query);
@@ -35,15 +36,39 @@ public class QueryRewriterTest {
         Collections.sort(correctSet);
         Collections.sort(fuzzySet);
 
-        //TODO - Uncomment the lines 41-42 to perform the test
         //After the QueryRewriter and the FuzzyTokenizer classes are completed
 
-        //Assert.assertEquals(correctSet.size(), fuzzySet.size());
-        //Assert.assertEquals(correctSet, fuzzySet);
+        Assert.assertEquals(correctSet.size(), fuzzySet.size());
+        Assert.assertEquals(correctSet, fuzzySet);
     }
 
     @Test
-    public void testNewYorkCitySearchString() throws Exception {
+    public void testHORSE_SHOE() throws Exception {
+        String query = "horse shoe";
+
+        QueryRewriter queryRewriter = new QueryRewriter(query);
+        queryRewriter.open();
+        ITuple iTuple = queryRewriter.getNextTuple();
+        queryRewriter.close();
+
+        Assert.assertNotNull(iTuple);
+
+        List<String> fuzzySet = (List<String>) iTuple.getField(0).getValue();
+        Assert.assertNotNull(fuzzySet);
+
+        List<String> correctSet = Arrays.asList("horse shoe");
+
+        Collections.sort(correctSet);
+        Collections.sort(fuzzySet);
+
+        //After the QueryRewriter and the FuzzyTokenizer classes are completed
+
+        Assert.assertEquals(correctSet.size(), fuzzySet.size());
+        Assert.assertEquals(correctSet, fuzzySet);
+    }
+
+    @Test
+    public void testNEWYORK_CITY() throws Exception {
         String query = "newyork city";
 
         QueryRewriter queryRewriter = new QueryRewriter(query);
@@ -53,18 +78,17 @@ public class QueryRewriterTest {
 
         Assert.assertNotNull(iTuple);
 
-        List<String> queryList = (List<String>) iTuple.getField(0).getValue();
-        Assert.assertNotNull(queryList);
+        List<String> fuzzySet = (List<String>) iTuple.getField(0).getValue();
+        Assert.assertNotNull(fuzzySet);
 
         List<String> correctSet = Arrays.asList("new york city",
                 "newyork city");
         Collections.sort(correctSet);
-        Collections.sort(queryList);
+        Collections.sort(fuzzySet);
 
-        //TODO - Uncomment the lines 67-68 to perform the test
         //After the QueryRewriter and the FuzzyTokenizer classes are completed
 
-        //Assert.assertEquals(correctSet.size(), fuzzySet.size());
-        //Assert.assertEquals(correctSet, fuzzySet);
+        Assert.assertEquals(correctSet.size(), fuzzySet.size());
+        Assert.assertEquals(correctSet, fuzzySet);
     }
 }

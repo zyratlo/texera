@@ -10,6 +10,7 @@ import java.util.List;
 
 /**
  * Created by kishorenarendran on 25/04/16.
+ * Class to convert a query string into a list of possible queries using FuzzyTokenizer
  */
 public class QueryRewriter implements IOperator{
 

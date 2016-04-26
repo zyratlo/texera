@@ -9,21 +9,23 @@ import java.util.HashSet;
 
 /**
  * Created by shiladitya on 4/25/16.
+ * Class to provide simple abstraction of a dictionary of words with constant retrieval time
+ * Used by FuzzyTokenizer to process query
  */
 public class WordDictionary {
 
-    private static HashSet<String> wordDict;
+    private HashSet<String> wordDictionary;
 
     public WordDictionary(String dictSourceFileName) throws IOException {
-        wordDict = new HashSet<String>();
+        wordDictionary = new HashSet<String>();
         BufferedReader wordReader = new BufferedReader(new FileReader(dictSourceFileName));
         String line;
 
         while( (line = wordReader.readLine()) != null )
-            wordDict.add(line);
+            wordDictionary.add(line);
     }
 
     public boolean contains(String word) {
-        return wordDict.contains(word);
+        return wordDictionary.contains(word);
     }
 }

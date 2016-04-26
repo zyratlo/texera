@@ -2,6 +2,8 @@ package edu.uci.ics.textdb.dataflow.queryrewriter;
 
 /**
  * Created by kishorenarendran on 25/04/16.
+ * Class to take in a query and with a dictionary of words split it into possible set of queries
+ * Gets called by QueryRewriter
  */
 public class FuzzyTokenizer {
 
