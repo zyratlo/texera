@@ -24,7 +24,6 @@ public class TestConstants {
 	public static final String HEIGHT = "height";
 	public static final String DATE_OF_BIRTH = "dateOfBirth";
 	public static final String DESCRIPTION = "description";
-	public static final String CITY = "city";
 
 	public static final Attribute FIRST_NAME_ATTR = new Attribute(FIRST_NAME, FieldType.STRING);
 	public static final Attribute LAST_NAME_ATTR = new Attribute(LAST_NAME, FieldType.STRING);
@@ -32,30 +31,29 @@ public class TestConstants {
 	public static final Attribute HEIGHT_ATTR = new Attribute(HEIGHT, FieldType.DOUBLE);
 	public static final Attribute DATE_OF_BIRTH_ATTR = new Attribute(DATE_OF_BIRTH, FieldType.DATE);
 	public static final Attribute DESCRIPTION_ATTR = new Attribute(DESCRIPTION, FieldType.TEXT);
-	public static final Attribute CITY_ATTR = new Attribute(CITY, FieldType.TEXT);
 
     // Sample Schema
     public static final List<Attribute> ATTRIBUTES_PEOPLE = Arrays.asList(FIRST_NAME_ATTR, LAST_NAME_ATTR, AGE_ATTR,
-            HEIGHT_ATTR, DATE_OF_BIRTH_ATTR,DESCRIPTION_ATTR, CITY_ATTR );
+            HEIGHT_ATTR, DATE_OF_BIRTH_ATTR,DESCRIPTION_ATTR );
     public static final Schema SCHEMA_PEOPLE = new Schema(ATTRIBUTES_PEOPLE);
     
     public static List<ITuple> getSamplePeopleTuples() throws ParseException {
 
 		IField[] fields1 = { new StringField("bruce banner"), new StringField("john Lee"), new IntegerField(46),
 				new DoubleField(5.50), new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-14-1970")),
-				new TextField("Tall Angry"), new TextField("New York City") };
+				new TextField("Tall Angry")};
 		IField[] fields2 = { new StringField("tom hanks"), new StringField("cruise"), new IntegerField(45),
 				new DoubleField(5.95), new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-13-1971")),
-				new TextField("Short Brown"), new TextField("New York City") };
+				new TextField("Short Brown")};
 		IField[] fields3 = { new StringField("brad lie angelina"), new StringField("pitt"), new IntegerField(44),
 				new DoubleField(6.10), new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-12-1972")),
-				new TextField("White Angry"), new TextField("Los Angeles") };
+				new TextField("White Angry")};
 		IField[] fields4 = { new StringField("george lin lin"), new StringField("lin clooney"), new IntegerField(43),
 				new DoubleField(6.06), new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-13-1973")),
-				new TextField("Short Angry"), new TextField("Los Angeles") };
+				new TextField("Short Angry")};
 		IField[] fields5 = { new StringField("christian john wayne"), new StringField("rock bale"),
 				new IntegerField(42), new DoubleField(5.99),
-				new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-13-1974")), new TextField("Tall Fair"), new TextField("Los Angeles") };
+				new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-13-1974")), new TextField("Tall Fair")};
 
 		ITuple tuple1 = new DataTuple(SCHEMA_PEOPLE, fields1);
 		ITuple tuple2 = new DataTuple(SCHEMA_PEOPLE, fields2);
