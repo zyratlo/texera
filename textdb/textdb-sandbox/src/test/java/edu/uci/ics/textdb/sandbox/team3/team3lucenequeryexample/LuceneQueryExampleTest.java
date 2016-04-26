@@ -10,14 +10,14 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import edu.uci.ics.textdb.sandbox.team3.team3lucenequeryexample.LuceneQueryExample;
+import edu.uci.ics.textdb.sandbox.team3.team3lucenequeryexample.LuceneNgramQueryExample;
 
 public class LuceneQueryExampleTest {
-	LuceneQueryExample queryExample;
+	LuceneNgramQueryExample queryExample;
 
 	@Before
 	public void setUp() throws Exception {
-		queryExample = new LuceneQueryExample("team3datafile.txt", 3, 3);
+		queryExample = new LuceneNgramQueryExample("team3datafile.txt", 3, 3);
 		queryExample.buildNGramIndex();
 	}
 
@@ -38,6 +38,7 @@ public class LuceneQueryExampleTest {
 		Document matchDoc = searcher.doc(scoredocs[0].doc);
 		String matchText = matchDoc.getField("data").stringValue();
 		assertTrue(matchText.equals("networkx 1.1.1"));
+		
 		matchDoc = searcher.doc(scoredocs[1].doc);
 		matchText = matchDoc.getField("data").stringValue();
 		assertTrue(matchText.equals("net etw twogram index work find "));

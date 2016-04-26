@@ -24,23 +24,23 @@ import org.apache.lucene.store.FSDirectory;
 import edu.uci.ics.textdb.common.constants.LuceneConstants;
 
 /* 
- * This example shows that lucene can process manually translated binary expressions.   
+ * This example shows that lucene can process manually translated boolean expressions.   
  */
 
-public class LuceneQueryExample {
+public class LuceneNgramQueryExample {
 	public String dataFileName;
 	
 	private Analyzer analyzer;
 	private IndexSearcher searcher;
 	private IndexWriter indexWriter;
 	
-	public LuceneQueryExample(String dfn, int min_ngram_size, int max_ngram_size) throws Exception {
+	public LuceneNgramQueryExample(String dfn, int minNgramSsize, int maxNgramSize) throws Exception {
 		dataFileName = dfn;
 
 		analyzer = new Analyzer() {
 			@Override
 			protected TokenStreamComponents createComponents(String fieldName) {
-				Tokenizer source = new NGramTokenizer(min_ngram_size, max_ngram_size);
+				Tokenizer source = new NGramTokenizer(minNgramSsize, maxNgramSize);
 				return new TokenStreamComponents(source);
 			}
 		};
