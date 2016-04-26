@@ -3,21 +3,22 @@ package edu.uci.ics.textdb.common.field;
 public class Span {
     //The name of the field (in the tuple) where this span is present
     private String fieldName;
-    //The key we are searching for eg: regex
-    private String key;
-    //The value matching the key
-    private String value;
     //The start of the span
     private int start;
     //The end of the span
     private int end;
+    //The key we are searching for eg: regex
+    private String key;
+    //The value matching the key
+    private String value;
     
-    public Span(String fieldName, String key, String value, int start, int end) {
+    
+    public Span(String fieldName, int start, int end, String key, String value) {
         this.fieldName = fieldName;
-        this.key = key;
-        this.value = value;
         this.start = start;
         this.end = end;
+        this.key = key;
+        this.value = value;
     }
 
     public String getFieldName() {

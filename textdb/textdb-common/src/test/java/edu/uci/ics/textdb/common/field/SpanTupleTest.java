@@ -54,8 +54,8 @@ public class SpanTupleTest {
         //For RegexMatcher : "n.*k"
         //For NamedEntityMatcher : LOCATION
         //For DictionaryMatcher: "new york" - For DictionaryMatcher the key and value are same
-        Span span1 = new Span("description", "LOCATION", "new york", 18, 26);
-        Span span2 = new Span("description", "LOCATION", "los angeles", 52, 63);
+        Span span1 = new Span("description", 18, 26, "LOCATION", "new york");
+        Span span2 = new Span("description", 52, 63, "LOCATION", "los angeles");
         list.add(span1);
         list.add(span2);
         IField spanListField = new ListField<Span>(list );
