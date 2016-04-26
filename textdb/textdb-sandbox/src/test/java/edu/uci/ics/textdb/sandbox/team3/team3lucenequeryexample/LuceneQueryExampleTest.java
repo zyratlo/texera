@@ -17,7 +17,7 @@ public class LuceneQueryExampleTest {
 
 	@Before
 	public void setUp() throws Exception {
-		queryExample = new LuceneNgramQueryExample("team3datafile.txt", 3, 3);
+		queryExample = new LuceneNgramQueryExample("./src/test/java/edu/uci/ics/textdb/sandbox/team3/team3datafile.txt", 3, 3);
 		queryExample.buildNGramIndex();
 	}
 
@@ -28,6 +28,7 @@ public class LuceneQueryExampleTest {
 	@Test
 	public void queryNetworkShouldReturnTwoDocuments() throws Exception{
 		//perform search "network"
+		// "Network" won't be match because queries are case sensitive
 		String queryText = "data:\"net\" AND data:\"etw\" AND data:\"two\" AND data:\"wor\" AND data:\"ork\" ";
 		TopDocs topdoc = queryExample.search(queryText, 100);
 		assertEquals(topdoc.totalHits, 2);
