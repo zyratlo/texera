@@ -26,19 +26,21 @@ public class LuceneQueryExampleTest {
 	}
 
 	@Test
-	public void test() throws Exception{
+	public void queryNetworkShouldReturnTwoDocuments() throws Exception{
 		//perform search "network"
 		String queryText = "data:\"net\" AND data:\"etw\" AND data:\"two\" AND data:\"wor\" AND data:\"ork\" ";
 		TopDocs topdoc = queryExample.search(queryText, 100);
-//		assertEquals(topdoc.totalHits, 2);
+		assertEquals(topdoc.totalHits, 2);
 		
-//		ScoreDoc[] scoredocs = topdoc.scoreDocs;
-//		IndexSearcher searcher = queryExample.getSearcher();
-//		for (ScoreDoc scoredoc: scoredocs) {
-//			Document document = searcher.doc(scoredoc.doc);
-//			String text = document.getField("data").stringValue();
-////			assertTrue(text.contains("network"));
-//		}
+		ScoreDoc[] scoredocs = topdoc.scoreDocs;
+		IndexSearcher searcher = queryExample.getSearcher();
+		
+		Document matchDoc = searcher.doc(scoredocs[0].doc);
+		String matchText = matchDoc.getField("data").stringValue();
+		assertTrue(matchText.equals("networkx 1.1.1"));
+		matchDoc = searcher.doc(scoredocs[1].doc);
+		matchText = matchDoc.getField("data").stringValue();
+		assertTrue(matchText.equals("net etw twogram index work find "));
 		
 	}
 
