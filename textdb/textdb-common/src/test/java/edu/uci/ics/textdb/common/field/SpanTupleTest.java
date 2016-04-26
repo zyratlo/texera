@@ -33,7 +33,8 @@ public class SpanTupleTest {
         List<Attribute> attributes = new ArrayList<Attribute>(TestConstants.ATTRIBUTES_PEOPLE);
         List<IField> fields = new ArrayList<IField>(
                 Arrays.asList(new IField[]{new StringField("bruce"), new StringField("lee"), new IntegerField(46), 
-                new DoubleField(5.50), new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-14-1970"))}));
+                new DoubleField(5.50), new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-14-1970")),
+                new TextField("Tall Brown")}));
         
         //populate span related fields
         attributes.add(SchemaConstants.SPAN_FIELD_NAME_ATTRIBUTE);

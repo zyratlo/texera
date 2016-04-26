@@ -11,6 +11,10 @@ import java.util.List;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.index.MultiFields;
+import org.apache.lucene.index.Term;
+import org.apache.lucene.index.Terms;
+import org.apache.lucene.index.TermsEnum;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
@@ -54,6 +58,7 @@ public class LuceneDataReader implements IDataReader{
         try {
             Directory directory = FSDirectory.open(Paths.get(dataStore.getDataDirectory()));
             indexReader = DirectoryReader.open(directory);
+                		
             indexSearcher = new IndexSearcher(indexReader);
             TopDocs topDocs = indexSearcher.search(query, Integer.MAX_VALUE);
             scoreDocs = topDocs.scoreDocs;
