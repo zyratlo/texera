@@ -34,39 +34,32 @@ public class SpanTupleTest {
         List<IField> fields = new ArrayList<IField>(
                 Arrays.asList(new IField[]{new StringField("bruce"), new StringField("lee"), new IntegerField(46), 
                 new DoubleField(5.50), new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-14-1970")),
-                new TextField("Tall Brown")}));
+                new TextField("bruce was born in new york city and was grown up in los angeles")}));
+        attributes.add(SchemaConstants.SPAN_LIST_ATTRIBUTE);
         
-        //populate span related fields
-        attributes.add(SchemaConstants.SPAN_FIELD_NAME_ATTRIBUTE);
-        attributes.add(SchemaConstants.SPAN_KEY_ATTRIBUTE);
-        attributes.add(SchemaConstants.SPAN_BEGIN_ATTRIBUTE);
-        attributes.add(SchemaConstants.SPAN_END_ATTRIBUTE);
-        
-        String spanFieldName = "city";
-        String spanKey = "San Fransisco";
-        Integer spanBegin = 20;
-        Integer spanEnd = 33; //spanBegin + spanKey.length();
-        
-        fields.add(new StringField(spanFieldName));
-        fields.add(new StringField(spanKey));        
-        fields.add(new IntegerField(spanBegin));        
-        fields.add(new IntegerField(spanEnd));
-        
-        
+        IField spanField = createSpanListField();
+        fields.add(spanField);
         spanTuple = new DataTuple(new Schema(attributes), fields.toArray(new IField[fields.size()]));
         
-        IField beginField = spanTuple.getField(SchemaConstants.SPAN_BEGIN);
-        Assert.assertEquals(spanBegin, beginField.getValue());
+        IField spanFieldRetrieved = spanTuple.getField(SchemaConstants.SPAN_LIST);
         
-        IField endField = spanTuple.getField(SchemaConstants.SPAN_END);
-        Assert.assertEquals(spanEnd, endField.getValue());
+        Assert.assertTrue(spanFieldRetrieved instanceof ListField);
+        Assert.assertSame(spanField, spanFieldRetrieved);
         
-        IField keyField = spanTuple.getField(SchemaConstants.SPAN_KEY);
-        Assert.assertEquals(spanKey, keyField.getValue());
-        
-        IField fieldNameField = spanTuple.getField(SchemaConstants.SPAN_FIELD_NAME);
-        Assert.assertEquals(spanFieldName, fieldNameField.getValue());
-        
+    }
+
+    private IField createSpanListField() {
+        List<Span> list = new ArrayList<Span>();
+        //The key value will be:
+        //For RegexMatcher : "n.*k"
+        //For NamedEntityMatcher : LOCATION
+        //For DictionaryMatcher: "new york" - For DictionaryMatcher the key and value are same
+        Span span1 = new Span("description", "LOCATION", "new york", 18, 26);
+        Span span2 = new Span("description", "LOCATION", "los angeles", 52, 63);
+        list.add(span1);
+        list.add(span2);
+        IField spanListField = new ListField<Span>(list );
+        return spanListField;
     }
     
 }

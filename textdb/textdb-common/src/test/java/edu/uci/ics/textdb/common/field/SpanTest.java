@@ -18,8 +18,14 @@ public class SpanTest {
     public void testGetters(){
         int start = 10;
         int end = 20;
-        span = new Span(start, end);
+        String fieldName = "description";
+        String key = "location";
+        String value = "new york";
+        span = new Span(fieldName, key, value, start, end);
         Assert.assertEquals(start, span.getStart());
         Assert.assertEquals(end, span.getEnd());
+        Assert.assertEquals(key, span.getKey());
+        Assert.assertEquals(value, span.getValue());
+        Assert.assertEquals(fieldName, span.getFieldName());
     }
 }
