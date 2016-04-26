@@ -22,8 +22,10 @@ public class FuzzyTokenizer {
      * @return
      */
     public String[] getParsedQueries() {
-        //TODO - Stubbed function
-        return new String[]{this.query};
+        //TODO - Stubbed function - Fill in actual logic
+        String[] result = new String[1];
+        result[0] = new String(query);
+        return result;
     }
 }
 
