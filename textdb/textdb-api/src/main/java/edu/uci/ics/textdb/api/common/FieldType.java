@@ -8,5 +8,8 @@ public enum FieldType {
 	DOUBLE, 
 	DATE,
 	// A field that is indexed and tokenized,without term vectors
-	TEXT;
+	TEXT,
+
+	//A field that is the list of strings
+	STRING_LIST;
 }
