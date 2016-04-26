@@ -23,7 +23,7 @@ public class FuzzyTokenizer {
      */
     public String[] getParsedQueries() {
         //TODO - Stubbed function
-        return new String[1];
+        return new String[]{this.query};
     }
 }
 
