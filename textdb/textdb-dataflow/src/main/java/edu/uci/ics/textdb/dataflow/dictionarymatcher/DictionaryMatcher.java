@@ -15,7 +15,8 @@ import edu.uci.ics.textdb.api.dataflow.IOperator;
 import edu.uci.ics.textdb.common.constants.SchemaConstants;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
 import edu.uci.ics.textdb.common.field.DataTuple;
-import edu.uci.ics.textdb.common.field.IntegerField;
+import edu.uci.ics.textdb.common.field.ListField;
+import edu.uci.ics.textdb.common.field.Span;
 import edu.uci.ics.textdb.common.field.StringField;
 
 /**
@@ -40,6 +41,8 @@ public class DictionaryMatcher implements IOperator {
     private Pattern pattern;
     private Matcher matcher;
     private List<Attribute> attributes;
+    private List<Span> spanList;
+    private boolean isPresent;
 
     public DictionaryMatcher(IDictionary dictionary, IOperator operator, List<Attribute> attributes) {
         this.operator = operator;
@@ -65,6 +68,9 @@ public class DictionaryMatcher implements IOperator {
             fields = dataTuple.getFields();
             schema = dataTuple.getSchema();
 
+            spanList = new ArrayList<>();
+            isPresent = false;
+
         } catch (Exception e) {
             e.printStackTrace();
             throw new DataFlowException(e.getMessage(), e);
@@ -83,7 +89,6 @@ public class DictionaryMatcher implements IOperator {
      */
     @Override
     public ITuple getNextTuple() throws Exception {
-        // if (fieldIndex < fields.size()) {
         if (attributeIndex < attributes.size()) {
             IField dataField = dataTuple.getField(attributes.get(attributeIndex).getFieldName());
 
@@ -95,6 +100,7 @@ public class DictionaryMatcher implements IOperator {
                 // Get position of dict value in the field.
                 if (matcher.find(positionIndex) != false) {
 
+                    isPresent = true;
                     spanIndexValue = matcher.start();
                     // Increment positionIndex so that next search occurs from
                     // new positionIndex.
@@ -103,7 +109,8 @@ public class DictionaryMatcher implements IOperator {
                     Attribute attribute = schema.getAttributes().get(attributeIndex);
                     spanFieldName = attribute.getFieldName();
 
-                    return getSpanTuple();
+                    createSpanTuple(spanFieldName, spanIndexValue, positionIndex - 1, dictionaryValue, dictionaryValue);
+                    return getNextTuple();
 
                 } else {
                     // Increment the fieldIndex and call getNextTuple to search
@@ -120,35 +127,48 @@ public class DictionaryMatcher implements IOperator {
                 return getNextTuple();
             }
 
+        } else if (attributeIndex == attributes.size() && isPresent) {
+            isPresent = false;
+            positionIndex = 0;
+            return getSpanTuple();
         }
         // Get the next document
         else if ((dataTuple = operator.getNextTuple()) != null) {
             attributeIndex = 0;
             positionIndex = 0;
-            fields = dataTuple.getFields();
-            return getNextTuple();
+            spanList.clear();
 
+            fields = dataTuple.getFields();
+            schema = dataTuple.getSchema();
+            return getNextTuple();
         }
         // Get the next dictionary value
         else if ((dictionaryValue = dictionary.getNextValue()) != null) {
             // At this point all the documents in the dataStore are scanned
             // and we need to scan them again for a different dictionary value
+            attributeIndex = 0;
+            positionIndex = 0;
+
             dictionaryValue = dictionaryValue.toLowerCase();
             regex = "\\b" + dictionaryValue + "\\b";
             pattern = Pattern.compile(regex);
 
-            attributeIndex = 0;
-            positionIndex = 0;
-
             operator.close();
             operator.open();
+
             dataTuple = operator.getNextTuple();
             fields = dataTuple.getFields();
+            schema = dataTuple.getSchema();
             return getNextTuple();
         }
 
         return null;
 
+    }
+
+    private void createSpanTuple(String fieldName, int start, int end, String key, String value) {
+        Span span = new Span(fieldName, start, end, key, value);
+        spanList.add(span);
     }
 
     /**
@@ -161,14 +181,12 @@ public class DictionaryMatcher implements IOperator {
         attributesCopy.add(SchemaConstants.SPAN_BEGIN_ATTRIBUTE);
         attributesCopy.add(SchemaConstants.SPAN_END_ATTRIBUTE);
 
+        IField spanListField = new ListField<Span>(spanList);
         List<IField> fieldListDuplicate = new ArrayList<>(fields);
-        fieldListDuplicate.add(new StringField(spanFieldName));
-        fieldListDuplicate.add(new StringField(dictionaryValue));
-        fieldListDuplicate.add(new IntegerField(spanIndexValue));
-        fieldListDuplicate.add(new IntegerField(positionIndex - 1));
+        fieldListDuplicate.add(spanListField);
 
         IField[] fieldsDuplicate = fieldListDuplicate.toArray(new IField[fieldListDuplicate.size()]);
-        return new DataTuple(new Schema(attributesCopy), fieldsDuplicate);
+        return new DataTuple(schema, fieldsDuplicate);
     }
 
     /**
