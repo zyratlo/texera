@@ -176,17 +176,14 @@ public class DictionaryMatcher implements IOperator {
      */
     private ITuple getSpanTuple() {
         List<Attribute> attributesCopy = new ArrayList<>(schema.getAttributes());
-        attributesCopy.add(SchemaConstants.SPAN_FIELD_NAME_ATTRIBUTE);
-        attributesCopy.add(SchemaConstants.SPAN_KEY_ATTRIBUTE);
-        attributesCopy.add(SchemaConstants.SPAN_BEGIN_ATTRIBUTE);
-        attributesCopy.add(SchemaConstants.SPAN_END_ATTRIBUTE);
+        attributesCopy.add(SchemaConstants.SPAN_LIST_ATTRIBUTE);
 
         IField spanListField = new ListField<Span>(spanList);
         List<IField> fieldListDuplicate = new ArrayList<>(fields);
         fieldListDuplicate.add(spanListField);
 
         IField[] fieldsDuplicate = fieldListDuplicate.toArray(new IField[fieldListDuplicate.size()]);
-        return new DataTuple(schema, fieldsDuplicate);
+        return new DataTuple(new Schema(attributesCopy), fieldsDuplicate);
     }
 
     /**
