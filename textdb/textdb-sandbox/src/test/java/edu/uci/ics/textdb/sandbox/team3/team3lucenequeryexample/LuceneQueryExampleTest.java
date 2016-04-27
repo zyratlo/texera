@@ -1,6 +1,9 @@
 package edu.uci.ics.textdb.sandbox.team3.team3lucenequeryexample;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+import java.net.URL;
 
 import org.apache.lucene.document.Document;
 import org.apache.lucene.search.IndexSearcher;
@@ -10,14 +13,13 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import edu.uci.ics.textdb.sandbox.team3.team3lucenequeryexample.LuceneNgramQueryExample;
-
 public class LuceneQueryExampleTest {
 	LuceneNgramQueryExample queryExample;
 
 	@Before
 	public void setUp() throws Exception {
-		queryExample = new LuceneNgramQueryExample("./src/test/java/edu/uci/ics/textdb/sandbox/team3/team3datafile.txt", 3, 3);
+	    URL fileURL = LuceneQueryExampleTest.class.getResource("/team3/team3datafile.txt");
+		queryExample = new LuceneNgramQueryExample(fileURL.getPath(), 3, 3);
 		queryExample.buildNGramIndex();
 	}
 
