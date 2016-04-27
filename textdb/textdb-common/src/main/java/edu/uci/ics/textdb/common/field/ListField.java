@@ -4,9 +4,6 @@ import edu.uci.ics.textdb.api.common.IField;
 
 import java.util.List;
 
-/**
- * Created by kishorenarendran on 25/04/16.
- */
 public class ListField<T> implements IField {
     private final List<T> value;
 
