@@ -11,9 +11,19 @@ import java.util.List;
 /**
  * Created by kishorenarendran on 25/04/16.
  * Testing QueryRewriter
+ * This test class tests the functionality of the QueryRewrite operator
+ * this is done by feeding the class with different kinds of strings to
+ * try the query rewriting.
+ *
+ * This includes query strings like - "newyorkcity", "horseshoe" and other
+ * strings which stem from misppelt, missing spaces in search queries
  */
 public class QueryRewriterTest {
 
+    /**
+     * Tests the QueryRewriter operator with the string "horseshoe"
+     * @throws Exception
+     */
     @Test
     public void testHorseShoeString() throws Exception {
         String query = "horseshoe";
@@ -42,6 +52,10 @@ public class QueryRewriterTest {
         //Assert.assertEquals(correctSet, fuzzySet);
     }
 
+    /**
+     * Tests the QueryRewriter operator with the string "horse shoe"
+     * @throws Exception
+     */
     @Test
     public void testHorseSpaceShoeString() throws Exception {
         String query = "horse shoe";
@@ -67,6 +81,10 @@ public class QueryRewriterTest {
         //Assert.assertEquals(correctSet, fuzzySet);
     }
 
+    /**
+     * Tests the QueryRewriter operator with the string "newyork city"
+     * @throws Exception
+     */
     @Test
     public void testNewYorkCityString() throws Exception {
         String query = "newyork city";
