@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import edu.uci.ics.textdb.api.common.Attribute;
 import edu.uci.ics.textdb.api.common.IField;
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.common.Schema;
@@ -29,20 +28,7 @@ public class DataTuple implements ITuple {
 
     @Override
     public IField getField(String fieldName) {
-        //TODO the way we are storing the fields and schema, we need to linearly scan to get the field by name
-        //Do we need to change the Tuple design to support constant retrieval?
-        int index = -1;
-        List<Attribute> attributes = schema.getAttributes();
-        for (int count = 0; count < attributes.size(); count++) {
-            Attribute attr = attributes.get(count);
-            if (attr.getFieldName().equalsIgnoreCase(fieldName)) {
-                index = count;
-                break;
-            }
-        }
-        if (index < 0) {
-            return null;
-        }
+        int index = schema.getIndex(fieldName);
         return getField(index);
     }
 

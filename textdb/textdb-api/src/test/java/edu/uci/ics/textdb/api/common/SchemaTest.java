@@ -31,4 +31,16 @@ public class SchemaTest {
         //So no need to check for the internal fields.
         Assert.assertSame(this.attributes, attributes);
     }
+    
+    @Test
+    public void testGetIndex(){
+        
+        int expectedIndex_1 = 0;
+        int expectedIndex_2 = 1;
+        int retrievedIndex_1 = schema.getIndex(fieldName_1.toUpperCase());
+        int retrievedIndex_2 = schema.getIndex(fieldName_2);
+        Assert.assertEquals(expectedIndex_1, retrievedIndex_1);
+        Assert.assertEquals(expectedIndex_2, retrievedIndex_2);
+        
+    }
 }
