@@ -10,6 +10,6 @@ public enum FieldType {
 	// A field that is indexed and tokenized,without term vectors
 	TEXT,
 
-	//A field that is the list of strings
-	STRING_LIST;
+	//A field that is the list of values
+	LIST;
 }

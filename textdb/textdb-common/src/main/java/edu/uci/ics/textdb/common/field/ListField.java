@@ -7,15 +7,15 @@ import java.util.List;
 /**
  * Created by kishorenarendran on 25/04/16.
  */
-public class StringListField implements IField {
-    private final List<String> value;
+public class ListField<T> implements IField {
+    private final List<T> value;
 
-    public StringListField(List<String> value) {
+    public ListField(List<T> value) {
         this.value = value;
     }
 
     @Override
-    public List<String> getValue() {
+    public List<T> getValue() {
         return value;
     }
 
@@ -27,10 +27,10 @@ public class StringListField implements IField {
     @Override
     public String toString() {
         String getStringResult = new String();
-        for(String val: value) {
-            getStringResult = getStringResult.concat(val.concat(" "));
+        for(T val: value) {
+            getStringResult = getStringResult.concat(val.toString().concat(" "));
         }
         getStringResult = getStringResult.trim();
-        return "StringListField [value=" + getStringResult + "]";
+        return "ListField [value=" + getStringResult + "]";
     }
 }

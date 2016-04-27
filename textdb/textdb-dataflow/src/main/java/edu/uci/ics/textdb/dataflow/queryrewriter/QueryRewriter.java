@@ -3,7 +3,7 @@ package edu.uci.ics.textdb.dataflow.queryrewriter;
 import edu.uci.ics.textdb.api.common.*;
 import edu.uci.ics.textdb.api.dataflow.IOperator;
 import edu.uci.ics.textdb.common.field.DataTuple;
-import edu.uci.ics.textdb.common.field.StringListField;
+import edu.uci.ics.textdb.common.field.ListField;
 
 import java.util.Arrays;
 import java.util.List;
@@ -25,7 +25,7 @@ public class QueryRewriter implements IOperator{
     private FuzzyTokenizer fuzzyTokenizer;
 
     public static final String QUERYLIST = "querylist";
-    public static final Attribute QUERYLIST_ATTR = new Attribute(QUERYLIST, FieldType.STRING_LIST);
+    public static final Attribute QUERYLIST_ATTR = new Attribute(QUERYLIST, FieldType.LIST);
     public static final List<Attribute> ATTRIBUTES_QUERY_LIST = Arrays.asList(QUERYLIST_ATTR);
     public static final Schema SCHEMA_QUERY_LIST = new Schema(ATTRIBUTES_QUERY_LIST);
 
@@ -60,7 +60,7 @@ public class QueryRewriter implements IOperator{
     @Override
     public ITuple getNextTuple() throws Exception {
         List<String> queryStrings = Arrays.asList(fuzzyTokenizer.getParsedQueries());
-        IField[] iFieldResult = {new StringListField(queryStrings)};
+        IField[] iFieldResult = {new ListField(queryStrings)};
         itupleResult = new DataTuple(SCHEMA_QUERY_LIST, iFieldResult);
         return itupleResult;
     }
