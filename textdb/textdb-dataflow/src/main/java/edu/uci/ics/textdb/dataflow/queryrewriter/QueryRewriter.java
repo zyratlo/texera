@@ -10,7 +10,14 @@ import java.util.List;
 
 /**
  * Created by kishorenarendran on 25/04/16.
- * Class to convert a query string into a list of possible queries using FuzzyTokenizer
+ * QueryRewriter is an operator that converts a query search string which
+ * have faults in space placement to a list of meaningful search queries
+ * QueryRewriter internally uses the FuzzyTokenizer class to fulfill
+ * its functionality.
+ *
+ * Like other Operators it returns an ITuple which contains a list of strings
+ * which are the modified queries.
+ *
  */
 public class QueryRewriter implements IOperator{
 
@@ -45,7 +52,7 @@ public class QueryRewriter implements IOperator{
     }
 
     /**
-     * Calling appropriate fuzzyTokenizer method to populate the list
+     * Calls appropriate implementation methods to populate the list
      * of rewritten search queries, and constructing a tuple from it. 
      * @return - Tuple with the rewritten queries as a comma separated string
      * @throws Exception

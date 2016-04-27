@@ -2,8 +2,13 @@ package edu.uci.ics.textdb.dataflow.queryrewriter;
 
 /**
  * Created by kishorenarendran on 25/04/16.
- * Class to take in a query and with a dictionary of words split it into possible set of queries
- * Gets called by QueryRewriter
+ * Class to take in a string and uses a dictionary of words, to split it into possible
+ * set of strings, with appropriate space delimitions. his is a resource used by the QueryRewriter
+ * operator
+ *
+ *
+ * For example - "newyorkcity" - > ["new york city", "newyorkcity"]
+ * For example - "horseshoe" -> ["hor se shoe", "hors es hoe", "horse shoe", "horses hoe", "horseshoe"]
  */
 public class FuzzyTokenizer {
 
