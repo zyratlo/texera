@@ -15,7 +15,7 @@ import java.util.List;
 public class QueryRewriterTest {
 
     @Test
-    public void testHORSESHOE() throws Exception {
+    public void testHorseShoeString() throws Exception {
         String query = "horseshoe";
 
         QueryRewriter queryRewriter = new QueryRewriter(query);
@@ -43,7 +43,7 @@ public class QueryRewriterTest {
     }
 
     @Test
-    public void testHORSE_SHOE() throws Exception {
+    public void testHorseSpaceShoeString() throws Exception {
         String query = "horse shoe";
 
         QueryRewriter queryRewriter = new QueryRewriter(query);
@@ -68,7 +68,7 @@ public class QueryRewriterTest {
     }
 
     @Test
-    public void testNEWYORK_CITY() throws Exception {
+    public void testNewYorkCityString() throws Exception {
         String query = "newyork city";
 
         QueryRewriter queryRewriter = new QueryRewriter(query);
