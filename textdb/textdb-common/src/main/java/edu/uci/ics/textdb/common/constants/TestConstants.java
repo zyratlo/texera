@@ -42,8 +42,8 @@ public class TestConstants {
 	public static final Attribute DESCRIPTION_ATTR = new Attribute(DESCRIPTION, FieldType.TEXT);
 
     // Sample Schema
-    public static final List<Attribute> ATTRIBUTES_PEOPLE = Arrays.asList(FIRST_NAME_ATTR, LAST_NAME_ATTR, AGE_ATTR,
-            HEIGHT_ATTR, DATE_OF_BIRTH_ATTR,DESCRIPTION_ATTR );
+    public static final Attribute[] ATTRIBUTES_PEOPLE = {FIRST_NAME_ATTR, LAST_NAME_ATTR, AGE_ATTR,
+            HEIGHT_ATTR, DATE_OF_BIRTH_ATTR,DESCRIPTION_ATTR };
     public static final Schema SCHEMA_PEOPLE = new Schema(ATTRIBUTES_PEOPLE);
     
     public static List<ITuple> getSamplePeopleTuples() throws ParseException {

@@ -47,7 +47,7 @@ public class DictionaryMatcherTest {
         dataStore = new LuceneDataStore(LuceneConstants.INDEX_DIR, TestConstants.SCHEMA_PEOPLE);
         analyzer = new StandardAnalyzer();
         dataWriter = new LuceneDataWriter(dataStore, analyzer);
-        QueryParser queryParser = new QueryParser(TestConstants.ATTRIBUTES_PEOPLE.get(0).getFieldName(), analyzer);
+        QueryParser queryParser = new QueryParser(TestConstants.ATTRIBUTES_PEOPLE[0].getFieldName(), analyzer);
         query = queryParser.parse(LuceneConstants.SCAN_QUERY);
         dataReader = new LuceneDataReader(dataStore, query);
         dataWriter.clearData();

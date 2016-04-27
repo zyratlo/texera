@@ -29,8 +29,8 @@ public class RegexTestConstantsCorp {
     public static final Attribute IP_ADDRESS_ATTR = new Attribute(IP_ADDRESS, FieldType.STRING);
     
     
-    public static final List<Attribute> ATTRIBUTES_CORP = Arrays.asList(
-    		CORP_NAME_ATTR, URL_ATTR, IP_ADDRESS_ATTR);
+    public static final Attribute[] ATTRIBUTES_CORP = {
+    		CORP_NAME_ATTR, URL_ATTR, IP_ADDRESS_ATTR};
     public static final Schema SCHEMA_CORP = new Schema(ATTRIBUTES_CORP);
     
     public static List<ITuple> getSampleCorpTuples() throws ParseException {

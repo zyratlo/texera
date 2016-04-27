@@ -4,6 +4,7 @@
 package edu.uci.ics.textdb.dataflow.source;
 
 import java.text.ParseException;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.lucene.analysis.Analyzer;
@@ -46,7 +47,7 @@ public class ScanBasedSourceOperatorTest {
         analyzer = new  StandardAnalyzer();
         dataWriter = new LuceneDataWriter(dataStore, analyzer );
         QueryParser queryParser = new QueryParser(
-                TestConstants.ATTRIBUTES_PEOPLE.get(0).getFieldName(), analyzer);
+                TestConstants.ATTRIBUTES_PEOPLE[0].getFieldName(), analyzer);
         query = queryParser.parse(LuceneConstants.SCAN_QUERY);
         dataReader = new LuceneDataReader(dataStore, query);
         
@@ -68,7 +69,8 @@ public class ScanBasedSourceOperatorTest {
         int numTuples = 0;
         while((nextTuple  = scanBasedSourceOperator.getNextTuple()) != null){
             //Checking if the tuple retrieved is present in the samplesTuples
-            boolean contains = TestUtils.contains(tuples, nextTuple, TestConstants.ATTRIBUTES_PEOPLE);
+            boolean contains = TestUtils.contains(tuples, nextTuple, 
+                    Arrays.asList(TestConstants.ATTRIBUTES_PEOPLE));
             Assert.assertTrue(contains);
             numTuples ++;
         }

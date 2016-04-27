@@ -1,5 +1,6 @@
 package edu.uci.ics.textdb.api.common;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -8,8 +9,8 @@ public class Schema {
     private List<Attribute> attributes;
     private Map<String, Integer> fieldNameVsIndex;
     
-    public Schema(List<Attribute> attributes){
-        this.attributes = attributes;
+    public Schema(Attribute... attributes){
+        this.attributes = Arrays.asList(attributes);
         populateFieldNameVsIndexMap();
     }
     

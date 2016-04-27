@@ -11,15 +11,6 @@ import edu.uci.ics.textdb.api.common.FieldType;
  *
  */
 public class SchemaConstants {
-    public static final String SPAN_BEGIN = "spanBegin";
-    public static final String SPAN_END = "spanEnd";
-    public static final String SPAN_FIELD_NAME = "spanFieldName";
-    public static final String SPAN_KEY = "spanKey";
     public static final String SPAN_LIST = "spanList";
-    
-    public static final Attribute SPAN_BEGIN_ATTRIBUTE = new Attribute(SPAN_BEGIN, FieldType.INTEGER);
-    public static final Attribute SPAN_END_ATTRIBUTE = new Attribute(SPAN_END, FieldType.INTEGER);
-    public static final Attribute SPAN_FIELD_NAME_ATTRIBUTE = new Attribute(SPAN_FIELD_NAME, FieldType.STRING);
-    public static final Attribute SPAN_KEY_ATTRIBUTE = new Attribute(SPAN_KEY, FieldType.STRING);
     public static final Attribute SPAN_LIST_ATTRIBUTE = new Attribute(SPAN_LIST, FieldType.LIST);
 }

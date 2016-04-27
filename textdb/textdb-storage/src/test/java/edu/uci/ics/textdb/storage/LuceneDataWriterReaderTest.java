@@ -34,7 +34,7 @@ public class LuceneDataWriterReaderTest {
         analyzer = new  StandardAnalyzer();
         dataWriter = new LuceneDataWriter(dataStore, analyzer );
         QueryParser queryParser = new QueryParser(
-                TestConstants.ATTRIBUTES_PEOPLE.get(0).getFieldName(), analyzer);
+                TestConstants.ATTRIBUTES_PEOPLE[0].getFieldName(), analyzer);
         query = queryParser.parse(LuceneConstants.SCAN_QUERY);
         dataReader = new LuceneDataReader(dataStore, query);
     }
@@ -60,7 +60,7 @@ public class LuceneDataWriterReaderTest {
 
     private boolean contains(List<ITuple> sampleTuples, ITuple actualTuple) {
         boolean contains = false;
-        int schemaSize = TestConstants.ATTRIBUTES_PEOPLE.size();
+        int schemaSize = TestConstants.ATTRIBUTES_PEOPLE.length;
         for (ITuple sampleTuple : sampleTuples) {
             contains = true;
             for (int i = 0; i < schemaSize; i++) {

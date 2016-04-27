@@ -30,12 +30,17 @@ public class SpanTupleTest {
     @Test
     public void testGetters() throws ParseException{
         //create data tuple first
-        List<Attribute> attributes = new ArrayList<Attribute>(TestConstants.ATTRIBUTES_PEOPLE);
+        Attribute[] attributes = new Attribute[TestConstants.ATTRIBUTES_PEOPLE.length + 1];
+        for (int count = 0; count < attributes.length - 1; count++) {
+            attributes[count] = TestConstants.ATTRIBUTES_PEOPLE[count];
+        }
+        attributes[attributes.length - 1] = SchemaConstants.SPAN_LIST_ATTRIBUTE;
+        
+        
         List<IField> fields = new ArrayList<IField>(
                 Arrays.asList(new IField[]{new StringField("bruce"), new StringField("lee"), new IntegerField(46), 
                 new DoubleField(5.50), new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-14-1970")),
                 new TextField("bruce was born in new york city and was grown up in los angeles")}));
-        attributes.add(SchemaConstants.SPAN_LIST_ATTRIBUTE);
         
         IField spanField = createSpanListField();
         fields.add(spanField);
