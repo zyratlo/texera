@@ -29,6 +29,7 @@ public class DictionaryMatcher implements IOperator {
     private IOperator operator;
     private IDictionary dictionary;
     private String dictionaryValue;
+    private String dictionaryValueDup;
     private int positionIndex; // next position in the field to be checked.
     private int attributeIndex; // Index of the next field to be checked.
     private int spanIndexValue; // Starting position of the matched dictionary
@@ -69,8 +70,9 @@ public class DictionaryMatcher implements IOperator {
             positionIndex = 0;
             attributeIndex = 0;
             operator.open();
-            dictionaryValue = dictionary.getNextValue().toLowerCase();
-            regex = "\\b" + dictionaryValue + "\\b";
+            dictionaryValue = dictionary.getNextValue();
+            dictionaryValueDup = dictionaryValue;
+            regex = "\\b" + dictionaryValueDup.toLowerCase() + "\\b";
             pattern = Pattern.compile(regex);
 
             dataTuple = operator.getNextTuple();
@@ -171,8 +173,8 @@ public class DictionaryMatcher implements IOperator {
             attributeIndex = 0;
             positionIndex = 0;
 
-            dictionaryValue = dictionaryValue.toLowerCase();
-            regex = "\\b" + dictionaryValue + "\\b";
+            dictionaryValueDup = dictionaryValue;
+            regex = "\\b" + dictionaryValueDup.toLowerCase() + "\\b";
             pattern = Pattern.compile(regex);
 
             operator.close();
