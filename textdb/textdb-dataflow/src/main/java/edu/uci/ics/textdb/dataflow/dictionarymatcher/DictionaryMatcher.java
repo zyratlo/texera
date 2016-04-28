@@ -18,6 +18,7 @@ import edu.uci.ics.textdb.common.field.DataTuple;
 import edu.uci.ics.textdb.common.field.ListField;
 import edu.uci.ics.textdb.common.field.Span;
 import edu.uci.ics.textdb.common.field.StringField;
+import edu.uci.ics.textdb.common.field.TextField;
 
 /**
  * @author Sudeep [inkudo]
@@ -44,12 +45,13 @@ public class DictionaryMatcher implements IOperator {
     private List<Attribute> searchInAttributes;
     private List<Span> spanList;
     private boolean isPresent;
-    
+
     /**
      * 
-     * @param dictionary 
+     * @param dictionary
      * @param operator
-     * @param searchInAttributes --> The list of attributes to be searched in the tuple
+     * @param searchInAttributes
+     *            --> The list of attributes to be searched in the tuple
      */
     public DictionaryMatcher(IDictionary dictionary, IOperator operator, List<Attribute> searchInAttributes) {
         this.operator = operator;
@@ -75,7 +77,7 @@ public class DictionaryMatcher implements IOperator {
             fields = dataTuple.getFields();
             schema = dataTuple.getSchema();
             spanSchema = createSpanSchema();
-            
+
             spanList = new ArrayList<>();
             isPresent = false;
 
@@ -92,7 +94,7 @@ public class DictionaryMatcher implements IOperator {
             spanAttributes[count] = dataTupleAttributes.get(count);
         }
         spanAttributes[spanAttributes.length - 1] = SchemaConstants.SPAN_LIST_ATTRIBUTE;
-        Schema spanSchema = new Schema(spanAttributes );
+        Schema spanSchema = new Schema(spanAttributes);
         return spanSchema;
     }
 
@@ -111,11 +113,10 @@ public class DictionaryMatcher implements IOperator {
         if (attributeIndex < searchInAttributes.size()) {
             IField dataField = dataTuple.getField(searchInAttributes.get(attributeIndex).getFieldName());
 
-            if (dataField instanceof StringField) {
-                String fieldValue = ((StringField) dataField).getValue();
-                fieldValue = fieldValue.toLowerCase();
+            if (dataField instanceof StringField || dataField instanceof TextField) {
+                String fieldValue = (String) dataField.getValue();
 
-                matcher = pattern.matcher(fieldValue);
+                matcher = pattern.matcher(fieldValue.toLowerCase());
                 // Get position of dict value in the field.
                 if (matcher.find(positionIndex) != false) {
 
