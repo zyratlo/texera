@@ -58,7 +58,7 @@ public class SchemaTest {
     @Test(expected = UnsupportedOperationException.class)
     public void testAddingInBetween(){ //Should fail
         List<Attribute> attributes  = schema.getAttributes();
-//        attributes.add(0, new Attribute("sampleField_3", FieldType.STRING));
+        attributes.add(0, new Attribute("sampleField_3", FieldType.STRING));
         attributes.set(0, new Attribute("sampleField_3", FieldType.STRING));
     }
 }
