@@ -2,10 +2,14 @@ package edu.uci.ics.textdb.dataflow.utils;
 
 
 
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.Query;
@@ -73,37 +77,7 @@ public class TestUtils {
         return contains;
     }
     
-    public static boolean checkSpan(List<ITuple> sampleTuples, ITuple actualTuple, List<Attribute> schema) {
-        return true;
-//        boolean contains = false;
-//        int schemaSize = schema.size();
-//        for (ITuple sampleTuple : sampleTuples) {
-//            
-//            for (int i = 0; i < schemaSize; i++) {
-//            	contains = true;
-//            	ListField listField =  (ListField) actualTuple.getField(SchemaConstants.SPAN_LIST);
-//            	List<Span> spanList = listField.getValue();
-//            	
-//            	String fieldValue = (String) sampleTuple.getField(listField).getValue();
-//            	String actualValue =  (String) actualTuple.getField(SchemaConstants.SPAN_KEY).getValue();
-//            	int actualStart = (int) actualTuple.getField(SchemaConstants.SPAN_BEGIN).getValue();
-//            	int actualEnd = (int) actualTuple.getField(SchemaConstants.SPAN_END).getValue();
-//            	
-//                if (actualStart == fieldValue.indexOf(actualValue, actualStart)) {
-//                	
-//                	if(actualEnd == (actualStart + actualValue.length() - 1))
-//                    {
-//                		contains = true;
-//                		return contains;
-//                    }
-//                	else contains = false;
-//                }
-//                else contains = false;
-//            }
-//        }
-//        return contains;
-    }
-
+   
     public static boolean contains(ArrayList<String> Dictionary, String returnedString) {
         boolean contains = false;
 
@@ -142,6 +116,21 @@ public class TestUtils {
         }
         return true;
     }
+    
+    public static List<String> tokenizeString(Analyzer analyzer, String string) {
+        List<String> result = new ArrayList<String>();
+        try {
+          TokenStream stream  = analyzer.tokenStream(null, new StringReader(string));
+          stream.reset();
+          while (stream.incrementToken()) {
+            result.add(stream.getAttribute(CharTermAttribute.class).toString());
+          }
+        } catch (IOException e) {
+          // not thrown b/c we're using a string reader...
+          throw new RuntimeException(e);
+        }
+        return result;
+      }
 
     public static boolean equalTo(IField field1, IField field2) {
         return field1.getValue().equals(field2.getValue());

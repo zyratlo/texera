@@ -128,7 +128,7 @@ public class DictionaryMatcher implements IOperator {
                     Attribute attribute = schema.getAttributes().get(attributeIndex);
                     spanFieldName = attribute.getFieldName();
 
-                    addSpanToSpanList(spanFieldName, spanIndexValue, positionIndex - 1, dictionaryValue, dictionaryValue);
+                    addSpanToSpanList(spanFieldName, spanIndexValue, positionIndex, dictionaryValue, dictionaryValue);
                     return getNextTuple();
 
                 } else {
@@ -195,7 +195,7 @@ public class DictionaryMatcher implements IOperator {
      * @about Modifies schema, fields and creates a new span tuple
      */
     private ITuple getSpanTuple() {
-        IField spanListField = new ListField<Span>(spanList);
+        IField spanListField = new ListField<Span>(new ArrayList<>(spanList));
         List<IField> fieldListDuplicate = new ArrayList<>(fields);
         fieldListDuplicate.add(spanListField);
 

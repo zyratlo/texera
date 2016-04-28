@@ -24,6 +24,8 @@ public class DataTuple implements ITuple {
     public IField getField(int index) {
         return fields.get(index);
     }
+    
+    
 
     @Override
     public IField getField(String fieldName) {
@@ -32,19 +34,38 @@ public class DataTuple implements ITuple {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o)
-            return true;
-        if (o == null || getClass() != o.getClass())
-            return false;
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((fields == null) ? 0 : fields.hashCode());
+		result = prime * result + ((schema == null) ? 0 : schema.hashCode());
+		return result;
+	}
+    
+    
+    
 
-        DataTuple that = (DataTuple) o;
-
-        if (schema != that.schema)
-            return false;
-        return fields.equals(that.fields);
-
-    }
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		DataTuple other = (DataTuple) obj;
+		if (fields == null) {
+			if (other.fields != null)
+				return false;
+		} else if (!fields.equals(other.fields))
+			return false;
+		if (schema == null) {
+			if (other.schema != null)
+				return false;
+		} else if (!schema.equals(other.schema))
+			return false;
+		return true;
+	}
 
     @Override
     public String toString() {
