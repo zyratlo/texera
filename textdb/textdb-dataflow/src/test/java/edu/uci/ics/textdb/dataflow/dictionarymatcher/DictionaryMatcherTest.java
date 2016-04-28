@@ -85,21 +85,25 @@ public class DictionaryMatcherTest {
 
 	/**
 	 * Scenario S1:verifies GetNextTuple of Dictionary
+	 * 
+	 * checking if Dictionary returns all the strings given by the user
 	 */
 
 	@Test
 	public void testGetNextOfDictionaryItem() throws Exception {
 
-		ArrayList<String> names = new ArrayList<String>(Arrays.asList("george", "lee"));
-		IDictionary dictionary = new Dictionary(names);
+		ArrayList<String> expectedStrings = new ArrayList<String>(Arrays.asList("george", "lee", "bruce"));
+		IDictionary dictionary = new Dictionary(expectedStrings);
 		int numTuples = 0;
 		String dictionaryItem;
+		ArrayList<String> returnedStrings = new ArrayList<String>();
 		while ((dictionaryItem = dictionary.getNextValue()) != null) {
-			boolean contains = TestUtils.contains(names, dictionaryItem);
-			Assert.assertTrue(contains);
+			returnedStrings.add(dictionaryItem);
 			numTuples++;
 		}
-		Assert.assertEquals(2, numTuples);
+		boolean contains = TestUtils.containsAllResults(expectedStrings, returnedStrings);
+		Assert.assertTrue(contains);
+		Assert.assertEquals(3, numTuples);
 
 	}
 

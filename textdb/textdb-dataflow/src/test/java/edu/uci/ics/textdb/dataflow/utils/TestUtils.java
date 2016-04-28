@@ -49,6 +49,15 @@ public class TestUtils {
         return true;
     }
     
+    public static boolean containsAllResults(ArrayList<String> expectedStrings, ArrayList<String> exactStrings) {
+        if(expectedStrings.size() != exactStrings.size())
+        	return false;
+        if(!(expectedStrings.containsAll(exactStrings)) || !(exactStrings.containsAll(expectedStrings)))
+        	return false;
+        
+        return true;
+    }
+    
     public static boolean checkResults(List<ITuple> results, String queryString, Analyzer queryAnalyzer, String searchField) throws ParseException {
       
     	boolean contains = false;
