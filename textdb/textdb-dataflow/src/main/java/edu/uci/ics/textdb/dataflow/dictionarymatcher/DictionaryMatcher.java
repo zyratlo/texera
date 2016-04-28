@@ -126,8 +126,9 @@ public class DictionaryMatcher implements IOperator {
                     // new positionIndex.
                     positionIndex = spanIndexValue + dictionaryValue.length();
 
-                    Attribute attribute = schema.getAttributes().get(attributeIndex);
-                    spanFieldName = attribute.getFieldName();
+                    // Attribute attribute =
+                    // schema.getAttributes().get(attributeIndex);
+                    spanFieldName = searchInAttributes.get(attributeIndex).getFieldName(); // attribute.getFieldName();
 
                     addSpanToSpanList(spanFieldName, spanIndexValue, positionIndex, dictionaryValue, dictionaryValue);
                     return getNextTuple();
