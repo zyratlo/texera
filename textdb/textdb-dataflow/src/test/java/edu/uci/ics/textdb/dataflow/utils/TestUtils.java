@@ -53,16 +53,11 @@ public class TestUtils {
     }
     
     public static boolean checkResults(List<ITuple> results, String queryString, Analyzer queryAnalyzer, String searchField) throws ParseException {
-        
-    	
+      
     	boolean contains = false;
-        QueryParser parser = null;
-        parser = new QueryParser(searchField, queryAnalyzer);
-        Query query = parser.parse(queryString);
-        String searchString = query.toString(searchField);
-        System.out.println(query.toString(searchField));
-        String[] listOfQueryWords = searchString.split(" ");
         
+    	List<String> listOfQueryWords = tokenizeString(queryAnalyzer, queryString);
+      
         for (ITuple sampleTuple : results) {
             contains = false;
             String value = (String) sampleTuple.getField(searchField).getValue();
