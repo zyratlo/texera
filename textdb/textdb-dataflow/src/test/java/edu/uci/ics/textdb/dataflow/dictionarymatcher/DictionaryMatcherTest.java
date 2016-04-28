@@ -126,12 +126,13 @@ public class DictionaryMatcherTest {
         
 		IField[] fields1 = { new StringField("bruce banner"), new StringField("john Lee"), new IntegerField(46),
 				new DoubleField(5.50), new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-14-1970")),
-				new TextField("Tall Angry"),new ListField<Span>(list ) };
+				new TextField("Tall Angry"),new ListField<Span>(list) };
 		ITuple tuple1 = new DataTuple(new Schema(schemaAttributes), fields1);
 		List<ITuple> expectedResults = new ArrayList<ITuple>();
 		expectedResults.add(tuple1);
 		List<Attribute> attributes = Arrays.asList(TestConstants.FIRST_NAME_ATTR, TestConstants.LAST_NAME_ATTR,
 				TestConstants.DESCRIPTION_ATTR);
+		
 		List<ITuple> returnedResults = getQueryResults(dictionary, sourceOperator, attributes);
 		boolean contains = TestUtils.containsAllResults(expectedResults, returnedResults);
 		Assert.assertTrue(contains);
@@ -163,7 +164,7 @@ public class DictionaryMatcherTest {
 				new TextField("Tall Angry"),new ListField<Span>(list ) };
 		IField[] fields2 = { new StringField("christian john wayne"), new StringField("rock bale"),
 				new IntegerField(42), new DoubleField(5.99),
-				new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-13-1974")), new TextField("Tall Fair"), new ListField<Span>(list ) };
+				new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-13-1974")), new TextField("Tall Fair"), new ListField<Span>(list) };
 		ITuple tuple1 = new DataTuple(new Schema(schemaAttributes), fields1);
 		ITuple tuple2 = new DataTuple(new Schema(schemaAttributes), fields2);
 		List<ITuple> expectedResults = new ArrayList<ITuple>();
@@ -171,6 +172,7 @@ public class DictionaryMatcherTest {
 		expectedResults.add(tuple2);
 		List<Attribute> attributes = Arrays.asList(TestConstants.FIRST_NAME_ATTR, TestConstants.LAST_NAME_ATTR,
 				TestConstants.DESCRIPTION_ATTR);
+		
 		List<ITuple> returnedResults = getQueryResults(dictionary, sourceOperator, attributes);
 		boolean contains = TestUtils.containsAllResults(expectedResults, returnedResults);
 		Assert.assertTrue(contains);
@@ -199,7 +201,7 @@ public class DictionaryMatcherTest {
         
         IField[] fields1 = { new StringField("george lin lin"), new StringField("lin clooney"), new IntegerField(43),
 				new DoubleField(6.06), new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-13-1973")),
-				new TextField("Short Angry"),new ListField<Span>(list )};
+				new TextField("Short Angry"),new ListField<Span>(list)};
 		ITuple tuple1 = new DataTuple(new Schema(schemaAttributes), fields1);
 		List<ITuple> expectedResults = new ArrayList<ITuple>();
 		expectedResults.add(tuple1);
@@ -240,7 +242,7 @@ public class DictionaryMatcherTest {
         
         IField[] fields1 = { new StringField("george lin lin"), new StringField("lin clooney"), new IntegerField(43),
 				new DoubleField(6.06), new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-13-1973")),
-				new TextField("Short Angry"),new ListField<Span>(list )};
+				new TextField("Short Angry"),new ListField<Span>(list)};
 		ITuple tuple1 = new DataTuple(new Schema(schemaAttributes), fields1);
 		List<ITuple> expectedResults = new ArrayList<ITuple>();
 		expectedResults.add(tuple1);
