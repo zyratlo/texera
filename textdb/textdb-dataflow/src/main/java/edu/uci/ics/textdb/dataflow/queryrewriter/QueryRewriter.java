@@ -22,7 +22,7 @@ import java.util.List;
 public class QueryRewriter implements IOperator{
 
     private String searchQuery;
-    private FuzzyTokenizer fuzzyTokenizer;
+    //private FuzzyTokenizer fuzzyTokenizer;
 
     public static final String QUERYLIST = "querylist";
     public static final Attribute QUERYLIST_ATTR = new Attribute(QUERYLIST, FieldType.LIST);
@@ -47,7 +47,7 @@ public class QueryRewriter implements IOperator{
      */
     @Override
     public void open() throws Exception {
-        fuzzyTokenizer = new FuzzyTokenizer(searchQuery);
+        //fuzzyTokenizer = new FuzzyTokenizer(searchQuery);
 
     }
 
@@ -59,7 +59,8 @@ public class QueryRewriter implements IOperator{
      */
     @Override
     public ITuple getNextTuple() throws Exception {
-        List<String> queryStrings = Arrays.asList(fuzzyTokenizer.getParsedQueries());
+        //List<String> queryStrings = Arrays.asList(fuzzyTokenizer.getParsedQueries());
+        List<String> queryStrings = Arrays.asList(searchQuery);
         IField[] iFieldResult = {new ListField(queryStrings)};
         itupleResult = new DataTuple(SCHEMA_QUERY_LIST, iFieldResult);
         return itupleResult;
@@ -71,6 +72,6 @@ public class QueryRewriter implements IOperator{
      */
     @Override
     public void close() throws Exception {
-        fuzzyTokenizer = null;
+        //fuzzyTokenizer = null;
     }
 }

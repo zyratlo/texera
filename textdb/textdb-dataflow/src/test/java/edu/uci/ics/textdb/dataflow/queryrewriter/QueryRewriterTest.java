@@ -16,7 +16,7 @@ import java.util.List;
  * try the query rewriting.
  *
  * This includes query strings like - "newyorkcity", "horseshoe" and other
- * strings which stem from misppelt, missing spaces in search queries
+ * strings which stem from misspelled, missing spaces in search queries
  */
 public class QueryRewriterTest {
 
@@ -46,7 +46,8 @@ public class QueryRewriterTest {
         Collections.sort(correctSet);
         Collections.sort(fuzzySet);
 
-        //After the QueryRewriter and the FuzzyTokenizer classes are completed
+        Assert.assertEquals(1,1);
+        //After the QueryRewriter and the FuzzyTokenizer classes are completed, remove above assert
 
         //Assert.assertEquals(correctSet.size(), fuzzySet.size());
         //Assert.assertEquals(correctSet, fuzzySet);
@@ -75,7 +76,8 @@ public class QueryRewriterTest {
         Collections.sort(correctSet);
         Collections.sort(fuzzySet);
 
-        //After the QueryRewriter and the FuzzyTokenizer classes are completed
+        Assert.assertEquals(1,1);
+        //After the QueryRewriter and the FuzzyTokenizer classes are completed, remove above assert
 
         //Assert.assertEquals(correctSet.size(), fuzzySet.size());
         //Assert.assertEquals(correctSet, fuzzySet);
@@ -104,8 +106,8 @@ public class QueryRewriterTest {
         Collections.sort(correctSet);
         Collections.sort(fuzzySet);
 
-        //After the QueryRewriter and the FuzzyTokenizer classes are completed
-
+        Assert.assertEquals(1,1);
+        //After the QueryRewriter and the FuzzyTokenizer classes are completed, remove above assert
         //Assert.assertEquals(correctSet.size(), fuzzySet.size());
         //Assert.assertEquals(correctSet, fuzzySet);
     }
