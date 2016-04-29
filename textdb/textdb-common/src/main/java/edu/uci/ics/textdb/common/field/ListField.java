@@ -1,20 +1,33 @@
 package edu.uci.ics.textdb.common.field;
 
-import java.util.List;
-
 import edu.uci.ics.textdb.api.common.IField;
 
-public class ListField<T> implements IField{
+import java.util.List;
 
-    private List<T> list;
-    
-    public ListField(List<T> list){
-        this.list = list;
+public class ListField<T> implements IField {
+    private final List<T> value;
+
+    public ListField(List<T> value) {
+        this.value = value;
     }
-    
+
     @Override
     public List<T> getValue() {
-        return list;
+        return value;
     }
 
+    @Override
+    public int hashCode() {
+        return value != null ? value.hashCode() : 0;
+    }
+
+    @Override
+    public String toString() {
+        String getStringResult = new String();
+        for(T val: value) {
+            getStringResult = getStringResult.concat(val.toString().concat(" "));
+        }
+        getStringResult = getStringResult.trim();
+        return "ListField [value=" + getStringResult + "]";
+    }
 }
