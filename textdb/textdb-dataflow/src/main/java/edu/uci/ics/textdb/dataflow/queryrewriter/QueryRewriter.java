@@ -11,9 +11,12 @@ import java.util.List;
 /**
  * Created by kishorenarendran on 25/04/16.
  * QueryRewriter is an operator that converts a query search string which
- * have faults in space placement to a list of meaningful search queries
+ * has faults in space placement to a list of meaningful search queries
  * QueryRewriter internally uses the FuzzyTokenizer class to fulfill
  * its functionality.
+ *
+ * An example - "newyork city" - > "new york city"
+ *              "christmasday" - > "christmas day"
  *
  * Like other Operators it returns an ITuple which contains a list of strings
  * which are the modified queries.
@@ -22,8 +25,6 @@ import java.util.List;
 public class QueryRewriter implements IOperator{
 
     private String searchQuery;
-    //Uncomment below line when FuzzyTokenizer has been created
-    //private FuzzyTokenizer fuzzyTokenizer;
 
     public static final String QUERYLIST = "querylist";
     public static final Attribute QUERYLIST_ATTR = new Attribute(QUERYLIST, FieldType.LIST);
@@ -42,14 +43,12 @@ public class QueryRewriter implements IOperator{
     }
 
     /**
-     * Overriden Open method of the IOperator interface
+     * Overridden Open method of the IOperator interface
      * Query parser object will be created here
      * @throws Exception
      */
     @Override
     public void open() throws Exception {
-        //Uncomment below line when FuzzyTokenizer has been created
-        //fuzzyTokenizer = new FuzzyTokenizer(searchQuery);
 
     }
 
@@ -61,9 +60,6 @@ public class QueryRewriter implements IOperator{
      */
     @Override
     public ITuple getNextTuple() throws Exception {
-        //Uncomment below line when FuzzyTokenizer has been created
-        //List<String> queryStrings = Arrays.asList(fuzzyTokenizer.getParsedQueries());
-
         List<String> queryStrings = Arrays.asList(searchQuery);
         IField[] iFieldResult = {new ListField(queryStrings)};
         itupleResult = new DataTuple(SCHEMA_QUERY_LIST, iFieldResult);
@@ -76,7 +72,6 @@ public class QueryRewriter implements IOperator{
      */
     @Override
     public void close() throws Exception {
-        //Uncomment below line when FuzzyTokenizer has been created
-        //fuzzyTokenizer = null;
+
     }
 }

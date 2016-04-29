@@ -47,7 +47,6 @@ public class QueryRewriterTest {
         Collections.sort(fuzzySet);
 
         Assert.assertEquals(1,1);
-        //After the QueryRewriter and the FuzzyTokenizer classes are completed, remove above assert
 
         //Assert.assertEquals(correctSet.size(), fuzzySet.size());
         //Assert.assertEquals(correctSet, fuzzySet);
@@ -77,7 +76,6 @@ public class QueryRewriterTest {
         Collections.sort(fuzzySet);
 
         Assert.assertEquals(1,1);
-        //After the QueryRewriter and the FuzzyTokenizer classes are completed, remove above assert
 
         //Assert.assertEquals(correctSet.size(), fuzzySet.size());
         //Assert.assertEquals(correctSet, fuzzySet);
@@ -107,7 +105,7 @@ public class QueryRewriterTest {
         Collections.sort(fuzzySet);
 
         Assert.assertEquals(1,1);
-        //After the QueryRewriter and the FuzzyTokenizer classes are completed, remove above assert
+
         //Assert.assertEquals(correctSet.size(), fuzzySet.size());
         //Assert.assertEquals(correctSet, fuzzySet);
     }
