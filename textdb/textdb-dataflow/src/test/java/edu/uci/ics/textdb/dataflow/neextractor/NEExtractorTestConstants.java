@@ -27,7 +27,7 @@ public class NEExtractorTestConstants {
             SENTENCE_ATTR);
 
     public static final List<Attribute> ATTRIBUTES_TWO_SENTENCE = Arrays.asList(
-            SENTENCE_ATTR);
+            SENTENCE_ATTR,SENTENCE_ATTR);
     public static final Schema SCHEMA_ONE_SENTENCE = new Schema(ATTRIBUTES_ONE_SENTENCE);
     public static final Schema SCHEMA_TWO_SENTENCE = new Schema(ATTRIBUTES_TWO_SENTENCE);
 

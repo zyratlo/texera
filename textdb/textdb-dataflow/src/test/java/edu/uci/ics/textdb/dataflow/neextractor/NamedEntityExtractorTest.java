@@ -92,7 +92,7 @@ public class NamedEntityExtractorTest {
     }
 
     /**
-     * Scenario 2: Get next tuple with multiple return with different idendities
+     * Scenario 3: Get next tuple with multiple return with different idendities
      * Text: Microsoft, Google and Facebook are organizations and Donald Trump and Barack Obama are persons.
      */
     @Test
@@ -114,13 +114,14 @@ public class NamedEntityExtractorTest {
 
 
     /**
-     * Scenario 2: Get next tuple with multiple return with different idendities in two sentence(field).
+     * Scenario 4: Get next tuple with multiple return with different idendities in two sentence(field).
      * Text: Microsoft, Google and Facebook are organizations and Donald Trump and Barack Obama are persons.
      */
     @Test
     public void getNextTupleTest4() throws Exception {
         List<ITuple> data = NEExtractorTestConstants.getTest4Tuples();
         IOperator sourceOperator= TestHelper(data.get(0).getSchema(),data);
+
 
         NamedEntityExtractor neExtractor = new NamedEntityExtractor(sourceOperator);
         neExtractor.open();
