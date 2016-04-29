@@ -42,19 +42,19 @@ public class SchemaTest {
     }		
      		
     @Test(expected = UnsupportedOperationException.class)		
-    public void testAddingNewAttribute(){ //Should fail		
+    public void testAddingNewAttribute(){ //Should fail due to immutability		
          List<Attribute> attributes  = schema.getAttributes();		
          attributes.add(new Attribute("sampleField_3", FieldType.STRING));		
     }		
      		
     @Test(expected = UnsupportedOperationException.class)		
-    public void testRemovingAttribute(){ //Should fail		
+    public void testRemovingAttribute(){ //Should fail due to immutability		
          List<Attribute> attributes  = schema.getAttributes();		
          attributes.remove(0);		
     }		
      		
     @Test(expected = UnsupportedOperationException.class)		
-    public void testAddingInBetween(){ //Should fail		
+    public void testAddingInBetween(){ //Should fail due to immutability		
          List<Attribute> attributes  = schema.getAttributes();		
          attributes.add(0, new Attribute("sampleField_3", FieldType.STRING));
         
