@@ -89,6 +89,11 @@ public class DictionaryMatcher implements IOperator {
         }
     }
 
+    /**
+     * 
+     * @about Creating a new schema object, and adding SPAN_LIST_ATTRIBUTE to
+     *        the schema. SPAN_LIST_ATTRIBUTE is of type List
+     */
     private Schema createSpanSchema() {
         List<Attribute> dataTupleAttributes = schema.getAttributes();
         Attribute[] spanAttributes = new Attribute[dataTupleAttributes.size() + 1];
@@ -108,7 +113,11 @@ public class DictionaryMatcher implements IOperator {
      * @overview Loop through the dictionary entries. For each dictionary entry,
      *           loop through the tuples in the operator. For each tuple, loop
      *           through all the fields. For each field, loop through all the
-     *           matches.
+     *           matches. Returns only one tuple per document. If there are
+     *           multiple matches, all spans are included in a list. Java Regex
+     *           is used to match word boundaries. Ex : If text is
+     *           "Lin is Angelina's friend" and the dictionary word is "Lin",
+     *           matches should include Lin but not Angelina.
      */
     @Override
     public ITuple getNextTuple() throws Exception {
@@ -143,7 +152,8 @@ public class DictionaryMatcher implements IOperator {
                     return getNextTuple();
                 }
             } else {
-                // If fieldType is not String. Presently only supporting string
+                // If fieldType is not StringField or TextField. Presently only
+                // supporting string and text
                 // type in dictionary
                 attributeIndex++;
                 positionIndex = 0;
