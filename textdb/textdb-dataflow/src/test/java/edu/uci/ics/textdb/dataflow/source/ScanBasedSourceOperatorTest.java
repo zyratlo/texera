@@ -5,7 +5,6 @@ package edu.uci.ics.textdb.dataflow.source;
 
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.apache.lucene.analysis.Analyzer;
