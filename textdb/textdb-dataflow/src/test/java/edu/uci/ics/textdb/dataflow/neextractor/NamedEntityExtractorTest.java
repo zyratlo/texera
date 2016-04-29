@@ -63,6 +63,8 @@ public class NamedEntityExtractorTest {
         IOperator sourceOperator = TestHelper(data.get(0).getSchema(),data);
 
         NamedEntityExtractor neExtractor = new NamedEntityExtractor(sourceOperator);
+        neExtractor.open();
+
         ITuple iTuple=neExtractor.getNextTuple();
         ITuple targetTuple=NEExtractorTestConstants.getTest1ResultTuple();
         Assert.assertTrue(TestUtils.equalTo(iTuple, targetTuple));
@@ -80,6 +82,8 @@ public class NamedEntityExtractorTest {
         IOperator sourceOperator = TestHelper(data.get(0).getSchema(),data);
 
         NamedEntityExtractor neExtractor = new NamedEntityExtractor(sourceOperator);
+        neExtractor.open();
+
         ITuple iTuple = neExtractor.getNextTuple();
         ITuple targetTuple=NEExtractorTestConstants.getTest2ResultTuple();
         Assert.assertTrue(TestUtils.equalTo(iTuple,targetTuple));
@@ -97,6 +101,8 @@ public class NamedEntityExtractorTest {
         IOperator sourceOperator = TestHelper(data.get(0).getSchema(),data);
 
         NamedEntityExtractor neExtractor = new NamedEntityExtractor(sourceOperator);
+        neExtractor.open();
+        
         ITuple iTuple = neExtractor.getNextTuple();
         ITuple targetTuple=NEExtractorTestConstants.getTest3ResultTuple();
         Assert.assertTrue(TestUtils.equalTo(iTuple,targetTuple));
@@ -117,6 +123,8 @@ public class NamedEntityExtractorTest {
         IOperator sourceOperator= TestHelper(data.get(0).getSchema(),data);
 
         NamedEntityExtractor neExtractor = new NamedEntityExtractor(sourceOperator);
+        neExtractor.open();
+
         ITuple iTuple =neExtractor.getNextTuple();
         //TODO: discuss the definition of return field.
         ITuple targetTuple=NEExtractorTestConstants.getTest3ResultTuple();
