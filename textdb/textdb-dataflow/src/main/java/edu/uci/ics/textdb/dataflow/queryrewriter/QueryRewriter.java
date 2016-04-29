@@ -12,8 +12,6 @@ import java.util.List;
  * Created by kishorenarendran on 25/04/16.
  * QueryRewriter is an operator that converts a query search string which
  * has faults in space placement to a list of meaningful search queries
- * QueryRewriter internally uses the FuzzyTokenizer class to fulfill
- * its functionality.
  *
  * An example - "newyork city" - > "new york city"
  *              "christmasday" - > "christmas day"
