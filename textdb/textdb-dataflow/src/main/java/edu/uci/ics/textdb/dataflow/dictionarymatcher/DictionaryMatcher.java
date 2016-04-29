@@ -46,6 +46,7 @@ public class DictionaryMatcher implements IOperator {
     private List<Attribute> searchInAttributes;
     private List<Span> spanList;
     private boolean isPresent;
+    private String documentValue;
 
     /**
      * 
@@ -133,15 +134,17 @@ public class DictionaryMatcher implements IOperator {
 
                     isPresent = true;
                     spanIndexValue = matcher.start();
+
                     // Increment positionIndex so that next search occurs from
                     // new positionIndex.
                     positionIndex = spanIndexValue + dictionaryValue.length();
+                    documentValue = fieldValue.substring(spanIndexValue, positionIndex);
 
                     // Attribute attribute =
                     // schema.getAttributes().get(attributeIndex);
                     spanFieldName = searchInAttributes.get(attributeIndex).getFieldName(); // attribute.getFieldName();
 
-                    addSpanToSpanList(spanFieldName, spanIndexValue, positionIndex, dictionaryValue, dictionaryValue);
+                    addSpanToSpanList(spanFieldName, spanIndexValue, positionIndex, dictionaryValue, documentValue);
                     return getNextTuple();
 
                 } else {
