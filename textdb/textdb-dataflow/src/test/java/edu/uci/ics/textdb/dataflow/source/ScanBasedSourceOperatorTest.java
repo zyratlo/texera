@@ -4,6 +4,7 @@
 package edu.uci.ics.textdb.dataflow.source;
 
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -63,18 +64,18 @@ public class ScanBasedSourceOperatorTest {
     
     @Test
     public void testFlow() throws DataFlowException, ParseException{
-        List<ITuple> tuples = TestConstants.getSamplePeopleTuples();
+        List<ITuple> actualTuples = TestConstants.getSamplePeopleTuples();
         scanBasedSourceOperator.open();
         ITuple nextTuple = null;
         int numTuples = 0;
+        List<ITuple> returnedTuples = new ArrayList<ITuple>();
         while((nextTuple  = scanBasedSourceOperator.getNextTuple()) != null){
-            //Checking if the tuple retrieved is present in the samplesTuples
-            boolean contains = TestUtils.contains(tuples, nextTuple, 
-                    Arrays.asList(TestConstants.ATTRIBUTES_PEOPLE));
-            Assert.assertTrue(contains);
+        	returnedTuples.add(nextTuple);
             numTuples ++;
         }
-        Assert.assertEquals(tuples.size(), numTuples);
+        Assert.assertEquals(actualTuples.size(), numTuples);
+        boolean contains = TestUtils.containsAllResults(actualTuples, returnedTuples);
+		Assert.assertTrue(contains);
         scanBasedSourceOperator.close();
     }
     
