@@ -128,7 +128,7 @@ public class DictionaryMatcher implements IOperator {
             if (dataField instanceof TextField) {
                 matcher = pattern.matcher(fieldValue.toLowerCase());
                 // Get position of dict value in the field.
-                if (matcher.find(positionIndex) != false) {
+                while (matcher.find(positionIndex) != false) {
                     isPresent = true;
                     spanIndexValue = matcher.start();
 
@@ -139,15 +139,12 @@ public class DictionaryMatcher implements IOperator {
                     spanFieldName = searchInAttributes.get(attributeIndex).getFieldName();
 
                     addSpanToSpanList(spanFieldName, spanIndexValue, positionIndex, dictionaryValue, documentValue);
-                    return getNextTuple();
-
-                } else {
-                    // Increment the fieldIndex and call getNextTuple to search
-                    // in next field
-                    attributeIndex++;
-                    positionIndex = 0;
-                    return getNextTuple();
                 }
+                // Increment the fieldIndex and call getNextTuple to search
+                // in next field
+                attributeIndex++;
+                positionIndex = 0;
+                return getNextTuple();
 
             } else if (dataField instanceof StringField) {
                 // Dictionary value should exactly match fieldValue for a

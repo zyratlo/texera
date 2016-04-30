@@ -209,7 +209,7 @@ public class DictionaryMatcherTest {
 
         IField[] fields1 = { new StringField("george lin lin"), new StringField("lin clooney"), new IntegerField(43),
                 new DoubleField(6.06), new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-13-1973")),
-                new TextField("Lin Clooney is Short and Angry"), new ListField<Span>(list) };
+                new TextField("Lin Clooney is Short and lin clooney is Angry"), new ListField<Span>(list) };
         ITuple tuple1 = new DataTuple(new Schema(schemaAttributes), fields1);
         List<ITuple> expectedResults = new ArrayList<ITuple>();
         expectedResults.add(tuple1);
@@ -236,10 +236,11 @@ public class DictionaryMatcherTest {
         List<Span> list = new ArrayList<Span>();
         Span span1 = new Span("lastName", 0, 11, "lin clooney", "lin clooney");
         Span span2 = new Span("description", 0, 11, "lin clooney", "Lin Clooney");
+        Span span3 = new Span("description", 25, 36, "lin clooney", "lin clooney");
         // Span span3 = new Span("lastName", 0, 3, "Lin", "lin");
         list.add(span1);
         list.add(span2);
-        // list.add(span3);
+        list.add(span3);
         Attribute[] schemaAttributes = new Attribute[TestConstants.ATTRIBUTES_PEOPLE.length + 1];
         for (int count = 0; count < schemaAttributes.length - 1; count++) {
             schemaAttributes[count] = TestConstants.ATTRIBUTES_PEOPLE[count];
@@ -248,7 +249,7 @@ public class DictionaryMatcherTest {
 
         IField[] fields1 = { new StringField("george lin lin"), new StringField("lin clooney"), new IntegerField(43),
                 new DoubleField(6.06), new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-13-1973")),
-                new TextField("Lin Clooney is Short and Angry"), new ListField<Span>(list) };
+                new TextField("Lin Clooney is Short and lin clooney is Angry"), new ListField<Span>(list) };
         ITuple tuple1 = new DataTuple(new Schema(schemaAttributes), fields1);
         List<ITuple> expectedResults = new ArrayList<ITuple>();
         expectedResults.add(tuple1);
