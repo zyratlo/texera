@@ -140,11 +140,6 @@ public class DictionaryMatcher implements IOperator {
 
                     addSpanToSpanList(spanFieldName, spanIndexValue, positionIndex, dictionaryValue, documentValue);
                 }
-                // Increment the fieldIndex and call getNextTuple to search
-                // in next field
-                attributeIndex++;
-                positionIndex = 0;
-                return getNextTuple();
 
             } else if (dataField instanceof StringField) {
                 // Dictionary value should exactly match fieldValue for a
@@ -158,20 +153,11 @@ public class DictionaryMatcher implements IOperator {
 
                     addSpanToSpanList(spanFieldName, spanIndexValue, positionIndex, dictionaryValue, documentValue);
                 }
-                // Attribute Index has to be incremented, both when there is a
-                // match and also when there is no match in case of StringField
-                attributeIndex++;
-                positionIndex = 0;
-                return getNextTuple();
-
-            } else {
-                // If fieldType is not StringField or TextField. Presently only
-                // supporting string and text
-                // type in dictionary
-                attributeIndex++;
-                positionIndex = 0;
-                return getNextTuple();
             }
+
+            attributeIndex++;
+            positionIndex = 0;
+            return getNextTuple();
 
         } else if (attributeIndex == searchInAttributes.size() && isPresent) {
             isPresent = false;
