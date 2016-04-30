@@ -118,12 +118,12 @@ public class DictionaryMatcherTest {
     @Test
     public void testSingleWordQueryInStringField() throws Exception {
 
-        ArrayList<String> names = new ArrayList<String>(Arrays.asList("bruce"));
+        ArrayList<String> names = new ArrayList<String>(Arrays.asList("Bruce"));
         IDictionary dictionary = new Dictionary(names);
         ISourceOperator sourceOperator = new ScanBasedSourceOperator(dataReader);
         // create data tuple first
         List<Span> list = new ArrayList<Span>();
-        Span span = new Span("firstName", 0, 5, "bruce", "bruce");
+        Span span = new Span("firstName", 0, 5, "Bruce", "bruce");
         list.add(span);
         Attribute[] schemaAttributes = new Attribute[TestConstants.ATTRIBUTES_PEOPLE.length + 1];
         for (int count = 0; count < schemaAttributes.length - 1; count++) {
@@ -131,7 +131,7 @@ public class DictionaryMatcherTest {
         }
         schemaAttributes[schemaAttributes.length - 1] = SchemaConstants.SPAN_LIST_ATTRIBUTE;
 
-        IField[] fields1 = { new StringField("bruce banner"), new StringField("john Lee"), new IntegerField(46),
+        IField[] fields1 = { new StringField("bruce"), new StringField("john Lee"), new IntegerField(46),
                 new DoubleField(5.50), new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-14-1970")),
                 new TextField("Tall Angry"), new ListField<Span>(list) };
         ITuple tuple1 = new DataTuple(new Schema(schemaAttributes), fields1);
@@ -166,7 +166,7 @@ public class DictionaryMatcherTest {
         }
         schemaAttributes[schemaAttributes.length - 1] = SchemaConstants.SPAN_LIST_ATTRIBUTE;
 
-        IField[] fields1 = { new StringField("bruce banner"), new StringField("john Lee"), new IntegerField(46),
+        IField[] fields1 = { new StringField("bruce"), new StringField("john Lee"), new IntegerField(46),
                 new DoubleField(5.50), new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-14-1970")),
                 new TextField("Tall Angry"), new ListField<Span>(list) };
         IField[] fields2 = { new StringField("christian john wayne"), new StringField("rock bale"),
@@ -194,12 +194,12 @@ public class DictionaryMatcherTest {
     @Test
     public void testMultipleWordsQuery() throws Exception {
 
-        ArrayList<String> names = new ArrayList<String>(Arrays.asList("george lin"));
+        ArrayList<String> names = new ArrayList<String>(Arrays.asList("george lin lin"));
         IDictionary dictionary = new Dictionary(names);
         ISourceOperator sourceOperator = new ScanBasedSourceOperator(dataReader);
         // create data tuple first
         List<Span> list = new ArrayList<Span>();
-        Span span = new Span("firstName", 0, 10, "george lin", "george lin");
+        Span span = new Span("firstName", 0, 14, "george lin lin", "george lin lin");
         list.add(span);
         Attribute[] schemaAttributes = new Attribute[TestConstants.ATTRIBUTES_PEOPLE.length + 1];
         for (int count = 0; count < schemaAttributes.length - 1; count++) {
@@ -209,7 +209,7 @@ public class DictionaryMatcherTest {
 
         IField[] fields1 = { new StringField("george lin lin"), new StringField("lin clooney"), new IntegerField(43),
                 new DoubleField(6.06), new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-13-1973")),
-                new TextField("Short Angry"), new ListField<Span>(list) };
+                new TextField("Lin Clooney is Short and Angry"), new ListField<Span>(list) };
         ITuple tuple1 = new DataTuple(new Schema(schemaAttributes), fields1);
         List<ITuple> expectedResults = new ArrayList<ITuple>();
         expectedResults.add(tuple1);
@@ -229,17 +229,17 @@ public class DictionaryMatcherTest {
     @Test
     public void testWordInMultipleFieldsQuery() throws Exception {
 
-        ArrayList<String> names = new ArrayList<String>(Arrays.asList("Lin"));
+        ArrayList<String> names = new ArrayList<String>(Arrays.asList("lin clooney"));
         IDictionary dictionary = new Dictionary(names);
         ISourceOperator sourceOperator = new ScanBasedSourceOperator(dataReader);
         // create data tuple first
         List<Span> list = new ArrayList<Span>();
-        Span span1 = new Span("firstName", 7, 10, "Lin", "lin");
-        Span span2 = new Span("firstName", 11, 14, "Lin", "lin");
-        Span span3 = new Span("lastName", 0, 3, "Lin", "lin");
+        Span span1 = new Span("lastName", 0, 11, "lin clooney", "lin clooney");
+        Span span2 = new Span("description", 0, 11, "lin clooney", "Lin Clooney");
+        // Span span3 = new Span("lastName", 0, 3, "Lin", "lin");
         list.add(span1);
         list.add(span2);
-        list.add(span3);
+        // list.add(span3);
         Attribute[] schemaAttributes = new Attribute[TestConstants.ATTRIBUTES_PEOPLE.length + 1];
         for (int count = 0; count < schemaAttributes.length - 1; count++) {
             schemaAttributes[count] = TestConstants.ATTRIBUTES_PEOPLE[count];
@@ -248,7 +248,7 @@ public class DictionaryMatcherTest {
 
         IField[] fields1 = { new StringField("george lin lin"), new StringField("lin clooney"), new IntegerField(43),
                 new DoubleField(6.06), new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-13-1973")),
-                new TextField("Short Angry"), new ListField<Span>(list) };
+                new TextField("Lin Clooney is Short and Angry"), new ListField<Span>(list) };
         ITuple tuple1 = new DataTuple(new Schema(schemaAttributes), fields1);
         List<ITuple> expectedResults = new ArrayList<ITuple>();
         expectedResults.add(tuple1);

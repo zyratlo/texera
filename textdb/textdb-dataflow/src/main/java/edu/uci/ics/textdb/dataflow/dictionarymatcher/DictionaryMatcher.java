@@ -29,7 +29,6 @@ public class DictionaryMatcher implements IOperator {
     private IOperator operator;
     private IDictionary dictionary;
     private String dictionaryValue;
-    private String dictionaryValueDup;
     private int positionIndex; // next position in the field to be checked.
     private int attributeIndex; // Index of the next field to be checked.
     private int spanIndexValue; // Starting position of the matched dictionary
@@ -72,8 +71,8 @@ public class DictionaryMatcher implements IOperator {
             attributeIndex = 0;
             operator.open();
             dictionaryValue = dictionary.getNextValue();
-            dictionaryValueDup = dictionaryValue;
-            regex = "\\b" + dictionaryValueDup.toLowerCase() + "\\b";
+            // dictionaryValueDup = dictionaryValue;
+            regex = "\\b" + dictionaryValue.toLowerCase() + "\\b";
             pattern = Pattern.compile(regex);
 
             dataTuple = operator.getNextTuple();
@@ -124,14 +123,12 @@ public class DictionaryMatcher implements IOperator {
     public ITuple getNextTuple() throws Exception {
         if (attributeIndex < searchInAttributes.size()) {
             IField dataField = dataTuple.getField(searchInAttributes.get(attributeIndex).getFieldName());
+            String fieldValue = (String) dataField.getValue();
 
-            if (dataField instanceof StringField || dataField instanceof TextField) {
-                String fieldValue = (String) dataField.getValue();
-
+            if (dataField instanceof TextField) {
                 matcher = pattern.matcher(fieldValue.toLowerCase());
                 // Get position of dict value in the field.
                 if (matcher.find(positionIndex) != false) {
-
                     isPresent = true;
                     spanIndexValue = matcher.start();
 
@@ -139,10 +136,7 @@ public class DictionaryMatcher implements IOperator {
                     // new positionIndex.
                     positionIndex = spanIndexValue + dictionaryValue.length();
                     documentValue = fieldValue.substring(spanIndexValue, positionIndex);
-
-                    // Attribute attribute =
-                    // schema.getAttributes().get(attributeIndex);
-                    spanFieldName = searchInAttributes.get(attributeIndex).getFieldName(); // attribute.getFieldName();
+                    spanFieldName = searchInAttributes.get(attributeIndex).getFieldName();
 
                     addSpanToSpanList(spanFieldName, spanIndexValue, positionIndex, dictionaryValue, documentValue);
                     return getNextTuple();
@@ -154,6 +148,25 @@ public class DictionaryMatcher implements IOperator {
                     positionIndex = 0;
                     return getNextTuple();
                 }
+
+            } else if (dataField instanceof StringField) {
+                // Dictionary value should exactly match fieldValue for a
+                // StringField
+                if (fieldValue.equals(dictionaryValue.toLowerCase())) {
+                    isPresent = true;
+                    spanIndexValue = 0;
+                    positionIndex = spanIndexValue + dictionaryValue.length();
+                    documentValue = fieldValue.substring(spanIndexValue, positionIndex);
+                    spanFieldName = searchInAttributes.get(attributeIndex).getFieldName(); // attribute.getFieldName();
+
+                    addSpanToSpanList(spanFieldName, spanIndexValue, positionIndex, dictionaryValue, documentValue);
+                }
+                // Attribute Index has to be incremented, both when there is a
+                // match and also when there is no match in case of StringField
+                attributeIndex++;
+                positionIndex = 0;
+                return getNextTuple();
+
             } else {
                 // If fieldType is not StringField or TextField. Presently only
                 // supporting string and text
@@ -186,8 +199,8 @@ public class DictionaryMatcher implements IOperator {
             attributeIndex = 0;
             positionIndex = 0;
 
-            dictionaryValueDup = dictionaryValue;
-            regex = "\\b" + dictionaryValueDup.toLowerCase() + "\\b";
+            // dictionaryValueDup = dictionaryValue;
+            regex = "\\b" + dictionaryValue.toLowerCase() + "\\b";
             pattern = Pattern.compile(regex);
 
             operator.close();
@@ -200,7 +213,6 @@ public class DictionaryMatcher implements IOperator {
         }
 
         return null;
-
     }
 
     private void addSpanToSpanList(String fieldName, int start, int end, String key, String value) {
