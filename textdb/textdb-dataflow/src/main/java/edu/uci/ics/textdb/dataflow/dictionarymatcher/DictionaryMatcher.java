@@ -163,9 +163,9 @@ public class DictionaryMatcher implements IOperator {
             isPresent = false;
             positionIndex = 0;
             return getSpanTuple();
-        }
-        // Get the next document
-        else if ((dataTuple = operator.getNextTuple()) != null) {
+
+        } else if ((dataTuple = operator.getNextTuple()) != null) {
+            // Get the next document
             attributeIndex = 0;
             positionIndex = 0;
             spanList.clear();
@@ -174,9 +174,9 @@ public class DictionaryMatcher implements IOperator {
             schema = dataTuple.getSchema();
             spanSchema = createSpanSchema();
             return getNextTuple();
-        }
-        // Get the next dictionary value
-        else if ((dictionaryValue = dictionary.getNextValue()) != null) {
+
+        } else if ((dictionaryValue = dictionary.getNextValue()) != null) {
+            // Get the next dictionary value
             // At this point all the documents in the dataStore are scanned
             // and we need to scan them again for a different dictionary value
             attributeIndex = 0;
