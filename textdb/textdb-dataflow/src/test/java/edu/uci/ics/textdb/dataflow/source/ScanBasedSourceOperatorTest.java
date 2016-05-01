@@ -4,6 +4,7 @@
 package edu.uci.ics.textdb.dataflow.source;
 
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.lucene.analysis.Analyzer;
@@ -46,7 +47,7 @@ public class ScanBasedSourceOperatorTest {
         analyzer = new  StandardAnalyzer();
         dataWriter = new LuceneDataWriter(dataStore, analyzer );
         QueryParser queryParser = new QueryParser(
-                TestConstants.ATTRIBUTES_PEOPLE.get(0).getFieldName(), analyzer);
+                TestConstants.ATTRIBUTES_PEOPLE[0].getFieldName(), analyzer);
         query = queryParser.parse(LuceneConstants.SCAN_QUERY);
         dataReader = new LuceneDataReader(dataStore, query);
         
@@ -62,17 +63,18 @@ public class ScanBasedSourceOperatorTest {
     
     @Test
     public void testFlow() throws DataFlowException, ParseException{
-        List<ITuple> tuples = TestConstants.getSamplePeopleTuples();
+        List<ITuple> actualTuples = TestConstants.getSamplePeopleTuples();
         scanBasedSourceOperator.open();
         ITuple nextTuple = null;
         int numTuples = 0;
+        List<ITuple> returnedTuples = new ArrayList<ITuple>();
         while((nextTuple  = scanBasedSourceOperator.getNextTuple()) != null){
-            //Checking if the tuple retrieved is present in the samplesTuples
-            boolean contains = TestUtils.contains(tuples, nextTuple, TestConstants.ATTRIBUTES_PEOPLE);
-            Assert.assertTrue(contains);
+        	returnedTuples.add(nextTuple);
             numTuples ++;
         }
-        Assert.assertEquals(tuples.size(), numTuples);
+        Assert.assertEquals(actualTuples.size(), numTuples);
+        boolean contains = TestUtils.containsAllResults(actualTuples, returnedTuples);
+		Assert.assertTrue(contains);
         scanBasedSourceOperator.close();
     }
     
