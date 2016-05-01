@@ -54,7 +54,7 @@ public class IndexSearchSourceOperatorTest {
 	}
 
 	public List<ITuple> getQueryResults(String query) throws DataFlowException, ParseException {
-		String defaultField = TestConstants.ATTRIBUTES_PEOPLE.get(0).getFieldName();
+		String defaultField = TestConstants.ATTRIBUTES_PEOPLE[0].getFieldName();
 		QueryParser queryParser = new QueryParser(defaultField, analyzer);
 		Query queryObject = queryParser.parse(query);
 		IDataReader dataReader = new LuceneDataReader(dataStore, queryObject);
