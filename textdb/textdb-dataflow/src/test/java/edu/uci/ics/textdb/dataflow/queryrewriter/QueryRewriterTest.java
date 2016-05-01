@@ -39,10 +39,10 @@ public class QueryRewriterTest {
         Assert.assertNotNull(fuzzySet);
 
         List<String> correctSet = Arrays.asList("hor se shoe",
-                "hors es hoe",
-                "horse shoe",
-                "horses hoe",
-                "horseshoe");
+                                                "hors es hoe",
+                                                "horse shoe",
+                                                "horses hoe",
+                                                "horseshoe");
         Collections.sort(correctSet);
         Collections.sort(fuzzySet);
 
@@ -70,7 +70,8 @@ public class QueryRewriterTest {
         List<String> fuzzySet = (List<String>) iTuple.getField(0).getValue();
         Assert.assertNotNull(fuzzySet);
 
-        List<String> correctSet = Arrays.asList("horse shoe");
+        List<String> correctSet = Arrays.asList("horse shoe",
+                                                "hor se shoe");
 
         Collections.sort(correctSet);
         Collections.sort(fuzzySet);
@@ -100,7 +101,7 @@ public class QueryRewriterTest {
         Assert.assertNotNull(fuzzySet);
 
         List<String> correctSet = Arrays.asList("new york city",
-                "newyork city");
+                                                "newyork city");
         Collections.sort(correctSet);
         Collections.sort(fuzzySet);
 
