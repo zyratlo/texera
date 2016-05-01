@@ -37,8 +37,8 @@ public class RegexTestConstantStaff {
     public static List<ITuple> getSampleStaffTuples() throws ParseException {
     	IField[] fields1 = {new StringField("Karina"), new StringField("Bocanegra"), new StringField("k.bocanegra@uci.edu"), new StringField("(949) 824-5156")};
     	IField[] fields2 = {new StringField("Lumen"), new StringField("Hwang"), new StringField("hwangl@ics.uci.edu"), new StringField("(949) 824-8088")};
-    	IField[] fields3 = {new StringField("Jessica"), new StringField("Shanahan "), new StringField("shanahan@uci.edu"), new StringField("(949) 824-7550")};
-    	IField[] fields4 = {new StringField("Mare"), new StringField("Stasik"), new StringField("mstasik@ics.uci.edu"), new StringField("(949) 824-7047")};
+    	IField[] fields3 = {new StringField("Jessica"), new StringField("Shanahan "), new StringField("shanahan@facebook"), new StringField("(949) 824-7550")};
+    	IField[] fields4 = {new StringField("Mare"), new StringField("Stasik"), new StringField("mst?asik@microsoft.com"), new StringField("(949) 824-7047")};
     	
     	ITuple tuple1 = new DataTuple(SCHEMA_STAFF, fields1);
     	ITuple tuple2 = new DataTuple(SCHEMA_STAFF, fields2);
