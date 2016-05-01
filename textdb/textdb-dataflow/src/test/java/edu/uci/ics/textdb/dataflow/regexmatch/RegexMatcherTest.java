@@ -1,9 +1,10 @@
 package edu.uci.ics.textdb.dataflow.regexmatch;
 
-import java.util.List;
 import java.util.ArrayList;
-import org.junit.Test;
+import java.util.List;
+
 import org.junit.Assert;
+import org.junit.Test;
 
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.common.constants.SchemaConstants;
@@ -20,7 +21,7 @@ public class RegexMatcherTest {
 	@Test
 	public void testGetNextTuplePeopleFirstName() throws Exception {
 		List<ITuple> data = TestConstants.getSamplePeopleTuples();
-		RegexMatcherTestHelper test = new RegexMatcherTestHelper(TestConstants.SAMPLE_SCHEMA_PEOPLE, data);
+		RegexMatcherTestHelper test = new RegexMatcherTestHelper(TestConstants.SCHEMA_PEOPLE, data);
 		
 		List<ITuple> expected = new ArrayList<ITuple>();
 		expected.add(data.get(3));
@@ -37,7 +38,7 @@ public class RegexMatcherTest {
 	@Test
 	public void testGetNextTupleCorpURL() throws Exception {
 		List<ITuple> data = RegexTestConstantsCorp.getSampleCorpTuples();
-		RegexMatcherTestHelper test = new RegexMatcherTestHelper(RegexTestConstantsCorp.SAMPLE_SCHEMA_CORP, data);
+		RegexMatcherTestHelper test = new RegexMatcherTestHelper(RegexTestConstantsCorp.SCHEMA_CORP, data);
 		
 		List<ITuple> expected = new ArrayList<ITuple>();
 		expected.add(data.get(1));
@@ -53,7 +54,7 @@ public class RegexMatcherTest {
 	@Test
 	public void testGetNextTupleCorpIP() throws Exception {
 		List<ITuple> data = RegexTestConstantsCorp.getSampleCorpTuples();
-		RegexMatcherTestHelper test = new RegexMatcherTestHelper(RegexTestConstantsCorp.SAMPLE_SCHEMA_CORP, data);
+		RegexMatcherTestHelper test = new RegexMatcherTestHelper(RegexTestConstantsCorp.SCHEMA_CORP, data);
 		
 		List<ITuple> expected = new ArrayList<ITuple>();
 		expected.add(data.get(0));
@@ -69,7 +70,7 @@ public class RegexMatcherTest {
 	@Test
 	public void testGetNextTupleStaffEmail() throws Exception {
 		List<ITuple> data = RegexTestConstantStaff.getSampleStaffTuples();
-		RegexMatcherTestHelper test = new RegexMatcherTestHelper(RegexTestConstantStaff.SAMPLE_SCHEMA_STAFF, data);
+		RegexMatcherTestHelper test = new RegexMatcherTestHelper(RegexTestConstantStaff.SCHEMA_STAFF, data);
 		
 		List<ITuple> expected = new ArrayList<ITuple>();
 		expected.add(data.get(0));
