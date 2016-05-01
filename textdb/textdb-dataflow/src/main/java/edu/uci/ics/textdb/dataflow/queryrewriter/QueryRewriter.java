@@ -39,8 +39,6 @@ public class QueryRewriter implements IOperator{
      */
     public QueryRewriter(String searchQuery) {
         this.searchQuery = searchQuery;
-        fuzzyTokenizer = new FuzzyTokenizer(searchQuery);
-        itupleResult = null;
     }
 
     /**
@@ -50,6 +48,8 @@ public class QueryRewriter implements IOperator{
      */
     @Override
     public void open() throws Exception {
+        this.fuzzyTokenizer = new FuzzyTokenizer(searchQuery);
+        this.itupleResult = null;
     }
 
     /**
@@ -60,19 +60,29 @@ public class QueryRewriter implements IOperator{
      */
     @Override
     public ITuple getNextTuple() throws Exception {
-        List<String> queryStrings = fuzzyTokenizer.getFuzzyTokens();
-        IField[] iFieldResult = {new ListField(queryStrings)};
-        itupleResult = new DataTuple(SCHEMA_QUERY_LIST, iFieldResult);
-        return itupleResult;
+
+        boolean NOT_OPEN = (fuzzyTokenizer == null);    //Ensures QueryRewriter is open before calling getNextTuple
+        boolean EOF = (itupleResult != null);   //Ensures you can call QueryRewriter.getNextTuple only once
+
+        if(NOT_OPEN || EOF)
+            return null;
+        else {
+            List<String> queryStrings = fuzzyTokenizer.getFuzzyTokens();
+            IField[] iFieldResult = {new ListField(queryStrings)};
+            itupleResult = new DataTuple(SCHEMA_QUERY_LIST, iFieldResult);
+            return itupleResult;
+        }
     }
 
     /**
      * Closing the query Parser object
      * @throws Exception
      */
+    //TODO - take care of the case where close is called before open
     @Override
     public void close() throws Exception {
         this.fuzzyTokenizer = null;
         this.searchQuery = null;
+        this.itupleResult = null;
     }
 }

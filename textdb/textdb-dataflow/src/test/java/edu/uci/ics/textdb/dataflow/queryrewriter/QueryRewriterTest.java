@@ -59,11 +59,11 @@ public class QueryRewriterTest {
         ITuple resultItuple = queryRewriter.getNextTuple();
         queryRewriter.close();
 
-        List<String> expectedRewrittenStrings = Arrays.asList("horse shoe","hor se shoe");
+        List<String> expectedRewrittenStrings = Arrays.asList("hor se shoe", "horse shoe");
         IField[] expectedIfield = {new ListField(expectedRewrittenStrings)};
         ITuple expectedItuple = new DataTuple(QueryRewriter.SCHEMA_QUERY_LIST, expectedIfield);
-
         boolean isSame = TestUtils.equalTo(resultItuple, expectedItuple);
+
         Assert.assertTrue(isSame);
     }
 
