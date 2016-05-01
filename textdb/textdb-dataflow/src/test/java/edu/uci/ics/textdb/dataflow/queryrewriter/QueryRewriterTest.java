@@ -9,6 +9,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -31,17 +32,10 @@ public class QueryRewriterTest {
     public void testHorseShoeString() throws Exception {
 
         String query = "horseshoe";
-
-        QueryRewriter queryRewriter = new QueryRewriter(query);
-        queryRewriter.open();
-        ITuple resultItuple = queryRewriter.getNextTuple();
-        queryRewriter.close();
-
         List<String> expectedRewrittenStrings = Arrays.asList("hor se shoe", "hors es hoe", "horse shoe", "horses hoe","horseshoe");
-        IField[] expectedIfield = {new ListField(expectedRewrittenStrings)};
-        ITuple expectedItuple = new DataTuple(QueryRewriter.SCHEMA_QUERY_LIST, expectedIfield);
 
-        boolean isSame = TestUtils.equalTo(resultItuple, expectedItuple);
+        boolean isSame = queryRewriterTestBoilerplate(query, expectedRewrittenStrings);
+
         Assert.assertTrue(isSame);
     }
 
@@ -53,16 +47,9 @@ public class QueryRewriterTest {
     public void testHorseSpaceShoeString() throws Exception {
 
         String query = "horse shoe";
-
-        QueryRewriter queryRewriter = new QueryRewriter(query);
-        queryRewriter.open();
-        ITuple resultItuple = queryRewriter.getNextTuple();
-        queryRewriter.close();
-
         List<String> expectedRewrittenStrings = Arrays.asList("hor se shoe", "horse shoe");
-        IField[] expectedIfield = {new ListField(expectedRewrittenStrings)};
-        ITuple expectedItuple = new DataTuple(QueryRewriter.SCHEMA_QUERY_LIST, expectedIfield);
-        boolean isSame = TestUtils.equalTo(resultItuple, expectedItuple);
+
+        boolean isSame = queryRewriterTestBoilerplate(query, expectedRewrittenStrings);
 
         Assert.assertTrue(isSame);
     }
@@ -75,17 +62,28 @@ public class QueryRewriterTest {
     public void testNewYorkCityString() throws Exception {
 
         String query = "newyork city";
+        List<String> expectedRewrittenStrings = Arrays.asList("new york city","newyork city");
+
+        boolean isSame = queryRewriterTestBoilerplate(query, expectedRewrittenStrings);
+
+        Assert.assertTrue(isSame);
+    }
+
+    public static boolean queryRewriterTestBoilerplate(String query, List<String> expectedRewrittenStrings) throws Exception {
 
         QueryRewriter queryRewriter = new QueryRewriter(query);
         queryRewriter.open();
         ITuple resultItuple = queryRewriter.getNextTuple();
+        List <String> rewrittenStrings = (List<String>) resultItuple.getField(QueryRewriter.QUERYLIST).getValue();
+        Collections.sort(rewrittenStrings);
+        IField[] resultIfield = {new ListField(rewrittenStrings)};
+        resultItuple = new DataTuple(QueryRewriter.SCHEMA_QUERY_LIST, resultIfield);
         queryRewriter.close();
 
-        List<String> expectedRewrittenStrings = Arrays.asList("new york city","newyork city");
+        Collections.sort(expectedRewrittenStrings);
         IField[] expectedIfield = {new ListField(expectedRewrittenStrings)};
         ITuple expectedItuple = new DataTuple(QueryRewriter.SCHEMA_QUERY_LIST, expectedIfield);
 
-        boolean isSame = TestUtils.equalTo(resultItuple, expectedItuple);
-        Assert.assertTrue(isSame);
+        return TestUtils.equalTo(resultItuple, expectedItuple);
     }
 }
