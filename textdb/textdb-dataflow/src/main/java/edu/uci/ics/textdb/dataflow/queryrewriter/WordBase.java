@@ -16,8 +16,7 @@ public class WordBase
 
     private HashSet<String> wordBase;
 
-    public WordBase(String wordBaseSourceFileName) throws IOException
-    {
+    public WordBase(String wordBaseSourceFileName) throws IOException {
         wordBase = new HashSet<String>();
         String line;
 
@@ -30,8 +29,7 @@ public class WordBase
             wordBase.add(line);
     }
 
-    public boolean contains(String word)
-    {
+    public boolean contains(String word) {
         return wordBase.contains(word);
     }
 }

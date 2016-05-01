@@ -13,16 +13,18 @@ import java.util.List;
  */
 public class FuzzyTokenizer
 {
+    //Data members
     private static WordBase wordBase;
-    static
-    {
-        try
-        {
+    private String phrase;
+
+    static {
+        try {
             wordBase = new WordBase("wordsEn.txt");
         }
-        catch(IOException e) {}
+        catch(IOException e) {
+            e.printStackTrace();
+        }
     }
-    private String phrase;
 
     /**
      * Parameterized constructor requires phrase string that is to be tokenized
@@ -30,8 +32,7 @@ public class FuzzyTokenizer
      * @param phrase
      * @throws IOException
      */
-    public FuzzyTokenizer(String phrase)
-    {
+    public FuzzyTokenizer(String phrase) {
         this.phrase = phrase;
     }
 
@@ -44,14 +45,11 @@ public class FuzzyTokenizer
      * Calls method crossCatenate to perform required concatenation of multiple lists
      * @return
      */
-    public List<String> getFuzzyTokens()
-    {
+    public List<String> getFuzzyTokens() {
         String[] queryWords = phrase.split("\\s+");
-
         List< List<String> > allWordsList = new ArrayList< List <String> >();
         for(String word : queryWords)
             allWordsList.add(rewriteTerm(word));
-
         return crossCatenate(allWordsList);
     }
 
@@ -62,8 +60,7 @@ public class FuzzyTokenizer
      * @param term
      * @return
      */
-    private List<String> rewriteTerm(String term)
-    {
+    private List<String> rewriteTerm(String term) {
         List<String> queryWordList = rewrite(term);
         if(! term.equals(queryWordList.get(queryWordList.size()-1)))
             queryWordList.add(term);
@@ -80,24 +77,16 @@ public class FuzzyTokenizer
      * @param term
      * @return
      */
-    private List<String> rewrite(String term)
-    {
+    private List<String> rewrite(String term) {
         List<String> queryList = new ArrayList<String>();
-
-        for(int i=1; i<=term.length(); i++)
-        {
-            if(i == term.length())
-            {
+        for(int i=1; i<=term.length(); i++) {
+            if(i == term.length()) {
                 if(wordBase.contains(term))
                     queryList.add(term);
             }
-
-            else
-            {
+            else {
                 String prefixString = term.substring(0, i);
-
-                if(wordBase.contains(prefixString))
-                {
+                if(wordBase.contains(prefixString)) {
                     prefixString = prefixString.concat(" ");
 
                     String suffixString = term.substring(i, term.length());
@@ -110,7 +99,6 @@ public class FuzzyTokenizer
                 }
             }
         }
-
         return queryList;
     }
 
@@ -122,19 +110,15 @@ public class FuzzyTokenizer
      * @param allWordsList
      * @return
      */
-    private List<String> crossCatenate(List<List<String>> allWordsList)
-    {
+    private List<String> crossCatenate(List<List<String>> allWordsList) {
         List<String> crossList = new ArrayList<String>(allWordsList.get(0));
 
-        for(List<String> wordList : allWordsList.subList(1, allWordsList.size()))
-        {
+        for(List<String> wordList : allWordsList.subList(1, allWordsList.size())) {
             int priorCrossListLength = crossList.size();
             crossList = replicate(crossList, wordList.size());
 
-            for(int i=0; i<wordList.size(); i++)
-            {
-                for(int j=0; j<priorCrossListLength; j++)
-                {
+            for(int i=0; i<wordList.size(); i++) {
+                for(int j=0; j<priorCrossListLength; j++) {
                     int index = i*priorCrossListLength + j;
                     crossList.set(index, crossList.get(index)+" "+wordList.get(i));
                 }
@@ -150,11 +134,11 @@ public class FuzzyTokenizer
      * @param n
      * @return
      */
-    private List<String> replicate(List<String> list, int n)
-    {
+    private List<String> replicate(List<String> list, int n) {
         List<String> originalList = new ArrayList<>(list);
-        for(int i=1; i<n; i++)
+        for(int i=1; i<n; i++) {
             list.addAll(originalList);
+        }
         return list;
     }
 }
