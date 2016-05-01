@@ -9,14 +9,14 @@ import edu.uci.ics.textdb.api.common.Attribute;
 import edu.uci.ics.textdb.api.common.IField;
 import edu.uci.ics.textdb.api.common.IPredicate;
 import edu.uci.ics.textdb.api.common.ITuple;
+import edu.uci.ics.textdb.api.common.Schema;
 import edu.uci.ics.textdb.api.dataflow.IOperator;
 import edu.uci.ics.textdb.api.dataflow.ISourceOperator;
 import edu.uci.ics.textdb.common.constants.SchemaConstants;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
 import edu.uci.ics.textdb.common.field.DataTuple;
-import edu.uci.ics.textdb.common.field.IntegerField;
+import edu.uci.ics.textdb.common.field.ListField;
 import edu.uci.ics.textdb.common.field.Span;
-import edu.uci.ics.textdb.common.field.StringField;
 import edu.uci.ics.textdb.dataflow.common.RegexPredicate;
 
 /**
@@ -27,15 +27,11 @@ public class RegexMatcher implements IOperator {
     private final IPredicate predicate;
     private ISourceOperator sourceOperator;
     private Query luceneQuery;
-    
-    private String spanFieldName;
-    private String spanKey;
 
     private List<IField> fields;
-    private List<Attribute> schema;
+    private Schema schema;
     
     private List<Span> spans;
-    private int nextSpanIndex = -1; //index of next span object to be returned 
 
     public RegexMatcher(IPredicate predicate, ISourceOperator sourceOperator) {
         this.predicate = predicate;
@@ -55,55 +51,44 @@ public class RegexMatcher implements IOperator {
 
     @Override
     public ITuple getNextTuple() throws DataFlowException {
-    	if (nextSpanIndex == -1 || nextSpanIndex == spans.size()) {
-    		try {
-                ITuple sourceTuple = sourceOperator.getNextTuple();
-                if(sourceTuple == null){
-                    return null;
-                }
-                
-                RegexPredicate rPredicate = (RegexPredicate)predicate; 
-                fields = sourceTuple.getFields();
-                schema = sourceTuple.getSchema();
-                spanFieldName = rPredicate.getFieldName();
-                spanKey = rPredicate.getRegex();
-                
-                spans = rPredicate.statisfySpan(sourceTuple);
-                
-                if (spans.size() != 0) { // at least one match found
-                	nextSpanIndex = 1;
-                	return getSpanTuple(spans.get(0));
-                } else { // no match found
-                	nextSpanIndex = -1;
-                	return getNextTuple();
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-                throw new DataFlowException(e.getMessage(), e);
+		try {
+            ITuple sourceTuple = sourceOperator.getNextTuple();
+            if(sourceTuple == null){
+                return null;
             }
-    	} else { //if current field (current list of span) has not been consumed
-    		nextSpanIndex ++;
-    		return getSpanTuple(spans.get(nextSpanIndex-1)); //return the next span in the list
-    	}
-        
-
+            
+            RegexPredicate rPredicate = (RegexPredicate)predicate; 
+            
+            spans = rPredicate.statisfySpan(sourceTuple);
+            
+            if (spans.size() != 0) { // a list of matches found
+            	schema = sourceTuple.getSchema();
+            	fields = sourceTuple.getFields();
+            	return getSpanTuple(spans);
+            } else { // no match found
+            	return getNextTuple();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new DataFlowException(e.getMessage(), e);
+        }        
     }
     
-    private ITuple getSpanTuple(Span span) {
-    	List<Attribute> schemaDuplicate = new ArrayList<>(schema);
-    	schemaDuplicate.add(SchemaConstants.SPAN_FIELD_NAME_ATTRIBUTE);
-    	schemaDuplicate.add(SchemaConstants.SPAN_KEY_ATTRIBUTE);
-    	schemaDuplicate.add(SchemaConstants.SPAN_BEGIN_ATTRIBUTE);
-    	schemaDuplicate.add(SchemaConstants.SPAN_END_ATTRIBUTE);
+    private Schema createSpanSchema() {
+    	List<Attribute> attributesCopy = new ArrayList<>(schema.getAttributes());
+    	attributesCopy.add(SchemaConstants.SPAN_LIST_ATTRIBUTE);
+    	return new Schema(attributesCopy);
+    }
+    
+    private ITuple getSpanTuple(List<Span> spans) {
+    	Schema spanSchema = createSpanSchema();
     	
     	List<IField> fieldListDuplicate = new ArrayList<>(fields);
-    	fieldListDuplicate.add(new StringField(spanFieldName));
-    	fieldListDuplicate.add(new StringField(spanKey));
-    	fieldListDuplicate.add(new IntegerField(span.getStart()));
-    	fieldListDuplicate.add(new IntegerField(span.getEnd()));
+    	IField spanListField = new ListField<Span>(spans);
+    	fieldListDuplicate.add(spanListField);
     	
     	IField[]  fieldsDuplicate = fieldListDuplicate.toArray(new IField[fieldListDuplicate.size()]);
-    	return new DataTuple(schemaDuplicate, fieldsDuplicate);
+    	return new DataTuple(spanSchema, fieldsDuplicate);
     }
 
 

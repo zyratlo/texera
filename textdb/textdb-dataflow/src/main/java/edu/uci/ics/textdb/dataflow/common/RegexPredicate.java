@@ -65,7 +65,7 @@ public class RegexPredicate implements IPredicate{
     			Pattern p = Pattern.compile(regex);
     			Matcher m = p.matcher(fieldValue);
     			while (m.find()) {
-    				res.add(new Span(m.start(), m.end()));
+    				res.add(new Span(fieldName, m.start(), m.end(), regex, fieldValue));
     			}
     		}
     	}
