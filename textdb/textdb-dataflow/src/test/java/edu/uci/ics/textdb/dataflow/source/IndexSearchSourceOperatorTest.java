@@ -75,7 +75,7 @@ public class IndexSearchSourceOperatorTest {
 	 * @throws ParseException
 	 */
 	@Test
-	public void testTextSearcWithMultipleTokens() throws DataFlowException, ParseException {
+	public void testTextSearchWithMultipleTokens() throws DataFlowException, ParseException {
 		List<ITuple> results = getQueryResults(TestConstants.DESCRIPTION + ":Tall,Brown");
 		int numTuples = results.size();
 		Assert.assertEquals(3, numTuples);

@@ -7,7 +7,6 @@ import edu.uci.ics.textdb.common.field.Span;
 import edu.uci.ics.textdb.common.field.StringField;
 import edu.uci.ics.textdb.common.field.TextField;
 import edu.uci.ics.textdb.dataflow.common.KeywordPredicate;
-import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.search.Query;
 import edu.uci.ics.textdb.common.field.ListField;
 import edu.uci.ics.textdb.common.field.DataTuple;
@@ -15,15 +14,14 @@ import edu.uci.ics.textdb.common.field.DataTuple;
 import edu.uci.ics.textdb.api.dataflow.IOperator;
 import edu.uci.ics.textdb.api.dataflow.ISourceOperator;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
-//import edu.uci.ics.textdb.dataflow.common.KeywordPredicate;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- *  Created by prakul on 4/25/16.
+ *  @author prakul on 4/25/16.
+ *
  */
 public class KeywordMatcher implements IOperator {
     private final KeywordPredicate predicate;
@@ -46,15 +44,12 @@ public class KeywordMatcher implements IOperator {
 
     private  String fieldName;
     private  String queryValue;
-    //private Analyzer analyzer;
     private  List<Attribute> attributeList;
     private  ArrayList<String> queryValueArray;
     private ITuple sourceTuple;
     private List<IField> fieldList;
     private boolean foundFlag;
 
-
-    //private ITuple dataTuple;
 
 
     public KeywordMatcher(IPredicate predicate, ISourceOperator sourceOperator) {
@@ -68,7 +63,6 @@ public class KeywordMatcher implements IOperator {
 
             sourceOperator.open();
             queryValue = predicate.getQuery();
-            //analyzer = predicate.getAnalyzer();
             attributeList = predicate.getAttributeList();
             queryValueArray = predicate.getTokens();
             for(String token : queryValueArray ){
@@ -118,10 +112,9 @@ public class KeywordMatcher implements IOperator {
                     }
                 }
                 else if(field instanceof TextField){
-                    for(int i=0;i<queryValueArray.size();i++) {
-                        //for(Pattern p : patternList){
-                        String query = queryValueArray.get(i);
-                        Pattern p = patternList.get(i);
+                    for(int iter=0; iter<queryValueArray.size(); iter++) {
+                        String query = queryValueArray.get(iter);
+                        Pattern p = patternList.get(iter);
                         matcher = p.matcher(fieldValue.toLowerCase());
                         while (matcher.find(positionIndex) != false) {
                             spanIndexValue = matcher.start();
