@@ -3,12 +3,10 @@
  */
 package edu.uci.ics.textdb.dataflow.source;
 
-
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.core.StopAnalyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
@@ -25,6 +23,7 @@ import edu.uci.ics.textdb.api.storage.IDataWriter;
 import edu.uci.ics.textdb.common.constants.LuceneConstants;
 import edu.uci.ics.textdb.common.constants.TestConstants;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
+import edu.uci.ics.textdb.dataflow.utils.TestUtils;
 import edu.uci.ics.textdb.storage.LuceneDataStore;
 import edu.uci.ics.textdb.storage.reader.LuceneDataReader;
 import edu.uci.ics.textdb.storage.writer.LuceneDataWriter;
@@ -36,22 +35,15 @@ import edu.uci.ics.textdb.storage.writer.LuceneDataWriter;
 public class IndexSearchSourceOperatorTest {
 
 	private IDataWriter dataWriter;
-	private IDataReader dataReader;
 	private IndexSearchSourceOperator indexSearchSourceOperator;
 	private IDataStore dataStore;
 	private Analyzer analyzer;
-	private Query query;
 
 	@Before
 	public void setUp() throws Exception {
 		dataStore = new LuceneDataStore(LuceneConstants.INDEX_DIR, TestConstants.SCHEMA_PEOPLE);
-		analyzer = new  StandardAnalyzer();
-		dataWriter = new LuceneDataWriter(dataStore,analyzer );
-
-		QueryParser queryParser = new QueryParser(
-				TestConstants.ATTRIBUTES_PEOPLE.get(0).getFieldName(), analyzer);
-		query = queryParser.parse(LuceneConstants.SCAN_QUERY);
-		dataReader = new LuceneDataReader(dataStore, query);
+		analyzer = new StandardAnalyzer();
+		dataWriter = new LuceneDataWriter(dataStore, analyzer);
 		dataWriter.clearData();
 		dataWriter.writeData(TestConstants.getSamplePeopleTuples());
 	}
@@ -61,17 +53,13 @@ public class IndexSearchSourceOperatorTest {
 		dataWriter.clearData();
 	}
 
-	public List<ITuple> getTupleCount(String q) throws DataFlowException, ParseException {
-		String defaultField = TestConstants.FIRST_NAME;
-        QueryParser queryParser = new QueryParser(
-                TestConstants.ATTRIBUTES_PEOPLE.get(0).getFieldName(), analyzer);
-        query  = queryParser.parse(q);
-		dataReader = new LuceneDataReader(dataStore, query);
-
-		IDataReader dataReader = new LuceneDataReader(dataStore, query);
+	public List<ITuple> getQueryResults(String query) throws DataFlowException, ParseException {
+		String defaultField = TestConstants.ATTRIBUTES_PEOPLE.get(0).getFieldName();
+		QueryParser queryParser = new QueryParser(defaultField, analyzer);
+		Query queryObject = queryParser.parse(query);
+		IDataReader dataReader = new LuceneDataReader(dataStore, queryObject);
 		indexSearchSourceOperator = new IndexSearchSourceOperator(dataReader);
 		indexSearchSourceOperator.open();
-
 
 		List<ITuple> results = new ArrayList<ITuple>();
 		ITuple nextTuple = null;
@@ -88,14 +76,12 @@ public class IndexSearchSourceOperatorTest {
 	 */
 	@Test
 	public void testTextSearcWithMultipleTokens() throws DataFlowException, ParseException {
-		List<ITuple> results = getTupleCount(TestConstants.DESCRIPTION + ":Tall,Brown");
+		List<ITuple> results = getQueryResults(TestConstants.DESCRIPTION + ":Tall,Brown");
 		int numTuples = results.size();
 		Assert.assertEquals(3, numTuples);
 
-		for (ITuple tuple : results) {
-			String value = (String) tuple.getField(TestConstants.DESCRIPTION).getValue();
-			Assert.assertTrue(value.toLowerCase().contains("tall") || value.toLowerCase().contains("brown"));
-		}
+		boolean check = TestUtils.checkResults(results,"Tall,Brown" , this.analyzer,TestConstants.DESCRIPTION);
+		Assert.assertTrue(check);
 	}
 
 	/**
@@ -106,12 +92,10 @@ public class IndexSearchSourceOperatorTest {
 	 */
 	@Test
 	public void testTextSearchWithSingleToken() throws DataFlowException, ParseException {
-		List<ITuple> results = getTupleCount(TestConstants.DESCRIPTION + ":angry");
+		List<ITuple> results = getQueryResults(TestConstants.DESCRIPTION + ":angry");
 		int numTuples = results.size();
-		for (ITuple tuple : results) {
-			String value = (String) tuple.getField(TestConstants.DESCRIPTION).getValue();
-			Assert.assertTrue(value.toLowerCase().contains("angry"));
-		}
+		boolean check = TestUtils.checkResults(results,"angry" , this.analyzer,TestConstants.DESCRIPTION);
+		Assert.assertTrue(check);
 		Assert.assertEquals(3, numTuples);
 	}
 
@@ -124,7 +108,7 @@ public class IndexSearchSourceOperatorTest {
 	 */
 	@Test
 	public void testStringSearchWithSubstring() throws DataFlowException, ParseException {
-		List<ITuple> results = getTupleCount("lin");
+		List<ITuple> results = getQueryResults("lin");
 		int numTuples = results.size();
 		Assert.assertEquals(0, numTuples);
 	}
@@ -138,7 +122,7 @@ public class IndexSearchSourceOperatorTest {
 	 */
 	@Test
 	public void testMultipleFields() throws DataFlowException, ParseException {
-		List<ITuple> results = getTupleCount(
+		List<ITuple> results = getQueryResults(
 				TestConstants.DESCRIPTION + ":(Tall,Brown)" + " AND " + TestConstants.LAST_NAME + ":cruise");
 		int numTuples = results.size();
 		Assert.assertEquals(1, numTuples);
