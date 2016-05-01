@@ -71,7 +71,9 @@ public class DictionaryMatcher implements IOperator {
             attributeIndex = 0;
             operator.open();
             dictionaryValue = dictionary.getNextValue();
-            // dictionaryValueDup = dictionaryValue;
+
+            // Java regex is used to detect word boundaries for TextField match.
+            // '\b' is used to match the beginning and end of the word.
             regex = "\\b" + dictionaryValue.toLowerCase() + "\\b";
             pattern = Pattern.compile(regex);
 
@@ -125,6 +127,10 @@ public class DictionaryMatcher implements IOperator {
             IField dataField = dataTuple.getField(searchInAttributes.get(attributeIndex).getFieldName());
             String fieldValue = (String) dataField.getValue();
 
+            // Lucene tokenizes TextField before indexing, but not StrignField,
+            // so while matching a dictionary value, the dictionary value should
+            // be the same as a StringField, while the dictionary value can be a
+            // substring of a TextField value in order to be a match.
             if (dataField instanceof TextField) {
                 matcher = pattern.matcher(fieldValue.toLowerCase());
                 // Get position of dict value in the field.
