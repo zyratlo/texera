@@ -39,6 +39,8 @@ public class QueryRewriter implements IOperator{
      */
     public QueryRewriter(String searchQuery) {
         this.searchQuery = searchQuery;
+        fuzzyTokenizer = new FuzzyTokenizer(searchQuery);
+        itupleResult = null;
     }
 
     /**
@@ -48,7 +50,6 @@ public class QueryRewriter implements IOperator{
      */
     @Override
     public void open() throws Exception {
-        fuzzyTokenizer = new FuzzyTokenizer(searchQuery);
     }
 
     /**
