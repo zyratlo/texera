@@ -78,7 +78,6 @@ public class QueryRewriter implements IOperator{
      * Closing the query Parser object
      * @throws Exception
      */
-    //TODO - take care of the case where close is called before open
     @Override
     public void close() throws Exception {
         this.fuzzyTokenizer = null;
