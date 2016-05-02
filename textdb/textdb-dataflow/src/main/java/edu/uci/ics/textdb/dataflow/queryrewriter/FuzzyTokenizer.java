@@ -85,7 +85,7 @@ public class FuzzyTokenizer
      */
     private List<String> rewrite(String term) {
         List<String> queryList = new ArrayList<String>();
-        for(int i=1; i<=term.length(); i++) {
+        for(int i = 1; i <= term.length(); i++) {
             if(i == term.length()) {
                 if(wordBase.contains(term))
                     queryList.add(term);
@@ -98,7 +98,7 @@ public class FuzzyTokenizer
                 String suffixString = term.substring(i, term.length());
                 List<String> suffixList = rewrite(suffixString);
 
-                for(int j=0; j<suffixList.size(); j++)
+                for(int j = 0; j < suffixList.size(); j++)
                     suffixList.set(j, prefixString.concat(suffixList.get(j)));
 
                 queryList.addAll(suffixList);
@@ -122,8 +122,8 @@ public class FuzzyTokenizer
             int priorCrossListLength = crossList.size();
             crossList = replicate(crossList, wordList.size());
 
-            for(int i=0; i<wordList.size(); i++) {
-                for(int j=0; j<priorCrossListLength; j++) {
+            for(int i = 0; i < wordList.size(); i++) {
+                for(int j = 0; j < priorCrossListLength; j++) {
                     int index = i*priorCrossListLength + j;
                     crossList.set(index, crossList.get(index)+" "+wordList.get(i));
                 }
@@ -141,7 +141,7 @@ public class FuzzyTokenizer
      */
     private List<String> replicate(List<String> list, int n) {
         List<String> originalList = new ArrayList<>(list);
-        for(int i=1; i<n; i++) {
+        for(int i = 1; i < n; i++) {
             list.addAll(originalList);
         }
         return list;
