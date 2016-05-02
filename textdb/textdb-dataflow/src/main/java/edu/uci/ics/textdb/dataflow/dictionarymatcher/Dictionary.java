@@ -6,6 +6,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
@@ -34,6 +35,9 @@ public class Dictionary implements IDictionary {
 
         while( (line = wordReader.readLine()) != null )
             stringHashSet.add(line);
+
+        stringList = new ArrayList<String>(stringHashSet);
+        cursor = 0;
     }
 
     /**
