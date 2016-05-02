@@ -66,6 +66,21 @@ public class QueryRewriterTest {
         Assert.assertTrue(isSame);
     }
 
+    /**
+     * Tests the QueryRewriter operator with empty string ""
+     * @throws Exception
+     */
+    @Test
+    public void testEmptyString() throws Exception {
+
+        String query = "";
+        List<String> expectedRewrittenStrings = Arrays.asList("");
+
+        boolean isSame = queryRewriterTestBoilerplate(query, expectedRewrittenStrings);
+
+        Assert.assertTrue(isSame);
+    }
+
     public static boolean queryRewriterTestBoilerplate(String query, List<String> expectedRewrittenStrings) throws Exception {
 
         QueryRewriter queryRewriter = new QueryRewriter(query);
@@ -75,5 +90,51 @@ public class QueryRewriterTest {
         queryRewriter.close();
 
         return TestUtils.containsAllResults(rewrittenStrings, new ArrayList<String>(expectedRewrittenStrings));
+    }
+
+    /**
+     * Tests the necessity for method QueryRewriter.open()
+     * @throws Exception
+     */
+    @Test
+    public void testOpenRequirement() throws Exception {
+
+        String query = "";
+        QueryRewriter queryRewriter = new QueryRewriter(query);
+
+        ITuple resultItuple = queryRewriter.getNextTuple();
+        Assert.assertNull(resultItuple);
+    }
+
+    /**
+     * Tests that QueryRewriter can be used to return a one-time tuple containing list of all queries
+     * @throws Exception
+     */
+    @Test
+    public void testOneTupleReturn() throws Exception {
+
+        String query = "";
+        QueryRewriter queryRewriter = new QueryRewriter(query);
+        queryRewriter.open();
+        queryRewriter.getNextTuple();
+        ITuple resultITuple = queryRewriter.getNextTuple();
+
+        Assert.assertNull(resultITuple);
+    }
+
+    /**
+     * Tests that QueryRewriter.close() is effective in closing the operator
+     * @throws Exception
+     */
+    @Test
+    public void testCloseEffectiveness() throws Exception {
+
+        String query = "";
+        QueryRewriter queryRewriter = new QueryRewriter(query);
+        queryRewriter.open();
+        queryRewriter.close();
+
+        ITuple resultITuple = queryRewriter.getNextTuple();
+        Assert.assertNull(resultITuple);
     }
 }

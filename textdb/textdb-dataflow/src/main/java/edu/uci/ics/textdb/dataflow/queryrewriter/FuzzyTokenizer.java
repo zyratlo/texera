@@ -52,25 +52,30 @@ public class FuzzyTokenizer
      * @return
      */
     public List<String> getFuzzyTokens() {
-        String[] queryWords = phrase.split("\\s+");
-        List< List<String> > allWordsList = new ArrayList< List <String> >();
-        for(String word : queryWords)
-            allWordsList.add(rewriteTerm(word));
-        return crossCatenate(allWordsList);
+        String[] terms = phrase.split("\\s+");
+        List< List<String> > allTermsList = new ArrayList< List <String> >();
+        for(String term : terms)
+            allTermsList.add(rewriteTerm(term));
+        return crossCatenate(allTermsList);
     }
 
     /**
      * Wrapper over main recursive method, rewrite which performs the fuzzy tokenization of a term
-     * Ensures that original phrase term is also included in returned rewritten terms list
-     * Is necessary if original phrase term is not a valid word according to word knowledge base
+     * The original term may not be a valid dictionary word, but be a term particular to the database
+     * The method rewrite only considers terms which are valid dictionary words
+     * In case original term is not a dictionary word, it will not be added to queryList by method rewrite
+     * This wrapper ensures that if rewrite does not include the original term, it will still be included
+     * For example, for the term "newyork", rewrite will return the list <"new york">
+     *     But "newyork" also needs to be included in the list to support particular user queries
+     *     This wrapper includes "newyork" in this list
      * @param term
      * @return
      */
     private List<String> rewriteTerm(String term) {
-        List<String> queryWordList = rewrite(term);
-        if(! term.equals(queryWordList.get(queryWordList.size()-1)))
-            queryWordList.add(term);
-        return queryWordList;
+        List<String> termsList = rewrite(term);
+        if(! term.equals(termsList.get(termsList.size()-1)))
+            termsList.add(term);
+        return termsList;
     }
 
     /**
@@ -85,12 +90,7 @@ public class FuzzyTokenizer
      */
     private List<String> rewrite(String term) {
         List<String> queryList = new ArrayList<String>();
-        for(int i = 1; i <= term.length(); i++) {
-            if(i == term.length()) {
-                if(wordBase.contains(term))
-                    queryList.add(term);
-                break;
-            }
+        for(int i = 1; i < term.length(); i++) {
             String prefixString = term.substring(0, i);
             if(wordBase.contains(prefixString)) {
                 prefixString = prefixString.concat(" ");
@@ -104,6 +104,9 @@ public class FuzzyTokenizer
                 queryList.addAll(suffixList);
             }
         }
+        if(wordBase.contains(term))
+            queryList.add(term);
+
         return queryList;
     }
 
@@ -112,6 +115,7 @@ public class FuzzyTokenizer
      * For example if there are K lists: <l1>,<l2>,<l3>,...,<lK>
      *     Function creates a combined list <l> containing all possible K-combinations where
      *     each combination contains an entry from each of the K lists
+     *     combinations maintain order in which terms were parsed
      * @param allWordsList
      * @return
      */
