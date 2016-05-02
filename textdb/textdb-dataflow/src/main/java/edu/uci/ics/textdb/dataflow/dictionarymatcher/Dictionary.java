@@ -1,14 +1,15 @@
 package edu.uci.ics.textdb.dataflow.dictionarymatcher;
 
-import edu.uci.ics.textdb.api.common.IDictionary;
-
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
+import edu.uci.ics.textdb.api.common.IDictionary;
 
 /**
  * @author Sudeep [inkudo]
@@ -16,28 +17,33 @@ import java.util.List;
  */
 public class Dictionary implements IDictionary {
 
-    private int cursor = -1;
-    private List<String> stringList;
-    private HashSet<String> stringHashSet;
+    private Iterator<String> iterator;
+    private Set<String> dictionaryWords;
 
-    public Dictionary(List<String> stringList) {
-        this.stringHashSet = new HashSet<String>(stringList);
-        this.stringList = stringList;
-        cursor = 0;
+    public Dictionary(Collection<String> dictionaryWords) {
+        //Using LinkedHashSet so that getNextValue() returns the words in order.
+        this.dictionaryWords = new LinkedHashSet<String>(dictionaryWords);
     }
 
     public Dictionary(String wordBaseSourceFilePath) throws IOException {
-        stringHashSet = new HashSet<String>();
-        String line;
+        BufferedReader wordReader = null;
+        try {
+            dictionaryWords = new LinkedHashSet<String>();
+            String line;
 
-        URL wordBaseURL = getClass().getResource(wordBaseSourceFilePath);
-        BufferedReader wordReader = new BufferedReader(new FileReader(wordBaseURL.getPath()));
+            URL wordBaseURL = getClass().getResource(wordBaseSourceFilePath);
+            wordReader = new BufferedReader(new FileReader(wordBaseURL.getPath()));
 
-        while( (line = wordReader.readLine()) != null )
-            stringHashSet.add(line);
-
-        stringList = new ArrayList<String>(stringHashSet);
-        cursor = 0;
+            while( (line = wordReader.readLine()) != null ){
+                dictionaryWords.add(line);
+            }
+        } catch (IOException e) {
+            throw e;
+        } finally{
+            if(wordReader != null){
+                wordReader.close();
+            }
+        }
     }
 
     /**
@@ -45,15 +51,17 @@ public class Dictionary implements IDictionary {
      */
     @Override
     public String getNextValue() {
-        if (cursor >= stringList.size()) {
-            return null;
+        if(iterator == null){
+            iterator = dictionaryWords.iterator();
         }
-        String dictval = stringList.get(cursor++);
-        return dictval;
+        if (iterator.hasNext()) {
+            return iterator.next();
+        }
+        return null;
     }
 
     public boolean contains(String word) {
-        return stringHashSet.contains(word);
+        return dictionaryWords.contains(word);
     }
 
 }
