@@ -57,6 +57,7 @@ public class RegexMatcherTestHelper {
 	public void setResults(List<ITuple> results) {
 		this.results = results;
 	}
+	
 	public Schema getSpanSchema() {
 		return regexMatcher.getSpanSchema();
 	}
@@ -80,12 +81,6 @@ public class RegexMatcherTestHelper {
 		}
 		regexMatcher.close();
 	}
-	
-	
-	public boolean matchExpectedResults(List<ITuple> expected) {
-		return TestUtils.equalTo(results, expected);
-	}
-	
 	
 	public void cleanUp() throws Exception {
 		dataWriter.clearData();
