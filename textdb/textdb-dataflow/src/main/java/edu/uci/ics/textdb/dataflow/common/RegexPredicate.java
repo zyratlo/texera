@@ -13,6 +13,7 @@ import edu.uci.ics.textdb.api.common.IPredicate;
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.common.field.Span;
 import edu.uci.ics.textdb.common.field.StringField;
+import edu.uci.ics.textdb.common.field.TextField;
 
 /**
  * @author sandeepreddy602
@@ -63,7 +64,7 @@ public class RegexPredicate implements IPredicate{
     		return spanList; //empty array
     	}
     	IField field = tuple.getField(fieldName);
-    	if (field instanceof StringField) {
+    	if (field instanceof StringField || field instanceof TextField) {
     		String fieldValue = ((StringField) field).getValue();
     		if (fieldValue == null) {
     			return spanList;
