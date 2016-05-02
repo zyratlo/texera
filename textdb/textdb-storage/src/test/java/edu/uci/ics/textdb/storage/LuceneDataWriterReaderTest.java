@@ -1,5 +1,6 @@
 package edu.uci.ics.textdb.storage;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import junit.framework.Assert;
@@ -34,7 +35,7 @@ public class LuceneDataWriterReaderTest {
         analyzer = new  StandardAnalyzer();
         dataWriter = new LuceneDataWriter(dataStore, analyzer );
         QueryParser queryParser = new QueryParser(
-                TestConstants.ATTRIBUTES_PEOPLE.get(0).getFieldName(), analyzer);
+                TestConstants.ATTRIBUTES_PEOPLE[0].getFieldName(), analyzer);
         query = queryParser.parse(LuceneConstants.SCAN_QUERY);
         dataReader = new LuceneDataReader(dataStore, query);
     }
@@ -42,36 +43,29 @@ public class LuceneDataWriterReaderTest {
     @Test
     public void testReadWriteData() throws Exception{
         dataWriter.clearData();
-        List<ITuple> tuples = TestConstants.getSamplePeopleTuples();
-        dataWriter.writeData(tuples);
-        Assert.assertEquals(tuples.size(), dataStore.getNumDocuments());
+        List<ITuple> actualTuples = TestConstants.getSamplePeopleTuples();
+        dataWriter.writeData(actualTuples);
+        Assert.assertEquals(actualTuples.size(), dataStore.getNumDocuments());
         dataReader.open();
         ITuple nextTuple = null;
         int numTuples = 0;
+        List<ITuple> returnedTuples = new ArrayList<ITuple>();
         while((nextTuple  = dataReader.getNextTuple()) != null){
-            //Checking if the tuple retrieved is present in the samplesTuples
-            boolean contains = contains(tuples, nextTuple);
-            Assert.assertTrue(contains);
+            returnedTuples.add(nextTuple);
             numTuples ++;
         }
-        Assert.assertEquals(tuples.size(), numTuples);
+        Assert.assertEquals(actualTuples.size(), numTuples);
+        boolean contains = containsAllResults(actualTuples, returnedTuples);
+		Assert.assertTrue(contains);
         dataReader.close();
     }
 
-    private boolean contains(List<ITuple> sampleTuples, ITuple actualTuple) {
-        boolean contains = false;
-        int schemaSize = TestConstants.ATTRIBUTES_PEOPLE.size();
-        for (ITuple sampleTuple : sampleTuples) {
-            contains = true;
-            for (int i = 0; i < schemaSize; i++) {
-                if(!sampleTuple.getField(i).equals(actualTuple.getField(i))){
-                    contains = false;
-                }
-            }
-            if(contains){
-                return contains;
-            }
-        }
-        return contains;
+    public static boolean containsAllResults(List<ITuple> expectedResults, List<ITuple> exactResults) {
+        if(expectedResults.size() != exactResults.size())
+        	return false;
+        if(!(expectedResults.containsAll(exactResults)) || !(exactResults.containsAll(expectedResults)))
+        	return false;
+        
+        return true;
     }
 }
