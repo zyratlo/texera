@@ -41,7 +41,7 @@ public class FuzzyTokenizer
 
     /**
      * When called returns array of rewritten phrases
-     * Splits phrase string into space separated terms
+     * Splits phrase string into delimited (by default, it is delimited using a space) terms
      * For each term performs fuzzy tokenization to create corresponding lists of rewritten terms
      * Calls method rewriteTerm to perform tokenization over single term
      * Performs a cross product concatenation of each rewritten term list and returns final String array
