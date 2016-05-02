@@ -62,52 +62,58 @@ public class NEExtractorTestConstants {
     }
 
 
-    public static ITuple getTest1ResultTuple() {
+    public static List<ITuple> getTest1ResultTuples() {
+        List<ITuple> resultList= new ArrayList<>();
         List<IField> fields = new ArrayList<IField>();
-        List<Span> list = new ArrayList<Span>();
+        List<Span> spanList = new ArrayList<Span>();
         Span span1 = new Span("description", 0, 8, "ORGANIZATION", "Microsoft");
-        list.add(span1);
-        IField spanField = new ListField<Span>(list);
+        spanList.add(span1);
+        IField spanField = new ListField<Span>(spanList);
         fields.add(spanField);
         ITuple resultTuple = new DataTuple(new Schema(SchemaConstants.SPAN_LIST_ATTRIBUTE), fields.toArray(new IField[fields.size()]));
-        return resultTuple;
+        resultList.add(resultTuple);
+        return resultList;
     }
 
-    public static ITuple getTest2ResultTuple() {
+    public static List<ITuple> getTest2ResultTuples() {
+        List<ITuple> resultList= new ArrayList<>();
         List<IField> fields = new ArrayList<IField>();
-        List<Span> list = new ArrayList<Span>();
+        List<Span> spanList = new ArrayList<Span>();
         Span span1 = new Span("description", 0, 8, "ORGANIZATION", "Microsoft");
         Span span2 = new Span("description", 10, 15, "ORGANIZATION", "Google");
         Span span3 = new Span("description", 21, 28, "ORGANIZATION", "Facebook");
-
-        list.add(span1);
-        list.add(span2);
-        list.add(span3);
-        IField spanField = new ListField<Span>(list);
+        spanList.add(span1);
+        spanList.add(span2);
+        spanList.add(span3);
+        IField spanField = new ListField<Span>(spanList);
         fields.add(spanField);
         ITuple resultTuple = new DataTuple(new Schema(SchemaConstants.SPAN_LIST_ATTRIBUTE), fields.toArray(new IField[fields.size()]));
-        return resultTuple;
+        resultList.add(resultTuple);
+        return resultList;
     }
 
-    public static ITuple getTest3ResultTuple() {
+    public static List<ITuple> getTest3ResultTuples() {
+        List<ITuple> resultList= new ArrayList<>();
+
         List<IField> fields = new ArrayList<IField>();
-        List<Span> list = new ArrayList<Span>();
+        List<Span> spanList = new ArrayList<Span>();
         Span span1 = new Span("description", 0, 8, "ORGANIZATION", "Microsoft");
         Span span2 = new Span("description", 10, 15, "ORGANIZATION", "Google");
         Span span3 = new Span("description", 21, 28, "ORGANIZATION", "Facebook");
         Span span4 = new Span("description", 52, 63, "PERSON", "Donald Trump");
         Span span5 = new Span("description", 69, 80, "PERSON", "Barack Obama");
 
-        list.add(span1);
-        list.add(span2);
-        list.add(span3);
-        list.add(span4);
-        list.add(span5);
+        spanList.add(span1);
+        spanList.add(span2);
+        spanList.add(span3);
+        spanList.add(span4);
+        spanList.add(span5);
 
-        IField spanField = new ListField<Span>(list);
+        IField spanField = new ListField<Span>(spanList);
         fields.add(spanField);
         ITuple resultTuple = new DataTuple(new Schema(SchemaConstants.SPAN_LIST_ATTRIBUTE), fields.toArray(new IField[fields.size()]));
-        return resultTuple;
+        resultList.add(resultTuple);
+        return resultList;
     }
 
 
