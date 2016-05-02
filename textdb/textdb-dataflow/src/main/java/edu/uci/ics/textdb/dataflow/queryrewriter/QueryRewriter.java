@@ -1,16 +1,11 @@
 package edu.uci.ics.textdb.dataflow.queryrewriter;
 
-import java.util.Arrays;
-import java.util.List;
-
-import edu.uci.ics.textdb.api.common.Attribute;
-import edu.uci.ics.textdb.api.common.FieldType;
-import edu.uci.ics.textdb.api.common.IField;
-import edu.uci.ics.textdb.api.common.ITuple;
-import edu.uci.ics.textdb.api.common.Schema;
+import edu.uci.ics.textdb.api.common.*;
 import edu.uci.ics.textdb.api.dataflow.IOperator;
 import edu.uci.ics.textdb.common.field.DataTuple;
 import edu.uci.ics.textdb.common.field.ListField;
+
+import java.util.List;
 
 /**
  * Created by kishorenarendran on 25/04/16.
@@ -64,10 +59,10 @@ public class QueryRewriter implements IOperator{
     @Override
     public ITuple getNextTuple() throws Exception {
 
-        boolean NOT_OPEN = (fuzzyTokenizer == null);    //Ensures QueryRewriter is open before calling getNextTuple
-        boolean EOF = (itupleResult != null);   //Ensures you can call QueryRewriter.getNextTuple only once
+        boolean notOpen = (fuzzyTokenizer == null);    //Ensures QueryRewriter is open before calling getNextTuple
+        boolean endOfResult = (itupleResult != null);   //Ensures you can call QueryRewriter.getNextTuple only once
 
-        if(NOT_OPEN || EOF)
+        if(notOpen || endOfResult)
             return null;
         else {
             List<String> queryStrings = fuzzyTokenizer.getFuzzyTokens();
