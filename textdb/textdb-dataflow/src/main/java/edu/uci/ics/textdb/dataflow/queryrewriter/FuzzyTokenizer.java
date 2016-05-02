@@ -1,5 +1,7 @@
 package edu.uci.ics.textdb.dataflow.queryrewriter;
 
+import edu.uci.ics.textdb.dataflow.dictionarymatcher.Dictionary;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,13 +19,13 @@ import java.util.List;
 public class FuzzyTokenizer
 {
     //Data members
-    private static WordBase wordBase;
+    private static Dictionary wordBase;
     private String phrase;
     private static final String wordBaseSourceFilePath = "/queryrewriter/wordsEn.txt";
 
     static {
         try {
-            wordBase = new WordBase(wordBaseSourceFilePath);
+            wordBase = new Dictionary(wordBaseSourceFilePath);
         }
         catch(IOException e) {
             e.printStackTrace();
