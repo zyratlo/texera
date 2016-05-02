@@ -20,7 +20,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- *  @author prakul on 4/25/16.
+ *  @author prakul
  *
  */
 public class KeywordMatcher implements IOperator {
@@ -38,7 +38,7 @@ public class KeywordMatcher implements IOperator {
 
     private int positionIndex; // next position in the field to be checked.
     private int spanIndexValue; // Starting position of the matched dictionary
-    private int attributeIndex;
+    //private int attributeIndex;
 
     private String documentValue;
 
@@ -49,12 +49,13 @@ public class KeywordMatcher implements IOperator {
     private ITuple sourceTuple;
     private List<IField> fieldList;
     private boolean foundFlag;
-
+    private boolean schemaDefined;
 
 
     public KeywordMatcher(IPredicate predicate, ISourceOperator sourceOperator) {
         this.predicate = (KeywordPredicate)predicate;
         this.sourceOperator = sourceOperator;
+        this.schema = schema;
     }
 
     @Override
@@ -65,19 +66,18 @@ public class KeywordMatcher implements IOperator {
             queryValue = predicate.getQuery();
             attributeList = predicate.getAttributeList();
             queryValueArray = predicate.getTokens();
+            patternList = new ArrayList<Pattern>();
             for(String token : queryValueArray ){
                 regex = "\\b" + token.toLowerCase() + "\\b";
                 pattern = Pattern.compile(regex);
                 patternList.add(pattern);
             }
 
-            sourceTuple = sourceOperator.getNextTuple();
-            fieldList = sourceTuple.getFields();
-            schema = sourceTuple.getSchema();
-            spanSchema = createSpanSchema();
+
             positionIndex = 0;
-            attributeIndex = 0;
+            //attributeIndex = 0;
             foundFlag = false;
+            schemaDefined = false;
 
             spanList = new ArrayList<>();
 
@@ -90,9 +90,21 @@ public class KeywordMatcher implements IOperator {
     @Override
     public ITuple getNextTuple() throws DataFlowException {
         try {
-            if(attributeIndex < attributeList.size()){
+            sourceTuple = sourceOperator.getNextTuple();
+            if(sourceTuple == null){
+                return null;
+            }
+            if(!schemaDefined){
+                schemaDefined = true;
+                fieldList = sourceTuple.getFields();
+                schema = sourceTuple.getSchema();
+                spanSchema = createSpanSchema();
+            }
+
+
+            for(int attributeIndex = 0; attributeIndex < attributeList.size(); attributeIndex++){
                 IField field = sourceTuple.getField(attributeList.get(attributeIndex).getFieldName());
-                String fieldValue = ((StringField) field).getValue();
+                String fieldValue = (String) (field).getValue();
                 if(field instanceof StringField){
                     //Keyword should match fieldValue entirely
 
@@ -100,7 +112,7 @@ public class KeywordMatcher implements IOperator {
                         spanIndexValue = 0;
                         positionIndex = queryValue.length();
                         addSpanToSpanList(fieldName, spanIndexValue, positionIndex, queryValue, fieldValue);
-
+                        foundFlag = true;
                         /*ArrayList<String> valueTokens = queryTokenizer(this.analyzer,fieldValue);
                          for (String token : this.tokens) {
                             if(!valueTokens.contains(token)){
@@ -111,8 +123,8 @@ public class KeywordMatcher implements IOperator {
                         */
                     }
                 }
-                else if(field instanceof TextField){
-                    for(int iter=0; iter<queryValueArray.size(); iter++) {
+                else if(field instanceof TextField) {
+                    for (int iter = 0; iter < queryValueArray.size(); iter++) {
                         String query = queryValueArray.get(iter);
                         Pattern p = patternList.get(iter);
                         matcher = p.matcher(fieldValue.toLowerCase());
@@ -126,23 +138,26 @@ public class KeywordMatcher implements IOperator {
                         }
                     }
                 }
-
-                attributeIndex++;
                 positionIndex = 0;
+            }
+           /* if(attributeIndex < ){
+                }
+                attributeIndex++;
                 return getNextTuple();
             }
+            */
             //If all the 'attributes to be searched' have been processed return the result tuple with span info
-            else if (foundFlag && attributeIndex == attributeList.size()){
+            if (foundFlag){
                 foundFlag = false;
                 positionIndex = 0;
                 return getSpanTuple();
             }
             //Search next document if the required predicate did not match previous document
-            else if((sourceTuple = sourceOperator.getNextTuple()) != null){
-                fieldList = sourceTuple.getFields();
-                schema = sourceTuple.getSchema();
-                spanSchema = createSpanSchema();
-                attributeIndex = 0;
+            else if(sourceTuple != null) {
+                //fieldList = sourceTuple.getFields();
+                //schema = sourceTuple.getSchema();
+                //spanSchema = createSpanSchema();
+                //attributeIndex = 0;
                 positionIndex = 0;
                 spanList.clear();
 
@@ -171,12 +186,9 @@ public class KeywordMatcher implements IOperator {
     }
 
     private Schema createSpanSchema() {
-        List<Attribute> dataTupleAttributes = schema.getAttributes();
-        List<Attribute> spanAttributes = new ArrayList<Attribute>(dataTupleAttributes.size() + 1);
-        for (int count = 0; count < spanAttributes.size() - 1; count++) {
-            spanAttributes.set(count, dataTupleAttributes.get(count));
-        }
-        spanAttributes.set(spanAttributes.size() - 1, SchemaConstants.SPAN_LIST_ATTRIBUTE);
+        List<Attribute> sourceTupleAttributes = schema.getAttributes();
+        List<Attribute> spanAttributes = new ArrayList<Attribute>(sourceTupleAttributes);
+        spanAttributes.add(SchemaConstants.SPAN_LIST_ATTRIBUTE);
         Schema spanSchema = new Schema(spanAttributes);
         return spanSchema;
     }

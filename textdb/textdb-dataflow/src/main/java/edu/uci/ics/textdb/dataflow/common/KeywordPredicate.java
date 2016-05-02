@@ -23,7 +23,7 @@ import edu.uci.ics.textdb.common.exception.DataFlowException;
 import edu.uci.ics.textdb.common.field.StringField;
 
 /**
- *  @author prakul on 4/25/16.
+ *  @author prakul
  *  @author akshay
  */
 public class KeywordPredicate implements IPredicate{

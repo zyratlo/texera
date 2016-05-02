@@ -6,6 +6,7 @@ package edu.uci.ics.textdb.dataflow.source;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.uci.ics.textdb.api.common.Schema;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.queryparser.classic.ParseException;
@@ -39,6 +40,7 @@ public class IndexSearchSourceOperatorTest {
 	private IDataStore dataStore;
 	private Analyzer analyzer;
 
+
 	@Before
 	public void setUp() throws Exception {
 		dataStore = new LuceneDataStore(LuceneConstants.INDEX_DIR, TestConstants.SCHEMA_PEOPLE);
@@ -46,6 +48,7 @@ public class IndexSearchSourceOperatorTest {
 		dataWriter = new LuceneDataWriter(dataStore, analyzer);
 		dataWriter.clearData();
 		dataWriter.writeData(TestConstants.getSamplePeopleTuples());
+
 	}
 
 	@After
