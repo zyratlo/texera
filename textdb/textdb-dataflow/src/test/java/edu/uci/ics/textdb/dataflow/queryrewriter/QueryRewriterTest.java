@@ -1,11 +1,12 @@
 package edu.uci.ics.textdb.dataflow.queryrewriter;
 
 import edu.uci.ics.textdb.api.common.ITuple;
+import edu.uci.ics.textdb.dataflow.utils.TestUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -26,30 +27,13 @@ public class QueryRewriterTest {
      */
     @Test
     public void testHorseShoeString() throws Exception {
+
         String query = "horseshoe";
+        List<String> expectedRewrittenStrings = Arrays.asList("hor se shoe", "hors es hoe", "horse shoe", "horses hoe","horseshoe");
 
-        QueryRewriter queryRewriter = new QueryRewriter(query);
-        queryRewriter.open();
-        ITuple iTuple = queryRewriter.getNextTuple();
-        queryRewriter.close();
+        boolean isSame = queryRewriterTestBoilerplate(query, expectedRewrittenStrings);
 
-        Assert.assertNotNull(iTuple);
-
-        List<String> fuzzySet = (List<String>) iTuple.getField(0).getValue();
-        Assert.assertNotNull(fuzzySet);
-
-        List<String> correctSet = Arrays.asList("hor se shoe",
-                "hors es hoe",
-                "horse shoe",
-                "horses hoe",
-                "horseshoe");
-        Collections.sort(correctSet);
-        Collections.sort(fuzzySet);
-
-        Assert.assertEquals(1,1);
-
-        //Assert.assertEquals(correctSet.size(), fuzzySet.size());
-        //Assert.assertEquals(correctSet, fuzzySet);
+        Assert.assertTrue(isSame);
     }
 
     /**
@@ -58,27 +42,13 @@ public class QueryRewriterTest {
      */
     @Test
     public void testHorseSpaceShoeString() throws Exception {
+
         String query = "horse shoe";
+        List<String> expectedRewrittenStrings = Arrays.asList("hor se shoe", "horse shoe");
 
-        QueryRewriter queryRewriter = new QueryRewriter(query);
-        queryRewriter.open();
-        ITuple iTuple = queryRewriter.getNextTuple();
-        queryRewriter.close();
+        boolean isSame = queryRewriterTestBoilerplate(query, expectedRewrittenStrings);
 
-        Assert.assertNotNull(iTuple);
-
-        List<String> fuzzySet = (List<String>) iTuple.getField(0).getValue();
-        Assert.assertNotNull(fuzzySet);
-
-        List<String> correctSet = Arrays.asList("horse shoe");
-
-        Collections.sort(correctSet);
-        Collections.sort(fuzzySet);
-
-        Assert.assertEquals(1,1);
-
-        //Assert.assertEquals(correctSet.size(), fuzzySet.size());
-        //Assert.assertEquals(correctSet, fuzzySet);
+        Assert.assertTrue(isSame);
     }
 
     /**
@@ -87,26 +57,84 @@ public class QueryRewriterTest {
      */
     @Test
     public void testNewYorkCityString() throws Exception {
+
         String query = "newyork city";
+        List<String> expectedRewrittenStrings = Arrays.asList("new york city","newyork city");
+
+        boolean isSame = queryRewriterTestBoilerplate(query, expectedRewrittenStrings);
+
+        Assert.assertTrue(isSame);
+    }
+
+    /**
+     * Tests the QueryRewriter operator with empty string ""
+     * @throws Exception
+     */
+    @Test
+    public void testEmptyString() throws Exception {
+
+        String query = "";
+        List<String> expectedRewrittenStrings = Arrays.asList("");
+
+        boolean isSame = queryRewriterTestBoilerplate(query, expectedRewrittenStrings);
+
+        Assert.assertTrue(isSame);
+    }
+
+    public static boolean queryRewriterTestBoilerplate(String query, List<String> expectedRewrittenStrings) throws Exception {
 
         QueryRewriter queryRewriter = new QueryRewriter(query);
         queryRewriter.open();
-        ITuple iTuple = queryRewriter.getNextTuple();
+        ITuple resultItuple = queryRewriter.getNextTuple();
+        ArrayList<String> rewrittenStrings = new ArrayList<String>((List<String>)resultItuple.getField(QueryRewriter.QUERYLIST).getValue());
         queryRewriter.close();
 
-        Assert.assertNotNull(iTuple);
+        return TestUtils.containsAllResults(rewrittenStrings, new ArrayList<String>(expectedRewrittenStrings));
+    }
 
-        List<String> fuzzySet = (List<String>) iTuple.getField(0).getValue();
-        Assert.assertNotNull(fuzzySet);
+    /**
+     * Tests the necessity for method QueryRewriter.open()
+     * @throws Exception
+     */
+    @Test
+    public void testOpenRequirement() throws Exception {
 
-        List<String> correctSet = Arrays.asList("new york city",
-                "newyork city");
-        Collections.sort(correctSet);
-        Collections.sort(fuzzySet);
+        String query = "";
+        QueryRewriter queryRewriter = new QueryRewriter(query);
 
-        Assert.assertEquals(1,1);
+        ITuple resultItuple = queryRewriter.getNextTuple();
+        Assert.assertNull(resultItuple);
+    }
 
-        //Assert.assertEquals(correctSet.size(), fuzzySet.size());
-        //Assert.assertEquals(correctSet, fuzzySet);
+    /**
+     * Tests that QueryRewriter can be used to return a one-time tuple containing list of all queries
+     * @throws Exception
+     */
+    @Test
+    public void testOneTupleReturn() throws Exception {
+
+        String query = "";
+        QueryRewriter queryRewriter = new QueryRewriter(query);
+        queryRewriter.open();
+        queryRewriter.getNextTuple();
+        ITuple resultITuple = queryRewriter.getNextTuple();
+
+        Assert.assertNull(resultITuple);
+    }
+
+    /**
+     * Tests that QueryRewriter.close() is effective in closing the operator
+     * @throws Exception
+     */
+    @Test
+    public void testCloseEffectiveness() throws Exception {
+
+        String query = "";
+        QueryRewriter queryRewriter = new QueryRewriter(query);
+        queryRewriter.open();
+        queryRewriter.close();
+
+        ITuple resultITuple = queryRewriter.getNextTuple();
+        Assert.assertNull(resultITuple);
     }
 }
