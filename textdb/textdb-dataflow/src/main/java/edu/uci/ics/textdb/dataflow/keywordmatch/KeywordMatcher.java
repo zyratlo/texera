@@ -165,9 +165,12 @@ public class KeywordMatcher implements IOperator {
     }
 
     private Schema createSpanSchema() {
-        List<Attribute> sourceTupleAttributes = schema.getAttributes();
-        List<Attribute> spanAttributes = new ArrayList<Attribute>(sourceTupleAttributes);
-        spanAttributes.add(SchemaConstants.SPAN_LIST_ATTRIBUTE);
+        List<Attribute> dataTupleAttributes = schema.getAttributes();
+        Attribute[] spanAttributes = new Attribute[dataTupleAttributes.size() + 1];
+        for (int count = 0; count < spanAttributes.length - 1; count++) {
+            spanAttributes[count] = dataTupleAttributes.get(count);
+        }
+        spanAttributes[spanAttributes.length - 1] = SchemaConstants.SPAN_LIST_ATTRIBUTE;
         Schema spanSchema = new Schema(spanAttributes);
         return spanSchema;
     }

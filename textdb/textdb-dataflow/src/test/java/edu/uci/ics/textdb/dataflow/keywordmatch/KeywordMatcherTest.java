@@ -64,10 +64,10 @@ public class KeywordMatcherTest {
     }
 
     public List<ITuple> getQueryResults(String query) throws DataFlowException, ParseException {
-        String defaultField = TestConstants.ATTRIBUTES_PEOPLE.get(5).getFieldName();
+        String defaultField = TestConstants.ATTRIBUTES_PEOPLE[5].getFieldName();
 
         ArrayList<Attribute> attributeList = new ArrayList<Attribute>();
-        attributeList.add(TestConstants.ATTRIBUTES_PEOPLE.get(5));
+        attributeList.add(TestConstants.ATTRIBUTES_PEOPLE[5]);
         Analyzer analyzer = new StandardAnalyzer();
         IPredicate predicate = new KeywordPredicate(query, attributeList, analyzer);
         //ISourceOperator sourceOperator = new IndexSearchSourceOperator();
