@@ -83,23 +83,22 @@ public class FuzzyTokenizer
     private List<String> rewrite(String term) {
         List<String> queryList = new ArrayList<String>();
         for(int i=1; i<=term.length(); i++) {
-            if(i != term.length()) {
-                String prefixString = term.substring(0, i);
-                if(wordBase.contains(prefixString)) {
-                    prefixString = prefixString.concat(" ");
-
-                    String suffixString = term.substring(i, term.length());
-                    List<String> suffixList = rewrite(suffixString);
-
-                    for(int j=0; j<suffixList.size(); j++)
-                        suffixList.set(j, prefixString.concat(suffixList.get(j)));
-
-                    queryList.addAll(suffixList);
-                }
-            }
-            else {
+            if(i == term.length()) {
                 if(wordBase.contains(term))
                     queryList.add(term);
+                break;
+            }
+            String prefixString = term.substring(0, i);
+            if(wordBase.contains(prefixString)) {
+                prefixString = prefixString.concat(" ");
+
+                String suffixString = term.substring(i, term.length());
+                List<String> suffixList = rewrite(suffixString);
+
+                for(int j=0; j<suffixList.size(); j++)
+                    suffixList.set(j, prefixString.concat(suffixList.get(j)));
+
+                queryList.addAll(suffixList);
             }
         }
         return queryList;
