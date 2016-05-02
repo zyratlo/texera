@@ -34,7 +34,7 @@ public class NamedEntityExtractor implements IOperator{
     }
 
     /**
-     * @about Return all named entities that recognized in the a document.
+     * @about Return all named entities that are recognized in a document.
      *        Return format is a Tuple that contains only one field which is
      *        a List of span of the results
      *
