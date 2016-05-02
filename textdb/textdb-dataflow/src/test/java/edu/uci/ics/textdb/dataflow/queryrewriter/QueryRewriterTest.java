@@ -1,15 +1,12 @@
 package edu.uci.ics.textdb.dataflow.queryrewriter;
 
-import edu.uci.ics.textdb.api.common.IField;
 import edu.uci.ics.textdb.api.common.ITuple;
-import edu.uci.ics.textdb.common.field.DataTuple;
-import edu.uci.ics.textdb.common.field.ListField;
 import edu.uci.ics.textdb.dataflow.utils.TestUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -74,16 +71,9 @@ public class QueryRewriterTest {
         QueryRewriter queryRewriter = new QueryRewriter(query);
         queryRewriter.open();
         ITuple resultItuple = queryRewriter.getNextTuple();
-        List <String> rewrittenStrings = (List<String>) resultItuple.getField(QueryRewriter.QUERYLIST).getValue();
-        Collections.sort(rewrittenStrings);
-        IField[] resultIfield = {new ListField(rewrittenStrings)};
-        resultItuple = new DataTuple(QueryRewriter.SCHEMA_QUERY_LIST, resultIfield);
+        ArrayList<String> rewrittenStrings = new ArrayList<String>((List<String>)resultItuple.getField(QueryRewriter.QUERYLIST).getValue());
         queryRewriter.close();
 
-        Collections.sort(expectedRewrittenStrings);
-        IField[] expectedIfield = {new ListField(expectedRewrittenStrings)};
-        ITuple expectedItuple = new DataTuple(QueryRewriter.SCHEMA_QUERY_LIST, expectedIfield);
-
-        return TestUtils.equalTo(resultItuple, expectedItuple);
+        return TestUtils.containsAllResults(rewrittenStrings, new ArrayList<String>(expectedRewrittenStrings));
     }
 }
