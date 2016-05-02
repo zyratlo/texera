@@ -83,11 +83,7 @@ public class FuzzyTokenizer
     private List<String> rewrite(String term) {
         List<String> queryList = new ArrayList<String>();
         for(int i=1; i<=term.length(); i++) {
-            if(i == term.length()) {
-                if(wordBase.contains(term))
-                    queryList.add(term);
-            }
-            else {
+            if(i != term.length()) {
                 String prefixString = term.substring(0, i);
                 if(wordBase.contains(prefixString)) {
                     prefixString = prefixString.concat(" ");
@@ -100,6 +96,10 @@ public class FuzzyTokenizer
 
                     queryList.addAll(suffixList);
                 }
+            }
+            else {
+                if(wordBase.contains(term))
+                    queryList.add(term);
             }
         }
         return queryList;
