@@ -15,13 +15,12 @@ public class WordBase
 {
 
     private HashSet<String> wordBase;
-    private final static String resourceFolderName = "/queryrewriter/";
 
-    public WordBase(String wordBaseSourceFileName) throws IOException {
+    public WordBase(String wordBaseSourceFilePath) throws IOException {
         wordBase = new HashSet<String>();
         String line;
 
-        URL wordBaseURL = getClass().getResource(resourceFolderName+wordBaseSourceFileName);
+        URL wordBaseURL = getClass().getResource(wordBaseSourceFilePath);
         System.out.println(wordBaseURL.getPath());
 
         BufferedReader wordReader = new BufferedReader(new FileReader(wordBaseURL.getPath()));

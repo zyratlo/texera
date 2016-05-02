@@ -19,10 +19,11 @@ public class FuzzyTokenizer
     //Data members
     private static WordBase wordBase;
     private String phrase;
+    private static final String wordBaseSourceFilePath = "/queryrewriter/wordsEn.txt";
 
     static {
         try {
-            wordBase = new WordBase("wordsEn.txt");
+            wordBase = new WordBase(wordBaseSourceFilePath);
         }
         catch(IOException e) {
             e.printStackTrace();
