@@ -38,7 +38,6 @@ public class KeywordMatcher implements IOperator {
 
     private int positionIndex; // next position in the field to be checked.
     private int spanIndexValue; // Starting position of the matched dictionary
-    //private int attributeIndex;
 
     private String documentValue;
 
@@ -55,7 +54,6 @@ public class KeywordMatcher implements IOperator {
     public KeywordMatcher(IPredicate predicate, ISourceOperator sourceOperator) {
         this.predicate = (KeywordPredicate)predicate;
         this.sourceOperator = sourceOperator;
-        this.schema = schema;
     }
 
     @Override
@@ -75,7 +73,6 @@ public class KeywordMatcher implements IOperator {
 
 
             positionIndex = 0;
-            //attributeIndex = 0;
             foundFlag = false;
             schemaDefined = false;
 
@@ -113,14 +110,7 @@ public class KeywordMatcher implements IOperator {
                         positionIndex = queryValue.length();
                         addSpanToSpanList(fieldName, spanIndexValue, positionIndex, queryValue, fieldValue);
                         foundFlag = true;
-                        /*ArrayList<String> valueTokens = queryTokenizer(this.analyzer,fieldValue);
-                         for (String token : this.tokens) {
-                            if(!valueTokens.contains(token)){
-                            return false;
-                             }
-                            }
-                         return true;
-                        */
+
                     }
                 }
                 else if(field instanceof TextField) {
@@ -140,12 +130,7 @@ public class KeywordMatcher implements IOperator {
                 }
                 positionIndex = 0;
             }
-           /* if(attributeIndex < ){
-                }
-                attributeIndex++;
-                return getNextTuple();
-            }
-            */
+
             //If all the 'attributes to be searched' have been processed return the result tuple with span info
             if (foundFlag){
                 foundFlag = false;
@@ -154,10 +139,6 @@ public class KeywordMatcher implements IOperator {
             }
             //Search next document if the required predicate did not match previous document
             else if(sourceTuple != null) {
-                //fieldList = sourceTuple.getFields();
-                //schema = sourceTuple.getSchema();
-                //spanSchema = createSpanSchema();
-                //attributeIndex = 0;
                 positionIndex = 0;
                 spanList.clear();
 
@@ -165,9 +146,7 @@ public class KeywordMatcher implements IOperator {
 
             }
 
-            // if(sourceTuple == null){
             return null;
-            //}
 
         } catch (Exception e) {
             e.printStackTrace();
