@@ -1,16 +1,11 @@
 package edu.uci.ics.textdb.dataflow.queryrewriter;
 
-import java.util.Arrays;
-import java.util.List;
-
-import edu.uci.ics.textdb.api.common.Attribute;
-import edu.uci.ics.textdb.api.common.FieldType;
-import edu.uci.ics.textdb.api.common.IField;
-import edu.uci.ics.textdb.api.common.ITuple;
-import edu.uci.ics.textdb.api.common.Schema;
+import edu.uci.ics.textdb.api.common.*;
 import edu.uci.ics.textdb.api.dataflow.IOperator;
 import edu.uci.ics.textdb.common.field.DataTuple;
 import edu.uci.ics.textdb.common.field.ListField;
+
+import java.util.List;
 
 /**
  * Created by kishorenarendran on 25/04/16.
@@ -27,6 +22,7 @@ import edu.uci.ics.textdb.common.field.ListField;
 public class QueryRewriter implements IOperator{
 
     private String searchQuery;
+    private FuzzyTokenizer fuzzyTokenizer;
 
     public static final String QUERYLIST = "querylist";
     public static final Attribute QUERYLIST_ATTR = new Attribute(QUERYLIST, FieldType.LIST);
@@ -50,7 +46,8 @@ public class QueryRewriter implements IOperator{
      */
     @Override
     public void open() throws Exception {
-
+        this.fuzzyTokenizer = new FuzzyTokenizer(searchQuery);
+        this.itupleResult = null;
     }
 
     /**
@@ -61,10 +58,18 @@ public class QueryRewriter implements IOperator{
      */
     @Override
     public ITuple getNextTuple() throws Exception {
-        List<String> queryStrings = Arrays.asList(searchQuery);
-        IField[] iFieldResult = {new ListField(queryStrings)};
-        itupleResult = new DataTuple(SCHEMA_QUERY_LIST, iFieldResult);
-        return itupleResult;
+
+        boolean notOpen = (fuzzyTokenizer == null);    //Ensures QueryRewriter is open before calling getNextTuple
+        boolean endOfResult = (itupleResult != null);   //Ensures you can call QueryRewriter.getNextTuple only once
+
+        if(notOpen || endOfResult)
+            return null;
+        else {
+            List<String> queryStrings = fuzzyTokenizer.getFuzzyTokens();
+            IField[] iFieldResult = {new ListField(queryStrings)};
+            itupleResult = new DataTuple(SCHEMA_QUERY_LIST, iFieldResult);
+            return itupleResult;
+        }
     }
 
     /**
@@ -73,6 +78,8 @@ public class QueryRewriter implements IOperator{
      */
     @Override
     public void close() throws Exception {
-
+        this.fuzzyTokenizer = null;
+        this.searchQuery = null;
+        this.itupleResult = null;
     }
 }
