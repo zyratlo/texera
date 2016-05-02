@@ -1,23 +1,25 @@
 package edu.uci.ics.textdb.dataflow.keywordmatch;
 
-import edu.uci.ics.textdb.api.common.*;
-import edu.uci.ics.textdb.common.constants.SchemaConstants;
-import edu.uci.ics.textdb.api.common.Schema;
-import edu.uci.ics.textdb.common.field.Span;
-import edu.uci.ics.textdb.common.field.StringField;
-import edu.uci.ics.textdb.common.field.TextField;
-import edu.uci.ics.textdb.dataflow.common.KeywordPredicate;
-import org.apache.lucene.search.Query;
-import edu.uci.ics.textdb.common.field.ListField;
-import edu.uci.ics.textdb.common.field.DataTuple;
-
-import edu.uci.ics.textdb.api.dataflow.IOperator;
-import edu.uci.ics.textdb.api.dataflow.ISourceOperator;
-import edu.uci.ics.textdb.common.exception.DataFlowException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.apache.lucene.search.Query;
+
+import edu.uci.ics.textdb.api.common.Attribute;
+import edu.uci.ics.textdb.api.common.IField;
+import edu.uci.ics.textdb.api.common.IPredicate;
+import edu.uci.ics.textdb.api.common.ITuple;
+import edu.uci.ics.textdb.api.common.Schema;
+import edu.uci.ics.textdb.api.dataflow.IOperator;
+import edu.uci.ics.textdb.api.dataflow.ISourceOperator;
+import edu.uci.ics.textdb.common.exception.DataFlowException;
+import edu.uci.ics.textdb.common.field.Span;
+import edu.uci.ics.textdb.common.field.StringField;
+import edu.uci.ics.textdb.common.field.TextField;
+import edu.uci.ics.textdb.common.utils.Utils;
+import edu.uci.ics.textdb.dataflow.common.KeywordPredicate;
 
 /**
  *  @author prakul
@@ -95,7 +97,7 @@ public class KeywordMatcher implements IOperator {
                 schemaDefined = true;
                 fieldList = sourceTuple.getFields();
                 schema = sourceTuple.getSchema();
-                spanSchema = createSpanSchema();
+                spanSchema = Utils.createSpanSchema(schema);
             }
 
 
@@ -135,7 +137,7 @@ public class KeywordMatcher implements IOperator {
             if (foundFlag){
                 foundFlag = false;
                 positionIndex = 0;
-                return getSpanTuple();
+                return Utils.getSpanTuple(fieldList, spanList, spanSchema);
             }
             //Search next document if the required predicate did not match previous document
             else if(sourceTuple != null) {
@@ -153,26 +155,6 @@ public class KeywordMatcher implements IOperator {
             throw new DataFlowException(e.getMessage(), e);
         }
 
-    }
-
-    private ITuple getSpanTuple() {
-        IField spanListField = new ListField<Span>(new ArrayList<>(spanList));
-        List<IField> fieldListDuplicate = new ArrayList<>(fieldList);
-        fieldListDuplicate.add(spanListField);
-
-        IField[] fieldsDuplicate = fieldListDuplicate.toArray(new IField[fieldListDuplicate.size()]);
-        return new DataTuple(spanSchema, fieldsDuplicate);
-    }
-
-    private Schema createSpanSchema() {
-        List<Attribute> dataTupleAttributes = schema.getAttributes();
-        Attribute[] spanAttributes = new Attribute[dataTupleAttributes.size() + 1];
-        for (int count = 0; count < spanAttributes.length - 1; count++) {
-            spanAttributes[count] = dataTupleAttributes.get(count);
-        }
-        spanAttributes[spanAttributes.length - 1] = SchemaConstants.SPAN_LIST_ATTRIBUTE;
-        Schema spanSchema = new Schema(spanAttributes);
-        return spanSchema;
     }
 
     private void addSpanToSpanList(String fieldName, int start, int end, String key, String value) {
