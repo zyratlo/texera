@@ -10,6 +10,9 @@ import java.util.List;
  * A phrase is a string that may comprise of multiple space separated strings called terms
  * Algorithm tries to find a valid prefix of a term and parses the rest of the term recursively
  * After recursive call returns with a set of parsed strings, prefix is appended in front of each string
+ *
+ * For example -> ["newyorkcity"] -> ["new york city", "newyorkcity"]
+ * Here, "new york city" is a returned phrase because "new", "york" and "city" are valid words in the word base.
  */
 public class FuzzyTokenizer
 {
