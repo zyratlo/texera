@@ -24,12 +24,6 @@ import edu.uci.ics.textdb.common.field.Span;
  * Unit test for RegexMatcher
  */
 public class RegexMatcherTest {
-	private Schema createSpanSchema(Schema schema) {
-    	List<Attribute> attributesCopy = new ArrayList<>(schema.getAttributes());
-    	attributesCopy.add(SchemaConstants.SPAN_LIST_ATTRIBUTE);
-    	return new Schema(attributesCopy.toArray(new Attribute[attributesCopy.size()]));
-    }
-	
 	@Test
 	public void testGetNextTuplePeopleFirstName() throws Exception {
 		List<ITuple> data = TestConstants.getSamplePeopleTuples();
@@ -40,7 +34,7 @@ public class RegexMatcherTest {
 		List<ITuple> expected = new ArrayList<ITuple>();
 		
 		//expected to match "brad lie angelina"
-		Schema spanSchema = createSpanSchema(TestConstants.SCHEMA_PEOPLE);
+		Schema spanSchema = testHelper.getSpanSchema();
 		List<Span> spans = new ArrayList<Span>();
 		spans.add(new Span(TestConstants.FIRST_NAME, 11, 17, "g[^\\s]*", "brad lie angelina"));
 		IField spanField = new ListField<Span>(new ArrayList<Span>(spans));
@@ -72,7 +66,7 @@ public class RegexMatcherTest {
 		List<ITuple> expected = new ArrayList<ITuple>();
 
 		//expected to match "http://weibo.com"
-		Schema spanSchema = createSpanSchema(RegexTestConstantsCorp.SCHEMA_CORP);
+		Schema spanSchema = testHelper.getSpanSchema();
 		List<Span> spans = new ArrayList<Span>();
 		spans.add(new Span(RegexTestConstantsCorp.URL, 0, 16, query, "http://weibo.com"));
 		IField spanField = new ListField<Span>(new ArrayList<Span>(spans));
@@ -104,7 +98,7 @@ public class RegexMatcherTest {
 		List<ITuple> expected = new ArrayList<ITuple>();
 		
 		//expected to match "66.220.144.0"
-		Schema spanSchema = createSpanSchema(RegexTestConstantsCorp.SCHEMA_CORP);
+		Schema spanSchema = testHelper.getSpanSchema();
 		List<Span> spans = new ArrayList<Span>();
 		spans.add(new Span(RegexTestConstantsCorp.IP_ADDRESS, 0, 12, query, "66.220.144.0"));
 		IField spanField = new ListField<Span>(new ArrayList<Span>(spans));
@@ -144,7 +138,7 @@ public class RegexMatcherTest {
 		List<ITuple> expected = new ArrayList<ITuple>();
 		
 		//expected to match "66.220.144.0"
-		Schema spanSchema = createSpanSchema(RegexTestConstantStaff.SCHEMA_STAFF);
+		Schema spanSchema = testHelper.getSpanSchema();
 		List<Span> spans = new ArrayList<Span>();
 		spans.add(new Span(RegexTestConstantStaff.EMAIL, 0, 19, query, "k.bocanegra@uci.edu"));
 		IField spanField = new ListField<Span>(new ArrayList<Span>(spans));

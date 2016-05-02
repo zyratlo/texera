@@ -30,6 +30,7 @@ public class RegexMatcher implements IOperator {
 
     private List<IField> fields;
     private Schema schema;
+    private Schema spanSchema;
     
     private List<Span> spans;
 
@@ -57,12 +58,15 @@ public class RegexMatcher implements IOperator {
                 return null;
             }
             
-            RegexPredicate rPredicate = (RegexPredicate)predicate; 
+            RegexPredicate regexPredicate = (RegexPredicate)predicate; 
             
-            spans = rPredicate.statisfySpan(sourceTuple);
+            spans = regexPredicate.statisfySpan(sourceTuple);
             
             if (spans.size() != 0) { // a list of matches found
-            	schema = sourceTuple.getSchema();
+            	if (schema == null || spanSchema == null) {
+            		schema = sourceTuple.getSchema();
+            		spanSchema = createSpanSchema();
+            	}
             	fields = sourceTuple.getFields();
             	return getSpanTuple(spans);
             } else { // no match found
@@ -74,6 +78,13 @@ public class RegexMatcher implements IOperator {
         }        
     }
     
+    /*
+     * This function creates the schema of tuples returned by RegexMatcher. 
+     * It adds SPAN_LIST_ATTRIBUTE in the end of the schema of tuples from lower level.
+     * Because we need to use span to specify the position of matched sequence in this tuple.
+     * For example, if a tuple ("george watson", "staff", 33, "(949)888-8888") matched "g[^\s]*",
+     * RegexMatcher returns ("george watson", "staff", 33, "(949)888-8888", Span(name, 0, 6, "g[^\s]*", "george watson"))
+     */
     private Schema createSpanSchema() {
     	List<Attribute> attributesCopy = new ArrayList<>(schema.getAttributes());
     	attributesCopy.add(SchemaConstants.SPAN_LIST_ATTRIBUTE);
@@ -81,8 +92,6 @@ public class RegexMatcher implements IOperator {
     }
     
     private ITuple getSpanTuple(List<Span> spans) {
-    	Schema spanSchema = createSpanSchema();
-    	
     	List<IField> fieldListDuplicate = new ArrayList<>(fields);
     	IField spanListField = new ListField<Span>(spans);
     	fieldListDuplicate.add(spanListField);
@@ -90,7 +99,10 @@ public class RegexMatcher implements IOperator {
     	IField[]  fieldsDuplicate = fieldListDuplicate.toArray(new IField[fieldListDuplicate.size()]);
     	return new DataTuple(spanSchema, fieldsDuplicate);
     }
-
+    
+    public Schema getSpanSchema() {
+    	return spanSchema;
+    }
 
     @Override
     public void close() throws DataFlowException {

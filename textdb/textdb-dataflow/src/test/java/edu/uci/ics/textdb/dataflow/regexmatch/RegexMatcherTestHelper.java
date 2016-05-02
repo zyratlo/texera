@@ -57,7 +57,9 @@ public class RegexMatcherTestHelper {
 	public void setResults(List<ITuple> results) {
 		this.results = results;
 	}
-
+	public Schema getSpanSchema() {
+		return regexMatcher.getSpanSchema();
+	}
 
 	public void runTest(String regex, String fieldName) throws Exception {
 		results.clear();

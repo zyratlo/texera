@@ -51,26 +51,32 @@ public class RegexPredicate implements IPredicate{
         return false;
     }
     
+    /* 
+     * This function return a list of spans in the given tuple that matches the regex 
+     * For example, given tuple ("george watson", "graduate student", 23, "(949)888-8888")
+     * and regex "g[^\s]*", this function will return 
+     * [Span(name, 0, 6, "g[^\s]*", "george watson"), Span(position, 0, 8, "g[^\s]*", "graduate student")]
+     */
     public List<Span> statisfySpan(ITuple tuple) {
-    	List<Span> res = new ArrayList<>();
+    	List<Span> spanList = new ArrayList<>();
     	if (tuple == null) {
-    		return res; //empty array
+    		return spanList; //empty array
     	}
     	IField field = tuple.getField(fieldName);
     	if (field instanceof StringField) {
     		String fieldValue = ((StringField) field).getValue();
     		if (fieldValue == null) {
-    			return res;
+    			return spanList;
     		} else {
-    			Pattern p = Pattern.compile(regex);
-    			Matcher m = p.matcher(fieldValue);
-    			while (m.find()) {
-    				res.add(new Span(fieldName, m.start(), m.end(), regex, fieldValue));
+    			Pattern pattern = Pattern.compile(regex);
+    			Matcher matcher = pattern.matcher(fieldValue);
+    			while (matcher.find()) {
+    				spanList.add(new Span(fieldName, matcher.start(), matcher.end(), regex, fieldValue));
     			}
     		}
     	}
     	
-    	return res;
+    	return spanList;
     }
 
 }
