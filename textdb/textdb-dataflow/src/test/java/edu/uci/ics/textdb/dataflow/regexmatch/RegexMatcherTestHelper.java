@@ -27,7 +27,7 @@ import edu.uci.ics.textdb.storage.writer.LuceneDataWriter;
 
 /**
  * @author zuozhi
- * 	
+ * @author shuying
  * Helper class to quickly create unit test
  */
 public class RegexMatcherTestHelper {
@@ -52,10 +52,6 @@ public class RegexMatcherTestHelper {
 	
 	public List<ITuple> getResults() {
 		return results;
-	}
-
-	public void setResults(List<ITuple> results) {
-		this.results = results;
 	}
 	
 	public Schema getSpanSchema() {
