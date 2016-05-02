@@ -1,12 +1,16 @@
 package edu.uci.ics.textdb.dataflow.queryrewriter;
 
-import edu.uci.ics.textdb.api.common.*;
+import java.util.Arrays;
+import java.util.List;
+
+import edu.uci.ics.textdb.api.common.Attribute;
+import edu.uci.ics.textdb.api.common.FieldType;
+import edu.uci.ics.textdb.api.common.IField;
+import edu.uci.ics.textdb.api.common.ITuple;
+import edu.uci.ics.textdb.api.common.Schema;
 import edu.uci.ics.textdb.api.dataflow.IOperator;
 import edu.uci.ics.textdb.common.field.DataTuple;
 import edu.uci.ics.textdb.common.field.ListField;
-
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * Created by kishorenarendran on 25/04/16.
@@ -26,8 +30,7 @@ public class QueryRewriter implements IOperator{
 
     public static final String QUERYLIST = "querylist";
     public static final Attribute QUERYLIST_ATTR = new Attribute(QUERYLIST, FieldType.LIST);
-    public static final List<Attribute> ATTRIBUTES_QUERY_LIST = Arrays.asList(QUERYLIST_ATTR);
-    public static final Schema SCHEMA_QUERY_LIST = new Schema(ATTRIBUTES_QUERY_LIST);
+    public static final Schema SCHEMA_QUERY_LIST = new Schema(QUERYLIST_ATTR);
 
     private ITuple itupleResult;
 

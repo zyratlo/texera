@@ -18,7 +18,7 @@ import edu.uci.ics.textdb.common.field.Span;
 
 /**
  * @author zuozhi
- * @author laisycs
+ * @author shuying
  * @author chenli
  * 	
  * Unit test for RegexMatcher
@@ -27,7 +27,7 @@ public class RegexMatcherTest {
 	private Schema createSpanSchema(Schema schema) {
     	List<Attribute> attributesCopy = new ArrayList<>(schema.getAttributes());
     	attributesCopy.add(SchemaConstants.SPAN_LIST_ATTRIBUTE);
-    	return new Schema(attributesCopy);
+    	return new Schema(attributesCopy.toArray(new Attribute[attributesCopy.size()]));
     }
 	
 	@Test
@@ -44,7 +44,7 @@ public class RegexMatcherTest {
 		List<Span> spans = new ArrayList<Span>();
 		spans.add(new Span(TestConstants.FIRST_NAME, 11, 17, "g[^\\s]*", "brad lie angelina"));
 		IField spanField = new ListField<Span>(new ArrayList<Span>(spans));
-		List<IField> fields = data.get(2).getFields();
+		List<IField> fields = new ArrayList<IField>(data.get(2).getFields());
 		fields.add(spanField);
 		expected.add(new DataTuple(spanSchema, fields.toArray(new IField[fields.size()])));
 		
@@ -52,7 +52,7 @@ public class RegexMatcherTest {
 		spans.clear();
 		spans.add(new Span(TestConstants.FIRST_NAME, 0, 6, "g[^\\s]*", "george lin lin"));
 		spanField = new ListField<Span>(new ArrayList<Span>(spans));
-		fields = data.get(3).getFields();
+		fields = new ArrayList<IField>(data.get(3).getFields());
 		fields.add(spanField);
 		expected.add(new DataTuple(spanSchema, fields.toArray(new IField[fields.size()])));
 		
@@ -76,7 +76,7 @@ public class RegexMatcherTest {
 		List<Span> spans = new ArrayList<Span>();
 		spans.add(new Span(RegexTestConstantsCorp.URL, 0, 16, query, "http://weibo.com"));
 		IField spanField = new ListField<Span>(new ArrayList<Span>(spans));
-		List<IField> fields = data.get(1).getFields();
+		List<IField> fields = new ArrayList<IField>(data.get(1).getFields());
 		fields.add(spanField);
 		expected.add(new DataTuple(spanSchema, fields.toArray(new IField[fields.size()])));
 		
@@ -84,7 +84,7 @@ public class RegexMatcherTest {
 		spans.clear();
 		spans.add(new Span(RegexTestConstantsCorp.URL, 0, 32, query, "https://www.microsoft.com/en-us/"));
 		spanField = new ListField<Span>(new ArrayList<Span>(spans));
-		fields = data.get(2).getFields();
+		fields = new ArrayList<IField>(data.get(2).getFields());
 		fields.add(spanField);
 		expected.add(new DataTuple(spanSchema, fields.toArray(new IField[fields.size()])));
 		
@@ -108,7 +108,7 @@ public class RegexMatcherTest {
 		List<Span> spans = new ArrayList<Span>();
 		spans.add(new Span(RegexTestConstantsCorp.IP_ADDRESS, 0, 12, query, "66.220.144.0"));
 		IField spanField = new ListField<Span>(new ArrayList<Span>(spans));
-		List<IField> fields = data.get(0).getFields();
+		List<IField> fields = new ArrayList<IField>(data.get(0).getFields());
 		fields.add(spanField);
 		expected.add(new DataTuple(spanSchema, fields.toArray(new IField[fields.size()])));
 		
@@ -116,7 +116,7 @@ public class RegexMatcherTest {
 		spans.clear();
 		spans.add(new Span(RegexTestConstantsCorp.IP_ADDRESS, 0, 15, query, "180.149.134.141"));
 		spanField = new ListField<Span>(new ArrayList<Span>(spans));
-		fields = data.get(1).getFields();
+		fields = new ArrayList<IField>(data.get(1).getFields());
 		fields.add(spanField);
 		expected.add(new DataTuple(spanSchema, fields.toArray(new IField[fields.size()])));
 		
@@ -124,7 +124,7 @@ public class RegexMatcherTest {
 		spans.clear();
 		spans.add(new Span(RegexTestConstantsCorp.IP_ADDRESS, 0, 12, query, "131.107.0.89"));
 		spanField = new ListField<Span>(new ArrayList<Span>(spans));
-		fields = data.get(2).getFields();
+		fields = new ArrayList<IField>(data.get(2).getFields());
 		fields.add(spanField);
 		expected.add(new DataTuple(spanSchema, fields.toArray(new IField[fields.size()])));
 		
@@ -148,7 +148,7 @@ public class RegexMatcherTest {
 		List<Span> spans = new ArrayList<Span>();
 		spans.add(new Span(RegexTestConstantStaff.EMAIL, 0, 19, query, "k.bocanegra@uci.edu"));
 		IField spanField = new ListField<Span>(new ArrayList<Span>(spans));
-		List<IField> fields = data.get(0).getFields();
+		List<IField> fields = new ArrayList<IField>(data.get(0).getFields());
 		fields.add(spanField);
 		expected.add(new DataTuple(spanSchema, fields.toArray(new IField[fields.size()])));
 		
@@ -156,7 +156,7 @@ public class RegexMatcherTest {
 		spans.clear();
 		spans.add(new Span(RegexTestConstantStaff.EMAIL, 0, 18, query, "hwangl@ics.uci.edu"));
 		spanField = new ListField<Span>(new ArrayList<Span>(spans));
-		fields = data.get(1).getFields();
+		fields = new ArrayList<IField>(data.get(1).getFields());
 		fields.add(spanField);
 		expected.add(new DataTuple(spanSchema, fields.toArray(new IField[fields.size()])));
 		

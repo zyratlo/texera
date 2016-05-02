@@ -77,7 +77,7 @@ public class RegexMatcher implements IOperator {
     private Schema createSpanSchema() {
     	List<Attribute> attributesCopy = new ArrayList<>(schema.getAttributes());
     	attributesCopy.add(SchemaConstants.SPAN_LIST_ATTRIBUTE);
-    	return new Schema(attributesCopy);
+    	return new Schema(attributesCopy.toArray(new Attribute[attributesCopy.size()]));
     }
     
     private ITuple getSpanTuple(List<Span> spans) {

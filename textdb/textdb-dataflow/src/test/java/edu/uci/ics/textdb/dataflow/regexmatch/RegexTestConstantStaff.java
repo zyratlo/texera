@@ -30,8 +30,8 @@ public class RegexTestConstantStaff {
     public static final Attribute EMAIL_ATTR = new Attribute(EMAIL, FieldType.STRING);
     public static final Attribute PHONE_ATTR = new Attribute(PHONE, FieldType.STRING);
     
-    public static final List<Attribute> ATTRIBUTES_STAFF = Arrays.asList(
-    		FIRST_NAME_ATTR, LAST_NAME_ATTR, EMAIL_ATTR, PHONE_ATTR);
+    public static final Attribute[] ATTRIBUTES_STAFF = {
+    		FIRST_NAME_ATTR, LAST_NAME_ATTR, EMAIL_ATTR, PHONE_ATTR};
     public static final Schema SCHEMA_STAFF = new Schema(ATTRIBUTES_STAFF);
     
     public static List<ITuple> getSampleStaffTuples() throws ParseException {
