@@ -101,9 +101,10 @@ public class Pokedexer {
      * @throws IOException
      */
     public void addPokemon() throws IOException{
-        GetPokemonInfo getPokemonInfo = new GetPokemonInfo(numberOfPokemon);
-        getPokemonInfo.aggregatePokemonInfo();
-        Pokemon[] pokemons = getPokemonInfo.getPokemonInfo();
+        //GetPokemonInfo getPokemonInfo = new GetPokemonInfo(numberOfPokemon);
+        //getPokemonInfo.aggregatePokemonInfo();
+        //Pokemon[] pokemons = getPokemonInfo.getPokemonInfo();
+        Pokemon[] pokemons = Data.POKEMONS;
         for(Pokemon pokemon: pokemons) {
             Document document = makeDocument(pokemon);
             indexWriter.addDocument(document);

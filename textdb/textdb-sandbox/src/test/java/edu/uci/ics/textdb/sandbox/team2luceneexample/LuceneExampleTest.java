@@ -16,7 +16,7 @@ import static org.junit.Assert.assertNotNull;
 public class LuceneExampleTest {
 
     private static Pokedexer pokedexer;
-    private static int numberOfPokemon = 5;
+    private static int numberOfPokemon = 4;
     private static String searchFieldName = LuceneConstants.TYPES_FIELD;
     private static int maxResults = numberOfPokemon;
     private static String allResultsSearchQuery = "*:*";
@@ -45,6 +45,6 @@ public class LuceneExampleTest {
     {
         PokemonSearcher pokemonSearcher = new PokemonSearcher(searchFieldName);
         Document[] documents = pokemonSearcher.performSearch(termSearchQuery, maxResults);
-        assertEquals(documents.length, 3);
+        assertEquals(documents.length, 1);
     }
 }
