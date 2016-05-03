@@ -31,13 +31,11 @@ public class NamedEntityExtractor implements IOperator{
     }
 
 
-    /* TODO:Try to pass the test
     public NamedEntityExtractor(IOperator operator, List<Attribute> searchInAttributes) {
         this.sourceOperator = operator;
         this.searchInAttributes=searchInAttributes;
     }
 
-    */
 
     /**
      * @about Opens Named Entity Extractor
