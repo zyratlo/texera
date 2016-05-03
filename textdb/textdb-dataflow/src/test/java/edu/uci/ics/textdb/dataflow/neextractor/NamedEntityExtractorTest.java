@@ -26,10 +26,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by Sam on 16/4/27.
+ * @author Feng [sam0227]
+ *
  */
 public class NamedEntityExtractorTest {
-    private NamedEntityExtractor neextractor;
+    private NamedEntityExtractor namedEntityExtractor;
 
     private IDataWriter dataWriter;
     private IDataReader dataReader;
@@ -58,22 +59,24 @@ public class NamedEntityExtractorTest {
      */
     public List<ITuple> getQueryResults(ISourceOperator sourceOperator) throws Exception {
 
-        neextractor = new NamedEntityExtractor(sourceOperator);
-        neextractor.open();
+        namedEntityExtractor = new NamedEntityExtractor(sourceOperator);
+        namedEntityExtractor.open();
         ITuple nextTuple = null;
         List<ITuple> results = new ArrayList<ITuple>();
-        while ((nextTuple = neextractor.getNextTuple()) != null) {
+        while ((nextTuple = namedEntityExtractor.getNextTuple()) != null) {
             results.add(nextTuple);
         }
-        neextractor.close();
+        namedEntityExtractor.close();
         return results;
     }
 
 
-
     /**
-     * Scenario 1: Get next tuple with single return
+     *
+     * Scenario 1: Test getNextTuple with only one span in the return list
      * Text : Microsoft is a organization.
+
+     * @throws Exception
      */
     @Test
     public void getNextTupleTest1() throws Exception {
@@ -90,7 +93,7 @@ public class NamedEntityExtractorTest {
     }
 
     /**
-     * Scenario 2: Get next tuple with multiple return
+     * Scenario 2: Test getNextTuple with more than one span in the return list
      * Text: Microsoft, Google and Facebook are organizations
      */
     @Test
@@ -108,7 +111,7 @@ public class NamedEntityExtractorTest {
     }
 
     /**
-     * Scenario 3: Get next tuple with multiple return with different idendities
+     * Scenario 3: Test getNextTuple with more than one span in the return list and with different recognized classes.
      * Text: Microsoft, Google and Facebook are organizations and Donald Trump and Barack Obama are persons.
      */
     @Test
@@ -129,8 +132,11 @@ public class NamedEntityExtractorTest {
 
 
     /**
-     * Scenario 4: Get next tuple with multiple return with different idendities in two sentence(field).
-     * Text: Microsoft, Google and Facebook are organizations and Donald Trump and Barack Obama are persons.
+     * Scenario 4:Test getNextTuple with more than one span in the return list and with different recognized classes
+     *              and more than one fields in the source tuple.
+     *
+     * Sentence1: Microsoft, Google and Facebook are organizations.
+     * Sentence2: Donald Trump and Barack Obama are persons.
      */
     @Test
     public void getNextTupleTest4() throws Exception {
@@ -139,11 +145,11 @@ public class NamedEntityExtractorTest {
 
         List<ITuple> returnedResults = getQueryResults(sourceOperator);
 
-        //TODO:discuss the return type for tuple that have multiple field, how should the span start and end look like?
-        
-        List<ITuple> expectedResults = NEExtractorTestConstants.getTest3ResultTuples();
+        List<ITuple> expectedResults = NEExtractorTestConstants.getTest4ResultTuples();
 
+        //TODO: expected contains returned  AND returned contains expected ?
         boolean contains = TestUtils.containsAllResults(expectedResults, returnedResults);
+
 
         //TODO: enable test while finish implementation
         //Assert.assertTrue(contains);

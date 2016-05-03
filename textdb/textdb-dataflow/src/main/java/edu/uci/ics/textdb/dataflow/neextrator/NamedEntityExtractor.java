@@ -1,23 +1,41 @@
 package edu.uci.ics.textdb.dataflow.neextrator;
 
+import edu.uci.ics.textdb.api.common.Attribute;
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.dataflow.IOperator;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
 
+import java.util.List;
+
 
 /**
- * Created by Sam Hong on 16/4/21.
+ * @author Feng [sam0227] on 4/27/16.
+ *
+ *  Wrap the Stanford NLP Named Entity Recognizer as a operator.
+ *  This operator would recognize 7 classes: Location, Person, Organization, Money, Percent, Date and Time.
+ *  Return the recoginized data as a list of spans.
+ *
  */
+
 public class NamedEntityExtractor implements IOperator{
 
 
     private IOperator sourceOperator;
     private ITuple sourceTuple;
+    private List<Attribute> searchInAttributes;
+
 
 
     public NamedEntityExtractor(IOperator operator) {
         this.sourceOperator = operator;
     }
+
+
+    public NamedEntityExtractor(IOperator operator, List<Attribute> searchInAttributes) {
+        this.sourceOperator = operator;
+        this.searchInAttributes=searchInAttributes;
+    }
+
 
 
     /**
@@ -33,20 +51,28 @@ public class NamedEntityExtractor implements IOperator{
         }
     }
 
+
     /**
      * @about Return all named entities that are recognized in a document.
      *        Return format is a Tuple that contains only one field which is
-     *        a List of span of the results
+     *        a list of spans of the results
+     *
+     *        For example: Given tuple with two field named: sentence1, sentence2.
+     *         tuple: ["Google is an organization.", "Its headquarter is in Mountain View."]
+     *         return:
+     *              ["sentence1,0,6,Google, ORGANIZATION", "sentence2,22,25,Mountain View, LOCATION"]
+     *
      *
      * @overview  First get a tuple from the source operator then process it
      *          using the Stanford NLP package. for all recognized words, compute their
-     *          span and return all as a list.
+     *          spans and return all as a list.
      *
      */
     @Override
     public ITuple getNextTuple() throws Exception {
         return null;
     }
+
 
 
     /**

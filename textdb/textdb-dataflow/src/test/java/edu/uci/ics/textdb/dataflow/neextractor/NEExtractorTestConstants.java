@@ -15,18 +15,24 @@ import java.util.List;
 public class NEExtractorTestConstants {
 
 
-    public static final String SENTENCE ="sentence";
+    public static final String SENTENCE_ONE ="sentence_one";
+    public static final String SENTENCE_TWO ="sentence_two";
 
-    public static final Attribute SENTENCE_ATTR = new Attribute(SENTENCE, FieldType.TEXT);
+
+    public static final Attribute SENTENCE_ONE_ATTR = new Attribute(SENTENCE_ONE, FieldType.TEXT);
+
+    public static final Attribute SENTENCE_TWO_ATTR = new Attribute(SENTENCE_TWO, FieldType.TEXT);
+
 
 
     public static final List<Attribute> ATTRIBUTES_ONE_SENTENCE = Arrays.asList(
-            SENTENCE_ATTR);
+            SENTENCE_ONE_ATTR);
 
     public static final List<Attribute> ATTRIBUTES_TWO_SENTENCE = Arrays.asList(
-            SENTENCE_ATTR,SENTENCE_ATTR);
-    public static final Schema SCHEMA_ONE_SENTENCE = new Schema(SENTENCE_ATTR);
-    public static final Schema SCHEMA_TWO_SENTENCE = new Schema(SENTENCE_ATTR,SENTENCE_ATTR);
+            SENTENCE_ONE_ATTR,SENTENCE_ONE_ATTR);
+
+    public static final Schema SCHEMA_ONE_SENTENCE = new Schema(SENTENCE_ONE_ATTR);
+    public static final Schema SCHEMA_TWO_SENTENCE = new Schema(SENTENCE_ONE_ATTR,SENTENCE_TWO_ATTR);
 
 
 
@@ -66,7 +72,7 @@ public class NEExtractorTestConstants {
         List<ITuple> resultList= new ArrayList<>();
         List<IField> fields = new ArrayList<IField>();
         List<Span> spanList = new ArrayList<Span>();
-        Span span1 = new Span("description", 0, 8, "ORGANIZATION", "Microsoft");
+        Span span1 = new Span("sentence_one", 0, 8, "ORGANIZATION", "Microsoft");
         spanList.add(span1);
         IField spanField = new ListField<Span>(spanList);
         fields.add(spanField);
@@ -79,9 +85,9 @@ public class NEExtractorTestConstants {
         List<ITuple> resultList= new ArrayList<>();
         List<IField> fields = new ArrayList<IField>();
         List<Span> spanList = new ArrayList<Span>();
-        Span span1 = new Span("description", 0, 8, "ORGANIZATION", "Microsoft");
-        Span span2 = new Span("description", 10, 15, "ORGANIZATION", "Google");
-        Span span3 = new Span("description", 21, 28, "ORGANIZATION", "Facebook");
+        Span span1 = new Span("sentence_one", 0, 8, "ORGANIZATION", "Microsoft");
+        Span span2 = new Span("sentence_one", 10, 15, "ORGANIZATION", "Google");
+        Span span3 = new Span("sentence_one", 21, 28, "ORGANIZATION", "Facebook");
         spanList.add(span1);
         spanList.add(span2);
         spanList.add(span3);
@@ -97,11 +103,11 @@ public class NEExtractorTestConstants {
 
         List<IField> fields = new ArrayList<IField>();
         List<Span> spanList = new ArrayList<Span>();
-        Span span1 = new Span("description", 0, 8, "ORGANIZATION", "Microsoft");
-        Span span2 = new Span("description", 10, 15, "ORGANIZATION", "Google");
-        Span span3 = new Span("description", 21, 28, "ORGANIZATION", "Facebook");
-        Span span4 = new Span("description", 52, 63, "PERSON", "Donald Trump");
-        Span span5 = new Span("description", 69, 80, "PERSON", "Barack Obama");
+        Span span1 = new Span("sentence_one", 0, 8, "ORGANIZATION", "Microsoft");
+        Span span2 = new Span("sentence_one", 10, 15, "ORGANIZATION", "Google");
+        Span span3 = new Span("sentence_one", 21, 28, "ORGANIZATION", "Facebook");
+        Span span4 = new Span("sentence_one", 52, 63, "PERSON", "Donald Trump");
+        Span span5 = new Span("sentence_one", 69, 80, "PERSON", "Barack Obama");
 
         spanList.add(span1);
         spanList.add(span2);
@@ -116,6 +122,30 @@ public class NEExtractorTestConstants {
         return resultList;
     }
 
+
+    public static List<ITuple> getTest4ResultTuples() {
+        List<ITuple> resultList= new ArrayList<>();
+
+        List<IField> fields = new ArrayList<IField>();
+        List<Span> spanList = new ArrayList<Span>();
+        Span span1 = new Span("sentence_one", 0, 8, "ORGANIZATION", "Microsoft");
+        Span span2 = new Span("sentence_one", 10, 15, "ORGANIZATION", "Google");
+        Span span3 = new Span("sentence_one", 21, 28, "ORGANIZATION", "Facebook");
+        Span span4 = new Span("sentence_two", 52, 63, "PERSON", "Donald Trump");
+        Span span5 = new Span("sentence_two", 69, 80, "PERSON", "Barack Obama");
+
+        spanList.add(span1);
+        spanList.add(span2);
+        spanList.add(span3);
+        spanList.add(span4);
+        spanList.add(span5);
+
+        IField spanField = new ListField<Span>(spanList);
+        fields.add(spanField);
+        ITuple resultTuple = new DataTuple(new Schema(SchemaConstants.SPAN_LIST_ATTRIBUTE), fields.toArray(new IField[fields.size()]));
+        resultList.add(resultTuple);
+        return resultList;
+    }
 
 
 }
