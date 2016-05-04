@@ -91,9 +91,9 @@ public class KeywordMatcher implements IOperator {
             if(sourceTuple == null){
                 return null;
             }
+            fieldList = sourceTuple.getFields();
             if(!schemaDefined){
                 schemaDefined = true;
-                fieldList = sourceTuple.getFields();
                 schema = sourceTuple.getSchema();
                 spanSchema = createSpanSchema();
             }
@@ -108,6 +108,7 @@ public class KeywordMatcher implements IOperator {
                     if(fieldValue.equals(queryValue.toLowerCase())){
                         spanIndexValue = 0;
                         positionIndex = queryValue.length();
+                        fieldName = attributeList.get(attributeIndex).getFieldName();
                         addSpanToSpanList(fieldName, spanIndexValue, positionIndex, queryValue, fieldValue);
                         foundFlag = true;
 
@@ -120,8 +121,9 @@ public class KeywordMatcher implements IOperator {
                         matcher = p.matcher(fieldValue.toLowerCase());
                         while (matcher.find(positionIndex) != false) {
                             spanIndexValue = matcher.start();
-                            positionIndex = spanIndexValue + query.length();
+                            positionIndex = spanIndexValue + queryValueArray.get(iter).length();
                             documentValue = fieldValue.substring(spanIndexValue, positionIndex);
+                            fieldName = attributeList.get(attributeIndex).getFieldName();
                             addSpanToSpanList(fieldName, spanIndexValue, positionIndex, query, documentValue);
                             foundFlag = true;
 

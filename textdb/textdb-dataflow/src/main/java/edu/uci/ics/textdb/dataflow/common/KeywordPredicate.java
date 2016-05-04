@@ -3,24 +3,18 @@ package edu.uci.ics.textdb.dataflow.common;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
-
 import edu.uci.ics.textdb.api.common.Attribute;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.queryparser.classic.ParseException;
-import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
-
-import edu.uci.ics.textdb.api.common.IField;
 import edu.uci.ics.textdb.api.common.IPredicate;
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
-import edu.uci.ics.textdb.common.field.StringField;
 
 /**
  *  @author prakul
