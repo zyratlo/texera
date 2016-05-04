@@ -56,6 +56,7 @@ public class IndexSearchSourceOperatorTest {
 		dataWriter.clearData();
 	}
 
+
 	public List<ITuple> getQueryResults(String query) throws DataFlowException, ParseException {
 		String defaultField = TestConstants.ATTRIBUTES_PEOPLE[0].getFieldName();
 		QueryParser queryParser = new QueryParser(defaultField, analyzer);
@@ -72,6 +73,7 @@ public class IndexSearchSourceOperatorTest {
 		indexSearchSourceOperator.close();
 		return results;
 	}
+
 	/**
 	 * Search in a text field with multiple tokens.
 	 * @throws DataFlowException

@@ -4,9 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.apache.lucene.search.Query;
-
 import edu.uci.ics.textdb.api.common.Attribute;
 import edu.uci.ics.textdb.api.common.IField;
 import edu.uci.ics.textdb.api.common.IPredicate;
@@ -37,12 +35,9 @@ public class KeywordMatcher implements IOperator {
     private List<Span> spanList;
     private Schema schema;
     private Schema spanSchema;
-
     private int positionIndex; // next position in the field to be checked.
     private int spanIndexValue; // Starting position of the matched dictionary
-
     private String documentValue;
-
     private  String fieldName;
     private  String queryValue;
     private  List<Attribute> attributeList;
@@ -61,7 +56,6 @@ public class KeywordMatcher implements IOperator {
     @Override
     public void open() throws DataFlowException {
         try {
-
             sourceOperator.open();
             queryValue = predicate.getQuery();
             attributeList = predicate.getAttributeList();
@@ -72,8 +66,6 @@ public class KeywordMatcher implements IOperator {
                 pattern = Pattern.compile(regex);
                 patternList.add(pattern);
             }
-
-
             positionIndex = 0;
             foundFlag = false;
             schemaDefined = false;
@@ -94,12 +86,12 @@ public class KeywordMatcher implements IOperator {
                 return null;
             }
             fieldList = sourceTuple.getFields();
+            spanList.clear();
             if(!schemaDefined){
                 schemaDefined = true;
                 schema = sourceTuple.getSchema();
                 spanSchema = Utils.createSpanSchema(schema);
             }
-
 
             for(int attributeIndex = 0; attributeIndex < attributeList.size(); attributeIndex++){
                 IField field = sourceTuple.getField(attributeList.get(attributeIndex).getFieldName());
@@ -113,11 +105,12 @@ public class KeywordMatcher implements IOperator {
                         fieldName = attributeList.get(attributeIndex).getFieldName();
                         addSpanToSpanList(fieldName, spanIndexValue, positionIndex, queryValue, fieldValue);
                         foundFlag = true;
-
                     }
                 }
                 else if(field instanceof TextField) {
+                    //Each element of Array of keywords is matched in tokenized TextField Value
                     for (int iter = 0; iter < queryValueArray.size(); iter++) {
+                        positionIndex = 0;
                         String query = queryValueArray.get(iter);
                         Pattern p = patternList.get(iter);
                         matcher = p.matcher(fieldValue.toLowerCase());

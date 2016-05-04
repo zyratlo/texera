@@ -2,6 +2,7 @@ package edu.uci.ics.textdb.dataflow.common;
 
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import edu.uci.ics.textdb.api.common.Attribute;
 import org.apache.lucene.analysis.Analyzer;
@@ -18,7 +19,7 @@ import edu.uci.ics.textdb.common.exception.DataFlowException;
 
 /**
  *  @author prakul
- *  @author akshay
+ *
  */
 public class KeywordPredicate implements IPredicate{
 
@@ -53,8 +54,11 @@ public class KeywordPredicate implements IPredicate{
         return true;
     }
 
-
-
+    /**
+     * Creates a Query object as a boolean Query on all attributes
+     * @return QueryObject
+     * @throws ParseException
+     */
     private Query createQueryObject() throws ParseException {
         BooleanQuery booleanQuery = new BooleanQuery();
         MultiFieldQueryParser parser = new MultiFieldQueryParser(this.fields, this.analyzer);
@@ -64,7 +68,6 @@ public class KeywordPredicate implements IPredicate{
         }
         return booleanQuery;
     }
-
 
     public String getQuery(){
         return query;
@@ -81,8 +84,14 @@ public class KeywordPredicate implements IPredicate{
         return analyzer;
     }
 
+    /**
+     * Tokenizes the query string using the given analyser
+     * @param analyzer
+     * @param query
+     * @return
+     */
     public ArrayList<String> queryTokenizer(Analyzer analyzer,  String query) {
-
+        HashSet<String> resultSet = new HashSet<>();
         ArrayList<String> result = new ArrayList<String>();
         TokenStream tokenStream  = analyzer.tokenStream(null, new StringReader(query));
         CharTermAttribute charTermAttribute = tokenStream.addAttribute(CharTermAttribute.class);
@@ -91,13 +100,13 @@ public class KeywordPredicate implements IPredicate{
             tokenStream.reset();
             while (tokenStream.incrementToken()) {
                 String term = charTermAttribute.toString();
-                result.add(term);
+                resultSet.add(term);
             }
             tokenStream.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
-
+        result.addAll(resultSet);
         return result;
     }
 }
