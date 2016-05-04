@@ -26,8 +26,6 @@ import edu.uci.ics.textdb.dataflow.common.KeywordPredicate;
 public class KeywordMatcher implements IOperator {
     private final KeywordPredicate predicate;
     private ISourceOperator sourceOperator;
-    private Query luceneQuery;
-
     private String regex;
     private Pattern pattern;
     private ArrayList<Pattern> patternList;

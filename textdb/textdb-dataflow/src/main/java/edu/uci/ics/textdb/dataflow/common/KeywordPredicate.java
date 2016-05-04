@@ -21,6 +21,10 @@ import edu.uci.ics.textdb.common.exception.DataFlowException;
  *  @author prakul
  *
  */
+
+/**
+ * This class handles creation of predicate for querying using Keyword Matcher
+ */
 public class KeywordPredicate implements IPredicate{
 
     private final List<Attribute> attributeList;
@@ -40,7 +44,7 @@ public class KeywordPredicate implements IPredicate{
                 temp[i] = attributeList.get(i).getFieldName();
             }
             this.fields = temp;
-            this.tokens = queryTokenizer(analyzer, this.query);
+            this.tokens = tokenizeQuery(analyzer, this.query);
             this.analyzer = analyzer;
             this.queryObject = createQueryObject();
         } catch (Exception e) {
@@ -51,11 +55,19 @@ public class KeywordPredicate implements IPredicate{
 
     @Override
     public boolean satisfy(ITuple tuple) {
+
+        //This method is not used. Implemented for satisfying interface implementation.
         return true;
     }
 
     /**
-     * Creates a Query object as a boolean Query on all attributes
+     * Creates a Query object as a boolean Query on all attributes.
+     * Example: For creating a query like
+     * (TestConstants.DESCRIPTION + ":lin" + " AND " + TestConstants.LAST_NAME + ":lin")
+     * we provide a list of AttributeFields (Description, Last_name) to search on and a query string (lin)
+     *
+     * BooleanQuery() is deprecated. In future a better solution could be worked out in Query builder layer
+
      * @return QueryObject
      * @throws ParseException
      */
@@ -90,7 +102,7 @@ public class KeywordPredicate implements IPredicate{
      * @param query
      * @return
      */
-    public ArrayList<String> queryTokenizer(Analyzer analyzer,  String query) {
+    public ArrayList<String> tokenizeQuery(Analyzer analyzer,  String query) {
         HashSet<String> resultSet = new HashSet<>();
         ArrayList<String> result = new ArrayList<String>();
         TokenStream tokenStream  = analyzer.tokenStream(null, new StringReader(query));

@@ -41,15 +41,12 @@ import java.util.List;
  *
  */
 
-
 public class KeywordMatcherTest {
 
     private KeywordMatcher keywordMatcher;
     private IDataWriter dataWriter;
-    private IDataReader dataReader;
     private LuceneDataStore dataStore;
     private IndexSearchSourceOperator indexSearchSourceOperator;
-
     private Analyzer analyzer;
     private Query queryObj;
     private Schema schema;
@@ -73,9 +70,9 @@ public class KeywordMatcherTest {
      * Tokenizes the query string using the given analyser
      * @param analyzer
      * @param query
-     * @return
+     * @return ArrayList<String> list of results
      */
-    public ArrayList<String> queryTokenizer(Analyzer analyzer,  String query) {
+    public ArrayList<String> tokenizeQuery(Analyzer analyzer,  String query) {
         HashSet<String> resultSet = new HashSet<>();
         ArrayList<String> result = new ArrayList<String>();
         TokenStream tokenStream  = analyzer.tokenStream(null, new StringReader(query));
@@ -98,9 +95,15 @@ public class KeywordMatcherTest {
 
     /**
      * Creates a Query object as a boolean Query on all attributes
+     * Example: For creating a query like
+     * (TestConstants.DESCRIPTION + ":lin" + " AND " + TestConstants.LAST_NAME + ":lin")
+     * we provide a list of AttributeFields (Description, Last_name) to search on and a query string (lin)
+     *
+     * BooleanQuery() is deprecated. In future a better solution could be worked out in Query builder layer
+     *
      * @param query
      * @param attributeList
-     * @return
+     * @return Query
      * @throws ParseException
      */
     private Query createQueryObject(String query, ArrayList<Attribute> attributeList) throws ParseException {
@@ -111,7 +114,7 @@ public class KeywordMatcherTest {
             fields[i] = attributeList.get(i).getFieldName();
         }
 
-        tokens = queryTokenizer(analyzer, query);
+        tokens = tokenizeQuery(analyzer, query);
         BooleanQuery booleanQuery = new BooleanQuery();
         MultiFieldQueryParser parser = new MultiFieldQueryParser(fields, analyzer);
         for(String searchToken: tokens){
@@ -129,7 +132,7 @@ public class KeywordMatcherTest {
      * @param query
      * @param attributeList
      * @param buildMultiQueryOnAttributeList
-     * @return
+     * @return List<ITuple>
      * @throws DataFlowException
      * @throws ParseException
      */
@@ -150,7 +153,7 @@ public class KeywordMatcherTest {
         indexSearchSourceOperator = new IndexSearchSourceOperator(dataReader);
         keywordMatcher = new KeywordMatcher(predicate, indexSearchSourceOperator);
         keywordMatcher.open();
-        List<ITuple> results = new ArrayList<ITuple>();
+        List<ITuple> results = new ArrayList<>();
         ITuple nextTuple = null;
         while ((nextTuple = keywordMatcher.getNextTuple()) != null) {
             results.add(nextTuple);
@@ -215,13 +218,13 @@ public class KeywordMatcherTest {
     public void testSingleWordQueryInStringField() throws Exception {
         //Prepare Query
         String query = "Bruce";
-        ArrayList<Attribute> attributeList = new ArrayList<Attribute>();
+        ArrayList<Attribute> attributeList = new ArrayList<>();
         attributeList.add(TestConstants.FIRST_NAME_ATTR);
         attributeList.add(TestConstants.LAST_NAME_ATTR);
         attributeList.add(TestConstants.DESCRIPTION_ATTR);
 
         //Prepare expected result list
-        List<Span> list = new ArrayList<Span>();
+        List<Span> list = new ArrayList<>();
         Span span = new Span("firstName", 0, 5, "Bruce", "bruce");
         list.add(span);
         Attribute[] schemaAttributes = new Attribute[TestConstants.ATTRIBUTES_PEOPLE.length + 1];
@@ -232,9 +235,9 @@ public class KeywordMatcherTest {
 
         IField[] fields1 = { new StringField("bruce"), new StringField("john Lee"), new IntegerField(46),
                 new DoubleField(5.50), new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-14-1970")),
-                new TextField("Tall Angry"), new ListField<Span>(list) };
+                new TextField("Tall Angry"), new ListField<>(list) };
         ITuple tuple1 = new DataTuple(new Schema(schemaAttributes), fields1);
-        List<ITuple> expectedResultList = new ArrayList<ITuple>();
+        List<ITuple> expectedResultList = new ArrayList<>();
         expectedResultList.add(tuple1);
 
         //Perform Query
@@ -257,13 +260,13 @@ public class KeywordMatcherTest {
     public void testSingleWordQueryInTextField() throws Exception {
         //Prepare Query
         String query = "tall";
-        ArrayList<Attribute> attributeList = new ArrayList<Attribute>();
+        ArrayList<Attribute> attributeList = new ArrayList<>();
         attributeList.add(TestConstants.FIRST_NAME_ATTR);
         attributeList.add(TestConstants.LAST_NAME_ATTR);
         attributeList.add(TestConstants.DESCRIPTION_ATTR);
 
         //Prepare expected result list
-        List<Span> list = new ArrayList<Span>();
+        List<Span> list = new ArrayList<>();
         Span span = new Span("description", 0, 4, "tall", "Tall");
         list.add(span);
         Attribute[] schemaAttributes = new Attribute[TestConstants.ATTRIBUTES_PEOPLE.length + 1];
@@ -274,16 +277,16 @@ public class KeywordMatcherTest {
 
         IField[] fields1 = { new StringField("bruce"), new StringField("john Lee"), new IntegerField(46),
                 new DoubleField(5.50), new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-14-1970")),
-                new TextField("Tall Angry"), new ListField<Span>(list) };
+                new TextField("Tall Angry"), new ListField<>(list) };
 
         IField[] fields2 = { new StringField("christian john wayne"), new StringField("rock bale"),
                 new IntegerField(42), new DoubleField(5.99),
                 new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-13-1974")), new TextField("Tall Fair"),
-                new ListField<Span>(list) };
+                new ListField<>(list) };
         ITuple tuple1 = new DataTuple(new Schema(schemaAttributes), fields1);
         ITuple tuple2 = new DataTuple(new Schema(schemaAttributes), fields2);
 
-        List<ITuple> expectedResultList = new ArrayList<ITuple>();
+        List<ITuple> expectedResultList = new ArrayList<>();
         expectedResultList.add(tuple1);
         expectedResultList.add(tuple2);
 
@@ -306,7 +309,7 @@ public class KeywordMatcherTest {
     public void testMultipleWordsQuery() throws Exception {
         //Prepare Query
         String query = "george lin lin";
-        ArrayList<Attribute> attributeList = new ArrayList<Attribute>();
+        ArrayList<Attribute> attributeList = new ArrayList<>();
         attributeList.add(TestConstants.FIRST_NAME_ATTR);
         attributeList.add(TestConstants.LAST_NAME_ATTR);
         attributeList.add(TestConstants.DESCRIPTION_ATTR);
@@ -327,10 +330,10 @@ public class KeywordMatcherTest {
 
         IField[] fields1 = { new StringField("george lin lin"), new StringField("lin clooney"), new IntegerField(43),
                 new DoubleField(6.06), new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-13-1973")),
-                new TextField("Lin Clooney is Short and lin clooney is Angry"), new ListField<Span>(list) };
+                new TextField("Lin Clooney is Short and lin clooney is Angry"), new ListField<>(list) };
 
         ITuple tuple1 = new DataTuple(new Schema(schemaAttributes), fields1);
-        List<ITuple> expectedResultList = new ArrayList<ITuple>();
+        List<ITuple> expectedResultList = new ArrayList<>();
         expectedResultList.add(tuple1);
 
         //Perform Query
@@ -352,13 +355,13 @@ public class KeywordMatcherTest {
     public void testWordInMultipleFieldsQuery() throws Exception {
         //Prepare Query
         String query = "lin clooney";
-        ArrayList<Attribute> attributeList = new ArrayList<Attribute>();
+        ArrayList<Attribute> attributeList = new ArrayList<>();
         attributeList.add(TestConstants.FIRST_NAME_ATTR);
         attributeList.add(TestConstants.LAST_NAME_ATTR);
         attributeList.add(TestConstants.DESCRIPTION_ATTR);
 
         //Prepare expected result list
-        List<Span> list = new ArrayList<Span>();
+        List<Span> list = new ArrayList<>();
         Span span1 = new Span("lastName", 0, 11, "lin clooney", "lin clooney");
         Span span2 = new Span("description", 0, 3, "lin", "Lin");
         Span span3 = new Span("description", 25, 28, "lin", "lin");
@@ -378,10 +381,10 @@ public class KeywordMatcherTest {
 
         IField[] fields1 = { new StringField("george lin lin"), new StringField("lin clooney"), new IntegerField(43),
                 new DoubleField(6.06), new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-13-1973")),
-                new TextField("Lin Clooney is Short and lin clooney is Angry"), new ListField<Span>(list) };
+                new TextField("Lin Clooney is Short and lin clooney is Angry"), new ListField<>(list) };
 
         ITuple tuple1 = new DataTuple(new Schema(schemaAttributes), fields1);
-        List<ITuple> expectedResultList = new ArrayList<ITuple>();
+        List<ITuple> expectedResultList = new ArrayList<>();
         expectedResultList.add(tuple1);
 
         //Perform Query
