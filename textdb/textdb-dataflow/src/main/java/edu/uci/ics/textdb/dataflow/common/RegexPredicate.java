@@ -52,11 +52,14 @@ public class RegexPredicate implements IPredicate{
         return false;
     }
     
-    /* 
+    /**
      * This function return a list of spans in the given tuple that matches the regex 
      * For example, given tuple ("george watson", "graduate student", 23, "(949)888-8888")
      * and regex "g[^\s]*", this function will return 
      * [Span(name, 0, 6, "g[^\s]*", "george watson"), Span(position, 0, 8, "g[^\s]*", "graduate student")]
+     * 
+     * @param tuple document in which search is performed
+     * @return a list of spans describing the occurence of matching sequence in document
      */
     public List<Span> statisfySpan(ITuple tuple) {
     	List<Span> spanList = new ArrayList<>();

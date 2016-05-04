@@ -78,12 +78,14 @@ public class RegexMatcher implements IOperator {
         }        
     }
     
-    /*
-     * This function creates the schema of tuples returned by RegexMatcher. 
+    /**
+     * This function converts the schema of original tuples to the schema of match results returned by RegexMatcher. 
      * It adds SPAN_LIST_ATTRIBUTE in the end of the schema of tuples from lower level.
      * Because we need to use span to specify the position of matched sequence in this tuple.
      * For example, if a tuple ("george watson", "staff", 33, "(949)888-8888") matched "g[^\s]*",
-     * RegexMatcher returns ("george watson", "staff", 33, "(949)888-8888", Span(name, 0, 6, "g[^\s]*", "george watson"))
+     * RegexMatcher returns ("george watson", "staff", 33, "(949)888-8888", [Span(name, 0, 6, "g[^\s]*", "george watson")])
+     * 
+     * @return a schema object = attributes in original tuples followed by SPAN_LIST_ATTRIBUTE
      */
     private Schema createSpanSchema() {
     	List<Attribute> attributesCopy = new ArrayList<>(schema.getAttributes());
