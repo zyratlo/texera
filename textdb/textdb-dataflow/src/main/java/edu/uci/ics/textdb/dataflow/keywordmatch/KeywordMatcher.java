@@ -27,10 +27,11 @@ public class KeywordMatcher implements IOperator {
     private ISourceOperator sourceOperator;
     private ArrayList<Pattern> tokenPatternList;
     private List<Span> spanList;
-    private  String query;
-    private  List<Attribute> attributeList;
-    private  ArrayList<String> queryTokens;
-
+    private String query;
+    private List<Attribute> attributeList;
+    private ArrayList<String> queryTokens;
+    private boolean schemaDefined = false;
+    private Schema spanSchema;
 
     public KeywordMatcher(IPredicate predicate, ISourceOperator sourceOperator) {
         this.predicate = (KeywordPredicate)predicate;
@@ -42,7 +43,6 @@ public class KeywordMatcher implements IOperator {
         try {
             Pattern pattern;
             String regex;
-
             sourceOperator.open();
             query = predicate.getQuery();
             attributeList = predicate.getAttributeList();
@@ -53,7 +53,6 @@ public class KeywordMatcher implements IOperator {
                 pattern = Pattern.compile(regex);
                 tokenPatternList.add(pattern);
             }
-
             spanList = new ArrayList<>();
 
         } catch (Exception e) {
@@ -64,12 +63,9 @@ public class KeywordMatcher implements IOperator {
 
     @Override
     public ITuple getNextTuple() throws DataFlowException {
-
-        Schema spanSchema = null;
         String fieldName;
         List<IField> fieldList;
         boolean foundFlag = false;
-        boolean schemaDefined = false;
         int positionIndex = 0; // Next position in the field to be checked.
         int spanIndexValue; // Starting position of the matched query
 
