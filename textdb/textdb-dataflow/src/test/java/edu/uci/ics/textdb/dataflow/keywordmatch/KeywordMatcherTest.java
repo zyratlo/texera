@@ -99,7 +99,7 @@ public class KeywordMatcherTest {
      * (TestConstants.DESCRIPTION + ":lin" + " AND " + TestConstants.LAST_NAME + ":lin")
      * we provide a list of AttributeFields (Description, Last_name) to search on and a query string (lin)
      *
-     * BooleanQuery() is deprecated. In future a better solution could be worked out in Query builder layer
+     * TODO:BooleanQuery() is deprecated. In future a better solution could be worked out in Query builder layer
      *
      * @param query
      * @param attributeList

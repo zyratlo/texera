@@ -40,7 +40,7 @@ public class KeywordPredicate implements IPredicate{
             this.attributeList = attributeList;
             String[] temp = new String[attributeList.size()];
 
-            for (int i=0;i< attributeList.size();i++){
+            for (int i=0; i < attributeList.size(); i++){
                 temp[i] = attributeList.get(i).getFieldName();
             }
             this.fields = temp;
@@ -66,7 +66,7 @@ public class KeywordPredicate implements IPredicate{
      * (TestConstants.DESCRIPTION + ":lin" + " AND " + TestConstants.LAST_NAME + ":lin")
      * we provide a list of AttributeFields (Description, Last_name) to search on and a query string (lin)
      *
-     * BooleanQuery() is deprecated. In future a better solution could be worked out in Query builder layer
+     * TODO:BooleanQuery() is deprecated. In future a better solution could be worked out in Query builder layer
 
      * @return QueryObject
      * @throws ParseException

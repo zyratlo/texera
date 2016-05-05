@@ -100,8 +100,9 @@ public class Utils {
      */
     public static Schema createSpanSchema(Schema schema) {
         List<Attribute> dataTupleAttributes = schema.getAttributes();
+        //spanAttributes contains all attributes of dataTupleAttributes and an additional SPAN_LIST_ATTRIBUTE
         Attribute[] spanAttributes = new Attribute[dataTupleAttributes.size() + 1];
-        for (int count = 0; count < spanAttributes.length - 1; count++) {
+        for (int count = 0; count < dataTupleAttributes.size(); count++) {
             spanAttributes[count] = dataTupleAttributes.get(count);
         }
         spanAttributes[spanAttributes.length - 1] = SchemaConstants.SPAN_LIST_ATTRIBUTE;

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.apache.lucene.search.Query;
 import edu.uci.ics.textdb.api.common.Attribute;
 import edu.uci.ics.textdb.api.common.IField;
 import edu.uci.ics.textdb.api.common.IPredicate;
@@ -26,24 +25,11 @@ import edu.uci.ics.textdb.dataflow.common.KeywordPredicate;
 public class KeywordMatcher implements IOperator {
     private final KeywordPredicate predicate;
     private ISourceOperator sourceOperator;
-    private String regex;
-    private Pattern pattern;
     private ArrayList<Pattern> patternList;
-    private Matcher matcher;
     private List<Span> spanList;
-    private Schema schema;
-    private Schema spanSchema;
-    private int positionIndex; // next position in the field to be checked.
-    private int spanIndexValue; // Starting position of the matched dictionary
-    private String documentValue;
-    private  String fieldName;
     private  String queryValue;
     private  List<Attribute> attributeList;
     private  ArrayList<String> queryValueArray;
-    private ITuple sourceTuple;
-    private List<IField> fieldList;
-    private boolean foundFlag;
-    private boolean schemaDefined;
 
 
     public KeywordMatcher(IPredicate predicate, ISourceOperator sourceOperator) {
@@ -54,6 +40,9 @@ public class KeywordMatcher implements IOperator {
     @Override
     public void open() throws DataFlowException {
         try {
+            Pattern pattern;
+            String regex;
+
             sourceOperator.open();
             queryValue = predicate.getQuery();
             attributeList = predicate.getAttributeList();
@@ -64,9 +53,6 @@ public class KeywordMatcher implements IOperator {
                 pattern = Pattern.compile(regex);
                 patternList.add(pattern);
             }
-            positionIndex = 0;
-            foundFlag = false;
-            schemaDefined = false;
 
             spanList = new ArrayList<>();
 
@@ -78,8 +64,20 @@ public class KeywordMatcher implements IOperator {
 
     @Override
     public ITuple getNextTuple() throws DataFlowException {
+        String documentValue;
+        Matcher matcher;
+        Schema schema;
+        Schema spanSchema = null;
+        String fieldName;
+        List<IField> fieldList;
+        boolean foundFlag = false;
+        boolean schemaDefined = false;
+        int positionIndex = 0; // Next position in the field to be checked.
+        int spanIndexValue; // Starting position of the matched query
+
         try {
-            sourceTuple = sourceOperator.getNextTuple();
+
+            ITuple sourceTuple = sourceOperator.getNextTuple();
             if(sourceTuple == null){
                 return null;
             }
