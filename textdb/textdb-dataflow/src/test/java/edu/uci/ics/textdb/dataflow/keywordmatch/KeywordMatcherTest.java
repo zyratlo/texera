@@ -162,36 +162,6 @@ public class KeywordMatcherTest {
         return results;
     }
 
-    /**
-     * For a given string query it gets a list of results
-     *
-     * @param query
-     * @return List<ITuple>
-     * @throws DataFlowException
-     * @throws ParseException
-     */
-    public List<ITuple> getQueryResults(String query) throws DataFlowException, ParseException {
-        String defaultField = TestConstants.ATTRIBUTES_PEOPLE[5].getFieldName();
-
-        ArrayList<Attribute> attributeList = new ArrayList<Attribute>();
-        attributeList.add(TestConstants.ATTRIBUTES_PEOPLE[5]);
-        Analyzer analyzer = new StandardAnalyzer();
-        IPredicate predicate = new KeywordPredicate(query, attributeList, analyzer);
-        QueryParser queryParser = new QueryParser(defaultField, analyzer);
-        queryObj = queryParser.parse(query);
-        IDataReader dataReader = new LuceneDataReader(dataStore, queryObj);
-        indexSearchSourceOperator = new IndexSearchSourceOperator(dataReader);
-        keywordMatcher = new KeywordMatcher(predicate, indexSearchSourceOperator);
-        keywordMatcher.open();
-
-        List<ITuple> results = new ArrayList<ITuple>();
-        ITuple nextTuple = null;
-        while ((nextTuple = keywordMatcher.getNextTuple()) != null) {
-            results.add(nextTuple);
-        }
-        indexSearchSourceOperator.close();
-        return results;
-    }
 
     /**
      * Verifies Keyword Matcher on multiword string
@@ -199,8 +169,17 @@ public class KeywordMatcherTest {
      */
     @Test
     public void testKeywordMatcher() throws Exception {
+        //Prepare Query
         String query = "short tall";
-        List<ITuple> results = getQueryResults(query);
+        ArrayList<Attribute> attributeList = new ArrayList<>();
+        attributeList.add(TestConstants.FIRST_NAME_ATTR);
+        attributeList.add(TestConstants.LAST_NAME_ATTR);
+        attributeList.add(TestConstants.DESCRIPTION_ATTR);
+
+        //Perform Query
+        List<ITuple> results = getQueryResults(query, attributeList, false);
+
+        //Perform Check
         List<ITuple> tuples = TestConstants.getSamplePeopleTuples();
         for(ITuple t : results){
             boolean contains = TestUtils.contains(tuples, t, Arrays.asList(TestConstants.ATTRIBUTES_PEOPLE));
