@@ -105,9 +105,9 @@ public class KeywordMatcher implements IOperator {
             fieldList = sourceTuple.getFields();
             spanList.clear();
             if(!spanSchemaDefined){
-                spanSchemaDefined = true;
                 Schema schema = sourceTuple.getSchema();
                 spanSchema = Utils.createSpanSchema(schema);
+                spanSchemaDefined = true;
             }
 
             for(int attributeIndex = 0; attributeIndex < attributeList.size(); attributeIndex++){
