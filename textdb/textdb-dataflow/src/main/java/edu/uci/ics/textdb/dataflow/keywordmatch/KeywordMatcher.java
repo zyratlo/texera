@@ -132,15 +132,13 @@ public class KeywordMatcher implements IOperator {
                 return Utils.getSpanTuple(fieldList, spanList, spanSchema);
             }
             //Search next document if the required predicate did not match previous document
-            else if(sourceTuple != null) {
+            else{
                 positionIndex = 0;
                 spanList.clear();
 
                 return getNextTuple();
 
             }
-
-            return null;
 
         } catch (Exception e) {
             e.printStackTrace();
