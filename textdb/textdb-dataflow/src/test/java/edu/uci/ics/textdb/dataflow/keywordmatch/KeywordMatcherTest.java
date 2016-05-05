@@ -109,7 +109,7 @@ public class KeywordMatcherTest {
      * @throws ParseException
      */
 
-    public List<ITuple> getQueryResults(String query, ArrayList<Attribute> attributeList, boolean buildMultiQueryOnAttributeList) throws DataFlowException, ParseException {
+    public List<ITuple> getPeopleQueryResults(String query, ArrayList<Attribute> attributeList, boolean buildMultiQueryOnAttributeList) throws DataFlowException, ParseException {
 
         Analyzer analyzer = new StandardAnalyzer();
         IPredicate predicate = new KeywordPredicate(query, attributeList, analyzer);
@@ -149,7 +149,7 @@ public class KeywordMatcherTest {
         attributeList.add(TestConstants.DESCRIPTION_ATTR);
 
         //Perform Query
-        List<ITuple> results = getQueryResults(query, attributeList, false);
+        List<ITuple> results = getPeopleQueryResults(query, attributeList, false);
 
         //Perform Check
         List<ITuple> tuples = TestConstants.getSamplePeopleTuples();
@@ -192,7 +192,7 @@ public class KeywordMatcherTest {
         expectedResultList.add(tuple1);
 
         //Perform Query
-        List<ITuple> resultList = getQueryResults(query, attributeList, true);
+        List<ITuple> resultList = getPeopleQueryResults(query, attributeList, true);
 
         //Perform Check
         boolean contains = TestUtils.containsAllResults(expectedResultList, resultList);
@@ -242,7 +242,7 @@ public class KeywordMatcherTest {
         expectedResultList.add(tuple2);
 
         //Perform Query
-        List<ITuple> resultList = getQueryResults(query, attributeList, true);
+        List<ITuple> resultList = getPeopleQueryResults(query, attributeList, true);
 
         //Perform Check
         boolean contains = TestUtils.containsAllResults(expectedResultList, resultList);
@@ -288,7 +288,7 @@ public class KeywordMatcherTest {
         expectedResultList.add(tuple1);
 
         //Perform Query
-        List<ITuple> resultList = getQueryResults(query, attributeList, false);
+        List<ITuple> resultList = getPeopleQueryResults(query, attributeList, false);
 
         //Perform Check
         boolean contains = TestUtils.containsAllResults(expectedResultList, resultList);
@@ -339,7 +339,7 @@ public class KeywordMatcherTest {
         expectedResultList.add(tuple1);
 
         //Perform Query
-        List<ITuple> resultList = getQueryResults(query, attributeList, false);
+        List<ITuple> resultList = getPeopleQueryResults(query, attributeList, false);
 
         //Perform Check
         boolean contains = TestUtils.containsAllResults(expectedResultList, resultList);
@@ -347,7 +347,5 @@ public class KeywordMatcherTest {
         Assert.assertEquals(1,resultList.size());
     }
 
-
-
-
+    
 }
