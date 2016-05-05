@@ -1,7 +1,9 @@
 package edu.uci.ics.textdb.dataflow.keywordmatch;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import edu.uci.ics.textdb.api.common.Attribute;
@@ -25,11 +27,12 @@ import edu.uci.ics.textdb.dataflow.common.KeywordPredicate;
 public class KeywordMatcher implements IOperator {
     private final KeywordPredicate predicate;
     private ISourceOperator sourceOperator;
-    private ArrayList<Pattern> tokenPatternList;
+    private List<Pattern> tokenPatternList;
     private List<Span> spanList;
     private String query;
     private List<Attribute> attributeList;
-    private ArrayList<String> queryTokens;
+    private List<String> queryTokens;
+    private Set<String> setOfQueryTokens;
     private boolean spanSchemaDefined = false;
     private Schema spanSchema;
 
@@ -45,6 +48,7 @@ public class KeywordMatcher implements IOperator {
             query = predicate.getQuery();
             attributeList = predicate.getAttributeList();
             queryTokens = predicate.getTokens();
+            setOfQueryTokens = new HashSet<>(queryTokens);
             tokenPatternList = new ArrayList<Pattern>();
             Pattern pattern;
             String regex;
@@ -71,16 +75,25 @@ public class KeywordMatcher implements IOperator {
      *           through all the fields in the attributeList. For each field, loop through all the
      *           matches. Returns only one tuple per document. If there are
      *           multiple matches, all spans are included in a list. Java Regex
-     *           is used to match word boundaries. Ex : If 'String' name is "lin merry" and
-     *           the description 'Text' is
+     *           is used to match word boundaries. It uses AND logic for the query keywords
+     *
+     *           Ex : If 'String' name is "lin merry" and the description 'Text' is
      *           "Lin is like Angelina and is a merry person" and the Query is "Lin merry",
      *           matches should include "lin merry","Lin","merry" but not Angelina.
+     *
+     *            Ex : If 'String' name is "lin merry" and the description 'Text' is
+     *           "Lin is like Angelina and is a merry person" and the Query is "Lin george",
+     *           it won't match any document
+     *
+     *
+     *
      */
     @Override
     public ITuple getNextTuple() throws DataFlowException {
 
         List<IField> fieldList;
         boolean foundFlag = false;
+        Set<String> setOfFoundTokens = new HashSet<>();
         int positionIndex = 0; // Next position in the field to be checked.
         int spanStartPosition; // Starting position of the matched query
 
@@ -103,7 +116,7 @@ public class KeywordMatcher implements IOperator {
                 String fieldName;
                 if(field instanceof StringField){
                     //Keyword should match fieldValue entirely
-                    if(fieldValue.equals(query.toLowerCase())){
+                    if(fieldValue.equalsIgnoreCase(query)){
                         spanStartPosition = 0;
                         positionIndex = query.length();
                         fieldName = attributeList.get(attributeIndex).getFieldName();
@@ -125,14 +138,15 @@ public class KeywordMatcher implements IOperator {
                             String documentValue = fieldValue.substring(spanStartPosition, positionIndex);
                             fieldName = attributeList.get(attributeIndex).getFieldName();
                             addSpanToSpanList(fieldName, spanStartPosition, positionIndex, queryToken, documentValue);
-                            foundFlag = true;
+                            setOfFoundTokens.add(queryToken);
+                            //foundFlag = true;
                         }
                     }
                 }
             }
 
             //If all the 'attributes to be searched' have been processed return the result tuple with span info
-            if (foundFlag){
+            if (foundFlag || setOfFoundTokens.equals(setOfQueryTokens)){
                 return Utils.getSpanTuple(fieldList, spanList, spanSchema);
             }
             //Search next document if the required predicate did not match previous document

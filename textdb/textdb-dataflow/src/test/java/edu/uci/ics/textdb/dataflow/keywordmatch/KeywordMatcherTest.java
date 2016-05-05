@@ -136,7 +136,8 @@ public class KeywordMatcherTest {
 
 
     /**
-     * Verifies Keyword Matcher on multiword string
+     * Verifies Keyword Matcher on multiword string. Since both tokens in Query "short tall" don't exist in
+     * a document, it should not return any tuple.
      * @throws Exception
      */
     @Test
@@ -152,12 +153,12 @@ public class KeywordMatcherTest {
         List<ITuple> results = getPeopleQueryResults(query, attributeList, false);
 
         //Perform Check
-        List<ITuple> tuples = TestConstants.getSamplePeopleTuples();
+        /*List<ITuple> tuples = TestConstants.getSamplePeopleTuples();
         for(ITuple t : results){
             boolean contains = TestUtils.contains(tuples, t, Arrays.asList(TestConstants.ATTRIBUTES_PEOPLE));
             Assert.assertTrue(contains);
-        }
-        Assert.assertEquals(4,results.size());
+        }*/
+        Assert.assertEquals(0,results.size());
     }
 
     /**
