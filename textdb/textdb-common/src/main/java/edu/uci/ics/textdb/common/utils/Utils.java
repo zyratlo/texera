@@ -1,10 +1,15 @@
 package edu.uci.ics.textdb.common.utils;
 
+import java.io.StringReader;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 
+import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.document.DateTools;
 import org.apache.lucene.document.DateTools.Resolution;
 import org.apache.lucene.document.Field.Store;
@@ -108,5 +113,32 @@ public class Utils {
         spanAttributes[spanAttributes.length - 1] = SchemaConstants.SPAN_LIST_ATTRIBUTE;
         Schema spanSchema = new Schema(spanAttributes);
         return spanSchema;
+    }
+
+    /**
+     * Tokenizes the query string using the given analyser
+     * @param analyzer
+     * @param query
+     * @return ArrayList<String> list of results
+     */
+    public static ArrayList<String> tokenizeQuery(Analyzer analyzer, String query) {
+        HashSet<String> resultSet = new HashSet<>();
+        ArrayList<String> result = new ArrayList<String>();
+        TokenStream tokenStream  = analyzer.tokenStream(null, new StringReader(query));
+        CharTermAttribute charTermAttribute = tokenStream.addAttribute(CharTermAttribute.class);
+
+        try{
+            tokenStream.reset();
+            while (tokenStream.incrementToken()) {
+                String term = charTermAttribute.toString();
+                resultSet.add(term);
+            }
+            tokenStream.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        result.addAll(resultSet);
+
+        return result;
     }
 }

@@ -1,13 +1,10 @@
 package edu.uci.ics.textdb.dataflow.common;
 
-import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import edu.uci.ics.textdb.api.common.Attribute;
+import edu.uci.ics.textdb.common.utils.Utils;
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.TokenStream;
-import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.search.BooleanClause;
@@ -44,7 +41,7 @@ public class KeywordPredicate implements IPredicate{
                 temp[i] = attributeList.get(i).getFieldName();
             }
             this.fields = temp;
-            this.tokens = tokenizeQuery(analyzer, this.query);
+            this.tokens = Utils.tokenizeQuery(analyzer, this.query);
             this.analyzer = analyzer;
             this.queryObject = createQueryObject();
         } catch (Exception e) {
@@ -96,29 +93,5 @@ public class KeywordPredicate implements IPredicate{
         return analyzer;
     }
 
-    /**
-     * Tokenizes the query string using the given analyser
-     * @param analyzer
-     * @param query
-     * @return
-     */
-    public ArrayList<String> tokenizeQuery(Analyzer analyzer,  String query) {
-        HashSet<String> resultSet = new HashSet<>();
-        ArrayList<String> result = new ArrayList<String>();
-        TokenStream tokenStream  = analyzer.tokenStream(null, new StringReader(query));
-        CharTermAttribute charTermAttribute = tokenStream.addAttribute(CharTermAttribute.class);
 
-        try{
-            tokenStream.reset();
-            while (tokenStream.incrementToken()) {
-                String term = charTermAttribute.toString();
-                resultSet.add(term);
-            }
-            tokenStream.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        result.addAll(resultSet);
-        return result;
-    }
 }

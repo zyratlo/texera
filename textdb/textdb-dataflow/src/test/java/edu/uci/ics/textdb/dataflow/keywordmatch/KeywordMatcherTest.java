@@ -8,6 +8,7 @@ import edu.uci.ics.textdb.common.constants.SchemaConstants;
 import edu.uci.ics.textdb.common.constants.TestConstants;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
 import edu.uci.ics.textdb.common.field.*;
+import edu.uci.ics.textdb.common.utils.Utils;
 import edu.uci.ics.textdb.dataflow.common.KeywordPredicate;
 import edu.uci.ics.textdb.dataflow.source.IndexSearchSourceOperator;
 import edu.uci.ics.textdb.dataflow.utils.TestUtils;
@@ -15,9 +16,7 @@ import edu.uci.ics.textdb.storage.LuceneDataStore;
 import edu.uci.ics.textdb.storage.reader.LuceneDataReader;
 import edu.uci.ics.textdb.storage.writer.LuceneDataWriter;
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
@@ -29,11 +28,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.StringReader;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -66,32 +63,7 @@ public class KeywordMatcherTest {
         dataWriter.clearData();
     }
 
-    /**
-     * Tokenizes the query string using the given analyser
-     * @param analyzer
-     * @param query
-     * @return ArrayList<String> list of results
-     */
-    public ArrayList<String> tokenizeQuery(Analyzer analyzer,  String query) {
-        HashSet<String> resultSet = new HashSet<>();
-        ArrayList<String> result = new ArrayList<String>();
-        TokenStream tokenStream  = analyzer.tokenStream(null, new StringReader(query));
-        CharTermAttribute charTermAttribute = tokenStream.addAttribute(CharTermAttribute.class);
 
-        try{
-            tokenStream.reset();
-            while (tokenStream.incrementToken()) {
-                String term = charTermAttribute.toString();
-                resultSet.add(term);
-            }
-            tokenStream.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        result.addAll(resultSet);
-
-        return result;
-    }
 
     /**
      * Creates a Query object as a boolean Query on all attributes
@@ -114,7 +86,7 @@ public class KeywordMatcherTest {
             fields[i] = attributeList.get(i).getFieldName();
         }
 
-        tokens = tokenizeQuery(analyzer, query);
+        tokens = Utils.tokenizeQuery(analyzer, query);
         BooleanQuery booleanQuery = new BooleanQuery();
         MultiFieldQueryParser parser = new MultiFieldQueryParser(fields, analyzer);
         for(String searchToken: tokens){
