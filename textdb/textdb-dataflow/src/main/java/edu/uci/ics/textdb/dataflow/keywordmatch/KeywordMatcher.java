@@ -25,11 +25,11 @@ import edu.uci.ics.textdb.dataflow.common.KeywordPredicate;
 public class KeywordMatcher implements IOperator {
     private final KeywordPredicate predicate;
     private ISourceOperator sourceOperator;
-    private ArrayList<Pattern> patternList;
+    private ArrayList<Pattern> tokenPatternList;
     private List<Span> spanList;
-    private  String queryValue;
+    private  String query;
     private  List<Attribute> attributeList;
-    private  ArrayList<String> queryValueArray;
+    private  ArrayList<String> queryTokens;
 
 
     public KeywordMatcher(IPredicate predicate, ISourceOperator sourceOperator) {
@@ -44,14 +44,14 @@ public class KeywordMatcher implements IOperator {
             String regex;
 
             sourceOperator.open();
-            queryValue = predicate.getQuery();
+            query = predicate.getQuery();
             attributeList = predicate.getAttributeList();
-            queryValueArray = predicate.getTokens();
-            patternList = new ArrayList<Pattern>();
-            for(String token : queryValueArray ){
+            queryTokens = predicate.getTokens();
+            tokenPatternList = new ArrayList<Pattern>();
+            for(String token : queryTokens){
                 regex = "\\b" + token.toLowerCase() + "\\b";
                 pattern = Pattern.compile(regex);
-                patternList.add(pattern);
+                tokenPatternList.add(pattern);
             }
 
             spanList = new ArrayList<>();
@@ -95,25 +95,25 @@ public class KeywordMatcher implements IOperator {
                 if(field instanceof StringField){
                     //Keyword should match fieldValue entirely
 
-                    if(fieldValue.equals(queryValue.toLowerCase())){
+                    if(fieldValue.equals(query.toLowerCase())){
                         spanIndexValue = 0;
-                        positionIndex = queryValue.length();
+                        positionIndex = query.length();
                         fieldName = attributeList.get(attributeIndex).getFieldName();
-                        addSpanToSpanList(fieldName, spanIndexValue, positionIndex, queryValue, fieldValue);
+                        addSpanToSpanList(fieldName, spanIndexValue, positionIndex, query, fieldValue);
                         foundFlag = true;
                     }
                 }
                 else if(field instanceof TextField) {
                     //Each element of Array of keywords is matched in tokenized TextField Value
-                    for(int iter = 0; iter < queryValueArray.size(); iter++) {
+                    for(int iter = 0; iter < queryTokens.size(); iter++) {
                         positionIndex = 0;
-                        String query = queryValueArray.get(iter);
+                        String query = queryTokens.get(iter);
                         //Ex: For keyword lin it obtains pattern like /blin/b which matches keywords at boundary
-                        Pattern pattern = patternList.get(iter);
+                        Pattern pattern = tokenPatternList.get(iter);
                         matcher = pattern.matcher(fieldValue.toLowerCase());
                         while (matcher.find(positionIndex) != false) {
                             spanIndexValue = matcher.start();
-                            positionIndex = spanIndexValue + queryValueArray.get(iter).length();
+                            positionIndex = spanIndexValue + queryTokens.get(iter).length();
                             documentValue = fieldValue.substring(spanIndexValue, positionIndex);
                             fieldName = attributeList.get(attributeIndex).getFieldName();
                             addSpanToSpanList(fieldName, spanIndexValue, positionIndex, query, documentValue);
