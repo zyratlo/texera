@@ -16,15 +16,19 @@ import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 
+import java.io.File;
 import java.nio.file.Paths;
 
 import java.io.IOException;
+
+import static java.nio.file.Files.delete;
 
 public class Pokedexer {
 
     //Data members of the Pokemon Indexer class
     private IndexWriter indexWriter;
     private int numberOfPokemon;
+    private String indexDirectoryPath;
 
     /**
      * Parametrized constructor for the indexer class
@@ -37,6 +41,7 @@ public class Pokedexer {
         IndexWriterConfig ixWriteConf = new IndexWriterConfig(new StandardAnalyzer());
         indexWriter = new IndexWriter(direc, ixWriteConf);
         this.numberOfPokemon = numberOfPokemon;
+        this.indexDirectoryPath = indexDirectoryPath;
     }
 
     /**
@@ -101,9 +106,6 @@ public class Pokedexer {
      * @throws IOException
      */
     public void addPokemon() throws IOException{
-        //GetPokemonInfo getPokemonInfo = new GetPokemonInfo(numberOfPokemon);
-        //getPokemonInfo.aggregatePokemonInfo();
-        //Pokemon[] pokemons = getPokemonInfo.getPokemonInfo();
         Pokemon[] pokemons = Data.POKEMONS;
         for(Pokemon pokemon: pokemons) {
             Document document = makeDocument(pokemon);
@@ -142,5 +144,15 @@ public class Pokedexer {
         }
         this.addPokemon();
         this.closeIndexWriter();
+    }
+
+    public void deleteIndexes() throws IOException {
+        File indexDirectory = new File(indexDirectoryPath);
+        String files[] = indexDirectory.list();
+
+        for(String file : files)
+            delete(Paths.get(indexDirectory+"/"+file));
+
+        delete(Paths.get(indexDirectoryPath));
     }
 }

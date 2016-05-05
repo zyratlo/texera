@@ -2,6 +2,7 @@ package edu.uci.ics.textdb.sandbox.team2luceneexample;
 
 import org.apache.lucene.document.Document;
 import org.apache.lucene.queryparser.classic.ParseException;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -46,5 +47,10 @@ public class LuceneExampleTest {
         PokemonSearcher pokemonSearcher = new PokemonSearcher(searchFieldName);
         Document[] documents = pokemonSearcher.performSearch(termSearchQuery, maxResults);
         assertEquals(documents.length, 1);
+    }
+
+    @AfterClass
+    public static void deleteIndex() throws IOException {
+        pokedexer.deleteIndexes();
     }
 }
