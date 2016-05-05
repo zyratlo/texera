@@ -60,9 +60,9 @@ public class RegexMatcher implements IOperator {
             
             RegexPredicate regexPredicate = (RegexPredicate)predicate; 
             
-            spans = regexPredicate.statisfySpan(sourceTuple);
+            spans = regexPredicate.computeMatches(sourceTuple);
             
-            if (spans.size() != 0) { // a list of matches found
+            if (spans != null && spans.size() != 0) { // a list of matches found
             	if (schema == null || spanSchema == null) {
             		schema = sourceTuple.getSchema();
             		spanSchema = createSpanSchema();

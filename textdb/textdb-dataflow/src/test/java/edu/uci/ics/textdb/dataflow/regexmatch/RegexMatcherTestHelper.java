@@ -19,7 +19,6 @@ import edu.uci.ics.textdb.common.constants.LuceneConstants;
 import edu.uci.ics.textdb.common.constants.TestConstants;
 import edu.uci.ics.textdb.dataflow.common.RegexPredicate;
 import edu.uci.ics.textdb.dataflow.source.ScanBasedSourceOperator;
-import edu.uci.ics.textdb.dataflow.utils.TestUtils;
 import edu.uci.ics.textdb.storage.LuceneDataStore;
 import edu.uci.ics.textdb.storage.reader.LuceneDataReader;
 import edu.uci.ics.textdb.storage.writer.LuceneDataWriter;

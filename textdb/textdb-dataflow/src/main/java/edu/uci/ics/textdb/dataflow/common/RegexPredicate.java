@@ -22,11 +22,15 @@ import edu.uci.ics.textdb.common.field.TextField;
 public class RegexPredicate implements IPredicate{
 
     private final String fieldName;
+    
     private final String regex;
+    private final Pattern pattern;
+    private Matcher matcher;
 
 	public RegexPredicate(String regex, String fieldName){
         this.regex = regex;
         this.fieldName = fieldName;
+        pattern = Pattern.compile(regex);
     }
 	
     public String getFieldName() {
@@ -53,7 +57,7 @@ public class RegexPredicate implements IPredicate{
     }
     
     /**
-     * This function return a list of spans in the given tuple that matches the regex 
+     * This function returns a list of spans in the given tuple that matches the regex 
      * For example, given tuple ("george watson", "graduate student", 23, "(949)888-8888")
      * and regex "g[^\s]*", this function will return 
      * [Span(name, 0, 6, "g[^\s]*", "george watson"), Span(position, 0, 8, "g[^\s]*", "graduate student")]
@@ -61,7 +65,7 @@ public class RegexPredicate implements IPredicate{
      * @param tuple document in which search is performed
      * @return a list of spans describing the occurence of matching sequence in document
      */
-    public List<Span> statisfySpan(ITuple tuple) {
+    public List<Span> computeMatches(ITuple tuple) {
     	List<Span> spanList = new ArrayList<>();
     	if (tuple == null) {
     		return spanList; //empty array
@@ -72,8 +76,7 @@ public class RegexPredicate implements IPredicate{
     		if (fieldValue == null) {
     			return spanList;
     		} else {
-    			Pattern pattern = Pattern.compile(regex);
-    			Matcher matcher = pattern.matcher(fieldValue);
+    			matcher = pattern.matcher(fieldValue);
     			while (matcher.find()) {
     				spanList.add(new Span(fieldName, matcher.start(), matcher.end(), regex, fieldValue));
     			}
