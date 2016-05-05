@@ -82,7 +82,7 @@ public class KeywordMatcher implements IOperator {
         List<IField> fieldList;
         boolean foundFlag = false;
         int positionIndex = 0; // Next position in the field to be checked.
-        int spanIndexValue; // Starting position of the matched query
+        int spanStartPosition; // Starting position of the matched query
 
         try {
             ITuple sourceTuple = sourceOperator.getNextTuple();
@@ -104,10 +104,10 @@ public class KeywordMatcher implements IOperator {
                 if(field instanceof StringField){
                     //Keyword should match fieldValue entirely
                     if(fieldValue.equals(query.toLowerCase())){
-                        spanIndexValue = 0;
+                        spanStartPosition = 0;
                         positionIndex = query.length();
                         fieldName = attributeList.get(attributeIndex).getFieldName();
-                        addSpanToSpanList(fieldName, spanIndexValue, positionIndex, query, fieldValue);
+                        addSpanToSpanList(fieldName, spanStartPosition, positionIndex, query, fieldValue);
                         foundFlag = true;
                     }
                 }
@@ -115,16 +115,16 @@ public class KeywordMatcher implements IOperator {
                     //Each element of Array of keywords is matched in tokenized TextField Value
                     for(int iter = 0; iter < queryTokens.size(); iter++) {
                         positionIndex = 0;
-                        String query = queryTokens.get(iter);
+                        String queryToken = queryTokens.get(iter);
                         //Ex: For keyword lin it obtains pattern like /blin/b which matches keywords at boundary
-                        Pattern pattern = tokenPatternList.get(iter);
-                        Matcher matcher = pattern.matcher(fieldValue.toLowerCase());
+                        Pattern tokenPattern = tokenPatternList.get(iter);
+                        Matcher matcher = tokenPattern.matcher(fieldValue.toLowerCase());
                         while (matcher.find(positionIndex) != false) {
-                            spanIndexValue = matcher.start();
-                            positionIndex = spanIndexValue + queryTokens.get(iter).length();
-                            String documentValue = fieldValue.substring(spanIndexValue, positionIndex);
+                            spanStartPosition = matcher.start();
+                            positionIndex = spanStartPosition + queryTokens.get(iter).length();
+                            String documentValue = fieldValue.substring(spanStartPosition, positionIndex);
                             fieldName = attributeList.get(attributeIndex).getFieldName();
-                            addSpanToSpanList(fieldName, spanIndexValue, positionIndex, query, documentValue);
+                            addSpanToSpanList(fieldName, spanStartPosition, positionIndex, queryToken, documentValue);
                             foundFlag = true;
                         }
                     }
