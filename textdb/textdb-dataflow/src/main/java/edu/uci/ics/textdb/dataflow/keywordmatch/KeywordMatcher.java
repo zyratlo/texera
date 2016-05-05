@@ -105,7 +105,7 @@ public class KeywordMatcher implements IOperator {
                 }
                 else if(field instanceof TextField) {
                     //Each element of Array of keywords is matched in tokenized TextField Value
-                    for (int iter = 0; iter < queryValueArray.size(); iter++) {
+                    for(int iter = 0; iter < queryValueArray.size(); iter++) {
                         positionIndex = 0;
                         String query = queryValueArray.get(iter);
                         //Ex: For keyword lin it obtains pattern like /blin/b which matches keywords at boundary

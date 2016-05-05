@@ -37,7 +37,7 @@ public class KeywordPredicate implements IPredicate{
             this.attributeList = attributeList;
             String[] temp = new String[attributeList.size()];
 
-            for (int i=0; i < attributeList.size(); i++){
+            for(int i=0; i < attributeList.size(); i++){
                 temp[i] = attributeList.get(i).getFieldName();
             }
             this.fields = temp;

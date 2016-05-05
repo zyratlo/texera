@@ -82,7 +82,7 @@ public class KeywordMatcherTest {
         Analyzer analyzer = new StandardAnalyzer();
         ArrayList<String> tokens;
         String[] fields = new String[attributeList.size()];
-        for (int i=0;i< attributeList.size();i++){
+        for(int i=0; i< attributeList.size(); i++){
             fields[i] = attributeList.get(i).getFieldName();
         }
 
@@ -179,7 +179,7 @@ public class KeywordMatcherTest {
         Span span = new Span("firstName", 0, 5, "Bruce", "bruce");
         list.add(span);
         Attribute[] schemaAttributes = new Attribute[TestConstants.ATTRIBUTES_PEOPLE.length + 1];
-        for (int count = 0; count < schemaAttributes.length - 1; count++) {
+        for(int count = 0; count < schemaAttributes.length - 1; count++) {
             schemaAttributes[count] = TestConstants.ATTRIBUTES_PEOPLE[count];
         }
         schemaAttributes[schemaAttributes.length - 1] = SchemaConstants.SPAN_LIST_ATTRIBUTE;
@@ -221,7 +221,7 @@ public class KeywordMatcherTest {
         Span span = new Span("description", 0, 4, "tall", "Tall");
         list.add(span);
         Attribute[] schemaAttributes = new Attribute[TestConstants.ATTRIBUTES_PEOPLE.length + 1];
-        for (int count = 0; count < schemaAttributes.length - 1; count++) {
+        for(int count = 0; count < schemaAttributes.length - 1; count++) {
             schemaAttributes[count] = TestConstants.ATTRIBUTES_PEOPLE[count];
         }
         schemaAttributes[schemaAttributes.length - 1] = SchemaConstants.SPAN_LIST_ATTRIBUTE;
@@ -274,7 +274,7 @@ public class KeywordMatcherTest {
         list.add(span2);
         list.add(span3);
         Attribute[] schemaAttributes = new Attribute[TestConstants.ATTRIBUTES_PEOPLE.length + 1];
-        for (int count = 0; count < schemaAttributes.length - 1; count++) {
+        for(int count = 0; count < schemaAttributes.length - 1; count++) {
             schemaAttributes[count] = TestConstants.ATTRIBUTES_PEOPLE[count];
         }
         schemaAttributes[schemaAttributes.length - 1] = SchemaConstants.SPAN_LIST_ATTRIBUTE;
@@ -325,7 +325,7 @@ public class KeywordMatcherTest {
         list.add(span5);
 
         Attribute[] schemaAttributes = new Attribute[TestConstants.ATTRIBUTES_PEOPLE.length + 1];
-        for (int count = 0; count < schemaAttributes.length - 1; count++) {
+        for(int count = 0; count < schemaAttributes.length - 1; count++) {
             schemaAttributes[count] = TestConstants.ATTRIBUTES_PEOPLE[count];
         }
         schemaAttributes[schemaAttributes.length - 1] = SchemaConstants.SPAN_LIST_ATTRIBUTE;
@@ -347,5 +347,5 @@ public class KeywordMatcherTest {
         Assert.assertEquals(1,resultList.size());
     }
 
-    
+
 }
