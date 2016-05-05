@@ -27,7 +27,6 @@ import java.util.List;
 
 /**
  * @author Feng [sam0227]
- *
  */
 public class NamedEntityExtractorTest {
     private NamedEntityExtractor namedEntityExtractor;
@@ -40,7 +39,6 @@ public class NamedEntityExtractorTest {
     private Analyzer analyzer;
 
 
-
     @After
     public void cleanUp() throws Exception {
         dataWriter.clearData();
@@ -48,14 +46,11 @@ public class NamedEntityExtractorTest {
 
 
     /**
-     *
-     *
      * @param sourceOperator
      * @return
      * @throws Exception
-     *
-     * @about Using NamedEntityExtractor to get all return result from sourceOperator,
-     *          return as a list of tuples
+     * @about Using NamedEntityExtractor to get all returned results from sourceOperator,
+     * return as a list of tuples
      */
     public List<ITuple> getQueryResults(ISourceOperator sourceOperator) throws Exception {
 
@@ -72,16 +67,15 @@ public class NamedEntityExtractorTest {
 
 
     /**
-     *
      * Scenario 1: Test getNextTuple with only one span in the return list
      * Text : Microsoft is a organization.
-
+     *
      * @throws Exception
      */
     @Test
     public void getNextTupleTest1() throws Exception {
         List<ITuple> data = NEExtractorTestConstants.getTest1Tuple();
-        ISourceOperator sourceOperator = getSourceOperator(data.get(0).getSchema(),data);
+        ISourceOperator sourceOperator = getSourceOperator(data.get(0).getSchema(), data);
 
         List<ITuple> returnedResults = getQueryResults(sourceOperator);
 
@@ -89,7 +83,7 @@ public class NamedEntityExtractorTest {
 
         boolean contains = TestUtils.containsAllResults(expectedResults, returnedResults);
         //TODO: enable test while finish implementation
-       // Assert.assertTrue(contains);
+        // Assert.assertTrue(contains);
     }
 
     /**
@@ -99,14 +93,14 @@ public class NamedEntityExtractorTest {
     @Test
     public void getNextTupleTest2() throws Exception {
         List<ITuple> data = NEExtractorTestConstants.getTest2Tuple();
-        ISourceOperator sourceOperator = getSourceOperator(data.get(0).getSchema(),data);
+        ISourceOperator sourceOperator = getSourceOperator(data.get(0).getSchema(), data);
 
         List<ITuple> returnedResults = getQueryResults(sourceOperator);
         List<ITuple> expectedResults = NEExtractorTestConstants.getTest2ResultTuples();
 
         boolean contains = TestUtils.containsAllResults(expectedResults, returnedResults);
         //TODO: enable test while finish implementation
-       // Assert.assertTrue(contains);
+        // Assert.assertTrue(contains);
 
     }
 
@@ -117,7 +111,7 @@ public class NamedEntityExtractorTest {
     @Test
     public void getNextTupleTest3() throws Exception {
         List<ITuple> data = NEExtractorTestConstants.getTest3Tuple();
-        ISourceOperator sourceOperator = getSourceOperator(data.get(0).getSchema(),data);
+        ISourceOperator sourceOperator = getSourceOperator(data.get(0).getSchema(), data);
 
         List<ITuple> returnedResults = getQueryResults(sourceOperator);
         List<ITuple> expectedResults = NEExtractorTestConstants.getTest3ResultTuples();
@@ -129,19 +123,17 @@ public class NamedEntityExtractorTest {
     }
 
 
-
-
     /**
      * Scenario 4:Test getNextTuple with more than one span in the return list and with different recognized classes
-     *              and more than one fields in the source tuple.
-     *
+     * and more than one fields in the source tuple.
+     * <p>
      * Sentence1: Microsoft, Google and Facebook are organizations.
      * Sentence2: Donald Trump and Barack Obama are persons.
      */
     @Test
     public void getNextTupleTest4() throws Exception {
         List<ITuple> data = NEExtractorTestConstants.getTest4Tuple();
-        ISourceOperator sourceOperator = getSourceOperator(data.get(0).getSchema(),data);
+        ISourceOperator sourceOperator = getSourceOperator(data.get(0).getSchema(), data);
 
         List<ITuple> returnedResults = getQueryResults(sourceOperator);
 
@@ -157,22 +149,20 @@ public class NamedEntityExtractorTest {
 
 
     /**
-     *
-     * @param schema  The data schema
+     * @param schema The data schema
      * @param data
      * @return
      * @throws Exception
-     *
      * @about construct a source operator using given schema and data
      */
 
     public ISourceOperator getSourceOperator(Schema schema, List<ITuple> data) throws Exception {
         dataStore = new LuceneDataStore(LuceneConstants.INDEX_DIR, schema);
-        analyzer = new  StandardAnalyzer();
+        analyzer = new StandardAnalyzer();
         dataWriter = new LuceneDataWriter(dataStore, analyzer);
         dataWriter.writeData(data);
 
-        QueryParser queryParser = new QueryParser(NEExtractorTestConstants.ATTRIBUTES_ONE_SENTENCE.get(0).getFieldName(),analyzer);
+        QueryParser queryParser = new QueryParser(NEExtractorTestConstants.ATTRIBUTES_ONE_SENTENCE.get(0).getFieldName(), analyzer);
         query = queryParser.parse(LuceneConstants.SCAN_QUERY);
         dataReader = new LuceneDataReader(dataStore, query);
 
