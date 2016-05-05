@@ -18,24 +18,23 @@ import java.util.List;
  *         For example: Given tuple with two field named: sentence1, sentence2.
  *         tuple: ["Google is an organization.", "Its headquarter is in Mountain View."]
  *         return:
- *         ["sentence1,0,6,Google, ORGANIZATION", "sentence2,22,25,Mountain View, LOCATION"]
+ *         ["sentence1,0,6,Google, NE_ORGANIZATION", "sentence2,22,25,Mountain View, NE_LOCATION"]
  */
 
 public class NamedEntityExtractor implements IOperator {
 
 
     private IOperator sourceOperator;
-    private ITuple sourceTuple;
     private List<Attribute> searchInAttributes;
 
 
-    public static final String LOCATION = "Location";
-    public static final String PERSON = "Person";
-    public static final String ORGANIZATION = "Organization";
-    public static final String MONEY = "Money";
-    public static final String PERCENT = "Percent";
-    public static final String DATE = "Date";
-    public static final String TIME = "Time";
+    public static final String NE_LOCATION = "Location";
+    public static final String NE_PERSON = "Person";
+    public static final String NE_ORGANIZATION = "Organization";
+    public static final String NE_MONEY = "Money";
+    public static final String NE_PERCENT = "Percent";
+    public static final String NE_DATE = "Date";
+    public static final String NE_TIME = "Time";
 
 
     public NamedEntityExtractor(IOperator operator) {

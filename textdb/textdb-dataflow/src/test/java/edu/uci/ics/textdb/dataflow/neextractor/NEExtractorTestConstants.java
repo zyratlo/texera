@@ -69,7 +69,7 @@ public class NEExtractorTestConstants {
         List<ITuple> resultList = new ArrayList<>();
         List<IField> fields = new ArrayList<IField>();
         List<Span> spanList = new ArrayList<Span>();
-        Span span1 = new Span("sentence_one", 0, 8, NamedEntityExtractor.ORGANIZATION, "Microsoft");
+        Span span1 = new Span("sentence_one", 0, 8, NamedEntityExtractor.NE_ORGANIZATION, "Microsoft");
         spanList.add(span1);
         IField spanField = new ListField<Span>(spanList);
         fields.add(spanField);
@@ -82,9 +82,9 @@ public class NEExtractorTestConstants {
         List<ITuple> resultList = new ArrayList<>();
         List<IField> fields = new ArrayList<IField>();
         List<Span> spanList = new ArrayList<Span>();
-        Span span1 = new Span("sentence_one", 0, 8, NamedEntityExtractor.ORGANIZATION, "Microsoft");
-        Span span2 = new Span("sentence_one", 10, 15, NamedEntityExtractor.ORGANIZATION, "Google");
-        Span span3 = new Span("sentence_one", 21, 28, NamedEntityExtractor.ORGANIZATION, "Facebook");
+        Span span1 = new Span("sentence_one", 0, 8, NamedEntityExtractor.NE_ORGANIZATION, "Microsoft");
+        Span span2 = new Span("sentence_one", 10, 15, NamedEntityExtractor.NE_ORGANIZATION, "Google");
+        Span span3 = new Span("sentence_one", 21, 28, NamedEntityExtractor.NE_ORGANIZATION, "Facebook");
         spanList.add(span1);
         spanList.add(span2);
         spanList.add(span3);
@@ -100,11 +100,11 @@ public class NEExtractorTestConstants {
 
         List<IField> fields = new ArrayList<IField>();
         List<Span> spanList = new ArrayList<Span>();
-        Span span1 = new Span("sentence_one", 0, 8, NamedEntityExtractor.ORGANIZATION, "Microsoft");
-        Span span2 = new Span("sentence_one", 10, 15, NamedEntityExtractor.ORGANIZATION, "Google");
-        Span span3 = new Span("sentence_one", 21, 28, NamedEntityExtractor.ORGANIZATION, "Facebook");
-        Span span4 = new Span("sentence_one", 52, 63, NamedEntityExtractor.PERSON, "Donald Trump");
-        Span span5 = new Span("sentence_one", 69, 80, NamedEntityExtractor.PERSON, "Barack Obama");
+        Span span1 = new Span("sentence_one", 0, 8, NamedEntityExtractor.NE_ORGANIZATION, "Microsoft");
+        Span span2 = new Span("sentence_one", 10, 15, NamedEntityExtractor.NE_ORGANIZATION, "Google");
+        Span span3 = new Span("sentence_one", 21, 28, NamedEntityExtractor.NE_ORGANIZATION, "Facebook");
+        Span span4 = new Span("sentence_one", 52, 63, NamedEntityExtractor.NE_PERSON, "Donald Trump");
+        Span span5 = new Span("sentence_one", 69, 80, NamedEntityExtractor.NE_PERSON, "Barack Obama");
 
         spanList.add(span1);
         spanList.add(span2);
@@ -125,11 +125,11 @@ public class NEExtractorTestConstants {
 
         List<IField> fields = new ArrayList<IField>();
         List<Span> spanList = new ArrayList<Span>();
-        Span span1 = new Span("sentence_one", 0, 8, NamedEntityExtractor.ORGANIZATION, "Microsoft");
-        Span span2 = new Span("sentence_one", 10, 15, NamedEntityExtractor.ORGANIZATION, "Google");
-        Span span3 = new Span("sentence_one", 21, 28, NamedEntityExtractor.ORGANIZATION, "Facebook");
-        Span span4 = new Span("sentence_two", 52, 63, NamedEntityExtractor.PERSON, "Donald Trump");
-        Span span5 = new Span("sentence_two", 69, 80, NamedEntityExtractor.PERSON, "Barack Obama");
+        Span span1 = new Span("sentence_one", 0, 8, NamedEntityExtractor.NE_ORGANIZATION, "Microsoft");
+        Span span2 = new Span("sentence_one", 10, 15, NamedEntityExtractor.NE_ORGANIZATION, "Google");
+        Span span3 = new Span("sentence_one", 21, 28, NamedEntityExtractor.NE_ORGANIZATION, "Facebook");
+        Span span4 = new Span("sentence_two", 52, 63, NamedEntityExtractor.NE_PERSON, "Donald Trump");
+        Span span5 = new Span("sentence_two", 69, 80, NamedEntityExtractor.NE_PERSON, "Barack Obama");
 
         spanList.add(span1);
         spanList.add(span2);
