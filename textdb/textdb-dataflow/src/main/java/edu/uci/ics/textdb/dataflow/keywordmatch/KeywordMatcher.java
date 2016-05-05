@@ -30,7 +30,7 @@ public class KeywordMatcher implements IOperator {
     private String query;
     private List<Attribute> attributeList;
     private ArrayList<String> queryTokens;
-    private boolean schemaDefined = false;
+    private boolean spanSchemaDefined = false;
     private Schema spanSchema;
 
     public KeywordMatcher(IPredicate predicate, ISourceOperator sourceOperator) {
@@ -61,6 +61,21 @@ public class KeywordMatcher implements IOperator {
         }
     }
 
+    /**
+     * @about Gets next matched tuple. Returns a new span tuple including the
+     *        span results. Performs a scan based search or an index based search depending
+     *        on the sourceOperator provided while initializing KeywordPredicate.
+     *        It scans documents returned by sourceOperator for provided keywords.
+     *
+     * @overview  For each tuple returned by the the sourceOperator loop
+     *           through all the fields in the attributeList. For each field, loop through all the
+     *           matches. Returns only one tuple per document. If there are
+     *           multiple matches, all spans are included in a list. Java Regex
+     *           is used to match word boundaries. Ex : If 'String' name is "lin merry" and
+     *           the description 'Text' is
+     *           "Lin is like Angelina and is a merry person" and the Query is "Lin merry",
+     *           matches should include "lin merry","Lin","merry" but not Angelina.
+     */
     @Override
     public ITuple getNextTuple() throws DataFlowException {
 
@@ -76,8 +91,8 @@ public class KeywordMatcher implements IOperator {
             }
             fieldList = sourceTuple.getFields();
             spanList.clear();
-            if(!schemaDefined){
-                schemaDefined = true;
+            if(!spanSchemaDefined){
+                spanSchemaDefined = true;
                 Schema schema = sourceTuple.getSchema();
                 spanSchema = Utils.createSpanSchema(schema);
             }
@@ -97,19 +112,17 @@ public class KeywordMatcher implements IOperator {
                     }
                 }
                 else if(field instanceof TextField) {
-                    String documentValue;
-                    Matcher matcher;
                     //Each element of Array of keywords is matched in tokenized TextField Value
                     for(int iter = 0; iter < queryTokens.size(); iter++) {
                         positionIndex = 0;
                         String query = queryTokens.get(iter);
                         //Ex: For keyword lin it obtains pattern like /blin/b which matches keywords at boundary
                         Pattern pattern = tokenPatternList.get(iter);
-                        matcher = pattern.matcher(fieldValue.toLowerCase());
+                        Matcher matcher = pattern.matcher(fieldValue.toLowerCase());
                         while (matcher.find(positionIndex) != false) {
                             spanIndexValue = matcher.start();
                             positionIndex = spanIndexValue + queryTokens.get(iter).length();
-                            documentValue = fieldValue.substring(spanIndexValue, positionIndex);
+                            String documentValue = fieldValue.substring(spanIndexValue, positionIndex);
                             fieldName = attributeList.get(attributeIndex).getFieldName();
                             addSpanToSpanList(fieldName, spanIndexValue, positionIndex, query, documentValue);
                             foundFlag = true;
