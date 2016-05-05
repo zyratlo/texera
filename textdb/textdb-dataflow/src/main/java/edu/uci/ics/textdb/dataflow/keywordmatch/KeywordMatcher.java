@@ -64,9 +64,7 @@ public class KeywordMatcher implements IOperator {
 
     @Override
     public ITuple getNextTuple() throws DataFlowException {
-        String documentValue;
-        Matcher matcher;
-        Schema schema;
+
         Schema spanSchema = null;
         String fieldName;
         List<IField> fieldList;
@@ -85,7 +83,7 @@ public class KeywordMatcher implements IOperator {
             spanList.clear();
             if(!schemaDefined){
                 schemaDefined = true;
-                schema = sourceTuple.getSchema();
+                Schema schema = sourceTuple.getSchema();
                 spanSchema = Utils.createSpanSchema(schema);
             }
 
@@ -104,6 +102,8 @@ public class KeywordMatcher implements IOperator {
                     }
                 }
                 else if(field instanceof TextField) {
+                    String documentValue;
+                    Matcher matcher;
                     //Each element of Array of keywords is matched in tokenized TextField Value
                     for(int iter = 0; iter < queryTokens.size(); iter++) {
                         positionIndex = 0;
