@@ -41,13 +41,13 @@ public class KeywordMatcher implements IOperator {
     @Override
     public void open() throws DataFlowException {
         try {
-            Pattern pattern;
-            String regex;
             sourceOperator.open();
             query = predicate.getQuery();
             attributeList = predicate.getAttributeList();
             queryTokens = predicate.getTokens();
             tokenPatternList = new ArrayList<Pattern>();
+            Pattern pattern;
+            String regex;
             for(String token : queryTokens){
                 regex = "\\b" + token.toLowerCase() + "\\b";
                 pattern = Pattern.compile(regex);
@@ -63,14 +63,13 @@ public class KeywordMatcher implements IOperator {
 
     @Override
     public ITuple getNextTuple() throws DataFlowException {
-        String fieldName;
+
         List<IField> fieldList;
         boolean foundFlag = false;
         int positionIndex = 0; // Next position in the field to be checked.
         int spanIndexValue; // Starting position of the matched query
 
         try {
-
             ITuple sourceTuple = sourceOperator.getNextTuple();
             if(sourceTuple == null){
                 return null;
@@ -86,9 +85,9 @@ public class KeywordMatcher implements IOperator {
             for(int attributeIndex = 0; attributeIndex < attributeList.size(); attributeIndex++){
                 IField field = sourceTuple.getField(attributeList.get(attributeIndex).getFieldName());
                 String fieldValue = (String) (field).getValue();
+                String fieldName;
                 if(field instanceof StringField){
                     //Keyword should match fieldValue entirely
-
                     if(fieldValue.equals(query.toLowerCase())){
                         spanIndexValue = 0;
                         positionIndex = query.length();
@@ -114,26 +113,19 @@ public class KeywordMatcher implements IOperator {
                             fieldName = attributeList.get(attributeIndex).getFieldName();
                             addSpanToSpanList(fieldName, spanIndexValue, positionIndex, query, documentValue);
                             foundFlag = true;
-
                         }
                     }
                 }
-                positionIndex = 0;
             }
 
             //If all the 'attributes to be searched' have been processed return the result tuple with span info
             if (foundFlag){
-                foundFlag = false;
-                positionIndex = 0;
                 return Utils.getSpanTuple(fieldList, spanList, spanSchema);
             }
             //Search next document if the required predicate did not match previous document
             else{
-                positionIndex = 0;
                 spanList.clear();
-
                 return getNextTuple();
-
             }
 
         } catch (Exception e) {
