@@ -108,8 +108,9 @@ public class KeywordMatcher implements IOperator {
                     for (int iter = 0; iter < queryValueArray.size(); iter++) {
                         positionIndex = 0;
                         String query = queryValueArray.get(iter);
-                        Pattern p = patternList.get(iter);
-                        matcher = p.matcher(fieldValue.toLowerCase());
+                        //Ex: For keyword lin it obtains pattern like /blin/b which matches keywords at boundary
+                        Pattern pattern = patternList.get(iter);
+                        matcher = pattern.matcher(fieldValue.toLowerCase());
                         while (matcher.find(positionIndex) != false) {
                             spanIndexValue = matcher.start();
                             positionIndex = spanIndexValue + queryValueArray.get(iter).length();
