@@ -45,4 +45,6 @@ public class IndexSearchSourceOperator implements ISourceOperator {
 			throw new DataFlowException(e.getMessage(), e);
 		}
 	}
+
+
 }

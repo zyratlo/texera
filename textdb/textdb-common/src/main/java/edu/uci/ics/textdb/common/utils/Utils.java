@@ -1,19 +1,32 @@
 package edu.uci.ics.textdb.common.utils;
 
+import java.io.StringReader;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
 
+import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.document.DateTools;
 import org.apache.lucene.document.DateTools.Resolution;
 import org.apache.lucene.document.Field.Store;
-import org.apache.lucene.document.IntField;
 import org.apache.lucene.index.IndexableField;
 
+import edu.uci.ics.textdb.api.common.Attribute;
 import edu.uci.ics.textdb.api.common.FieldType;
 import edu.uci.ics.textdb.api.common.IField;
+import edu.uci.ics.textdb.api.common.ITuple;
+import edu.uci.ics.textdb.api.common.Schema;
+import edu.uci.ics.textdb.common.constants.SchemaConstants;
+import edu.uci.ics.textdb.common.field.DataTuple;
 import edu.uci.ics.textdb.common.field.DateField;
 import edu.uci.ics.textdb.common.field.DoubleField;
 import edu.uci.ics.textdb.common.field.IntegerField;
+import edu.uci.ics.textdb.common.field.ListField;
+import edu.uci.ics.textdb.common.field.Span;
 import edu.uci.ics.textdb.common.field.StringField;
 import edu.uci.ics.textdb.common.field.TextField;
 
@@ -71,5 +84,61 @@ public class Utils {
             
         }
         return luceneField;
+    }
+    /**
+     * @about Creating a new span tuple from span schema, field list 
+     */
+    public static ITuple getSpanTuple( List<IField> fieldList, List<Span> spanList, Schema spanSchema) {
+        IField spanListField = new ListField<Span>(new ArrayList<>(spanList));
+        List<IField> fieldListDuplicate = new ArrayList<>(fieldList);
+        fieldListDuplicate.add(spanListField);
+
+        IField[] fieldsDuplicate = fieldListDuplicate.toArray(new IField[fieldListDuplicate.size()]);
+        return new DataTuple(spanSchema, fieldsDuplicate);
+    }
+    
+    /**
+     * 
+     * @param schema 
+     * @about Creating a new schema object, and adding SPAN_LIST_ATTRIBUTE to
+     *        the schema. SPAN_LIST_ATTRIBUTE is of type List
+     */
+    public static Schema createSpanSchema(Schema schema) {
+        List<Attribute> dataTupleAttributes = schema.getAttributes();
+        //spanAttributes contains all attributes of dataTupleAttributes and an additional SPAN_LIST_ATTRIBUTE
+        Attribute[] spanAttributes = new Attribute[dataTupleAttributes.size() + 1];
+        for (int count = 0; count < dataTupleAttributes.size(); count++) {
+            spanAttributes[count] = dataTupleAttributes.get(count);
+        }
+        spanAttributes[spanAttributes.length - 1] = SchemaConstants.SPAN_LIST_ATTRIBUTE;
+        Schema spanSchema = new Schema(spanAttributes);
+        return spanSchema;
+    }
+
+    /**
+     * Tokenizes the query string using the given analyser
+     * @param analyzer
+     * @param query
+     * @return ArrayList<String> list of results
+     */
+    public static ArrayList<String> tokenizeQuery(Analyzer analyzer, String query) {
+        HashSet<String> resultSet = new HashSet<>();
+        ArrayList<String> result = new ArrayList<String>();
+        TokenStream tokenStream  = analyzer.tokenStream(null, new StringReader(query));
+        CharTermAttribute charTermAttribute = tokenStream.addAttribute(CharTermAttribute.class);
+
+        try{
+            tokenStream.reset();
+            while (tokenStream.incrementToken()) {
+                String term = charTermAttribute.toString();
+                resultSet.add(term);
+            }
+            tokenStream.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        result.addAll(resultSet);
+
+        return result;
     }
 }

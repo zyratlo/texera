@@ -12,13 +12,11 @@ import edu.uci.ics.textdb.api.common.IField;
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.common.Schema;
 import edu.uci.ics.textdb.api.dataflow.IOperator;
-import edu.uci.ics.textdb.common.constants.SchemaConstants;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
-import edu.uci.ics.textdb.common.field.DataTuple;
-import edu.uci.ics.textdb.common.field.ListField;
 import edu.uci.ics.textdb.common.field.Span;
 import edu.uci.ics.textdb.common.field.StringField;
 import edu.uci.ics.textdb.common.field.TextField;
+import edu.uci.ics.textdb.common.utils.Utils;
 
 /**
  * @author Sudeep [inkudo]
@@ -36,7 +34,6 @@ public class DictionaryMatcher implements IOperator {
     private String spanFieldName;
     private ITuple dataTuple;
     private List<IField> fields;
-    private Schema schema;
     private Schema spanSchema;
 
     private String regex;
@@ -79,8 +76,9 @@ public class DictionaryMatcher implements IOperator {
 
             dataTuple = operator.getNextTuple();
             fields = dataTuple.getFields();
-            schema = dataTuple.getSchema();
-            spanSchema = createSpanSchema();
+            if(spanSchema == null){
+                spanSchema = Utils.createSpanSchema(dataTuple.getSchema());
+            }
 
             spanList = new ArrayList<>();
             isPresent = false;
@@ -89,22 +87,6 @@ public class DictionaryMatcher implements IOperator {
             e.printStackTrace();
             throw new DataFlowException(e.getMessage(), e);
         }
-    }
-
-    /**
-     * 
-     * @about Creating a new schema object, and adding SPAN_LIST_ATTRIBUTE to
-     *        the schema. SPAN_LIST_ATTRIBUTE is of type List
-     */
-    private Schema createSpanSchema() {
-        List<Attribute> dataTupleAttributes = schema.getAttributes();
-        Attribute[] spanAttributes = new Attribute[dataTupleAttributes.size() + 1];
-        for (int count = 0; count < spanAttributes.length - 1; count++) {
-            spanAttributes[count] = dataTupleAttributes.get(count);
-        }
-        spanAttributes[spanAttributes.length - 1] = SchemaConstants.SPAN_LIST_ATTRIBUTE;
-        Schema spanSchema = new Schema(spanAttributes);
-        return spanSchema;
     }
 
     /**
@@ -168,7 +150,7 @@ public class DictionaryMatcher implements IOperator {
         } else if (attributeIndex == searchInAttributes.size() && isPresent) {
             isPresent = false;
             positionIndex = 0;
-            return getSpanTuple();
+            return Utils.getSpanTuple(fields, spanList, spanSchema);
 
         } else if ((dataTuple = operator.getNextTuple()) != null) {
             // Get the next document
@@ -177,8 +159,6 @@ public class DictionaryMatcher implements IOperator {
             spanList.clear();
 
             fields = dataTuple.getFields();
-            schema = dataTuple.getSchema();
-            spanSchema = createSpanSchema();
             return getNextTuple();
 
         } else if ((dictionaryValue = dictionary.getNextValue()) != null) {
@@ -197,7 +177,6 @@ public class DictionaryMatcher implements IOperator {
 
             dataTuple = operator.getNextTuple();
             fields = dataTuple.getFields();
-            schema = dataTuple.getSchema();
             return getNextTuple();
         }
 
@@ -207,18 +186,6 @@ public class DictionaryMatcher implements IOperator {
     private void addSpanToSpanList(String fieldName, int start, int end, String key, String value) {
         Span span = new Span(fieldName, start, end, key, value);
         spanList.add(span);
-    }
-
-    /**
-     * @about Modifies schema, fields and creates a new span tuple
-     */
-    private ITuple getSpanTuple() {
-        IField spanListField = new ListField<Span>(new ArrayList<>(spanList));
-        List<IField> fieldListDuplicate = new ArrayList<>(fields);
-        fieldListDuplicate.add(spanListField);
-
-        IField[] fieldsDuplicate = fieldListDuplicate.toArray(new IField[fieldListDuplicate.size()]);
-        return new DataTuple(spanSchema, fieldsDuplicate);
     }
 
     /**
