@@ -94,9 +94,6 @@ public class KeywordMatcher implements IOperator {
         List<IField> fieldList;
         boolean foundFlag = false;
         Set<String> setOfFoundTokens = new HashSet<>();
-        int positionIndex = 0; // Next position in the field to be checked.
-        int spanStartPosition; // Starting position of the matched query
-
         try {
             ITuple sourceTuple = sourceOperator.getNextTuple();
             if(sourceTuple == null){
@@ -109,11 +106,12 @@ public class KeywordMatcher implements IOperator {
                 spanSchema = Utils.createSpanSchema(schema);
                 spanSchemaDefined = true;
             }
-
             for(int attributeIndex = 0; attributeIndex < attributeList.size(); attributeIndex++){
                 IField field = sourceTuple.getField(attributeList.get(attributeIndex).getFieldName());
                 String fieldValue = (String) (field).getValue();
                 String fieldName;
+                int positionIndex = 0; // Next position in the field to be checked.
+                int spanStartPosition; // Starting position of the matched query
                 if(field instanceof StringField){
                     //Keyword should match fieldValue entirely
                     if(fieldValue.equalsIgnoreCase(query)){
@@ -134,12 +132,11 @@ public class KeywordMatcher implements IOperator {
                         Matcher matcher = tokenPattern.matcher(fieldValue.toLowerCase());
                         while (matcher.find(positionIndex) != false) {
                             spanStartPosition = matcher.start();
-                            positionIndex = spanStartPosition + queryTokens.get(iter).length();
+                            positionIndex = spanStartPosition + queryToken.length();
                             String documentValue = fieldValue.substring(spanStartPosition, positionIndex);
                             fieldName = attributeList.get(attributeIndex).getFieldName();
                             addSpanToSpanList(fieldName, spanStartPosition, positionIndex, queryToken, documentValue);
                             setOfFoundTokens.add(queryToken);
-                            //foundFlag = true;
                         }
                     }
                 }
