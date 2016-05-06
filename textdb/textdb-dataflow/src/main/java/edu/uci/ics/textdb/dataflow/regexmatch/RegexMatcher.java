@@ -43,7 +43,7 @@ public class RegexMatcher implements IOperator {
         this.sourceOperator = sourceOperator;
         
         // build the luceneQuery by given regex
-        String queryStr = RegexToTrigram.traslate(((RegexPredicate)predicate).getRegex()).getQuery();
+        String queryStr = RegexToTrigram.translate(((RegexPredicate)predicate).getRegex()).getQuery();
         // pending for refactoring IndexBasedSourceOperator 
     }
 
