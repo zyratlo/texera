@@ -6,6 +6,7 @@ package edu.uci.ics.textdb.dataflow.source;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.uci.ics.textdb.api.common.Schema;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.queryparser.classic.ParseException;
@@ -39,6 +40,7 @@ public class IndexSearchSourceOperatorTest {
 	private IDataStore dataStore;
 	private Analyzer analyzer;
 
+
 	@Before
 	public void setUp() throws Exception {
 		dataStore = new LuceneDataStore(LuceneConstants.INDEX_DIR, TestConstants.SCHEMA_PEOPLE);
@@ -46,12 +48,14 @@ public class IndexSearchSourceOperatorTest {
 		dataWriter = new LuceneDataWriter(dataStore, analyzer);
 		dataWriter.clearData();
 		dataWriter.writeData(TestConstants.getSamplePeopleTuples());
+
 	}
 
 	@After
 	public void cleanUp() throws Exception {
 		dataWriter.clearData();
 	}
+
 
 	public List<ITuple> getQueryResults(String query) throws DataFlowException, ParseException {
 		String defaultField = TestConstants.ATTRIBUTES_PEOPLE[0].getFieldName();
@@ -69,13 +73,14 @@ public class IndexSearchSourceOperatorTest {
 		indexSearchSourceOperator.close();
 		return results;
 	}
+
 	/**
 	 * Search in a text field with multiple tokens.
 	 * @throws DataFlowException
 	 * @throws ParseException
 	 */
 	@Test
-	public void testTextSearcWithMultipleTokens() throws DataFlowException, ParseException {
+	public void testTextSearchWithMultipleTokens() throws DataFlowException, ParseException {
 		List<ITuple> results = getQueryResults(TestConstants.DESCRIPTION + ":Tall,Brown");
 		int numTuples = results.size();
 		Assert.assertEquals(3, numTuples);

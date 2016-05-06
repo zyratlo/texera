@@ -1,0 +1,374 @@
+package edu.uci.ics.textdb.dataflow.keywordmatch;
+
+import edu.uci.ics.textdb.api.common.*;
+import edu.uci.ics.textdb.api.storage.IDataReader;
+import edu.uci.ics.textdb.api.storage.IDataWriter;
+import edu.uci.ics.textdb.common.constants.LuceneConstants;
+import edu.uci.ics.textdb.common.constants.SchemaConstants;
+import edu.uci.ics.textdb.common.constants.TestConstants;
+import edu.uci.ics.textdb.common.exception.DataFlowException;
+import edu.uci.ics.textdb.common.field.*;
+import edu.uci.ics.textdb.common.utils.Utils;
+import edu.uci.ics.textdb.dataflow.common.KeywordPredicate;
+import edu.uci.ics.textdb.dataflow.source.IndexSearchSourceOperator;
+import edu.uci.ics.textdb.dataflow.utils.TestUtils;
+import edu.uci.ics.textdb.storage.LuceneDataStore;
+import edu.uci.ics.textdb.storage.reader.LuceneDataReader;
+import edu.uci.ics.textdb.storage.writer.LuceneDataWriter;
+import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
+import org.apache.lucene.queryparser.classic.ParseException;
+import org.apache.lucene.queryparser.classic.QueryParser;
+import org.apache.lucene.search.BooleanClause;
+import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.Query;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+/**
+ * @author Prakul
+ *
+ */
+
+public class KeywordMatcherTest {
+
+    private KeywordMatcher keywordMatcher;
+    private IDataWriter dataWriter;
+    private LuceneDataStore dataStore;
+    private IndexSearchSourceOperator indexSearchSourceOperator;
+    private Analyzer analyzer;
+    private Query queryObj;
+    private Schema schema;
+
+    @Before
+    public void setUp() throws Exception {
+        dataStore = new LuceneDataStore(LuceneConstants.INDEX_DIR, TestConstants.SCHEMA_PEOPLE);
+        analyzer = new StandardAnalyzer();
+        dataWriter = new LuceneDataWriter(dataStore, analyzer);
+        dataWriter.clearData();
+        dataWriter.writeData(TestConstants.getSamplePeopleTuples());
+        schema = dataStore.getSchema();
+    }
+
+    @After
+    public void cleanUp() throws Exception {
+        dataWriter.clearData();
+    }
+
+
+
+    /**
+     * Creates a Query object as a boolean Query on all attributes
+     * Example: For creating a query like
+     * (TestConstants.DESCRIPTION + ":lin" + " AND " + TestConstants.LAST_NAME + ":lin")
+     * we provide a list of AttributeFields (Description, Last_name) to search on and a query string (lin)
+     *
+     * TODO #88:BooleanQuery() is deprecated. In future a better solution could be worked out in Query builder layer
+     *
+     * @param query
+     * @param attributeList
+     * @return Query
+     * @throws ParseException
+     */
+    private Query createQueryObject(String query, ArrayList<Attribute> attributeList) throws ParseException {
+        Analyzer analyzer = new StandardAnalyzer();
+        ArrayList<String> tokens;
+        String[] fields = new String[attributeList.size()];
+        for(int i=0; i< attributeList.size(); i++){
+            fields[i] = attributeList.get(i).getFieldName();
+        }
+
+        tokens = Utils.tokenizeQuery(analyzer, query);
+        BooleanQuery booleanQuery = new BooleanQuery();
+        MultiFieldQueryParser parser = new MultiFieldQueryParser(fields, analyzer);
+        for(String searchToken: tokens){
+            Query termQuery = parser.parse(searchToken);
+            booleanQuery.add(termQuery, BooleanClause.Occur.MUST);
+        }
+        return booleanQuery;
+    }
+
+
+    /**
+     * For a given string query & list of attributes it gets a list of results
+     * buildMultiQueryOnAttributeList flag decides if the query is formed as a boolean Query on all attribute
+     * or all records are scanned
+     * @param query
+     * @param attributeList
+     * @param buildMultiQueryOnAttributeList
+     * @return List<ITuple>
+     * @throws DataFlowException
+     * @throws ParseException
+     */
+
+    public List<ITuple> getPeopleQueryResults(String query, ArrayList<Attribute> attributeList, boolean buildMultiQueryOnAttributeList) throws DataFlowException, ParseException {
+
+        Analyzer analyzer = new StandardAnalyzer();
+        IPredicate predicate = new KeywordPredicate(query, attributeList, analyzer);
+        QueryParser queryParser;
+        if(!buildMultiQueryOnAttributeList) {
+            queryParser = new QueryParser(TestConstants.ATTRIBUTES_PEOPLE[0].getFieldName(), analyzer);
+            queryObj = queryParser.parse(LuceneConstants.SCAN_QUERY);
+        }
+        else {
+            queryObj = createQueryObject(query, attributeList);
+        }
+        IDataReader dataReader = new LuceneDataReader(dataStore, queryObj);
+        indexSearchSourceOperator = new IndexSearchSourceOperator(dataReader);
+        keywordMatcher = new KeywordMatcher(predicate, indexSearchSourceOperator);
+        keywordMatcher.open();
+        List<ITuple> results = new ArrayList<>();
+        ITuple nextTuple = null;
+        while ((nextTuple = keywordMatcher.getNextTuple()) != null) {
+            results.add(nextTuple);
+        }
+        indexSearchSourceOperator.close();
+        return results;
+    }
+
+
+    /**
+     * Verifies Keyword Matcher on multiword string. Since both tokens in Query "short tall" don't exist in
+     * any single document, it should not return any tuple.
+     * @throws Exception
+     */
+    @Test
+    public void testKeywordMatcher() throws Exception {
+        //Prepare Query
+        String query = "short tall";
+        ArrayList<Attribute> attributeList = new ArrayList<>();
+        attributeList.add(TestConstants.FIRST_NAME_ATTR);
+        attributeList.add(TestConstants.LAST_NAME_ATTR);
+        attributeList.add(TestConstants.DESCRIPTION_ATTR);
+
+        //Perform Query
+        List<ITuple> results = getPeopleQueryResults(query, attributeList, false);
+
+        //Perform Check
+        Assert.assertEquals(0,results.size());
+    }
+
+    /**
+     * Verifies GetNextTuple of Keyword Matcher and single
+     * word queries in String Field
+     * @throws Exception
+     */
+    @Test
+    public void testSingleWordQueryInStringField() throws Exception {
+        //Prepare Query
+        String query = "Bruce";
+        ArrayList<Attribute> attributeList = new ArrayList<>();
+        attributeList.add(TestConstants.FIRST_NAME_ATTR);
+        attributeList.add(TestConstants.LAST_NAME_ATTR);
+        attributeList.add(TestConstants.DESCRIPTION_ATTR);
+
+        //Prepare expected result list
+        List<Span> list = new ArrayList<>();
+        Span span = new Span("firstName", 0, 5, "Bruce", "bruce");
+        list.add(span);
+        Attribute[] schemaAttributes = new Attribute[TestConstants.ATTRIBUTES_PEOPLE.length + 1];
+        for(int count = 0; count < schemaAttributes.length - 1; count++) {
+            schemaAttributes[count] = TestConstants.ATTRIBUTES_PEOPLE[count];
+        }
+        schemaAttributes[schemaAttributes.length - 1] = SchemaConstants.SPAN_LIST_ATTRIBUTE;
+
+        IField[] fields1 = { new StringField("bruce"), new StringField("john Lee"), new IntegerField(46),
+                new DoubleField(5.50), new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-14-1970")),
+                new TextField("Tall Angry"), new ListField<>(list) };
+        ITuple tuple1 = new DataTuple(new Schema(schemaAttributes), fields1);
+        List<ITuple> expectedResultList = new ArrayList<>();
+        expectedResultList.add(tuple1);
+
+        //Perform Query
+        List<ITuple> resultList = getPeopleQueryResults(query, attributeList, true);
+
+        //Perform Check
+        boolean contains = TestUtils.containsAllResults(expectedResultList, resultList);
+        Assert.assertTrue(contains);
+        Assert.assertEquals(1,resultList.size());
+    }
+
+
+    /**
+     * Verifies GetNextTuple of Keyword Matcher and single
+     * word queries in Text Field
+     * @throws Exception
+     */
+
+    @Test
+    public void testSingleWordQueryInTextField() throws Exception {
+        //Prepare Query
+        String query = "tall";
+        ArrayList<Attribute> attributeList = new ArrayList<>();
+        attributeList.add(TestConstants.FIRST_NAME_ATTR);
+        attributeList.add(TestConstants.LAST_NAME_ATTR);
+        attributeList.add(TestConstants.DESCRIPTION_ATTR);
+
+        //Prepare expected result list
+        List<Span> list = new ArrayList<>();
+        Span span = new Span("description", 0, 4, "tall", "Tall");
+        list.add(span);
+        Attribute[] schemaAttributes = new Attribute[TestConstants.ATTRIBUTES_PEOPLE.length + 1];
+        for(int count = 0; count < schemaAttributes.length - 1; count++) {
+            schemaAttributes[count] = TestConstants.ATTRIBUTES_PEOPLE[count];
+        }
+        schemaAttributes[schemaAttributes.length - 1] = SchemaConstants.SPAN_LIST_ATTRIBUTE;
+
+        IField[] fields1 = { new StringField("bruce"), new StringField("john Lee"), new IntegerField(46),
+                new DoubleField(5.50), new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-14-1970")),
+                new TextField("Tall Angry"), new ListField<>(list) };
+
+        IField[] fields2 = { new StringField("christian john wayne"), new StringField("rock bale"),
+                new IntegerField(42), new DoubleField(5.99),
+                new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-13-1974")), new TextField("Tall Fair"),
+                new ListField<>(list) };
+        ITuple tuple1 = new DataTuple(new Schema(schemaAttributes), fields1);
+        ITuple tuple2 = new DataTuple(new Schema(schemaAttributes), fields2);
+
+        List<ITuple> expectedResultList = new ArrayList<>();
+        expectedResultList.add(tuple1);
+        expectedResultList.add(tuple2);
+
+        //Perform Query
+        List<ITuple> resultList = getPeopleQueryResults(query, attributeList, true);
+
+        //Perform Check
+        boolean contains = TestUtils.containsAllResults(expectedResultList, resultList);
+        Assert.assertTrue(contains);
+        Assert.assertEquals(2, resultList.size());
+    }
+
+
+    /**
+     * Verifies List<ITuple> returned by Keyword Matcher on multiple
+     * word queries
+     * @throws Exception
+     */
+    @Test
+    public void testMultipleWordsQuery() throws Exception {
+        //Prepare Query
+        String query = "george lin lin";
+        ArrayList<Attribute> attributeList = new ArrayList<>();
+        attributeList.add(TestConstants.FIRST_NAME_ATTR);
+        attributeList.add(TestConstants.LAST_NAME_ATTR);
+        attributeList.add(TestConstants.DESCRIPTION_ATTR);
+
+        //Prepare expected result list
+        List<Span> list = new ArrayList<Span>();
+        Span span1 = new Span("firstName", 0, 14, "george lin lin", "george lin lin");
+        list.add(span1);
+
+        Attribute[] schemaAttributes = new Attribute[TestConstants.ATTRIBUTES_PEOPLE.length + 1];
+        for(int count = 0; count < schemaAttributes.length - 1; count++) {
+            schemaAttributes[count] = TestConstants.ATTRIBUTES_PEOPLE[count];
+        }
+        schemaAttributes[schemaAttributes.length - 1] = SchemaConstants.SPAN_LIST_ATTRIBUTE;
+
+        IField[] fields1 = { new StringField("george lin lin"), new StringField("lin clooney"), new IntegerField(43),
+                new DoubleField(6.06), new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-13-1973")),
+                new TextField("Lin Clooney is Short and lin clooney is Angry"), new ListField<>(list) };
+
+        ITuple tuple1 = new DataTuple(new Schema(schemaAttributes), fields1);
+        List<ITuple> expectedResultList = new ArrayList<>();
+        expectedResultList.add(tuple1);
+
+        //Perform Query
+        List<ITuple> resultList = getPeopleQueryResults(query, attributeList, false);
+
+        //Perform Check
+        boolean contains = TestUtils.containsAllResults(expectedResultList, resultList);
+        Assert.assertTrue(contains);
+        Assert.assertEquals(1,resultList.size());
+    }
+
+
+    /**
+     * Verifies: data source has multiple attributes, and an entity
+     * can appear in all the fields and multiple times.
+     * @throws Exception
+     */
+    @Test
+    public void testWordInMultipleFieldsQuery() throws Exception {
+        //Prepare Query
+        String query = "lin clooney";
+        ArrayList<Attribute> attributeList = new ArrayList<>();
+        attributeList.add(TestConstants.FIRST_NAME_ATTR);
+        attributeList.add(TestConstants.LAST_NAME_ATTR);
+        attributeList.add(TestConstants.DESCRIPTION_ATTR);
+
+        //Prepare expected result list
+        List<Span> list = new ArrayList<>();
+        Span span1 = new Span("lastName", 0, 11, "lin clooney", "lin clooney");
+        Span span2 = new Span("description", 0, 3, "lin", "Lin");
+        Span span3 = new Span("description", 25, 28, "lin", "lin");
+        Span span4 = new Span("description", 4, 11, "clooney", "Clooney");
+        Span span5 = new Span("description", 29, 36, "clooney", "clooney");
+        list.add(span1);
+        list.add(span2);
+        list.add(span3);
+        list.add(span4);
+        list.add(span5);
+
+        Attribute[] schemaAttributes = new Attribute[TestConstants.ATTRIBUTES_PEOPLE.length + 1];
+        for(int count = 0; count < schemaAttributes.length - 1; count++) {
+            schemaAttributes[count] = TestConstants.ATTRIBUTES_PEOPLE[count];
+        }
+        schemaAttributes[schemaAttributes.length - 1] = SchemaConstants.SPAN_LIST_ATTRIBUTE;
+
+        IField[] fields1 = { new StringField("george lin lin"), new StringField("lin clooney"), new IntegerField(43),
+                new DoubleField(6.06), new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-13-1973")),
+                new TextField("Lin Clooney is Short and lin clooney is Angry"), new ListField<>(list) };
+
+        ITuple tuple1 = new DataTuple(new Schema(schemaAttributes), fields1);
+        List<ITuple> expectedResultList = new ArrayList<>();
+        expectedResultList.add(tuple1);
+
+        //Perform Query
+        List<ITuple> resultList = getPeopleQueryResults(query, attributeList, false);
+
+        //Perform Check
+        boolean contains = TestUtils.containsAllResults(expectedResultList, resultList);
+        Assert.assertTrue(contains);
+        Assert.assertEquals(1,resultList.size());
+    }
+
+    /**
+     * Verifies: All tokens of Query should appear in a Single Field of each document in Data source
+     * otherwise it doesnt return anything
+     *
+     * Ex: For Document:
+     *  new StringField("george lin lin"), new StringField("lin clooney"), new IntegerField(43),
+     new DoubleField(6.06), new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-13-1973")),
+     new TextField("Lin Clooney is Short and lin clooney is Angry")
+
+     For Query : george clooney
+
+     Result: Nothing should be returned as george and clooney exist in different fields of same document
+     * @throws Exception
+     */
+    @Test
+    public void testQueryWordsFoundInMultipleFields() throws Exception {
+        //Prepare Query
+        String query = "george clooney";
+        ArrayList<Attribute> attributeList = new ArrayList<>();
+        attributeList.add(TestConstants.FIRST_NAME_ATTR);
+        attributeList.add(TestConstants.LAST_NAME_ATTR);
+        attributeList.add(TestConstants.DESCRIPTION_ATTR);
+
+        //Perform Query
+        List<ITuple> resultList = getPeopleQueryResults(query, attributeList, false);
+
+        //Perform Check
+        Assert.assertEquals(0,resultList.size());
+
+    }
+
+}
