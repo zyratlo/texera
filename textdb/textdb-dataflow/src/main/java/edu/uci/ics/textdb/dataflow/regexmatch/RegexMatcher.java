@@ -17,6 +17,7 @@ import edu.uci.ics.textdb.common.field.ListField;
 import edu.uci.ics.textdb.common.field.Span;
 import edu.uci.ics.textdb.common.utils.Utils;
 import edu.uci.ics.textdb.dataflow.common.RegexPredicate;
+import edu.uci.ics.textdb.dataflow.regexmatch.re2j.RegexToTrigram;
 
 /**
  * Created by chenli on 3/25/16.
@@ -34,9 +35,16 @@ public class RegexMatcher implements IOperator {
     private List<Span> spans;
 
     public RegexMatcher(IPredicate predicate, ISourceOperator sourceOperator) {
+    	if (! (predicate instanceof RegexPredicate)) {
+    		// TODO do something (needed or not?)
+    	}
+    	// cast to RegexPredicate here?
         this.predicate = predicate;
         this.sourceOperator = sourceOperator;
-        //TODO build the luceneQuery by given regex.
+        
+        // build the luceneQuery by given regex
+        String queryStr = RegexToTrigram.traslate(((RegexPredicate)predicate).getRegex()).getQuery();
+        // pending for refactoring IndexBasedSourceOperator 
     }
 
     @Override

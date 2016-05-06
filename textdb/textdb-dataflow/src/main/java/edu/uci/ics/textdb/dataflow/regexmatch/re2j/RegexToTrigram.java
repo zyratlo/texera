@@ -1,56 +1,15 @@
 package edu.uci.ics.textdb.dataflow.regexmatch.re2j;
 
-import java.util.ArrayList;
+/*
+ * @Author Zuozhi Wang
+ * @Author Shuying Lai
+ * 
+ * Tralsate a regular expression to a query of trigrams
+ */
 
-public class RegexToTrigram {
+public class RegexToTrigram {	
 	
-	public class Query {
-		// static final int or ENUM ?
-		public static final int OR = 0;
-		public static final int AND = 1;
-		
-		// private or public or no modifier?
-		int operator;
-		ArrayList<String> operands;
-		ArrayList<Query> subQuerys;
-		
-		public Query(int operator) {
-			this.operator = operator;
-			operands = new ArrayList<String>();
-			subQuerys = new ArrayList<Query>();
-		}
-		
-		public void add (String operand) {
-			operands.add(operand);
-		}
-		
-		public void add (Query subQuery) {
-			subQuerys.add(subQuery);
-		}
-	}
-	
-	
-	public class RegexInfo {
-		boolean emptyable;
-		// arraylist or set?
-		ArrayList<String> exact;
-		ArrayList<String> prefix;
-		ArrayList<String> suffix;
-		Query match;
-		
-		public RegexInfo() {
-			emptyable = true;
-			exact = new ArrayList<String>();
-			prefix = new ArrayList<String>();
-			suffix = new ArrayList<String>();
-			// init to AND operator?
-			match = new Query(Query.AND);
-		}
-		
-	}
-	
-	
-	public Query traslate(String regex) {
+	public static RegexTrigramQuery traslate(String regex) {
 	    Regexp re = Parser.parse(regex, RE2.PERL);
 	    re = Simplify.simplify(re);
 	    RegexInfo regexInfo = analyze(re);
@@ -59,7 +18,7 @@ public class RegexToTrigram {
 	}
 	
 	
-	private RegexInfo analyze(Regexp re) {
+	private static RegexInfo analyze(Regexp re) {
 		RegexInfo regexInfo = new RegexInfo();
 		switch (re.op) {
 		case ALTERNATE:
@@ -112,7 +71,7 @@ public class RegexToTrigram {
 	}
 	
 	
-	private void simplify(RegexInfo regexInfo) {
+	private static void simplify(RegexInfo regexInfo) {
 		
 	}
 }
