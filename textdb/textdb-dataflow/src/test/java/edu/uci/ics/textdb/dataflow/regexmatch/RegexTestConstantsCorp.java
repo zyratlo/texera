@@ -37,7 +37,7 @@ public class RegexTestConstantsCorp {
     	IField [] fields1 = {new StringField("Facebook"), new StringField("404 Not Found"), new StringField("66.220.144.0")};
     	IField [] fields2 = {new StringField("Weibo"), new StringField("http://weibo.com"), new StringField("180.149.134.141")};
     	IField [] fields3 = {new StringField("Microsoft"), new StringField("https://www.microsoft.com/en-us/"), new StringField("131.107.0.89")};
-    	IField [] fields4 = {new StringField("Google"), new StringField("www.google.com"), new StringField("8.8.8.8.8.8")};
+    	IField [] fields4 = {new StringField("Google"), new StringField("websit: www.google.com"), new StringField("8.8.8.8.8.8")};
     	
     	ITuple tuple1 = new DataTuple(SCHEMA_CORP, fields1);
     	ITuple tuple2 = new DataTuple(SCHEMA_CORP, fields2);

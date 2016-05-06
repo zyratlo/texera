@@ -19,7 +19,6 @@ import edu.uci.ics.textdb.common.constants.LuceneConstants;
 import edu.uci.ics.textdb.common.constants.TestConstants;
 import edu.uci.ics.textdb.dataflow.common.RegexPredicate;
 import edu.uci.ics.textdb.dataflow.source.ScanBasedSourceOperator;
-import edu.uci.ics.textdb.dataflow.utils.TestUtils;
 import edu.uci.ics.textdb.storage.LuceneDataStore;
 import edu.uci.ics.textdb.storage.reader.LuceneDataReader;
 import edu.uci.ics.textdb.storage.writer.LuceneDataWriter;
@@ -27,7 +26,7 @@ import edu.uci.ics.textdb.storage.writer.LuceneDataWriter;
 
 /**
  * @author zuozhi
- * 	
+ * @author shuying
  * Helper class to quickly create unit test
  */
 public class RegexMatcherTestHelper {
@@ -50,7 +49,14 @@ public class RegexMatcherTestHelper {
 		results = new ArrayList<ITuple>();
 	}
 	
+	public List<ITuple> getResults() {
+		return results;
+	}
 	
+	public Schema getSpanSchema() {
+		return regexMatcher.getSpanSchema();
+	}
+
 	public void runTest(String regex, String fieldName) throws Exception {
 		results.clear();
 		QueryParser queryParser = new QueryParser(
@@ -70,12 +76,6 @@ public class RegexMatcherTestHelper {
 		}
 		regexMatcher.close();
 	}
-	
-	
-	public boolean matchExpectedResults(List<ITuple> expected) {
-		return TestUtils.equalTo(results, expected);
-	}
-	
 	
 	public void cleanUp() throws Exception {
 		dataWriter.clearData();
