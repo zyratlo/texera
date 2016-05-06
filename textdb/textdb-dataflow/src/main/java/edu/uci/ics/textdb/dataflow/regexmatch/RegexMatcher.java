@@ -28,8 +28,8 @@ public class RegexMatcher implements IOperator {
     private Query luceneQuery;
 
     private List<IField> fields;
-    private Schema schema;
-    private Schema spanSchema;
+    private Schema sourceTupleSchema = null;
+    private Schema spanSchema = null;
     
     private List<Span> spans;
 
@@ -62,14 +62,14 @@ public class RegexMatcher implements IOperator {
             spans = regexPredicate.computeMatches(sourceTuple);
             
             if (spans != null && spans.size() != 0) { // a list of matches found
-            	if (schema == null) {
-            		schema = sourceTuple.getSchema();
+            	if (sourceTupleSchema == null) {
+            		sourceTupleSchema = sourceTuple.getSchema();
             	}
             	if (spanSchema == null) {
-            		spanSchema = Utils.createSpanSchema(schema);
+            		spanSchema = Utils.createSpanSchema(sourceTupleSchema);
             	}
             	fields = sourceTuple.getFields();
-            	return getSpanTuple(spans);
+            	return constructSpanTuple(spans);
             } else { // no match found
             	return getNextTuple();
             }
@@ -79,7 +79,7 @@ public class RegexMatcher implements IOperator {
         }        
     }
     
-    private ITuple getSpanTuple(List<Span> spans) {
+    private ITuple constructSpanTuple(List<Span> spans) {
     	List<IField> fieldListDuplicate = new ArrayList<>(fields);
     	IField spanListField = new ListField<Span>(spans);
     	fieldListDuplicate.add(spanListField);
