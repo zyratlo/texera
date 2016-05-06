@@ -86,7 +86,7 @@ public class Utils {
         return luceneField;
     }
     /**
-     * @about Modifies schema, fields and creates a new span tuple
+     * @about Creating a new span tuple from span schema, field list 
      */
     public static ITuple getSpanTuple( List<IField> fieldList, List<Span> spanList, Schema spanSchema) {
         IField spanListField = new ListField<Span>(new ArrayList<>(spanList));
