@@ -29,6 +29,7 @@ public class KeywordMatcher implements IOperator {
     private ISourceOperator sourceOperator;
     private List<Pattern> tokenPatternList;
     private List<Span> spanList;
+    private List<Span> tempSpanList;
     private String query;
     private List<Attribute> attributeList;
     private List<String> queryTokens;
@@ -58,6 +59,7 @@ public class KeywordMatcher implements IOperator {
                 tokenPatternList.add(pattern);
             }
             spanList = new ArrayList<>();
+            tempSpanList = new ArrayList<>();
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -70,6 +72,10 @@ public class KeywordMatcher implements IOperator {
      *        span results. Performs a scan based search or an index based search depending
      *        on the sourceOperator provided while initializing KeywordPredicate.
      *        It scans documents returned by sourceOperator for provided keywords.
+     *        All tokens of Query should appear in a Single Field of each document in document
+     *        otherwise it doesn't return anything. It uses AND logic. For each field, if all the query tokens
+     *        appear in the field, then we add its spans to the results.
+     *        If one of the query tokens doesn't appear in the field, we ignore this field.
      *
      * @overview  For each tuple returned by the the sourceOperator loop
      *           through all the fields in the attributeList. For each field, loop through all the
@@ -77,12 +83,17 @@ public class KeywordMatcher implements IOperator {
      *           multiple matches, all spans are included in a list. Java Regex
      *           is used to match word boundaries. It uses AND logic for the query keywords
      *
-     *           Ex : If 'String' name is "lin merry" and the description 'Text' is
-     *           "Lin is like Angelina and is a merry person" and the Query is "Lin merry",
+     *           Ex :
+     *           Document :  NAME (type 'String') : "lin merry" and the
+     *           DESCRIPTION (type 'Text'): "Lin is like Angelina and is a merry person"
+     *
+     *           Query : "Lin merry",
      *           matches should include "lin merry","Lin","merry" but not Angelina.
      *
-     *            Ex : If 'String' name is "lin merry" and the description 'Text' is
-     *           "Lin is like Angelina and is a merry person" and the Query is "Lin george",
+     *            Ex :
+     *            Document :  NAME (type 'String') : "lin merry",
+     *           DESCRIPTION (type 'Text'): "Lin is like Angelina and is a merry person"
+     *           Query : "Lin george",
      *           it won't match any document
      *
      *
@@ -92,7 +103,6 @@ public class KeywordMatcher implements IOperator {
     public ITuple getNextTuple() throws DataFlowException {
 
         List<IField> fieldList;
-        boolean foundFlag = false;
         Set<String> setOfFoundTokens = new HashSet<>();
         try {
             ITuple sourceTuple = sourceOperator.getNextTuple();
@@ -119,7 +129,6 @@ public class KeywordMatcher implements IOperator {
                         positionIndex = query.length();
                         fieldName = attributeList.get(attributeIndex).getFieldName();
                         addSpanToSpanList(fieldName, spanStartPosition, positionIndex, query, fieldValue);
-                        foundFlag = true;
                     }
                 }
                 else if(field instanceof TextField) {
@@ -135,15 +144,20 @@ public class KeywordMatcher implements IOperator {
                             positionIndex = spanStartPosition + queryToken.length();
                             String documentValue = fieldValue.substring(spanStartPosition, positionIndex);
                             fieldName = attributeList.get(attributeIndex).getFieldName();
-                            addSpanToSpanList(fieldName, spanStartPosition, positionIndex, queryToken, documentValue);
+                            addSpanToTempSpanList(fieldName, spanStartPosition, positionIndex, queryToken, documentValue);
                             setOfFoundTokens.add(queryToken);
                         }
                     }
                 }
+                if (setOfFoundTokens.equals(setOfQueryTokens)){
+                    spanList.addAll(tempSpanList);
+                }
+                tempSpanList.clear();
             }
 
             //If all the 'attributes to be searched' have been processed return the result tuple with span info
-            if (foundFlag || setOfFoundTokens.equals(setOfQueryTokens)){
+            //if (foundFlag || setOfFoundTokens.equals(setOfQueryTokens)){
+            if(spanList.size()>0){
                 return Utils.getSpanTuple(fieldList, spanList, spanSchema);
             }
             //Search next document if the required predicate did not match previous document
@@ -162,6 +176,11 @@ public class KeywordMatcher implements IOperator {
     private void addSpanToSpanList(String fieldName, int start, int end, String key, String value) {
         Span span = new Span(fieldName, start, end, key, value);
         spanList.add(span);
+    }
+
+    private void addSpanToTempSpanList(String fieldName, int start, int end, String key, String value) {
+        Span span = new Span(fieldName, start, end, key, value);
+        tempSpanList.add(span);
     }
 
 

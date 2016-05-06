@@ -264,11 +264,8 @@ public class KeywordMatcherTest {
         //Prepare expected result list
         List<Span> list = new ArrayList<Span>();
         Span span1 = new Span("firstName", 0, 14, "george lin lin", "george lin lin");
-        Span span2 = new Span("description", 0, 3, "lin", "Lin");
-        Span span3 = new Span("description", 25, 28, "lin", "lin");
         list.add(span1);
-        list.add(span2);
-        list.add(span3);
+
         Attribute[] schemaAttributes = new Attribute[TestConstants.ATTRIBUTES_PEOPLE.length + 1];
         for(int count = 0; count < schemaAttributes.length - 1; count++) {
             schemaAttributes[count] = TestConstants.ATTRIBUTES_PEOPLE[count];
@@ -343,5 +340,35 @@ public class KeywordMatcherTest {
         Assert.assertEquals(1,resultList.size());
     }
 
+    /**
+     * Verifies: All tokens of Query should appear in a Single Field of each document in Data source
+     * otherwise it doesnt return anything
+     *
+     * Ex: For Document:
+     *  new StringField("george lin lin"), new StringField("lin clooney"), new IntegerField(43),
+     new DoubleField(6.06), new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-13-1973")),
+     new TextField("Lin Clooney is Short and lin clooney is Angry")
+
+     For Query : george clooney
+
+     Result: Nothing should be returned as george and clooney exist in different fields of same document
+     * @throws Exception
+     */
+    @Test
+    public void testQueryWordsFoundInMultipleFields() throws Exception {
+        //Prepare Query
+        String query = "george clooney";
+        ArrayList<Attribute> attributeList = new ArrayList<>();
+        attributeList.add(TestConstants.FIRST_NAME_ATTR);
+        attributeList.add(TestConstants.LAST_NAME_ATTR);
+        attributeList.add(TestConstants.DESCRIPTION_ATTR);
+
+        //Perform Query
+        List<ITuple> resultList = getPeopleQueryResults(query, attributeList, false);
+
+        //Perform Check
+        Assert.assertEquals(0,resultList.size());
+
+    }
 
 }
