@@ -22,7 +22,6 @@ public class RegexInfo {
 		exact = new ArrayList<String>();
 		prefix = new ArrayList<String>();
 		suffix = new ArrayList<String>();
-		// init to AND operator?
 		match = new TrigramBooleanQuery();
 	}
 	

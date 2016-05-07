@@ -4,11 +4,15 @@ package edu.uci.ics.textdb.dataflow.regexmatch.re2j;
  * @Author Zuozhi Wang
  * @Author Shuying Lai
  * 
- * Tralsate a regular expression to a query of trigrams
  */
 
 public class RegexToTrigram {	
-	
+
+	/**
+	 * Translate a regular expression to an object of TrigramBooleanQeruy
+	 * @param regex 
+	 * @return TrigramBooleanQuery
+	 */
 	public static TrigramBooleanQuery translate(String regex) {
 	    Regexp re = Parser.parse(regex, RE2.PERL);
 	    re = Simplify.simplify(re);
@@ -69,7 +73,6 @@ public class RegexToTrigram {
 		
 		return regexInfo;
 	}
-	
 	
 	private static void simplify(RegexInfo regexInfo) {
 		
