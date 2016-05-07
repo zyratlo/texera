@@ -18,7 +18,6 @@ import org.junit.Test;
 
 import edu.uci.ics.textdb.api.common.IPredicate;
 import edu.uci.ics.textdb.api.common.ITuple;
-import edu.uci.ics.textdb.api.storage.IDataReader;
 import edu.uci.ics.textdb.api.storage.IDataStore;
 import edu.uci.ics.textdb.api.storage.IDataWriter;
 import edu.uci.ics.textdb.common.constants.DataConstants;
@@ -27,17 +26,16 @@ import edu.uci.ics.textdb.common.exception.DataFlowException;
 import edu.uci.ics.textdb.dataflow.utils.TestUtils;
 import edu.uci.ics.textdb.storage.DataReaderPredicate;
 import edu.uci.ics.textdb.storage.DataStore;
-import edu.uci.ics.textdb.storage.reader.DataReader;
 import edu.uci.ics.textdb.storage.writer.DataWriter;
 
 /**
  * @author akshaybetala
  *
  */
-public class IndexSearchSourceOperatorTest {
+public class IndexBasedSourceOperatorTest {
 
 	private IDataWriter dataWriter;
-	private IndexSearchSourceOperator indexSearchSourceOperator;
+	private IndexBasedSourceOperator indexBasedSourceOperator;
 	private IDataStore dataStore;
 	private Analyzer analyzer;
     private IPredicate dataReaderPredicate;
@@ -57,23 +55,25 @@ public class IndexSearchSourceOperatorTest {
 	public void cleanUp() throws Exception {
 		dataWriter.clearData();
 	}
-
+	
+	public void constructIndexBasedSourceOperator(String query) throws ParseException{
+	    String defaultField = TestConstants.ATTRIBUTES_PEOPLE[0].getFieldName();
+        QueryParser queryParser = new QueryParser(defaultField, analyzer);
+        Query queryObject = queryParser.parse(query);
+        dataReaderPredicate = new DataReaderPredicate(dataStore, queryObject);
+        indexBasedSourceOperator = new IndexBasedSourceOperator(dataReaderPredicate);
+	}
 
 	public List<ITuple> getQueryResults(String query) throws DataFlowException, ParseException {
-		String defaultField = TestConstants.ATTRIBUTES_PEOPLE[0].getFieldName();
-		QueryParser queryParser = new QueryParser(defaultField, analyzer);
-		Query queryObject = queryParser.parse(query);
-		dataReaderPredicate = new DataReaderPredicate(dataStore, queryObject);
-		IDataReader dataReader = new DataReader(dataReaderPredicate);
-		indexSearchSourceOperator = new IndexSearchSourceOperator(dataReader);
-		indexSearchSourceOperator.open();
+		constructIndexBasedSourceOperator(query);
+		indexBasedSourceOperator.open();
 
 		List<ITuple> results = new ArrayList<ITuple>();
 		ITuple nextTuple = null;
-		while ((nextTuple = indexSearchSourceOperator.getNextTuple()) != null) {
+		while ((nextTuple = indexBasedSourceOperator.getNextTuple()) != null) {
 			results.add(nextTuple);
 		}
-		indexSearchSourceOperator.close();
+		indexBasedSourceOperator.close();
 		return results;
 	}
 
@@ -142,5 +142,21 @@ public class IndexSearchSourceOperatorTest {
 					|| descriptionValue.toLowerCase().contains("brown"));
 			Assert.assertTrue(lastNameValue.toLowerCase().contains("cruise"));
 		}
+	}
+	
+	/**
+	 * Tests the scenario where the predicate is reset and the 
+	 * getNextTupkle() is called without opening the operator again.
+	 * This throws an Exception
+	 * @throws ParseException
+	 * @throws DataFlowException
+	 */
+	@Test(expected=DataFlowException.class)
+	public void testSetPredicate() throws ParseException, DataFlowException{
+	    constructIndexBasedSourceOperator(TestConstants.DESCRIPTION + ":angry");
+	    indexBasedSourceOperator.open();
+	    indexBasedSourceOperator.getNextTuple();
+	    indexBasedSourceOperator.setPredicate(dataReaderPredicate);
+	    indexBasedSourceOperator.getNextTuple();
 	}
 }

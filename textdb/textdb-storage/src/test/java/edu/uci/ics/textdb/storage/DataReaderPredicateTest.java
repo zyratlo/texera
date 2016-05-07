@@ -1,0 +1,38 @@
+package edu.uci.ics.textdb.storage;
+
+import junit.framework.Assert;
+
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.queryparser.classic.ParseException;
+import org.apache.lucene.queryparser.classic.QueryParser;
+import org.apache.lucene.search.Query;
+import org.junit.Before;
+import org.junit.Test;
+
+import edu.uci.ics.textdb.api.storage.IDataStore;
+import edu.uci.ics.textdb.common.constants.DataConstants;
+import edu.uci.ics.textdb.common.constants.TestConstants;
+
+public class DataReaderPredicateTest {
+    private DataReaderPredicate dataReaderPredicate;
+    private IDataStore dataStore;
+    private Query query;
+    
+    @Before
+    public void setUp() throws ParseException{
+        dataStore = new DataStore(DataConstants.INDEX_DIR, TestConstants.SCHEMA_PEOPLE);
+        QueryParser queryParser = new QueryParser(
+                TestConstants.ATTRIBUTES_PEOPLE[0].getFieldName(), new  StandardAnalyzer());
+        query = queryParser.parse(DataConstants.SCAN_QUERY);
+        dataReaderPredicate = new DataReaderPredicate(dataStore, query);
+    }
+    
+    @Test
+    public void testGetters(){
+        IDataStore dataStoreReturned = dataReaderPredicate.getDataStore();
+        Assert.assertSame(dataStore, dataStoreReturned);
+        
+        Query queryReturned = dataReaderPredicate.getQuery();
+        Assert.assertSame(query, queryReturned);
+    }
+}

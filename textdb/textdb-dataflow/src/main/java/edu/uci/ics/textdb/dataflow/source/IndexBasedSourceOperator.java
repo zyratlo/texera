@@ -1,25 +1,33 @@
 package edu.uci.ics.textdb.dataflow.source;
 
+import edu.uci.ics.textdb.api.common.IPredicate;
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.dataflow.ISourceOperator;
 import edu.uci.ics.textdb.api.storage.IDataReader;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
+import edu.uci.ics.textdb.common.exception.ErrorMessages;
+import edu.uci.ics.textdb.storage.DataReaderPredicate;
+import edu.uci.ics.textdb.storage.reader.DataReader;
 
 /**
  * Created by chenli on 3/28/16.
  */
-public class IndexSearchSourceOperator implements ISourceOperator {
+public class IndexBasedSourceOperator implements ISourceOperator {
 
 	private IDataReader dataReader;
-
-	public IndexSearchSourceOperator(IDataReader dataReader) throws DataFlowException {
-		this.dataReader = dataReader;
+	private DataReaderPredicate predicate;
+	private int cursor = CLOSED;
+	
+	public IndexBasedSourceOperator(IPredicate predicate){
+	    this.predicate = (DataReaderPredicate)predicate;
 	}
 
 	@Override
 	public void open() throws DataFlowException {
 		try {
+		    dataReader = new DataReader(predicate);
 			dataReader.open();
+			cursor = OPENED;
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new DataFlowException(e.getMessage(), e);
@@ -28,6 +36,9 @@ public class IndexSearchSourceOperator implements ISourceOperator {
 
 	@Override
 	public ITuple getNextTuple() throws DataFlowException {
+	    if(cursor == CLOSED){
+	        throw new DataFlowException(ErrorMessages.OPERATOR_NOT_OPENED);
+	    }
 		try {
 			return dataReader.getNextTuple();
 		} catch (Exception e) {
@@ -44,6 +55,11 @@ public class IndexSearchSourceOperator implements ISourceOperator {
 			e.printStackTrace();
 			throw new DataFlowException(e.getMessage(), e);
 		}
+	}
+	
+	public void setPredicate(IPredicate predicate){
+	    this.predicate = (DataReaderPredicate)predicate;
+	    cursor = CLOSED;
 	}
 
 

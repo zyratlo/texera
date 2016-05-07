@@ -22,7 +22,6 @@ import edu.uci.ics.textdb.api.common.IField;
 import edu.uci.ics.textdb.api.common.IPredicate;
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.common.Schema;
-import edu.uci.ics.textdb.api.storage.IDataReader;
 import edu.uci.ics.textdb.api.storage.IDataWriter;
 import edu.uci.ics.textdb.common.constants.DataConstants;
 import edu.uci.ics.textdb.common.constants.SchemaConstants;
@@ -38,11 +37,10 @@ import edu.uci.ics.textdb.common.field.StringField;
 import edu.uci.ics.textdb.common.field.TextField;
 import edu.uci.ics.textdb.common.utils.Utils;
 import edu.uci.ics.textdb.dataflow.common.KeywordPredicate;
-import edu.uci.ics.textdb.dataflow.source.IndexSearchSourceOperator;
+import edu.uci.ics.textdb.dataflow.source.IndexBasedSourceOperator;
 import edu.uci.ics.textdb.dataflow.utils.TestUtils;
 import edu.uci.ics.textdb.storage.DataReaderPredicate;
 import edu.uci.ics.textdb.storage.DataStore;
-import edu.uci.ics.textdb.storage.reader.DataReader;
 import edu.uci.ics.textdb.storage.writer.DataWriter;
 
 /**
@@ -55,7 +53,7 @@ public class KeywordMatcherTest {
     private KeywordMatcher keywordMatcher;
     private IDataWriter dataWriter;
     private DataStore dataStore;
-    private IndexSearchSourceOperator indexSearchSourceOperator;
+    private IndexBasedSourceOperator indexSearchSourceOperator;
     private Analyzer analyzer;
     private Query queryObj;
     private Schema schema;
@@ -135,8 +133,7 @@ public class KeywordMatcherTest {
             queryObj = createQueryObject(query, attributeList);
         }
         dataReaderPredicate = new DataReaderPredicate(dataStore, queryObj);
-        IDataReader dataReader = new DataReader(dataReaderPredicate);
-        indexSearchSourceOperator = new IndexSearchSourceOperator(dataReader);
+        indexSearchSourceOperator = new IndexBasedSourceOperator(dataReaderPredicate);
         keywordMatcher = new KeywordMatcher(predicate, indexSearchSourceOperator);
         keywordMatcher.open();
         List<ITuple> results = new ArrayList<>();
