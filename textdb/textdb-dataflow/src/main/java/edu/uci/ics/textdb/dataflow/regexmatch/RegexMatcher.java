@@ -24,7 +24,7 @@ import edu.uci.ics.textdb.dataflow.regexmatch.re2j.RegexToTrigram;
  * @author laishuying
  */
 public class RegexMatcher implements IOperator {
-    private final IPredicate predicate;
+    private final RegexPredicate regexPredicate;
     private ISourceOperator sourceOperator;
     private Query luceneQuery;
 
@@ -35,15 +35,11 @@ public class RegexMatcher implements IOperator {
     private List<Span> spans;
 
     public RegexMatcher(IPredicate predicate, ISourceOperator sourceOperator) {
-    	if (! (predicate instanceof RegexPredicate)) {
-    		// TODO do something (needed or not?)
-    	}
-    	// cast to RegexPredicate here?
-        this.predicate = predicate;
+    	this.regexPredicate = (RegexPredicate)predicate;
         this.sourceOperator = sourceOperator;
         
         // build the luceneQuery by given regex
-        String queryStr = RegexToTrigram.traslate(((RegexPredicate)predicate).getRegex()).getQuery();
+        String queryStr = RegexToTrigram.translate(regexPredicate.getRegex()).getQuery();
         // pending for refactoring IndexBasedSourceOperator 
     }
 
@@ -65,7 +61,7 @@ public class RegexMatcher implements IOperator {
                 return null;
             }
             
-            RegexPredicate regexPredicate = (RegexPredicate)predicate; 
+            
             
             spans = regexPredicate.computeMatches(sourceTuple);
             

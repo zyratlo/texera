@@ -1,6 +1,7 @@
 package edu.uci.ics.textdb.dataflow.regexmatch.re2j;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /*
  * @Author Zuozhi Wang
@@ -11,11 +12,10 @@ import java.util.ArrayList;
  */
 public class RegexInfo {
 	boolean emptyable;
-	// arraylist or set?
-	ArrayList<String> exact;
-	ArrayList<String> prefix;
-	ArrayList<String> suffix;
-	RegexTrigramQuery match;
+	List<String> exact;
+	List<String> prefix;
+	List<String> suffix;
+	TrigramBooleanQuery match;
 	
 	public RegexInfo() {
 		emptyable = true;
@@ -23,7 +23,7 @@ public class RegexInfo {
 		prefix = new ArrayList<String>();
 		suffix = new ArrayList<String>();
 		// init to AND operator?
-		match = new RegexTrigramQuery(RegexTrigramQuery.AND);
+		match = new TrigramBooleanQuery();
 	}
 	
 }

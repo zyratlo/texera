@@ -9,7 +9,7 @@ package edu.uci.ics.textdb.dataflow.regexmatch.re2j;
 
 public class RegexToTrigram {	
 	
-	public static RegexTrigramQuery traslate(String regex) {
+	public static TrigramBooleanQuery translate(String regex) {
 	    Regexp re = Parser.parse(regex, RE2.PERL);
 	    re = Simplify.simplify(re);
 	    RegexInfo regexInfo = analyze(re);

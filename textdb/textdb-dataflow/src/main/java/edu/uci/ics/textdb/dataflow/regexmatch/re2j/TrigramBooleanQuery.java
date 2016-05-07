@@ -1,6 +1,7 @@
 package edu.uci.ics.textdb.dataflow.regexmatch.re2j;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.StringJoiner;
 
 /*
@@ -9,41 +10,53 @@ import java.util.StringJoiner;
  * 
  * Trigram Query of OR and AND
  */
-public class RegexTrigramQuery {
-	// static final int or ENUM ?
+public class TrigramBooleanQuery {
 	public static final int OR = 0;
 	public static final int AND = 1;
 	
-	// private or public or no modifier?
-	int operator;
-	ArrayList<String> operands;
-	// subQuerys or subQueries? better name?
-	ArrayList<RegexTrigramQuery> subQueries;
+	private int operator;
+	private List<String> operandList;
+	private List<TrigramBooleanQuery> subQueryList;
 	
-	public RegexTrigramQuery(int operator) {
+	public TrigramBooleanQuery() {
+		this(TrigramBooleanQuery.AND);
+	}
+	
+	private TrigramBooleanQuery(int operator) {
 		this.operator = operator;
-		operands = new ArrayList<String>();
-		subQueries = new ArrayList<RegexTrigramQuery>();
+		operandList = new ArrayList<String>();
+		subQueryList = new ArrayList<TrigramBooleanQuery>();
 	}
 	
-	public RegexTrigramQuery addSet(ArrayList<String> set) {
-		RegexTrigramQuery query = new RegexTrigramQuery(RegexTrigramQuery.OR);
-		return query;
+	public void add(ArrayList<String> list) {
+		addOrNode(list);
 	}
 	
-	// better name?
-	public void add (ArrayList<String> str) {
-		
+	private void addOrNode(ArrayList<String> literalList) {
+		TrigramBooleanQuery tbq = new TrigramBooleanQuery(TrigramBooleanQuery.OR);
+		for (String literal : literalList) {
+			tbq.addAndNode(literal);
+		}
+		this.subQueryList.add(tbq);
 	}
 	
-	public void add (String operand) {
-		if (operand.length() == 3) {
-			operands.add(operand);
-		} else {
-			
-		}	
+	private void addAndNode(String literal) {
+		TrigramBooleanQuery tbq = new TrigramBooleanQuery(TrigramBooleanQuery.AND);
+		for (String trigram: literalToTrigram(literal)) {
+			tbq.operandList.add(trigram);
+		}
+		this.subQueryList.add(tbq);
 	}
 	
+	private List<String> literalToTrigram(String literal) {
+		ArrayList<String> trigrams = new ArrayList<>();
+		if (literal.length() >= 3) {
+			for (int i = 0; i <= literal.length()-3; ++i) {
+				trigrams.add(literal.substring(i, i+3));
+			}
+		}
+		return trigrams;
+	}
 	
 	public String toString() {
 		return this.getQuery();
@@ -51,17 +64,18 @@ public class RegexTrigramQuery {
 	
 	public String getQuery() {
 		StringJoiner joiner =  new StringJoiner(
-				(operator == RegexTrigramQuery.AND) ? " AND " : " OR ");
+				(operator == TrigramBooleanQuery.AND) ? " AND " : " OR ");
 
-		for (String operand : operands) {
+		for (String operand : operandList) {
 			joiner.add(operand);
 		}
-		for (RegexTrigramQuery subQuery : subQueries) {
-			joiner.add(subQuery.getQuery());
+		for (TrigramBooleanQuery subQuery : subQueryList) {
+			String subQueryStr = subQuery.getQuery();
+			if (! subQueryStr.equals("")) 
+				joiner.add(subQueryStr);
 		}
 		
 		if (joiner.length() == 0) {
-			// return null or empty string?
 			return "";
 		} else {
 			return "("+joiner.toString()+")";
