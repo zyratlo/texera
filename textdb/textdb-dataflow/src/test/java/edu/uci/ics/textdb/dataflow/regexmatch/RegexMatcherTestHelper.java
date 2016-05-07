@@ -15,13 +15,14 @@ import edu.uci.ics.textdb.api.dataflow.ISourceOperator;
 import edu.uci.ics.textdb.api.storage.IDataReader;
 import edu.uci.ics.textdb.api.storage.IDataStore;
 import edu.uci.ics.textdb.api.storage.IDataWriter;
-import edu.uci.ics.textdb.common.constants.LuceneConstants;
+import edu.uci.ics.textdb.common.constants.DataConstants;
 import edu.uci.ics.textdb.common.constants.TestConstants;
 import edu.uci.ics.textdb.dataflow.common.RegexPredicate;
 import edu.uci.ics.textdb.dataflow.source.ScanBasedSourceOperator;
-import edu.uci.ics.textdb.storage.LuceneDataStore;
-import edu.uci.ics.textdb.storage.reader.LuceneDataReader;
-import edu.uci.ics.textdb.storage.writer.LuceneDataWriter;
+import edu.uci.ics.textdb.storage.DataReaderPredicate;
+import edu.uci.ics.textdb.storage.DataStore;
+import edu.uci.ics.textdb.storage.reader.DataReader;
+import edu.uci.ics.textdb.storage.writer.DataWriter;
 
 
 /**
@@ -39,11 +40,12 @@ public class RegexMatcherTestHelper {
 	private List<ITuple> results;
     private Analyzer analyzer;
     private Query query;
+    private IPredicate dataReaderPredicate;
 	
 	public RegexMatcherTestHelper(Schema schema, List<ITuple> data) throws Exception {
-		dataStore = new LuceneDataStore(LuceneConstants.INDEX_DIR, schema);
+		dataStore = new DataStore(DataConstants.INDEX_DIR, schema);
 		analyzer = new  StandardAnalyzer();
-        dataWriter = new LuceneDataWriter(dataStore, analyzer);
+        dataWriter = new DataWriter(dataStore, analyzer);
 		dataWriter.clearData();
 		dataWriter.writeData(data);	
 		results = new ArrayList<ITuple>();
@@ -61,8 +63,9 @@ public class RegexMatcherTestHelper {
 		results.clear();
 		QueryParser queryParser = new QueryParser(
                 TestConstants.FIRST_NAME, analyzer);
-        query = queryParser.parse(LuceneConstants.SCAN_QUERY);
-        dataReader = new LuceneDataReader(dataStore, query);
+        query = queryParser.parse(DataConstants.SCAN_QUERY);
+        dataReaderPredicate = new DataReaderPredicate(dataStore, query);
+        dataReader = new DataReader(dataReaderPredicate);
 
 		IPredicate predicate = new RegexPredicate(regex, fieldName);
 		ISourceOperator sourceOperator = new ScanBasedSourceOperator(dataReader);

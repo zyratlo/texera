@@ -22,12 +22,12 @@ import edu.uci.ics.textdb.api.storage.IDataWriter;
 import edu.uci.ics.textdb.common.exception.StorageException;
 import edu.uci.ics.textdb.common.utils.Utils;
 
-public class LuceneDataWriter implements IDataWriter{
+public class DataWriter implements IDataWriter{
     
     private IDataStore dataStore;
     private Analyzer analyzer;
 
-    public LuceneDataWriter(IDataStore dataStore, Analyzer analyzer) {
+    public DataWriter(IDataStore dataStore, Analyzer analyzer) {
         this.dataStore = dataStore;
         this.analyzer = analyzer;
     }

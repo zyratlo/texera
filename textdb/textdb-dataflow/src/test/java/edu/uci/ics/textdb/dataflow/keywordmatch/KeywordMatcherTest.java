@@ -1,20 +1,9 @@
 package edu.uci.ics.textdb.dataflow.keywordmatch;
 
-import edu.uci.ics.textdb.api.common.*;
-import edu.uci.ics.textdb.api.storage.IDataReader;
-import edu.uci.ics.textdb.api.storage.IDataWriter;
-import edu.uci.ics.textdb.common.constants.LuceneConstants;
-import edu.uci.ics.textdb.common.constants.SchemaConstants;
-import edu.uci.ics.textdb.common.constants.TestConstants;
-import edu.uci.ics.textdb.common.exception.DataFlowException;
-import edu.uci.ics.textdb.common.field.*;
-import edu.uci.ics.textdb.common.utils.Utils;
-import edu.uci.ics.textdb.dataflow.common.KeywordPredicate;
-import edu.uci.ics.textdb.dataflow.source.IndexSearchSourceOperator;
-import edu.uci.ics.textdb.dataflow.utils.TestUtils;
-import edu.uci.ics.textdb.storage.LuceneDataStore;
-import edu.uci.ics.textdb.storage.reader.LuceneDataReader;
-import edu.uci.ics.textdb.storage.writer.LuceneDataWriter;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
@@ -28,10 +17,33 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import edu.uci.ics.textdb.api.common.Attribute;
+import edu.uci.ics.textdb.api.common.IField;
+import edu.uci.ics.textdb.api.common.IPredicate;
+import edu.uci.ics.textdb.api.common.ITuple;
+import edu.uci.ics.textdb.api.common.Schema;
+import edu.uci.ics.textdb.api.storage.IDataReader;
+import edu.uci.ics.textdb.api.storage.IDataWriter;
+import edu.uci.ics.textdb.common.constants.DataConstants;
+import edu.uci.ics.textdb.common.constants.SchemaConstants;
+import edu.uci.ics.textdb.common.constants.TestConstants;
+import edu.uci.ics.textdb.common.exception.DataFlowException;
+import edu.uci.ics.textdb.common.field.DataTuple;
+import edu.uci.ics.textdb.common.field.DateField;
+import edu.uci.ics.textdb.common.field.DoubleField;
+import edu.uci.ics.textdb.common.field.IntegerField;
+import edu.uci.ics.textdb.common.field.ListField;
+import edu.uci.ics.textdb.common.field.Span;
+import edu.uci.ics.textdb.common.field.StringField;
+import edu.uci.ics.textdb.common.field.TextField;
+import edu.uci.ics.textdb.common.utils.Utils;
+import edu.uci.ics.textdb.dataflow.common.KeywordPredicate;
+import edu.uci.ics.textdb.dataflow.source.IndexSearchSourceOperator;
+import edu.uci.ics.textdb.dataflow.utils.TestUtils;
+import edu.uci.ics.textdb.storage.DataReaderPredicate;
+import edu.uci.ics.textdb.storage.DataStore;
+import edu.uci.ics.textdb.storage.reader.DataReader;
+import edu.uci.ics.textdb.storage.writer.DataWriter;
 
 /**
  * @author Prakul
@@ -42,17 +54,18 @@ public class KeywordMatcherTest {
 
     private KeywordMatcher keywordMatcher;
     private IDataWriter dataWriter;
-    private LuceneDataStore dataStore;
+    private DataStore dataStore;
     private IndexSearchSourceOperator indexSearchSourceOperator;
     private Analyzer analyzer;
     private Query queryObj;
     private Schema schema;
+    private IPredicate dataReaderPredicate;
 
     @Before
     public void setUp() throws Exception {
-        dataStore = new LuceneDataStore(LuceneConstants.INDEX_DIR, TestConstants.SCHEMA_PEOPLE);
+        dataStore = new DataStore(DataConstants.INDEX_DIR, TestConstants.SCHEMA_PEOPLE);
         analyzer = new StandardAnalyzer();
-        dataWriter = new LuceneDataWriter(dataStore, analyzer);
+        dataWriter = new DataWriter(dataStore, analyzer);
         dataWriter.clearData();
         dataWriter.writeData(TestConstants.getSamplePeopleTuples());
         schema = dataStore.getSchema();
@@ -116,12 +129,13 @@ public class KeywordMatcherTest {
         QueryParser queryParser;
         if(!buildMultiQueryOnAttributeList) {
             queryParser = new QueryParser(TestConstants.ATTRIBUTES_PEOPLE[0].getFieldName(), analyzer);
-            queryObj = queryParser.parse(LuceneConstants.SCAN_QUERY);
+            queryObj = queryParser.parse(DataConstants.SCAN_QUERY);
         }
         else {
             queryObj = createQueryObject(query, attributeList);
         }
-        IDataReader dataReader = new LuceneDataReader(dataStore, queryObj);
+        dataReaderPredicate = new DataReaderPredicate(dataStore, queryObj);
+        IDataReader dataReader = new DataReader(dataReaderPredicate);
         indexSearchSourceOperator = new IndexSearchSourceOperator(dataReader);
         keywordMatcher = new KeywordMatcher(predicate, indexSearchSourceOperator);
         keywordMatcher.open();

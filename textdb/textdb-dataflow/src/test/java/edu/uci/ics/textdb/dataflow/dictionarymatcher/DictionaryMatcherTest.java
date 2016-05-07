@@ -18,12 +18,13 @@ import org.junit.Test;
 import edu.uci.ics.textdb.api.common.Attribute;
 import edu.uci.ics.textdb.api.common.IDictionary;
 import edu.uci.ics.textdb.api.common.IField;
+import edu.uci.ics.textdb.api.common.IPredicate;
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.common.Schema;
 import edu.uci.ics.textdb.api.dataflow.ISourceOperator;
 import edu.uci.ics.textdb.api.storage.IDataReader;
 import edu.uci.ics.textdb.api.storage.IDataWriter;
-import edu.uci.ics.textdb.common.constants.LuceneConstants;
+import edu.uci.ics.textdb.common.constants.DataConstants;
 import edu.uci.ics.textdb.common.constants.SchemaConstants;
 import edu.uci.ics.textdb.common.constants.TestConstants;
 import edu.uci.ics.textdb.common.field.DataTuple;
@@ -36,9 +37,10 @@ import edu.uci.ics.textdb.common.field.StringField;
 import edu.uci.ics.textdb.common.field.TextField;
 import edu.uci.ics.textdb.dataflow.source.ScanBasedSourceOperator;
 import edu.uci.ics.textdb.dataflow.utils.TestUtils;
-import edu.uci.ics.textdb.storage.LuceneDataStore;
-import edu.uci.ics.textdb.storage.reader.LuceneDataReader;
-import edu.uci.ics.textdb.storage.writer.LuceneDataWriter;
+import edu.uci.ics.textdb.storage.DataReaderPredicate;
+import edu.uci.ics.textdb.storage.DataStore;
+import edu.uci.ics.textdb.storage.reader.DataReader;
+import edu.uci.ics.textdb.storage.writer.DataWriter;
 
 /**
  * @author rajeshyarlagadda
@@ -47,21 +49,23 @@ import edu.uci.ics.textdb.storage.writer.LuceneDataWriter;
 public class DictionaryMatcherTest {
 
     private DictionaryMatcher dictionaryMatcher;
-    private LuceneDataStore dataStore;
+    private DataStore dataStore;
     private IDataWriter dataWriter;
     private IDataReader dataReader;
     private Analyzer analyzer;
     private Query query;
+    private IPredicate dataReaderPredicate;
 
     @Before
     public void setUp() throws Exception {
 
-        dataStore = new LuceneDataStore(LuceneConstants.INDEX_DIR, TestConstants.SCHEMA_PEOPLE);
+        dataStore = new DataStore(DataConstants.INDEX_DIR, TestConstants.SCHEMA_PEOPLE);
         analyzer = new StandardAnalyzer();
-        dataWriter = new LuceneDataWriter(dataStore, analyzer);
+        dataWriter = new DataWriter(dataStore, analyzer);
         QueryParser queryParser = new QueryParser(TestConstants.ATTRIBUTES_PEOPLE[0].getFieldName(), analyzer);
-        query = queryParser.parse(LuceneConstants.SCAN_QUERY);
-        dataReader = new LuceneDataReader(dataStore, query);
+        query = queryParser.parse(DataConstants.SCAN_QUERY);
+        dataReaderPredicate = new DataReaderPredicate(dataStore, query);
+        dataReader = new DataReader(dataReaderPredicate);
         dataWriter.clearData();
         dataWriter.writeData(TestConstants.getSamplePeopleTuples());
 

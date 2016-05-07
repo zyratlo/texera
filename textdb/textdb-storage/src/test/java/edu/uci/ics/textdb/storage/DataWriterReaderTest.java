@@ -13,31 +13,34 @@ import org.apache.lucene.search.Query;
 import org.junit.Before;
 import org.junit.Test;
 
+import edu.uci.ics.textdb.api.common.IPredicate;
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.storage.IDataReader;
 import edu.uci.ics.textdb.api.storage.IDataStore;
 import edu.uci.ics.textdb.api.storage.IDataWriter;
-import edu.uci.ics.textdb.common.constants.LuceneConstants;
+import edu.uci.ics.textdb.common.constants.DataConstants;
 import edu.uci.ics.textdb.common.constants.TestConstants;
-import edu.uci.ics.textdb.storage.reader.LuceneDataReader;
-import edu.uci.ics.textdb.storage.writer.LuceneDataWriter;
+import edu.uci.ics.textdb.storage.reader.DataReader;
+import edu.uci.ics.textdb.storage.writer.DataWriter;
 
-public class LuceneDataWriterReaderTest {
+public class DataWriterReaderTest {
     private IDataWriter dataWriter;
     private IDataReader dataReader;
     private IDataStore dataStore;
+    private IPredicate dataReaderPredicate;
     private Analyzer analyzer;
     private Query query;
     
     @Before
     public void setUp() throws ParseException{
-        dataStore = new LuceneDataStore(LuceneConstants.INDEX_DIR, TestConstants.SCHEMA_PEOPLE);
+        dataStore = new DataStore(DataConstants.INDEX_DIR, TestConstants.SCHEMA_PEOPLE);
         analyzer = new  StandardAnalyzer();
-        dataWriter = new LuceneDataWriter(dataStore, analyzer );
+        dataWriter = new DataWriter(dataStore, analyzer );
         QueryParser queryParser = new QueryParser(
                 TestConstants.ATTRIBUTES_PEOPLE[0].getFieldName(), analyzer);
-        query = queryParser.parse(LuceneConstants.SCAN_QUERY);
-        dataReader = new LuceneDataReader(dataStore, query);
+        query = queryParser.parse(DataConstants.SCAN_QUERY);
+        dataReaderPredicate = new DataReaderPredicate(dataStore, query);
+        dataReader = new DataReader(dataReaderPredicate);
     }
     
     @Test
