@@ -34,20 +34,20 @@ public class DataWriter implements IDataWriter{
     
     @Override
     public void clearData() throws StorageException{
-        IndexWriter indexWriter = null;
+        IndexWriter luceneIndexWriter = null;
         try {
             Directory directory = FSDirectory.open(Paths
                     .get(dataStore.getDataDirectory()));
             IndexWriterConfig conf = new IndexWriterConfig(analyzer);
-            indexWriter = new IndexWriter(directory, conf);
-            indexWriter.deleteAll();
+            luceneIndexWriter = new IndexWriter(directory, conf);
+            luceneIndexWriter.deleteAll();
         } catch (Exception e) {
             e.printStackTrace();
             throw new StorageException(e.getMessage(), e);
         } finally {
-            if (indexWriter != null) {
+            if (luceneIndexWriter != null) {
                 try {
-                    indexWriter.close();
+                    luceneIndexWriter.close();
                 } catch (IOException e) {
                     e.printStackTrace();
                     throw new StorageException(e.getMessage(), e);
@@ -59,18 +59,18 @@ public class DataWriter implements IDataWriter{
     
     @Override
     public void writeData(List<ITuple> tuples) throws StorageException {
-        IndexWriter indexWriter = null;
+        IndexWriter luceneIndexWriter = null;
         try {
             Directory directory = FSDirectory.open(Paths
                     .get(dataStore.getDataDirectory()));
             Analyzer analyzer = new StandardAnalyzer();
             IndexWriterConfig conf = new IndexWriterConfig(analyzer);
-            indexWriter = new IndexWriter(directory, conf);
+            luceneIndexWriter = new IndexWriter(directory, conf);
             
             for (ITuple sampleTuple : tuples) {
 
                 Document document = getDocument(dataStore.getSchema(), sampleTuple);
-                indexWriter.addDocument(document);
+                luceneIndexWriter.addDocument(document);
             }
             dataStore.incrementNumDocuments(tuples.size());
 
@@ -78,9 +78,9 @@ public class DataWriter implements IDataWriter{
             e.printStackTrace();
             throw new StorageException(e.getMessage(), e);
         } finally {
-            if (indexWriter != null) {
+            if (luceneIndexWriter != null) {
                 try {
-                    indexWriter.close();
+                    luceneIndexWriter.close();
                 } catch (IOException e) {
                     e.printStackTrace();
                     throw new StorageException(e.getMessage(), e);

@@ -57,7 +57,7 @@ public class IndexBasedSourceOperator implements ISourceOperator {
 		}
 	}
 	
-	public void setPredicate(IPredicate predicate){
+	public void resetPredicate(IPredicate predicate){
 	    this.predicate = (DataReaderPredicate)predicate;
 	    cursor = CLOSED;
 	}

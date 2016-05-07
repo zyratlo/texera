@@ -152,11 +152,11 @@ public class IndexBasedSourceOperatorTest {
 	 * @throws DataFlowException
 	 */
 	@Test(expected=DataFlowException.class)
-	public void testSetPredicate() throws ParseException, DataFlowException{
+	public void testResetPredicate() throws ParseException, DataFlowException{
 	    constructIndexBasedSourceOperator(TestConstants.DESCRIPTION + ":angry");
 	    indexBasedSourceOperator.open();
 	    indexBasedSourceOperator.getNextTuple();
-	    indexBasedSourceOperator.setPredicate(dataReaderPredicate);
+	    indexBasedSourceOperator.resetPredicate(dataReaderPredicate);
 	    indexBasedSourceOperator.getNextTuple();
 	}
 }

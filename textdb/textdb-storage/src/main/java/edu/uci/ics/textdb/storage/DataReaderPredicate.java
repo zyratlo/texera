@@ -10,18 +10,18 @@ import edu.uci.ics.textdb.api.storage.IDataStore;
  */
 public class DataReaderPredicate implements IPredicate {
     private IDataStore dataStore;
-    private Query query;
+    private Query luceneQuery;
 
-    public DataReaderPredicate(IDataStore dataStore, Query query){
+    public DataReaderPredicate(IDataStore dataStore, Query luceneQuery){
         this.dataStore = dataStore;
-        this.query = query;
+        this.luceneQuery = luceneQuery;
     }
 
     public IDataStore getDataStore() {
         return dataStore;
     }
 
-    public Query getQuery() {
-        return query;
+    public Query getLuceneQuery() {
+        return luceneQuery;
     }
 }

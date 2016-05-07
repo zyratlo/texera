@@ -12,7 +12,6 @@ import org.apache.lucene.search.Query;
 
 import edu.uci.ics.textdb.api.common.Attribute;
 import edu.uci.ics.textdb.api.common.IPredicate;
-import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
 import edu.uci.ics.textdb.common.utils.Utils;
 
@@ -50,12 +49,6 @@ public class KeywordPredicate implements IPredicate{
             e.printStackTrace();
             throw new DataFlowException(e.getMessage(), e);
         }
-    }
-
-    public boolean satisfy(ITuple tuple) {
-
-        //This method is necessary for the interface implementation, and it's really not used.
-        return true;
     }
 
     /**

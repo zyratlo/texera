@@ -37,9 +37,9 @@ import edu.uci.ics.textdb.storage.DataReaderPredicate;
 public class DataReader implements IDataReader{
 
     private int cursor = CLOSED;
-    private IndexSearcher indexSearcher;
+    private IndexSearcher luceneIndexSearcher;
     private ScoreDoc[] scoreDocs;
-    private IndexReader indexReader;
+    private IndexReader luceneIndexReader;
     private DataReaderPredicate dataReaderPredicate;
 
     public DataReader(IPredicate dataReaderPredicate) {
@@ -53,10 +53,10 @@ public class DataReader implements IDataReader{
         try {
             String dataDirectory = dataReaderPredicate.getDataStore().getDataDirectory();
             Directory directory = FSDirectory.open(Paths.get(dataDirectory));
-            indexReader = DirectoryReader.open(directory);
+            luceneIndexReader = DirectoryReader.open(directory);
                 		
-            indexSearcher = new IndexSearcher(indexReader);
-            TopDocs topDocs = indexSearcher.search(dataReaderPredicate.getQuery(), Integer.MAX_VALUE);
+            luceneIndexSearcher = new IndexSearcher(luceneIndexReader);
+            TopDocs topDocs = luceneIndexSearcher.search(dataReaderPredicate.getLuceneQuery(), Integer.MAX_VALUE);
             scoreDocs = topDocs.scoreDocs;
             cursor = OPENED;
         } catch (IOException e) {
@@ -74,7 +74,7 @@ public class DataReader implements IDataReader{
             if(cursor >= scoreDocs.length){
                 return null;
             }
-            Document document = indexSearcher.doc(scoreDocs[cursor++].doc);
+            Document document = luceneIndexSearcher.doc(scoreDocs[cursor++].doc);
             
             List<IField> fields = new ArrayList<IField>();
             Schema schema = dataReaderPredicate.getDataStore().getSchema();
@@ -99,10 +99,10 @@ public class DataReader implements IDataReader{
     @Override
     public void close() throws Exception {
         cursor = CLOSED;
-        if(indexReader != null){
+        if(luceneIndexReader != null){
             try {
-                indexReader.close();
-                indexReader = null;
+                luceneIndexReader.close();
+                luceneIndexReader = null;
             } catch (IOException e) {
                 e.printStackTrace();
                 throw new DataFlowException(e.getMessage(), e);

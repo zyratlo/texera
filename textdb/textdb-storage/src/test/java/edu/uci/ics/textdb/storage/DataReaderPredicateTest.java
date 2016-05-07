@@ -16,15 +16,15 @@ import edu.uci.ics.textdb.common.constants.TestConstants;
 public class DataReaderPredicateTest {
     private DataReaderPredicate dataReaderPredicate;
     private IDataStore dataStore;
-    private Query query;
+    private Query luceneQuery;
     
     @Before
     public void setUp() throws ParseException{
         dataStore = new DataStore(DataConstants.INDEX_DIR, TestConstants.SCHEMA_PEOPLE);
-        QueryParser queryParser = new QueryParser(
+        QueryParser luceneQueryParser = new QueryParser(
                 TestConstants.ATTRIBUTES_PEOPLE[0].getFieldName(), new  StandardAnalyzer());
-        query = queryParser.parse(DataConstants.SCAN_QUERY);
-        dataReaderPredicate = new DataReaderPredicate(dataStore, query);
+        luceneQuery = luceneQueryParser.parse(DataConstants.SCAN_QUERY);
+        dataReaderPredicate = new DataReaderPredicate(dataStore, luceneQuery);
     }
     
     @Test
@@ -32,7 +32,7 @@ public class DataReaderPredicateTest {
         IDataStore dataStoreReturned = dataReaderPredicate.getDataStore();
         Assert.assertSame(dataStore, dataStoreReturned);
         
-        Query queryReturned = dataReaderPredicate.getQuery();
-        Assert.assertSame(query, queryReturned);
+        Query queryReturned = dataReaderPredicate.getLuceneQuery();
+        Assert.assertSame(luceneQuery, queryReturned);
     }
 }
