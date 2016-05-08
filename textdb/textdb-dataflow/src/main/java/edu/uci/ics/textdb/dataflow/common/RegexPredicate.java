@@ -41,7 +41,6 @@ public class RegexPredicate implements IPredicate{
     	return regex;
     }
 
-    @Override
     public boolean satisfy(ITuple tuple) {
         if(tuple == null){
             return false;

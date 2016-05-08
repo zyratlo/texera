@@ -2,17 +2,18 @@ package edu.uci.ics.textdb.dataflow.common;
 
 import java.util.ArrayList;
 import java.util.List;
-import edu.uci.ics.textdb.api.common.Attribute;
-import edu.uci.ics.textdb.common.utils.Utils;
+
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
+
+import edu.uci.ics.textdb.api.common.Attribute;
 import edu.uci.ics.textdb.api.common.IPredicate;
-import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
+import edu.uci.ics.textdb.common.utils.Utils;
 
 /**
  *  @author prakul
@@ -48,13 +49,6 @@ public class KeywordPredicate implements IPredicate{
             e.printStackTrace();
             throw new DataFlowException(e.getMessage(), e);
         }
-    }
-
-    @Override
-    public boolean satisfy(ITuple tuple) {
-
-        //This method is necessary for the interface implementation, and it's really not used.
-        return true;
     }
 
     /**
