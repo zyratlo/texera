@@ -51,12 +51,18 @@ public class IndexBasedSourceOperator implements ISourceOperator {
 	public void close() throws DataFlowException {
 		try {
 			dataReader.close();
+			cursor = CLOSED;
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new DataFlowException(e.getMessage(), e);
 		}
 	}
 	
+	/**
+	 * Resets the predicate and resets the cursor. 
+	 * The caller needs to reopen the operator once the predicate is reset.
+	 * @param predicate
+	 */
 	public void resetPredicate(IPredicate predicate){
 	    this.predicate = (DataReaderPredicate)predicate;
 	    cursor = CLOSED;
