@@ -1,12 +1,8 @@
 package com.google.re2j;
 
-public class PublicRE2 extends RE2 {
-
-	PublicRE2(String expr) {
-		super(expr);
-	}
+public class PublicRE2 {
 	
 	public static int getPERL() {
-		return PERL;
+		return RE2.PERL;
 	}
 }

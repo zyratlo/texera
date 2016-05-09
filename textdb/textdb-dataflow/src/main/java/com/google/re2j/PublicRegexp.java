@@ -5,11 +5,29 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class PublicRegexp extends Regexp {
+	
+	private PublicRegexp[] publicSubs;
 
-	public PublicRegexp(Regexp that) {
+	// shallow copy constructor
+	private PublicRegexp(Regexp that) {
 		super(that);
 	}
+	  
+	// deep copy
+	// performance issue?
+	public static PublicRegexp deepCopy(Regexp re) {
+		PublicRegexp publicRegexp = new PublicRegexp(re);
+		
+		Stream<PublicRegexp> publicSubStream = 
+				Arrays.asList(re.subs).stream()
+				.map(sub -> PublicRegexp.deepCopy(sub));
+		publicRegexp.publicSubs = new PublicRegexp[re.subs.length];
+		publicSubStream.collect(Collectors.toList()).toArray(publicRegexp.publicSubs);
+		
+		return publicRegexp;
+	}
 	
+
 	public String getOp() {
 		return this.op.toString();
 	}
@@ -19,13 +37,8 @@ public class PublicRegexp extends Regexp {
 	}
 	
 	public PublicRegexp[] getSubs() {
-		Stream<PublicRegexp> publicSubStream = 
-				Arrays.asList(this.subs).stream()
-				.map(sub -> new PublicRegexp(sub));
-		PublicRegexp[] publicSubs = new PublicRegexp[this.subs.length];
-		return publicSubStream.collect(Collectors.toList()).toArray(publicSubs);
+		return this.publicSubs;
 	}
-	
 	
 	public int[] getRunes() {
 		return this.runes;
@@ -46,11 +59,5 @@ public class PublicRegexp extends Regexp {
 	public String getCapName() {
 		return this.name;
 	}
-	  
 	
-	
-	
-
-
-
 }

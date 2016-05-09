@@ -12,10 +12,10 @@ import java.util.List;
  */
 public class RegexInfo {
 	boolean emptyable;
-	List<String> exact;
-	List<String> prefix;
-	List<String> suffix;
-	TrigramBooleanQuery match;
+	List<String> exact = null;
+	List<String> prefix = null;
+	List<String> suffix = null;
+	TrigramBooleanQuery match = null;
 	
 	public RegexInfo() {
 		emptyable = true;
@@ -24,5 +24,19 @@ public class RegexInfo {
 		suffix = new ArrayList<String>();
 		match = new TrigramBooleanQuery();
 	}
+	
+	
+	public static RegexInfo matchNone() {
+		RegexInfo info = new RegexInfo();
+		info.match.operator = TrigramBooleanQuery.NONE;
+		return info;
+	}
+	
+	public static RegexInfo matchAll() {
+		RegexInfo info = new RegexInfo();
+		info.match.operator = TrigramBooleanQuery.ALL;
+		return info;
+	}
+	
 	
 }

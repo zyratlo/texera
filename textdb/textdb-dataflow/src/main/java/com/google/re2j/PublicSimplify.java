@@ -2,8 +2,8 @@ package com.google.re2j;
 
 public class PublicSimplify{
 	
-	public static Regexp simplify(Regexp re) {
-		return Simplify.simplify(re);
+	public static PublicRegexp simplify(Regexp re) {
+		return PublicRegexp.deepCopy(Simplify.simplify(re));
 	}
 
 }

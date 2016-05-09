@@ -2,9 +2,9 @@ package com.google.re2j;
 
 public class PublicParser{
 
-
-	public static Regexp parse(String pattern, int flags) {
-		return Parser.parse(pattern, flags);
+	//TODO return PublicRegexp or Regexp?
+	public static PublicRegexp parse(String pattern, int flags) throws PatternSyntaxException {
+		return PublicRegexp.deepCopy(Parser.parse(pattern, flags));
 	}
 
 }

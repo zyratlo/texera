@@ -1,16 +1,20 @@
 package edu.uci.ics.textdb.dataflow.regexmatch;
 
+import com.google.re2j.PatternSyntaxException;
 import com.google.re2j.PublicParser;
 import com.google.re2j.PublicRE2;
 import com.google.re2j.PublicRegexp;
 import com.google.re2j.PublicSimplify;
 
-/*
+import java.util.regex.*;
+
+/**
+ * 
  * @Author Zuozhi Wang
  * @Author Shuying Lai
+ * @since 2016-05-07
  * 
  */
-
 public class RegexToTrigram {	
 
 	/**
@@ -18,15 +22,30 @@ public class RegexToTrigram {
 	 * @param regex 
 	 * @return TrigramBooleanQuery
 	 */
+	//TODO how to handle exception?
 	public static TrigramBooleanQuery translate(String regex) {
-	    PublicRegexp re = new PublicRegexp(PublicParser.parse(regex, PublicRE2.getPERL()));
-	    re = new PublicRegexp(PublicSimplify.simplify(re));
-	    RegexInfo regexInfo = analyze(re);
-	    simplify(regexInfo);
-	    return regexInfo.match;
+		try {
+		    PublicRegexp re = PublicParser.parse(regex, PublicRE2.getPERL());
+		    re = PublicSimplify.simplify(re);
+		    RegexInfo regexInfo = analyze(re);
+		    return regexInfo.match;
+		} catch (com.google.re2j.PatternSyntaxException re2j_e) {
+			try {
+				java.util.regex.Pattern.compile(regex);
+				return RegexInfo.matchAll().match;
+			} catch (java.util.regex.PatternSyntaxException java_e) {
+				//TODO throw which exception? re2? java? our own?
+				throw java_e;
+			}
+		}
 	}
 	
 	
+	/**
+	 * Main function to analyze a regular expression
+	 * @param PublicRegexp
+	 * @return RegexInfo
+	 */
 	private static RegexInfo analyze(PublicRegexp re) {
 		RegexInfo regexInfo = new RegexInfo();
 		switch (re.getOp().toString()) {
@@ -79,7 +98,4 @@ public class RegexToTrigram {
 		return regexInfo;
 	}
 	
-	private static void simplify(RegexInfo regexInfo) {
-		
-	}
 }

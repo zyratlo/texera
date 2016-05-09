@@ -18,15 +18,17 @@ import java.util.StringJoiner;
  * subQueries = ["abc OR bcd"]
  */
 public class TrigramBooleanQuery {
-	public static final int OR = 0;
-	public static final int AND = 1;
+	public static final int NONE = 0;
+	public static final int ALL  = 1;
+	public static final int AND  = 2;
+	public static final int OR   = 3;
 	
 	/**
-	 * operator is either AND or OR
+	 * operator is NONE/ALL/AND/OR
 	 */
-	private int operator;
-	private List<String> operandList;
-	private List<TrigramBooleanQuery> subQueryList;
+	int operator;
+	List<String> operandList;
+	List<TrigramBooleanQuery> subQueryList;
 	
 	public TrigramBooleanQuery() {
 		this(TrigramBooleanQuery.AND);
