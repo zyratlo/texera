@@ -1,4 +1,4 @@
-package edu.uci.ics.textdb.dataflow.regexmatch.re2j;
+package edu.uci.ics.textdb.dataflow.regexmatch;
 
 import java.util.ArrayList;
 import java.util.List;

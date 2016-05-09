@@ -17,7 +17,7 @@ import edu.uci.ics.textdb.common.field.ListField;
 import edu.uci.ics.textdb.common.field.Span;
 import edu.uci.ics.textdb.common.utils.Utils;
 import edu.uci.ics.textdb.dataflow.common.RegexPredicate;
-import edu.uci.ics.textdb.dataflow.regexmatch.re2j.RegexToTrigram;
+import edu.uci.ics.textdb.dataflow.regexmatch.RegexToTrigram;
 
 /**
  * Created by chenli on 3/25/16.
