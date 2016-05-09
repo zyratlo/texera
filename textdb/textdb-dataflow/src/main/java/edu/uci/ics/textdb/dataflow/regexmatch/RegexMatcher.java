@@ -39,9 +39,9 @@ public class RegexMatcher implements IOperator {
         this.sourceOperator = sourceOperator;
         
         // build the luceneQuery by given regex
-        String queryStr = RegexToTrigram.translate(regexPredicate.getRegex()).getQuery();
+        // String queryStr = RegexToTrigram.translate(regexPredicate.getRegex()).getQuery();
 
-        // pending for refactoring IndexBasedSourceOperator 
+        // next PR for adding translate to indexBasedSourceOperator 
     }
 
     @Override
@@ -60,9 +60,7 @@ public class RegexMatcher implements IOperator {
             ITuple sourceTuple = sourceOperator.getNextTuple();
             if(sourceTuple == null){
                 return null;
-            }
-            
-            
+            }  
             
             spans = regexPredicate.computeMatches(sourceTuple);
             

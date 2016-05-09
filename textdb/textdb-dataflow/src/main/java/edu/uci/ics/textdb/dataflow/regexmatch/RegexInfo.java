@@ -3,12 +3,12 @@ package edu.uci.ics.textdb.dataflow.regexmatch;
 import java.util.ArrayList;
 import java.util.List;
 
-/*
+/**
  * @Author Zuozhi Wang
  * @Author Shuying Lai
  * 
  * RegexInfo for translating regex to trigrams
- * see https://swtch.com/~rsc/regexp/regexp4.html for details
+ * @see https://swtch.com/~rsc/regexp/regexp4.html for details
  */
 public class RegexInfo {
 	boolean emptyable;

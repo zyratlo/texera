@@ -14,7 +14,6 @@ public class PublicRegexp extends Regexp {
 	}
 	  
 	// deep copy
-	// performance issue?
 	public static PublicRegexp deepCopy(Regexp re) {
 		PublicRegexp publicRegexp = new PublicRegexp(re);
 		
