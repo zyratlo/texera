@@ -21,7 +21,7 @@ import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 
-import edu.uci.ics.textdb.common.constants.LuceneConstants;
+import edu.uci.ics.textdb.common.constants.DataConstants;
 
 /* 
  * This example shows that lucene can process manually translated boolean expressions.   
@@ -44,7 +44,7 @@ public class LuceneNgramQueryExample {
 				return new TokenStreamComponents(source);
 			}
 		};
-		Directory indexDir = FSDirectory.open(Paths.get(LuceneConstants.INDEX_DIR));
+		Directory indexDir = FSDirectory.open(Paths.get(DataConstants.INDEX_DIR));
 		IndexWriterConfig config = new IndexWriterConfig(analyzer);
 		indexWriter = new IndexWriter(indexDir, config);
 	}
@@ -78,7 +78,7 @@ public class LuceneNgramQueryExample {
 	
 	public TopDocs search(String queryText, int numOfTopHit) throws Exception{
 		searcher = new IndexSearcher(
-				DirectoryReader.open(FSDirectory.open(Paths.get(LuceneConstants.INDEX_DIR))));
+				DirectoryReader.open(FSDirectory.open(Paths.get(DataConstants.INDEX_DIR))));
 		
         QueryParser parser = new QueryParser("data", analyzer);
 		Query query = parser.parse(queryText);

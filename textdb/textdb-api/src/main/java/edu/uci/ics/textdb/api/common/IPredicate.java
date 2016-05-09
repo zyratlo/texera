@@ -5,5 +5,4 @@ package edu.uci.ics.textdb.api.common;
  */
 public interface IPredicate {
 
-    boolean satisfy(ITuple tuple);
 }

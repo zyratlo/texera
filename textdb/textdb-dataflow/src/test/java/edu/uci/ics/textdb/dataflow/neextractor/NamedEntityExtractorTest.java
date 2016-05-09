@@ -1,29 +1,30 @@
 package edu.uci.ics.textdb.dataflow.neextractor;
 
-import edu.uci.ics.textdb.api.common.ITuple;
-import edu.uci.ics.textdb.api.common.Schema;
-import edu.uci.ics.textdb.api.dataflow.ISourceOperator;
+import java.util.ArrayList;
+import java.util.List;
 
-import edu.uci.ics.textdb.api.storage.IDataReader;
-import edu.uci.ics.textdb.api.storage.IDataStore;
-import edu.uci.ics.textdb.api.storage.IDataWriter;
-import edu.uci.ics.textdb.common.constants.LuceneConstants;
-import edu.uci.ics.textdb.dataflow.neextrator.NamedEntityExtractor;
-import edu.uci.ics.textdb.dataflow.source.ScanBasedSourceOperator;
-import edu.uci.ics.textdb.dataflow.utils.TestUtils;
-import edu.uci.ics.textdb.storage.LuceneDataStore;
-import edu.uci.ics.textdb.storage.reader.LuceneDataReader;
-import edu.uci.ics.textdb.storage.writer.LuceneDataWriter;
+import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.Query;
-
-import org.apache.lucene.analysis.Analyzer;
 import org.junit.After;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.List;
+import edu.uci.ics.textdb.api.common.IPredicate;
+import edu.uci.ics.textdb.api.common.ITuple;
+import edu.uci.ics.textdb.api.common.Schema;
+import edu.uci.ics.textdb.api.dataflow.ISourceOperator;
+import edu.uci.ics.textdb.api.storage.IDataReader;
+import edu.uci.ics.textdb.api.storage.IDataStore;
+import edu.uci.ics.textdb.api.storage.IDataWriter;
+import edu.uci.ics.textdb.common.constants.DataConstants;
+import edu.uci.ics.textdb.dataflow.neextrator.NamedEntityExtractor;
+import edu.uci.ics.textdb.dataflow.source.ScanBasedSourceOperator;
+import edu.uci.ics.textdb.dataflow.utils.TestUtils;
+import edu.uci.ics.textdb.storage.DataReaderPredicate;
+import edu.uci.ics.textdb.storage.DataStore;
+import edu.uci.ics.textdb.storage.reader.DataReader;
+import edu.uci.ics.textdb.storage.writer.DataWriter;
 
 /**
  * @author Feng [sam0227]
@@ -37,6 +38,8 @@ public class NamedEntityExtractorTest {
 
     private Query query;
     private Analyzer analyzer;
+
+    private IPredicate dataReaderPredicate;
 
 
     @After
@@ -157,14 +160,15 @@ public class NamedEntityExtractorTest {
      */
 
     public ISourceOperator getSourceOperator(Schema schema, List<ITuple> data) throws Exception {
-        dataStore = new LuceneDataStore(LuceneConstants.INDEX_DIR, schema);
+        dataStore = new DataStore(DataConstants.INDEX_DIR, schema);
         analyzer = new StandardAnalyzer();
-        dataWriter = new LuceneDataWriter(dataStore, analyzer);
+        dataWriter = new DataWriter(dataStore, analyzer);
         dataWriter.writeData(data);
 
         QueryParser queryParser = new QueryParser(NEExtractorTestConstants.ATTRIBUTES_ONE_SENTENCE.get(0).getFieldName(), analyzer);
-        query = queryParser.parse(LuceneConstants.SCAN_QUERY);
-        dataReader = new LuceneDataReader(dataStore, query);
+        query = queryParser.parse(DataConstants.SCAN_QUERY);
+        dataReaderPredicate = new DataReaderPredicate(dataStore, query);
+        dataReader = new DataReader(dataReaderPredicate);
 
         ISourceOperator sourceOperator = new ScanBasedSourceOperator(dataReader);
         return sourceOperator;
