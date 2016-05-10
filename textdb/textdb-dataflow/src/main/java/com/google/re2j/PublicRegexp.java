@@ -16,15 +16,20 @@ public class PublicRegexp extends Regexp {
 /*
 	// fields originally declared in Regexp:
 	// for detailed explanations please see getter methods
+	
+	// note that for variable subs, although original comments
+	// say it's never null, it could still be null
   
 	Op op;                   // operator
 	int flags;               // bitmap of parse flags
 	Regexp[] subs;           // subexpressions, if any.  Never null.
 		                           // subs[0] is used as the freelist.
+	
 	int[] runes;             // matched runes, for LITERAL, CHAR_CLASS
 	int min, max;            // min, max for REPEAT
 	int cap;                 // capturing index, for CAPTURE
 	String name;             // capturing name, for CAPTURE
+	
 */
 	
 	// publicSubs are an array of subexpressions with type PublicRegexp
@@ -47,13 +52,16 @@ public class PublicRegexp extends Regexp {
 	// 
 	public static PublicRegexp deepCopy(Regexp re) {
 		PublicRegexp publicRegexp = new PublicRegexp(re);
-		
-		Stream<PublicRegexp> publicSubStream = 
-				Arrays.asList(re.subs).stream()
-				.map(sub -> PublicRegexp.deepCopy(sub));
-		publicRegexp.publicSubs = new PublicRegexp[re.subs.length];
-		publicSubStream.collect(Collectors.toList()).toArray(publicRegexp.publicSubs);
-		
+		if (re.subs != null) {
+			Stream<PublicRegexp> publicSubStream = 
+					Arrays.asList(re.subs).stream()
+					.map(sub -> PublicRegexp.deepCopy(sub));
+			publicRegexp.publicSubs = new PublicRegexp[re.subs.length];
+			publicSubStream.collect(Collectors.toList()).toArray(publicRegexp.publicSubs);
+		} else {
+			PublicRegexp[] emptySubs = {};
+			publicRegexp.publicSubs = emptySubs;
+		}
 		return publicRegexp;
 	}
 	
