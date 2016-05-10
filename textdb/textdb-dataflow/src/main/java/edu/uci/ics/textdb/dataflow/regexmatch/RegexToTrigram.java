@@ -22,7 +22,7 @@ public class RegexToTrigram {
 	public static TrigramBooleanQuery translate(String regex) {
 		// try to parse using RE2J
 		try {
-		    PublicRegexp re = PublicParser.parse(regex, PublicRE2.getPERL());
+		    PublicRegexp re = PublicParser.parse(regex, PublicRE2.PERL);
 		    re = PublicSimplify.simplify(re);
 		    RegexInfo regexInfo = analyze(re);
 		    return regexInfo.match;
@@ -48,48 +48,48 @@ public class RegexToTrigram {
 	 */
 	private static RegexInfo analyze(PublicRegexp re) {
 		RegexInfo regexInfo = new RegexInfo();
-		switch (re.getOp().toString()) {
-		case "ALTERNATE":
+		switch (re.getOp()) {
+		case ALTERNATE:
 			break;
-		case "ANY_CHAR":
+		case ANY_CHAR:
 			break;
-		case "ANY_CHAR_NOT_NL":
+		case ANY_CHAR_NOT_NL:
 			break;
-		case "BEGIN_LINE":
+		case BEGIN_LINE:
 			break;
-		case "BEGIN_TEXT":
+		case BEGIN_TEXT:
 			break;
-		case "CAPTURE":
+		case CAPTURE:
 			break;
-		case "CHAR_CLASS":
+		case CHAR_CLASS:
 			break;
-		case "CONCAT":
+		case CONCAT:
 			break;
-		case "EMPTY_MATCH":
+		case EMPTY_MATCH:
 			break;
-		case "END_LINE":
+		case END_LINE:
 			break;
-		case "END_TEXT":
+		case END_TEXT:
 			break;
-		case "LEFT_PAREN":
+		case LEFT_PAREN:
 			break;
-		case "LITERAL":
+		case LITERAL:
 			break;
-		case "NO_MATCH":
+		case NO_MATCH:
 			break;
-		case "NO_WORD_BOUNDARY":
+		case NO_WORD_BOUNDARY:
 			break;
-		case "PLUS":
+		case PLUS:
 			break;
-		case "QUEST":
+		case QUEST:
 			break;
-		case "REPEAT":
+		case REPEAT:
 			break;
-		case "STAR":
+		case STAR:
 			break;
-		case "VERTICAL_BAR":
+		case VERTICAL_BAR:
 			break;
-		case "WORD_BOUNDARY":
+		case WORD_BOUNDARY:
 			break;
 		default:
 			break;
