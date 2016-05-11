@@ -8,8 +8,8 @@ package com.google.re2j;
 public class PublicParser{
 
 	/**
-	 * parse will call re2j.Parser.parse
-	 * it parses a string to an Regexp object, which represents the abstract syntax tree
+	 * parse calls re2j.Parser.parse
+	 * it parses a string to a Regexp object, which represents the abstract syntax tree
 	 * the Regexp object will be converted to a PublicRegex object before return
 	 * @param pattern
 	 * @param flags

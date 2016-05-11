@@ -9,6 +9,27 @@ import java.util.stream.Stream;
  * Public Wrapper class for re2j.Regexp
  * Regexp class represents the abstract syntax tree
  * 
+ * for example,
+ * regex: "abc"
+ * abstract syntax tree:
+ * CONCAT
+ * --LITERAL a
+ * --LITERAL b
+ * --LITERAL c
+ * 
+ * regex: "a*|b"
+ * abstract syntax tree:
+ * ALTERNATE
+ * --STAR
+ * ----LITERAL a
+ * --LITERAL b
+ * 
+ * regex: [a-f]{1-3}
+ * abstract syntax tree:
+ * REPEAT min:1, max:3
+ * --CHAR_CLASS a-f
+ * 
+ * 
  * @author Zuozhi Wang
  *
  */
@@ -37,7 +58,8 @@ public class PublicRegexp extends Regexp {
 
 	/**
 	 * private shallow copy constructor
-	 * shallow copy only copies reference to subexpression array
+	 * Regexp[] subs is an array of sub-expressions of type Regexp
+	 * shallow copy only copies reference to the array
 	 */
 	private PublicRegexp(Regexp that) {
 		super(that);
@@ -46,19 +68,23 @@ public class PublicRegexp extends Regexp {
 	/**
 	 * deep copy converts every Regexp Object in subexpressions to a PublicRegexp object
 	 * and put them in publicSubs array
+	 * only public entry point to construct a PublicRegexp object
 	 * @param Regexp re, A Regexp that needs to be converted to PublicRegexp
-	 * @return PublicRegex
+	 * @return PublicRegexp
 	 */
-	// 
 	public static PublicRegexp deepCopy(Regexp re) {
 		PublicRegexp publicRegexp = new PublicRegexp(re);
 		if (re.subs != null) {
+			// initialize publicSubs array
+			publicRegexp.publicSubs = new PublicRegexp[re.subs.length];
+			// map every Regexp sub-expression to a PublicRegexp sub-expression
 			Stream<PublicRegexp> publicSubStream = 
 					Arrays.asList(re.subs).stream()
 					.map(sub -> PublicRegexp.deepCopy(sub));
-			publicRegexp.publicSubs = new PublicRegexp[re.subs.length];
+			// convert the result PublicRegexp subexpressions to an array
 			publicSubStream.collect(Collectors.toList()).toArray(publicRegexp.publicSubs);
 		} else {
+			// if subs is null, set publicSubs to an empty array
 			PublicRegexp[] emptySubs = {};
 			publicRegexp.publicSubs = emptySubs;
 		}
@@ -67,7 +93,8 @@ public class PublicRegexp extends Regexp {
 	
 	
 	/**
-	 * Public enum of op types
+	 * Enum types of Op (operator), which represents 
+	 * the operator type of current node in abstract syntax tree
 	 * This enum is identical to Regex.Op
 	 * @author zuozhi
 	 *
@@ -100,8 +127,11 @@ public class PublicRegexp extends Regexp {
 	}
 	
 	/**
-	 * This function converts Regex.Op to PublicRegex.PublicOp and returns it
-	 * @return PublicRegex.PublicOp
+	 * op's enum type Regexp.Op is not public
+	 * this converts op to an equivalent enum type, PublicOp
+	 * then returns it
+	 * 
+	 * @return PublicRegex.PublicOp, an enum type representing the operator
 	 */
 	public PublicOp getOp() {
 		try {
@@ -127,10 +157,16 @@ public class PublicRegexp extends Regexp {
 	}
 	
 	/**
-	 * runes represents character classes,
+	 * runes: a sequence of characters
+	 * it stores information related to literals and character classes
+	 * it has different interpretations for different ops
 	 * for example,
-	 * regex: [a-z], runes: [a,z]
-	 * regex: [a-cx-z], runes: [a,c,x,z]
+	 * regex: "[a-z]", runes: [a,z]
+	 * 		interpretation: a character class from a to z
+	 * regex: "[a-cx-z]", runes: [a,c,x,z]
+	 * 		interpretation: a character class from a to c, and from x to z
+	 * regex: "cat", runes [c,a,t]
+	 * 		interpretation: a literal "cat"
 	 * 
 	 * @return an array of runes
 	 */
