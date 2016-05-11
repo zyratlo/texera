@@ -143,7 +143,9 @@ public class PublicRegexp extends Regexp {
 	}
 	
 	/**
-	 * @return int indicating flags
+	 * flags is a bitmap of parse flags
+	 * @see PublicRE2 for possible flags
+	 * @return a bitmap of parse flags
 	 */
 	public int getFlags() {
 		return this.flags;
