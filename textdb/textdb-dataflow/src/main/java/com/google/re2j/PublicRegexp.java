@@ -6,29 +6,33 @@ import java.util.stream.Stream;
 
 
 /**
- * Public Wrapper class for re2j.Regexp
- * Regexp class represents the abstract syntax tree
+ * Public Wrapper class for re2j.Regexp, this class represents the abstract syntax tree. <br>
  * 
- * for example,
- * regex: "abc"
- * abstract syntax tree:
- * CONCAT
- * --LITERAL a
- * --LITERAL b
- * --LITERAL c
+ * <p>
+ * For example, <br>
+ * regex: "abc", 
+ * abstract syntax tree:<br>
+ * CONCAT <br>
+ * --LITERAL a <br>
+ * --LITERAL b <br>
+ * --LITERAL c <br>
+ * </p>
  * 
- * regex: "a*|b"
- * abstract syntax tree:
- * ALTERNATE
- * --STAR
- * ----LITERAL a
- * --LITERAL b
+ * <p>
+ * regex: "a*|b", 
+ * abstract syntax tree: <br>
+ * ALTERNATE <br>
+ * --STAR <br>
+ * ----LITERAL a <br>
+ * --LITERAL b <br>
+ * </p>
  * 
- * regex: "[a-f]{1-3}"
- * abstract syntax tree:
- * REPEAT min:1, max:3
- * --CHAR_CLASS a-f
- * 
+ * <p>
+ * regex: "[a-f]{1-3}", 
+ * abstract syntax tree: <br>
+ * REPEAT min:1, max:3 <br>
+ * --CHAR_CLASS a-f <br>
+ * </p>
  * 
  * @author Zuozhi Wang
  *
@@ -58,16 +62,16 @@ public class PublicRegexp extends Regexp {
 
 	/**
 	 * This calls the shallow copy constructor in Regexp superclass,
-	 * which only copies reference to subexpressions array
+	 * which only copies reference to subexpressions array. <br>
 	 */
 	private PublicRegexp(Regexp that) {
 		super(that);
 	}
 	  
 	/**
-	 * This converts every Regexp Object in subexpressions to a PublicRegexp object
-	 * and put them in publicSubs array
-	 * it is the only public entry point to construct a PublicRegexp object
+	 * This performs a deep copy of a Regexp object. Every Regexp Object in subexpression arrary 
+	 * is converted to a PublicRegexp object and put in publicSubs array. <br>
+	 * This is the only public entry point to construct a PublicRegexp object. <br>
 	 * @param re, a Regexp that needs to be converted to PublicRegexp
 	 * @return PublicRegexp
 	 */
@@ -93,8 +97,8 @@ public class PublicRegexp extends Regexp {
 	
 	/**
 	 * Enum types of Op (operator), which represents 
-	 * the operator type of current node in abstract syntax tree
-	 * This enum is identical to Regex.Op
+	 * the operator type of current node in abstract syntax tree. <br>
+	 * This enum is identical to Regex.Op, which is not public. <br>
 	 * @author zuozhi
 	 *
 	 */
@@ -126,10 +130,7 @@ public class PublicRegexp extends Regexp {
 	}
 	
 	/**
-	 * op's enum type Regexp.Op is not public
-	 * this converts op to an equivalent enum type, PublicOp
-	 * then returns it
-	 * 
+	 * This returns the the op's type, {@link PublicOp}, which is equivalent to Regexp.Op. <br>
 	 * @return PublicRegex.PublicOp, an enum type representing the operator
 	 */
 	public PublicOp getOp() {
@@ -142,7 +143,7 @@ public class PublicRegexp extends Regexp {
 	}
 	
 	/**
-	 * flags is a bitmap of parse flags
+	 * This returns the a bitmap of parse flags. <br>
 	 * @see PublicRE2 for possible flags
 	 * @return a bitmap of parse flags
 	 */
@@ -151,23 +152,26 @@ public class PublicRegexp extends Regexp {
 	}
 	
 	/**
-	 * @return an array of subexpressions with type PublicRegexp
+	 * This returns an array of sub-expressions with type PublicRegexp. <br>
+	 * @return an array of subexpressions
 	 */
 	public PublicRegexp[] getSubs() {
 		return this.publicSubs;
 	}
 	
 	/**
-	 * runes: a sequence of characters
-	 * it stores information related to literals and character classes
-	 * it has different interpretations for different ops
-	 * for example,
-	 * regex: "[a-z]", runes: [a,z]
-	 * 		interpretation: a character class from a to z
-	 * regex: "[a-cx-z]", runes: [a,c,x,z]
-	 * 		interpretation: a character class from a to c, and from x to z
-	 * regex: "cat", runes [c,a,t]
-	 * 		interpretation: a literal "cat"
+	 * Runes are a sequence of characters. 
+	 * It stores information related to literals and character classes, and 
+	 * has different interpretations for different ops. <br>
+	 * <p>
+	 * For example, <br>
+	 * regex: "[a-z]", runes: [a,z] <br>
+	 * 		interpretation: a character class from a to z <br>
+	 * regex: "[a-cx-z]", runes: [a,c,x,z] <br>
+	 * 		interpretation: a character class from a to c, and from x to z <br>
+	 * regex: "cat", runes [c,a,t] <br>
+	 * 		interpretation: a literal "cat" <br>
+	 * </p>
 	 * 
 	 * @return an array of runes
 	 */
@@ -176,9 +180,11 @@ public class PublicRegexp extends Regexp {
 	}
 	
 	/**
-	 * min and max are used for repetitions
-	 * for example,
-	 * regex: "a{3,5}", min will be 3, max will be 5
+	 * Min and Max are used for repetitions numbers. <br>
+	 * <p>
+	 * For example, <br>
+	 * regex: "a{3,5}", min will be 3, max will be 5 <br>
+	 * </p>
 	 * @return int indicating minimum number of repetitions
 	 */
 	public int getMin() {
@@ -186,9 +192,7 @@ public class PublicRegexp extends Regexp {
 	}
 	
 	/**
-	 * {@link min} and {@link max} are used for repetitions
-	 * for example,
-	 * regex: "a{3,5}", min will be 3, max will be 5
+	 * @see getMin
 	 * @return int indicating maxinum number of repetitions
 	 */
 	public int getMax() {
@@ -196,13 +200,13 @@ public class PublicRegexp extends Regexp {
 	}
 	
 	/**
-	 * {@link cap} is the capturing index
-	 * expressions in () makes it a capture group, 
-	 * the entire regex's capturing index is 0, other capturing groups' indexes start from 1
-	 * 
-	 * for example,
-	 * regex: "(a)(b)"
-	 * for "(a)", cap will be 1, for "(b)", cap will be 2
+	 * Cap is the capturing index. Expressions in () become a capture group. 
+	 * The entire regex's capturing index is 0, other groups' indexes start from 1. <br>
+	 * <p>
+	 * For example, <br>
+	 * regex: "(a)(b)" <br>
+	 * for "(a)", cap will be 1, for "(b)", cap will be 2 <br>
+	 * </p>
 	 * @return int indicating capture index
 	 */
 	public int getCap() {
@@ -211,10 +215,13 @@ public class PublicRegexp extends Regexp {
 	
 	
 	/**
-	 * {@link name} is capturing group's name (if any)
-	 * for example,
-	 * regex: {@literal "(?<name1>a)(?\<name2>b)"}
-	 * for {@literal "(?\<name1>a)"}, cap name will be name1, for {@literal "(?\<name2>b)"}, cap name will be name2
+	 * Name is capturing group's name (if any). <br>
+	 * <p>
+	 * For example, <br>
+	 * regex: {@literal "(?<name1>a)(?\<name2>b)"} <br>
+	 * for {@literal "(?\<name1>a)"}, cap name will be name1 <br>
+	 * for {@literal "(?\<name2>b)"}, cap name will be name2 <br>
+	 * </p>
 	 * @return int indicating capture index
 	 */
 	public String getCapName() {

@@ -1,21 +1,18 @@
 package com.google.re2j;
 
 /**
- * Wrapper class for re2j.Parser
- * @author zuozhi
+ * Wrapper class of re2j.Parser, this class parses a regex string to a PublicRegexp object. <br>
+ * @author Zuozhi Wang
  *
  */
 public class PublicParser{
 
 	/**
-	 * parse calls re2j.Parser.parse
-	 * it parses a string to a Regexp object, which represents the abstract syntax tree
-	 * the Regexp object will be converted to a PublicRegex object before return
+	 * This method parses a regex string, and returns a PublicRegexp object, which represents the abstract syntax tree
 	 * @param regex, the regex string to be parsed
-	 * @param flags
-	 * @see PublicRE2 for possible flags
+	 * @param flags, parse flags, see PublicRE2 for possible flags
 	 * @return PublicRegexp
-	 * @throws PatternSyntaxException
+	 * @throws PatternSyntaxException if parsing fails
 	 */
 	public static PublicRegexp parse(String regex, int flags) throws PatternSyntaxException {
 		return PublicRegexp.deepCopy(Parser.parse(regex, flags));
