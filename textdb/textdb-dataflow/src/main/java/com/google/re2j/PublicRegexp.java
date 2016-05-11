@@ -127,10 +127,12 @@ public class PublicRegexp extends Regexp {
 	}
 	
 	/**
-	 * runes represents character classes,
+	 * runes: information for literals and character classes,
+	 * it has different interpretations for different op
 	 * for example,
 	 * regex: [a-z], runes: [a,z]
 	 * regex: [a-cx-z], runes: [a,c,x,z]
+	 * regex: abc, runes: [a,b,c]
 	 * 
 	 * @return an array of runes
 	 */

@@ -30,11 +30,7 @@ public class TrigramBooleanQuery {
 	List<String> operandList;
 	List<TrigramBooleanQuery> subQueryList;
 	
-	public TrigramBooleanQuery() {
-		this(TrigramBooleanQuery.AND);
-	}
-	
-	private TrigramBooleanQuery(int operator) {
+	public TrigramBooleanQuery(int operator) {
 		this.operator = operator;
 		operandList = new ArrayList<String>();
 		subQueryList = new ArrayList<TrigramBooleanQuery>();

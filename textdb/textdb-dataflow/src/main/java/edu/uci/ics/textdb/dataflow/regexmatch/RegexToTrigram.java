@@ -6,10 +6,11 @@ import com.google.re2j.PublicRegexp;
 import com.google.re2j.PublicSimplify;
 
 /**
+ * This class 
+ * {@link https://swtch.com/~rsc/regexp/regexp4.html}
  * 
  * @Author Zuozhi Wang
  * @Author Shuying Lai
- * @since 2016-05-07
  * 
  */
 public class RegexToTrigram {	
@@ -32,7 +33,7 @@ public class RegexToTrigram {
 			// if succeeds, return matchAll (scan based)
 			try {
 				java.util.regex.Pattern.compile(regex);
-				return RegexInfo.matchAll().match;
+				return RegexInfo.matchAny().match;
 			// if Java Regex fails too, return matchNone (not a regex)
 			} catch (java.util.regex.PatternSyntaxException java_e) {
 				return RegexInfo.matchNone().match;
@@ -49,15 +50,26 @@ public class RegexToTrigram {
 	private static RegexInfo analyze(PublicRegexp re) {
 		RegexInfo regexInfo = new RegexInfo();
 		switch (re.getOp()) {
+		// NO_MATCH: a regex that matches no string
+		// it shouldn't happen unless something goes wrong
+		// used to handle error cases
+		case NO_MATCH: {
+			return RegexInfo.matchNone();
+		}
+		// treat the following cases as 
+		// a regex that matches an empty string
+		case EMPTY_MATCH:
+		case WORD_BOUNDARY:	case NO_WORD_BOUNDARY:
+		case BEGIN_LINE: 	case END_LINE:
+		case BEGIN_TEXT: 	case END_TEXT: {
+			return RegexInfo.emptyString();
+		}
+		// a regex that matches any character
+		case ANY_CHAR: case ANY_CHAR_NOT_NL: {
+			return RegexInfo.anyChar();
+		}
+		// TODO finish for every case
 		case ALTERNATE:
-			break;
-		case ANY_CHAR:
-			break;
-		case ANY_CHAR_NOT_NL:
-			break;
-		case BEGIN_LINE:
-			break;
-		case BEGIN_TEXT:
 			break;
 		case CAPTURE:
 			break;
@@ -65,19 +77,9 @@ public class RegexToTrigram {
 			break;
 		case CONCAT:
 			break;
-		case EMPTY_MATCH:
-			break;
-		case END_LINE:
-			break;
-		case END_TEXT:
-			break;
 		case LEFT_PAREN:
 			break;
 		case LITERAL:
-			break;
-		case NO_MATCH:
-			break;
-		case NO_WORD_BOUNDARY:
 			break;
 		case PLUS:
 			break;
@@ -88,8 +90,6 @@ public class RegexToTrigram {
 		case STAR:
 			break;
 		case VERTICAL_BAR:
-			break;
-		case WORD_BOUNDARY:
 			break;
 		default:
 			break;

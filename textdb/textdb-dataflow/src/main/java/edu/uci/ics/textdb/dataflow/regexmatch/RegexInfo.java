@@ -17,26 +17,60 @@ public class RegexInfo {
 	List<String> suffix = null;
 	TrigramBooleanQuery match = null;
 	
+	/**
+	 * This initializes RegexInfo:
+	 * emptyable to false
+	 * exact, prefix, suffix to empty arraylist
+	 * match to match ALL
+	 */
 	public RegexInfo() {
-		emptyable = true;
+		emptyable = false;
 		exact = new ArrayList<String>();
 		prefix = new ArrayList<String>();
 		suffix = new ArrayList<String>();
-		match = new TrigramBooleanQuery();
+		match = new TrigramBooleanQuery(TrigramBooleanQuery.ALL);
 	}
 	
-	
+	/**
+	 *
+	 * @return RegexInfo describing a regex that matching NO string
+	 */
 	public static RegexInfo matchNone() {
 		RegexInfo info = new RegexInfo();
 		info.match.operator = TrigramBooleanQuery.NONE;
 		return info;
 	}
 	
-	public static RegexInfo matchAll() {
+	/**
+	 * 
+	 * @return RegexInfo describing a regex that matching ANY string
+	 */
+	public static RegexInfo matchAny() {
 		RegexInfo info = new RegexInfo();
 		info.match.operator = TrigramBooleanQuery.ALL;
 		return info;
 	}
 	
+	/**
+	 * 
+	 * @return RegexInfo describing a regex that matching an EMPTY string
+	 */
+	public static RegexInfo emptyString() {
+		RegexInfo info = new RegexInfo();
+		info.emptyable = true;
+		info.match.operator = TrigramBooleanQuery.ALL;
+		info.exact.add("");
+		return info;
+	}
 	
+	/**
+	 * 
+	 * @return RegexInfo describing a regex that matching ANY SINGLE character
+	 */
+	public static RegexInfo anyChar() {
+		RegexInfo info = new RegexInfo();
+		info.emptyable = false;
+		return info;
+	}
+
 }
