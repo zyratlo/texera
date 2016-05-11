@@ -88,11 +88,14 @@ public class KeywordMatcherTest {
         IPredicate predicate = new KeywordPredicate(query, attributeList, analyzer,dataStore);
         keywordMatcher = new KeywordMatcher(predicate);
         keywordMatcher.open();
+
         List<ITuple> results = new ArrayList<>();
         ITuple nextTuple = null;
+
         while ((nextTuple = keywordMatcher.getNextTuple()) != null) {
             results.add(nextTuple);
         }
+
         return results;
     }
 
@@ -168,7 +171,7 @@ public class KeywordMatcherTest {
     @Test
     public void testSingleWordQueryInTextField() throws Exception {
         //Prepare Query
-        String query = "tall";
+        String query = "TaLL";
         ArrayList<Attribute> attributeList = new ArrayList<>();
         attributeList.add(TestConstants.FIRST_NAME_ATTR);
         attributeList.add(TestConstants.LAST_NAME_ATTR);
@@ -179,9 +182,11 @@ public class KeywordMatcherTest {
         Span span = new Span("description", 0, 4, "tall", "Tall");
         list.add(span);
         Attribute[] schemaAttributes = new Attribute[TestConstants.ATTRIBUTES_PEOPLE.length + 1];
+
         for(int count = 0; count < schemaAttributes.length - 1; count++) {
             schemaAttributes[count] = TestConstants.ATTRIBUTES_PEOPLE[count];
         }
+
         schemaAttributes[schemaAttributes.length - 1] = SchemaConstants.SPAN_LIST_ATTRIBUTE;
 
         IField[] fields1 = { new StringField("bruce"), new StringField("john Lee"), new IntegerField(46),

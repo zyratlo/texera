@@ -1,10 +1,11 @@
 package edu.uci.ics.textdb.dataflow.common;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import edu.uci.ics.textdb.api.common.Attribute;
 import edu.uci.ics.textdb.api.common.FieldType;
+import edu.uci.ics.textdb.api.common.IPredicate;
 import edu.uci.ics.textdb.api.storage.IDataStore;
+import edu.uci.ics.textdb.common.exception.DataFlowException;
+import edu.uci.ics.textdb.common.utils.Utils;
 import edu.uci.ics.textdb.storage.DataReaderPredicate;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.index.Term;
@@ -13,12 +14,10 @@ import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
-
-import edu.uci.ics.textdb.api.common.Attribute;
-import edu.uci.ics.textdb.api.common.IPredicate;
-import edu.uci.ics.textdb.common.exception.DataFlowException;
-import edu.uci.ics.textdb.common.utils.Utils;
 import org.apache.lucene.search.TermQuery;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *  @author prakul
@@ -49,9 +48,8 @@ public class KeywordPredicate implements IPredicate{
                 temp[i] = attributeList.get(i).getFieldName();
             }
             this.fields = temp;
-            this.tokens = Utils.tokenizeQuery(analyzer, this.query);
             this.analyzer = analyzer;
-            this.queryObject = createQueryObject();
+            this.queryObject = createLuceneQueryObject();
         } catch (Exception e) {
             e.printStackTrace();
             throw new DataFlowException(e.getMessage(), e);
@@ -69,19 +67,22 @@ public class KeywordPredicate implements IPredicate{
      * @return Query
      * @throws ParseException
      */
-    private Query createQueryObject() throws ParseException {
-        ArrayList<String> tokens;
+    private Query createLuceneQueryObject() throws ParseException {
+
         List<String> fieldList = new ArrayList<String>();
-        BooleanQuery booleanQuery = new BooleanQuery();
+        BooleanQuery luceneBooleanQuery = new BooleanQuery();
 
         for(int i=0; i< attributeList.size(); i++){
+
             String fieldName = attributeList.get(i).getFieldName();
+
             /*
-            If the field is of type string, handle it differently
+            If the field type is String, we need to perform an exact match
+            without parsing the query. Hence add them directly to the Query
              */
-            if(attributeList.get(i).getFieldType() == FieldType.DATE.STRING){
-                Query termQuery = new TermQuery(new Term(fieldName,query));
-                booleanQuery.add(termQuery, BooleanClause.Occur.SHOULD);
+            if(attributeList.get(i).getFieldType() == FieldType.STRING){
+                Query termQuery = new TermQuery(new Term(fieldName, query));
+                luceneBooleanQuery.add(termQuery, BooleanClause.Occur.SHOULD);
             }
             else {
                 fieldList.add(fieldName);
@@ -89,19 +90,28 @@ public class KeywordPredicate implements IPredicate{
         }
 
         if(fieldList.size()==0){
-            return booleanQuery;
+            return luceneBooleanQuery;
         }
 
+        /*
+        For all the other fields, parse the query using query parser
+        and generate  boolean query
+         */
         String[] remainingFields = (String[]) fieldList.toArray(new String[0]);
         BooleanQuery queryOnOtherFields = new BooleanQuery();
-        tokens = Utils.tokenizeQuery(analyzer, query);
-        MultiFieldQueryParser parser = new MultiFieldQueryParser(remainingFields,analyzer);
-        for(String searchToken: tokens){
+        this.tokens = Utils.tokenizeQuery(analyzer, query);
+        MultiFieldQueryParser parser = new MultiFieldQueryParser(remainingFields, analyzer);
+
+        for(String searchToken: this.tokens){
             Query termQuery = parser.parse(searchToken);
-           queryOnOtherFields.add(termQuery, BooleanClause.Occur.MUST);
+            queryOnOtherFields.add(termQuery, BooleanClause.Occur.MUST);
         }
-        booleanQuery.add(queryOnOtherFields,BooleanClause.Occur.SHOULD);
-        return booleanQuery;
+
+        /*
+        Merge the query for non-String fields with the StringField Query
+         */
+        luceneBooleanQuery.add(queryOnOtherFields,BooleanClause.Occur.SHOULD);
+        return luceneBooleanQuery;
     }
 
     public String getQuery(){
