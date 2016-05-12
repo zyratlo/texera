@@ -64,7 +64,7 @@ public class RegexInfo {
 	}
 	
 	/**
-	 * 
+	 * The prefix, suffix, and exact are null (unknown), because we don't know which character exactly. 
 	 * @return RegexInfo describing a regex that matching ANY SINGLE character
 	 */
 	public static RegexInfo anyChar() {
