@@ -6,7 +6,7 @@ import java.util.stream.Stream;
 
 
 /**
- * Public Wrapper class for re2j.Regexp, this class represents the abstract syntax tree. <br>
+ * Public Wrapper class for re2j.Regexp.<!-- --> This class represents the abstract syntax tree. <br>
  * 
  * <p>
  * For example, <br>
@@ -39,11 +39,11 @@ import java.util.stream.Stream;
  */
 public class PublicRegexp extends Regexp {
 /*
-	// fields originally declared in Regexp:
-	// for detailed explanations please see getter methods
+	// Fields originally declared in Regexp.
+	// For detailed explanations please see cooresponding getter methods
 	
-	// note that for subexpressions, although original comments
-	// say it's never null, it could still be null
+	// Note that for subexpressions, although original comments
+	// say it's never null, it could still be null.
   
 	Op op;                   // operator
 	int flags;               // bitmap of parse flags
@@ -128,7 +128,7 @@ public class PublicRegexp extends Regexp {
 	}
 	
 	/**
-	 * This returns the the op's type, {@link PublicOp}, which is equivalent to Regexp.Op. <br>
+	 * This returns the op's type, {@link PublicOp}, which is equivalent to Regexp.Op. <br>
 	 * @return PublicRegex.PublicOp, an enum type representing the operator
 	 */
 	public PublicOp getOp() {
@@ -141,7 +141,7 @@ public class PublicRegexp extends Regexp {
 	}
 	
 	/**
-	 * This returns the a bitmap of parse flags. <br>
+	 * This returns a bitmap of parse flags. <br>
 	 * @see PublicRE2 for possible flags
 	 * @return a bitmap of parse flags
 	 */
@@ -181,9 +181,9 @@ public class PublicRegexp extends Regexp {
 	 * Min and Max are used for repetitions numbers. <br>
 	 * <p>
 	 * For example, <br>
-	 * regex: "a{3,5}", min will be 3, max will be 5 <br>
+	 * regex: "a{3,5}", min will be 3, and max will be 5 <br>
 	 * </p>
-	 * @return int indicating minimum number of repetitions
+	 * @return an int indicating minimum number of repetitions
 	 */
 	public int getMin() {
 		return this.min;
@@ -191,7 +191,7 @@ public class PublicRegexp extends Regexp {
 	
 	/**
 	 * @see getMin
-	 * @return int indicating maxinum number of repetitions
+	 * @return an int indicating maxinum number of repetitions
 	 */
 	public int getMax() {
 		return this.max;
@@ -199,13 +199,13 @@ public class PublicRegexp extends Regexp {
 	
 	/**
 	 * Cap is the capturing index. Expressions in () become a capture group. 
-	 * The entire regex's capturing index is 0, other groups' indexes start from 1. <br>
+	 * The entire regex's capturing index is 0, and other groups' indexes start from 1. <br>
 	 * <p>
 	 * For example, <br>
 	 * regex: "(a)(b)" <br>
 	 * for "(a)", cap will be 1, for "(b)", cap will be 2 <br>
 	 * </p>
-	 * @return int indicating capture index
+	 * @return an int indicating capture index
 	 */
 	public int getCap() {
 		return this.cap;
@@ -220,7 +220,7 @@ public class PublicRegexp extends Regexp {
 	 * for {@literal "(?\<name1>a)"}, cap name will be name1 <br>
 	 * for {@literal "(?\<name2>b)"}, cap name will be name2 <br>
 	 * </p>
-	 * @return int indicating capture index
+	 * @return an int indicating capture index
 	 */
 	public String getCapName() {
 		return this.name;

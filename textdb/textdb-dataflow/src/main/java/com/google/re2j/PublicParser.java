@@ -1,7 +1,7 @@
 package com.google.re2j;
 
 /**
- * Wrapper class of re2j.Parser, this class parses a regex string to a PublicRegexp object. <br>
+ * Wrapper class of re2j.Parser.<!-- --> This class parses a regex string to a PublicRegexp object. <br>
  * @author Zuozhi Wang
  *
  */
