@@ -72,5 +72,27 @@ public class RegexInfo {
 		info.emptyable = false;
 		return info;
 	}
+	
+	/**
+	 * This function has not been implemented yet.
+	 * @param x
+	 * @param y
+	 * @return RegexInfo describing a regex that matches either x or y (x|y)
+	 */
+	public static RegexInfo alternate(RegexInfo x, RegexInfo y) {
+		RegexInfo info = new RegexInfo();
+		return info;
+	}
+	
+	/**
+	 * This function has not been implemented yet.
+	 * @param x
+	 * @param y
+	 * @return RegexInfor describing a regex that matches x followed by y (xy)
+	 */
+	public static RegexInfo concat(RegexInfo x, RegexInfo y) {
+		RegexInfo info = new RegexInfo();
+		return info;
+	}
 
 }

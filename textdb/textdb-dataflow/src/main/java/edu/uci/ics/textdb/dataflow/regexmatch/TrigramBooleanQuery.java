@@ -30,6 +30,7 @@ public class TrigramBooleanQuery {
 	List<String> operandList;
 	List<TrigramBooleanQuery> subQueryList;
 	
+	
 	public TrigramBooleanQuery(int operator) {
 		this.operator = operator;
 		operandList = new ArrayList<String>();
