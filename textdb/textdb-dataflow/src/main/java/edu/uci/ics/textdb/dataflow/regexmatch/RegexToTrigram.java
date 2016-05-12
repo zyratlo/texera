@@ -70,7 +70,7 @@ public class RegexToTrigram {
 		}
 		// TODO finish for every case
 		case ALTERNATE:
-			return RegexInfo.alternate(analyze(re.getSubs()[0]), RegexInfo.emptyString());
+			break;
 		case CAPTURE:
 			break;
 		case CHAR_CLASS:
@@ -81,6 +81,7 @@ public class RegexToTrigram {
 			break;
 		case LITERAL:
 			break;
+		//
 		case PLUS:
 			RegexInfo info = analyze(re.getSubs()[0]);
 			info.emptyable = false;
