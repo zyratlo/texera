@@ -58,7 +58,7 @@ public class PublicRegexp extends Regexp {
 */
 	
 	// publicSubs are an array of subexpressions with type PublicRegexp
-	private PublicRegexp[] publicSubs;
+	PublicRegexp[] publicSubs;
 
 	/**
 	 * This calls the shallow copy constructor in Regexp superclass,
@@ -87,9 +87,7 @@ public class PublicRegexp extends Regexp {
 			// convert the result PublicRegexp subexpressions to an array
 			publicSubStream.collect(Collectors.toList()).toArray(publicRegexp.publicSubs);
 		} else {
-			// if subs is null, set publicSubs to an empty array
-			PublicRegexp[] emptySubs = {};
-			publicRegexp.publicSubs = emptySubs;
+			publicRegexp.publicSubs = null;
 		}
 		return publicRegexp;
 	}
