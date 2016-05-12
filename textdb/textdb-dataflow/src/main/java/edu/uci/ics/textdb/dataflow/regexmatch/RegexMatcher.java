@@ -23,7 +23,7 @@ import edu.uci.ics.textdb.dataflow.common.RegexPredicate;
  * @author laishuying
  */
 public class RegexMatcher implements IOperator {
-    private final IPredicate predicate;
+    private final RegexPredicate regexPredicate;
     private ISourceOperator sourceOperator;
     private Query luceneQuery;
 
@@ -34,9 +34,13 @@ public class RegexMatcher implements IOperator {
     private List<Span> spans;
 
     public RegexMatcher(IPredicate predicate, ISourceOperator sourceOperator) {
-        this.predicate = predicate;
+    	this.regexPredicate = (RegexPredicate)predicate;
         this.sourceOperator = sourceOperator;
-        //TODO build the luceneQuery by given regex.
+        
+        // build the luceneQuery by given regex
+        // String queryStr = RegexToTrigram.translate(regexPredicate.getRegex()).getQuery();
+
+        // next PR for adding translate to indexBasedSourceOperator 
     }
 
     @Override
@@ -55,9 +59,7 @@ public class RegexMatcher implements IOperator {
             ITuple sourceTuple = sourceOperator.getNextTuple();
             if(sourceTuple == null){
                 return null;
-            }
-            
-            RegexPredicate regexPredicate = (RegexPredicate)predicate; 
+            }  
             
             spans = regexPredicate.computeMatches(sourceTuple);
             
