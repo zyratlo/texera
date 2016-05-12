@@ -6,19 +6,44 @@ import java.util.stream.Stream;
 
 
 /**
- * Public Wrapper class for re2j.Regexp
- * Regexp class represents the abstract syntax tree
+ * Public Wrapper class for re2j.Regexp.<!-- --> This class represents the abstract syntax tree. <br>
+ * 
+ * <p>
+ * For example, <br>
+ * regex: "abc", 
+ * abstract syntax tree:<br>
+ * CONCAT <br>
+ * --LITERAL a <br>
+ * --LITERAL b <br>
+ * --LITERAL c <br>
+ * </p>
+ * 
+ * <p>
+ * regex: "a*|b", 
+ * abstract syntax tree: <br>
+ * ALTERNATE <br>
+ * --STAR <br>
+ * ----LITERAL a <br>
+ * --LITERAL b <br>
+ * </p>
+ * 
+ * <p>
+ * regex: "[a-f]{1-3}", 
+ * abstract syntax tree: <br>
+ * REPEAT min:1, max:3 <br>
+ * --CHAR_CLASS a-f <br>
+ * </p>
  * 
  * @author Zuozhi Wang
  *
  */
 public class PublicRegexp extends Regexp {
 /*
-	// fields originally declared in Regexp:
-	// for detailed explanations please see getter methods
+	// Fields originally declared in Regexp.
+	// For detailed explanations please see cooresponding getter methods
 	
-	// note that for variable subs, although original comments
-	// say it's never null, it could still be null
+	// Note that for subexpressions, although original comments
+	// say it's never null, it could still be null.
   
 	Op op;                   // operator
 	int flags;               // bitmap of parse flags
@@ -33,42 +58,45 @@ public class PublicRegexp extends Regexp {
 */
 	
 	// publicSubs are an array of subexpressions with type PublicRegexp
-	private PublicRegexp[] publicSubs;
+	PublicRegexp[] publicSubs;
 
 	/**
-	 * private shallow copy constructor
-	 * shallow copy only copies reference to subexpression array
+	 * This calls the shallow copy constructor in Regexp superclass,
+	 * which only copies reference to subexpressions array. <br>
 	 */
 	private PublicRegexp(Regexp that) {
 		super(that);
 	}
 	  
 	/**
-	 * deep copy converts every Regexp Object in subexpressions to a PublicRegexp object
-	 * and put them in publicSubs array
-	 * @param Regexp re, A Regexp that needs to be converted to PublicRegexp
-	 * @return PublicRegex
+	 * This performs a deep copy of a Regexp object. Every Regexp Object in subexpression arrary 
+	 * is converted to a PublicRegexp object and put in publicSubs array. <br>
+	 * This is the only public entry point to construct a PublicRegexp object. <br>
+	 * @param re, a Regexp that needs to be converted to PublicRegexp
+	 * @return PublicRegexp
 	 */
-	// 
 	public static PublicRegexp deepCopy(Regexp re) {
 		PublicRegexp publicRegexp = new PublicRegexp(re);
 		if (re.subs != null) {
+			// initialize publicSubs array
+			publicRegexp.publicSubs = new PublicRegexp[re.subs.length];
+			// map every Regexp sub-expression to a PublicRegexp sub-expression
 			Stream<PublicRegexp> publicSubStream = 
 					Arrays.asList(re.subs).stream()
 					.map(sub -> PublicRegexp.deepCopy(sub));
-			publicRegexp.publicSubs = new PublicRegexp[re.subs.length];
+			// convert the result PublicRegexp subexpressions to an array
 			publicSubStream.collect(Collectors.toList()).toArray(publicRegexp.publicSubs);
 		} else {
-			PublicRegexp[] emptySubs = {};
-			publicRegexp.publicSubs = emptySubs;
+			publicRegexp.publicSubs = null;
 		}
 		return publicRegexp;
 	}
 	
 	
 	/**
-	 * Public enum of op types
-	 * This enum is identical to Regex.Op
+	 * Enum types of Op (operator), which represents 
+	 * the operator type of current node in abstract syntax tree. <br>
+	 * This enum is identical to Regex.Op, which is not public. <br>
 	 * @author zuozhi
 	 *
 	 */
@@ -100,8 +128,8 @@ public class PublicRegexp extends Regexp {
 	}
 	
 	/**
-	 * This function converts Regex.Op to PublicRegex.PublicOp and returns it
-	 * @return PublicRegex.PublicOp
+	 * This returns the op's type, {@link PublicOp}, which is equivalent to Regexp.Op. <br>
+	 * @return PublicRegex.PublicOp, an enum type representing the operator
 	 */
 	public PublicOp getOp() {
 		try {
@@ -113,26 +141,35 @@ public class PublicRegexp extends Regexp {
 	}
 	
 	/**
-	 * @return int indicating flags
+	 * This returns a bitmap of parse flags. <br>
+	 * @see PublicRE2 for possible flags
+	 * @return a bitmap of parse flags
 	 */
 	public int getFlags() {
 		return this.flags;
 	}
 	
 	/**
-	 * @return an array of subexpressions with type PublicRegexp
+	 * This returns an array of sub-expressions with type PublicRegexp. <br>
+	 * @return an array of subexpressions
 	 */
 	public PublicRegexp[] getSubs() {
 		return this.publicSubs;
 	}
 	
 	/**
-	 * runes: information for literals and character classes,
-	 * it has different interpretations for different op
-	 * for example,
-	 * regex: [a-z], runes: [a,z]
-	 * regex: [a-cx-z], runes: [a,c,x,z]
-	 * regex: abc, runes: [a,b,c]
+	 * Runes are a sequence of characters. 
+	 * It stores information related to literals and character classes, and 
+	 * has different interpretations for different ops. <br>
+	 * <p>
+	 * For example, <br>
+	 * regex: "[a-z]", runes: [a,z] <br>
+	 * 		interpretation: a character class from a to z <br>
+	 * regex: "[a-cx-z]", runes: [a,c,x,z] <br>
+	 * 		interpretation: a character class from a to c, and from x to z <br>
+	 * regex: "cat", runes [c,a,t] <br>
+	 * 		interpretation: a literal "cat" <br>
+	 * </p>
 	 * 
 	 * @return an array of runes
 	 */
@@ -141,34 +178,34 @@ public class PublicRegexp extends Regexp {
 	}
 	
 	/**
-	 * min and max are used for repetitions
-	 * for example,
-	 * regex: a{3,5}, min will be 3, max will be 5
-	 * @return int indicating minimum number of repetitions
+	 * Min and Max are used for repetitions numbers. <br>
+	 * <p>
+	 * For example, <br>
+	 * regex: "a{3,5}", min will be 3, and max will be 5 <br>
+	 * </p>
+	 * @return an int indicating minimum number of repetitions
 	 */
 	public int getMin() {
 		return this.min;
 	}
 	
 	/**
-	 * min and max are used for repetitions
-	 * for example,
-	 * regex: a{3,5}, min will be 3, max will be 5
-	 * @return int indicating maxinum number of repetitions
+	 * @see getMin
+	 * @return an int indicating maxinum number of repetitions
 	 */
 	public int getMax() {
 		return this.max;
 	}
 	
 	/**
-	 * cap is the capturing index
-	 * expressions in () makes it a capture group, 
-	 * the entire regex's capturing index is 0, other capturing groups' indexes start from 1
-	 * 
-	 * for example,
-	 * regex: (a)(b)
-	 * for "(a)", cap will be 1, for "(b)", cap will be 2
-	 * @return int indicating capture index
+	 * Cap is the capturing index. Expressions in () become a capture group. 
+	 * The entire regex's capturing index is 0, and other groups' indexes start from 1. <br>
+	 * <p>
+	 * For example, <br>
+	 * regex: "(a)(b)" <br>
+	 * for "(a)", cap will be 1, for "(b)", cap will be 2 <br>
+	 * </p>
+	 * @return an int indicating capture index
 	 */
 	public int getCap() {
 		return this.cap;
@@ -176,11 +213,14 @@ public class PublicRegexp extends Regexp {
 	
 	
 	/**
-	 * name is capturing group's name (if any)
-	 * for example,
-	 * regex: (?<name1>a)(?<name2>b)
-	 * for "(?<name1>a)", cap name will be name1, for "(?<name2>b)", cap name will be name2
-	 * @return int indicating capture index
+	 * Name is capturing group's name (if any). <br>
+	 * <p>
+	 * For example, <br>
+	 * regex: {@literal "(?<name1>a)(?\<name2>b)"} <br>
+	 * for {@literal "(?\<name1>a)"}, cap name will be name1 <br>
+	 * for {@literal "(?\<name2>b)"}, cap name will be name2 <br>
+	 * </p>
+	 * @return an int indicating capture index
 	 */
 	public String getCapName() {
 		return this.name;
