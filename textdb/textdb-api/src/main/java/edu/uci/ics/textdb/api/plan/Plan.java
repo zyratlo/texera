@@ -1,7 +1,5 @@
 package edu.uci.ics.textdb.api.plan;
 
-import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils;
-import edu.uci.ics.textdb.api.dataflow.IOperator;
 import edu.uci.ics.textdb.api.dataflow.ISink;
 
 /**
