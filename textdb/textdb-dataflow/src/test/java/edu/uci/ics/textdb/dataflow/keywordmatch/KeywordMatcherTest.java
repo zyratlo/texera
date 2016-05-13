@@ -108,7 +108,7 @@ public class KeywordMatcherTest {
     @Test
     public void testKeywordMatcher() throws Exception {
         //Prepare Query
-        String query = "short tall";
+        String query = "short TAll";
         ArrayList<Attribute> attributeList = new ArrayList<>();
         attributeList.add(TestConstants.FIRST_NAME_ATTR);
         attributeList.add(TestConstants.LAST_NAME_ATTR);
@@ -179,7 +179,7 @@ public class KeywordMatcherTest {
 
         //Prepare expected result list
         List<Span> list = new ArrayList<>();
-        Span span = new Span("description", 0, 4, "tall", "Tall");
+        Span span = new Span("description", 0, 4, "TaLL", "Tall");
         list.add(span);
         Attribute[] schemaAttributes = new Attribute[TestConstants.ATTRIBUTES_PEOPLE.length + 1];
 

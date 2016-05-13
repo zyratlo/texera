@@ -40,6 +40,7 @@ public class KeywordPredicate implements IPredicate{
     public KeywordPredicate(String query, List<Attribute> attributeList, Analyzer analyzer,IDataStore dataStore ) throws DataFlowException{
         try {
             this.query = query;
+            this.tokens = Utils.tokenizeQuery(analyzer, query);
             this.attributeList = attributeList;
             this.dataStore = dataStore;
             String[] temp = new String[attributeList.size()];
@@ -99,7 +100,6 @@ public class KeywordPredicate implements IPredicate{
          */
         String[] remainingFields = (String[]) fieldList.toArray(new String[0]);
         BooleanQuery queryOnOtherFields = new BooleanQuery();
-        this.tokens = Utils.tokenizeQuery(analyzer, query);
         MultiFieldQueryParser parser = new MultiFieldQueryParser(remainingFields, analyzer);
 
         for(String searchToken: this.tokens){

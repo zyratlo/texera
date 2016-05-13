@@ -148,7 +148,8 @@ public class KeywordMatcher implements IOperator {
                             positionIndex = spanStartPosition + queryToken.length();
                             String documentValue = fieldValue.substring(spanStartPosition, positionIndex);
                             fieldName = attributeList.get(attributeIndex).getFieldName();
-                            addSpanToTempSpanList(fieldName, spanStartPosition, positionIndex, queryToken, documentValue);
+                            String actualQueryToken = query.substring(query.toLowerCase().indexOf(queryToken), query.toLowerCase().indexOf(queryToken)+queryToken.length());
+                            addSpanToTempSpanList(fieldName, spanStartPosition, positionIndex, actualQueryToken, documentValue);
                             setOfFoundTokens.add(queryToken);
                         }
                     }
