@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
 
+import edu.uci.ics.textdb.common.constants.DataConstants;
+
 /**
  * 
  * Trigram Query of OR and AND
@@ -26,7 +28,7 @@ import java.util.StringJoiner;
  */
 public class TrigramBooleanQuery {
 	public static final int NONE = 0;
-	public static final int ALL  = 1;
+	public static final int ANY  = 1;
 	public static final int AND  = 2;
 	public static final int OR   = 3;
 	
@@ -95,22 +97,28 @@ public class TrigramBooleanQuery {
 	 * @return boolean expression
 	 */
 	public String getQuery() {
-		StringJoiner joiner =  new StringJoiner(
-				(operator == TrigramBooleanQuery.AND) ? " AND " : " OR ");
-
-		for (String operand : operandList) {
-			joiner.add(operand);
-		}
-		for (TrigramBooleanQuery subQuery : subQueryList) {
-			String subQueryStr = subQuery.getQuery();
-			if (! subQueryStr.equals("")) 
-				joiner.add(subQueryStr);
-		}
-		
-		if (joiner.length() == 0) {
+		if (operator == TrigramBooleanQuery.ANY) {
+			return DataConstants.SCAN_QUERY;
+		} else if (operator == TrigramBooleanQuery.NONE) {
 			return "";
 		} else {
-			return "("+joiner.toString()+")";
+			StringJoiner joiner =  new StringJoiner(
+					(operator == TrigramBooleanQuery.AND) ? " AND " : " OR ");
+
+			for (String operand : operandList) {
+				joiner.add(operand);
+			}
+			for (TrigramBooleanQuery subQuery : subQueryList) {
+				String subQueryStr = subQuery.getQuery();
+				if (! subQueryStr.equals("")) 
+					joiner.add(subQueryStr);
+			}
+			
+			if (joiner.length() == 0) {
+				return "";
+			} else {
+				return "("+joiner.toString()+")";
+			}
 		}
 	}
 }
