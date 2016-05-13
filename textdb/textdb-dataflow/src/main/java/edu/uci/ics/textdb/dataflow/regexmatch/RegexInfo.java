@@ -28,7 +28,7 @@ public class RegexInfo {
 		exact = new ArrayList<String>();
 		prefix = new ArrayList<String>();
 		suffix = new ArrayList<String>();
-		match = new TrigramBooleanQuery(TrigramBooleanQuery.ALL);
+		match = new TrigramBooleanQuery(TrigramBooleanQuery.ANY);
 	}
 	
 	/**
@@ -47,7 +47,7 @@ public class RegexInfo {
 	 */
 	public static RegexInfo matchAny() {
 		RegexInfo info = new RegexInfo();
-		info.match.operator = TrigramBooleanQuery.ALL;
+		info.match.operator = TrigramBooleanQuery.ANY;
 		return info;
 	}
 	
@@ -58,7 +58,7 @@ public class RegexInfo {
 	public static RegexInfo emptyString() {
 		RegexInfo info = new RegexInfo();
 		info.emptyable = true;
-		info.match.operator = TrigramBooleanQuery.ALL;
+		info.match.operator = TrigramBooleanQuery.ANY;
 		info.exact.add("");
 		return info;
 	}

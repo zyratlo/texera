@@ -26,7 +26,7 @@ import java.util.StringJoiner;
  */
 public class TrigramBooleanQuery {
 	public static final int NONE = 0;
-	public static final int ALL  = 1;
+	public static final int ANY  = 1;
 	public static final int AND  = 2;
 	public static final int OR   = 3;
 	
@@ -41,6 +41,38 @@ public class TrigramBooleanQuery {
 		this.operator = operator;
 		operandList = new ArrayList<String>();
 		subQueryList = new ArrayList<TrigramBooleanQuery>();
+	}
+	
+	public boolean equals(TrigramBooleanQuery query) {
+		if (this.operator != query.operator
+			|| this.operandList.size() != query.operandList.size() 
+			|| this.subQueryList.size() != query.subQueryList.size()) {
+			return false;
+		}
+		
+		Set<String> operandSet = new HashSet<String>(this.operandList);
+		if (!operandSet.equals(new HashSet<String>(query.operandList))) {
+			return false;
+		}
+		
+		if (this.subQueryList.size() == 0) {
+			return true;
+		}
+		
+		return this.equalsHelper(query, 0);
+	}
+	
+	private boolean equalsHelper(TrigramBooleanQuery query, int index) {
+		if (index == query.subQueryList.size()) {
+			return true;
+		}
+		
+		for (int i = 0; i < query.subQueryList.size(); i++) {
+			if (this.subQueryList.get(index).equals(query.subQueryList.get(i))) {
+				return equalsHelper(query, index+1);
+			}
+		}
+		return false;
 	}
 	
 	public void add(ArrayList<String> list) {

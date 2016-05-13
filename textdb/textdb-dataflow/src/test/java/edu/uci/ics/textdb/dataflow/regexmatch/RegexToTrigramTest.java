@@ -1,28 +1,29 @@
 package edu.uci.ics.textdb.dataflow.regexmatch;
 
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
+/**
+ * @author Shuying Lai
+ * @author Zuozhi Wang
+ */
 
 public class RegexToTrigramTest {
+	
+	@Test
+	public void testEmptyRegex() {
+		TrigramBooleanQuery exactQuery = RegexToTrigram.translate("");
+		TrigramBooleanQuery expectedQuery = new TrigramBooleanQuery(TrigramBooleanQuery.ANY);
 
-	@Before
-	public void setUp() throws Exception {
-	}
-
-	@After
-	public void tearDown() throws Exception {
+		Assert.assertTrue(exactQuery.equals(expectedQuery));
 	}
 	
 	@Test
-	public void testEmptyString() {
-		TrigramBooleanQuery exactQuery = RegexToTrigram.translate("");
-		TrigramBooleanQuery expectedQuery = new TrigramBooleanQuery(2);
+	public void testStarRegex() {
+		TrigramBooleanQuery exactQuery = RegexToTrigram.translate("a*");
+		TrigramBooleanQuery expectedQuery = new TrigramBooleanQuery(TrigramBooleanQuery.ANY);
 		
-//		RegexMatcherTestHelper testHelper = new RegexMatcherTestHelper(TestConstants.SCHEMA_PEOPLE, data);
-		Assert.assertTrue(exactQuery.toString() == expectedQuery.toString());
+		Assert.assertTrue(exactQuery.equals(expectedQuery));
 	}
 
 }
