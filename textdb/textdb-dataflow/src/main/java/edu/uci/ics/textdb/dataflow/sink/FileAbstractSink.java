@@ -7,6 +7,8 @@ import java.io.*;
 
 /**
  * Created by chenli on 5/11/16.
+ *
+ * This class serializes each tuple from the subtree to a given file.
  */
 public class FileAbstractSink extends AbstractSink {
 
