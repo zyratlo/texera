@@ -6,9 +6,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.StringJoiner;
 
+import edu.uci.ics.textdb.common.constants.DataConstants;
+
 /**
- * @Author Zuozhi Wang
- * @Author Shuying Lai
  * 
  * Trigram Query of OR and AND
  * 
@@ -23,6 +23,10 @@ import java.util.StringJoiner;
  * The trigram query of a regex has two high-level layers:
  * First, conjunction of TrigramBooleanQuery of prefix, suffix, and exact.
  * Second, disjunction of TrigramBooleanQuery of each element respectively in prefix, suffix, and exact.
+ * 
+ * @Author Zuozhi Wang
+ * @Author Shuying Lai
+ * 
  */
 public class TrigramBooleanQuery {
 	public static final int NONE = 0;
@@ -127,22 +131,28 @@ public class TrigramBooleanQuery {
 	 * @return boolean expression
 	 */
 	public String getQuery() {
-		StringJoiner joiner =  new StringJoiner(
-				(operator == TrigramBooleanQuery.AND) ? " AND " : " OR ");
-
-		for (String operand : operandList) {
-			joiner.add(operand);
-		}
-		for (TrigramBooleanQuery subQuery : subQueryList) {
-			String subQueryStr = subQuery.getQuery();
-			if (! subQueryStr.equals("")) 
-				joiner.add(subQueryStr);
-		}
-		
-		if (joiner.length() == 0) {
+		if (operator == TrigramBooleanQuery.ANY) {
+			return DataConstants.SCAN_QUERY;
+		} else if (operator == TrigramBooleanQuery.NONE) {
 			return "";
 		} else {
-			return "("+joiner.toString()+")";
+			StringJoiner joiner =  new StringJoiner(
+					(operator == TrigramBooleanQuery.AND) ? " AND " : " OR ");
+
+			for (String operand : operandList) {
+				joiner.add(operand);
+			}
+			for (TrigramBooleanQuery subQuery : subQueryList) {
+				String subQueryStr = subQuery.getQuery();
+				if (! subQueryStr.equals("")) 
+					joiner.add(subQueryStr);
+			}
+			
+			if (joiner.length() == 0) {
+				return "";
+			} else {
+				return "("+joiner.toString()+")";
+			}
 		}
 	}
 }

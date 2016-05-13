@@ -47,6 +47,9 @@ public class RegexInfo {
 	 */
 	public static RegexInfo matchAny() {
 		RegexInfo info = new RegexInfo();
+		info.emptyable = true;
+		info.prefix.add("");
+		info.suffix.add("");
 		info.match.operator = TrigramBooleanQuery.ANY;
 		return info;
 	}
