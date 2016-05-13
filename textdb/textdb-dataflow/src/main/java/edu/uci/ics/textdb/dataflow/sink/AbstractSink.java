@@ -6,6 +6,11 @@ import edu.uci.ics.textdb.api.dataflow.ISink;
 
 /**
  * Created by chenli on 5/11/16.
+ *
+ * This abstract class leaves the @processOneTuple() function to
+ * be implemented by the subclass based on the logic of handling each tuple
+ * coming from the subtree.
+ *
  */
 public abstract class AbstractSink implements ISink {
 
