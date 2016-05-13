@@ -43,7 +43,7 @@ public class NamedEntityExtractor implements IOperator {
     private List<Attribute> searchInAttributes;
     private ITuple sourceTuple;
 
-
+    public static final String NE_NUMBER = "Number";
     public static final String NE_LOCATION = "Location";
     public static final String NE_PERSON = "Person";
     public static final String NE_ORGANIZATION = "Organization";
@@ -51,11 +51,6 @@ public class NamedEntityExtractor implements IOperator {
     public static final String NE_PERCENT = "Percent";
     public static final String NE_DATE = "Date";
     public static final String NE_TIME = "Time";
-
-
-    public NamedEntityExtractor(IOperator operator) {
-        this.sourceOperator = operator;
-    }
 
 
     public NamedEntityExtractor(IOperator operator, List<Attribute> searchInAttributes) {
@@ -78,6 +73,37 @@ public class NamedEntityExtractor implements IOperator {
         }
     }
 
+
+
+
+
+    /**
+     * @about Return all named entities that are recognized in a document.
+     * Return format is a Tuple that contains only one field which is
+     * a list of spans of the result.
+     * @overview First get a tuple from the source operator then process it
+     * using the Stanford NLP package. for all recognized words, compute their
+     * spans and return all as a list.
+     */
+    @Override
+    public ITuple getNextTuple() throws Exception {
+        if (sourceTuple == null) {
+            return null;
+        } else {
+            List<Span> spanList = new ArrayList<>();
+            for (Attribute attribute : searchInAttributes) {
+                String fieldName = attribute.getFieldName();
+                IField field = sourceTuple.getField(fieldName);
+                spanList.addAll(getSpans(field, fieldName));
+            }
+            IField spanField = new ListField<Span>(spanList);
+            List<IField> fields = new ArrayList<IField>();
+            fields.add(spanField);
+            ITuple resultTuple = new DataTuple(new Schema(SchemaConstants.SPAN_LIST_ATTRIBUTE), fields.toArray(new IField[fields.size()]));
+            sourceTuple = sourceOperator.getNextTuple();
+            return resultTuple;
+        }
+    }
 
     /**
      * This function takes an (TextField) IField and a String (the field's name) as input and use the Stanford NLP package to process the string.
@@ -115,7 +141,7 @@ public class NamedEntityExtractor implements IOperator {
                     if (spanList.size() >= 1) {
                         Span previousSpan = spanList.get(spanList.size() - 1);
                         if (previousSpan.getFieldName().equals(span.getFieldName())
-                                && previousSpan.getEnd() == (span.getStart() - 1)
+                                && (span.getStart()-previousSpan.getEnd() <= 1)
                                 && previousSpan.getKey().equals(span.getKey())) {
                             Span newspan = mergeTwoSpan(previousSpan, span);
                             span = newspan;
@@ -172,6 +198,9 @@ public class NamedEntityExtractor implements IOperator {
     private String getNEConstant(String NLPConstant) {
         String NEConstant;
         switch (NLPConstant) {
+            case "NUMBER":
+                NEConstant = this.NE_NUMBER;
+                break;
             case "LOCATION":
                 NEConstant = this.NE_LOCATION;
                 break;
@@ -199,35 +228,6 @@ public class NamedEntityExtractor implements IOperator {
         }
         return NEConstant;
 
-    }
-
-    /**
-     * @about Return all named entities that are recognized in a document.
-     * Return format is a Tuple that contains only one field which is
-     * a list of spans of the result.
-     * @overview First get a tuple from the source operator then process it
-     * using the Stanford NLP package. for all recognized words, compute their
-     * spans and return all as a list.
-     */
-    @Override
-    public ITuple getNextTuple() throws Exception {
-        if (sourceTuple == null) {
-            return null;
-        } else {
-            List<Span> spanList = new ArrayList<>();
-            int count = 0;
-            for (IField field : sourceTuple.getFields()) {
-                String fieldName = sourceTuple.getSchema().getAttributes().get(count).getFieldName();
-                count++;
-                spanList.addAll(getSpans(field, fieldName));
-            }
-            IField spanField = new ListField<Span>(spanList);
-            List<IField> fields = new ArrayList<IField>();
-            fields.add(spanField);
-            ITuple resultTuple = new DataTuple(new Schema(SchemaConstants.SPAN_LIST_ATTRIBUTE), fields.toArray(new IField[fields.size()]));
-            sourceTuple = sourceOperator.getNextTuple();
-            return resultTuple;
-        }
     }
 
 

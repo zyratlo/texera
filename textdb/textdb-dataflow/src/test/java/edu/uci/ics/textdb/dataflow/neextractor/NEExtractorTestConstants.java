@@ -145,4 +145,23 @@ public class NEExtractorTestConstants {
     }
 
 
+    public static List<ITuple> getTest5ResultTuples() {
+        List<ITuple> resultList = new ArrayList<>();
+
+        List<IField> fields = new ArrayList<IField>();
+        List<Span> spanList = new ArrayList<Span>();
+
+        Span span1 = new Span("sentence_two", 0, 12, NamedEntityExtractor.NE_PERSON, "Donald Trump");
+        Span span2 = new Span("sentence_two", 17, 29, NamedEntityExtractor.NE_PERSON, "Barack Obama");
+
+
+        spanList.add(span1);
+        spanList.add(span2);
+
+        IField spanField = new ListField<Span>(spanList);
+        fields.add(spanField);
+        ITuple resultTuple = new DataTuple(new Schema(SchemaConstants.SPAN_LIST_ATTRIBUTE), fields.toArray(new IField[fields.size()]));
+        resultList.add(resultTuple);
+        return resultList;
+    }
 }
