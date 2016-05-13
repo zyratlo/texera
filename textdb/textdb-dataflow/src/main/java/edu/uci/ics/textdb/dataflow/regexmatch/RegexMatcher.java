@@ -24,23 +24,18 @@ import edu.uci.ics.textdb.dataflow.common.RegexPredicate;
  */
 public class RegexMatcher implements IOperator {
     private final RegexPredicate regexPredicate;
+    
     private ISourceOperator sourceOperator;
-    private Query luceneQuery;
-
     private List<IField> fields;
     private Schema sourceTupleSchema = null;
     private Schema spanSchema = null;
     
     private List<Span> spans;
 
-    public RegexMatcher(IPredicate predicate, ISourceOperator sourceOperator) {
+    public RegexMatcher(IPredicate predicate) {
     	this.regexPredicate = (RegexPredicate)predicate;
-        this.sourceOperator = sourceOperator;
-        
-        // build the luceneQuery by given regex
-        // String queryStr = RegexToTrigram.translate(regexPredicate.getRegex()).getQuery();
-
-        // next PR for adding translate to indexBasedSourceOperator 
+    	sourceOperator = regexPredicate.getSourceOperator();
+    	fields = regexPredicate.getFields();
     }
 
     @Override
