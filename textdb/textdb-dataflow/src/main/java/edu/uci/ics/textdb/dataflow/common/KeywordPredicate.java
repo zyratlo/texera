@@ -32,7 +32,7 @@ public class KeywordPredicate implements IPredicate{
     private final List<Attribute> attributeList;
     private final String[] fields;
     private final String query;
-    private final Query queryObject;
+    private final Query luceneQuery;
     private ArrayList<String> tokens;
     private Analyzer analyzer;
     private IDataStore dataStore;
@@ -50,7 +50,7 @@ public class KeywordPredicate implements IPredicate{
             }
             this.fields = temp;
             this.analyzer = analyzer;
-            this.queryObject = createLuceneQueryObject();
+            this.luceneQuery = createLuceneQueryObject();
         } catch (Exception e) {
             e.printStackTrace();
             throw new DataFlowException(e.getMessage(), e);
@@ -73,7 +73,7 @@ public class KeywordPredicate implements IPredicate{
         List<String> fieldList = new ArrayList<String>();
         BooleanQuery luceneBooleanQuery = new BooleanQuery();
 
-        for(int i=0; i< attributeList.size(); i++){
+        for(int i=0; i < attributeList.size(); i++){
 
             String fieldName = attributeList.get(i).getFieldName();
 
@@ -102,7 +102,7 @@ public class KeywordPredicate implements IPredicate{
         BooleanQuery queryOnOtherFields = new BooleanQuery();
         MultiFieldQueryParser parser = new MultiFieldQueryParser(remainingFields, analyzer);
 
-        for(String searchToken: this.tokens){
+        for(String searchToken : this.tokens){
             Query termQuery = parser.parse(searchToken);
             queryOnOtherFields.add(termQuery, BooleanClause.Occur.MUST);
         }
@@ -121,7 +121,7 @@ public class KeywordPredicate implements IPredicate{
     public List<Attribute> getAttributeList() {
         return attributeList;
     }
-    public Query getQueryObject(){return this.queryObject;}
+    public Query getQueryObject(){return this.luceneQuery;}
 
     public ArrayList<String> getTokens(){return this.tokens;}
 
@@ -130,7 +130,7 @@ public class KeywordPredicate implements IPredicate{
     }
 
     public DataReaderPredicate convertToDataReaderPredicate() {
-        DataReaderPredicate dataReaderPredicate = new DataReaderPredicate(this.dataStore,this.queryObject);
+        DataReaderPredicate dataReaderPredicate = new DataReaderPredicate(this.dataStore, this.luceneQuery);
         return dataReaderPredicate;
     }
 
