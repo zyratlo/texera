@@ -8,15 +8,21 @@ import java.util.StringJoiner;
  * 
  * Trigram Query of OR and AND
  * 
- * {@code operandList} is a list of literals (strings) in this query. {@code subQueryList} is a list of parenthesized RegexTrigramQuery.
- * {@code operator} is the operator connecting each literals in {@code operandList} and each subquries in {@code subqueryList};
+ * {@code operandList} is a list of literals (strings) in this query.
+ * {@code subQueryList} is a list of parenthesized RegexTrigramQuery.
+ * {@code operator} is the operator connecting each literals in {@code operandList} and each subqueries in {@code subqueryList};
  * For example, RegexTrigramQuery for regex "data(abc|bcd)" is "dat AND ata AND (abc OR bcd)"
  * The operand of this query is AND
  * operands = ["dat", "ata"]
  * subQueries = ["abc OR bcd"]
  * 
+ * The trigram query of a regex has two high-level layers:
+ * First, conjunction of TrigramBooleanQuery of prefix, suffix, and exact.
+ * Second, disjunction of TrigramBooleanQuery of each element respectively in prefix, suffix, and exact.
+ * 
  * @Author Zuozhi Wang
  * @Author Shuying Lai
+ * 
  */
 public class TrigramBooleanQuery {
 	public static final int NONE = 0;
@@ -57,6 +63,13 @@ public class TrigramBooleanQuery {
 		this.subQueryList.add(tbq);
 	}
 	
+	/**
+	 * This function build a list of trigrams that a given literal contains.
+	 * If the length of the literal is smaller than 3, it returns an empty list.
+	 * For example, for literal "textdb", trigram list should be ["tex", "ext", "xtd", "tdb"]
+	 * @param literal
+	 * @return
+	 */
 	private List<String> literalToTrigram(String literal) {
 		ArrayList<String> trigrams = new ArrayList<>();
 		if (literal.length() >= 3) {

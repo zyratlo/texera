@@ -81,14 +81,22 @@ public class RegexToTrigram {
 			break;
 		case LITERAL:
 			break;
+		// a regex that indicates one or more occurrences of the preceding element.
 		case PLUS:
-			break;
+			// the regex info of "(element)+" should be the same with that of single "element"
+			// except that the exact is null, because we don't know the number of repetitions.
+			RegexInfo info = analyze(re.getSubs()[0]);
+			info.exact = null;
+			return info;
 		case QUEST:
 			break;
+		// a regex that indicates that the preceding item is matched
+		// at least min times, but not more than max times.
 		case REPEAT:
 			break;
+		//a regex that indicates zero or more occurences of the preceding element.
 		case STAR:
-			break;
+			return RegexInfo.matchAny();
 		case VERTICAL_BAR:
 			break;
 		default:
