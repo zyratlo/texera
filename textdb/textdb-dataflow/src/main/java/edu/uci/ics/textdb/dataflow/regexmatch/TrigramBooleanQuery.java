@@ -5,8 +5,6 @@ import java.util.List;
 import java.util.StringJoiner;
 
 /**
- * @Author Zuozhi Wang
- * @Author Shuying Lai
  * 
  * Trigram Query of OR and AND
  * 
@@ -16,6 +14,9 @@ import java.util.StringJoiner;
  * The operand of this query is AND
  * operands = ["dat", "ata"]
  * subQueries = ["abc OR bcd"]
+ * 
+ * @Author Zuozhi Wang
+ * @Author Shuying Lai
  */
 public class TrigramBooleanQuery {
 	public static final int NONE = 0;
