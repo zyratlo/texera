@@ -1,7 +1,9 @@
 package edu.uci.ics.textdb.dataflow.regexmatch;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.StringJoiner;
 
 /**
