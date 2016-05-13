@@ -8,6 +8,7 @@ import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.Query;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Test;
 
 import edu.uci.ics.textdb.api.common.IPredicate;
@@ -85,8 +86,7 @@ public class NamedEntityExtractorTest {
         List<ITuple> expectedResults = NEExtractorTestConstants.getTest1ResultTuples();
 
         boolean contains = TestUtils.containsAllResults(expectedResults, returnedResults);
-        //TODO: enable test while finish implementation
-        // Assert.assertTrue(contains);
+        Assert.assertTrue(contains);
     }
 
     /**
@@ -102,8 +102,7 @@ public class NamedEntityExtractorTest {
         List<ITuple> expectedResults = NEExtractorTestConstants.getTest2ResultTuples();
 
         boolean contains = TestUtils.containsAllResults(expectedResults, returnedResults);
-        //TODO: enable test while finish implementation
-        // Assert.assertTrue(contains);
+        Assert.assertTrue(contains);
 
     }
 
@@ -121,8 +120,7 @@ public class NamedEntityExtractorTest {
 
         boolean contains = TestUtils.containsAllResults(expectedResults, returnedResults);
 
-        //TODO: enable test while finish implementation
-        //Assert.assertTrue(contains);
+        Assert.assertTrue(contains);
     }
 
 
@@ -142,12 +140,10 @@ public class NamedEntityExtractorTest {
 
         List<ITuple> expectedResults = NEExtractorTestConstants.getTest4ResultTuples();
 
-        //TODO: expected contains returned  AND returned contains expected ?
         boolean contains = TestUtils.containsAllResults(expectedResults, returnedResults);
 
 
-        //TODO: enable test while finish implementation
-        //Assert.assertTrue(contains);
+        Assert.assertTrue(contains);
     }
 
 
