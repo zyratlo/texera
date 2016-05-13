@@ -16,7 +16,11 @@ public class Engine {
 
     public static Engine getEngine() {
         if (singletonEngine == null) {
-            singletonEngine = new Engine();
+            synchronized(Engine.class) {
+                if(singletonEngine == null){
+                    singletonEngine = new Engine();
+                }
+            }
         }
         return singletonEngine;
     }

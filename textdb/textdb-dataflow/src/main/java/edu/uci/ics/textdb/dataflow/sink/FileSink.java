@@ -8,12 +8,12 @@ import java.io.*;
 /**
  * Created by chenli on 5/11/16.
  */
-public class FileAbstractSink extends AbstractSink {
+public class FileSink extends AbstractSink {
 
     private PrintWriter printWriter;
     private final File file;
 
-    public FileAbstractSink(IOperator childOperator, File file) throws FileNotFoundException {
+    public FileSink(IOperator childOperator, File file) throws FileNotFoundException {
         super(childOperator);
         this.file = file;
     }

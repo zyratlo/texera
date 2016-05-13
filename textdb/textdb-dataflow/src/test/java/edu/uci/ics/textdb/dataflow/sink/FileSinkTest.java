@@ -11,9 +11,9 @@ import org.mockito.Mockito;
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.dataflow.IOperator;
 
-public class FileAbstractSinkTest {
+public class FileSinkTest {
     
-    private FileAbstractSink fileSink;
+    private FileSink fileSink;
     private IOperator childOperator;
     private File file;
     
@@ -21,7 +21,7 @@ public class FileAbstractSinkTest {
     public void setUp() throws FileNotFoundException{
         childOperator = Mockito.mock(IOperator.class);
         file = new File("sample.txt");
-        fileSink = new FileAbstractSink(childOperator, file);
+        fileSink = new FileSink(childOperator, file);
     }
     
     @After
