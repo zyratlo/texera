@@ -63,17 +63,31 @@ public class TrigramBooleanQuery {
 			return true;
 		}
 		
-		return this.equalsHelper(query, 0);
+		int[] used = new int[this.subQueryList.size()];
+		return this.equalsHelper(query, used, 0);
 	}
-	
-	private boolean equalsHelper(TrigramBooleanQuery query, int index) {
+	/**
+	 * This is a helper function called by {@code equals} function.
+	 * It takes a DFS approach to recursively determine whether two {@code TrigramBooleanQuery} list contains same set of elements. 
+	 * @param query
+	 * @param isUsed
+	 * @param index
+	 * @return
+	 */
+	private boolean equalsHelper(TrigramBooleanQuery query, int[] isUsed, int index) {
 		if (index == query.subQueryList.size()) {
 			return true;
 		}
 		
 		for (int i = 0; i < query.subQueryList.size(); i++) {
+			if (isUsed[i] == 1) continue;
 			if (this.subQueryList.get(index).equals(query.subQueryList.get(i))) {
-				return equalsHelper(query, index+1);
+				isUsed[i] = 1;
+				if (equalsHelper(query, isUsed, index+1)){
+					return true;
+				} else {
+					isUsed[i] = 0;
+				}
 			}
 		}
 		return false;
