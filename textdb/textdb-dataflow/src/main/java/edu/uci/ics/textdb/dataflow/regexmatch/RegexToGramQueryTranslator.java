@@ -14,18 +14,18 @@ import com.google.re2j.PublicSimplify;
  * @Author Shuying Lai
  * 
  */
-public class RegexToTrigram {	
+public class RegexToGramQueryTranslator {	
 
 	/**
 	 * This method translates a regular expression to 
-	 * a boolean expression of trigrams. <br>
+	 * a boolean expression of n-grams. <br>
 	 * Then the boolean expression can be queried using 
 	 * a trigram inverted index to speed up regex matching. <br>
 	 * 
 	 * @param regex, the regex string to be translated.
-	 * @return trigramBooleanQuery, a boolean query of trigrams.
+	 * @return GamBooleanQeruy, a boolean query of n-grams.
 	 */
-	public static TrigramBooleanQuery translate(String regex) {
+	public static GramBooleanQuery translate(String regex) {
 		// try to parse using RE2J
 		try {
 		    PublicRegexp re = PublicParser.parse(regex, PublicRE2.PERL);

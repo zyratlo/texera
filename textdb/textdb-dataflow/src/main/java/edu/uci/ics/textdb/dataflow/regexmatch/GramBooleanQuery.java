@@ -8,32 +8,8 @@ import java.util.StringJoiner;
 
 import edu.uci.ics.textdb.common.constants.DataConstants;
 
-/**
- * 
- * Trigram Query of OR and AND <br>
- *<p>
- * {@code operandList} is a list of literals (strings) in this query. <br>
- * {@code subQueryList} is a list of parenthesized RegexTrigramQuery. <br>
- * {@code operator} is the operator connecting 
- * each literals in {@code operandList} and each subqueries in {@code subqueryList}; <br>
- * For example, RegexTrigramQuery for regex "data(abc|bcd)" is "dat AND ata AND (abc OR bcd)" <br>
- * operator = AND; 
- * operands = ["dat", "ata"]; 
- * subQueries = ["abc OR bcd"]; 
- * </p>
- * 
- * <p>
- * The trigram query of a regex has two high-level layers: <br>
- * First, conjunction of TrigramBooleanQuery of prefix, suffix, and exact. <br>
- * Second, disjunction of TrigramBooleanQuery of each element <br>
- * respectively in prefix, suffix, and exact. <br>
- * </p>
- * 
- * @Author Zuozhi Wang
- * @Author Shuying Lai
- * 
- */
-public class TrigramBooleanQuery {
+
+public class GramBooleanQuery {
 	public enum QueryOp {
 		NONE, // doesn't match any string
 		ANY,  // matches any string
@@ -41,17 +17,18 @@ public class TrigramBooleanQuery {
 		AND,
 		OR
 	}
-	
 	QueryOp operator;
 	List<String> operandList;
-	List<TrigramBooleanQuery> subQueryList;
+	List<GramBooleanQuery> subQueryList;
 	
-	public TrigramBooleanQuery(QueryOp operator) {
+
+	public GramBooleanQuery(QueryOp operator) {
 		this.operator = operator;
-		subQueryList = new ArrayList<TrigramBooleanQuery>();
+		operandList = new ArrayList<String>();
+		subQueryList = new ArrayList<GramBooleanQuery>();
 	}
 	
-	public boolean equals(TrigramBooleanQuery query) {
+	public boolean equals(GramBooleanQuery query) {
 		if (this.operator != query.operator
 			|| this.operandList != query.operandList
 			|| this.subQueryList.size() != query.subQueryList.size()) {
@@ -79,7 +56,7 @@ public class TrigramBooleanQuery {
 	 * @param index
 	 * @return
 	 */
-	private boolean equalsHelper(TrigramBooleanQuery query, int[] isUsed, int index) {
+	private boolean equalsHelper(GramBooleanQuery query, int[] isUsed, int index) {
 		if (index == query.subQueryList.size()) {
 			return true;
 		}
@@ -103,7 +80,7 @@ public class TrigramBooleanQuery {
 	}
 	
 	private void addOrNode(ArrayList<String> literalList) {
-		TrigramBooleanQuery tbq = new TrigramBooleanQuery(QueryOp.OR);
+		GramBooleanQuery tbq = new GramBooleanQuery(GramBooleanQuery.QueryOp.OR);
 		for (String literal : literalList) {
 			tbq.addAndNode(literal);
 		}
@@ -111,7 +88,7 @@ public class TrigramBooleanQuery {
 	}
 	
 	private void addAndNode(String literal) {
-		TrigramBooleanQuery tbq = new TrigramBooleanQuery(QueryOp.AND);
+		GramBooleanQuery tbq = new GramBooleanQuery(GramBooleanQuery.QueryOp.AND);
 		for (String trigram: literalToTrigram(literal)) {
 			tbq.operandList.add(trigram);
 		}
@@ -157,11 +134,10 @@ public class TrigramBooleanQuery {
 		} else {
 			StringJoiner joiner =  new StringJoiner(
 					(operator == QueryOp.AND) ? " AND " : " OR ");
-
 			for (String operand : operandList) {
 				joiner.add(operand);
 			}
-			for (TrigramBooleanQuery subQuery : subQueryList) {
+			for (GramBooleanQuery subQuery : subQueryList) {
 				String subQueryStr = subQuery.getQuery();
 				if (! subQueryStr.equals("")) 
 					joiner.add(subQueryStr);
