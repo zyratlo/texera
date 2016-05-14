@@ -37,6 +37,11 @@ public class KeywordPredicate implements IPredicate{
     private Analyzer analyzer;
     private IDataStore dataStore;
 
+    /*
+    query refers to string of keywords to search for.
+    For Ex. New york if searched in TextField, we would consider both tokens
+    New and York; if searched in String field we search for Exact string.
+     */
     public KeywordPredicate(String query, List<Attribute> attributeList, Analyzer analyzer,IDataStore dataStore ) throws DataFlowException{
         try {
             this.query = query;
@@ -70,7 +75,7 @@ public class KeywordPredicate implements IPredicate{
      */
     private Query createLuceneQueryObject() throws ParseException {
 
-        List<String> fieldList = new ArrayList<String>();
+        List<String> textFieldList = new ArrayList<String>();
         BooleanQuery luceneBooleanQuery = new BooleanQuery();
 
         for(int i=0; i < attributeList.size(); i++){
@@ -79,38 +84,38 @@ public class KeywordPredicate implements IPredicate{
 
             /*
             If the field type is String, we need to perform an exact match
-            without parsing the query. Hence add them directly to the Query
+            without parsing the query (Case Sensitive). Hence add them directly to the Query.
              */
             if(attributeList.get(i).getFieldType() == FieldType.STRING){
                 Query termQuery = new TermQuery(new Term(fieldName, query));
                 luceneBooleanQuery.add(termQuery, BooleanClause.Occur.SHOULD);
             }
             else {
-                fieldList.add(fieldName);
+                textFieldList.add(fieldName);
             }
         }
 
-        if(fieldList.size()==0){
+        if(textFieldList.size()==0){
             return luceneBooleanQuery;
         }
 
         /*
-        For all the other fields, parse the query using query parser
-        and generate  boolean query
+        For all the other fields , parse the query using query parser
+        and generate  boolean query (Textfield is Case Insensitive)
          */
-        String[] remainingFields = (String[]) fieldList.toArray(new String[0]);
-        BooleanQuery queryOnOtherFields = new BooleanQuery();
-        MultiFieldQueryParser parser = new MultiFieldQueryParser(remainingFields, analyzer);
+        String[] remainingTextFields = (String[]) textFieldList.toArray(new String[0]);
+        BooleanQuery queryOnTextFields = new BooleanQuery();
+        MultiFieldQueryParser parser = new MultiFieldQueryParser(remainingTextFields, analyzer);
 
         for(String searchToken : this.tokens){
             Query termQuery = parser.parse(searchToken);
-            queryOnOtherFields.add(termQuery, BooleanClause.Occur.MUST);
+            queryOnTextFields.add(termQuery, BooleanClause.Occur.MUST);
         }
 
         /*
         Merge the query for non-String fields with the StringField Query
          */
-        luceneBooleanQuery.add(queryOnOtherFields,BooleanClause.Occur.SHOULD);
+        luceneBooleanQuery.add(queryOnTextFields,BooleanClause.Occur.SHOULD);
         return luceneBooleanQuery;
     }
 
@@ -129,7 +134,7 @@ public class KeywordPredicate implements IPredicate{
         return analyzer;
     }
 
-    public DataReaderPredicate convertToDataReaderPredicate() {
+    public DataReaderPredicate getDataReaderPredicate() {
         DataReaderPredicate dataReaderPredicate = new DataReaderPredicate(this.dataStore, this.luceneQuery);
         return dataReaderPredicate;
     }

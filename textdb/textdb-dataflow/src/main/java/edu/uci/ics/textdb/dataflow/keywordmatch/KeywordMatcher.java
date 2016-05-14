@@ -42,7 +42,7 @@ public class KeywordMatcher implements IOperator {
 
     public KeywordMatcher(IPredicate predicate) {
         this.predicate = (KeywordPredicate)predicate;
-        DataReaderPredicate dataReaderPredicate = this.predicate.convertToDataReaderPredicate();
+        DataReaderPredicate dataReaderPredicate = this.predicate.getDataReaderPredicate();
         this.sourceOperator = new IndexBasedSourceOperator(dataReaderPredicate);
     }
 
