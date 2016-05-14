@@ -13,7 +13,7 @@ import com.google.re2j.PublicSimplify;
  * @Author Shuying Lai
  * 
  */
-public class RegexToTrigram {	
+public class RegexToGramQueryTranslator {	
 
 	/**
 	 * Translate a regular expression to an object of TrigramBooleanQuery
