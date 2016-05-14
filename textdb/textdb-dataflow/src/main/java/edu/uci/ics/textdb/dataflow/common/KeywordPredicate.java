@@ -1,19 +1,23 @@
 package edu.uci.ics.textdb.dataflow.common;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import edu.uci.ics.textdb.api.common.Attribute;
+import edu.uci.ics.textdb.api.common.FieldType;
+import edu.uci.ics.textdb.api.common.IPredicate;
+import edu.uci.ics.textdb.api.storage.IDataStore;
+import edu.uci.ics.textdb.common.exception.DataFlowException;
+import edu.uci.ics.textdb.common.utils.Utils;
+import edu.uci.ics.textdb.storage.DataReaderPredicate;
 import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.search.TermQuery;
 
-import edu.uci.ics.textdb.api.common.Attribute;
-import edu.uci.ics.textdb.api.common.IPredicate;
-import edu.uci.ics.textdb.common.exception.DataFlowException;
-import edu.uci.ics.textdb.common.utils.Utils;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *  @author prakul
@@ -28,23 +32,30 @@ public class KeywordPredicate implements IPredicate{
     private final List<Attribute> attributeList;
     private final String[] fields;
     private final String query;
-    private final Query queryObject;
+    private final Query luceneQuery;
     private ArrayList<String> tokens;
     private Analyzer analyzer;
+    private IDataStore dataStore;
 
-    public KeywordPredicate(String query, List<Attribute> attributeList, Analyzer analyzer ) throws DataFlowException{
+    /*
+    query refers to string of keywords to search for.
+    For Ex. New york if searched in TextField, we would consider both tokens
+    New and York; if searched in String field we search for Exact string.
+     */
+    public KeywordPredicate(String query, List<Attribute> attributeList, Analyzer analyzer,IDataStore dataStore ) throws DataFlowException{
         try {
             this.query = query;
+            this.tokens = Utils.tokenizeQuery(analyzer, query);
             this.attributeList = attributeList;
+            this.dataStore = dataStore;
             String[] temp = new String[attributeList.size()];
 
             for(int i=0; i < attributeList.size(); i++){
                 temp[i] = attributeList.get(i).getFieldName();
             }
             this.fields = temp;
-            this.tokens = Utils.tokenizeQuery(analyzer, this.query);
             this.analyzer = analyzer;
-            this.queryObject = createQueryObject();
+            this.luceneQuery = createLuceneQueryObject();
         } catch (Exception e) {
             e.printStackTrace();
             throw new DataFlowException(e.getMessage(), e);
@@ -52,24 +63,60 @@ public class KeywordPredicate implements IPredicate{
     }
 
     /**
-     * Creates a Query object as a boolean Query on all attributes.
+     * Creates a Query object as a boolean Query on all attributes
      * Example: For creating a query like
      * (TestConstants.DESCRIPTION + ":lin" + " AND " + TestConstants.LAST_NAME + ":lin")
      * we provide a list of AttributeFields (Description, Last_name) to search on and a query string (lin)
      *
      * TODO #88:BooleanQuery() is deprecated. In future a better solution could be worked out in Query builder layer
-
-     * @return QueryObject
+     *
+     * @return Query
      * @throws ParseException
      */
-    private Query createQueryObject() throws ParseException {
-        BooleanQuery booleanQuery = new BooleanQuery();
-        MultiFieldQueryParser parser = new MultiFieldQueryParser(this.fields, this.analyzer);
-        for(String searchToken: this.tokens){
-            Query termQuery = parser.parse(searchToken);
-            booleanQuery.add(termQuery, BooleanClause.Occur.MUST);
+    private Query createLuceneQueryObject() throws ParseException {
+
+        List<String> textFieldList = new ArrayList<String>();
+        BooleanQuery luceneBooleanQuery = new BooleanQuery();
+
+        for(int i=0; i < attributeList.size(); i++){
+
+            String fieldName = attributeList.get(i).getFieldName();
+
+            /*
+            If the field type is String, we need to perform an exact match
+            without parsing the query (Case Sensitive). Hence add them directly to the Query.
+             */
+            if(attributeList.get(i).getFieldType() == FieldType.STRING){
+                Query termQuery = new TermQuery(new Term(fieldName, query));
+                luceneBooleanQuery.add(termQuery, BooleanClause.Occur.SHOULD);
+            }
+            else {
+                textFieldList.add(fieldName);
+            }
         }
-        return booleanQuery;
+
+        if(textFieldList.size()==0){
+            return luceneBooleanQuery;
+        }
+
+        /*
+        For all the other fields , parse the query using query parser
+        and generate  boolean query (Textfield is Case Insensitive)
+         */
+        String[] remainingTextFields = (String[]) textFieldList.toArray(new String[0]);
+        BooleanQuery queryOnTextFields = new BooleanQuery();
+        MultiFieldQueryParser parser = new MultiFieldQueryParser(remainingTextFields, analyzer);
+
+        for(String searchToken : this.tokens){
+            Query termQuery = parser.parse(searchToken);
+            queryOnTextFields.add(termQuery, BooleanClause.Occur.MUST);
+        }
+
+        /*
+        Merge the query for non-String fields with the StringField Query
+         */
+        luceneBooleanQuery.add(queryOnTextFields,BooleanClause.Occur.SHOULD);
+        return luceneBooleanQuery;
     }
 
     public String getQuery(){
@@ -79,12 +126,17 @@ public class KeywordPredicate implements IPredicate{
     public List<Attribute> getAttributeList() {
         return attributeList;
     }
-    public Query getQueryObject(){return this.queryObject;}
+    public Query getQueryObject(){return this.luceneQuery;}
 
     public ArrayList<String> getTokens(){return this.tokens;}
 
     public Analyzer getAnalyzer(){
         return analyzer;
+    }
+
+    public DataReaderPredicate getDataReaderPredicate() {
+        DataReaderPredicate dataReaderPredicate = new DataReaderPredicate(this.dataStore, this.luceneQuery);
+        return dataReaderPredicate;
     }
 
 
