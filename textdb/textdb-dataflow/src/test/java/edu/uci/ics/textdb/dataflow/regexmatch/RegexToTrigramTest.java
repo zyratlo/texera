@@ -15,16 +15,16 @@ public class RegexToTrigramTest {
 	
 	@Test
 	public void testEmptyRegex() {
-		TrigramBooleanQuery exactQuery = RegexToTrigram.translate("");
-		TrigramBooleanQuery expectedQuery = new TrigramBooleanQuery(TrigramBooleanQuery.ANY);
+		GramBooleanQuery exactQuery = RegexToTrigram.translate("");
+		GramBooleanQuery expectedQuery = new GramBooleanQuery(GramBooleanQuery.ANY);
 
 		Assert.assertTrue(exactQuery.equals(expectedQuery));
 	}
 	
 	@Test
 	public void testStarRegex() {
-		TrigramBooleanQuery exactQuery = RegexToTrigram.translate("a*");
-		TrigramBooleanQuery expectedQuery = new TrigramBooleanQuery(TrigramBooleanQuery.ANY);
+		GramBooleanQuery exactQuery = RegexToTrigram.translate("a*");
+		GramBooleanQuery expectedQuery = new GramBooleanQuery(GramBooleanQuery.ANY);
 		
 		Assert.assertTrue(exactQuery.equals(expectedQuery));
 	}

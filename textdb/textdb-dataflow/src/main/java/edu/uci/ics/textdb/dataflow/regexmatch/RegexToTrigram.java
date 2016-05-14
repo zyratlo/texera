@@ -20,7 +20,7 @@ public class RegexToTrigram {
 	 * @param regex 
 	 * @return TrigramBooleanQuery
 	 */
-	public static TrigramBooleanQuery translate(String regex) {
+	public static GramBooleanQuery translate(String regex) {
 		// try to parse using RE2J
 		try {
 		    PublicRegexp re = PublicParser.parse(regex, PublicRE2.PERL);

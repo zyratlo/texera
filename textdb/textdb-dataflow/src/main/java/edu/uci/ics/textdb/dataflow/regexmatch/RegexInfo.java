@@ -15,7 +15,7 @@ public class RegexInfo {
 	List<String> exact = null;
 	List<String> prefix = null;
 	List<String> suffix = null;
-	TrigramBooleanQuery match = null;
+	GramBooleanQuery match = null;
 	
 	/**
 	 * This initializes RegexInfo:
@@ -28,7 +28,7 @@ public class RegexInfo {
 		exact = new ArrayList<String>();
 		prefix = new ArrayList<String>();
 		suffix = new ArrayList<String>();
-		match = new TrigramBooleanQuery(TrigramBooleanQuery.ANY);
+		match = new GramBooleanQuery(GramBooleanQuery.ANY);
 	}
 	
 	/**
@@ -38,7 +38,7 @@ public class RegexInfo {
 	 */
 	public static RegexInfo matchNone() {
 		RegexInfo regexInfo = new RegexInfo();
-		regexInfo.match.operator = TrigramBooleanQuery.NONE;
+		regexInfo.match.operator = GramBooleanQuery.NONE;
 		return regexInfo;
 	}
 	
@@ -51,7 +51,7 @@ public class RegexInfo {
 		regexInfo.emptyable = true;
 		regexInfo.prefix.add("");
 		regexInfo.suffix.add("");
-		regexInfo.match.operator = TrigramBooleanQuery.ANY;
+		regexInfo.match.operator = GramBooleanQuery.ANY;
 		return regexInfo;
 	}
 	
@@ -62,7 +62,7 @@ public class RegexInfo {
 	public static RegexInfo emptyString() {
 		RegexInfo regexInfo = new RegexInfo();
 		regexInfo.emptyable = true;
-		regexInfo.match.operator = TrigramBooleanQuery.ANY;
+		regexInfo.match.operator = GramBooleanQuery.ANY;
 		regexInfo.exact.add("");
 		return regexInfo;
 	}
