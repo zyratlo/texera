@@ -10,38 +10,42 @@ import edu.uci.ics.textdb.common.constants.DataConstants;
 
 /**
  * 
- * Trigram Query of OR and AND
+ * Trigram Query of OR and AND <br>
+ *<p>
+ * {@code operandList} is a list of literals (strings) in this query. <br>
+ * {@code subQueryList} is a list of parenthesized RegexTrigramQuery. <br>
+ * {@code operator} is the operator connecting 
+ * each literals in {@code operandList} and each subqueries in {@code subqueryList}; <br>
+ * For example, RegexTrigramQuery for regex "data(abc|bcd)" is "dat AND ata AND (abc OR bcd)" <br>
+ * operator = AND; 
+ * operands = ["dat", "ata"]; 
+ * subQueries = ["abc OR bcd"]; 
+ * </p>
  * 
- * {@code operandList} is a list of literals (strings) in this query.
- * {@code subQueryList} is a list of parenthesized RegexTrigramQuery.
- * {@code operator} is the operator connecting each literals in {@code operandList} and each subqueries in {@code subqueryList};
- * For example, RegexTrigramQuery for regex "data(abc|bcd)" is "dat AND ata AND (abc OR bcd)"
- * The operand of this query is AND
- * operands = ["dat", "ata"]
- * subQueries = ["abc OR bcd"]
- * 
- * The trigram query of a regex has two high-level layers:
- * First, conjunction of TrigramBooleanQuery of prefix, suffix, and exact.
- * Second, disjunction of TrigramBooleanQuery of each element respectively in prefix, suffix, and exact.
+ * <p>
+ * The trigram query of a regex has two high-level layers: <br>
+ * First, conjunction of TrigramBooleanQuery of prefix, suffix, and exact. <br>
+ * Second, disjunction of TrigramBooleanQuery of each element <br>
+ * respectively in prefix, suffix, and exact. <br>
+ * </p>
  * 
  * @Author Zuozhi Wang
  * @Author Shuying Lai
  * 
  */
 public class TrigramBooleanQuery {
-	public static final int NONE = 0;
-	public static final int ANY  = 1;
-	public static final int AND  = 2;
-	public static final int OR   = 3;
+	public enum QueryOp {
+		NONE,
+		ANY,
+		AND,
+		OR
+	}
 	
-	/**
-	 * operator is NONE/ALL/AND/OR
-	 */
-	int operator;
+	QueryOp operator;
 	List<String> operandList;
 	List<TrigramBooleanQuery> subQueryList;
 	
-	public TrigramBooleanQuery(int operator) {
+	public TrigramBooleanQuery(QueryOp operator) {
 		this.operator = operator;
 		operandList = new ArrayList<String>();
 		subQueryList = new ArrayList<TrigramBooleanQuery>();
@@ -68,7 +72,8 @@ public class TrigramBooleanQuery {
 	}
 	/**
 	 * This is a helper function called by {@code equals} function.
-	 * It takes a DFS approach to recursively determine whether two {@code TrigramBooleanQuery} list contains same set of elements. 
+	 * It takes a DFS approach to recursively determine 
+	 * whether two {@code TrigramBooleanQuery} list contains same set of elements. 
 	 * @param query
 	 * @param isUsed
 	 * @param index
@@ -98,7 +103,7 @@ public class TrigramBooleanQuery {
 	}
 	
 	private void addOrNode(ArrayList<String> literalList) {
-		TrigramBooleanQuery tbq = new TrigramBooleanQuery(TrigramBooleanQuery.OR);
+		TrigramBooleanQuery tbq = new TrigramBooleanQuery(QueryOp.OR);
 		for (String literal : literalList) {
 			tbq.addAndNode(literal);
 		}
@@ -106,7 +111,7 @@ public class TrigramBooleanQuery {
 	}
 	
 	private void addAndNode(String literal) {
-		TrigramBooleanQuery tbq = new TrigramBooleanQuery(TrigramBooleanQuery.AND);
+		TrigramBooleanQuery tbq = new TrigramBooleanQuery(QueryOp.AND);
 		for (String trigram: literalToTrigram(literal)) {
 			tbq.operandList.add(trigram);
 		}
@@ -145,13 +150,13 @@ public class TrigramBooleanQuery {
 	 * @return boolean expression
 	 */
 	public String getQuery() {
-		if (operator == TrigramBooleanQuery.ANY) {
+		if (operator == QueryOp.ANY) {
 			return DataConstants.SCAN_QUERY;
-		} else if (operator == TrigramBooleanQuery.NONE) {
+		} else if (operator == QueryOp.NONE) {
 			return "";
 		} else {
 			StringJoiner joiner =  new StringJoiner(
-					(operator == TrigramBooleanQuery.AND) ? " AND " : " OR ");
+					(operator == QueryOp.AND) ? " AND " : " OR ");
 
 			for (String operand : operandList) {
 				joiner.add(operand);

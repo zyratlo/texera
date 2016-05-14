@@ -28,29 +28,29 @@ public class RegexInfo {
 		exact = new ArrayList<String>();
 		prefix = new ArrayList<String>();
 		suffix = new ArrayList<String>();
-		match = new TrigramBooleanQuery(TrigramBooleanQuery.ANY);
+		match = new TrigramBooleanQuery(TrigramBooleanQuery.QueryOp.ANY);
 	}
 	
 	/**
-	 *
-	 * @return RegexInfo describing a regex that matching NO string
+	 * @return RegexInfo describing a regex that doesn't match any string
+	 * matchNone is used for handling error cases
 	 */
 	public static RegexInfo matchNone() {
 		RegexInfo info = new RegexInfo();
-		info.match.operator = TrigramBooleanQuery.NONE;
+		info.match.operator = TrigramBooleanQuery.QueryOp.NONE;
 		return info;
 	}
 	
 	/**
 	 * 
-	 * @return RegexInfo describing a regex that matching ANY string
+	 * @return RegexInfo describing a regex that matches ANY string
 	 */
 	public static RegexInfo matchAny() {
 		RegexInfo info = new RegexInfo();
 		info.emptyable = true;
 		info.prefix.add("");
 		info.suffix.add("");
-		info.match.operator = TrigramBooleanQuery.ANY;
+		info.match.operator = TrigramBooleanQuery.QueryOp.ANY;
 		return info;
 	}
 	
@@ -61,14 +61,15 @@ public class RegexInfo {
 	public static RegexInfo emptyString() {
 		RegexInfo info = new RegexInfo();
 		info.emptyable = true;
-		info.match.operator = TrigramBooleanQuery.ANY;
+		info.match.operator = TrigramBooleanQuery.QueryOp.ANY;
 		info.exact.add("");
 		return info;
 	}
 	
-	/**
-	 * The prefix, suffix, and exact are null (unknown), because we don't know which character exactly. 
+	/** 
 	 * @return RegexInfo describing a regex that matching ANY SINGLE character
+	 * For anyChar, prefix, suffix, and exact are null (unknown), 
+	 * because we don't know the exact character.
 	 */
 	public static RegexInfo anyChar() {
 		RegexInfo info = new RegexInfo();
