@@ -19,6 +19,9 @@ import edu.uci.ics.textdb.common.field.StringField;
 import edu.uci.ics.textdb.common.field.TextField;
 import edu.uci.ics.textdb.common.utils.Utils;
 import edu.uci.ics.textdb.dataflow.common.KeywordPredicate;
+import edu.uci.ics.textdb.dataflow.source.IndexBasedSourceOperator;
+import edu.uci.ics.textdb.storage.DataReaderPredicate;
+import edu.uci.ics.textdb.storage.reader.DataReader;
 
 /**
  *  @author prakul
@@ -37,9 +40,10 @@ public class KeywordMatcher implements IOperator {
     private boolean spanSchemaDefined = false;
     private Schema spanSchema;
 
-    public KeywordMatcher(IPredicate predicate, ISourceOperator sourceOperator) {
+    public KeywordMatcher(IPredicate predicate) {
         this.predicate = (KeywordPredicate)predicate;
-        this.sourceOperator = sourceOperator;
+        DataReaderPredicate dataReaderPredicate = this.predicate.getDataReaderPredicate();
+        this.sourceOperator = new IndexBasedSourceOperator(dataReaderPredicate);
     }
 
     @Override
@@ -144,7 +148,8 @@ public class KeywordMatcher implements IOperator {
                             positionIndex = spanStartPosition + queryToken.length();
                             String documentValue = fieldValue.substring(spanStartPosition, positionIndex);
                             fieldName = attributeList.get(attributeIndex).getFieldName();
-                            addSpanToTempSpanList(fieldName, spanStartPosition, positionIndex, queryToken, documentValue);
+                            String actualQueryToken = query.substring(query.toLowerCase().indexOf(queryToken), query.toLowerCase().indexOf(queryToken)+queryToken.length());
+                            addSpanToTempSpanList(fieldName, spanStartPosition, positionIndex, actualQueryToken, documentValue);
                             setOfFoundTokens.add(queryToken);
                         }
                     }
