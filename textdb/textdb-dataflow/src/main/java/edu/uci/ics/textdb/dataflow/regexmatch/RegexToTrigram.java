@@ -6,8 +6,9 @@ import com.google.re2j.PublicRegexp;
 import com.google.re2j.PublicSimplify;
 
 /**
- * This class 
- * {@link https://swtch.com/~rsc/regexp/regexp4.html}
+ * This class translates a regex to a boolean query of trigrams,
+ * according to the <a href='https://swtch.com/~rsc/regexp/regexp4.html'>algorithm</a> 
+ * described in Russ Cox's article. <br>
  * 
  * @Author Zuozhi Wang
  * @Author Shuying Lai
@@ -16,9 +17,13 @@ import com.google.re2j.PublicSimplify;
 public class RegexToTrigram {	
 
 	/**
-	 * Translate a regular expression to an object of TrigramBooleanQeruy
-	 * @param regex 
-	 * @return TrigramBooleanQuery
+	 * This method translates a regular expression to 
+	 * a boolean expression of trigrams. <br>
+	 * Then the boolean expression can be queried using 
+	 * a trigram inverted index to speed up regex matching. <br>
+	 * 
+	 * @param regex, the regex string to be translated.
+	 * @return trigramBooleanQuery, a boolean query of trigrams.
 	 */
 	public static TrigramBooleanQuery translate(String regex) {
 		// try to parse using RE2J
@@ -43,28 +48,29 @@ public class RegexToTrigram {
 	
 	
 	/**
-	 * Main function to analyze a regular expression
+	 * This is the main function of analyzing a regular expression. <br>
+	 * 
 	 * @param PublicRegexp
 	 * @return RegexInfo
 	 */
 	private static RegexInfo analyze(PublicRegexp re) {
 		RegexInfo regexInfo = new RegexInfo();
 		switch (re.getOp()) {
-		// NO_MATCH: a regex that matches no string
-		// it shouldn't happen unless something goes wrong
-		// used to handle error cases
+		// NO_MATCH is a regex that doesn't match anything.
+		// It's used to handle error cases, which shouldn't 
+		// happen unless something goes wrong.
 		case NO_MATCH: {
 			return RegexInfo.matchNone();
 		}
-		// treat the following cases as 
-		// a regex that matches an empty string
+		// The following cases are treated as 
+		// a regex that matches an empty string.
 		case EMPTY_MATCH:
 		case WORD_BOUNDARY:	case NO_WORD_BOUNDARY:
 		case BEGIN_LINE: 	case END_LINE:
 		case BEGIN_TEXT: 	case END_TEXT: {
 			return RegexInfo.emptyString();
 		}
-		// a regex that matches any character
+		// A regex that matches any character
 		case ANY_CHAR: case ANY_CHAR_NOT_NL: {
 			return RegexInfo.anyChar();
 		}
@@ -81,20 +87,20 @@ public class RegexToTrigram {
 			break;
 		case LITERAL:
 			break;
-		// a regex that indicates one or more occurrences of the preceding element.
+		// A regex that indicates one or more occurrences of an expression.
 		case PLUS:
-			// the regex info of "(element)+" should be the same with that of single "element"
-			// except that the exact is null, because we don't know the number of repetitions.
+			// The regexInfo of "(expr)+" should be the same as the info of "expr", 
+			// except that "exact" is null, because we don't know the number of repetitions.
 			RegexInfo info = analyze(re.getSubs()[0]);
 			info.exact = null;
 			return info;
 		case QUEST:
 			break;
-		// a regex that indicates that the preceding item is matched
-		// at least min times, but not more than max times.
+		// A regex that indicates an expression is matched 
+		// at least min times, at most max times.
 		case REPEAT:
 			break;
-		//a regex that indicates zero or more occurences of the preceding element.
+		// A regex that indicates zero or more occurrences of an expression.
 		case STAR:
 			return RegexInfo.matchAny();
 		case VERTICAL_BAR:
