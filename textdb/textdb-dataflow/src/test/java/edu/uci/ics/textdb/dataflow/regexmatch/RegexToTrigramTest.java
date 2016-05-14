@@ -1,5 +1,8 @@
 package edu.uci.ics.textdb.dataflow.regexmatch;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.junit.Assert;
 import org.junit.Test;
 

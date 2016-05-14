@@ -16,7 +16,7 @@ import com.google.re2j.PublicSimplify;
 public class RegexToTrigram {	
 
 	/**
-	 * Translate a regular expression to an object of TrigramBooleanQeruy
+	 * Translate a regular expression to an object of TrigramBooleanQuery
 	 * @param regex 
 	 * @return TrigramBooleanQuery
 	 */
@@ -50,9 +50,9 @@ public class RegexToTrigram {
 	private static RegexInfo analyze(PublicRegexp re) {
 		RegexInfo regexInfo = new RegexInfo();
 		switch (re.getOp()) {
-		// NO_MATCH: a regex that matches no string
-		// it shouldn't happen unless something goes wrong
-		// used to handle error cases
+		// NO_MATCH: a regex that matches "None".
+		// It shouldn't happen unless something goes wrong.
+		// It is used to handle error cases
 		case NO_MATCH: {
 			return RegexInfo.matchNone();
 		}
@@ -83,7 +83,7 @@ public class RegexToTrigram {
 			break;
 		// a regex that indicates one or more occurrences of the preceding element.
 		case PLUS:
-			// the regex info of "(element)+" should be the same with that of single "element"
+			// the regex info of "(element)+" should be the same as that of a single "element"
 			// except that the exact is null, because we don't know the number of repetitions.
 			RegexInfo info = analyze(re.getSubs()[0]);
 			info.exact = null;

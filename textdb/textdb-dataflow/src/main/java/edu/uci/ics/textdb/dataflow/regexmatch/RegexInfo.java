@@ -32,48 +32,49 @@ public class RegexInfo {
 	}
 	
 	/**
-	 *
-	 * @return RegexInfo describing a regex that matching NO string
+	 * This function shouldn't be called unless something goes wrong.
+	 * It is used to handle error cases.
+	 * @return RegexInfo describing a regex that matches "NONE"
 	 */
 	public static RegexInfo matchNone() {
-		RegexInfo info = new RegexInfo();
-		info.match.operator = TrigramBooleanQuery.NONE;
-		return info;
+		RegexInfo regexInfo = new RegexInfo();
+		regexInfo.match.operator = TrigramBooleanQuery.NONE;
+		return regexInfo;
 	}
 	
 	/**
 	 * 
-	 * @return RegexInfo describing a regex that matching ANY string
+	 * @return RegexInfo describing a regex that matches ANY string
 	 */
 	public static RegexInfo matchAny() {
-		RegexInfo info = new RegexInfo();
-		info.emptyable = true;
-		info.prefix.add("");
-		info.suffix.add("");
-		info.match.operator = TrigramBooleanQuery.ANY;
-		return info;
+		RegexInfo regexInfo = new RegexInfo();
+		regexInfo.emptyable = true;
+		regexInfo.prefix.add("");
+		regexInfo.suffix.add("");
+		regexInfo.match.operator = TrigramBooleanQuery.ANY;
+		return regexInfo;
 	}
 	
 	/**
 	 * 
-	 * @return RegexInfo describing a regex that matching an EMPTY string
+	 * @return RegexInfo describing a regex that matches an EMPTY string
 	 */
 	public static RegexInfo emptyString() {
-		RegexInfo info = new RegexInfo();
-		info.emptyable = true;
-		info.match.operator = TrigramBooleanQuery.ANY;
-		info.exact.add("");
-		return info;
+		RegexInfo regexInfo = new RegexInfo();
+		regexInfo.emptyable = true;
+		regexInfo.match.operator = TrigramBooleanQuery.ANY;
+		regexInfo.exact.add("");
+		return regexInfo;
 	}
 	
 	/**
 	 * The prefix, suffix, and exact are null (unknown), because we don't know which character exactly. 
-	 * @return RegexInfo describing a regex that matching ANY SINGLE character
+	 * @return RegexInfo describing a regex that matches ANY SINGLE character
 	 */
 	public static RegexInfo anyChar() {
-		RegexInfo info = new RegexInfo();
-		info.emptyable = false;
-		return info;
+		RegexInfo regexInfo = new RegexInfo();
+		regexInfo.emptyable = false;
+		return regexInfo;
 	}
 
 }
