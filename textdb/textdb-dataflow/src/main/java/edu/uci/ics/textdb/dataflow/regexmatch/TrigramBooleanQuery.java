@@ -35,8 +35,9 @@ import edu.uci.ics.textdb.common.constants.DataConstants;
  */
 public class TrigramBooleanQuery {
 	public enum QueryOp {
-		NONE,
-		ANY,
+		NONE, // doesn't match any string
+		ANY,  // matches any string
+		
 		AND,
 		OR
 	}
@@ -47,13 +48,12 @@ public class TrigramBooleanQuery {
 	
 	public TrigramBooleanQuery(QueryOp operator) {
 		this.operator = operator;
-		operandList = new ArrayList<String>();
 		subQueryList = new ArrayList<TrigramBooleanQuery>();
 	}
 	
 	public boolean equals(TrigramBooleanQuery query) {
 		if (this.operator != query.operator
-			|| this.operandList.size() != query.operandList.size() 
+			|| this.operandList != query.operandList
 			|| this.subQueryList.size() != query.subQueryList.size()) {
 			return false;
 		}
