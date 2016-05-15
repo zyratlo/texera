@@ -82,19 +82,19 @@ public class GramBooleanQuery {
 	}
 	
 	private void addOrNode(ArrayList<String> literalList) {
-		GramBooleanQuery tbq = new GramBooleanQuery(GramBooleanQuery.QueryOp.OR);
+		GramBooleanQuery query = new GramBooleanQuery(GramBooleanQuery.QueryOp.OR);
 		for (String literal : literalList) {
-			tbq.addAndNode(literal);
+			query.addAndNode(literal);
 		}
-		this.subQueryList.add(tbq);
+		this.subQueryList.add(query);
 	}
 	
 	private void addAndNode(String literal) {
-		GramBooleanQuery tbq = new GramBooleanQuery(GramBooleanQuery.QueryOp.AND);
+		GramBooleanQuery query = new GramBooleanQuery(GramBooleanQuery.QueryOp.AND);
 		for (String nGram: literalToNGram(literal)) {
-			tbq.operandList.add(nGram);
+			query.operandList.add(nGram);
 		}
-		this.subQueryList.add(tbq);
+		this.subQueryList.add(query);
 	}
 	
 	/**
