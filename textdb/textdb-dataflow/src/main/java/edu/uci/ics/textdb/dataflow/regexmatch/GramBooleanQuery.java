@@ -32,7 +32,7 @@ public class GramBooleanQuery {
 	
 	public boolean equals(GramBooleanQuery query) {
 		if (this.operator != query.operator
-			|| this.operandList != query.operandList
+			|| this.operandList.size() != query.operandList.size()
 			|| this.subQueryList.size() != query.subQueryList.size()) {
 			return false;
 		}
@@ -108,7 +108,7 @@ public class GramBooleanQuery {
 	private List<String> literalToTrigram(String literal) {
 		ArrayList<String> trigrams = new ArrayList<>();
 		if (literal.length() >= gramNum) {
-			for (int i = 0; i <= literal.length()-3; ++i) {
+			for (int i = 0; i <= literal.length()-gramNum; ++i) {
 				trigrams.add(literal.substring(i, i+gramNum));
 			}
 		}

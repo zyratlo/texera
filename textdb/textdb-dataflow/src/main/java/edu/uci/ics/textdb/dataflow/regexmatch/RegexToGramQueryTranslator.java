@@ -54,7 +54,7 @@ public class RegexToGramQueryTranslator {
 	 * @return RegexInfo
 	 */
 	private static RegexInfo analyze(PublicRegexp re) {
-		RegexInfo regexInfo = new RegexInfo();
+		
 		switch (re.getOp()) {
 		// NO_MATCH is a regex that doesn't match anything.
 		// It's used to handle error cases, which shouldn't 
