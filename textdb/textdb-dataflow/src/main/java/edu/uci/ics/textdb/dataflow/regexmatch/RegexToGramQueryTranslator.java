@@ -76,17 +76,23 @@ public class RegexToGramQueryTranslator {
 		}
 		// TODO finish for every case
 		case ALTERNATE:
-			break;
+			//TODO
+			return RegexInfo.matchAny();
 		case CAPTURE:
-			break;
+			//TODO
+			return RegexInfo.matchAny();
 		case CHAR_CLASS:
-			break;
+			//TODO
+			return RegexInfo.matchAny();
 		case CONCAT:
-			break;
+			//TODO
+			return RegexInfo.matchAny();
 		case LEFT_PAREN:
-			break;
+			//TODO
+			return RegexInfo.matchAny();
 		case LITERAL:
-			break;
+			//TODO
+			return RegexInfo.matchAny();
 		// A regex that indicates one or more occurrences of an expression.
 		case PLUS:
 			// The regexInfo of "(expr)+" should be the same as the info of "expr", 
@@ -95,21 +101,22 @@ public class RegexToGramQueryTranslator {
 			info.exact = null;
 			return info;
 		case QUEST:
-			break;
+			//TODO
+			return RegexInfo.matchAny();
 		// A regex that indicates an expression is matched 
 		// at least min times, at most max times.
 		case REPEAT:
-			break;
+			//TODO
+			return RegexInfo.matchAny();
 		// A regex that indicates zero or more occurrences of an expression.
 		case STAR:
 			return RegexInfo.matchAny();
 		case VERTICAL_BAR:
-			break;
+			//TODO
+			return RegexInfo.matchAny();
 		default:
-			break;
+			return RegexInfo.matchAny();
 		}
-		
-		return regexInfo;
 	}
 	
 }

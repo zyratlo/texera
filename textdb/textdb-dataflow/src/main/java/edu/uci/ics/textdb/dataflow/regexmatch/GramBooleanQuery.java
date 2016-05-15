@@ -21,6 +21,8 @@ public class GramBooleanQuery {
 	List<String> operandList;
 	List<GramBooleanQuery> subQueryList;
 	
+	private static int gramNum = 3;
+	
 
 	public GramBooleanQuery(QueryOp operator) {
 		this.operator = operator;
@@ -96,20 +98,29 @@ public class GramBooleanQuery {
 	}
 	
 	/**
-	 * This function build a list of trigrams that a given literal contains.
-	 * If the length of the literal is smaller than 3, it returns an empty list.
+	 * This function build a list of N-Grams that a given literal contains. <br>
+	 * If the length of the literal is smaller than N, it returns an empty list. <br>
+	 * Default gram number is 3. <br>
 	 * For example, for literal "textdb", trigram list should be ["tex", "ext", "xtd", "tdb"]
 	 * @param literal
 	 * @return
 	 */
 	private List<String> literalToTrigram(String literal) {
 		ArrayList<String> trigrams = new ArrayList<>();
-		if (literal.length() >= 3) {
+		if (literal.length() >= gramNum) {
 			for (int i = 0; i <= literal.length()-3; ++i) {
-				trigrams.add(literal.substring(i, i+3));
+				trigrams.add(literal.substring(i, i+gramNum));
 			}
 		}
 		return trigrams;
+	}
+	
+	/**
+	 * This method sets a new gram number. Default gram number is set to 3. <br>
+	 * @param gramNum
+	 */
+	public static void setGramNum(int gramNum) {
+		GramBooleanQuery.gramNum = gramNum;
 	}
 	
 
@@ -150,4 +161,7 @@ public class GramBooleanQuery {
 			}
 		}
 	}
+	
+	
+	
 }

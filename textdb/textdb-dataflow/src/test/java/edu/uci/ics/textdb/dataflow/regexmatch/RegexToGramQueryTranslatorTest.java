@@ -13,7 +13,7 @@ public class RegexToGramQueryTranslatorTest {
 	@Test
 	public void testEmptyRegex() {
 		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate("");
-		GramBooleanQuery expectedQuery = new GramBooleanQuery(GramBooleanQuery.ANY);
+		GramBooleanQuery expectedQuery = new GramBooleanQuery(GramBooleanQuery.QueryOp.ANY);
 
 		Assert.assertTrue(exactQuery.equals(expectedQuery));
 	}
@@ -21,7 +21,7 @@ public class RegexToGramQueryTranslatorTest {
 	@Test
 	public void testStarRegex() {
 		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate("a*");
-		GramBooleanQuery expectedQuery = new GramBooleanQuery(GramBooleanQuery.ANY);
+		GramBooleanQuery expectedQuery = new GramBooleanQuery(GramBooleanQuery.QueryOp.ANY);
 		
 		Assert.assertTrue(exactQuery.equals(expectedQuery));
 	}
