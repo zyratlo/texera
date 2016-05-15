@@ -6,7 +6,7 @@ import com.google.re2j.PublicRegexp;
 import com.google.re2j.PublicSimplify;
 
 /**
- * This class translates a regex to a boolean query of trigrams,
+ * This class translates a regex to a boolean query of b-grams,
  * according to the <a href='https://swtch.com/~rsc/regexp/regexp4.html'>algorithm</a> 
  * described in Russ Cox's article. <br>
  * 
@@ -20,7 +20,7 @@ public class RegexToGramQueryTranslator {
 	 * This method translates a regular expression to 
 	 * a boolean expression of n-grams. <br>
 	 * Then the boolean expression can be queried using 
-	 * a trigram inverted index to speed up regex matching. <br>
+	 * an n-gram inverted index to speed up regex matching. <br>
 	 * 
 	 * @param regex, the regex string to be translated.
 	 * @return GamBooleanQeruy, a boolean query of n-grams.

@@ -52,7 +52,7 @@ public class GramBooleanQuery {
 	/**
 	 * This is a helper function called by {@code equals} function.
 	 * It takes a DFS approach to recursively determine 
-	 * whether two {@code TrigramBooleanQuery} list contains same set of elements. 
+	 * whether two {@code GramBooleanQuery} list contains same set of elements. 
 	 * @param query
 	 * @param isUsed
 	 * @param index
@@ -91,8 +91,8 @@ public class GramBooleanQuery {
 	
 	private void addAndNode(String literal) {
 		GramBooleanQuery tbq = new GramBooleanQuery(GramBooleanQuery.QueryOp.AND);
-		for (String trigram: literalToTrigram(literal)) {
-			tbq.operandList.add(trigram);
+		for (String nGram: literalToNGram(literal)) {
+			tbq.operandList.add(nGram);
 		}
 		this.subQueryList.add(tbq);
 	}
@@ -100,19 +100,19 @@ public class GramBooleanQuery {
 	/**
 	 * This function build a list of N-Grams that a given literal contains. <br>
 	 * If the length of the literal is smaller than N, it returns an empty list. <br>
-	 * Default gram number is 3. <br>
+	 * Default gram number is 3 (trigram). <br>
 	 * For example, for literal "textdb", trigram list should be ["tex", "ext", "xtd", "tdb"]
 	 * @param literal
 	 * @return
 	 */
-	private List<String> literalToTrigram(String literal) {
-		ArrayList<String> trigrams = new ArrayList<>();
+	private List<String> literalToNGram(String literal) {
+		ArrayList<String> nGrams = new ArrayList<>();
 		if (literal.length() >= gramNum) {
 			for (int i = 0; i <= literal.length()-gramNum; ++i) {
-				trigrams.add(literal.substring(i, i+gramNum));
+				nGrams.add(literal.substring(i, i+gramNum));
 			}
 		}
-		return trigrams;
+		return nGrams;
 	}
 	
 	/**

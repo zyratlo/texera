@@ -7,7 +7,7 @@ import java.util.List;
  * @Author Zuozhi Wang
  * @Author Shuying Lai
  * 
- * RegexInfo for translating regex to trigrams
+ * RegexInfo for translating regex to n-grams
  * @see https://swtch.com/~rsc/regexp/regexp4.html for details
  */
 public class RegexInfo {
