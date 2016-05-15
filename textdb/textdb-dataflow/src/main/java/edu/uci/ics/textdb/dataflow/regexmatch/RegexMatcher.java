@@ -3,8 +3,6 @@ package edu.uci.ics.textdb.dataflow.regexmatch;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.lucene.search.Query;
-
 import edu.uci.ics.textdb.api.common.IField;
 import edu.uci.ics.textdb.api.common.IPredicate;
 import edu.uci.ics.textdb.api.common.ITuple;
@@ -35,7 +33,6 @@ public class RegexMatcher implements IOperator {
     public RegexMatcher(IPredicate predicate) {
     	this.regexPredicate = (RegexPredicate)predicate;
     	sourceOperator = regexPredicate.getSourceOperator();
-    	fields = regexPredicate.getFields();
     }
 
     @Override
