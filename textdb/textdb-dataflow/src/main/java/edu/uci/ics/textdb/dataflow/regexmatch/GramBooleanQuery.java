@@ -34,7 +34,26 @@ public class GramBooleanQuery {
 		this.gramLength = gramLength;
 	}
 	
-	public boolean equals(GramBooleanQuery query) {
+	/**
+	 * This return a GramBooleanQuery's hash code. <br>
+	 * It won't traverse the whole tree, instead, 
+	 * it only calculate the hashcode of direct leafs. <br>
+	 * 
+	 */
+	public int hashCode() {
+		int hashCode = operator.toString().hashCode();
+		for (String s : operandList) {
+			hashCode = hashCode ^ s.hashCode();
+		}
+		return hashCode;
+	}
+	
+	public boolean equals(Object compareTo) {
+		if (! (compareTo instanceof GramBooleanQuery)) {
+			return false;
+		}
+		
+		GramBooleanQuery query = (GramBooleanQuery) compareTo;
 		if (this.operator != query.operator
 			|| this.operandList.size() != query.operandList.size()
 			|| this.subQueryList.size() != query.subQueryList.size()) {
@@ -46,39 +65,12 @@ public class GramBooleanQuery {
 			return false;
 		}
 		
-		if (this.subQueryList.size() == 0) {
-			return true;
+		Set<GramBooleanQuery> subQuerySet = new HashSet<GramBooleanQuery>(this.subQueryList);
+		if (!subQuerySet.equals(new HashSet<GramBooleanQuery>(query.subQueryList))) {
+			return false;
 		}
 		
-		int[] used = new int[this.subQueryList.size()];
-		return this.equalsHelper(query, used, 0);
-	}
-	/**
-	 * This is a helper function called by {@code equals} function.
-	 * It takes a DFS approach to recursively determine 
-	 * whether two {@code GramBooleanQuery} list contains same set of elements. 
-	 * @param query
-	 * @param isUsed
-	 * @param index
-	 * @return
-	 */
-	private boolean equalsHelper(GramBooleanQuery query, int[] isUsed, int index) {
-		if (index == query.subQueryList.size()) {
-			return true;
-		}
-		
-		for (int i = 0; i < query.subQueryList.size(); i++) {
-			if (isUsed[i] == 1) continue;
-			if (this.subQueryList.get(index).equals(query.subQueryList.get(i))) {
-				isUsed[i] = 1;
-				if (equalsHelper(query, isUsed, index+1)){
-					return true;
-				} else {
-					isUsed[i] = 0;
-				}
-			}
-		}
-		return false;
+		return true;
 	}
 	
 	/**
@@ -88,11 +80,11 @@ public class GramBooleanQuery {
 	 * OR operator is assumed for a list of strings. <br>
 	 * @param list, a list of strings to be added into query.
 	 */
-	public void add(ArrayList<String> list) {
+	public void add(List<String> list) {
 		addOrNode(list);
 	}
 	
-	private void addOrNode(ArrayList<String> literalList) {
+	private void addOrNode(List<String> literalList) {
 		GramBooleanQuery query = new GramBooleanQuery(GramBooleanQuery.QueryOp.OR);
 		for (String literal : literalList) {
 			query.addAndNode(literal);
@@ -169,7 +161,6 @@ public class GramBooleanQuery {
 			}
 		}
 	}
-	
-	
+
 	
 }
