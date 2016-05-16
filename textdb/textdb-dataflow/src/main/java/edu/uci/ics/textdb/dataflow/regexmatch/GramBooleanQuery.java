@@ -21,13 +21,17 @@ public class GramBooleanQuery {
 	List<String> operandList;
 	List<GramBooleanQuery> subQueryList;
 	
-	private static int gramLength = 3;
+	private int gramLength;
 	
-
 	public GramBooleanQuery(QueryOp operator) {
+		this(operator, 3);
+	}
+	
+	public GramBooleanQuery(QueryOp operator, int gramLength) {
 		this.operator = operator;
 		operandList = new ArrayList<String>();
 		subQueryList = new ArrayList<GramBooleanQuery>();
+		this.gramLength = gramLength;
 	}
 	
 	public boolean equals(GramBooleanQuery query) {
@@ -113,15 +117,6 @@ public class GramBooleanQuery {
 		}
 		return nGrams;
 	}
-	
-	/**
-	 * This method sets a new gram length. Default gram length is set to 3. <br>
-	 * @param gramLength
-	 */
-	public static void setGramLength(int gramLength) {
-		GramBooleanQuery.gramLength = gramLength;
-	}
-	
 
 	/**
 	 * @return boolean expression 
