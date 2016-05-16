@@ -47,7 +47,7 @@ public class RegexPredicate implements IPredicate {
 	
 
 	public RegexPredicate(String regex, List<Attribute> attributeList, Analyzer analyzer, IDataStore dataStore)
-			throws DataFlowException, java.util.regex.PatternSyntaxException {
+			throws DataFlowException{
 		try {
 			this.regex = regex;
 			this.analyzer = analyzer;		
@@ -56,10 +56,12 @@ public class RegexPredicate implements IPredicate {
 					.map(attr -> attr.getFieldName())
 					.collect(Collectors.toList());
 			
+			// try to use RE2J
 			try {
 				com.google.re2j.Pattern.compile(regex);
 				regexEngine = RegexEngine.RE2J;
 				this.luceneQuery = generateQuery(this.regex, this.fields);	
+			// if RE2J failes, try to use Java Regex
 			} catch (com.google.re2j.PatternSyntaxException re2jException) {
 				java.util.regex.Pattern.compile(regex);
 				regexEngine = RegexEngine.JavaRegex;
@@ -67,8 +69,7 @@ public class RegexPredicate implements IPredicate {
 			}
 			
 			this.sourceOperator = new IndexBasedSourceOperator(new DataReaderPredicate(dataStore, luceneQuery));
-		} catch (ParseException e) {
-			e.printStackTrace();
+		} catch (ParseException | java.util.regex.PatternSyntaxException e) {
 			throw new DataFlowException(e.getMessage(), e);
 		}
 	}
