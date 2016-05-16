@@ -74,9 +74,6 @@ public class NamedEntityExtractor implements IOperator {
     }
 
 
-
-
-
     /**
      * @about Return all named entities that are recognized in a document.
      * Return format is a Tuple that contains only one field which is
@@ -106,12 +103,11 @@ public class NamedEntityExtractor implements IOperator {
     }
 
     /**
-     * This function takes an (TextField) IField and a String (the field's name) as input and use the Stanford NLP package to process the string.
+     * @about This function takes an (TextField) IField and a String (the field's name) as input and uses the Stanford NLP package to process the field.
      * It returns a list of spans
      * <p>
-     * <p>
-     * Not to be confuse:     Value in these spans is the word being extracted while key is the NE_Constant (For example: Location, Person etc)*
-     * Description is the name of the IField where the word comes from.
+     * In the returning span: Value -> the word itself
+     * Key   -> NE_Constant
      *
      * @param iField
      * @return a List of spans of the extracted information
@@ -141,7 +137,7 @@ public class NamedEntityExtractor implements IOperator {
                     if (spanList.size() >= 1) {
                         Span previousSpan = spanList.get(spanList.size() - 1);
                         if (previousSpan.getFieldName().equals(span.getFieldName())
-                                && (span.getStart()-previousSpan.getEnd() <= 1)
+                                && (span.getStart() - previousSpan.getEnd() <= 1)
                                 && previousSpan.getKey().equals(span.getKey())) {
                             Span newspan = mergeTwoSpan(previousSpan, span);
                             span = newspan;
@@ -160,12 +156,12 @@ public class NamedEntityExtractor implements IOperator {
 
 
     /**
-     * This function takes two spans as input and merge then as a new span
+     * @about This function takes two spans as input and merge then as a new span
      * <p>
-     * There are three constraints that the caller need to make sure:
-     * 1. The two span are adjancent.That is, the previous span has a end value that is 1 less than the current span.
-     * 2. The two span are in the same field. Thus they have the same fieldName
-     * 3. The two span have the same key (Organization, Person,... etc)
+     * The caller need to make sure:
+     * 1. The two spans are adjacent.
+     * 2. The two spans are in the same field. They should have the same fieldName.
+     * 3. The two spans have the same key (Organization, Person,... etc)
      *
      * @param previousSpan
      * @param currentSpan
@@ -189,8 +185,8 @@ public class NamedEntityExtractor implements IOperator {
     }
 
     /**
-     * This function takes an Stanford NLP Constant (The 7 Classes as: LOCATION,PERSON,ORGANIZATION,MONEY,PERCENT,DATE
-     * and TIME) and return the corresponding NE Constant that we used in this package.
+     * This function takes an Stanford NLP Constant (The 7 Classes as: LOCATION,PERSON,ORGANIZATION,MONEY,PERCENT,DATE,
+     * TIME and NUMBER) and returns the corresponding NE Constant.
      *
      * @param NLPConstant
      * @return

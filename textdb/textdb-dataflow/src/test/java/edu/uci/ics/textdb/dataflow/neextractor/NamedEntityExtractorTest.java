@@ -174,7 +174,7 @@ public class NamedEntityExtractorTest {
      *  Sentence1: Microsoft, Google and Facebook are organizations.
      *  Sentence2: Donald Trump and Barack Obama are persons.
      * <p>
-     * While only doing search on the second field.
+     * Only search the second field.
      */
     @Test
     public void getNextTupleTest5() throws Exception {
