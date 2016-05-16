@@ -81,6 +81,13 @@ public class GramBooleanQuery {
 		return false;
 	}
 	
+	/**
+	 * This methods takes a list of strings and adds them to the query tree. <br>
+	 * For example, if the list is {abcd, wxyz}, then: <br>
+	 * trigrams({abcd, wxyz}) = trigrams(abcd) OR trigrams(wxyz) <br>
+	 * OR operator is assumed for a list of strings. <br>
+	 * @param list, a list of strings to be added into query.
+	 */
 	public void add(ArrayList<String> list) {
 		addOrNode(list);
 	}
@@ -93,6 +100,13 @@ public class GramBooleanQuery {
 		this.subQueryList.add(query);
 	}
 	
+	/**
+	 * This method takes a single string and add it to the query tree. <br>
+	 * For example: if the string is abcd, then: <br>
+	 * trigrams(abcd) = abc AND bcd <br>
+	 * AND operator is assumed for a single string. <br>
+	 * @param literal
+	 */
 	private void addAndNode(String literal) {
 		GramBooleanQuery query = new GramBooleanQuery(GramBooleanQuery.QueryOp.AND);
 		for (String nGram: literalToNGram(literal)) {
