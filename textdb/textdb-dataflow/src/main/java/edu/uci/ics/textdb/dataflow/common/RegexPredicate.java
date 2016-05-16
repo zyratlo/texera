@@ -60,12 +60,12 @@ public class RegexPredicate implements IPredicate {
 			try {
 				com.google.re2j.Pattern.compile(regex);
 				regexEngine = RegexEngine.RE2J;
-				this.luceneQuery = generateQuery(this.regex, this.fields);	
+				this.luceneQuery = generateQuery(this.regex, this.fields, RegexToTrigram.translate(this.regex));	
 			// if RE2J failes, try to use Java Regex
 			} catch (com.google.re2j.PatternSyntaxException re2jException) {
 				java.util.regex.Pattern.compile(regex);
 				regexEngine = RegexEngine.JavaRegex;
-				this.luceneQuery = generateScanQuery(this.fields);	
+				this.luceneQuery = generateQuery(this.regex, this.fields, DataConstants.SCAN_QUERY);	
 			}
 			
 			this.sourceOperator = new IndexBasedSourceOperator(new DataReaderPredicate(dataStore, luceneQuery));
@@ -74,31 +74,11 @@ public class RegexPredicate implements IPredicate {
 		}
 	}
 
-	private Query generateQuery(String regexStr, List<String> fields) throws ParseException {
+	private Query generateQuery(String regexStr, List<String> fields, String queryStr) throws ParseException {
 		String[] fieldsArray = new String[fields.size()];
 		QueryParser parser = new MultiFieldQueryParser(fields.toArray(fieldsArray), analyzer);
-		String queryStr = RegexToTrigram.translate(regexStr);
 		return parser.parse(queryStr);
 	}
-	
-	private Query generateScanQuery(List<String> fields) throws ParseException {
-		String[] fieldsArray = new String[fields.size()];
-		QueryParser parser = new MultiFieldQueryParser(fields.toArray(fieldsArray), analyzer);
-		return parser.parse(DataConstants.SCAN_QUERY);
-	}
-
-	public String getRegex() {
-		return regex;
-	}
-
-	public ISourceOperator getSourceOperator() {
-		return this.sourceOperator;
-	}
-
-	public List<String> getFields() {
-		return this.fields;
-	}
-
 
 	/**
 	 * This function returns a list of spans in the given tuple that match the
@@ -153,5 +133,17 @@ public class RegexPredicate implements IPredicate {
 			spanList.add(new Span(fieldName, re2jMatcher.start(), re2jMatcher.end(), regex, fieldValue));
 		}
 	}
+	
+	public String getRegex() {
+		return regex;
+	}
 
+	public ISourceOperator getSourceOperator() {
+		return this.sourceOperator;
+	}
+
+	public List<String> getFields() {
+		return this.fields;
+	}
+	
 }
