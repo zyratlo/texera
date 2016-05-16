@@ -32,7 +32,7 @@ public class RegexInfo {
 	}
 	
 	/**
-	 * @return RegexInfo describing a regex that matching NO string
+	 * @return RegexInfo describing a regex that matches NO string
 	 * This function shouldn't be called unless something goes wrong.
 	 * It is used to handle error cases.
 	 */
@@ -69,7 +69,7 @@ public class RegexInfo {
 	}
 	
 	/** 
-	 * @return RegexInfo describing a regex that matching ANY SINGLE character
+	 * @return RegexInfo describing a regex that matches ANY SINGLE character
 	 * For anyChar, prefix, suffix, and exact are null (unknown), 
 	 * because we don't know the exact character.
 	 */

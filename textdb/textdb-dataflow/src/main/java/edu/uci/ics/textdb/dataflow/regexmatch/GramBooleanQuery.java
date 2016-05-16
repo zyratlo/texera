@@ -21,7 +21,7 @@ public class GramBooleanQuery {
 	List<String> operandList;
 	List<GramBooleanQuery> subQueryList;
 	
-	private static int gramNum = 3;
+	private static int gramLength = 3;
 	
 
 	public GramBooleanQuery(QueryOp operator) {
@@ -98,29 +98,28 @@ public class GramBooleanQuery {
 	}
 	
 	/**
-	 * This function build a list of N-Grams that a given literal contains. <br>
+	 * This function builds a list of N-Grams that a given literal contains. <br>
 	 * If the length of the literal is smaller than N, it returns an empty list. <br>
-	 * Default gram number is 3 (trigram). <br>
-	 * For example, for literal "textdb", trigram list should be ["tex", "ext", "xtd", "tdb"]
+	 * For example, for literal "textdb", its tri-gram list should be ["tex", "ext", "xtd", "tdb"]
 	 * @param literal
 	 * @return
 	 */
 	private List<String> literalToNGram(String literal) {
 		ArrayList<String> nGrams = new ArrayList<>();
-		if (literal.length() >= gramNum) {
-			for (int i = 0; i <= literal.length()-gramNum; ++i) {
-				nGrams.add(literal.substring(i, i+gramNum));
+		if (literal.length() >= gramLength) {
+			for (int i = 0; i <= literal.length()-gramLength; ++i) {
+				nGrams.add(literal.substring(i, i+gramLength));
 			}
 		}
 		return nGrams;
 	}
 	
 	/**
-	 * This method sets a new gram number. Default gram number is set to 3. <br>
-	 * @param gramNum
+	 * This method sets a new gram length. Default gram length is set to 3. <br>
+	 * @param gramLength
 	 */
-	public static void setGramNum(int gramNum) {
-		GramBooleanQuery.gramNum = gramNum;
+	public static void setGramLength(int gramLength) {
+		GramBooleanQuery.gramLength = gramLength;
 	}
 	
 
