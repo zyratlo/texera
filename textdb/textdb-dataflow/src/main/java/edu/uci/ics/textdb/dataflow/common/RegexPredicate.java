@@ -1,6 +1,3 @@
-/**
- * 
- */
 package edu.uci.ics.textdb.dataflow.common;
 
 import java.util.ArrayList;
@@ -28,6 +25,11 @@ import edu.uci.ics.textdb.dataflow.source.IndexBasedSourceOperator;
 import edu.uci.ics.textdb.storage.DataReaderPredicate;
 
 /**
+ * This class is responsible for calculating regex match. <br>
+ * It uses RegexToGramQueryTranslator to translate a regex to a query in lucene. <br>
+ * 
+ * @author Zuozhi Wang
+ * @author Shuying Lai
  * @author sandeepreddy602
  *
  */
