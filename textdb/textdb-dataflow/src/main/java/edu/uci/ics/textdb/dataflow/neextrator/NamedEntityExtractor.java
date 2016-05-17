@@ -12,11 +12,9 @@ import edu.uci.ics.textdb.api.common.IField;
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.common.Schema;
 import edu.uci.ics.textdb.api.dataflow.IOperator;
-import edu.uci.ics.textdb.common.constants.SchemaConstants;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
-import edu.uci.ics.textdb.common.field.DataTuple;
-import edu.uci.ics.textdb.common.field.ListField;
 import edu.uci.ics.textdb.common.field.Span;
+import edu.uci.ics.textdb.common.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,11 +26,12 @@ import java.util.Properties;
  *         <p>
  *         Wrap the Stanford NLP Named Entity Recognizer as an operator.
  *         This operator would recognize 7 classes: Location, Person, Organization, Money, Percent, Date and Time.
- *         Return the recoginized data as a list of spans.
+ *         Return the recoginized data as a list of spans that appended to the original tuple as a field.
  *         <p>
  *         For example: Given tuple with two field: sentence1, sentence2.
  *         tuple: ["Google is an organization.", "Its headquarter is in Mountain View."]
- *         return:
+ *
+ *         Append a list of span then return:
  *         ["sentence1,0,6,Google, NE_ORGANIZATION", "sentence2,22,25,Mountain View, NE_LOCATION"]
  */
 
@@ -42,6 +41,8 @@ public class NamedEntityExtractor implements IOperator {
     private IOperator sourceOperator;
     private List<Attribute> searchInAttributes;
     private ITuple sourceTuple;
+    private Schema returnSchema;
+
 
     public static final String NE_NUMBER = "Number";
     public static final String NE_LOCATION = "Location";
@@ -66,6 +67,7 @@ public class NamedEntityExtractor implements IOperator {
     public void open() throws Exception {
         try {
             sourceOperator.open();
+            returnSchema = Utils.createSpanSchema(sourceTuple.getSchema());
         } catch (Exception e) {
             e.printStackTrace();
             throw new DataFlowException(e.getMessage(), e);
@@ -93,11 +95,7 @@ public class NamedEntityExtractor implements IOperator {
                 IField field = sourceTuple.getField(fieldName);
                 spanList.addAll(extractNESpans(field, fieldName));
             }
-            IField spanField = new ListField<Span>(spanList);
-            List<IField> fields = new ArrayList<IField>();
-            fields.add(spanField);
-            ITuple resultTuple = new DataTuple(new Schema(SchemaConstants.SPAN_LIST_ATTRIBUTE), fields.toArray(new IField[fields.size()]));
-            return resultTuple;
+            return Utils.getSpanTuple(sourceTuple.getFields(), spanList, returnSchema);
         }
     }
 
