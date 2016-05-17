@@ -62,7 +62,7 @@ public class RegexToGramQueryTranslator {
 	 * @return RegexInfo
 	 */
 	private static RegexInfo analyze(PublicRegexp re) {
-		
+		RegexInfo info = new RegexInfo();
 		switch (re.getOp()) {
 		// NO_MATCH is a regex that doesn't match anything.
 		// It's used to handle error cases, which shouldn't 
@@ -113,7 +113,7 @@ public class RegexToGramQueryTranslator {
 					literal += Character.toString((char) rune).toLowerCase();
 				}
 			}
-			RegexInfo info = new RegexInfo();
+			info = new RegexInfo();
 			info.exact.add(literal);
 			return info;
 		// A regex that indicates an expression is matched 
@@ -128,7 +128,7 @@ public class RegexToGramQueryTranslator {
 		case PLUS:
 			// The regexInfo of "(expr)+" should be the same as the info of "expr", 
 			// except that "exact" is null, because we don't know the number of repetitions.
-			RegexInfo info = analyze(re.getSubs()[0]);
+			info = analyze(re.getSubs()[0]);
 			info.exact = null;
 			return info;
 		case QUEST:
