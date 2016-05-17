@@ -10,7 +10,7 @@ import java.util.List;
  * RegexInfo for translating regex to an n-gram boolean query. <br>
  * see <a href='https://swtch.com/~rsc/regexp/regexp4.html'>https://swtch.com/~rsc/regexp/regexp4.html</a> for details. <br>
  */
-public class RegexInfo {
+class RegexInfo {
 	boolean emptyable;
 	List<String> exact = null;
 	List<String> prefix = null;
@@ -23,7 +23,7 @@ public class RegexInfo {
 	 * exact, prefix, suffix to empty arraylist
 	 * match to match ALL
 	 */
-	public RegexInfo() {
+	RegexInfo() {
 		emptyable = false;
 		exact = new ArrayList<String>();
 		prefix = new ArrayList<String>();
@@ -36,7 +36,7 @@ public class RegexInfo {
 	 * This function shouldn't be called unless something goes wrong.
 	 * It is used to handle error cases.
 	 */
-	public static RegexInfo matchNone() {
+	static RegexInfo matchNone() {
 		RegexInfo regexInfo = new RegexInfo();
 		regexInfo.match.operator = GramBooleanQuery.QueryOp.NONE;
 		return regexInfo;
@@ -46,7 +46,7 @@ public class RegexInfo {
 	 * 
 	 * @return RegexInfo describing a regex that matches ANY string
 	 */
-	public static RegexInfo matchAny() {
+	static RegexInfo matchAny() {
 		RegexInfo regexInfo = new RegexInfo();
 		regexInfo.emptyable = true;
 		regexInfo.prefix.add("");
@@ -59,7 +59,7 @@ public class RegexInfo {
 	 * 
 	 * @return RegexInfo describing a regex that matches an EMPTY string
 	 */
-	public static RegexInfo emptyString() {
+	static RegexInfo emptyString() {
 
 		RegexInfo regexInfo = new RegexInfo();
 		regexInfo.emptyable = true;
@@ -73,7 +73,7 @@ public class RegexInfo {
 	 * For anyChar, prefix, suffix, and exact are null (unknown), 
 	 * because we don't know the exact character.
 	 */
-	public static RegexInfo anyChar() {
+	static RegexInfo anyChar() {
 		RegexInfo regexInfo = new RegexInfo();
 		regexInfo.emptyable = false;
 		return regexInfo;

@@ -9,8 +9,8 @@ import java.util.StringJoiner;
 import edu.uci.ics.textdb.common.constants.DataConstants;
 
 
-public class GramBooleanQuery {
-	public enum QueryOp {
+class GramBooleanQuery {
+	enum QueryOp {
 		NONE, // doesn't match any string
 		ANY,  // matches any string
 		
@@ -21,17 +21,17 @@ public class GramBooleanQuery {
 	List<String> operandList;
 	List<GramBooleanQuery> subQueryList;
 	
-	private int gramLength;
+	int gramLength;
 	
 	/**
 	 * Constructs a GramBooleanQuery with default gram length 3. <br>
 	 * @param operator
 	 */
-	public GramBooleanQuery(QueryOp operator) {
+	GramBooleanQuery(QueryOp operator) {
 		this(operator, 3);
 	}
 	
-	public GramBooleanQuery(QueryOp operator, int gramLength) {
+	GramBooleanQuery(QueryOp operator, int gramLength) {
 		this.operator = operator;
 		operandList = new ArrayList<String>();
 		subQueryList = new ArrayList<GramBooleanQuery>();
@@ -93,7 +93,7 @@ public class GramBooleanQuery {
 	 * OR operator is assumed for a list of strings. <br>
 	 * @param list, a list of strings to be added into query.
 	 */
-	public void add(List<String> list) {
+	void add(List<String> list) {
 		addOrNode(list);
 	}
 	
@@ -152,7 +152,7 @@ public class GramBooleanQuery {
 	 * It generates a string representing the query that can be directly parsed by Lucene.
 	 * @return boolean expression
 	 */
-	public String getLuceneQueryString() {
+	String getLuceneQueryString() {
 		if (operator == QueryOp.ANY) {
 			return DataConstants.SCAN_QUERY;
 		} else if (operator == QueryOp.NONE) {
