@@ -66,7 +66,6 @@ public class NamedEntityExtractor implements IOperator {
     public void open() throws Exception {
         try {
             sourceOperator.open();
-            sourceTuple = sourceOperator.getNextTuple();
         } catch (Exception e) {
             e.printStackTrace();
             throw new DataFlowException(e.getMessage(), e);
@@ -84,6 +83,7 @@ public class NamedEntityExtractor implements IOperator {
      */
     @Override
     public ITuple getNextTuple() throws Exception {
+        sourceTuple = sourceOperator.getNextTuple();
         if (sourceTuple == null) {
             return null;
         } else {
@@ -97,7 +97,6 @@ public class NamedEntityExtractor implements IOperator {
             List<IField> fields = new ArrayList<IField>();
             fields.add(spanField);
             ITuple resultTuple = new DataTuple(new Schema(SchemaConstants.SPAN_LIST_ATTRIBUTE), fields.toArray(new IField[fields.size()]));
-            sourceTuple = sourceOperator.getNextTuple();
             return resultTuple;
         }
     }
