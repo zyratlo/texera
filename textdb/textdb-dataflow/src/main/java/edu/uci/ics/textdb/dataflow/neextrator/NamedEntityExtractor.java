@@ -30,7 +30,7 @@ import java.util.Properties;
  *         <p>
  *         For example: Given tuple with two field: sentence1, sentence2.
  *         tuple: ["Google is an organization.", "Its headquarter is in Mountain View."]
- *
+ *         <p>
  *         Append a list of span then return:
  *         ["sentence1,0,6,Google, NE_ORGANIZATION", "sentence2,22,25,Mountain View, NE_LOCATION"]
  */
@@ -67,7 +67,6 @@ public class NamedEntityExtractor implements IOperator {
     public void open() throws Exception {
         try {
             sourceOperator.open();
-            returnSchema = Utils.createSpanSchema(sourceTuple.getSchema());
         } catch (Exception e) {
             e.printStackTrace();
             throw new DataFlowException(e.getMessage(), e);
@@ -89,25 +88,30 @@ public class NamedEntityExtractor implements IOperator {
         if (sourceTuple == null) {
             return null;
         } else {
+            if (returnSchema == null) {
+                returnSchema = Utils.createSpanSchema(sourceTuple.getSchema());
+            }
             List<Span> spanList = new ArrayList<>();
             for (Attribute attribute : searchInAttributes) {
                 String fieldName = attribute.getFieldName();
                 IField field = sourceTuple.getField(fieldName);
                 spanList.addAll(extractNESpans(field, fieldName));
             }
-            return Utils.getSpanTuple(sourceTuple.getFields(), spanList, returnSchema);
+
+            ITuple returnTuple = Utils.getSpanTuple(sourceTuple.getFields(), spanList, returnSchema);
+            sourceTuple = sourceOperator.getNextTuple();
+            return returnTuple;
         }
     }
 
     /**
+     * @param iField
+     * @return a List of spans of the extracted information
      * @about This function takes an (TextField) IField and a String (the field's name) as input and uses the Stanford NLP package to process the field.
      * It returns a list of spans
      * <p>
      * In the returning span: Value -> the word itself
      * Key   -> NE_Constant
-     *
-     * @param iField
-     * @return a List of spans of the extracted information
      */
     private List<Span> extractNESpans(IField iField, String fieldName) {
         List<Span> spanList = new ArrayList<>();
@@ -153,23 +157,22 @@ public class NamedEntityExtractor implements IOperator {
 
 
     /**
+     * @param previousSpan
+     * @param currentSpan
+     * @return
      * @about This function takes two spans as input and merges them as a new span
-     *
+     * <p>
      * Two spans with fieldName, start, end, key, value:
-     *    previousSpan: "Doc1", 10, 13, "Location", "New"
-     *    currentSpan : "Doc1", 14, 18, "Location", "York"
-     *
+     * previousSpan: "Doc1", 10, 13, "Location", "New"
+     * currentSpan : "Doc1", 14, 18, "Location", "York"
+     * <p>
      * Would be merge to:
-     *     return:   "Doc1", 10, 18, "Location", "New York"
+     * return:   "Doc1", 10, 18, "Location", "New York"
      * <p>
      * The caller needs to make sure:
      * 1. The two spans are adjacent.
      * 2. The two spans are in the same field. They should have the same fieldName.
      * 3. The two spans have the same key (Organization, Person,... etc)
-     *
-     * @param previousSpan
-     * @param currentSpan
-     * @return
      */
     private Span mergeTwoSpan(Span previousSpan, Span currentSpan) {
         String previousWord = previousSpan.getValue();
@@ -239,6 +242,7 @@ public class NamedEntityExtractor implements IOperator {
         try {
             searchInAttributes = null;
             sourceTuple = null;
+            returnSchema = null;
             sourceOperator.close();
         } catch (Exception e) {
             e.printStackTrace();
