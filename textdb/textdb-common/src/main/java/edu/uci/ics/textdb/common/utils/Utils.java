@@ -14,6 +14,7 @@ import org.apache.lucene.document.DateTools;
 import org.apache.lucene.document.DateTools.Resolution;
 import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.index.IndexableField;
+import org.apache.lucene.index.IndexOptions;
 
 import edu.uci.ics.textdb.api.common.Attribute;
 import edu.uci.ics.textdb.api.common.FieldType;
@@ -49,7 +50,7 @@ public class Utils {
             case TEXT:
                 field = new TextField(fieldValue);
                 break;
-            
+
             default:
                 break;
         }
@@ -57,10 +58,10 @@ public class Utils {
     }
 
     public static IndexableField getLuceneField(FieldType fieldType,
-            String fieldName, Object fieldValue) {
+             String fieldName, Object fieldValue) {
         IndexableField luceneField = null;
         switch(fieldType){
-	        case STRING:
+            case STRING:
                 luceneField = new org.apache.lucene.document.StringField(
                         fieldName, (String) fieldValue, Store.YES);
                 break;
@@ -78,10 +79,20 @@ public class Utils {
                 luceneField = new org.apache.lucene.document.StringField(fieldName, dateString, Store.YES);
                 break;
             case TEXT:
-	            luceneField = new org.apache.lucene.document.TextField(
-	                    fieldName, (String) fieldValue, Store.YES);
-	            break;
-            
+                org.apache.lucene.document.FieldType luceneFieldType = new org.apache.lucene.document.FieldType();
+                luceneFieldType.setIndexOptions( IndexOptions.DOCS_AND_FREQS_AND_POSITIONS_AND_OFFSETS );
+                luceneFieldType.setStored(true);
+                luceneFieldType.setStoreTermVectors( true );
+                luceneFieldType.setStoreTermVectorOffsets( true );
+                luceneFieldType.setStoreTermVectorPayloads( true );
+                luceneFieldType.setStoreTermVectorPositions( true );
+                luceneFieldType.setTokenized( true );
+
+                luceneField = new org.apache.lucene.document.Field(
+                        fieldName,(String) fieldValue,luceneFieldType);
+
+                break;
+
         }
         return luceneField;
     }
@@ -96,10 +107,10 @@ public class Utils {
         IField[] fieldsDuplicate = fieldListDuplicate.toArray(new IField[fieldListDuplicate.size()]);
         return new DataTuple(spanSchema, fieldsDuplicate);
     }
-    
+
     /**
-     * 
-     * @param schema 
+     *
+     * @param schema
      * @about Creating a new schema object, and adding SPAN_LIST_ATTRIBUTE to
      *        the schema. SPAN_LIST_ATTRIBUTE is of type List
      */
