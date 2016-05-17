@@ -23,7 +23,7 @@ import edu.uci.ics.textdb.api.storage.IDataStore;
 import edu.uci.ics.textdb.common.constants.DataConstants;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
 import edu.uci.ics.textdb.common.field.Span;
-import edu.uci.ics.textdb.dataflow.regexmatch.RegexToTrigram;
+import edu.uci.ics.textdb.dataflow.regexmatch.RegexToGramQueryTranslator;
 import edu.uci.ics.textdb.dataflow.source.IndexBasedSourceOperator;
 import edu.uci.ics.textdb.storage.DataReaderPredicate;
 
@@ -60,7 +60,8 @@ public class RegexPredicate implements IPredicate {
 			try {
 				com.google.re2j.Pattern.compile(regex);
 				regexEngine = RegexEngine.RE2J;
-				this.luceneQuery = generateQuery(this.regex, this.fields, RegexToTrigram.translate(this.regex));
+				this.luceneQuery = generateQuery(this.regex, this.fields, 
+						RegexToGramQueryTranslator.translate(this.regex).getLuceneQueryString());
 			// if RE2J failes, try to use Java Regex
 			} catch (com.google.re2j.PatternSyntaxException re2jException) {
 				java.util.regex.Pattern.compile(regex);
