@@ -24,11 +24,11 @@ public class GramBooleanQuery {
 	private int gramLength;
 	
 	/**
-	 * Default gram length is 3. <br>
+	 * Constructs a GramBooleanQuery with default gram length 3. <br>
 	 * @param operator
 	 */
 	public GramBooleanQuery(QueryOp operator) {
-		this(operator, 3); //Default gram length is 3
+		this(operator, 3);
 	}
 	
 	public GramBooleanQuery(QueryOp operator, int gramLength) {
