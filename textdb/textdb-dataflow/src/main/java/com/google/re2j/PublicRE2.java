@@ -32,5 +32,8 @@ public class PublicRE2 {
 
 	// A flag that tells RE2J to use PERL syntax
 	public static final int PERL 			= RE2.PERL;
+	
+	// A flag that tells fold case during matching (case-insensitive).
+	public static final int FOLD_CASE		= RE2.FOLD_CASE;
 
 }

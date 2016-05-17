@@ -99,20 +99,23 @@ public class RegexToGramQueryTranslator {
 			//TODO
 			return RegexInfo.matchAny();
 		case LITERAL:
-			//TODO
-			if (re.getFlags() == 0) {
-				RegexInfo info = new RegexInfo();
-				ByteBuffer byteBuffer = ByteBuffer.allocate(re.getRunes().length * 4);
-				IntBuffer intBuffer = byteBuffer.asIntBuffer();
-				intBuffer.put(re.getRunes());
-				try {
-					info.exact = new ArrayList<String>(Arrays.asList(new String(byteBuffer.array(), "UTF-8")));
-				} catch (UnsupportedEncodingException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+			if (re.getRunes().length == 0) {
+				return RegexInfo.emptyString();
+			}
+			
+			String literal = "";
+			if ((re.getFlags() & PublicRE2.FOLD_CASE) != 0) {  // case sensitive
+				for (int rune: re.getRunes()) {
+					literal += Character.toString((char) rune);
+				}
+			} else {
+				for (int rune: re.getRunes()) {
+					literal += Character.toString((char) rune).toLowerCase();
 				}
 			}
-			return RegexInfo.matchAny();
+			RegexInfo info = new RegexInfo();
+			info.exact.add(literal);
+			return info;
 		// A regex that indicates an expression is matched 
 		// at least min times, at most max times.
 		case REPEAT:
