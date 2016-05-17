@@ -60,12 +60,12 @@ public class RegexPredicate implements IPredicate {
 			try {
 				com.google.re2j.Pattern.compile(regex);
 				regexEngine = RegexEngine.RE2J;
-				this.luceneQuery = generateQuery(this.regex, this.fields, RegexToTrigram.translate(this.regex));	
+				this.luceneQuery = generateQuery(this.regex, this.fields, RegexToTrigram.translate(this.regex));
 			// if RE2J failes, try to use Java Regex
 			} catch (com.google.re2j.PatternSyntaxException re2jException) {
 				java.util.regex.Pattern.compile(regex);
 				regexEngine = RegexEngine.JavaRegex;
-				this.luceneQuery = generateQuery(this.regex, this.fields, DataConstants.SCAN_QUERY);	
+				this.luceneQuery = generateQuery(this.regex, this.fields, DataConstants.SCAN_QUERY);
 			}
 			
 			this.sourceOperator = new IndexBasedSourceOperator(new DataReaderPredicate(dataStore, luceneQuery));
