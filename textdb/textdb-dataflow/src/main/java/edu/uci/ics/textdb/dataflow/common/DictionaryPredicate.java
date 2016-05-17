@@ -23,7 +23,7 @@ import edu.uci.ics.textdb.storage.reader.DataReader;
 public class DictionaryPredicate implements IPredicate {
 
     private IDictionary dictionary;
-    private Analyzer analyzer;
+    private Analyzer luceneAnalyzer;
     private List<Attribute> attributeList;
     private IDataStore dataStore;
     private SourceOperatorType srcOpType;
@@ -38,7 +38,7 @@ public class DictionaryPredicate implements IPredicate {
             SourceOperatorType srcOpType, IDataStore dataStore) {
 
         this.dictionary = dictionary;
-        this.analyzer = analyzer;
+        this.luceneAnalyzer = analyzer;
         this.attributeList = attributeList;
         this.srcOpType = srcOpType;
         this.dataStore = dataStore;
@@ -61,7 +61,7 @@ public class DictionaryPredicate implements IPredicate {
     }
 
     public Analyzer getAnalyzer() {
-        return analyzer;
+        return luceneAnalyzer;
     }
     
     /*
@@ -70,7 +70,7 @@ public class DictionaryPredicate implements IPredicate {
      */
 
     public IOperator getScanSourceOperator() throws ParseException, DataFlowException {
-        QueryParser luceneQueryParser = new QueryParser(attributeList.get(0).getFieldName(), analyzer);
+        QueryParser luceneQueryParser = new QueryParser(attributeList.get(0).getFieldName(), luceneAnalyzer);
         Query luceneQuery = luceneQueryParser.parse(DataConstants.SCAN_QUERY);
         IPredicate dataReaderPredicate = new DataReaderPredicate(dataStore, luceneQuery);
         IDataReader dataReader = new DataReader(dataReaderPredicate);
