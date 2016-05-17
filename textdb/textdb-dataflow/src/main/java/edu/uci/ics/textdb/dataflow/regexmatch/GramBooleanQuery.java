@@ -23,6 +23,10 @@ public class GramBooleanQuery {
 	
 	private int gramLength;
 	
+	/**
+	 * Default gram length is 3. <br>
+	 * @param operator
+	 */
 	public GramBooleanQuery(QueryOp operator) {
 		this(operator, 3);
 	}
@@ -37,7 +41,7 @@ public class GramBooleanQuery {
 	/**
 	 * This return a GramBooleanQuery's hash code. <br>
 	 * It won't traverse the whole tree, instead, 
-	 * it only calculate the hashcode of direct leafs. <br>
+	 * it only calculates the hashcode of direct leafs. <br>
 	 * 
 	 */
 	public int hashCode() {
