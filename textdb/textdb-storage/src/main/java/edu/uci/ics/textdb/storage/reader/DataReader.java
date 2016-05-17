@@ -8,6 +8,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.uci.ics.textdb.common.field.Span;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
@@ -16,6 +17,11 @@ import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
+import org.apache.lucene.index.Terms;
+import org.apache.lucene.index.TermsEnum;
+import org.apache.lucene.util.BytesRef;
+import org.apache.lucene.index.PostingsEnum;
+import org.apache.lucene.search.DocIdSetIterator;
 
 import edu.uci.ics.textdb.api.common.Attribute;
 import edu.uci.ics.textdb.api.common.FieldType;
@@ -29,6 +35,7 @@ import edu.uci.ics.textdb.common.exception.ErrorMessages;
 import edu.uci.ics.textdb.common.field.DataTuple;
 import edu.uci.ics.textdb.common.utils.Utils;
 import edu.uci.ics.textdb.storage.DataReaderPredicate;
+import org.apache.lucene.util.packed.PackedLongValues;
 
 /**
  * @author sandeepreddy602
@@ -41,6 +48,11 @@ public class DataReader implements IDataReader{
     private ScoreDoc[] scoreDocs;
     private IndexReader luceneIndexReader;
     private DataReaderPredicate dataReaderPredicate;
+    private ArrayList<String> queryTokens;
+    private List<Attribute> attributeList;
+    private List<BytesRef> queryTokensInBytesRef;
+    private Schema schema;
+    private Schema spanSchema;
 
     public DataReader(IPredicate dataReaderPredicate) {
         this.dataReaderPredicate = (DataReaderPredicate)dataReaderPredicate;
@@ -59,6 +71,22 @@ public class DataReader implements IDataReader{
             TopDocs topDocs = luceneIndexSearcher.search(dataReaderPredicate.getLuceneQuery(), Integer.MAX_VALUE);
             scoreDocs = topDocs.scoreDocs;
             cursor = OPENED;
+
+            this.queryTokens = Utils.tokenizeQuery(dataReaderPredicate.getAnalyzer(),dataReaderPredicate.getQueryString());
+            // sort the query token, as the term vector are also sorted.
+            // This makes the seek faster.
+            this.queryTokens.sort(String.CASE_INSENSITIVE_ORDER);
+
+            this.queryTokensInBytesRef = new ArrayList<>();
+            for(String token: queryTokens) {
+                BytesRef byteRef = new BytesRef(token.toLowerCase().getBytes());
+                this.queryTokensInBytesRef.add(byteRef);
+            }
+
+            this.attributeList = dataReaderPredicate.getAttributeList();
+            this.schema = dataReaderPredicate.getDataStore().getSchema();
+            this.spanSchema = Utils.createSpanSchema(schema);
+
         } catch (IOException e) {
             e.printStackTrace();
             throw new DataFlowException(e.getMessage(), e);
@@ -74,18 +102,69 @@ public class DataReader implements IDataReader{
             if(cursor >= scoreDocs.length){
                 return null;
             }
-            Document document = luceneIndexSearcher.doc(scoreDocs[cursor++].doc);
-            
+            Document document = luceneIndexSearcher.doc(scoreDocs[cursor].doc);
+            List<Span> spanList = new ArrayList<>();
             List<IField> fields = new ArrayList<IField>();
-            Schema schema = dataReaderPredicate.getDataStore().getSchema();
+
             for (Attribute  attr : schema.getAttributes()) {
                 FieldType fieldType = attr.getFieldType();
                 String fieldValue = document.get(attr.getFieldName());
                 fields.add(Utils.getField(fieldType, fieldValue));
             }
-            
-            DataTuple dataTuple = new DataTuple(schema, fields.toArray(new IField[fields.size()]));
+
+            if(!dataReaderPredicate.getIsSpanInformationAdded()){
+                cursor++;
+                DataTuple dTuple = new DataTuple(schema, fields.toArray(new IField[fields.size()]));
+                return  dTuple;
+            }
+
+            for(Attribute attr: attributeList){
+
+                String fieldName  = attr.getFieldName();
+                Terms vector = luceneIndexReader.getTermVector(scoreDocs[cursor].doc,fieldName);
+
+                if (vector != null) {
+                    TermsEnum vectorEnum = vector.iterator();
+                    int queryTokenIndex = 0;
+                    for(BytesRef term: queryTokensInBytesRef){
+
+                        if(vectorEnum.seekExact(term)){
+                            System.out.println(term.utf8ToString());
+                            PostingsEnum postings = vectorEnum.postings(null, PostingsEnum.POSITIONS);
+
+                            while (postings.nextDoc() != DocIdSetIterator.NO_MORE_DOCS) {
+                                int freq = postings.freq();
+                                while (freq-- > 0) {
+                                    int tokenOffset = postings.nextPosition();
+                                    int start = postings.startOffset();
+                                    int end = start+term.length;
+                                    String key = queryTokens.get(queryTokenIndex);
+                                    String value = document.get(fieldName).substring(start,end);
+                                    Span span = new Span(fieldName, start, end, key, value, tokenOffset);
+                                    spanList.add(span);
+                                }
+
+                            }
+
+                        }
+
+                        queryTokenIndex++;
+                    }
+
+
+                }
+
+
+
+            }
+
+            cursor++;
+
+
+
+            ITuple dataTuple  = Utils.getSpanTuple(fields, spanList, spanSchema);
             return dataTuple;
+
         } catch (IOException e) {
             e.printStackTrace();
             throw new DataFlowException(e.getMessage(), e);

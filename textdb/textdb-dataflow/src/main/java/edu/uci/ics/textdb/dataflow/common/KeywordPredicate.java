@@ -135,7 +135,7 @@ public class KeywordPredicate implements IPredicate{
     }
 
     public DataReaderPredicate getDataReaderPredicate() {
-        DataReaderPredicate dataReaderPredicate = new DataReaderPredicate(this.dataStore, this.luceneQuery);
+        DataReaderPredicate dataReaderPredicate = new DataReaderPredicate(this.dataStore, this.luceneQuery, this.query, this.analyzer,this.attributeList);
         return dataReaderPredicate;
     }
 

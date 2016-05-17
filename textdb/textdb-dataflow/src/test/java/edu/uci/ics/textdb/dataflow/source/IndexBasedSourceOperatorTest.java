@@ -4,8 +4,10 @@
 package edu.uci.ics.textdb.dataflow.source;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
+import edu.uci.ics.textdb.api.common.Attribute;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.queryparser.classic.ParseException;
@@ -60,7 +62,8 @@ public class IndexBasedSourceOperatorTest {
 	    String defaultField = TestConstants.ATTRIBUTES_PEOPLE[0].getFieldName();
         QueryParser queryParser = new QueryParser(defaultField, analyzer);
         Query queryObject = queryParser.parse(query);
-        dataReaderPredicate = new DataReaderPredicate(dataStore, queryObject);
+        dataReaderPredicate = new DataReaderPredicate(dataStore, queryObject, query, analyzer, Arrays.asList(TestConstants.ATTRIBUTES_PEOPLE[0]));
+
         indexBasedSourceOperator = new IndexBasedSourceOperator(dataReaderPredicate);
 	}
 

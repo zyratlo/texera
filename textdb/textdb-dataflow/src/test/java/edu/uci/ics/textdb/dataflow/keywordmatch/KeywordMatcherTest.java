@@ -179,7 +179,7 @@ public class KeywordMatcherTest {
 
         //Prepare expected result list
         List<Span> list = new ArrayList<>();
-        Span span = new Span("description", 0, 4, "TaLL", "Tall");
+        Span span = new Span("description", 0, 4, "TaLL", "Tall",0);
         list.add(span);
         Attribute[] schemaAttributes = new Attribute[TestConstants.ATTRIBUTES_PEOPLE.length + 1];
 
@@ -274,10 +274,10 @@ public class KeywordMatcherTest {
         //Prepare expected result list
         List<Span> list = new ArrayList<>();
         Span span1 = new Span("lastName", 0, 11, "lin clooney", "lin clooney");
-        Span span2 = new Span("description", 0, 3, "lin", "Lin");
-        Span span3 = new Span("description", 25, 28, "lin", "lin");
-        Span span4 = new Span("description", 4, 11, "clooney", "Clooney");
-        Span span5 = new Span("description", 29, 36, "clooney", "clooney");
+        Span span2 = new Span("description", 0, 3, "lin", "Lin",0);
+        Span span3 = new Span("description", 25, 28, "lin", "lin",5);
+        Span span4 = new Span("description", 4, 11, "clooney", "Clooney",1);
+        Span span5 = new Span("description", 29, 36, "clooney", "clooney",6);
         list.add(span1);
         list.add(span2);
         list.add(span3);

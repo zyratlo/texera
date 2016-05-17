@@ -11,14 +11,21 @@ public class Span {
     private String key;
     //The value matching the key
     private String value;
-    
-    
-    public Span(String fieldName, int start, int end, String key, String value) {
+    // The token position of the sapn
+    private int tokenOffset;
+
+    public Span(String fieldName, int start, int end, String key, String value){
         this.fieldName = fieldName;
         this.start = start;
         this.end = end;
         this.key = key;
         this.value = value;
+        this.tokenOffset = -1;
+    }
+
+    public Span(String fieldName, int start, int end, String key, String value, int tokenOffset) {
+        this(fieldName, start, end, key, value);
+        this.tokenOffset = tokenOffset;
     }
 
     public String getFieldName() {
@@ -41,6 +48,8 @@ public class Span {
         return end;
     }
 
+    public  int getTokenOffset(){return tokenOffset;}
+
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -51,6 +60,7 @@ public class Span {
         result = prime * result + ((key == null) ? 0 : key.hashCode());
         result = prime * result + start;
         result = prime * result + ((value == null) ? 0 : value.hashCode());
+        result = prime * result + tokenOffset;
         return result;
     }
 
@@ -87,7 +97,10 @@ public class Span {
                 return false;
         } else if (!value.equals(other.value))
             return false;
-        
+
+        if(tokenOffset!= other.tokenOffset)
+            return false;
+
         return true;
     }
 }

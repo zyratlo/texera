@@ -141,8 +141,10 @@ public class Utils {
         try{
             tokenStream.reset();
             while (tokenStream.incrementToken()) {
-                String term = charTermAttribute.toString();
-                resultSet.add(term);
+                String token = charTermAttribute.toString();
+                int tokenIndex = query.toLowerCase().indexOf(token);
+                String actualQueryToken = query.substring(tokenIndex, tokenIndex+token.length());
+                resultSet.add(actualQueryToken);
             }
             tokenStream.close();
         } catch (Exception e) {

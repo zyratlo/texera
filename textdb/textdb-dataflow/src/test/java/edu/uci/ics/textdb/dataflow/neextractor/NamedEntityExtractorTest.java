@@ -1,6 +1,7 @@
 package edu.uci.ics.textdb.dataflow.neextractor;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.lucene.analysis.Analyzer;
@@ -167,7 +168,8 @@ public class NamedEntityExtractorTest {
 
         QueryParser queryParser = new QueryParser(NEExtractorTestConstants.ATTRIBUTES_ONE_SENTENCE.get(0).getFieldName(), analyzer);
         query = queryParser.parse(DataConstants.SCAN_QUERY);
-        dataReaderPredicate = new DataReaderPredicate(dataStore, query);
+        dataReaderPredicate = new DataReaderPredicate(dataStore, query, DataConstants.SCAN_QUERY,
+                analyzer, Arrays.asList(NEExtractorTestConstants.ATTRIBUTES_ONE_SENTENCE.get(0)));
         dataReader = new DataReader(dataReaderPredicate);
 
         ISourceOperator sourceOperator = new ScanBasedSourceOperator(dataReader);

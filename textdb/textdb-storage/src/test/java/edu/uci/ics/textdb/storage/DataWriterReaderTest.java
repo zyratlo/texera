@@ -1,6 +1,8 @@
 package edu.uci.ics.textdb.storage;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import junit.framework.Assert;
@@ -23,6 +25,8 @@ import edu.uci.ics.textdb.common.constants.TestConstants;
 import edu.uci.ics.textdb.storage.reader.DataReader;
 import edu.uci.ics.textdb.storage.writer.DataWriter;
 
+import javax.xml.crypto.Data;
+
 public class DataWriterReaderTest {
     private IDataWriter dataWriter;
     private IDataReader dataReader;
@@ -39,7 +43,7 @@ public class DataWriterReaderTest {
         QueryParser queryParser = new QueryParser(
                 TestConstants.ATTRIBUTES_PEOPLE[0].getFieldName(), analyzer);
         query = queryParser.parse(DataConstants.SCAN_QUERY);
-        dataReaderPredicate = new DataReaderPredicate(dataStore, query);
+        dataReaderPredicate = new DataReaderPredicate(dataStore, query, DataConstants.SCAN_QUERY,analyzer, Arrays.asList(TestConstants.ATTRIBUTES_PEOPLE));
         dataReader = new DataReader(dataReaderPredicate);
     }
     

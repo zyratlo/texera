@@ -1,6 +1,8 @@
 package edu.uci.ics.textdb.dataflow.regexmatch;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.lucene.analysis.Analyzer;
@@ -64,7 +66,8 @@ public class RegexMatcherTestHelper {
 		QueryParser queryParser = new QueryParser(
                 TestConstants.FIRST_NAME, analyzer);
         query = queryParser.parse(DataConstants.SCAN_QUERY);
-        dataReaderPredicate = new DataReaderPredicate(dataStore, query);
+        dataReaderPredicate = new DataReaderPredicate(dataStore, query, DataConstants.SCAN_QUERY,
+				analyzer, Arrays.asList(TestConstants.ATTRIBUTES_PEOPLE[0]));
         dataReader = new DataReader(dataReaderPredicate);
 
 		IPredicate predicate = new RegexPredicate(regex, fieldName);
