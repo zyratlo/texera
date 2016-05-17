@@ -88,9 +88,11 @@ public class RegexToGramQueryTranslator {
 		case ALTERNATE:
 			//TODO
 			return RegexInfo.matchAny();
-		case CAPTURE:
+		case CONCAT:
 			//TODO
 			return RegexInfo.matchAny();
+		case CAPTURE:
+			return analyze(re.getSubs()[0]);
 		// For example, [a-z]
 		case CHAR_CLASS:
 			boolean isCaseSensitive = (re.getFlags() & PublicRE2.FOLD_CASE) > 0;
@@ -128,9 +130,6 @@ public class RegexToGramQueryTranslator {
 				}
 			}
 			return info;
-		case CONCAT:
-			//TODO
-			return RegexInfo.matchAny();
 		case LITERAL:
 			if (re.getRunes().length == 0) {
 				return RegexInfo.emptyString();
