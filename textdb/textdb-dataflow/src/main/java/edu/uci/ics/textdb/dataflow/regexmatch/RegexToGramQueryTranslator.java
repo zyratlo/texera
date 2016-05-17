@@ -1,5 +1,11 @@
 package edu.uci.ics.textdb.dataflow.regexmatch;
 
+import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
+import java.util.ArrayList;
+import java.util.Arrays;
+
 import com.google.re2j.PublicParser;
 import com.google.re2j.PublicRE2;
 import com.google.re2j.PublicRegexp;
@@ -94,7 +100,27 @@ public class RegexToGramQueryTranslator {
 			return RegexInfo.matchAny();
 		case LITERAL:
 			//TODO
+			if (re.getFlags() == 0) {
+				RegexInfo info = new RegexInfo();
+				ByteBuffer byteBuffer = ByteBuffer.allocate(re.getRunes().length * 4);
+				IntBuffer intBuffer = byteBuffer.asIntBuffer();
+				intBuffer.put(re.getRunes());
+				try {
+					info.exact = new ArrayList<String>(Arrays.asList(new String(byteBuffer.array(), "UTF-8")));
+				} catch (UnsupportedEncodingException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
 			return RegexInfo.matchAny();
+		// A regex that indicates an expression is matched 
+		// at least min times, at most max times.
+		case REPEAT:
+			// When min is zero, we treat REPEAT as START
+			// When min is greater than zero, we treat REPEAT as PLUS, and let it fall through.
+			if (re.getMin() == 0) {
+				return RegexInfo.matchAny();
+			}
 		// A regex that indicates one or more occurrences of an expression.
 		case PLUS:
 			// The regexInfo of "(expr)+" should be the same as the info of "expr", 
@@ -103,13 +129,9 @@ public class RegexToGramQueryTranslator {
 			info.exact = null;
 			return info;
 		case QUEST:
-			//TODO
-			return RegexInfo.matchAny();
-		// A regex that indicates an expression is matched 
-		// at least min times, at most max times.
-		case REPEAT:
-			//TODO
-			return RegexInfo.matchAny();
+			// The regexInfo of "(expr)?" shoud be either the same as the info of "expr",
+			// or the same as the info of an empty string.
+			return alternate(analyze(re.getSubs()[0]), RegexInfo.emptyString());
 		// A regex that indicates zero or more occurrences of an expression.
 		case STAR:
 			return RegexInfo.matchAny();
@@ -119,6 +141,11 @@ public class RegexToGramQueryTranslator {
 		default:
 			return RegexInfo.matchAny();
 		}
+	}
+	
+	private static RegexInfo alternate(RegexInfo x, RegexInfo y) {
+		//TODO
+		return x;
 	}
 	
 }
