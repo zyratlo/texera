@@ -67,7 +67,9 @@ public class RegexToGramQueryTranslator {
 		// NO_MATCH is a regex that doesn't match anything.
 		// It's used to handle error cases, which shouldn't 
 		// happen unless something goes wrong.
-		case NO_MATCH: {
+		case NO_MATCH: 
+		case VERTICAL_BAR:
+		case LEFT_PAREN: {
 			return RegexInfo.matchNone();
 		}
 		// The following cases are treated as 
@@ -93,9 +95,6 @@ public class RegexToGramQueryTranslator {
 			//TODO
 			return RegexInfo.matchAny();
 		case CONCAT:
-			//TODO
-			return RegexInfo.matchAny();
-		case LEFT_PAREN:
 			//TODO
 			return RegexInfo.matchAny();
 		case LITERAL:
@@ -124,6 +123,7 @@ public class RegexToGramQueryTranslator {
 			if (re.getMin() == 0) {
 				return RegexInfo.matchAny();
 			}
+			// !!!!! intentionally FALL THROUGH to PLUS !!!!!
 		// A regex that indicates one or more occurrences of an expression.
 		case PLUS:
 			// The regexInfo of "(expr)+" should be the same as the info of "expr", 
@@ -137,9 +137,6 @@ public class RegexToGramQueryTranslator {
 			return alternate(analyze(re.getSubs()[0]), RegexInfo.emptyString());
 		// A regex that indicates zero or more occurrences of an expression.
 		case STAR:
-			return RegexInfo.matchAny();
-		case VERTICAL_BAR:
-			//TODO
 			return RegexInfo.matchAny();
 		default:
 			return RegexInfo.matchAny();
