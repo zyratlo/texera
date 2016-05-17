@@ -91,9 +91,43 @@ public class RegexToGramQueryTranslator {
 		case CAPTURE:
 			//TODO
 			return RegexInfo.matchAny();
+		// For example, [a-z]
 		case CHAR_CLASS:
-			//TODO
-			return RegexInfo.matchAny();
+			boolean isCaseSensitive = (re.getFlags() & PublicRE2.FOLD_CASE) > 0;
+			
+			if (re.getRunes().length == 0) {
+				return RegexInfo.matchNone();
+			} else if (re.getRunes().length == 1) {
+				String exactStr;
+				if (isCaseSensitive) {
+					exactStr = Character.toString((char) re.getRunes()[0]);
+				} else {
+					exactStr = Character.toString((char) re.getRunes()[0]).toLowerCase();
+				}
+				info.exact.add(exactStr);
+				return info;
+			}
+			
+			// convert all runes to lower case if not case sensitive
+			if (!isCaseSensitive) {
+				for (int i = 0; i < re.getRunes().length; i++) {
+					re.getRunes()[i] = Character.toLowerCase(re.getRunes()[i]);
+				}
+			}
+			
+			int count = 0;
+			for (int i = 0; i < re.getRunes().length; i += 2) {
+				count += re.getRunes()[i+1] - re.getRunes()[i];
+				// If the class is too large, it's okay to overestimate.
+				if (count > 100) { 
+					return RegexInfo.matchAny();
+				}
+				
+				for (int codePoint = re.getRunes()[i]; codePoint <= re.getRunes()[i+1]; codePoint ++) {
+					info.exact.add(Character.toString((char) codePoint));
+				}
+			}
+			return info;
 		case CONCAT:
 			return fold((x, y) -> concat(x, y), re.getSubs(), RegexInfo.matchAny());
 		case LITERAL:
