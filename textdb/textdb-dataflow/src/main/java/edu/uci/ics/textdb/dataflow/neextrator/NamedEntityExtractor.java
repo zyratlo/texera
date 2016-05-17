@@ -30,7 +30,7 @@ import java.util.Properties;
  *         This operator would recognize 7 classes: Location, Person, Organization, Money, Percent, Date and Time.
  *         Return the recoginized data as a list of spans.
  *         <p>
- *         For example: Given tuple with two field named: sentence1, sentence2.
+ *         For example: Given tuple with two field: sentence1, sentence2.
  *         tuple: ["Google is an organization.", "Its headquarter is in Mountain View."]
  *         return:
  *         ["sentence1,0,6,Google, NE_ORGANIZATION", "sentence2,22,25,Mountain View, NE_LOCATION"]
@@ -91,7 +91,7 @@ public class NamedEntityExtractor implements IOperator {
             for (Attribute attribute : searchInAttributes) {
                 String fieldName = attribute.getFieldName();
                 IField field = sourceTuple.getField(fieldName);
-                spanList.addAll(getSpans(field, fieldName));
+                spanList.addAll(extractNESpans(field, fieldName));
             }
             IField spanField = new ListField<Span>(spanList);
             List<IField> fields = new ArrayList<IField>();
@@ -111,15 +111,15 @@ public class NamedEntityExtractor implements IOperator {
      * @param iField
      * @return a List of spans of the extracted information
      */
-    private List<Span> getSpans(IField iField, String fieldName) {
+    private List<Span> extractNESpans(IField iField, String fieldName) {
         List<Span> spanList = new ArrayList<>();
         String text = (String) iField.getValue();
         Properties props = new Properties();
         props.setProperty("annotators", "tokenize, ssplit, pos, lemma, ner");
         StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
-        Annotation document = new Annotation(text);
-        pipeline.annotate(document);
-        List<CoreMap> sentences = document.get(CoreAnnotations.SentencesAnnotation.class);
+        Annotation documentAnnotation = new Annotation(text);
+        pipeline.annotate(documentAnnotation);
+        List<CoreMap> sentences = documentAnnotation.get(CoreAnnotations.SentencesAnnotation.class);
         for (CoreMap sentence : sentences) {
             for (CoreLabel token : sentence.get(CoreAnnotations.TokensAnnotation.class)) {
                 String NLPConstant = token.get(CoreAnnotations.NamedEntityTagAnnotation.class);
@@ -155,9 +155,16 @@ public class NamedEntityExtractor implements IOperator {
 
 
     /**
-     * @about This function takes two spans as input and merge then as a new span
+     * @about This function takes two spans as input and merges them as a new span
+     *
+     * Two spans with fieldName, start, end, key, value:
+     *    previousSpan: "Doc1", 10, 13, "Location", "New"
+     *    currentSpan : "Doc1", 14, 18, "Location", "York"
+     *
+     * Would be merge to:
+     *     return:   "Doc1", 10, 18, "Location", "New York"
      * <p>
-     * The caller need to make sure:
+     * The caller needs to make sure:
      * 1. The two spans are adjacent.
      * 2. The two spans are in the same field. They should have the same fieldName.
      * 3. The two spans have the same key (Organization, Person,... etc)
