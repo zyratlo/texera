@@ -7,8 +7,8 @@ import java.util.List;
  * @Author Zuozhi Wang
  * @Author Shuying Lai
  * 
- * RegexInfo for translating regex to n-grams
- * @see https://swtch.com/~rsc/regexp/regexp4.html for details
+ * RegexInfo for translating regex to an n-gram boolean query. <br>
+ * see <a href='https://swtch.com/~rsc/regexp/regexp4.html'>https://swtch.com/~rsc/regexp/regexp4.html</a> for details. <br>
  */
 public class RegexInfo {
 	boolean emptyable;

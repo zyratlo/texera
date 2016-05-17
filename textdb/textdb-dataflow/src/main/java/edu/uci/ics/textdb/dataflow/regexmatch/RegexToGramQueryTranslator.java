@@ -6,7 +6,7 @@ import com.google.re2j.PublicRegexp;
 import com.google.re2j.PublicSimplify;
 
 /**
- * This class translates a regex to a boolean query of b-grams,
+ * This class translates a regex to a boolean query of n-grams,
  * according to the <a href='https://swtch.com/~rsc/regexp/regexp4.html'>algorithm</a> 
  * described in Russ Cox's article. <br>
  * 

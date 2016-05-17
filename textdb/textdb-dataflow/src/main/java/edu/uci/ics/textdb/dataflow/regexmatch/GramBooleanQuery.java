@@ -39,11 +39,12 @@ public class GramBooleanQuery {
 	}
 	
 	/**
-	 * This return a GramBooleanQuery's hash code. <br>
+	 * This returns a GramBooleanQuery's hash code. <br>
 	 * It won't traverse the whole tree, instead, 
 	 * it only calculates the hashcode of direct leafs. <br>
 	 * 
 	 */
+	@Override
 	public int hashCode() {
 		int hashCode = operator.toString().hashCode();
 		for (String s : operandList) {
@@ -52,6 +53,14 @@ public class GramBooleanQuery {
 		return hashCode;
 	}
 	
+	/**
+	 * This overrides "equals" function. Whenever a GramBooleanQUery 
+	 * object is compared to another object, this function will be called. <br>
+	 * It recursively traverses the query tree and compares 
+	 * the set of sub-queries (order doesn't matter). <br>
+	 * It internally uses a HashSet to compare sub-queries. <br>
+	 */
+	@Override
 	public boolean equals(Object compareTo) {
 		if (! (compareTo instanceof GramBooleanQuery)) {
 			return false;
@@ -78,7 +87,7 @@ public class GramBooleanQuery {
 	}
 	
 	/**
-	 * This methods takes a list of strings and adds them to the query tree. <br>
+	 * This method takes a list of strings and adds them to the query tree. <br>
 	 * For example, if the list is {abcd, wxyz}, then: <br>
 	 * trigrams({abcd, wxyz}) = trigrams(abcd) OR trigrams(wxyz) <br>
 	 * OR operator is assumed for a list of strings. <br>
@@ -97,7 +106,8 @@ public class GramBooleanQuery {
 	}
 	
 	/**
-	 * This method takes a single string and add it to the query tree. <br>
+	 * This method takes a single string and adds it to the query tree. <br>
+	 * The string is converted to multiple n-grams with an AND operator. <br>
 	 * For example: if the string is abcd, then: <br>
 	 * trigrams(abcd) = abc AND bcd <br>
 	 * AND operator is assumed for a single string. <br>
@@ -132,16 +142,17 @@ public class GramBooleanQuery {
 	 * @return boolean expression 
 	 */
 	public String toString() {
-		return this.getQuery();
+		return this.getLuceneQueryString();
 	}
 	
 	/**
 	 * This function recursively connects 
 	 *   operand in {@code operandList} and subqueries in {@code subqueryList} 
-	 *   with {@code operator} 
+	 *   with {@code operator}. <br>
+	 * It generates a string representing the query that can be directly parsed by Lucene.
 	 * @return boolean expression
 	 */
-	public String getQuery() {
+	public String getLuceneQueryString() {
 		if (operator == QueryOp.ANY) {
 			return DataConstants.SCAN_QUERY;
 		} else if (operator == QueryOp.NONE) {
@@ -153,7 +164,7 @@ public class GramBooleanQuery {
 				joiner.add(operand);
 			}
 			for (GramBooleanQuery subQuery : subQueryList) {
-				String subQueryStr = subQuery.getQuery();
+				String subQueryStr = subQuery.getLuceneQueryString();
 				if (! subQueryStr.equals("")) 
 					joiner.add(subQueryStr);
 			}
