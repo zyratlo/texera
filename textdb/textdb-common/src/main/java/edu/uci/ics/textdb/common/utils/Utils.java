@@ -79,6 +79,8 @@ public class Utils {
                 luceneField = new org.apache.lucene.document.StringField(fieldName, dateString, Store.YES);
                 break;
             case TEXT:
+                //By default we enable positional indexing in Lucene so that we can return
+                // information about character offsets and token offsets
                 org.apache.lucene.document.FieldType luceneFieldType = new org.apache.lucene.document.FieldType();
                 luceneFieldType.setIndexOptions( IndexOptions.DOCS_AND_FREQS_AND_POSITIONS_AND_OFFSETS );
                 luceneFieldType.setStored(true);
