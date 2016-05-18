@@ -114,18 +114,20 @@ public class NamedEntityExtractor implements IOperator {
      * In the returning span: Value -> the word itself
      * Key   -> NE_Constant
      * @overview Using the Stanford NLP package to process the textField value.
-     * First set up a pipeline of Annotators: TokenizerAnnotator,
-     * SentencesAnnotation, PartOfSpeechAnnotation,LemmaAnnotation and
-     * NamedEntityTagAnnotation. The order is mandatory because of the
-     * dependency. After the pipeline, each token is wrapped as a CoreLabel
-     * and each sentence is wrapped as CoreMap.Each annotator adds its
-     * annotation to the CoreMap(sentence) or CoreLabel(token) Object.
+     * First set up a pipeline of Annotators for the string: TokenizerAnnotator,
+     * SentencesAnnotator, PartOfSpeechAnnotator, LemmaAnnotator and
+     * NamedEntityTagAnnotator. The order is mandatory because they have
+     * dependencies. After the pipeline, each token is wrapped as a CoreLabel
+     * and each sentence is wrapped as CoreMap. Each annotator adds its
+     * annotation to the CoreMap(sentence) or CoreLabel(token) object.
      * <p>
-     * Then scan each CoreLabel(token) for its NamedEntityAnnotation,
-     * if it's a valid value (not 'O'), then makes it a span and add to the
-     * return list. The Stanford NLP constants are mapped into the NE constants.
+     * After the pipeline is done, scan each CoreLabel(token) for
+     * its NamedEntityAnnotation, if it's a valid value (not 'O'),
+     * then makes it a span and add to the return list.
+     * The Stanford NLP constants are mapped into the NE constants.
      * The NLP package has annotations for the start and end position of a token
-     * and it perfectly matches our design so we just used them for start and end.
+     * and it perfectly matches the span design so we just use them.
+     *
      */
     private List<Span> extractNESpans(IField iField, String fieldName) {
         List<Span> spanList = new ArrayList<>();
