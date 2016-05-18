@@ -297,7 +297,7 @@ public class RegexToGramQueryTranslator {
 				product.add(x+y);
 			}
 		}
-		removeDuplicate(product, isSuffix);
+		clean(product, isSuffix);
 		return product;
 	}
 	
@@ -313,7 +313,7 @@ public class RegexToGramQueryTranslator {
 		List<String> unionList = new ArrayList<String>(xList);
 		
 		unionList.addAll(yList);
-		removeDuplicate(unionList, isSuffix);
+		clean(unionList, isSuffix);
 		
 		return unionList;
 	}
@@ -324,7 +324,13 @@ public class RegexToGramQueryTranslator {
     	return str1Reverse.compareTo(str2Reverse);
 	}
 	
-	private static void removeDuplicate(List<String> strList, boolean isSuffix) {
+	/**
+	 * !!! Should have name "removeDuplicate" !!!
+	 * Name it clean for easier debugging
+	 * @param strList
+	 * @param isSuffix
+	 */
+	private static void clean(List<String> strList, boolean isSuffix) {
 		HashSet<String> strSet = new HashSet<String>(strList);
 		strList.clear();
 		strList.addAll(strSet);
