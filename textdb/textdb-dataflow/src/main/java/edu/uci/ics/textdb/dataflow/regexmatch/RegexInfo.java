@@ -11,6 +11,8 @@ import java.util.List;
  * see <a href='https://swtch.com/~rsc/regexp/regexp4.html'>https://swtch.com/~rsc/regexp/regexp4.html</a> for details. <br>
  */
 class RegexInfo {
+	private static final int MAX_EXACT_SIZE = 7;
+	
 	boolean emptyable;
 	List<String> exact = null;
 	List<String> prefix = null;
@@ -81,9 +83,35 @@ class RegexInfo {
 	
 	/**
 	 * This function simplifies the regexpInfo when the exact set gets too large.
+	 * If there are now too many exact strings,
+	 * loop over them, adding trigrams and moving the relevant pieces into prefix and suffix.
 	 * @param force
 	 */
 	void simplify(boolean force) {
+		RegexToGramQueryTranslator.clean(exact, false);
+		
+		if ( exact.size() > MAX_EXACT_SIZE ||
+			( RegexToGramQueryTranslator.minLenOfString(exact) >= 3	&& force) ||
+			RegexToGramQueryTranslator.minLenOfString(exact) >= 4){
+			for (String str: exact) {
+				if (str.length() < 3) {
+					prefix.add(str);
+					suffix.add(str);
+				} else {
+					prefix.add(str.substring(0, 3));
+					suffix.add(str.substring(str.length()-4, str.length()-1));
+				}
+			}
+			exact.clear();
+		}
+		
+		if (exact.isEmpty()) {
+			simplifySet(prefix, false);
+			simplifySet(suffix, true);
+		}
+	}
+	
+	void simplifySet(List<String> strList, boolean isSuffix) {
 		//TODO
 	}
 	

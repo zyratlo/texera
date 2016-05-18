@@ -330,7 +330,7 @@ public class RegexToGramQueryTranslator {
 	 * @param strList
 	 * @param isSuffix
 	 */
-	private static void clean(List<String> strList, boolean isSuffix) {
+	static void clean(List<String> strList, boolean isSuffix) {
 		HashSet<String> strSet = new HashSet<String>(strList);
 		strList.clear();
 		strList.addAll(strSet);
@@ -346,7 +346,7 @@ public class RegexToGramQueryTranslator {
 	 * @param strList
 	 * @return minLen
 	 */
-	private static int minLenOfString(List<String> strList) {
+	static int minLenOfString(List<String> strList) {
 		int minLen = Integer.MAX_VALUE;
 		
 		for (String str: strList) {
