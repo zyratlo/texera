@@ -50,5 +50,11 @@ public class RegexToGramQueryTranslatorTest {
 		
 		Assert.assertTrue(exactQuery.equals(expectedQuery));
 	}
+	
+	@Test
+	public void testLiteral() {
+		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate("abcd");
+		System.out.println(printQueryTree(exactQuery));
+	}
 
 }
