@@ -110,6 +110,7 @@ public class KeywordMatcher implements IOperator {
                     // Check if all the tokens are present in that field,
                     // if any of the tokens is missing, remove all the span information for that field.
 
+                    //By default, initialized to false.
                     boolean[] tokensPresent = new boolean[queryTokens.size()];
 
                     List<Span> spanForThisField = new ArrayList<>();

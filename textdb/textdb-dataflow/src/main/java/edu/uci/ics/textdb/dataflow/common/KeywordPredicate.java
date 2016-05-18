@@ -126,6 +126,7 @@ public class KeywordPredicate implements IPredicate{
     public List<Attribute> getAttributeList() {
         return attributeList;
     }
+
     public Query getQueryObject(){return this.luceneQuery;}
 
     public ArrayList<String> getTokens(){return this.tokens;}

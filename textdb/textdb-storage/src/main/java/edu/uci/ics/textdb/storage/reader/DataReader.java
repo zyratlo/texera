@@ -52,7 +52,7 @@ public class DataReader implements IDataReader{
     private List<BytesRef> queryTokensInBytesRef;
     // The schema of the data tuple
     private Schema schema;
-    //The schema o the data tuple along with the span information.
+    //The schema of the data tuple along with the span information.
     private Schema spanSchema;
 
     public DataReader(IPredicate dataReaderPredicate) {
@@ -74,9 +74,13 @@ public class DataReader implements IDataReader{
             cursor = OPENED;
 
             this.queryTokens = Utils.tokenizeQuery(dataReaderPredicate.getAnalyzer(),dataReaderPredicate.getQueryString());
+
             // sort the query tokens, as the term vector are also sorted.
             // This makes the seek faster.
             this.queryTokens.sort(String.CASE_INSENSITIVE_ORDER);
+
+            // The terms in the term vector are stored as ByteRef,
+            // hence convert token from String format to ByteRef and then search.
 
             this.queryTokensInBytesRef = new ArrayList<>();
             for(String token: queryTokens) {
