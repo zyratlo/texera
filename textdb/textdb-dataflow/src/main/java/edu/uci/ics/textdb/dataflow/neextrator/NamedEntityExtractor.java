@@ -108,11 +108,24 @@ public class NamedEntityExtractor implements IOperator {
     /**
      * @param iField
      * @return a List of spans of the extracted information
-     * @about This function takes an (TextField) IField and a String (the field's name) as input and uses the Stanford NLP package to process the field.
+     * @about This function takes an (TextField) IField and a String
+     * (the field's name) as input and uses the Stanford NLP package to process the field.
      * It returns a list of spans
-     * <p>
      * In the returning span: Value -> the word itself
      * Key   -> NE_Constant
+     * @overview Using the Stanford NLP package to process the textField value.
+     * First set up a pipeline of Annotators: TokenizerAnnotator,
+     * SentencesAnnotation, PartOfSpeechAnnotation,LemmaAnnotation and
+     * NamedEntityTagAnnotation. The order is mandatory because of the
+     * dependency. After the pipeline, each token is wrapped as a CoreLabel
+     * and each sentence is wrapped as CoreMap.Each annotator adds its
+     * annotation to the CoreMap(sentence) or CoreLabel(token) Object.
+     * <p>
+     * Then scan each CoreLabel(token) for its NamedEntityAnnotation,
+     * if it's a valid value (not 'O'), then makes it a span and add to the
+     * return list. The Stanford NLP constants are mapped into the NE constants.
+     * The NLP package has annotations for the start and end position of a token
+     * and it perfectly matches our design so we just used them for start and end.
      */
     private List<Span> extractNESpans(IField iField, String fieldName) {
         List<Span> spanList = new ArrayList<>();
@@ -141,8 +154,8 @@ public class NamedEntityExtractor implements IOperator {
                         if (previousSpan.getFieldName().equals(span.getFieldName())
                                 && (span.getStart() - previousSpan.getEnd() <= 1)
                                 && previousSpan.getKey().equals(span.getKey())) {
-                            Span newspan = mergeTwoSpans(previousSpan, span);
-                            span = newspan;
+                            Span newSpan = mergeTwoSpans(previousSpan, span);
+                            span = newSpan;
                             spanList.remove(spanList.size() - 1);
                         }
                     }
