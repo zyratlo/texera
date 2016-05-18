@@ -1,12 +1,9 @@
 package edu.uci.ics.textdb.dataflow.regexmatch;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import com.google.re2j.PublicParser;
 import com.google.re2j.PublicRE2;
@@ -30,7 +27,7 @@ public class RegexToGramQueryTranslator {
 	// to be at least 2³ = 8 so that we can exactly
 	// represent a case-insensitive abc by the set
 	// {abc, abC, aBc, aBC, Abc, AbC, ABc, ABC}.
-	private static final int MAX_SET_SIZE = 20;
+	static final int MAX_SET_SIZE = 20;
 
 	/**
 	 * This method translates a regular expression to 

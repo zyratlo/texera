@@ -111,7 +111,50 @@ class RegexInfo {
 		}
 	}
 	
+	/**
+	 * simplifySet reduces the size of the given set (either prefix or suffix).
+	 * There is no need to pass around enormous prefix or suffix sets, since 
+	 * they will only be used to create trigrams.As they get too big, simplifySet
+	 * moves the information they contain into the match query, which is
+	 * more efficient to pass around.
+	 * @param strList
+	 * @param isSuffix
+	 */
 	void simplifySet(List<String> strList, boolean isSuffix) {
+		RegexToGramQueryTranslator.clean(strList, isSuffix);
+		
+		// Add the OR of the current prefix/suffix set to the query.
+		match.add(strList);
+		
+		// This loop cuts the length of prefix/suffix. It cuts all
+		// strings longer than 3, and continues to cut strings
+		// until the size of the list is below a threshold.
+		// It cuts a prefix (suffix) string by only retaining the first (last) n characters of it
+		// For example, for a prefix string "abcd", after cutting, it becomes "abc" if n = 3, "ab" if n = 2.
+		// For a suffix string "abcd", after cutting, it becomes "bcd" if n = 3, "cd" if n = 2;
+		for (int n = 3; n == 3 || strList.size() > RegexToGramQueryTranslator.MAX_SET_SIZE; n--) {
+			// replace set by strings of length n-1
+			int w = 0; //TODO: better name?
+			for (String str: strList) {
+				if (str.length() > n) {
+					if (!isSuffix) { //prefix
+						str = str.substring(0, n);
+					} else { //suffix
+						str = str.substring(str.length()-n-1, str.length());
+					}
+				}
+				if (w == 0 || strList.get(w-1) != str) {
+					strList.set(w, str);
+				}
+			}
+			strList = strList.subList(0, w+1);
+			RegexToGramQueryTranslator.clean(strList, isSuffix);
+		}
+		
+		// Now make sure that the prefix/suffix sets aren't redundant.
+		// For example, if we know "ab" is a possible prefix, then it
+		// doesn't help at all to know that  "abc" is also a possible
+		// prefix, so delete "abc".
 		//TODO
 	}
 	
