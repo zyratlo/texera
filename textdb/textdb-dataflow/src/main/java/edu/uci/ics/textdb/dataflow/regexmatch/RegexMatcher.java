@@ -46,6 +46,7 @@ public class RegexMatcher implements IOperator {
     
     private List<Span> spanList;
     
+    // two available regex engines, RegexMatcher will try RE2J first 
 	private enum RegexEngine {
 		JavaRegex,
 		RE2J
