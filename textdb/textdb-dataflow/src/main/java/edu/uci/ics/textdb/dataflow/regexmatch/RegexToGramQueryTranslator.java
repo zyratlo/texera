@@ -310,8 +310,11 @@ public class RegexToGramQueryTranslator {
 	 * @return
 	 */
 	private static List<String> union(List<String> xList, List<String> yList, boolean isSuffix) {
-		List<String> unionList = new ArrayList<String>();
-		//TODO efficient way to do this?
+		List<String> unionList = new ArrayList<String>(xList);
+		
+		unionList.addAll(yList);
+		removeDuplicate(unionList, isSuffix);
+		
 		return unionList;
 	}
 	
