@@ -3,23 +3,24 @@ package edu.uci.ics.textdb.common.field;
 public class Span {
     //The name of the field (in the tuple) where this span is present
     private String fieldName;
-    //The start of the span. It is the position of the first character of span in the document.
+    //The start position of the span, which is the offset of the gap before the first character of the span.
     private int start;
-    //The end of the span.It is the position of the first character of span in the document
+    //The end position of the span, which is the offset of the gap after the last character of the span.
     private int end;
     //The key we are searching for eg: regex
     private String key;
     //The value matching the key
     private String value;
-    // The token position of the span
+    // The token position of the span, starting from 0.
     private int tokenOffset;
 
     /*
     Example:
         Value = "The quick brown fox jumps over the lazy dog"
         Now the Span for brown should be
-        start = 10 : position of character 'b'
-        end = 15 : position of character 'n'
+        start = 10 : index Of character 'b'
+        end = 15 :  index of character 'n'+ 1 OR start+length
+                Both of then result in same values.
         tokenOffset = 2 position of word 'brown'
      */
 
