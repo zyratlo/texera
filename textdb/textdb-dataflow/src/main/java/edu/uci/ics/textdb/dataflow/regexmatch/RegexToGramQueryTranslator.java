@@ -1,10 +1,6 @@
 package edu.uci.ics.textdb.dataflow.regexmatch;
 
-import java.io.UnsupportedEncodingException;
-import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import com.google.re2j.PublicParser;
@@ -29,7 +25,7 @@ public class RegexToGramQueryTranslator {
 	// to be at least 2³ = 8 so that we can exactly
 	// represent a case-insensitive abc by the set
 	// {abc, abC, aBc, aBC, Abc, AbC, ABc, ABC}.
-	private static final int maxSetSize = 20;
+	private static final int MAX_SET_SIZE = 20;
 
 	/**
 	 * This method translates a regular expression to 
@@ -256,7 +252,7 @@ public class RegexToGramQueryTranslator {
 		
 		//TODO: customize 3
 		if (xInfo.exact.isEmpty() && yInfo.exact.isEmpty() &&
-				xInfo.suffix.size() <= maxSetSize && yInfo.prefix.size() <= maxSetSize &&
+				xInfo.suffix.size() <= MAX_SET_SIZE && yInfo.prefix.size() <= MAX_SET_SIZE &&
 				minLenOfString(xInfo.suffix) + minLenOfString(yInfo.prefix) >= 3) {
 			//TODO: is add the right function to use here??????
 			xyInfo.match.add(catesianProduct(xInfo.suffix, yInfo.prefix, false));
