@@ -229,10 +229,10 @@ public class RegexToGramQueryTranslator {
 		xyInfo.match = xInfo.match.and(yInfo.match);
 		
 		if (!xInfo.exact.isEmpty() && !yInfo.exact.isEmpty()) {
-			xyInfo.exact = catesianProduct(xInfo.exact, yInfo.exact, false);
+			xyInfo.exact = cartesianProduct(xInfo.exact, yInfo.exact, false);
 		} else {
 			if (!xInfo.exact.isEmpty()) {
-				xyInfo.prefix = catesianProduct(xInfo.exact, yInfo.prefix, false);
+				xyInfo.prefix = cartesianProduct(xInfo.exact, yInfo.prefix, false);
 			} else {
 				xyInfo.prefix = xInfo.prefix;
 				if (xInfo.emptyable) {
@@ -241,7 +241,7 @@ public class RegexToGramQueryTranslator {
 			}
 			
 			if (!yInfo.exact.isEmpty()) {
-				xyInfo.suffix = catesianProduct(xInfo.suffix, yInfo.exact, true);
+				xyInfo.suffix = cartesianProduct(xInfo.suffix, yInfo.exact, true);
 			} else {
 				xyInfo.suffix = yInfo.suffix;
 				if (yInfo.emptyable) {
@@ -255,7 +255,7 @@ public class RegexToGramQueryTranslator {
 				xInfo.suffix.size() <= MAX_SET_SIZE && yInfo.prefix.size() <= MAX_SET_SIZE &&
 				minLenOfString(xInfo.suffix) + minLenOfString(yInfo.prefix) >= 3) {
 			//TODO: is add the right function to use here??????
-			xyInfo.match.add(catesianProduct(xInfo.suffix, yInfo.prefix, false));
+			xyInfo.match.add(cartesianProduct(xInfo.suffix, yInfo.prefix, false));
 		}
 		
 		xyInfo.simplify(false);
@@ -278,14 +278,14 @@ public class RegexToGramQueryTranslator {
 	}
 	
 	/**
-	 * This function calculates the catesian product of two string lists (treated as set),
+	 * This function calculates the cartesian product of two string lists (treated as set),
 	 * and simplify the result.
 	 * @param xList
 	 * @param yList
 	 * @param isSuffix
 	 * @return
 	 */
-	private static List<String> catesianProduct(List<String> xList, List<String> yList, boolean isSuffix) {
+	private static List<String> cartesianProduct(List<String> xList, List<String> yList, boolean isSuffix) {
 		List<String> product = new ArrayList<String>();
 		//TODO efficient way to do this?
 		return product;
