@@ -38,6 +38,44 @@ class GramBooleanQuery {
 		this.gramLength = gramLength;
 	}
 	
+	GramBooleanQuery and (GramBooleanQuery that) {
+		if (this.operator == QueryOp.ANY || that.operator == QueryOp.ANY) {
+			return new GramBooleanQuery(QueryOp.ANY, this.gramLength);
+		}
+		if (this.operator == QueryOp.NONE || that.operator == QueryOp.NONE) {
+			return new GramBooleanQuery(QueryOp.NONE, this.gramLength);
+		}
+		if (this.operator == QueryOp.AND && that.operator == QueryOp.AND) {
+			this.operandList.addAll(that.operandList);
+			this.subQueryList.addAll(that.subQueryList);
+			return this;
+		} else {
+			GramBooleanQuery query = new GramBooleanQuery(QueryOp.AND, this.gramLength);
+			query.subQueryList.add(this);
+			query.subQueryList.add(that);
+			return query;
+		}
+	}
+	
+	GramBooleanQuery or (GramBooleanQuery that) {
+		if (this.operator == QueryOp.ANY || that.operator == QueryOp.ANY) {
+			return new GramBooleanQuery(QueryOp.ANY, this.gramLength);
+		}
+		if (this.operator == QueryOp.NONE || that.operator == QueryOp.NONE) {
+			return new GramBooleanQuery(QueryOp.NONE, this.gramLength);
+		}
+		if (this.operator == QueryOp.OR && that.operator == QueryOp.OR) {
+			this.operandList.addAll(that.operandList);
+			this.subQueryList.addAll(that.subQueryList);
+			return this;
+		} else {
+			GramBooleanQuery query = new GramBooleanQuery(QueryOp.OR, this.gramLength);
+			query.subQueryList.add(this);
+			query.subQueryList.add(that);
+			return query;
+		}
+	}
+	
 	/**
 	 * This returns a GramBooleanQuery's hash code. <br>
 	 * It won't traverse the whole tree, instead, 
