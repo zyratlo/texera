@@ -191,14 +191,34 @@ public class RegexToGramQueryTranslator {
 	
 	/**
 	 * This function calculates the {@code RegexInfo} of alternation of two given {@code RegexInfo}
-	 * @param x
-	 * @param y
+	 * @param xInfo
+	 * @param yInfo
 	 * @return xyInfo
 	 */
-	private static RegexInfo alternate(RegexInfo x, RegexInfo y) {
-		RegexInfo alternateInfo = new RegexInfo();
-		//TODO
-		return alternateInfo;
+	private static RegexInfo alternate(RegexInfo xInfo, RegexInfo yInfo) {
+		RegexInfo xyInfo = new RegexInfo();
+		
+		if (!xInfo.exact.isEmpty() && !yInfo.exact.isEmpty()) {
+			xyInfo.exact = union(xInfo.exact, yInfo.exact, false);
+		} else if (!xInfo.exact.isEmpty()) {
+			xyInfo.prefix = union(xInfo.exact, yInfo.prefix, false);
+			xyInfo.suffix = union(xInfo.exact, yInfo.suffix, true);
+			xInfo.addExactToMatch();
+		} else if (!yInfo.exact.isEmpty()) {
+			xyInfo.prefix = union(xInfo.prefix, yInfo.exact, false);
+			xyInfo.suffix = union(xInfo.suffix, yInfo.exact, true);
+			yInfo.addExactToMatch();
+		} else {
+			xyInfo.prefix = union(xInfo.prefix, yInfo.prefix, false);
+			xyInfo.suffix = union(xInfo.suffix, yInfo.suffix, true);
+		}
+		
+		xyInfo.emptyable = xInfo.emptyable || yInfo.emptyable;
+		
+		xyInfo.match = xInfo.match.or(yInfo.match);
+		
+		xyInfo.simplify(false);
+		return xyInfo;
 	}
 	
 	/**

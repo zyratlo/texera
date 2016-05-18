@@ -86,5 +86,12 @@ class RegexInfo {
 	void simplify(boolean force) {
 		//TODO
 	}
+	
+	/**
+	 * This function adds to the match query the trigrams for matching info.exact.
+	 */
+	void addExactToMatch() {
+		//TODO
+	}
 
 }
