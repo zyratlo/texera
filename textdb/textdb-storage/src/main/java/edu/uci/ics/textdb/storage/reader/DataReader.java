@@ -73,7 +73,7 @@ public class DataReader implements IDataReader{
             scoreDocs = topDocs.scoreDocs;
             cursor = OPENED;
 
-            this.queryTokens = Utils.tokenizeQuery(dataReaderPredicate.getAnalyzer(),dataReaderPredicate.getQueryString());
+            this.queryTokens = Utils.tokenizeQuery(dataReaderPredicate.getLuceneAnalyzer(),dataReaderPredicate.getQueryString());
 
             // sort the query tokens, as the term vector are also sorted.
             // This makes the seek faster.
@@ -131,7 +131,7 @@ public class DataReader implements IDataReader{
             for(Attribute attr: attributeList){
 
                 String fieldName  = attr.getFieldName();
-                // Get the term vector fot the current field.
+                // Get the term vector for the current field.
                 Terms vector = luceneIndexReader.getTermVector(scoreDocs[cursor].doc,fieldName);
 
                 if (vector != null) {

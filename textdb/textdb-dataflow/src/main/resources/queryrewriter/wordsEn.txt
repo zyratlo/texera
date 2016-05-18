@@ -3240,7 +3240,7 @@ analytically
 analyzable
 analyze
 analyzed
-luceneAnalyzer
+analyzer
 analyzers
 analyzes
 analyzing
