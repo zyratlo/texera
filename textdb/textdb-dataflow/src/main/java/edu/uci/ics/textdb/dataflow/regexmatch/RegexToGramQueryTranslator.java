@@ -22,6 +22,14 @@ import com.google.re2j.PublicSimplify;
  * 
  */
 public class RegexToGramQueryTranslator {	
+	// Prefix and suffix sets are limited to maxSet strings.
+	// If they get too big, simplify will replace groups of strings
+	// sharing a common leading prefix (or trailing suffix) with
+	// that common prefix (or suffix).  It is useful for maxSet
+	// to be at least 2³ = 8 so that we can exactly
+	// represent a case-insensitive abc by the set
+	// {abc, abC, aBc, aBC, Abc, AbC, ABc, ABC}.
+	private static final int maxSetSize = 20;
 
 	/**
 	 * This method translates a regular expression to 
@@ -192,10 +200,10 @@ public class RegexToGramQueryTranslator {
 		
 		xyInfo.match = xInfo.match.and(yInfo.match);
 		
-		if (xInfo.exact.size() != 0 && yInfo.exact.size() != 0) {
+		if (!xInfo.exact.isEmpty() && !yInfo.exact.isEmpty()) {
 			xyInfo.exact = catesianProduct(xInfo.exact, yInfo.exact, false);
 		} else {
-			if (xInfo.exact.size() != 0) {
+			if (!xInfo.exact.isEmpty()) {
 				xyInfo.prefix = catesianProduct(xInfo.exact, yInfo.prefix, false);
 			} else {
 				xyInfo.prefix = xInfo.prefix;
@@ -204,7 +212,7 @@ public class RegexToGramQueryTranslator {
 				}
 			}
 			
-			if (yInfo.exact.size() != 0) {
+			if (!yInfo.exact.isEmpty()) {
 				xyInfo.suffix = catesianProduct(xInfo.suffix, yInfo.exact, true);
 			} else {
 				xyInfo.suffix = yInfo.suffix;
@@ -213,6 +221,17 @@ public class RegexToGramQueryTranslator {
 				}
 			}
 		}
+		
+		//TODO: customize 3
+		if (xInfo.exact.isEmpty() && yInfo.exact.isEmpty() &&
+				xInfo.suffix.size() <= maxSetSize && yInfo.prefix.size() <= maxSetSize &&
+				minLenOfString(xInfo.suffix) + minLenOfString(yInfo.prefix) >= 3) {
+			//TODO: is add the right function to use here??????
+			xyInfo.match.add(catesianProduct(xInfo.suffix, yInfo.prefix, false));
+		}
+		
+		xyInfo.simplify(false);
+		
 		return xyInfo;
 	}
 	
@@ -240,6 +259,11 @@ public class RegexToGramQueryTranslator {
 		List<String> unionList = new ArrayList<String>();
 		//TODO
 		return unionList;
+	}
+	private static int minLenOfString(List<String> strList) {
+		int minLen = 0;
+		//TODO
+		return minLen;
 	}
 	
 }

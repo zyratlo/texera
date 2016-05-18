@@ -78,5 +78,13 @@ class RegexInfo {
 		regexInfo.emptyable = false;
 		return regexInfo;
 	}
+	
+	/**
+	 * This function simplifies the regexpInfo when the exact set gets too large.
+	 * @param force
+	 */
+	void simplify(boolean force) {
+		//TODO
+	}
 
 }
