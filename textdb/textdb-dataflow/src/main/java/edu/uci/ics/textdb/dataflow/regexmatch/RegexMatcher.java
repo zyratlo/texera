@@ -65,13 +65,13 @@ public class RegexMatcher implements IOperator {
 			try {
 				com.google.re2j.Pattern.compile(regexPredicate.getRegex());
 				regexEngine = RegexEngine.RE2J;
-				this.luceneQuery = generateLuceneQuery(regex, fieldNameList,
+				this.luceneQuery = generateLuceneQuery(fieldNameList,
 						RegexToGramQueryTranslator.translate(regex).getLuceneQueryString());
 			// if RE2J fails, try to use Java Regex
 			} catch (com.google.re2j.PatternSyntaxException re2jException) {
 				java.util.regex.Pattern.compile(regex);
 				regexEngine = RegexEngine.JavaRegex;
-				this.luceneQuery = generateLuceneQuery(regex, fieldNameList,
+				this.luceneQuery = generateLuceneQuery(fieldNameList,
 						DataConstants.SCAN_QUERY);
 			}
 			this.sourceOperator = new IndexBasedSourceOperator(new DataReaderPredicate(dataStore, luceneQuery));
@@ -80,7 +80,7 @@ public class RegexMatcher implements IOperator {
 		}
     }
     
-	private Query generateLuceneQuery(String regexStr, List<String> fields, String queryStr) throws ParseException {
+	private Query generateLuceneQuery(List<String> fields, String queryStr) throws ParseException {
 		String[] fieldsArray = new String[fields.size()];
 		QueryParser parser = new MultiFieldQueryParser(fields.toArray(fieldsArray), luceneAnalyzer);
 		return parser.parse(queryStr);
