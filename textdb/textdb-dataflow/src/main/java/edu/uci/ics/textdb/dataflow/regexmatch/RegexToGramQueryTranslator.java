@@ -87,7 +87,7 @@ public class RegexToGramQueryTranslator {
 		// TODO finish for every case
 		case ALTERNATE:
 			//TODO
-			return RegexInfo.matchAny();
+			return fold((x, y) -> concat(x,y), re.getSubs(), RegexInfo.matchAny());
 		case CONCAT:
 			return fold((x, y) -> alternate(x, y), re.getSubs(), RegexInfo.matchNone());
 		case CAPTURE:
@@ -183,15 +183,16 @@ public class RegexToGramQueryTranslator {
 	private static RegexInfo alternate(RegexInfo x, RegexInfo y) {
 		RegexInfo alternateInfo = new RegexInfo();
 		//TODO
-		return x;
+		return alternateInfo;
 	}
 	
 	private static RegexInfo concat(RegexInfo x, RegexInfo y) {
-		// TODO
-		return x;
+		RegexInfo alternateInfo = new RegexInfo();
+		//TODO
+		return alternateInfo;
 	}
 	
-	private static RegexInfo fold (TranslatorFunc func, PublicRegexp[] subExpressions, RegexInfo zero) {
+	private static RegexInfo fold (TranslatorFunc funcObject, PublicRegexp[] subExpressions, RegexInfo zero) {
 		
 		return null;
 	}
