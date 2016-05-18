@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import edu.uci.ics.textdb.api.common.Attribute;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.queryparser.classic.ParseException;
@@ -39,15 +38,15 @@ public class IndexBasedSourceOperatorTest {
 	private IDataWriter dataWriter;
 	private IndexBasedSourceOperator indexBasedSourceOperator;
 	private IDataStore dataStore;
-	private Analyzer analyzer;
+	private Analyzer luceneAnalyzer;
     private IPredicate dataReaderPredicate;
 
 
 	@Before
 	public void setUp() throws Exception {
 		dataStore = new DataStore(DataConstants.INDEX_DIR, TestConstants.SCHEMA_PEOPLE);
-		analyzer = new StandardAnalyzer();
-		dataWriter = new DataWriter(dataStore, analyzer);
+		luceneAnalyzer = new StandardAnalyzer();
+		dataWriter = new DataWriter(dataStore, luceneAnalyzer);
 		dataWriter.clearData();
 		dataWriter.writeData(TestConstants.getSamplePeopleTuples());
 
@@ -60,9 +59,10 @@ public class IndexBasedSourceOperatorTest {
 	
 	public void constructIndexBasedSourceOperator(String query) throws ParseException{
 	    String defaultField = TestConstants.ATTRIBUTES_PEOPLE[0].getFieldName();
-        QueryParser queryParser = new QueryParser(defaultField, analyzer);
+        QueryParser queryParser = new QueryParser(defaultField, luceneAnalyzer);
         Query queryObject = queryParser.parse(query);
-        dataReaderPredicate = new DataReaderPredicate(dataStore, queryObject, query, analyzer, Arrays.asList(TestConstants.ATTRIBUTES_PEOPLE[0]));
+        dataReaderPredicate = new DataReaderPredicate(dataStore, queryObject,
+				query, luceneAnalyzer, Arrays.asList(TestConstants.ATTRIBUTES_PEOPLE[0]));
 
         indexBasedSourceOperator = new IndexBasedSourceOperator(dataReaderPredicate);
 	}
@@ -91,7 +91,7 @@ public class IndexBasedSourceOperatorTest {
 		int numTuples = results.size();
 		Assert.assertEquals(3, numTuples);
 
-		boolean check = TestUtils.checkResults(results,"Tall,Brown" , this.analyzer,TestConstants.DESCRIPTION);
+		boolean check = TestUtils.checkResults(results,"Tall,Brown" , this.luceneAnalyzer,TestConstants.DESCRIPTION);
 		Assert.assertTrue(check);
 	}
 
@@ -105,7 +105,7 @@ public class IndexBasedSourceOperatorTest {
 	public void testTextSearchWithSingleToken() throws DataFlowException, ParseException {
 		List<ITuple> results = getQueryResults(TestConstants.DESCRIPTION + ":angry");
 		int numTuples = results.size();
-		boolean check = TestUtils.checkResults(results,"angry" , this.analyzer,TestConstants.DESCRIPTION);
+		boolean check = TestUtils.checkResults(results,"angry" , this.luceneAnalyzer,TestConstants.DESCRIPTION);
 		Assert.assertTrue(check);
 		Assert.assertEquals(3, numTuples);
 	}

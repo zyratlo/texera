@@ -35,7 +35,6 @@ import edu.uci.ics.textdb.common.exception.ErrorMessages;
 import edu.uci.ics.textdb.common.field.DataTuple;
 import edu.uci.ics.textdb.common.utils.Utils;
 import edu.uci.ics.textdb.storage.DataReaderPredicate;
-import org.apache.lucene.util.packed.PackedLongValues;
 
 /**
  * @author sandeepreddy602
@@ -51,7 +50,9 @@ public class DataReader implements IDataReader{
     private ArrayList<String> queryTokens;
     private List<Attribute> attributeList;
     private List<BytesRef> queryTokensInBytesRef;
+    // The schema of the data tuple
     private Schema schema;
+    //The schema o the data tuple along with the span information.
     private Schema spanSchema;
 
     public DataReader(IPredicate dataReaderPredicate) {
@@ -73,7 +74,7 @@ public class DataReader implements IDataReader{
             cursor = OPENED;
 
             this.queryTokens = Utils.tokenizeQuery(dataReaderPredicate.getAnalyzer(),dataReaderPredicate.getQueryString());
-            // sort the query token, as the term vector are also sorted.
+            // sort the query tokens, as the term vector are also sorted.
             // This makes the seek faster.
             this.queryTokens.sort(String.CASE_INSENSITIVE_ORDER);
 
@@ -112,28 +113,36 @@ public class DataReader implements IDataReader{
                 fields.add(Utils.getField(fieldType, fieldValue));
             }
 
+            // If the span Information is not requested,
+            // just return the dataTuple without span information.
+
             if(!dataReaderPredicate.getIsSpanInformationAdded()){
                 cursor++;
-                DataTuple dTuple = new DataTuple(schema, fields.toArray(new IField[fields.size()]));
-                return  dTuple;
+                DataTuple dataTuple = new DataTuple(schema, fields.toArray(new IField[fields.size()]));
+                return  dataTuple;
             }
+
+            // Create span information.
 
             for(Attribute attr: attributeList){
 
                 String fieldName  = attr.getFieldName();
+                // Get the term vector fot the current field.
                 Terms vector = luceneIndexReader.getTermVector(scoreDocs[cursor].doc,fieldName);
 
                 if (vector != null) {
                     TermsEnum vectorEnum = vector.iterator();
                     int queryTokenIndex = 0;
+                    // Search for all the query tokens in the term vector one by one.
                     for(BytesRef term: queryTokensInBytesRef){
 
+                        //If Term is found, calculate the position info and add to the Spans
                         if(vectorEnum.seekExact(term)){
-                            System.out.println(term.utf8ToString());
                             PostingsEnum postings = vectorEnum.postings(null, PostingsEnum.POSITIONS);
 
                             while (postings.nextDoc() != DocIdSetIterator.NO_MORE_DOCS) {
                                 int freq = postings.freq();
+                                // Create a new span for every occurrence.
                                 while (freq-- > 0) {
                                     int tokenOffset = postings.nextPosition();
                                     int start = postings.startOffset();

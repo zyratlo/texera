@@ -34,11 +34,11 @@ public class DictionaryPredicate implements IPredicate {
     New and York; if searched in String field we search for Exact string.
      */
 
-    public DictionaryPredicate(IDictionary dictionary, Analyzer analyzer, List<Attribute> attributeList,
+    public DictionaryPredicate(IDictionary dictionary, Analyzer luceneAnalyzer, List<Attribute> attributeList,
             SourceOperatorType srcOpType, IDataStore dataStore) {
 
         this.dictionary = dictionary;
-        this.luceneAnalyzer = analyzer;
+        this.luceneAnalyzer = luceneAnalyzer;
         this.attributeList = attributeList;
         this.srcOpType = srcOpType;
         this.dataStore = dataStore;

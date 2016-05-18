@@ -1,32 +1,24 @@
 package edu.uci.ics.textdb.dataflow.keywordmatch;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import edu.uci.ics.textdb.api.common.Attribute;
 import edu.uci.ics.textdb.api.common.IField;
 import edu.uci.ics.textdb.api.common.IPredicate;
 import edu.uci.ics.textdb.api.common.ITuple;
-import edu.uci.ics.textdb.api.common.Schema;
 import edu.uci.ics.textdb.api.dataflow.IOperator;
 import edu.uci.ics.textdb.api.dataflow.ISourceOperator;
 import edu.uci.ics.textdb.common.constants.SchemaConstants;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
-import edu.uci.ics.textdb.common.field.ListField;
 import edu.uci.ics.textdb.common.field.Span;
-import edu.uci.ics.textdb.common.field.StringField;
 import edu.uci.ics.textdb.common.field.TextField;
-import edu.uci.ics.textdb.common.utils.Utils;
 import edu.uci.ics.textdb.dataflow.common.KeywordPredicate;
 import edu.uci.ics.textdb.dataflow.source.IndexBasedSourceOperator;
 import edu.uci.ics.textdb.storage.DataReaderPredicate;
-import edu.uci.ics.textdb.storage.reader.DataReader;
 
 /**
  *  @author prakul
+ *  @author Akshay
  *
  */
 public class KeywordMatcher implements IOperator {
@@ -98,8 +90,6 @@ public class KeywordMatcher implements IOperator {
                 return null;
             }
 
-//            ITuple DataTuple = sourceTuple.
-
             int schemaIndex = sourceTuple.getSchema().getIndex(SchemaConstants.SPAN_LIST_ATTRIBUTE.getFieldName());
             List<Span> spanList =
                     (List<Span>)sourceTuple.getField(schemaIndex).getValue();
@@ -118,7 +108,7 @@ public class KeywordMatcher implements IOperator {
                     }
                 } else {
                     // Check if all the tokens are present in that field,
-                    // if any of the token is missing, remove all the span information for that field.
+                    // if any of the tokens is missing, remove all the span information for that field.
 
                     boolean[] tokensPresent = new boolean[queryTokens.size()];
 

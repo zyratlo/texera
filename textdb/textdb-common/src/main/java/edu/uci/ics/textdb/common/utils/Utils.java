@@ -130,14 +130,14 @@ public class Utils {
 
     /**
      * Tokenizes the query string using the given analyser
-     * @param analyzer
+     * @param luceneAnalyzer
      * @param query
      * @return ArrayList<String> list of results
      */
-    public static ArrayList<String> tokenizeQuery(Analyzer analyzer, String query) {
+    public static ArrayList<String> tokenizeQuery(Analyzer luceneAnalyzer, String query) {
         HashSet<String> resultSet = new HashSet<>();
         ArrayList<String> result = new ArrayList<String>();
-        TokenStream tokenStream  = analyzer.tokenStream(null, new StringReader(query));
+        TokenStream tokenStream  = luceneAnalyzer.tokenStream(null, new StringReader(query));
         CharTermAttribute charTermAttribute = tokenStream.addAttribute(CharTermAttribute.class);
 
         try{
@@ -145,6 +145,8 @@ public class Utils {
             while (tokenStream.incrementToken()) {
                 String token = charTermAttribute.toString();
                 int tokenIndex = query.toLowerCase().indexOf(token);
+                // Since tokens are converted to lower case,
+                // get the exact token from the query string.
                 String actualQueryToken = query.substring(tokenIndex, tokenIndex+token.length());
                 resultSet.add(actualQueryToken);
             }

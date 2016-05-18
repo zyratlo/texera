@@ -3,16 +3,27 @@ package edu.uci.ics.textdb.common.field;
 public class Span {
     //The name of the field (in the tuple) where this span is present
     private String fieldName;
-    //The start of the span
+    //The start of the span. It is the position of the first character of span in the document.
     private int start;
-    //The end of the span
+    //The end of the span.It is the position of the first character of span in the document
     private int end;
     //The key we are searching for eg: regex
     private String key;
     //The value matching the key
     private String value;
-    // The token position of the sapn
+    // The token position of the span
     private int tokenOffset;
+
+    /*
+    Example:
+        Value = "The quick brown fox jumps over the lazy dog"
+        Now the Span for brown should be
+        start = 10 : position of character 'b'
+        end = 15 : position of character 'n'
+        tokenOffset = 2 position of word 'brown'
+     */
+
+    public static int INVALID_TOKEN_OFFSET = -1;
 
     public Span(String fieldName, int start, int end, String key, String value){
         this.fieldName = fieldName;
@@ -20,7 +31,7 @@ public class Span {
         this.end = end;
         this.key = key;
         this.value = value;
-        this.tokenOffset = -1;
+        this.tokenOffset = INVALID_TOKEN_OFFSET;
     }
 
     public Span(String fieldName, int start, int end, String key, String value, int tokenOffset) {
