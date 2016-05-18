@@ -1,10 +1,5 @@
 package edu.uci.ics.textdb.dataflow.regexmatch;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-
 import com.google.re2j.PublicParser;
 import com.google.re2j.PublicRE2;
 import com.google.re2j.PublicRegexp;
@@ -20,15 +15,6 @@ import com.google.re2j.PublicSimplify;
  * 
  */
 public class RegexToGramQueryTranslator {	
-	// Prefix and suffix sets are limited to maxSet strings.
-	// If they get too big, simplify will replace groups of strings
-	// sharing a common leading prefix (or trailing suffix) with
-	// that common prefix (or suffix).  It is useful for maxSet
-	// to be at least 2³ = 8 so that we can exactly
-	// represent a case-insensitive abc by the set
-	// {abc, abC, aBc, aBC, Abc, AbC, ABc, ABC}.
-	static final int MAX_SET_SIZE = 20;
-
 	/**
 	 * This method translates a regular expression to 
 	 * a boolean expression of n-grams. <br>
@@ -187,18 +173,18 @@ public class RegexToGramQueryTranslator {
 		RegexInfo xyInfo = new RegexInfo();
 		
 		if (!xInfo.exact.isEmpty() && !yInfo.exact.isEmpty()) {
-			xyInfo.exact = union(xInfo.exact, yInfo.exact, false);
+			xyInfo.exact = RegexUtils.union(xInfo.exact, yInfo.exact, false);
 		} else if (!xInfo.exact.isEmpty()) {
-			xyInfo.prefix = union(xInfo.exact, yInfo.prefix, false);
-			xyInfo.suffix = union(xInfo.exact, yInfo.suffix, true);
+			xyInfo.prefix = RegexUtils.union(xInfo.exact, yInfo.prefix, false);
+			xyInfo.suffix = RegexUtils.union(xInfo.exact, yInfo.suffix, true);
 			xInfo.addExactToMatch();
 		} else if (!yInfo.exact.isEmpty()) {
-			xyInfo.prefix = union(xInfo.prefix, yInfo.exact, false);
-			xyInfo.suffix = union(xInfo.suffix, yInfo.exact, true);
+			xyInfo.prefix = RegexUtils.union(xInfo.prefix, yInfo.exact, false);
+			xyInfo.suffix = RegexUtils.union(xInfo.suffix, yInfo.exact, true);
 			yInfo.addExactToMatch();
 		} else {
-			xyInfo.prefix = union(xInfo.prefix, yInfo.prefix, false);
-			xyInfo.suffix = union(xInfo.suffix, yInfo.suffix, true);
+			xyInfo.prefix = RegexUtils.union(xInfo.prefix, yInfo.prefix, false);
+			xyInfo.suffix = RegexUtils.union(xInfo.suffix, yInfo.suffix, true);
 		}
 		
 		xyInfo.emptyable = xInfo.emptyable || yInfo.emptyable;
@@ -221,33 +207,33 @@ public class RegexToGramQueryTranslator {
 		xyInfo.match = xInfo.match.and(yInfo.match);
 		
 		if (!xInfo.exact.isEmpty() && !yInfo.exact.isEmpty()) {
-			xyInfo.exact = cartesianProduct(xInfo.exact, yInfo.exact, false);
+			xyInfo.exact = RegexUtils.cartesianProduct(xInfo.exact, yInfo.exact, false);
 		} else {
 			if (!xInfo.exact.isEmpty()) {
-				xyInfo.prefix = cartesianProduct(xInfo.exact, yInfo.prefix, false);
+				xyInfo.prefix = RegexUtils.cartesianProduct(xInfo.exact, yInfo.prefix, false);
 			} else {
 				xyInfo.prefix = xInfo.prefix;
 				if (xInfo.emptyable) {
-					xyInfo.prefix = union(xyInfo.prefix, yInfo.prefix, false);
+					xyInfo.prefix = RegexUtils.union(xyInfo.prefix, yInfo.prefix, false);
 				}
 			}
 			
 			if (!yInfo.exact.isEmpty()) {
-				xyInfo.suffix = cartesianProduct(xInfo.suffix, yInfo.exact, true);
+				xyInfo.suffix = RegexUtils.cartesianProduct(xInfo.suffix, yInfo.exact, true);
 			} else {
 				xyInfo.suffix = yInfo.suffix;
 				if (yInfo.emptyable) {
-					xyInfo.suffix = union(xyInfo.suffix, xInfo.suffix, true);
+					xyInfo.suffix = RegexUtils.union(xyInfo.suffix, xInfo.suffix, true);
 				}
 			}
 		}
 		
 		//TODO: customize 3
 		if (xInfo.exact.isEmpty() && yInfo.exact.isEmpty() &&
-				xInfo.suffix.size() <= MAX_SET_SIZE && yInfo.prefix.size() <= MAX_SET_SIZE &&
-				minLenOfString(xInfo.suffix) + minLenOfString(yInfo.prefix) >= 3) {
+				xInfo.suffix.size() <= RegexUtils.MAX_SET_SIZE && yInfo.prefix.size() <= RegexUtils.MAX_SET_SIZE &&
+				RegexUtils.minLenOfString(xInfo.suffix) + RegexUtils.minLenOfString(yInfo.prefix) >= 3) {
 			//TODO: is add the right function to use here??????
-			xyInfo.match.add(cartesianProduct(xInfo.suffix, yInfo.prefix, false));
+			xyInfo.match.add(RegexUtils.cartesianProduct(xInfo.suffix, yInfo.prefix, false));
 		}
 		
 		xyInfo.simplify(false);
@@ -267,80 +253,6 @@ public class RegexToGramQueryTranslator {
 			info = funcObject.func(info, analyze(subExpressions[i]));
 		}
 		return info;
-	}
-	
-	/**
-	 * This function calculates the cartesian product of two string lists (treated as set),
-	 * and simplify the result.
-	 * @param xList
-	 * @param yList
-	 * @param isSuffix
-	 * @return
-	 */
-	private static List<String> cartesianProduct(List<String> xList, List<String> yList, boolean isSuffix) {
-		List<String> product = new ArrayList<String>();
-		for (String x : xList) {
-			for (String y : yList) {
-				product.add(x+y);
-			}
-		}
-		clean(product, isSuffix);
-		return product;
-	}
-	
-	/**
-	 * This function calculates the union of two string lists (treated as set)
-	 * and simplify the result.
-	 * @param xList
-	 * @param yList
-	 * @param isSuffix
-	 * @return
-	 */
-	private static List<String> union(List<String> xList, List<String> yList, boolean isSuffix) {
-		List<String> unionList = new ArrayList<String>(xList);
-		
-		unionList.addAll(yList);
-		clean(unionList, isSuffix);
-		
-		return unionList;
-	}
-	
-	private static int compareSuffix(String str1, String str2) {
-    	String str1Reverse = new StringBuilder(str1).reverse().toString();
-    	String str2Reverse = new StringBuilder(str2).reverse().toString();
-    	return str1Reverse.compareTo(str2Reverse);
-	}
-	
-	/**
-	 * !!! Should have name "removeDuplicate" !!!
-	 * Name it clean for easier debugging
-	 * @param strList
-	 * @param isSuffix
-	 */
-	static void clean(List<String> strList, boolean isSuffix) {
-		HashSet<String> strSet = new HashSet<String>(strList);
-		strList.clear();
-		strList.addAll(strSet);
-		if (isSuffix) {
-	        Collections.sort(strList, (str1, str2) -> compareSuffix(str1, str2));
-		} else {
-	        Collections.sort(strList, (str1, str2) -> str1.compareTo(str2));
-		}
-	}
-	
-	/**
-	 * This function returns the length of the shortest string in {@code strList}.
-	 * @param strList
-	 * @return minLen
-	 */
-	static int minLenOfString(List<String> strList) {
-		int minLen = Integer.MAX_VALUE;
-		
-		for (String str: strList) {
-			minLen = Math.min(minLen, str.length());
-		}
-		
-		return minLen;
 	}
 	
 }

@@ -11,8 +11,6 @@ import java.util.List;
  * see <a href='https://swtch.com/~rsc/regexp/regexp4.html'>https://swtch.com/~rsc/regexp/regexp4.html</a> for details. <br>
  */
 class RegexInfo {
-	private static final int MAX_EXACT_SIZE = 7;
-	
 	boolean emptyable;
 	List<String> exact = null;
 	List<String> prefix = null;
@@ -88,11 +86,11 @@ class RegexInfo {
 	 * @param force
 	 */
 	void simplify(boolean force) {
-		RegexToGramQueryTranslator.clean(exact, false);
+		RegexUtils.clean(exact, false);
 		
-		if ( exact.size() > MAX_EXACT_SIZE ||
-			( RegexToGramQueryTranslator.minLenOfString(exact) >= 3	&& force) ||
-			RegexToGramQueryTranslator.minLenOfString(exact) >= 4){
+		if ( exact.size() > RegexUtils.MAX_EXACT_SIZE ||
+			( RegexUtils.minLenOfString(exact) >= 3	&& force) ||
+			RegexUtils.minLenOfString(exact) >= 4){
 			for (String str: exact) {
 				if (str.length() < 3) {
 					prefix.add(str);
@@ -121,7 +119,7 @@ class RegexInfo {
 	 * @param isSuffix
 	 */
 	void simplifySet(List<String> strList, boolean isSuffix) {
-		RegexToGramQueryTranslator.clean(strList, isSuffix);
+		RegexUtils.clean(strList, isSuffix);
 		
 		// Add the OR of the current prefix/suffix set to the query.
 		match.add(strList);
@@ -132,7 +130,7 @@ class RegexInfo {
 		// It cuts a prefix (suffix) string by only retaining the first (last) n characters of it
 		// For example, for a prefix string "abcd", after cutting, it becomes "abc" if n = 3, "ab" if n = 2.
 		// For a suffix string "abcd", after cutting, it becomes "bcd" if n = 3, "cd" if n = 2;
-		for (int n = 3; n == 3 || strList.size() > RegexToGramQueryTranslator.MAX_SET_SIZE; n--) {
+		for (int n = 3; n == 3 || strList.size() > RegexUtils.MAX_SET_SIZE; n--) {
 			// replace set by strings of length n-1
 			int w = 0; //TODO: better name?
 			for (String str: strList) {
@@ -148,7 +146,7 @@ class RegexInfo {
 				}
 			}
 			strList = strList.subList(0, w+1);
-			RegexToGramQueryTranslator.clean(strList, isSuffix);
+			RegexUtils.clean(strList, isSuffix);
 		}
 		
 		// Now make sure that the prefix/suffix sets aren't redundant.
