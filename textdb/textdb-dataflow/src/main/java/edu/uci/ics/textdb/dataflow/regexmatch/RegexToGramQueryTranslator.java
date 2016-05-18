@@ -193,8 +193,17 @@ public class RegexToGramQueryTranslator {
 	}
 	
 	private static RegexInfo fold (TranslatorFunc funcObject, PublicRegexp[] subExpressions, RegexInfo zero) {
+		if (subExpressions.length == 0) {
+			return zero;
+		} else if (subExpressions.length == 1) {
+			return analyze(subExpressions[0]);
+		}
 		
-		return null;
+		RegexInfo info = funcObject.func(analyze(subExpressions[0]), analyze(subExpressions[1]));
+		for (int i = 2; i < subExpressions.length; i++) {
+			info = funcObject.func(info, analyze(subExpressions[i]));
+		}
+		return info;
 	}
 	
 }
