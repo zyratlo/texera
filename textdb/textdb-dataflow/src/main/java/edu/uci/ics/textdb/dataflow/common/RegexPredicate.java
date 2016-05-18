@@ -23,36 +23,33 @@ public class RegexPredicate implements IPredicate {
 
 	private String regex;
 	private List<String> fieldNameList;
-	
-	private Analyzer analyzer;
-	private IDataStore dataStore;	
 
+	private Analyzer luceneAnalyzer;
+	private IDataStore dataStore;
 
 	public RegexPredicate(String regex, List<Attribute> attributeList, Analyzer analyzer, IDataStore dataStore) {
 		this.regex = regex;
-		this.analyzer = analyzer;
+		this.luceneAnalyzer = analyzer;
 		this.dataStore = dataStore;
 		this.fieldNameList = attributeList.stream()
 				.filter(attr -> (attr.getFieldType() == FieldType.TEXT || attr.getFieldType() == FieldType.STRING))
-				.map(attr -> attr.getFieldName())
-				.collect(Collectors.toList());
+				.map(attr -> attr.getFieldName()).collect(Collectors.toList());
 	}
-
 
 	public String getRegex() {
 		return regex;
 	}
-	
-	public Analyzer getAnalyzer() {
-		return this.analyzer;
+
+	public Analyzer getLuceneAnalyzer() {
+		return this.luceneAnalyzer;
 	}
-	
+
 	public IDataStore getDataStore() {
 		return this.dataStore;
 	}
-	
+
 	public List<String> getFieldNameList() {
 		return this.fieldNameList;
 	}
-	
+
 }

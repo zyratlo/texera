@@ -31,14 +31,14 @@ public class RegexMatcherTestHelper {
 	private IDataStore dataStore;
 	
 	private List<ITuple> results;
-    private Analyzer analyzer;
+    private Analyzer luceneAnalyzer;
 	
 	public RegexMatcherTestHelper(Schema schema, List<ITuple> data) throws Exception {
 		dataStore = new DataStore(DataConstants.INDEX_DIR, schema);
-		analyzer = CustomAnalyzer.builder()
+		luceneAnalyzer = CustomAnalyzer.builder()
 				.withTokenizer(NGramTokenizerFactory.class, new String[]{"minGramSize", "3", "maxGramSize", "3"})
 				.build();
-        dataWriter = new DataWriter(dataStore, analyzer);
+        dataWriter = new DataWriter(dataStore, luceneAnalyzer);
 		dataWriter.clearData();
 		dataWriter.writeData(data);	
 		results = new ArrayList<ITuple>();
@@ -56,7 +56,7 @@ public class RegexMatcherTestHelper {
 		results.clear();
 		RegexPredicate regexPredicate = new RegexPredicate(
 				regex, Arrays.asList(new Attribute[]{attribute}), 
-				analyzer, dataStore);
+				luceneAnalyzer, dataStore);
 
 		regexMatcher = new RegexMatcher(regexPredicate);
 		regexMatcher.open();

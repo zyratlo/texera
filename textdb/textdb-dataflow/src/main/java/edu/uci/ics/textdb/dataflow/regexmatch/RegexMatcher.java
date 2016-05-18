@@ -39,7 +39,7 @@ public class RegexMatcher implements IOperator {
     private Schema sourceTupleSchema = null;
     private Schema spanSchema = null;
     
-	private Analyzer analyzer;
+	private Analyzer luceneAnalyzer;
 	private IDataStore dataStore;
 	private Query luceneQuery;
 	private ISourceOperator sourceOperator;
@@ -57,7 +57,7 @@ public class RegexMatcher implements IOperator {
     	this.regexPredicate = (RegexPredicate) predicate;
     	this.regex = regexPredicate.getRegex();
     	this.fieldNameList = regexPredicate.getFieldNameList();
-    	this.analyzer = regexPredicate.getAnalyzer();
+    	this.luceneAnalyzer = regexPredicate.getLuceneAnalyzer();
     	this.dataStore = regexPredicate.getDataStore();
     	
 		try {			
@@ -67,7 +67,7 @@ public class RegexMatcher implements IOperator {
 				regexEngine = RegexEngine.RE2J;
 				this.luceneQuery = generateLuceneQuery(regex, fieldNameList,
 						RegexToGramQueryTranslator.translate(regex).getLuceneQueryString());
-			// if RE2J failes, try to use Java Regex
+			// if RE2J fails, try to use Java Regex
 			} catch (com.google.re2j.PatternSyntaxException re2jException) {
 				java.util.regex.Pattern.compile(regex);
 				regexEngine = RegexEngine.JavaRegex;
@@ -82,7 +82,7 @@ public class RegexMatcher implements IOperator {
     
 	private Query generateLuceneQuery(String regexStr, List<String> fields, String queryStr) throws ParseException {
 		String[] fieldsArray = new String[fields.size()];
-		QueryParser parser = new MultiFieldQueryParser(fields.toArray(fieldsArray), analyzer);
+		QueryParser parser = new MultiFieldQueryParser(fields.toArray(fieldsArray), luceneAnalyzer);
 		return parser.parse(queryStr);
 	}
 	
