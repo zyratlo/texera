@@ -189,12 +189,24 @@ public class RegexToGramQueryTranslator {
 		RegexInfo func(RegexInfo x, RegexInfo y);
 	}
 	
+	/**
+	 * This function calculates the {@code RegexInfo} of alternation of two given {@code RegexInfo}
+	 * @param x
+	 * @param y
+	 * @return xyInfo
+	 */
 	private static RegexInfo alternate(RegexInfo x, RegexInfo y) {
 		RegexInfo alternateInfo = new RegexInfo();
 		//TODO
 		return alternateInfo;
 	}
 	
+	/**
+	 * This function calculates the {@code RegexInfo} of concatenation of two given {@code RegexInfo}
+	 * @param xInfo
+	 * @param yInfo
+	 * @return xyInfo
+	 */
 	private static RegexInfo concat(RegexInfo xInfo, RegexInfo yInfo) {
 		RegexInfo xyInfo = new RegexInfo();
 		
@@ -249,20 +261,46 @@ public class RegexToGramQueryTranslator {
 		return info;
 	}
 	
+	/**
+	 * This function calculates the catesian product of two string lists (treated as set),
+	 * and simplify the result.
+	 * @param xList
+	 * @param yList
+	 * @param isSuffix
+	 * @return
+	 */
 	private static List<String> catesianProduct(List<String> xList, List<String> yList, boolean isSuffix) {
 		List<String> product = new ArrayList<String>();
-		//TODO
+		//TODO efficient way to do this?
 		return product;
 	}
 	
+	/**
+	 * This function calculates the union of two string lists (treated as set)
+	 * and simplify the result.
+	 * @param xList
+	 * @param yList
+	 * @param isSuffix
+	 * @return
+	 */
 	private static List<String> union(List<String> xList, List<String> yList, boolean isSuffix) {
 		List<String> unionList = new ArrayList<String>();
-		//TODO
+		//TODO efficient way to do this?
 		return unionList;
 	}
+	
+	/**
+	 * This function returns the length of the shortest string in {@code strList}.
+	 * @param strList
+	 * @return minLen
+	 */
 	private static int minLenOfString(List<String> strList) {
-		int minLen = 0;
-		//TODO
+		int minLen = Integer.MAX_VALUE;
+		
+		for (String str: strList) {
+			minLen = Math.min(minLen, str.length());
+		}
+		
 		return minLen;
 	}
 	
