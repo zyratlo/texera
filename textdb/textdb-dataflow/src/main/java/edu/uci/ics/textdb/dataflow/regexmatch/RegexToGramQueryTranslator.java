@@ -5,6 +5,7 @@ import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import com.google.re2j.PublicParser;
 import com.google.re2j.PublicRE2;
@@ -186,10 +187,33 @@ public class RegexToGramQueryTranslator {
 		return alternateInfo;
 	}
 	
-	private static RegexInfo concat(RegexInfo x, RegexInfo y) {
-		RegexInfo alternateInfo = new RegexInfo();
-		//TODO
-		return alternateInfo;
+	private static RegexInfo concat(RegexInfo xInfo, RegexInfo yInfo) {
+		RegexInfo xyInfo = new RegexInfo();
+		
+		xyInfo.match = xInfo.match.and(yInfo.match);
+		
+		if (xInfo.exact.size() != 0 && yInfo.exact.size() != 0) {
+			xyInfo.exact = catesianProduct(xInfo.exact, yInfo.exact, false);
+		} else {
+			if (xInfo.exact.size() != 0) {
+				xyInfo.prefix = catesianProduct(xInfo.exact, yInfo.prefix, false);
+			} else {
+				xyInfo.prefix = xInfo.prefix;
+				if (xInfo.emptyable) {
+					xyInfo.prefix = union(xyInfo.prefix, yInfo.prefix, false);
+				}
+			}
+			
+			if (yInfo.exact.size() != 0) {
+				xyInfo.suffix = catesianProduct(xInfo.suffix, yInfo.exact, true);
+			} else {
+				xyInfo.suffix = yInfo.suffix;
+				if (yInfo.emptyable) {
+					xyInfo.suffix = union(xyInfo.suffix, xInfo.suffix, true);
+				}
+			}
+		}
+		return xyInfo;
 	}
 	
 	private static RegexInfo fold (TranslatorFunc funcObject, PublicRegexp[] subExpressions, RegexInfo zero) {
@@ -204,6 +228,18 @@ public class RegexToGramQueryTranslator {
 			info = funcObject.func(info, analyze(subExpressions[i]));
 		}
 		return info;
+	}
+	
+	private static List<String> catesianProduct(List<String> xList, List<String> yList, boolean isSuffix) {
+		List<String> product = new ArrayList<String>();
+		//TODO
+		return product;
+	}
+	
+	private static List<String> union(List<String> xList, List<String> yList, boolean isSuffix) {
+		List<String> unionList = new ArrayList<String>();
+		//TODO
+		return unionList;
 	}
 	
 }
