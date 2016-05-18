@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
-public class RegexUtils {
+public class TranslatorUtils {
 
 	static final int MAX_EXACT_SIZE = 7;
 	
@@ -17,6 +17,17 @@ public class RegexUtils {
 	// represent a case-insensitive abc by the set
 	// {abc, abC, aBc, aBC, Abc, AbC, ABc, ABC}.
 	static final int MAX_SET_SIZE = 20;
+	
+	
+	@FunctionalInterface
+	static interface IFold {
+		RegexInfo foldFunc(RegexInfo x, RegexInfo y);
+	}
+	
+	@FunctionalInterface
+	static interface IContain {
+		boolean containFunc(String str, String affix);
+	}
 
 	/**
 	 * This function returns the length of the shortest string in {@code strList}.
@@ -33,7 +44,7 @@ public class RegexUtils {
 		return minLen;
 	}
 
-	static int compareSuffix(String str1, String str2) {
+	private static int compareSuffix(String str1, String str2) {
 		String str1Reverse = new StringBuilder(str1).reverse().toString();
 		String str2Reverse = new StringBuilder(str2).reverse().toString();
 		return str1Reverse.compareTo(str2Reverse);
@@ -92,7 +103,7 @@ public class RegexUtils {
 		List<String> unionList = new ArrayList<String>(xList);
 		
 		unionList.addAll(yList);
-		RegexUtils.clean(unionList, isSuffix);
+		TranslatorUtils.clean(unionList, isSuffix);
 		
 		return unionList;
 	}

@@ -158,11 +158,6 @@ public class RegexToGramQueryTranslator {
 		}
 	}
 	
-	@FunctionalInterface
-	private static interface TranslatorFunc{
-		RegexInfo func(RegexInfo x, RegexInfo y);
-	}
-	
 	/**
 	 * This function calculates the {@code RegexInfo} of alternation of two given {@code RegexInfo}
 	 * @param xInfo
@@ -173,18 +168,18 @@ public class RegexToGramQueryTranslator {
 		RegexInfo xyInfo = new RegexInfo();
 		
 		if (!xInfo.exact.isEmpty() && !yInfo.exact.isEmpty()) {
-			xyInfo.exact = RegexUtils.union(xInfo.exact, yInfo.exact, false);
+			xyInfo.exact = TranslatorUtils.union(xInfo.exact, yInfo.exact, false);
 		} else if (!xInfo.exact.isEmpty()) {
-			xyInfo.prefix = RegexUtils.union(xInfo.exact, yInfo.prefix, false);
-			xyInfo.suffix = RegexUtils.union(xInfo.exact, yInfo.suffix, true);
+			xyInfo.prefix = TranslatorUtils.union(xInfo.exact, yInfo.prefix, false);
+			xyInfo.suffix = TranslatorUtils.union(xInfo.exact, yInfo.suffix, true);
 			xInfo.addExactToMatch();
 		} else if (!yInfo.exact.isEmpty()) {
-			xyInfo.prefix = RegexUtils.union(xInfo.prefix, yInfo.exact, false);
-			xyInfo.suffix = RegexUtils.union(xInfo.suffix, yInfo.exact, true);
+			xyInfo.prefix = TranslatorUtils.union(xInfo.prefix, yInfo.exact, false);
+			xyInfo.suffix = TranslatorUtils.union(xInfo.suffix, yInfo.exact, true);
 			yInfo.addExactToMatch();
 		} else {
-			xyInfo.prefix = RegexUtils.union(xInfo.prefix, yInfo.prefix, false);
-			xyInfo.suffix = RegexUtils.union(xInfo.suffix, yInfo.suffix, true);
+			xyInfo.prefix = TranslatorUtils.union(xInfo.prefix, yInfo.prefix, false);
+			xyInfo.suffix = TranslatorUtils.union(xInfo.suffix, yInfo.suffix, true);
 		}
 		
 		xyInfo.emptyable = xInfo.emptyable || yInfo.emptyable;
@@ -207,33 +202,33 @@ public class RegexToGramQueryTranslator {
 		xyInfo.match = xInfo.match.and(yInfo.match);
 		
 		if (!xInfo.exact.isEmpty() && !yInfo.exact.isEmpty()) {
-			xyInfo.exact = RegexUtils.cartesianProduct(xInfo.exact, yInfo.exact, false);
+			xyInfo.exact = TranslatorUtils.cartesianProduct(xInfo.exact, yInfo.exact, false);
 		} else {
 			if (!xInfo.exact.isEmpty()) {
-				xyInfo.prefix = RegexUtils.cartesianProduct(xInfo.exact, yInfo.prefix, false);
+				xyInfo.prefix = TranslatorUtils.cartesianProduct(xInfo.exact, yInfo.prefix, false);
 			} else {
 				xyInfo.prefix = xInfo.prefix;
 				if (xInfo.emptyable) {
-					xyInfo.prefix = RegexUtils.union(xyInfo.prefix, yInfo.prefix, false);
+					xyInfo.prefix = TranslatorUtils.union(xyInfo.prefix, yInfo.prefix, false);
 				}
 			}
 			
 			if (!yInfo.exact.isEmpty()) {
-				xyInfo.suffix = RegexUtils.cartesianProduct(xInfo.suffix, yInfo.exact, true);
+				xyInfo.suffix = TranslatorUtils.cartesianProduct(xInfo.suffix, yInfo.exact, true);
 			} else {
 				xyInfo.suffix = yInfo.suffix;
 				if (yInfo.emptyable) {
-					xyInfo.suffix = RegexUtils.union(xyInfo.suffix, xInfo.suffix, true);
+					xyInfo.suffix = TranslatorUtils.union(xyInfo.suffix, xInfo.suffix, true);
 				}
 			}
 		}
 		
 		//TODO: customize 3
 		if (xInfo.exact.isEmpty() && yInfo.exact.isEmpty() &&
-				xInfo.suffix.size() <= RegexUtils.MAX_SET_SIZE && yInfo.prefix.size() <= RegexUtils.MAX_SET_SIZE &&
-				RegexUtils.minLenOfString(xInfo.suffix) + RegexUtils.minLenOfString(yInfo.prefix) >= 3) {
+				xInfo.suffix.size() <= TranslatorUtils.MAX_SET_SIZE && yInfo.prefix.size() <= TranslatorUtils.MAX_SET_SIZE &&
+				TranslatorUtils.minLenOfString(xInfo.suffix) + TranslatorUtils.minLenOfString(yInfo.prefix) >= 3) {
 			//TODO: is add the right function to use here??????
-			xyInfo.match.add(RegexUtils.cartesianProduct(xInfo.suffix, yInfo.prefix, false));
+			xyInfo.match.add(TranslatorUtils.cartesianProduct(xInfo.suffix, yInfo.prefix, false));
 		}
 		
 		xyInfo.simplify(false);
@@ -241,16 +236,16 @@ public class RegexToGramQueryTranslator {
 		return xyInfo;
 	}
 	
-	private static RegexInfo fold (TranslatorFunc funcObject, PublicRegexp[] subExpressions, RegexInfo zero) {
+	private static RegexInfo fold (TranslatorUtils.IFold iFold, PublicRegexp[] subExpressions, RegexInfo zero) {
 		if (subExpressions.length == 0) {
 			return zero;
 		} else if (subExpressions.length == 1) {
 			return analyze(subExpressions[0]);
 		}
 		
-		RegexInfo info = funcObject.func(analyze(subExpressions[0]), analyze(subExpressions[1]));
+		RegexInfo info = iFold.foldFunc(analyze(subExpressions[0]), analyze(subExpressions[1]));
 		for (int i = 2; i < subExpressions.length; i++) {
-			info = funcObject.func(info, analyze(subExpressions[i]));
+			info = iFold.foldFunc(info, analyze(subExpressions[i]));
 		}
 		return info;
 	}

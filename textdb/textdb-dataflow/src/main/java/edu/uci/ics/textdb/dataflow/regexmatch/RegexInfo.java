@@ -86,11 +86,11 @@ class RegexInfo {
 	 * @param force
 	 */
 	void simplify(boolean force) {
-		RegexUtils.clean(exact, false);
+		TranslatorUtils.clean(exact, false);
 		
-		if ( exact.size() > RegexUtils.MAX_EXACT_SIZE ||
-			( RegexUtils.minLenOfString(exact) >= 3	&& force) ||
-			RegexUtils.minLenOfString(exact) >= 4){
+		if ( exact.size() > TranslatorUtils.MAX_EXACT_SIZE ||
+			( TranslatorUtils.minLenOfString(exact) >= 3	&& force) ||
+			TranslatorUtils.minLenOfString(exact) >= 4){
 			for (String str: exact) {
 				if (str.length() < 3) {
 					prefix.add(str);
@@ -116,10 +116,10 @@ class RegexInfo {
 	 * moves the information they contain into the match query, which is
 	 * more efficient to pass around.
 	 * @param strList
-	 * @param isSuffix
+	 * @param isSuffix indicates given string list is suffix list or not
 	 */
 	void simplifySet(List<String> strList, boolean isSuffix) {
-		RegexUtils.clean(strList, isSuffix);
+		TranslatorUtils.clean(strList, isSuffix);
 		
 		// Add the OR of the current prefix/suffix set to the query.
 		match.add(strList);
@@ -130,7 +130,7 @@ class RegexInfo {
 		// It cuts a prefix (suffix) string by only retaining the first (last) n characters of it
 		// For example, for a prefix string "abcd", after cutting, it becomes "abc" if n = 3, "ab" if n = 2.
 		// For a suffix string "abcd", after cutting, it becomes "bcd" if n = 3, "cd" if n = 2;
-		for (int n = 3; n == 3 || strList.size() > RegexUtils.MAX_SET_SIZE; n--) {
+		for (int n = 3; n == 3 || strList.size() > TranslatorUtils.MAX_SET_SIZE; n--) {
 			// replace set by strings of length n-1
 			int w = 0; //TODO: better name?
 			for (String str: strList) {
@@ -146,14 +146,30 @@ class RegexInfo {
 				}
 			}
 			strList = strList.subList(0, w+1);
-			RegexUtils.clean(strList, isSuffix);
+			TranslatorUtils.clean(strList, isSuffix);
 		}
 		
 		// Now make sure that the prefix/suffix sets aren't redundant.
 		// For example, if we know "ab" is a possible prefix, then it
 		// doesn't help at all to know that  "abc" is also a possible
 		// prefix, so delete "abc".
-		//TODO
+		if (!isSuffix) {
+			removeRedundantAffix((s, prefix) -> s.startsWith(prefix), strList);
+		} else {
+			removeRedundantAffix((s, suffix) -> s.endsWith(suffix), strList);
+		}
+		
+	}
+	
+	private void removeRedundantAffix(TranslatorUtils.IContain iContain, List<String> strList) {
+		int w = 0;
+		for (String str: strList) {
+			if ( w == 0 || !iContain.containFunc(str, strList.get(w-1))) {
+				strList.set(w, str);
+				w ++;
+			}
+		}
+		strList = strList.subList(0, w+1);
 	}
 	
 	/**
