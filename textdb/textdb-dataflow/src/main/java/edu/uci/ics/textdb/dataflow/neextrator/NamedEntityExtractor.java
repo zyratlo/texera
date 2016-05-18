@@ -26,12 +26,12 @@ import java.util.Properties;
  *         <p>
  *         Wrap the Stanford NLP Named Entity Recognizer as an operator.
  *         This operator would recognize 7 classes: Location, Person, Organization, Money, Percent, Date and Time.
- *         Return the recoginized data as a list of spans that appended to the original tuple as a field.
+ *         Return the recoginized data as a list of spans that are appended to the original tuple as a field.
  *         <p>
- *         For example: Given tuple with two field: sentence1, sentence2.
+ *         For example: Given tuple with two fields: sentence1, sentence2.
  *         tuple: ["Google is an organization.", "Its headquarter is in Mountain View."]
  *         <p>
- *         Append a list of span then return:
+ *         Append a list of spans then return:
  *         ["sentence1,0,6,Google, NE_ORGANIZATION", "sentence2,22,25,Mountain View, NE_LOCATION"]
  */
 
@@ -67,6 +67,7 @@ public class NamedEntityExtractor implements IOperator {
     public void open() throws Exception {
         try {
             sourceOperator.open();
+            returnSchema = null;
         } catch (Exception e) {
             e.printStackTrace();
             throw new DataFlowException(e.getMessage(), e);
@@ -140,7 +141,7 @@ public class NamedEntityExtractor implements IOperator {
                         if (previousSpan.getFieldName().equals(span.getFieldName())
                                 && (span.getStart() - previousSpan.getEnd() <= 1)
                                 && previousSpan.getKey().equals(span.getKey())) {
-                            Span newspan = mergeTwoSpan(previousSpan, span);
+                            Span newspan = mergeTwoSpans(previousSpan, span);
                             span = newspan;
                             spanList.remove(spanList.size() - 1);
                         }
@@ -174,7 +175,7 @@ public class NamedEntityExtractor implements IOperator {
      * 2. The two spans are in the same field. They should have the same fieldName.
      * 3. The two spans have the same key (Organization, Person,... etc)
      */
-    private Span mergeTwoSpan(Span previousSpan, Span currentSpan) {
+    private Span mergeTwoSpans(Span previousSpan, Span currentSpan) {
         String previousWord = previousSpan.getValue();
         String currentWord = currentSpan.getValue();
 
@@ -192,7 +193,7 @@ public class NamedEntityExtractor implements IOperator {
     }
 
     /**
-     * This function takes an Stanford NLP Constant (The 7 Classes as: LOCATION,PERSON,ORGANIZATION,MONEY,PERCENT,DATE,
+     * This function takes a Stanford NLP Constant (The 7 Classes as LOCATION,PERSON,ORGANIZATION,MONEY,PERCENT,DATE,
      * TIME and NUMBER) and returns the corresponding NE Constant.
      *
      * @param NLPConstant
