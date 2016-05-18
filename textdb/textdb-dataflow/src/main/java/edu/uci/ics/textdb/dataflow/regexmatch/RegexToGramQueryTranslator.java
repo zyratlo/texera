@@ -1,7 +1,12 @@
 package edu.uci.ics.textdb.dataflow.regexmatch;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.google.re2j.PublicParser;
 import com.google.re2j.PublicRE2;
@@ -229,10 +234,10 @@ public class RegexToGramQueryTranslator {
 		xyInfo.match = xInfo.match.and(yInfo.match);
 		
 		if (!xInfo.exact.isEmpty() && !yInfo.exact.isEmpty()) {
-			xyInfo.exact = catesianProduct(xInfo.exact, yInfo.exact, false);
+			xyInfo.exact = cartesianProduct(xInfo.exact, yInfo.exact, false);
 		} else {
 			if (!xInfo.exact.isEmpty()) {
-				xyInfo.prefix = catesianProduct(xInfo.exact, yInfo.prefix, false);
+				xyInfo.prefix = cartesianProduct(xInfo.exact, yInfo.prefix, false);
 			} else {
 				xyInfo.prefix = xInfo.prefix;
 				if (xInfo.emptyable) {
@@ -241,7 +246,7 @@ public class RegexToGramQueryTranslator {
 			}
 			
 			if (!yInfo.exact.isEmpty()) {
-				xyInfo.suffix = catesianProduct(xInfo.suffix, yInfo.exact, true);
+				xyInfo.suffix = cartesianProduct(xInfo.suffix, yInfo.exact, true);
 			} else {
 				xyInfo.suffix = yInfo.suffix;
 				if (yInfo.emptyable) {
@@ -255,7 +260,7 @@ public class RegexToGramQueryTranslator {
 				xInfo.suffix.size() <= MAX_SET_SIZE && yInfo.prefix.size() <= MAX_SET_SIZE &&
 				minLenOfString(xInfo.suffix) + minLenOfString(yInfo.prefix) >= 3) {
 			//TODO: is add the right function to use here??????
-			xyInfo.match.add(catesianProduct(xInfo.suffix, yInfo.prefix, false));
+			xyInfo.match.add(cartesianProduct(xInfo.suffix, yInfo.prefix, false));
 		}
 		
 		xyInfo.simplify(false);
@@ -278,16 +283,21 @@ public class RegexToGramQueryTranslator {
 	}
 	
 	/**
-	 * This function calculates the catesian product of two string lists (treated as set),
+	 * This function calculates the cartesian product of two string lists (treated as set),
 	 * and simplify the result.
 	 * @param xList
 	 * @param yList
 	 * @param isSuffix
 	 * @return
 	 */
-	private static List<String> catesianProduct(List<String> xList, List<String> yList, boolean isSuffix) {
+	private static List<String> cartesianProduct(List<String> xList, List<String> yList, boolean isSuffix) {
 		List<String> product = new ArrayList<String>();
-		//TODO efficient way to do this?
+		for (String x : xList) {
+			for (String y : yList) {
+				product.add(x+y);
+			}
+		}
+		removeDuplicate(product, isSuffix);
 		return product;
 	}
 	
@@ -303,6 +313,23 @@ public class RegexToGramQueryTranslator {
 		List<String> unionList = new ArrayList<String>();
 		//TODO efficient way to do this?
 		return unionList;
+	}
+	
+	private static int compareSuffix(String str1, String str2) {
+    	String str1Reverse = new StringBuilder(str1).reverse().toString();
+    	String str2Reverse = new StringBuilder(str2).reverse().toString();
+    	return str1Reverse.compareTo(str2Reverse);
+	}
+	
+	private static void removeDuplicate(List<String> strList, boolean isSuffix) {
+		HashSet<String> strSet = new HashSet<String>(strList);
+		strList.clear();
+		strList.addAll(strSet);
+		if (isSuffix) {
+	        Collections.sort(strList, (str1, str2) -> compareSuffix(str1, str2));
+		} else {
+	        Collections.sort(strList, (str1, str2) -> str1.compareTo(str2));
+		}
 	}
 	
 	/**
