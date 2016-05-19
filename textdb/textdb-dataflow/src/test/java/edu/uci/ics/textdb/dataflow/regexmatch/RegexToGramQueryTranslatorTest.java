@@ -88,6 +88,7 @@ public class RegexToGramQueryTranslatorTest {
 	@Test
 	public void testAlternate1() {
 		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate("data*[bcd|pqr]");
+		
 		System.out.println(exactQuery.getLuceneQueryString());
 		System.out.println(exactQuery.printQueryTree());
 	}

@@ -117,7 +117,7 @@ public class RegexToGramQueryTranslator {
 				return RegexInfo.emptyString();
 			}
 			String literal = "";
-			if ((re.getFlags() & PublicRE2.FOLD_CASE) != PublicRE2.FOLD_CASE) {  // case sensitive //TODO
+			if ((re.getFlags() & PublicRE2.FOLD_CASE) != PublicRE2.FOLD_CASE) {  // case sensitive 
 				for (int rune: re.getRunes()) {
 					literal += Character.toString((char) rune);
 				}
@@ -143,7 +143,7 @@ public class RegexToGramQueryTranslator {
 		case PLUS:
 			// The regexInfo of "(expr)+" should be the same as the info of "expr", 
 			// except that "exact" is null, because we don't know the number of repetitions.
-			info = analyze(re.getSubs()[0]);
+			info = analyze(re.getSubs()[0]).simplify(false);
 			info.exact = null;
 			return info;
 		case QUEST:
@@ -227,7 +227,7 @@ public class RegexToGramQueryTranslator {
 		if (xInfo.exact.isEmpty() && yInfo.exact.isEmpty() &&
 				xInfo.suffix.size() <= TranslatorUtils.MAX_SET_SIZE && yInfo.prefix.size() <= TranslatorUtils.MAX_SET_SIZE &&
 				TranslatorUtils.minLenOfString(xInfo.suffix) + TranslatorUtils.minLenOfString(yInfo.prefix) >= 3) {
-			//TODO: is add the right function to use here??????
+
 			xyInfo.match.add(TranslatorUtils.cartesianProduct(xInfo.suffix, yInfo.prefix, false));
 		}
 		
