@@ -116,9 +116,8 @@ public class RegexToGramQueryTranslator {
 			if (re.getRunes().length == 0) {
 				return RegexInfo.emptyString();
 			}
-			
 			String literal = "";
-			if ((re.getFlags() & PublicRE2.FOLD_CASE) != 0) {  // case sensitive
+			if ((re.getFlags() & PublicRE2.FOLD_CASE) != PublicRE2.FOLD_CASE) {  // case sensitive
 				for (int rune: re.getRunes()) {
 					literal += Character.toString((char) rune);
 				}
