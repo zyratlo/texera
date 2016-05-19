@@ -27,10 +27,27 @@ public class RegexToGramQueryTranslatorTest {
 //	}
 	
 	@Test
-	public void testLiteral() {
+	public void testLiteral1() {
 		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate("abcd");
 		System.out.println(exactQuery.getLuceneQueryString());
 		System.out.println(exactQuery.printQueryTree());
-	}
 
+	}
+	
+	@Test
+	public void testLiteral2() {
+		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate("ucirvine");
+		System.out.println(exactQuery.getLuceneQueryString());
+		System.out.println(exactQuery.printQueryTree());
+
+	}
+	
+	@Test
+	public void testLiteral3() {
+		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate("textdb");
+		System.out.println(exactQuery.getLuceneQueryString());
+		System.out.println(exactQuery.printQueryTree());
+
+	}
+	
 }

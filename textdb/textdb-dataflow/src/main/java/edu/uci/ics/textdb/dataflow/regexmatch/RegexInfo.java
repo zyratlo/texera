@@ -90,8 +90,10 @@ class RegexInfo {
 		
 		// transfer information from exact to prefix and suffix
 		if ( exact.size() > TranslatorUtils.MAX_EXACT_SIZE ||
-			( TranslatorUtils.minLenOfString(exact) >= 3	&& force) ||
+			( TranslatorUtils.minLenOfString(exact) >= 3 && force) ||
 			TranslatorUtils.minLenOfString(exact) >= 4){
+			
+			match.add(exact);
 			for (String str: exact) {
 				if (str.length() < 3) {
 					prefix.add(str);
