@@ -31,8 +31,8 @@ public class RegexToGramQueryTranslator {
 	    PublicRegexp re = PublicParser.parse(regex, PublicRE2.PERL);
 	    re = PublicSimplify.simplify(re);
 	    RegexInfo regexInfo = analyze(re);
+	    regexInfo.simplify(true);
 	    return regexInfo.match;
-
 	}
 	
 	
@@ -67,17 +67,15 @@ public class RegexToGramQueryTranslator {
 		case ANY_CHAR: case ANY_CHAR_NOT_NL: {
 			return RegexInfo.anyChar();
 		}
-		// TODO finish for every case
 		case ALTERNATE:
-			//TODO
-			return fold((x, y) -> concat(x,y), re.getSubs(), RegexInfo.matchAny());
+			return fold((x, y) -> alternate(x,y), re.getSubs(), RegexInfo.matchAny()).simplify(false);
 		case CONCAT:
-			return fold((x, y) -> alternate(x, y), re.getSubs(), RegexInfo.matchNone());
+			return fold((x, y) -> concat(x, y), re.getSubs(), RegexInfo.matchNone()).simplify(false);
 		case CAPTURE:
 			return analyze(re.getSubs()[0]);
 		// For example, [a-z]
 		case CHAR_CLASS:
-			boolean isCaseSensitive = (re.getFlags() & PublicRE2.FOLD_CASE) > 0;
+			boolean isCaseSensitive = (re.getFlags() & PublicRE2.FOLD_CASE) != PublicRE2.FOLD_CASE;
 			
 			if (re.getRunes().length == 0) {
 				return RegexInfo.matchNone();
@@ -89,6 +87,7 @@ public class RegexToGramQueryTranslator {
 					exactStr = Character.toString((char) re.getRunes()[0]).toLowerCase();
 				}
 				info.exact.add(exactStr);
+				info.simplify(false);
 				return info;
 			}
 			
@@ -111,6 +110,7 @@ public class RegexToGramQueryTranslator {
 					info.exact.add(Character.toString((char) codePoint));
 				}
 			}
+			info.simplify(false);
 			return info;
 		case LITERAL:
 			if (re.getRunes().length == 0) {
@@ -247,6 +247,7 @@ public class RegexToGramQueryTranslator {
 		for (int i = 2; i < subExpressions.length; i++) {
 			info = iFold.foldFunc(info, analyze(subExpressions[i]));
 		}
+		info.simplify(false);
 		return info;
 	}
 	

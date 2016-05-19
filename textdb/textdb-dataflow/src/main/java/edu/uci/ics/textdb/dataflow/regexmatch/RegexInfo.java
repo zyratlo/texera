@@ -85,7 +85,7 @@ class RegexInfo {
 	 * loop over them, adding trigrams and moving the relevant pieces into prefix and suffix.
 	 * @param force
 	 */
-	void simplify(boolean force) {
+	RegexInfo simplify(boolean force) {
 		TranslatorUtils.clean(exact, false);
 		
 		// transfer information from exact to prefix and suffix
@@ -111,7 +111,7 @@ class RegexInfo {
 			simplifySet(suffix, true);
 		}
 		
-
+		return this;
 	}
 	
 	/**

@@ -30,6 +30,24 @@ public class RegexToGramQueryTranslatorTest {
 	
 	@Test
 	public void testLiteral1() {
+		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate("abc");
+		GramBooleanQuery expectedQuery = new GramBooleanQuery(GramBooleanQuery.QueryOp.AND);
+		expectedQuery.operandSet.addAll(Arrays.asList(new String[]{"abc"}));
+		
+		Assert.assertTrue(exactQuery.equals(expectedQuery));
+	}
+	
+	@Test
+	public void testLiteral2() {
+		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate("ab");
+		GramBooleanQuery expectedQuery = new GramBooleanQuery(GramBooleanQuery.QueryOp.AND);
+		expectedQuery.operandSet.addAll(Arrays.asList(new String[]{}));
+		
+		Assert.assertTrue(exactQuery.equals(expectedQuery));
+	}
+	
+	@Test
+	public void testLiteral3() {
 		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate("abcd");
 		GramBooleanQuery expectedQuery = new GramBooleanQuery(GramBooleanQuery.QueryOp.AND);
 		expectedQuery.operandSet.addAll(Arrays.asList(new String[]{"abc", "bcd"}));
@@ -38,7 +56,7 @@ public class RegexToGramQueryTranslatorTest {
 	}
 	
 	@Test
-	public void testLiteral2() {
+	public void testLiteral4() {
 		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate("ucirvine");
 		GramBooleanQuery expectedQuery = new GramBooleanQuery(GramBooleanQuery.QueryOp.AND);
 		expectedQuery.operandSet.addAll(Arrays.asList(new String[]{"uci", "cir", "irv", "rvi", "vin", "ine"}));
@@ -47,12 +65,19 @@ public class RegexToGramQueryTranslatorTest {
 	}
 	
 	@Test
-	public void testLiteral3() {
+	public void testLiteral5() {
 		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate("textdb");
 		GramBooleanQuery expectedQuery = new GramBooleanQuery(GramBooleanQuery.QueryOp.AND);
 		expectedQuery.operandSet.addAll(Arrays.asList(new String[]{"tex", "ext", "xtd", "tdb"}));
 		
 		Assert.assertTrue(exactQuery.equals(expectedQuery));
+	}
+	
+	@Test
+	public void testCharClass1() {
+		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate("abc");
+		System.out.println(exactQuery.getLuceneQueryString());
+		System.out.println(exactQuery.printQueryTree());
 	}
 	
 }
