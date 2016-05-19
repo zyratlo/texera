@@ -38,6 +38,74 @@ public class GramBooleanQuery {
 		this.gramLength = gramLength;
 	}
 	
+	
+	/**
+	 * This method takes a list of strings and adds them to the query tree. <br>
+	 * For example, if the list is {abcd, wxyz}, then: <br>
+	 * trigrams({abcd, wxyz}) = trigrams(abcd) OR trigrams(wxyz) <br>
+	 * OR operator is assumed for a list of strings. <br>
+	 * @param list, a list of strings to be added into query.
+	 */
+	void add(List<String> list) {
+		addOrNode(list);
+	}
+	
+	private void addOrNode(List<String> literalList) {
+		if (literalList.size() == 0) {
+			return;
+		} else if (literalList.size() == 1) {
+			this.addAndNode(literalList.get(0));
+		} else {
+			GramBooleanQuery query = new GramBooleanQuery(QueryOp.OR);
+			for (String literal : literalList) {
+				query.addAndNode(literal);
+			}
+			this.subQuerySet.add(query);
+		}
+	}
+	
+	/**
+	 * This method takes a single string and adds it to the query tree. <br>
+	 * The string is converted to multiple n-grams with an AND operator. <br>
+	 * For example: if the string is abcd, then: <br>
+	 * trigrams(abcd) = abc AND bcd <br>
+	 * AND operator is assumed for a single string. <br>
+	 * @param literal
+	 */
+	private void addAndNode(String literal) {
+		if (literal.length() < gramLength) {
+			return;
+		} else if (literal.length() == gramLength) {
+			this.operandSet.add(literal);
+		} else {
+			if (this.operator == QueryOp.AND) {
+				this.operandSet.addAll(literalToNGram(literal));
+			} else {
+				GramBooleanQuery query = new GramBooleanQuery(GramBooleanQuery.QueryOp.AND);
+				query.operandSet.addAll(literalToNGram(literal));
+				this.subQuerySet.add(query);
+			}
+		}
+	}
+	
+	/**
+	 * This function builds a list of N-Grams that a given literal contains. <br>
+	 * If the length of the literal is smaller than N, it returns an empty list. <br>
+	 * For example, for literal "textdb", its tri-gram list should be ["tex", "ext", "xtd", "tdb"]
+	 * @param literal
+	 * @return
+	 */
+	private List<String> literalToNGram(String literal) {
+		ArrayList<String> nGrams = new ArrayList<>();
+		if (literal.length() >= gramLength) {
+			for (int i = 0; i <= literal.length()-gramLength; ++i) {
+				nGrams.add(literal.substring(i, i+gramLength));
+			}
+		}
+		return nGrams;
+	}
+	
+	
 	GramBooleanQuery and (GramBooleanQuery that) {
 		if (this.operator == QueryOp.ANY || that.operator == QueryOp.ANY) {
 			return new GramBooleanQuery(QueryOp.ANY, this.gramLength);
@@ -148,69 +216,6 @@ public class GramBooleanQuery {
 //		return true;
 //	}
 	
-	/**
-	 * This method takes a list of strings and adds them to the query tree. <br>
-	 * For example, if the list is {abcd, wxyz}, then: <br>
-	 * trigrams({abcd, wxyz}) = trigrams(abcd) OR trigrams(wxyz) <br>
-	 * OR operator is assumed for a list of strings. <br>
-	 * @param list, a list of strings to be added into query.
-	 */
-	void add(List<String> list) {
-		addOrNode(list);
-	}
-	
-	private void addOrNode(List<String> literalList) {
-		if (literalList.size() == 0) {
-			return;
-		} else if (literalList.size() == 1) {
-			this.addAndNode(literalList.get(0));
-		} else {
-			GramBooleanQuery query = new GramBooleanQuery(GramBooleanQuery.QueryOp.OR);
-			for (String literal : literalList) {
-				query.addAndNode(literal);
-			}
-			this.subQuerySet.add(query);
-		}
-	}
-	
-	/**
-	 * This method takes a single string and adds it to the query tree. <br>
-	 * The string is converted to multiple n-grams with an AND operator. <br>
-	 * For example: if the string is abcd, then: <br>
-	 * trigrams(abcd) = abc AND bcd <br>
-	 * AND operator is assumed for a single string. <br>
-	 * @param literal
-	 */
-	private void addAndNode(String literal) {
-		if (literal.length() < gramLength) {
-			return;
-		} else if (literal.length() == gramLength) {
-			this.operandSet.add(literal);
-		} else {
-			GramBooleanQuery query = new GramBooleanQuery(GramBooleanQuery.QueryOp.AND);
-			for (String gram : literalToNGram(literal)) {
-				query.operandSet.add(gram);
-			}
-			this.subQuerySet.add(query);
-		}
-	}
-	
-	/**
-	 * This function builds a list of N-Grams that a given literal contains. <br>
-	 * If the length of the literal is smaller than N, it returns an empty list. <br>
-	 * For example, for literal "textdb", its tri-gram list should be ["tex", "ext", "xtd", "tdb"]
-	 * @param literal
-	 * @return
-	 */
-	private List<String> literalToNGram(String literal) {
-		ArrayList<String> nGrams = new ArrayList<>();
-		if (literal.length() >= gramLength) {
-			for (int i = 0; i <= literal.length()-gramLength; ++i) {
-				nGrams.add(literal.substring(i, i+gramLength));
-			}
-		}
-		return nGrams;
-	}
 	
 	String printQueryTree() {
 		return queryTreeToString(this, 0, "  ");
