@@ -136,11 +136,17 @@ public class GramBooleanQuery {
 	}
 	
 	private void addOrNode(List<String> literalList) {
-		GramBooleanQuery query = new GramBooleanQuery(GramBooleanQuery.QueryOp.OR);
-		for (String literal : literalList) {
-			query.addAndNode(literal);
+		if (literalList.size() == 0) {
+			return;
+		} else if (literalList.size() == 1) {
+			this.addAndNode(literalList.get(0));
+		} else {
+			GramBooleanQuery query = new GramBooleanQuery(GramBooleanQuery.QueryOp.OR);
+			for (String literal : literalList) {
+				query.addAndNode(literal);
+			}
+			this.subQueryList.add(query);
 		}
-		this.subQueryList.add(query);
 	}
 	
 	/**
@@ -152,11 +158,17 @@ public class GramBooleanQuery {
 	 * @param literal
 	 */
 	private void addAndNode(String literal) {
-		GramBooleanQuery query = new GramBooleanQuery(GramBooleanQuery.QueryOp.AND);
-		for (String nGram: literalToNGram(literal)) {
-			query.operandList.add(nGram);
+		if (literal.length() < gramLength) {
+			return;
+		} else if (literal.length() == gramLength) {
+			this.operandList.add(literal);
+		} else {
+			GramBooleanQuery query = new GramBooleanQuery(GramBooleanQuery.QueryOp.AND);
+			for (String gram : literalToNGram(literal)) {
+				query.operandList.add(gram);
+			}
+			this.subQueryList.add(query);
 		}
-		this.subQueryList.add(query);
 	}
 	
 	/**
@@ -174,6 +186,33 @@ public class GramBooleanQuery {
 			}
 		}
 		return nGrams;
+	}
+	
+	String printQueryTree() {
+		return queryTreeToString(this, 0, "  ");
+	}
+	
+	private String queryTreeToString(GramBooleanQuery query, int indentation, String indentStr) {
+		String s = "";
+		for (int i = 0; i < indentation; i++) {
+			s += indentStr;
+		}
+		s += query.operator.toString();
+		s += "\n";
+		
+		indentation++;
+		for (String operand : query.operandList) {
+			for (int i = 0; i < indentation; i++) {
+				s += indentStr;
+			}
+			s += operand;
+			s += "\n";
+		}
+		for (GramBooleanQuery subQuery : query.subQueryList) {
+			s += queryTreeToString(subQuery, indentation, indentStr);
+		}
+		indentation--;
+		return s;
 	}
 
 	/**

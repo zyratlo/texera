@@ -127,8 +127,9 @@ public class RegexToGramQueryTranslator {
 					literal += Character.toString((char) rune).toLowerCase();
 				}
 			}
-			info = new RegexInfo();
+			info = new RegexInfo();   
 			info.exact.add(literal);
+			info.simplify(false);
 			return info;
 		// A regex that indicates an expression is matched 
 		// at least min times, at most max times.

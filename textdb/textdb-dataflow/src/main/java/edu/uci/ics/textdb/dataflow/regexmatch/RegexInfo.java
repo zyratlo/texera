@@ -28,7 +28,7 @@ class RegexInfo {
 		exact = new ArrayList<String>();
 		prefix = new ArrayList<String>();
 		suffix = new ArrayList<String>();
-		match = new GramBooleanQuery(GramBooleanQuery.QueryOp.ANY);
+		match = new GramBooleanQuery(GramBooleanQuery.QueryOp.AND);
 	}
 	
 	/**
@@ -88,6 +88,7 @@ class RegexInfo {
 	void simplify(boolean force) {
 		TranslatorUtils.clean(exact, false);
 		
+		// transfer information from exact to prefix and suffix
 		if ( exact.size() > TranslatorUtils.MAX_EXACT_SIZE ||
 			( TranslatorUtils.minLenOfString(exact) >= 3	&& force) ||
 			TranslatorUtils.minLenOfString(exact) >= 4){
@@ -97,7 +98,7 @@ class RegexInfo {
 					suffix.add(str);
 				} else {
 					prefix.add(str.substring(0, 3));
-					suffix.add(str.substring(str.length()-4, str.length()-1));
+					suffix.add(str.substring(str.length()-3, str.length()));
 				}
 			}
 			exact.clear();
@@ -107,6 +108,8 @@ class RegexInfo {
 			simplifySet(prefix, false);
 			simplifySet(suffix, true);
 		}
+		
+
 	}
 	
 	/**
@@ -162,6 +165,9 @@ class RegexInfo {
 	}
 	
 	private void removeRedundantAffix(TranslatorUtils.IContain iContain, List<String> strList) {
+		if (strList.size() <= 1) {
+			return ;
+		}
 		int w = 0;
 		for (String str: strList) {
 			if ( w == 0 || !iContain.containFunc(str, strList.get(w-1))) {
