@@ -72,7 +72,7 @@ public class RegexToGramQueryTranslator {
 		case CONCAT:
 			return fold((x, y) -> concat(x, y), re.getSubs(), RegexInfo.matchNone()).simplify(false);
 		case CAPTURE:
-			return analyze(re.getSubs()[0]);
+			return analyze(re.getSubs()[0]).simplify(false);
 		// For example, [a-z]
 		case CHAR_CLASS:
 			boolean isCaseSensitive = (re.getFlags() & PublicRE2.FOLD_CASE) != PublicRE2.FOLD_CASE;

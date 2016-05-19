@@ -107,12 +107,19 @@ public class GramBooleanQuery {
 	
 	
 	GramBooleanQuery and (GramBooleanQuery that) {
-		if (this.operator == QueryOp.ANY || that.operator == QueryOp.ANY) {
-			return new GramBooleanQuery(QueryOp.ANY, this.gramLength);
+		if (that.operator == QueryOp.ANY) {
+			return this;
 		}
-		if (this.operator == QueryOp.NONE || that.operator == QueryOp.NONE) {
-			return new GramBooleanQuery(QueryOp.NONE, this.gramLength);
+		if (that.operator == QueryOp.NONE) {
+			return that;
 		}
+		if (this.operator == QueryOp.ANY) {
+			return that;
+		}
+		if (this.operator == QueryOp.NONE) {
+			return this;
+		}
+
 		if (this.operator == QueryOp.AND && that.operator == QueryOp.AND) {
 			this.operandSet.addAll(that.operandSet);
 			this.subQuerySet.addAll(that.subQuerySet);
@@ -126,12 +133,19 @@ public class GramBooleanQuery {
 	}
 	
 	GramBooleanQuery or (GramBooleanQuery that) {
-		if (this.operator == QueryOp.ANY || that.operator == QueryOp.ANY) {
-			return new GramBooleanQuery(QueryOp.ANY, this.gramLength);
+		if (that.operator == QueryOp.ANY) {
+			return that;
 		}
-		if (this.operator == QueryOp.NONE || that.operator == QueryOp.NONE) {
-			return new GramBooleanQuery(QueryOp.NONE, this.gramLength);
+		if (that.operator == QueryOp.NONE) {
+			return this;
 		}
+		if (this.operator == QueryOp.ANY) {
+			return this;
+		}
+		if (this.operator == QueryOp.NONE) {
+			return that;
+		}
+		
 		if (this.operator == QueryOp.OR && that.operator == QueryOp.OR) {
 			this.operandSet.addAll(that.operandSet);
 			this.subQuerySet.addAll(that.subQuerySet);
@@ -223,6 +237,7 @@ public class GramBooleanQuery {
 	
 	private String queryTreeToString(GramBooleanQuery query, int indentation, String indentStr) {
 		String s = "";
+		
 		for (int i = 0; i < indentation; i++) {
 			s += indentStr;
 		}

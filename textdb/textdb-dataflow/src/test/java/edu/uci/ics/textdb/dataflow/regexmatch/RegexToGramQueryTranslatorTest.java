@@ -73,16 +73,21 @@ public class RegexToGramQueryTranslatorTest {
 //		Assert.assertTrue(exactQuery.equals(expectedQuery));
 //	}
 //	
-//	@Test
-//	public void testCharClass1() {
-//		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate("abc");
-//		System.out.println(exactQuery.getLuceneQueryString());
-//		System.out.println(exactQuery.printQueryTree());
-//	}
+	@Test
+	public void testCharClass1() {
+		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate("[a-b][c-d][e-f]");
+		GramBooleanQuery expectedQuery = new GramBooleanQuery(GramBooleanQuery.QueryOp.AND);
+		GramBooleanQuery expectedQueryOrLevel = new GramBooleanQuery(GramBooleanQuery.QueryOp.OR);
+		expectedQueryOrLevel.operandSet.addAll(Arrays.asList(
+				new String[]{"ace", "acf", "bce", "bcf", "ade", "adf", "bde", "bdf"}));
+		expectedQuery.subQuerySet.add(expectedQueryOrLevel);
+		
+		Assert.assertTrue(exactQuery.equals(expectedQuery));
+	}
 	
 	@Test
-	public void test2() {
-		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate("[a-c]uci");
+	public void testAlternate1() {
+		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate("data*[bcd|pqr]");
 		System.out.println(exactQuery.getLuceneQueryString());
 		System.out.println(exactQuery.printQueryTree());
 	}

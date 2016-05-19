@@ -143,7 +143,7 @@ class RegexInfo {
 					if (!isSuffix) { //prefix
 						str = str.substring(0, n);
 					} else { //suffix
-						str = str.substring(str.length()-n-1, str.length());
+						str = str.substring(str.length()-n, str.length());
 					}
 				}
 				if (w == 0 || strList.get(w-1) != str) {
