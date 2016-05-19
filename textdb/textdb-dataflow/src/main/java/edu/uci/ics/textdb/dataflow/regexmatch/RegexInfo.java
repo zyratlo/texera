@@ -148,9 +148,10 @@ class RegexInfo {
 				}
 				if (w == 0 || strList.get(w-1) != str) {
 					strList.set(w, str);
+					w ++;
 				}
 			}
-			strList = strList.subList(0, w+1);
+			strList = strList.subList(0, w);
 			TranslatorUtils.clean(strList, isSuffix);
 		}
 		
@@ -177,7 +178,7 @@ class RegexInfo {
 				w ++;
 			}
 		}
-		strList = strList.subList(0, w+1);
+		strList = strList.subList(0, w);
 	}
 	
 	/**
