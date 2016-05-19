@@ -18,8 +18,8 @@ public class GramBooleanQuery {
 		OR
 	}
 	QueryOp operator;
-	List<String> operandList;
-	List<GramBooleanQuery> subQueryList;
+	Set<String> operandSet;
+	Set<GramBooleanQuery> subQuerySet;
 	
 	int gramLength;
 	
@@ -33,8 +33,8 @@ public class GramBooleanQuery {
 	
 	GramBooleanQuery(QueryOp operator, int gramLength) {
 		this.operator = operator;
-		operandList = new ArrayList<String>();
-		subQueryList = new ArrayList<GramBooleanQuery>();
+		operandSet = new HashSet<String>();
+		subQuerySet = new HashSet<GramBooleanQuery>();
 		this.gramLength = gramLength;
 	}
 	
@@ -46,13 +46,13 @@ public class GramBooleanQuery {
 			return new GramBooleanQuery(QueryOp.NONE, this.gramLength);
 		}
 		if (this.operator == QueryOp.AND && that.operator == QueryOp.AND) {
-			this.operandList.addAll(that.operandList);
-			this.subQueryList.addAll(that.subQueryList);
+			this.operandSet.addAll(that.operandSet);
+			this.subQuerySet.addAll(that.subQuerySet);
 			return this;
 		} else {
 			GramBooleanQuery query = new GramBooleanQuery(QueryOp.AND, this.gramLength);
-			query.subQueryList.add(this);
-			query.subQueryList.add(that);
+			query.subQuerySet.add(this);
+			query.subQuerySet.add(that);
 			return query;
 		}
 	}
@@ -65,13 +65,13 @@ public class GramBooleanQuery {
 			return new GramBooleanQuery(QueryOp.NONE, this.gramLength);
 		}
 		if (this.operator == QueryOp.OR && that.operator == QueryOp.OR) {
-			this.operandList.addAll(that.operandList);
-			this.subQueryList.addAll(that.subQueryList);
+			this.operandSet.addAll(that.operandSet);
+			this.subQuerySet.addAll(that.subQuerySet);
 			return this;
 		} else {
 			GramBooleanQuery query = new GramBooleanQuery(QueryOp.OR, this.gramLength);
-			query.subQueryList.add(this);
-			query.subQueryList.add(that);
+			query.subQuerySet.add(this);
+			query.subQuerySet.add(that);
 			return query;
 		}
 	}
@@ -85,7 +85,7 @@ public class GramBooleanQuery {
 	@Override
 	public int hashCode() {
 		int hashCode = operator.toString().hashCode();
-		for (String s : operandList) {
+		for (String s : operandSet) {
 			hashCode = hashCode ^ s.hashCode();
 		}
 		return hashCode;
@@ -104,25 +104,49 @@ public class GramBooleanQuery {
 			return false;
 		}
 		
-		GramBooleanQuery query = (GramBooleanQuery) compareTo;
-		if (this.operator != query.operator
-			|| this.operandList.size() != query.operandList.size()
-			|| this.subQueryList.size() != query.subQueryList.size()) {
+		GramBooleanQuery that = (GramBooleanQuery) compareTo;
+		if (this.operator != that.operator
+			|| this.operandSet.size() != that.operandSet.size()
+			|| this.subQuerySet.size() != that.subQuerySet.size()) {
 			return false;
 		}
 		
-		Set<String> operandSet = new HashSet<String>(this.operandList);
-		if (!operandSet.equals(new HashSet<String>(query.operandList))) {
+		if (!this.operandSet.equals(that.operandSet)) {
 			return false;
 		}
 		
-		Set<GramBooleanQuery> subQuerySet = new HashSet<GramBooleanQuery>(this.subQueryList);
-		if (!subQuerySet.equals(new HashSet<GramBooleanQuery>(query.subQueryList))) {
+		if (!this.subQuerySet.equals(that.subQuerySet)) {
 			return false;
 		}
 		
 		return true;
 	}
+	
+//	@Override
+//	public boolean equals(Object compareTo) {
+//		if (! (compareTo instanceof GramBooleanQuery)) {
+//			return false;
+//		}
+//		
+//		GramBooleanQuery query = (GramBooleanQuery) compareTo;
+//		if (this.operator != query.operator
+//			|| this.operandList.size() != query.operandList.size()
+//			|| this.subQueryList.size() != query.subQueryList.size()) {
+//			return false;
+//		}
+//		
+//		Set<String> operandSet = new HashSet<String>(this.operandList);
+//		if (!operandSet.equals(new HashSet<String>(query.operandList))) {
+//			return false;
+//		}
+//		
+//		Set<GramBooleanQuery> subQuerySet = new HashSet<GramBooleanQuery>(this.subQueryList);
+//		if (!subQuerySet.equals(new HashSet<GramBooleanQuery>(query.subQueryList))) {
+//			return false;
+//		}
+//		
+//		return true;
+//	}
 	
 	/**
 	 * This method takes a list of strings and adds them to the query tree. <br>
@@ -145,7 +169,7 @@ public class GramBooleanQuery {
 			for (String literal : literalList) {
 				query.addAndNode(literal);
 			}
-			this.subQueryList.add(query);
+			this.subQuerySet.add(query);
 		}
 	}
 	
@@ -161,13 +185,13 @@ public class GramBooleanQuery {
 		if (literal.length() < gramLength) {
 			return;
 		} else if (literal.length() == gramLength) {
-			this.operandList.add(literal);
+			this.operandSet.add(literal);
 		} else {
 			GramBooleanQuery query = new GramBooleanQuery(GramBooleanQuery.QueryOp.AND);
 			for (String gram : literalToNGram(literal)) {
-				query.operandList.add(gram);
+				query.operandSet.add(gram);
 			}
-			this.subQueryList.add(query);
+			this.subQuerySet.add(query);
 		}
 	}
 	
@@ -201,14 +225,14 @@ public class GramBooleanQuery {
 		s += "\n";
 		
 		indentation++;
-		for (String operand : query.operandList) {
+		for (String operand : query.operandSet) {
 			for (int i = 0; i < indentation; i++) {
 				s += indentStr;
 			}
 			s += operand;
 			s += "\n";
 		}
-		for (GramBooleanQuery subQuery : query.subQueryList) {
+		for (GramBooleanQuery subQuery : query.subQuerySet) {
 			s += queryTreeToString(subQuery, indentation, indentStr);
 		}
 		indentation--;
@@ -237,10 +261,10 @@ public class GramBooleanQuery {
 		} else {
 			StringJoiner joiner =  new StringJoiner(
 					(operator == QueryOp.AND) ? " AND " : " OR ");
-			for (String operand : operandList) {
+			for (String operand : operandSet) {
 				joiner.add(operand);
 			}
-			for (GramBooleanQuery subQuery : subQueryList) {
+			for (GramBooleanQuery subQuery : subQuerySet) {
 				String subQueryStr = subQuery.getLuceneQueryString();
 				if (! subQueryStr.equals("")) 
 					joiner.add(subQueryStr);
