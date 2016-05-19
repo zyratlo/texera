@@ -82,7 +82,7 @@ public class RegexToGramQueryTranslatorTest {
 	
 	@Test
 	public void test2() {
-		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate("[a-c]uci");
+		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate("[a-b]uci[c-d]");
 		System.out.println(exactQuery.getLuceneQueryString());
 		System.out.println(exactQuery.printQueryTree());
 	}
