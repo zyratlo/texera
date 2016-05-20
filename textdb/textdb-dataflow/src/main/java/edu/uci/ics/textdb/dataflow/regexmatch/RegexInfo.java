@@ -94,10 +94,9 @@ class RegexInfo {
 		TranslatorUtils.removeDuplicateAffix(exact, false);
 		
 		// transfer information from exact to prefix and suffix
-		// TODO customize "3", "4" ?
 		if ( exact.size() > TranslatorUtils.MAX_EXACT_SIZE ||
-			( TranslatorUtils.minLenOfString(exact) >= 3 && force) ||
-			TranslatorUtils.minLenOfString(exact) >= 4){
+			( TranslatorUtils.minLenOfString(exact) >= GramBooleanQuery.gramLength && force) ||
+			TranslatorUtils.minLenOfString(exact) >= GramBooleanQuery.gramLength + 1){
 			
 			match.add(exact);
 			for (String str: exact) {
@@ -143,9 +142,11 @@ class RegexInfo {
 		// It cuts a prefix (suffix) string by only retaining the first (last) n characters of it
 		// For example, for a prefix string "abcd", after cutting, it becomes "abc" if n = 3, "ab" if n = 2.
 		// For a suffix string "abcd", after cutting, it becomes "bcd" if n = 3, "cd" if n = 2;
-		for (int n = 3; n == 3 || strList.size() > TranslatorUtils.MAX_SET_SIZE; n--) {
+		for (int n = GramBooleanQuery.gramLength; 
+				n == GramBooleanQuery.gramLength || strList.size() > TranslatorUtils.MAX_SET_SIZE;
+				n--) {
 			// replace set by strings of length n-1
-			int w = 0; //TODO: better name?
+			int w = 0;
 			for (String str: strList) {
 				if (str.length() > n) {
 					if (!isSuffix) { //prefix

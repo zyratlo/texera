@@ -231,11 +231,10 @@ public class RegexToGramQueryTranslator {
 			}
 		}
 		
-		//TODO: customize 3
 		if (xInfo.exact.isEmpty() && yInfo.exact.isEmpty() &&
 				xInfo.suffix.size() <= TranslatorUtils.MAX_SET_SIZE && 
 				yInfo.prefix.size() <= TranslatorUtils.MAX_SET_SIZE &&
-				TranslatorUtils.minLenOfString(xInfo.suffix) + TranslatorUtils.minLenOfString(yInfo.prefix) >= 3) {
+				TranslatorUtils.minLenOfString(xInfo.suffix) + TranslatorUtils.minLenOfString(yInfo.prefix) >= GramBooleanQuery.gramLength) {
 
 			xyInfo.match.add(TranslatorUtils.cartesianProduct(xInfo.suffix, yInfo.prefix, false));
 		}
