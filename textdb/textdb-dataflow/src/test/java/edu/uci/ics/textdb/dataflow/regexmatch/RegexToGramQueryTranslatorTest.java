@@ -87,7 +87,7 @@ public class RegexToGramQueryTranslatorTest {
 	
 	@Test
 	public void testAlternate1() {
-		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate("c+");
+		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate("bcd?");
 		
 		System.out.println(exactQuery.getLuceneQueryString());
 		System.out.println(exactQuery.printQueryTree());
