@@ -117,22 +117,51 @@ public class RegexToGramQueryTranslatorTest {
 //		System.out.println(exactQuery.getLuceneQueryString());
 //		System.out.println(exactQuery.printQueryTree());
 //	}
+//	
+//	@Test
+//	public void testQuest1() {
+//		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate("abc?");
+//
+//		System.out.println(exactQuery.getLuceneQueryString());
+//		System.out.println(exactQuery.printQueryTree());
+//	}
+//	
+//	@Test
+//	public void testQuest2() {
+//		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate("abc?pqr?");
+//
+//		System.out.println(exactQuery.getLuceneQueryString());
+//		System.out.println(exactQuery.printQueryTree());
+//	}
+	
+//	@Test
+//	// RE2J will simplify REPEAT to equivalent form with QUEST.
+//	// abc{1,3} will be simplified to abcc?c?
+//	public void testRepeat1() {
+//		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate("abc{1,3}");
+//		
+//		System.out.println(exactQuery.getLuceneQueryString());
+//		System.out.println(exactQuery.printQueryTree());
+//	}
+//	
+//	@Test
+//	public void testCapture1() {
+//		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate("(abc)(qwer)");
+//		
+//		System.out.println(exactQuery.getLuceneQueryString());
+//		System.out.println(exactQuery.printQueryTree());
+//	}
 	
 	@Test
-	public void testQuest1() {
-		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate("abc?");
-
+	public void testRegexCropUrl() {
+		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate("^(https?:\\/\\/)?([\\da-z\\.-]+)\\.([a-z\\.]{2,6})([\\/\\w \\.-]*)*\\/?$");
+		
 		System.out.println(exactQuery.getLuceneQueryString());
 		System.out.println(exactQuery.printQueryTree());
+		
 	}
 	
-	@Test
-	public void testQuest1() {
-		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate("abc?");
 
-		System.out.println(exactQuery.getLuceneQueryString());
-		System.out.println(exactQuery.printQueryTree());
-	}
 	
 	
 }
