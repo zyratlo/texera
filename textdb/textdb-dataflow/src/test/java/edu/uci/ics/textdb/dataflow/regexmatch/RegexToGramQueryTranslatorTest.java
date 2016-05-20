@@ -126,5 +126,13 @@ public class RegexToGramQueryTranslatorTest {
 		System.out.println(exactQuery.printQueryTree());
 	}
 	
+	@Test
+	public void testQuest1() {
+		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate("abc?");
+
+		System.out.println(exactQuery.getLuceneQueryString());
+		System.out.println(exactQuery.printQueryTree());
+	}
+	
 	
 }
