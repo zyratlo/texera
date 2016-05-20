@@ -143,9 +143,14 @@ public class RegexToGramQueryTranslator {
 		case PLUS:
 			// The regexInfo of "(expr)+" should be the same as the info of "expr", 
 			// except that "exact" is null, because we don't know the number of repetitions.
-			info = analyze(re.getSubs()[0]).simplify(false);
-			info.exact = null;
-			return info;
+			info = analyze(re.getSubs()[0]);
+			
+			if (!info.exact.isEmpty()) {
+				info.prefix.addAll(info.exact);
+				info.suffix.addAll(info.exact);
+				info.exact.clear();
+			}
+			return info.simplify(false);
 		case QUEST:
 			// The regexInfo of "(expr)?" shoud be either the same as the info of "expr",
 			// or the same as the info of an empty string.
