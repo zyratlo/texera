@@ -51,12 +51,12 @@ public class TranslatorUtils {
 	}
 
 	/**
-	 * !!! Should have name "removeDuplicate" !!!
+	 * This function removes duplicates in prefix/suffix list.
 	 * Name it clean for easier debugging
 	 * @param strList
 	 * @param isSuffix
 	 */
-	static void clean(List<String> strList, boolean isSuffix) {
+	static void removeDuplicateAffix(List<String> strList, boolean isSuffix) {
 		HashSet<String> strSet = new HashSet<String>(strList);
 		strList.clear();
 		strList.addAll(strSet);
@@ -65,6 +65,28 @@ public class TranslatorUtils {
 		} else {
 	        Collections.sort(strList, (str1, str2) -> str1.compareTo(str2));
 		}
+	}
+	
+	/**
+	 * This function ensures that prefix/suffix sets aren't redundant.
+	 * For example, if we know "ab" is a possible prefix, then it
+	 * doesn't help at all to know that  "abc" is also a possible
+	 * prefix, so delete "abc".
+	 * @param iContain
+	 * @param strList
+	 */
+	static void removeRedundantAffix(TranslatorUtils.IContain iContain, List<String> strList) {
+		if (strList.size() <= 1) {
+			return ;
+		}
+		int w = 0;
+		for (String str: strList) {
+			if ( w == 0 || !iContain.containFunc(str, strList.get(w-1))) {
+				strList.set(w, str);
+				w ++;
+			}
+		}
+		strList = strList.subList(0, w);
 	}
 
 	/**
@@ -85,7 +107,7 @@ public class TranslatorUtils {
 				product.add(x+y);
 			}
 		}
-		clean(product, isSuffix);
+		removeDuplicateAffix(product, isSuffix);
 		return product;
 	}
 	
@@ -103,7 +125,7 @@ public class TranslatorUtils {
 		List<String> unionList = new ArrayList<String>(xList);
 		
 		unionList.addAll(yList);
-		TranslatorUtils.clean(unionList, isSuffix);
+		TranslatorUtils.removeDuplicateAffix(unionList, isSuffix);
 		
 		return unionList;
 	}
