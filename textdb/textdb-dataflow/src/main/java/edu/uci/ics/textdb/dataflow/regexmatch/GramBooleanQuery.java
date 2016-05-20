@@ -56,6 +56,13 @@ public class GramBooleanQuery {
 		} else if (literalList.size() == 1) {
 			this.addAndNode(literalList.get(0));
 		} else {
+			int minLength = 
+				literalList.stream()
+				.reduce(literalList.get(0), (a,b) -> (a.length() < b.length() ? a: b))
+				.length();
+			if (minLength < 3) {
+				return ;
+			}
 			GramBooleanQuery query = new GramBooleanQuery(QueryOp.OR);
 			for (String literal : literalList) {
 				query.addAndNode(literal);
@@ -274,18 +281,27 @@ public class GramBooleanQuery {
 	 * @return boolean expression
 	 */
 	public String getLuceneQueryString() {
-		if (operator == QueryOp.ANY) {
+		String luceneQueryString = toLuceneQueryString(this);
+		if (luceneQueryString.isEmpty()) {
 			return DataConstants.SCAN_QUERY;
-		} else if (operator == QueryOp.NONE) {
+		} else {
+			return luceneQueryString;
+		}
+	}
+	
+	private static String toLuceneQueryString(GramBooleanQuery query) {
+		if (query.operator == QueryOp.ANY) {
+			return "";
+		} else if (query.operator == QueryOp.NONE) {
 			return "";
 		} else {
 			StringJoiner joiner =  new StringJoiner(
-					(operator == QueryOp.AND) ? " AND " : " OR ");
-			for (String operand : operandSet) {
+					(query.operator == QueryOp.AND) ? " AND " : " OR ");
+			for (String operand : query.operandSet) {
 				joiner.add(operand);
 			}
-			for (GramBooleanQuery subQuery : subQuerySet) {
-				String subQueryStr = subQuery.getLuceneQueryString();
+			for (GramBooleanQuery subQuery : query.subQuerySet) {
+				String subQueryStr = toLuceneQueryString(subQuery);
 				if (! subQueryStr.equals("")) 
 					joiner.add(subQueryStr);
 			}

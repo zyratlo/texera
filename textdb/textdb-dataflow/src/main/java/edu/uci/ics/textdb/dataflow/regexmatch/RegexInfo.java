@@ -63,8 +63,8 @@ class RegexInfo {
 
 		RegexInfo regexInfo = new RegexInfo();
 		regexInfo.emptyable = true;
-		regexInfo.match.operator = GramBooleanQuery.QueryOp.ANY;
 		regexInfo.exact.add("");
+		regexInfo.match.operator = GramBooleanQuery.QueryOp.ANY;
 		return regexInfo;
 	}
 	
