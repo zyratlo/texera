@@ -29,7 +29,7 @@ public class RegexToGramQueryTranslator {
 		throws com.google.re2j.PatternSyntaxException{
 		
 	    PublicRegexp re = PublicParser.parse(regex, PublicRE2.PERL);
-	    re = PublicSimplify.simplify(re);
+	    re = PublicSimplify.simplify(re);  
 	    RegexInfo regexInfo = analyze(re);
 	    regexInfo.simplify(true);
 	    return regexInfo.match;
@@ -73,7 +73,7 @@ public class RegexToGramQueryTranslator {
 			return fold((x, y) -> concat(x, y), re.getSubs(), RegexInfo.matchNone());
 		case CAPTURE:
 			return analyze(re.getSubs()[0]).simplify(false);
-		// For example, [a-z]
+		// For example, [a-z] 
 		case CHAR_CLASS:
 			boolean isCaseSensitive = (re.getFlags() & PublicRE2.FOLD_CASE) != PublicRE2.FOLD_CASE;
 			
@@ -133,7 +133,7 @@ public class RegexToGramQueryTranslator {
 		// A regex that indicates an expression is matched 
 		// at least min times, at most max times.
 		case REPEAT:
-			// When min is zero, we treat REPEAT as START
+			// When min is zero, we treat REPEAT as STAR
 			// When min is greater than zero, we treat REPEAT as PLUS, and let it fall through.
 			if (re.getMin() == 0) {
 				return RegexInfo.matchAny();
@@ -153,7 +153,7 @@ public class RegexToGramQueryTranslator {
 		case QUEST:
 			// The regexInfo of "(expr)?" shoud be either the same as the info of "expr",
 			// or the same as the info of an empty string.
-			return alternate(analyze(re.getSubs()[0]), RegexInfo.emptyString());
+			return alternate( analyze(re.getSubs()[0]), RegexInfo.emptyString());
 		// A regex that indicates zero or more occurrences of an expression.
 		case STAR:
 			return RegexInfo.matchAny();
