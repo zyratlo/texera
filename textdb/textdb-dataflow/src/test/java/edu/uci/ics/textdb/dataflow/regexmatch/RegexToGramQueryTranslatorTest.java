@@ -100,11 +100,19 @@ public class RegexToGramQueryTranslatorTest {
 //		System.out.println(exactQuery.getLuceneQueryString());
 //		System.out.println(exactQuery.printQueryTree());
 //	}
-
-
+//
+//
 	@Test
 	public void testPlus1() {
 		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate("abc+");
+
+		System.out.println(exactQuery.getLuceneQueryString());
+		System.out.println(exactQuery.printQueryTree());
+	}
+	
+	@Test
+	public void testPlus2() {
+		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate("abc+pqr+");
 
 		System.out.println(exactQuery.getLuceneQueryString());
 		System.out.println(exactQuery.printQueryTree());
