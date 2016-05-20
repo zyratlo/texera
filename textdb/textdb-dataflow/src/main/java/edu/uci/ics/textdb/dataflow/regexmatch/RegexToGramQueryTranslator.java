@@ -68,9 +68,9 @@ public class RegexToGramQueryTranslator {
 			return RegexInfo.anyChar();
 		}
 		case ALTERNATE:
-			return fold((x, y) -> alternate(x,y), re.getSubs(), RegexInfo.matchAny()).simplify(false);
+			return fold((x, y) -> alternate(x,y), re.getSubs(), RegexInfo.matchAny());
 		case CONCAT:
-			return fold((x, y) -> concat(x, y), re.getSubs(), RegexInfo.matchNone()).simplify(false);
+			return fold((x, y) -> concat(x, y), re.getSubs(), RegexInfo.matchNone());
 		case CAPTURE:
 			return analyze(re.getSubs()[0]).simplify(false);
 		// For example, [a-z]
@@ -143,9 +143,9 @@ public class RegexToGramQueryTranslator {
 		case PLUS:
 			// The regexInfo of "(expr)+" should be the same as the info of "expr", 
 			// except that "exact" is null, because we don't know the number of repetitions.
-			info = analyze(re.getSubs()[0]).simplify(false);
-			info.exact = null;
-			return info;
+			info = analyze(re.getSubs()[0]);
+			info.exact.clear();
+			return info.simplify(false);
 		case QUEST:
 			// The regexInfo of "(expr)?" shoud be either the same as the info of "expr",
 			// or the same as the info of an empty string.
@@ -247,7 +247,6 @@ public class RegexToGramQueryTranslator {
 		for (int i = 2; i < subExpressions.length; i++) {
 			info = iFold.foldFunc(info, analyze(subExpressions[i]));
 		}
-		info.simplify(false);
 		return info;
 	}
 	
