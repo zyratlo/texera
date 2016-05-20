@@ -5,25 +5,42 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
+/**
+ * @author Zuozhi Wang
+ * @author Shuying Lai
+ *
+ */
+
 public class TranslatorUtils {
 
 	static final int MAX_EXACT_SIZE = 7;
 	
-	// Prefix and suffix sets are limited to maxSet strings.
-	// If they get too big, simplify will replace groups of strings
-	// sharing a common leading prefix (or trailing suffix) with
-	// that common prefix (or suffix).  It is useful for maxSet
-	// to be at least 2³ = 8 so that we can exactly
-	// represent a case-insensitive abc by the set
-	// {abc, abC, aBc, aBC, Abc, AbC, ABc, ABC}.
+	/** Prefix and suffix sets are limited to maxSet strings.
+	 * If they get too big, simplify will replace groups of strings
+	 * sharing a common leading prefix (or trailing suffix) with
+	 * that common prefix (or suffix).  It is useful for maxSet
+	 * to be at least 2³ = 8 so that we can exactly
+	 * represent a case-insensitive abc by the set
+	 * {abc, abC, aBc, aBC, Abc, AbC, ABc, ABC}.
+	 */
 	static final int MAX_SET_SIZE = 20;
 	
-	
+	/**
+	 * This function interfaces provide a method to fold
+	 * (concat / alternate) two {@code RegexInfo} objects.
+	 * @author laishuying
+	 *
+	 */
 	@FunctionalInterface
 	static interface IFold {
 		RegexInfo foldFunc(RegexInfo x, RegexInfo y);
 	}
 	
+	/**
+	 * This function interface determines whether a given string
+	 * contains a given affix (prefix/suffix). If true and they
+	 * are both in prefix/suffix set, we could remove this string.
+	 */
 	@FunctionalInterface
 	static interface IContain {
 		boolean containFunc(String str, String affix);

@@ -46,6 +46,7 @@ public class RegexToGramQueryTranslator {
 	 */
 	private static RegexInfo analyze(PublicRegexp re) {
 		RegexInfo info = new RegexInfo();
+		boolean isCaseSensitive = (re.getFlags() & PublicRE2.FOLD_CASE) != PublicRE2.FOLD_CASE;
 		switch (re.getOp()) {
 		// NO_MATCH is a regex that doesn't match anything.
 		// It's used to handle error cases, which shouldn't 
@@ -75,7 +76,6 @@ public class RegexToGramQueryTranslator {
 			return analyze(re.getSubs()[0]).simplify(false);
 		// For example, [a-z] 
 		case CHAR_CLASS:
-			boolean isCaseSensitive = (re.getFlags() & PublicRE2.FOLD_CASE) != PublicRE2.FOLD_CASE;
 			
 			if (re.getRunes().length == 0) {
 				return RegexInfo.matchNone();
@@ -117,8 +117,10 @@ public class RegexToGramQueryTranslator {
 			if (re.getRunes().length == 0) {
 				return RegexInfo.emptyString();
 			}
+			
+			//convert runes to string
 			String literal = "";
-			if ((re.getFlags() & PublicRE2.FOLD_CASE) != PublicRE2.FOLD_CASE) {  // case sensitive 
+			if (isCaseSensitive) {  // case sensitive 
 				for (int rune: re.getRunes()) {
 					literal += Character.toString((char) rune);
 				}
@@ -127,6 +129,7 @@ public class RegexToGramQueryTranslator {
 					literal += Character.toString((char) rune).toLowerCase();
 				}
 			}
+			
 			info = new RegexInfo();   
 			info.exact.add(literal);
 			info.simplify(false);
@@ -230,7 +233,8 @@ public class RegexToGramQueryTranslator {
 		
 		//TODO: customize 3
 		if (xInfo.exact.isEmpty() && yInfo.exact.isEmpty() &&
-				xInfo.suffix.size() <= TranslatorUtils.MAX_SET_SIZE && yInfo.prefix.size() <= TranslatorUtils.MAX_SET_SIZE &&
+				xInfo.suffix.size() <= TranslatorUtils.MAX_SET_SIZE && 
+				yInfo.prefix.size() <= TranslatorUtils.MAX_SET_SIZE &&
 				TranslatorUtils.minLenOfString(xInfo.suffix) + TranslatorUtils.minLenOfString(yInfo.prefix) >= 3) {
 
 			xyInfo.match.add(TranslatorUtils.cartesianProduct(xInfo.suffix, yInfo.prefix, false));
@@ -241,6 +245,14 @@ public class RegexToGramQueryTranslator {
 		return xyInfo;
 	}
 	
+	/**
+	 * This function takes an array of regex, analyzes each one, 
+	 * and folds them one by one with a given method.   
+	 * @param iFold
+	 * @param subExpressions
+	 * @param zero
+	 * @return
+	 */
 	private static RegexInfo fold (TranslatorUtils.IFold iFold, PublicRegexp[] subExpressions, RegexInfo zero) {
 		if (subExpressions.length == 0) {
 			return zero;
