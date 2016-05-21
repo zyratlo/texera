@@ -46,6 +46,7 @@ public class RegexToGramQueryTranslator {
 	 */
 	private static RegexInfo analyze(PublicRegexp re) {
 		RegexInfo info = new RegexInfo();
+		// FOLD_CASE mean case insensitive
 		boolean isCaseSensitive = (re.getFlags() & PublicRE2.FOLD_CASE) != PublicRE2.FOLD_CASE;
 		switch (re.getOp()) {
 		// NO_MATCH is a regex that doesn't match anything.
@@ -68,15 +69,17 @@ public class RegexToGramQueryTranslator {
 		case ANY_CHAR: case ANY_CHAR_NOT_NL: {
 			return RegexInfo.anyChar();
 		}
+		// regexp1 | regexp2
 		case ALTERNATE:
 			return fold((x, y) -> alternate(x,y), re.getSubs(), RegexInfo.matchAny());
+		// regexp1 regexp2
 		case CONCAT:
 			return fold((x, y) -> concat(x, y), re.getSubs(), RegexInfo.matchNone());
+		// (regexp1)
 		case CAPTURE:
 			return analyze(re.getSubs()[0]).simplify(false);
-		// For example, [a-z] 
+		// [a-z]
 		case CHAR_CLASS:
-			
 			if (re.getRunes().length == 0) {
 				return RegexInfo.matchNone();
 			} else if (re.getRunes().length == 1) {
@@ -90,14 +93,12 @@ public class RegexToGramQueryTranslator {
 				info.simplify(false);
 				return info;
 			}
-			
 			// convert all runes to lower case if not case sensitive
 			if (!isCaseSensitive) {
 				for (int i = 0; i < re.getRunes().length; i++) {
 					re.getRunes()[i] = Character.toLowerCase(re.getRunes()[i]);
 				}
-			}
-			
+			}	
 			// add characters between two runes to exact
 			int count = 0;
 			for (int i = 0; i < re.getRunes().length; i += 2) {
@@ -113,11 +114,11 @@ public class RegexToGramQueryTranslator {
 			}
 			info.simplify(false);
 			return info;
+		// abcd
 		case LITERAL:
 			if (re.getRunes().length == 0) {
 				return RegexInfo.emptyString();
 			}
-			
 			//convert runes to string
 			String literal = "";
 			if (isCaseSensitive) {  // case sensitive 
@@ -129,13 +130,11 @@ public class RegexToGramQueryTranslator {
 					literal += Character.toString((char) rune).toLowerCase();
 				}
 			}
-			
 			info = new RegexInfo();   
 			info.exact.add(literal);
 			info.simplify(false);
 			return info;
-		// A regex that indicates an expression is matched 
-		// at least min times, at most max times.
+		// regexp{min,max} (repeat at least min times, at most max times)
 		case REPEAT:
 			// When min is zero, we treat REPEAT as STAR
 			// When min is greater than zero, we treat REPEAT as PLUS, and let it fall through.
@@ -143,7 +142,7 @@ public class RegexToGramQueryTranslator {
 				return RegexInfo.matchAny();
 			}
 			// !!!!! intentionally FALL THROUGH to PLUS !!!!!
-		// A regex that indicates one or more occurrences of an expression.
+		// regexp+ (repeat one more more times)
 		case PLUS:
 			// The regexInfo of "(expr)+" should be the same as the info of "expr", 
 			// except that "exact" is null, because we don't know the number of repetitions.
@@ -154,11 +153,12 @@ public class RegexToGramQueryTranslator {
 				info.exact.clear();
 			}
 			return info.simplify(false);
+		// regexp? (repeat zero or one time)
 		case QUEST:
 			// The regexInfo of "(expr)?" shoud be either the same as the info of "expr",
 			// or the same as the info of an empty string.
 			return alternate( analyze(re.getSubs()[0]), RegexInfo.emptyString());
-		// A regex that indicates zero or more occurrences of an expression.
+		// regexp* (repeat zero or more tims)
 		case STAR:
 			return RegexInfo.matchAny();
 		default:
@@ -180,11 +180,11 @@ public class RegexToGramQueryTranslator {
 		} else if (!xInfo.exact.isEmpty()) {
 			xyInfo.prefix = TranslatorUtils.union(xInfo.exact, yInfo.prefix, false);
 			xyInfo.suffix = TranslatorUtils.union(xInfo.exact, yInfo.suffix, true);
-			xInfo.addExactToMatch();
+			xInfo.match.add(xInfo.exact);
 		} else if (!yInfo.exact.isEmpty()) {
 			xyInfo.prefix = TranslatorUtils.union(xInfo.prefix, yInfo.exact, false);
 			xyInfo.suffix = TranslatorUtils.union(xInfo.suffix, yInfo.exact, true);
-			yInfo.addExactToMatch();
+			yInfo.match.add(yInfo.exact);
 		} else {
 			xyInfo.prefix = TranslatorUtils.union(xInfo.prefix, yInfo.prefix, false);
 			xyInfo.suffix = TranslatorUtils.union(xInfo.suffix, yInfo.suffix, true);
@@ -246,10 +246,10 @@ public class RegexToGramQueryTranslator {
 	
 	/**
 	 * This function takes an array of regex, analyzes each one, 
-	 * and folds them one by one with a given method.   
+	 * and folds them one by one with a given function (either concat or alternate).   
 	 * @param iFold
 	 * @param subExpressions
-	 * @param zero
+	 * @param zero, returned when the array of regex is empty
 	 * @return
 	 */
 	private static RegexInfo fold (TranslatorUtils.IFold iFold, PublicRegexp[] subExpressions, RegexInfo zero) {

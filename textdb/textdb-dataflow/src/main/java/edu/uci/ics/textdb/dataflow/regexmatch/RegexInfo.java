@@ -18,10 +18,10 @@ class RegexInfo {
 	GramBooleanQuery match = null;
 	
 	/**
-	 * This initializes RegexInfo:
-	 * emptyable to false
-	 * exact, prefix, suffix to empty arraylist
-	 * match to match ALL
+	 * This initializes RegexInfo: <br>
+	 * emptyable to false <br>
+	 * exact, prefix, suffix to empty ArrayList <br>
+	 * match with operator AND <br>
 	 */
 	RegexInfo() {
 		emptyable = false;
@@ -80,24 +80,26 @@ class RegexInfo {
 	}
 	
 	/**
-	 * This function simplifies the regexpInfo when the exact set gets too large.
-	 * If there are now too many exact strings, loop over them, adding trigrams 
-	 * and moving the relevant pieces into prefix and suffix.
-	 * Simplification is performed under three circumstances. First, the size of
-	 * exact set is larger than a threshold. Second, the minimum length of strings
-	 * in exact is larger than {@code gramLength+1}, if we do not set {@code force = true}.
-	 * Third, the minimum length of strings in exact is larger than {@code gramLength}, 
-	 * if we set {@code force = true}.
+	 * This function simplifies the regexInfo. <br>
+	 * If there the "exact" set gets too large, it will add exact to the query tree,
+	 * and move relevant pieces into prefix and suffix. <br>
+	 * 
+	 * Simplification is performed under three circumstances. <br>
+	 * 1, the size ofexact set is larger than a threshold. <br>
+	 * 2, the minimum length of strings in exact is larger than {@code gramLength+1}, 
+	 *    if we do not set {@code force = true}. <br>
+	 * 3, the minimum length of strings in exact is larger than {@code gramLength}, 
+	 *    if we set {@code force = true}. <br>
 	 * @param force
 	 */
 	RegexInfo simplify(boolean force) {
 		TranslatorUtils.removeDuplicateAffix(exact, false);
 		
-		// transfer information from exact to prefix and suffix
 		if ( exact.size() > TranslatorUtils.MAX_EXACT_SIZE ||
 			( TranslatorUtils.minLenOfString(exact) >= GramBooleanQuery.gramLength && force) ||
 			TranslatorUtils.minLenOfString(exact) >= GramBooleanQuery.gramLength + 1){
-			
+			// Add exact to match (query tree)
+			// Transfer information from exact to prefix and suffix
 			match.add(exact);
 			for (String str: exact) {
 				if (str.length() < 3) {
@@ -111,8 +113,7 @@ class RegexInfo {
 			exact.clear();
 		}
 		
-		// Since information is now in prefix/suffix,
-		// we simplify them
+		// Add information in prefix and suffix to match
 		if (exact.isEmpty()) {
 			simplifyAffix(prefix, false);
 			simplifyAffix(suffix, true);
@@ -122,18 +123,15 @@ class RegexInfo {
 	}
 	
 	/**
-	 * simplifySet reduces the size of the given set (either prefix or suffix).
-	 * There is no need to pass around enormous prefix or suffix sets, since 
-	 * they will only be used to create trigrams.As they get too big, simplifySet
-	 * moves the information they contain into the match query, which is
-	 * more efficient to pass around.
+	 * simplifyAffix reduces the size of the given set (either prefix or suffix).
+	 * If the set gets too big, it moves information in prefix/suffix into match query.
 	 * @param strList
 	 * @param isSuffix indicates given string list is suffix list or not
 	 */
 	void simplifyAffix(List<String> strList, boolean isSuffix) {
 		TranslatorUtils.removeDuplicateAffix(strList, isSuffix);
 		
-		// Add the OR of the current prefix/suffix set to the query.
+		// Add the current prefix/suffix set to match query.
 		match.add(strList);
 		
 		// This loop cuts the length of prefix/suffix. It cuts all
@@ -173,13 +171,5 @@ class RegexInfo {
 		
 	}
 	
-
-	
-	/**
-	 * This function adds to the match query the trigrams for matching info.exact.
-	 */
-	void addExactToMatch() {
-		match.add(exact);
-	}
 
 }

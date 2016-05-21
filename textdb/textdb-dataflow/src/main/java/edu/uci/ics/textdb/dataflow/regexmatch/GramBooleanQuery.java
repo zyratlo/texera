@@ -108,7 +108,13 @@ public class GramBooleanQuery {
 		return nGrams;
 	}
 	
-	
+	/**
+	 * This function "AND" two query trees together. <br>
+	 * It also performs simple simplifications. <br>
+	 * TODO: add more logic for more complicated and effecitve simplifications
+	 * @param that GramBooleanQuery
+	 * @return
+	 */
 	GramBooleanQuery and (GramBooleanQuery that) {
 		if (that.operator == QueryOp.ANY) {
 			return this;
@@ -128,7 +134,7 @@ public class GramBooleanQuery {
 			this.subQuerySet.addAll(that.subQuerySet);
 			return this;
 		} else {
-			GramBooleanQuery query = new GramBooleanQuery(QueryOp.AND, this.gramLength);
+			GramBooleanQuery query = new GramBooleanQuery(QueryOp.AND, gramLength);
 			query.subQuerySet.add(this);
 			query.subQuerySet.add(that);
 			return query;
@@ -154,7 +160,7 @@ public class GramBooleanQuery {
 			this.subQuerySet.addAll(that.subQuerySet);
 			return this;
 		} else {
-			GramBooleanQuery query = new GramBooleanQuery(QueryOp.OR, this.gramLength);
+			GramBooleanQuery query = new GramBooleanQuery(QueryOp.OR, gramLength);
 			query.subQuerySet.add(this);
 			query.subQuerySet.add(that);
 			return query;
@@ -206,34 +212,11 @@ public class GramBooleanQuery {
 		
 		return true;
 	}
+
 	
-//	@Override
-//	public boolean equals(Object compareTo) {
-//		if (! (compareTo instanceof GramBooleanQuery)) {
-//			return false;
-//		}
-//		
-//		GramBooleanQuery query = (GramBooleanQuery) compareTo;
-//		if (this.operator != query.operator
-//			|| this.operandList.size() != query.operandList.size()
-//			|| this.subQueryList.size() != query.subQueryList.size()) {
-//			return false;
-//		}
-//		
-//		Set<String> operandSet = new HashSet<String>(this.operandList);
-//		if (!operandSet.equals(new HashSet<String>(query.operandList))) {
-//			return false;
-//		}
-//		
-//		Set<GramBooleanQuery> subQuerySet = new HashSet<GramBooleanQuery>(this.subQueryList);
-//		if (!subQuerySet.equals(new HashSet<GramBooleanQuery>(query.subQueryList))) {
-//			return false;
-//		}
-//		
-//		return true;
-//	}
-	
-	
+	/**
+	 * This returns a String that visualizes the query tree. <br>
+	 */
 	String printQueryTree() {
 		return queryTreeToString(this, 0, "  ");
 	}
@@ -263,6 +246,7 @@ public class GramBooleanQuery {
 	}
 
 	/**
+	 * This returns a String represents Lucene query. <br>
 	 * @return boolean expression 
 	 */
 	public String toString() {
