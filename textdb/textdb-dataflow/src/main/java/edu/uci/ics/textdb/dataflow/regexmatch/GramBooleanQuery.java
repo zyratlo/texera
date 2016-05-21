@@ -115,7 +115,7 @@ public class GramBooleanQuery {
 	 * @param that GramBooleanQuery
 	 * @return
 	 */
-	GramBooleanQuery and (GramBooleanQuery that) {
+	GramBooleanQuery computeConjunction (GramBooleanQuery that) {
 		if (that.operator == QueryOp.ANY) {
 			return this;
 		}
@@ -141,7 +141,7 @@ public class GramBooleanQuery {
 		}
 	}
 	
-	GramBooleanQuery or (GramBooleanQuery that) {
+	GramBooleanQuery computeDisjunction (GramBooleanQuery that) {
 		if (that.operator == QueryOp.ANY) {
 			return that;
 		}

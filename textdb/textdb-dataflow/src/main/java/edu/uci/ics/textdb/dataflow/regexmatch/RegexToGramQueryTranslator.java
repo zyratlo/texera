@@ -192,7 +192,7 @@ public class RegexToGramQueryTranslator {
 		
 		xyInfo.emptyable = xInfo.emptyable || yInfo.emptyable;
 		
-		xyInfo.match = xInfo.match.or(yInfo.match);
+		xyInfo.match = xInfo.match.computeDisjunction(yInfo.match);
 		
 		xyInfo.simplify(false);
 		return xyInfo;
@@ -207,7 +207,7 @@ public class RegexToGramQueryTranslator {
 	private static RegexInfo concat(RegexInfo xInfo, RegexInfo yInfo) {
 		RegexInfo xyInfo = new RegexInfo();
 		
-		xyInfo.match = xInfo.match.and(yInfo.match);
+		xyInfo.match = xInfo.match.computeConjunction(yInfo.match);
 		
 		if (!xInfo.exact.isEmpty() && !yInfo.exact.isEmpty()) {
 			xyInfo.exact = TranslatorUtils.cartesianProduct(xInfo.exact, yInfo.exact, false);
