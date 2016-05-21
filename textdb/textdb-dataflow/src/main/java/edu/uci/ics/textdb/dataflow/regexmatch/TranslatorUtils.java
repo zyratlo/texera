@@ -5,25 +5,42 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
+/**
+ * @author Zuozhi Wang
+ * @author Shuying Lai
+ *
+ */
+
 public class TranslatorUtils {
 
 	static final int MAX_EXACT_SIZE = 7;
 	
-	// Prefix and suffix sets are limited to maxSet strings.
-	// If they get too big, simplify will replace groups of strings
-	// sharing a common leading prefix (or trailing suffix) with
-	// that common prefix (or suffix).  It is useful for maxSet
-	// to be at least 2³ = 8 so that we can exactly
-	// represent a case-insensitive abc by the set
-	// {abc, abC, aBc, aBC, Abc, AbC, ABc, ABC}.
+	/** Prefix and suffix sets are limited to maxSet strings.
+	 * If they get too big, simplify will replace groups of strings
+	 * sharing a common leading prefix (or trailing suffix) with
+	 * that common prefix (or suffix).  It is useful for maxSet
+	 * to be at least 2³ = 8 so that we can exactly
+	 * represent a case-insensitive abc by the set
+	 * {abc, abC, aBc, aBC, Abc, AbC, ABc, ABC}.
+	 */
 	static final int MAX_SET_SIZE = 20;
 	
-	
+	/**
+	 * This function interfaces provide a method to fold
+	 * (concat / alternate) two {@code RegexInfo} objects.
+	 * @author laishuying
+	 *
+	 */
 	@FunctionalInterface
 	static interface IFold {
 		RegexInfo foldFunc(RegexInfo x, RegexInfo y);
 	}
 	
+	/**
+	 * This function interface determines whether a given string
+	 * contains a given affix (prefix/suffix). If true and they
+	 * are both in prefix/suffix set, we could remove this string.
+	 */
 	@FunctionalInterface
 	static interface IContain {
 		boolean containFunc(String str, String affix);
@@ -51,12 +68,12 @@ public class TranslatorUtils {
 	}
 
 	/**
-	 * !!! Should have name "removeDuplicate" !!!
+	 * This function removes duplicates in prefix/suffix list.
 	 * Name it clean for easier debugging
 	 * @param strList
 	 * @param isSuffix
 	 */
-	static void clean(List<String> strList, boolean isSuffix) {
+	static void removeDuplicateAffix(List<String> strList, boolean isSuffix) {
 		HashSet<String> strSet = new HashSet<String>(strList);
 		strList.clear();
 		strList.addAll(strSet);
@@ -65,6 +82,28 @@ public class TranslatorUtils {
 		} else {
 	        Collections.sort(strList, (str1, str2) -> str1.compareTo(str2));
 		}
+	}
+	
+	/**
+	 * This function ensures that prefix/suffix sets aren't redundant.
+	 * For example, if we know "ab" is a possible prefix, then it
+	 * doesn't help at all to know that  "abc" is also a possible
+	 * prefix, so delete "abc".
+	 * @param iContain
+	 * @param strList
+	 */
+	static void removeRedundantAffix(TranslatorUtils.IContain iContain, List<String> strList) {
+		if (strList.size() <= 1) {
+			return ;
+		}
+		int w = 0;
+		for (String str: strList) {
+			if ( w == 0 || !iContain.containFunc(str, strList.get(w-1))) {
+				strList.set(w, str);
+				w ++;
+			}
+		}
+		strList = strList.subList(0, w);
 	}
 
 	/**
@@ -85,7 +124,7 @@ public class TranslatorUtils {
 				product.add(x+y);
 			}
 		}
-		clean(product, isSuffix);
+		removeDuplicateAffix(product, isSuffix);
 		return product;
 	}
 	
@@ -103,7 +142,7 @@ public class TranslatorUtils {
 		List<String> unionList = new ArrayList<String>(xList);
 		
 		unionList.addAll(yList);
-		TranslatorUtils.clean(unionList, isSuffix);
+		TranslatorUtils.removeDuplicateAffix(unionList, isSuffix);
 		
 		return unionList;
 	}

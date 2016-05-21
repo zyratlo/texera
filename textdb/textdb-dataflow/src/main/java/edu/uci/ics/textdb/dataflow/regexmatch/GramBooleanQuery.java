@@ -21,7 +21,7 @@ public class GramBooleanQuery {
 	Set<String> operandSet;
 	Set<GramBooleanQuery> subQuerySet;
 	
-	int gramLength;
+	static int gramLength;
 	
 	/**
 	 * Constructs a GramBooleanQuery with default gram length 3. <br>
@@ -35,7 +35,7 @@ public class GramBooleanQuery {
 		this.operator = operator;
 		operandSet = new HashSet<String>();
 		subQuerySet = new HashSet<GramBooleanQuery>();
-		this.gramLength = gramLength;
+		GramBooleanQuery.gramLength = gramLength;
 	}
 	
 	

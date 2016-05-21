@@ -81,17 +81,22 @@ class RegexInfo {
 	
 	/**
 	 * This function simplifies the regexpInfo when the exact set gets too large.
-	 * If there are now too many exact strings,
-	 * loop over them, adding trigrams and moving the relevant pieces into prefix and suffix.
+	 * If there are now too many exact strings, loop over them, adding trigrams 
+	 * and moving the relevant pieces into prefix and suffix.
+	 * Simplification is performed under three circumstances. First, the size of
+	 * exact set is larger than a threshold. Second, the minimum length of strings
+	 * in exact is larger than {@code gramLength+1}, if we do not set {@code force = true}.
+	 * Third, the minimum length of strings in exact is larger than {@code gramLength}, 
+	 * if we set {@code force = true}.
 	 * @param force
 	 */
 	RegexInfo simplify(boolean force) {
-		TranslatorUtils.clean(exact, false);
+		TranslatorUtils.removeDuplicateAffix(exact, false);
 		
 		// transfer information from exact to prefix and suffix
 		if ( exact.size() > TranslatorUtils.MAX_EXACT_SIZE ||
-			( TranslatorUtils.minLenOfString(exact) >= 3 && force) ||
-			TranslatorUtils.minLenOfString(exact) >= 4){
+			( TranslatorUtils.minLenOfString(exact) >= GramBooleanQuery.gramLength && force) ||
+			TranslatorUtils.minLenOfString(exact) >= GramBooleanQuery.gramLength + 1){
 			
 			match.add(exact);
 			for (String str: exact) {
@@ -106,9 +111,11 @@ class RegexInfo {
 			exact.clear();
 		}
 		
+		// Since information is now in prefix/suffix,
+		// we simplify them
 		if (exact.isEmpty()) {
-			simplifySet(prefix, false);
-			simplifySet(suffix, true);
+			simplifyAffix(prefix, false);
+			simplifyAffix(suffix, true);
 		}
 		
 		return this;
@@ -123,8 +130,8 @@ class RegexInfo {
 	 * @param strList
 	 * @param isSuffix indicates given string list is suffix list or not
 	 */
-	void simplifySet(List<String> strList, boolean isSuffix) {
-		TranslatorUtils.clean(strList, isSuffix);
+	void simplifyAffix(List<String> strList, boolean isSuffix) {
+		TranslatorUtils.removeDuplicateAffix(strList, isSuffix);
 		
 		// Add the OR of the current prefix/suffix set to the query.
 		match.add(strList);
@@ -135,9 +142,11 @@ class RegexInfo {
 		// It cuts a prefix (suffix) string by only retaining the first (last) n characters of it
 		// For example, for a prefix string "abcd", after cutting, it becomes "abc" if n = 3, "ab" if n = 2.
 		// For a suffix string "abcd", after cutting, it becomes "bcd" if n = 3, "cd" if n = 2;
-		for (int n = 3; n == 3 || strList.size() > TranslatorUtils.MAX_SET_SIZE; n--) {
+		for (int n = GramBooleanQuery.gramLength; 
+				n == GramBooleanQuery.gramLength || strList.size() > TranslatorUtils.MAX_SET_SIZE;
+				n--) {
 			// replace set by strings of length n-1
-			int w = 0; //TODO: better name?
+			int w = 0;
 			for (String str: strList) {
 				if (str.length() > n) {
 					if (!isSuffix) { //prefix
@@ -152,34 +161,19 @@ class RegexInfo {
 				}
 			}
 			strList = strList.subList(0, w);
-			TranslatorUtils.clean(strList, isSuffix);
+			TranslatorUtils.removeDuplicateAffix(strList, isSuffix);
 		}
 		
-		// Now make sure that the prefix/suffix sets aren't redundant.
-		// For example, if we know "ab" is a possible prefix, then it
-		// doesn't help at all to know that  "abc" is also a possible
-		// prefix, so delete "abc".
+		
 		if (!isSuffix) {
-			removeRedundantAffix((s, prefix) -> s.startsWith(prefix), strList);
+			TranslatorUtils.removeRedundantAffix((s, prefix) -> s.startsWith(prefix), strList);
 		} else {
-			removeRedundantAffix((s, suffix) -> s.endsWith(suffix), strList);
+			TranslatorUtils.removeRedundantAffix((s, suffix) -> s.endsWith(suffix), strList);
 		}
 		
 	}
 	
-	private void removeRedundantAffix(TranslatorUtils.IContain iContain, List<String> strList) {
-		if (strList.size() <= 1) {
-			return ;
-		}
-		int w = 0;
-		for (String str: strList) {
-			if ( w == 0 || !iContain.containFunc(str, strList.get(w-1))) {
-				strList.set(w, str);
-				w ++;
-			}
-		}
-		strList = strList.subList(0, w);
-	}
+
 	
 	/**
 	 * This function adds to the match query the trigrams for matching info.exact.
