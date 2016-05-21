@@ -3,7 +3,6 @@ package edu.uci.ics.textdb.dataflow.regexmatch;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.stanford.nlp.patterns.Data;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.queryparser.classic.ParseException;

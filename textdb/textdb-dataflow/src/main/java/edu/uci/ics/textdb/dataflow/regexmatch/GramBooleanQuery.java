@@ -21,7 +21,7 @@ public class GramBooleanQuery {
 	Set<String> operandSet;
 	Set<GramBooleanQuery> subQuerySet;
 	
-	static int gramLength;
+	int gramLength;
 	
 	/**
 	 * Constructs a GramBooleanQuery with default gram length 3. <br>
@@ -35,7 +35,7 @@ public class GramBooleanQuery {
 		this.operator = operator;
 		operandSet = new HashSet<String>();
 		subQuerySet = new HashSet<GramBooleanQuery>();
-		GramBooleanQuery.gramLength = gramLength;
+		this.gramLength = gramLength;
 	}
 	
 	
@@ -51,7 +51,7 @@ public class GramBooleanQuery {
 	}
 	
 	private void addOrNode(List<String> literalList) {
-		if (TranslatorUtils.minLenOfString(literalList) < 3) {
+		if (TranslatorUtils.minLenOfString(literalList) < gramLength) {
 			return;
 		}
 		if (literalList.size() == 0) {

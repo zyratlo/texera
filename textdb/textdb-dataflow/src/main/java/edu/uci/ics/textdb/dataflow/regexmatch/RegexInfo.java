@@ -94,20 +94,21 @@ class RegexInfo {
 	 */
 	RegexInfo simplify(boolean force) {
 		TranslatorUtils.removeDuplicateAffix(exact, false);
+		int gramLength = this.match.gramLength;
 		
 		if ( exact.size() > TranslatorUtils.MAX_EXACT_SIZE ||
-			( TranslatorUtils.minLenOfString(exact) >= GramBooleanQuery.gramLength && force) ||
-			TranslatorUtils.minLenOfString(exact) >= GramBooleanQuery.gramLength + 1){
+			( TranslatorUtils.minLenOfString(exact) >= gramLength && force) ||
+			TranslatorUtils.minLenOfString(exact) >= gramLength + 1){
 			// Add exact to match (query tree)
 			// Transfer information from exact to prefix and suffix
 			match.add(exact);
 			for (String str: exact) {
-				if (str.length() < 3) {
+				if (str.length() < gramLength) {
 					prefix.add(str);
 					suffix.add(str);
 				} else {
-					prefix.add(str.substring(0, 3));
-					suffix.add(str.substring(str.length()-3, str.length()));
+					prefix.add(str.substring(0, gramLength));
+					suffix.add(str.substring(str.length()-gramLength, str.length()));
 				}
 			}
 			exact.clear();
@@ -130,6 +131,7 @@ class RegexInfo {
 	 */
 	void simplifyAffix(List<String> strList, boolean isSuffix) {
 		TranslatorUtils.removeDuplicateAffix(strList, isSuffix);
+		int gramLength = this.match.gramLength;
 		
 		// Add the current prefix/suffix set to match query.
 		match.add(strList);
@@ -140,8 +142,8 @@ class RegexInfo {
 		// It cuts a prefix (suffix) string by only retaining the first (last) n characters of it
 		// For example, for a prefix string "abcd", after cutting, it becomes "abc" if n = 3, "ab" if n = 2.
 		// For a suffix string "abcd", after cutting, it becomes "bcd" if n = 3, "cd" if n = 2;
-		for (int n = GramBooleanQuery.gramLength; 
-				n == GramBooleanQuery.gramLength || strList.size() > TranslatorUtils.MAX_SET_SIZE;
+		for (int n = gramLength; 
+				n == gramLength || strList.size() > TranslatorUtils.MAX_SET_SIZE;
 				n--) {
 			// replace set by strings of length n-1
 			int w = 0;
