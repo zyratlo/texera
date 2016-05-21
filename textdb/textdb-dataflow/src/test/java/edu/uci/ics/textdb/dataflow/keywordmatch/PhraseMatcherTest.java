@@ -91,12 +91,12 @@ public class PhraseMatcherTest {
 
 
     /**
-     * Verifies List<ITuple> returned by Keyword Matcher on multiple
-     * word queries
+     * Verifies List<ITuple> returned by Phrase Matcher on multiple
+     * word query on a String Field
      * @throws Exception
      */
     @Test
-    public void testPhraseSearchForStingField() throws Exception {
+    public void testPhraseSearchForStringField() throws Exception {
         //Prepare Query
         String query = "george lin lin";
         ArrayList<Attribute> attributeList = new ArrayList<>();
