@@ -15,7 +15,6 @@ import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.common.Schema;
 import edu.uci.ics.textdb.api.dataflow.IOperator;
 import edu.uci.ics.textdb.api.dataflow.ISourceOperator;
-import edu.uci.ics.textdb.api.storage.IDataStore;
 import edu.uci.ics.textdb.common.constants.DataConstants;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
 import edu.uci.ics.textdb.common.field.DataTuple;
@@ -40,53 +39,71 @@ public class RegexMatcher implements IOperator {
     private Schema spanSchema = null;
     
 	private Analyzer luceneAnalyzer;
-	private IDataStore dataStore;
-	private Query luceneQuery;
 	private ISourceOperator sourceOperator;
     
     private List<Span> spanList;
-    
+        
     // two available regex engines, RegexMatcher will try RE2J first 
 	private enum RegexEngine {
 		JavaRegex,
 		RE2J
 	}
 	private RegexEngine regexEngine;
-
+	private com.google.re2j.Pattern re2jPattern;
+	private java.util.regex.Pattern javaPattern;
+	
+	
     public RegexMatcher(IPredicate predicate) throws DataFlowException{
+    	this (predicate, true);
+    }
+
+    public RegexMatcher(IPredicate predicate, boolean useTranslator) throws DataFlowException{
     	this.regexPredicate = (RegexPredicate) predicate;
     	this.regex = regexPredicate.getRegex();
     	this.fieldNameList = regexPredicate.getFieldNameList();
     	this.luceneAnalyzer = regexPredicate.getLuceneAnalyzer();
-    	this.dataStore = regexPredicate.getDataStore();
     	
-		try {			
-			// try to translate to LuceneQuery using RegexToGramQueryTranslator
-			try {
-				com.google.re2j.Pattern.compile(regexPredicate.getRegex());
-				regexEngine = RegexEngine.RE2J;
-				this.luceneQuery = generateLuceneQuery(fieldNameList,
-						RegexToGramQueryTranslator.translate(regex).getLuceneQueryString());
-			// if RE2J fails, try to use Java Regex
-			} catch (com.google.re2j.PatternSyntaxException re2jException) {
-				java.util.regex.Pattern.compile(regex);
-				regexEngine = RegexEngine.JavaRegex;
-				this.luceneQuery = generateLuceneQuery(fieldNameList,
-						DataConstants.SCAN_QUERY);
-			}
-			DataReaderPredicate dataReaderPredicate = new DataReaderPredicate(dataStore, luceneQuery,
-					DataConstants.SCAN_QUERY, luceneAnalyzer, regexPredicate.getAttributeList());
-			this.sourceOperator = new IndexBasedSourceOperator(dataReaderPredicate);
-		} catch (ParseException | java.util.regex.PatternSyntaxException e) {
-			throw new DataFlowException(e.getMessage(), e);
-		}
+    	// try to use RE2J first
+    	try {
+    		this.re2jPattern = com.google.re2j.Pattern.compile(regexPredicate.getRegex());
+			this.regexEngine = RegexEngine.RE2J;
+		// if RE2J fails, try to use Java Regex
+    	} catch (com.google.re2j.PatternSyntaxException re2jException) {
+    		try {
+				this.javaPattern = java.util.regex.Pattern.compile(regex);
+				this.regexEngine = RegexEngine.JavaRegex;
+			// if Java Regex fails, throw exception
+    		} catch (java.util.regex.PatternSyntaxException javaException) {
+    			throw new DataFlowException(javaException.getMessage());
+    		}
+    	}
+    	
+    	String luceneQueryStr;
+    	if (useTranslator && regexEngine == RegexEngine.RE2J) {
+			luceneQueryStr = RegexToGramQueryTranslator.translate(regex).getLuceneQueryString();
+    	} else {
+    		luceneQueryStr =  DataConstants.SCAN_QUERY;
+    	}
+    	
+    	Query luceneQuery;
+    	try {
+    		luceneQuery = generateLuceneQuery(fieldNameList, luceneQueryStr);
+    	} catch (ParseException e) {
+    		throw new DataFlowException(e.getMessage());
+    	}
+    	
+		DataReaderPredicate dataReaderPredicate = new DataReaderPredicate(regexPredicate.getDataStore(), 
+				luceneQuery, luceneQueryStr, luceneAnalyzer, regexPredicate.getAttributeList());
+		this.sourceOperator = new IndexBasedSourceOperator(dataReaderPredicate);
     }
+    
     
 	private Query generateLuceneQuery(List<String> fields, String queryStr) throws ParseException {
 		String[] fieldsArray = new String[fields.size()];
 		QueryParser parser = new MultiFieldQueryParser(fields.toArray(fieldsArray), luceneAnalyzer);
 		return parser.parse(queryStr);
 	}
+	
 	
     @Override
     public ITuple getNextTuple() throws DataFlowException {
@@ -116,6 +133,7 @@ public class RegexMatcher implements IOperator {
         }        
     }
     
+    
     private ITuple constructSpanTuple(List<IField> fields, List<Span> spans) {
     	List<IField> fieldListDuplicate = new ArrayList<>(fields);
     	IField spanListField = new ListField<Span>(spans);
@@ -124,6 +142,7 @@ public class RegexMatcher implements IOperator {
     	return new DataTuple(spanSchema, fieldsDuplicate);
     }
 	
+    
 	/**
 	 * This function returns a list of spans in the given tuple that match the
 	 * regex For example, given tuple ("george watson", "graduate student", 23,
@@ -160,28 +179,21 @@ public class RegexMatcher implements IOperator {
 		return spanList;
 	}
 	
+	
 	private void javaRegexMatch(String fieldValue, String fieldName, List<Span> spanList) {
-		java.util.regex.Matcher javaMatcher = 
-				java.util.regex.Pattern.compile(this.regexPredicate.getRegex())
-				.matcher(fieldValue);
+		java.util.regex.Matcher javaMatcher = this.javaPattern.matcher(fieldValue);
 		while (javaMatcher.find()) {
 			spanList.add(new Span(fieldName, javaMatcher.start(), javaMatcher.end(), this.regexPredicate.getRegex(), fieldValue));
 		}
 	}
 	
 	private void re2jRegexMatch(String fieldValue, String fieldName, List<Span> spanList) {
-		com.google.re2j.Matcher re2jMatcher = 
-		com.google.re2j.Pattern.compile(this.regexPredicate.getRegex())
-		.matcher(fieldValue);
+		com.google.re2j.Matcher re2jMatcher = this.re2jPattern.matcher(fieldValue);
 		while (re2jMatcher.find()) {
 			spanList.add(new Span(fieldName, re2jMatcher.start(), re2jMatcher.end(), this.regexPredicate.getRegex(), fieldValue));
 		}
 	}
-
-
-    public Schema getSpanSchema() {
-    	return spanSchema;
-    }
+    
     
     @Override
     public void open() throws DataFlowException {
@@ -201,5 +213,14 @@ public class RegexMatcher implements IOperator {
             e.printStackTrace();
             throw new DataFlowException(e.getMessage(), e);
         }
+    }
+    
+
+    public Schema getSpanSchema() {
+    	return spanSchema;
+    }
+    
+    public String getRegex() {
+    	return this.regex;
     }
 }
