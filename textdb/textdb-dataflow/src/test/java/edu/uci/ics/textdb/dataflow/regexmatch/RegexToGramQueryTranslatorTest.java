@@ -12,152 +12,152 @@ import org.junit.Test;
 
 public class RegexToGramQueryTranslatorTest {
 	
-//	@Test
-//	public void testEmptyRegex() {
-//		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate("");
-//		GramBooleanQuery expectedQuery = new GramBooleanQuery(GramBooleanQuery.QueryOp.ANY);
-//
-//		Assert.assertTrue(exactQuery.equals(expectedQuery));
-//	}
-//	
-//	@Test
-//	public void testStarRegex() {
-//		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate("a*");
-//		GramBooleanQuery expectedQuery = new GramBooleanQuery(GramBooleanQuery.QueryOp.ANY);
-//		
-//		Assert.assertTrue(exactQuery.equals(expectedQuery));
-//	}
-//	
-//	@Test
-//	public void testLiteral1() {
-//		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate("abc");
-//		GramBooleanQuery expectedQuery = new GramBooleanQuery(GramBooleanQuery.QueryOp.AND);
-//		expectedQuery.operandSet.addAll(Arrays.asList(new String[]{"abc"}));
-//		
-//		Assert.assertTrue(exactQuery.equals(expectedQuery));
-//	}
-//	
-//	@Test
-//	public void testLiteral2() {
-//		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate("ab");
-//		GramBooleanQuery expectedQuery = new GramBooleanQuery(GramBooleanQuery.QueryOp.AND);
-//		expectedQuery.operandSet.addAll(Arrays.asList(new String[]{}));
-//		
-//		Assert.assertTrue(exactQuery.equals(expectedQuery));
-//	}
-//	
-//	@Test
-//	public void testLiteral3() {
-//		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate("abcd");
-//		GramBooleanQuery expectedQuery = new GramBooleanQuery(GramBooleanQuery.QueryOp.AND);
-//		expectedQuery.operandSet.addAll(Arrays.asList(new String[]{"abc", "bcd"}));
-//		
-//		Assert.assertTrue(exactQuery.equals(expectedQuery));
-//	}
-//	
-//	@Test
-//	public void testLiteral4() {
-//		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate("ucirvine");
-//		GramBooleanQuery expectedQuery = new GramBooleanQuery(GramBooleanQuery.QueryOp.AND);
-//		expectedQuery.operandSet.addAll(Arrays.asList(new String[]{"uci", "cir", "irv", "rvi", "vin", "ine"}));
-//		
-//		Assert.assertTrue(exactQuery.equals(expectedQuery));
-//	}
-//	
-//	@Test
-//	public void testLiteral5() {
-//		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate("textdb");
-//		GramBooleanQuery expectedQuery = new GramBooleanQuery(GramBooleanQuery.QueryOp.AND);
-//		expectedQuery.operandSet.addAll(Arrays.asList(new String[]{"tex", "ext", "xtd", "tdb"}));
-//		
-//		Assert.assertTrue(exactQuery.equals(expectedQuery));
-//	}
-//	
-//	@Test
-//	public void testCharClass1() {
-//		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate("[a-b][c-d][e-f]");
-//		GramBooleanQuery expectedQuery = new GramBooleanQuery(GramBooleanQuery.QueryOp.AND);
-//		GramBooleanQuery expectedQueryOrLevel = new GramBooleanQuery(GramBooleanQuery.QueryOp.OR);
-//		expectedQueryOrLevel.operandSet.addAll(Arrays.asList(
-//				new String[]{"ace", "acf", "bce", "bcf", "ade", "adf", "bde", "bdf"}));
-//		expectedQuery.subQuerySet.add(expectedQueryOrLevel);
-//		
-//		Assert.assertTrue(exactQuery.equals(expectedQuery));
-//	}
-//	
-//	@Test
-//	public void testAlternate1() {
-//		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate("uci|ics");
-//		
-//		System.out.println(exactQuery.getLuceneQueryString());
-//		System.out.println(exactQuery.printQueryTree());
-//	}
-//	
-//	@Test
-//	public void testAlternate2() {
-//		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate("data*(bcd|pqr)");
-//		
-//		System.out.println(exactQuery.getLuceneQueryString());
-//		System.out.println(exactQuery.printQueryTree());
-//	}
-//
-//
-//	@Test
-//	public void testPlus1() {
-//		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate("abc+");
-//
-//		System.out.println(exactQuery.getLuceneQueryString());
-//		System.out.println(exactQuery.printQueryTree());
-//	}
-//	
-//	@Test
-//	public void testPlus2() {
-//		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate("abc+pqr+");
-//
-//		System.out.println(exactQuery.getLuceneQueryString());
-//		System.out.println(exactQuery.printQueryTree());
-//	}
-//	
-//	@Test
-//	public void testQuest1() {
-//		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate("abc?");
-//
-//		System.out.println(exactQuery.getLuceneQueryString());
-//		System.out.println(exactQuery.printQueryTree());
-//	}
-//	
-//	@Test
-//	public void testQuest2() {
-//		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate("abc?pqr?");
-//
-//		System.out.println(exactQuery.getLuceneQueryString());
-//		System.out.println(exactQuery.printQueryTree());
-//	}
-	
-//	@Test
-//	// RE2J will simplify REPEAT to equivalent form with QUEST.
-//	// abc{1,3} will be simplified to abcc?c?
-//	public void testRepeat1() {
-//		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate("abc{1,3}");
-//		
-//		System.out.println(exactQuery.getLuceneQueryString());
-//		System.out.println(exactQuery.printQueryTree());
-//	}
-//	
-//	@Test
-//	public void testCapture1() {
-//		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate("(abc)(qwer)");
-//		
-//		System.out.println(exactQuery.getLuceneQueryString());
-//		System.out.println(exactQuery.printQueryTree());
-//	}
+	@Test
+	public void testEmptyRegex() {
+		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate("");
+		GramBooleanQuery expectedQuery = new GramBooleanQuery(GramBooleanQuery.QueryOp.ANY);
+
+		Assert.assertTrue(exactQuery.equals(expectedQuery));
+	}
 	
 	@Test
-	public void testRegexCropUrl() {
-		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate("^(https?:\\/\\/)?([\\da-z\\.-]+)\\.([a-z\\.]{2,6})([\\/\\w \\.-]*)*\\/?$");
+	public void testStarRegex() {
+		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate("a*");
+		GramBooleanQuery expectedQuery = new GramBooleanQuery(GramBooleanQuery.QueryOp.ANY);
+		
+		Assert.assertTrue(exactQuery.equals(expectedQuery));
+	}
+	
+	@Test
+	public void testLiteral1() {
+		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate("abc");
+		GramBooleanQuery expectedQuery = new GramBooleanQuery(GramBooleanQuery.QueryOp.AND);
+		expectedQuery.operandSet.addAll(Arrays.asList(new String[]{"abc"}));
+		
+		Assert.assertTrue(exactQuery.equals(expectedQuery));
+	}
+	
+	@Test
+	public void testLiteral2() {
+		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate("ab");
+		GramBooleanQuery expectedQuery = new GramBooleanQuery(GramBooleanQuery.QueryOp.AND);
+		expectedQuery.operandSet.addAll(Arrays.asList(new String[]{}));
+		
+		Assert.assertTrue(exactQuery.equals(expectedQuery));
+	}
+	
+	@Test
+	public void testLiteral3() {
+		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate("abcd");
+		GramBooleanQuery expectedQuery = new GramBooleanQuery(GramBooleanQuery.QueryOp.AND);
+		expectedQuery.operandSet.addAll(Arrays.asList(new String[]{"abc", "bcd"}));
+		
+		Assert.assertTrue(exactQuery.equals(expectedQuery));
+	}
+	
+	@Test
+	public void testLiteral4() {
+		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate("ucirvine");
+		GramBooleanQuery expectedQuery = new GramBooleanQuery(GramBooleanQuery.QueryOp.AND);
+		expectedQuery.operandSet.addAll(Arrays.asList(new String[]{"uci", "cir", "irv", "rvi", "vin", "ine"}));
+		
+		Assert.assertTrue(exactQuery.equals(expectedQuery));
+	}
+	
+	@Test
+	public void testLiteral5() {
+		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate("textdb");
+		GramBooleanQuery expectedQuery = new GramBooleanQuery(GramBooleanQuery.QueryOp.AND);
+		expectedQuery.operandSet.addAll(Arrays.asList(new String[]{"tex", "ext", "xtd", "tdb"}));
+		
+		Assert.assertTrue(exactQuery.equals(expectedQuery));
+	}
+	
+	@Test
+	public void testCharClass1() {
+		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate("[a-b][c-d][e-f]");
+		GramBooleanQuery expectedQuery = new GramBooleanQuery(GramBooleanQuery.QueryOp.AND);
+		GramBooleanQuery expectedQueryOrLevel = new GramBooleanQuery(GramBooleanQuery.QueryOp.OR);
+		expectedQueryOrLevel.operandSet.addAll(Arrays.asList(
+				new String[]{"ace", "acf", "bce", "bcf", "ade", "adf", "bde", "bdf"}));
+		expectedQuery.subQuerySet.add(expectedQueryOrLevel);
+		
+		Assert.assertTrue(exactQuery.equals(expectedQuery));
+	}
+	
+	@Test
+	public void testAlternate1() {
+		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate("uci|ics");
 		
 		System.out.println(exactQuery.getLuceneQueryString());
 		System.out.println(exactQuery.printQueryTree());
+	}
+	
+	@Test
+	public void testAlternate2() {
+		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate("data*(bcd|pqr)");
+		
+		System.out.println(exactQuery.getLuceneQueryString());
+		System.out.println(exactQuery.printQueryTree());
+	}
+
+
+	@Test
+	public void testPlus1() {
+		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate("abc+");
+
+		System.out.println(exactQuery.getLuceneQueryString());
+		System.out.println(exactQuery.printQueryTree());
+	}
+	
+	@Test
+	public void testPlus2() {
+		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate("abc+pqr+");
+
+		System.out.println(exactQuery.getLuceneQueryString());
+		System.out.println(exactQuery.printQueryTree());
+	}
+	
+	@Test
+	public void testQuest1() {
+		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate("abc?");
+
+		System.out.println(exactQuery.getLuceneQueryString());
+		System.out.println(exactQuery.printQueryTree());
+	}
+	
+	@Test
+	public void testQuest2() {
+		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate("abc?pqr?");
+
+		System.out.println(exactQuery.getLuceneQueryString());
+		System.out.println(exactQuery.printQueryTree());
+	}
+	
+	@Test
+	// RE2J will simplify REPEAT to equivalent form with QUEST.
+	// abc{1,3} will be simplified to abcc?c?
+	public void testRepeat1() {
+		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate("abc{1,3}");
+		
+		System.out.println(exactQuery.getLuceneQueryString());
+		System.out.println(exactQuery.printQueryTree());
+	}
+	
+	@Test
+	public void testCapture1() {
+		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate("(abc)(qwer)");
+		
+		System.out.println(exactQuery.getLuceneQueryString());
+		System.out.println(exactQuery.printQueryTree());
+	}
+	
+	@Test
+	public void testRegexCropUrl() {
+		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate("^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$");
+		
+		System.out.println(exactQuery.getLuceneQueryString());
+//		System.out.println(exactQuery.printQueryTree());
 		
 	}
 	

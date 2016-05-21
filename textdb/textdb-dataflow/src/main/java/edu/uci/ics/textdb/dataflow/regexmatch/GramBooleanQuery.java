@@ -51,18 +51,14 @@ public class GramBooleanQuery {
 	}
 	
 	private void addOrNode(List<String> literalList) {
+		if (TranslatorUtils.minLenOfString(literalList) < 3) {
+			return;
+		}
 		if (literalList.size() == 0) {
 			return;
 		} else if (literalList.size() == 1) {
 			this.addAndNode(literalList.get(0));
 		} else {
-			int minLength = 
-				literalList.stream()
-				.reduce(literalList.get(0), (a,b) -> (a.length() < b.length() ? a: b))
-				.length();
-			if (minLength < 3) {
-				return ;
-			}
 			GramBooleanQuery query = new GramBooleanQuery(QueryOp.OR);
 			for (String literal : literalList) {
 				query.addAndNode(literal);
