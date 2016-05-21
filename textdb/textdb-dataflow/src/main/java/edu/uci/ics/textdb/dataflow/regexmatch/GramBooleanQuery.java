@@ -109,7 +109,7 @@ public class GramBooleanQuery {
 	}
 	
 	/**
-	 * This function "AND" two query trees together. <br>
+	 * This function "AND"s two query trees together. <br>
 	 * It also performs simple simplifications. <br>
 	 * TODO: add more logic for more complicated and effecitve simplifications
 	 * @param that GramBooleanQuery
@@ -246,7 +246,7 @@ public class GramBooleanQuery {
 	}
 
 	/**
-	 * This returns a String represents Lucene query. <br>
+	 * This returns a String that represents Lucene query. <br>
 	 * @return boolean expression 
 	 */
 	public String toString() {

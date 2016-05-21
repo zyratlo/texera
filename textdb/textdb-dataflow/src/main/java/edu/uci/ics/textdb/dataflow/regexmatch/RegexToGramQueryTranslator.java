@@ -46,7 +46,7 @@ public class RegexToGramQueryTranslator {
 	 */
 	private static RegexInfo analyze(PublicRegexp re) {
 		RegexInfo info = new RegexInfo();
-		// FOLD_CASE mean case insensitive
+		// FOLD_CASE means case insensitive
 		boolean isCaseSensitive = (re.getFlags() & PublicRE2.FOLD_CASE) != PublicRE2.FOLD_CASE;
 		switch (re.getOp()) {
 		// NO_MATCH is a regex that doesn't match anything.

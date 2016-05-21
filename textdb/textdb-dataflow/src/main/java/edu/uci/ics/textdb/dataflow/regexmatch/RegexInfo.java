@@ -81,7 +81,7 @@ class RegexInfo {
 	
 	/**
 	 * This function simplifies the regexInfo. <br>
-	 * If there the "exact" set gets too large, it will add exact to the query tree,
+	 * If the "exact" set gets too large, it will add exact to the query tree,
 	 * and move relevant pieces into prefix and suffix. <br>
 	 * 
 	 * Simplification is performed under three circumstances. <br>
@@ -126,7 +126,7 @@ class RegexInfo {
 	 * simplifyAffix reduces the size of the given set (either prefix or suffix).
 	 * If the set gets too big, it moves information in prefix/suffix into match query.
 	 * @param strList
-	 * @param isSuffix indicates given string list is suffix list or not
+	 * @param isSuffix indicates if given string list is suffix list or not
 	 */
 	void simplifyAffix(List<String> strList, boolean isSuffix) {
 		TranslatorUtils.removeDuplicateAffix(strList, isSuffix);
@@ -135,7 +135,7 @@ class RegexInfo {
 		match.add(strList);
 		
 		// This loop cuts the length of prefix/suffix. It cuts all
-		// strings longer than 3, and continues to cut strings
+		// strings longer than {@code gramLength}, and continues to cut strings
 		// until the size of the list is below a threshold.
 		// It cuts a prefix (suffix) string by only retaining the first (last) n characters of it
 		// For example, for a prefix string "abcd", after cutting, it becomes "abc" if n = 3, "ab" if n = 2.

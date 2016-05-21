@@ -26,7 +26,7 @@ public class TranslatorUtils {
 	static final int MAX_SET_SIZE = 20;
 	
 	/**
-	 * This function interfaces provide a method to fold
+	 * This function interface provides a method to fold
 	 * (concat / alternate) two {@code RegexInfo} objects.
 	 * @author laishuying
 	 *
@@ -69,7 +69,6 @@ public class TranslatorUtils {
 
 	/**
 	 * This function removes duplicates in prefix/suffix list.
-	 * Name it clean for easier debugging
 	 * @param strList
 	 * @param isSuffix
 	 */
@@ -108,7 +107,7 @@ public class TranslatorUtils {
 
 	/**
 	 * This function calculates the cartesian product of two string lists (treated as set),
-	 * and remove the duplicates in result.
+	 * and removes the duplicates in the results.
 	 * For example, for xList = {"ab", "a"}, yList = {"bc", "c"},
 	 * the cartesian product is {"abbc", "abc", "abc", "ac"}.
 	 * After removing duplicates, {"abbc", "abc", "ac"} is returned
@@ -130,7 +129,7 @@ public class TranslatorUtils {
 	
 	/**
 	 * This function calculates the union of two string lists (treated as set)
-	 * and remove the duplicates in result.
+	 * and removes the duplicates in the results.
 	 * For example, for xList = {"ab", "cd"}, yList = {"cd", "ef"},
 	 * {"ab", "cd", "ef"} is returned.
 	 * @param xList
