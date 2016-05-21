@@ -3,6 +3,7 @@ package edu.uci.ics.textdb.dataflow.regexmatch;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.stanford.nlp.patterns.Data;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.queryparser.classic.ParseException;
@@ -74,7 +75,9 @@ public class RegexMatcher implements IOperator {
 				this.luceneQuery = generateLuceneQuery(fieldNameList,
 						DataConstants.SCAN_QUERY);
 			}
-			this.sourceOperator = new IndexBasedSourceOperator(new DataReaderPredicate(dataStore, luceneQuery));
+			DataReaderPredicate dataReaderPredicate = new DataReaderPredicate(dataStore, luceneQuery,
+					DataConstants.SCAN_QUERY, luceneAnalyzer, regexPredicate.getAttributeList());
+			this.sourceOperator = new IndexBasedSourceOperator(dataReaderPredicate);
 		} catch (ParseException | java.util.regex.PatternSyntaxException e) {
 			throw new DataFlowException(e.getMessage(), e);
 		}
