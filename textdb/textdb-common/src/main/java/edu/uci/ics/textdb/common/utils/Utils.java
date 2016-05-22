@@ -103,6 +103,7 @@ public class Utils {
         IField spanListField = new ListField<Span>(new ArrayList<>(spanList));
         List<IField> fieldListDuplicate = new ArrayList<>(fieldList);
         if (removeLastField) {
+            System.out.println("Remove last field is true");
             fieldListDuplicate.remove(fieldListDuplicate.size() - 1);
         }
 
