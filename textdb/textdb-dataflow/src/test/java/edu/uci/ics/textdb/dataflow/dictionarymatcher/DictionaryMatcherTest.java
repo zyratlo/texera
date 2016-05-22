@@ -25,6 +25,7 @@ import edu.uci.ics.textdb.api.dataflow.ISourceOperator;
 import edu.uci.ics.textdb.api.storage.IDataReader;
 import edu.uci.ics.textdb.api.storage.IDataWriter;
 import edu.uci.ics.textdb.common.constants.DataConstants;
+import edu.uci.ics.textdb.common.constants.DataConstants.SourceOperatorType;
 import edu.uci.ics.textdb.common.constants.SchemaConstants;
 import edu.uci.ics.textdb.common.constants.TestConstants;
 import edu.uci.ics.textdb.common.field.DataTuple;
@@ -39,6 +40,7 @@ import edu.uci.ics.textdb.dataflow.source.ScanBasedSourceOperator;
 import edu.uci.ics.textdb.dataflow.utils.TestUtils;
 import edu.uci.ics.textdb.storage.DataReaderPredicate;
 import edu.uci.ics.textdb.storage.DataStore;
+import edu.uci.ics.textdb.dataflow.common.DictionaryPredicate;
 import edu.uci.ics.textdb.storage.reader.DataReader;
 import edu.uci.ics.textdb.storage.writer.DataWriter;
 
@@ -62,11 +64,6 @@ public class DictionaryMatcherTest {
         dataStore = new DataStore(DataConstants.INDEX_DIR, TestConstants.SCHEMA_PEOPLE);
         luceneAnalyzer = new StandardAnalyzer();
         dataWriter = new DataWriter(dataStore, luceneAnalyzer);
-        QueryParser luceneQueryParser = new QueryParser(TestConstants.ATTRIBUTES_PEOPLE[0].getFieldName(), luceneAnalyzer);
-        luceneQuery = luceneQueryParser.parse(DataConstants.SCAN_QUERY);
-        dataReaderPredicate = new DataReaderPredicate(dataStore, luceneQuery, DataConstants.SCAN_QUERY,
-                luceneAnalyzer, Arrays.asList(TestConstants.ATTRIBUTES_PEOPLE[0]));
-        dataReader = new DataReader(dataReaderPredicate);
         dataWriter.clearData();
         dataWriter.writeData(TestConstants.getSamplePeopleTuples());
 
@@ -77,11 +74,11 @@ public class DictionaryMatcherTest {
         dataWriter.clearData();
     }
 
-    public List<ITuple> getQueryResults(IDictionary dictionary, ISourceOperator sourceOperator,
+    public List<ITuple> getQueryResults(IDictionary dictionary, SourceOperatorType srcOpType,
             List<Attribute> attributes) throws Exception {
 
-        dictionaryMatcher = new DictionaryMatcher(dictionary, sourceOperator, attributes);
-        dictionaryMatcher.open();
+    	IPredicate dictionaryPredicate = new DictionaryPredicate(dictionary, luceneAnalyzer, attributes, srcOpType , dataStore);
+    	dictionaryMatcher = new DictionaryMatcher(dictionaryPredicate);
         ITuple nextTuple = null;
         List<ITuple> results = new ArrayList<ITuple>();
         while ((nextTuple = dictionaryMatcher.getNextTuple()) != null) {
@@ -116,16 +113,16 @@ public class DictionaryMatcherTest {
     }
 
     /**
-     * Scenario S-2(a):verifies GetNextTuple of DictionaryMatcher and single
-     * word queries in String Field
+     * Scenario S-2:verifies GetNextTuple of DictionaryMatcher and single
+     * word queries in String Field using SCANOPERATOR
      */
 
     @Test
     public void testSingleWordQueryInStringField() throws Exception {
 
-        ArrayList<String> names = new ArrayList<String>(Arrays.asList("Bruce"));
+        ArrayList<String> names = new ArrayList<String>(Arrays.asList("bruce"));
         IDictionary dictionary = new Dictionary(names);
-        ISourceOperator sourceOperator = new ScanBasedSourceOperator(dataReader);
+        
         // create data tuple first
         List<Span> list = new ArrayList<Span>();
         Span span = new Span("firstName", 0, 5, "Bruce", "bruce");
@@ -145,7 +142,7 @@ public class DictionaryMatcherTest {
         List<Attribute> attributes = Arrays.asList(TestConstants.FIRST_NAME_ATTR, TestConstants.LAST_NAME_ATTR,
                 TestConstants.DESCRIPTION_ATTR);
 
-        List<ITuple> returnedResults = getQueryResults(dictionary, sourceOperator, attributes);
+        List<ITuple> returnedResults = getQueryResults(dictionary, SourceOperatorType.SCANOPERATOR, attributes);
         boolean contains = TestUtils.containsAllResults(expectedResults, returnedResults);
         Assert.assertTrue(contains);
     }
