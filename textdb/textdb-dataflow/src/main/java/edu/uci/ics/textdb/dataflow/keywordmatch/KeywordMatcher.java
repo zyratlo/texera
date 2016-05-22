@@ -184,6 +184,12 @@ public class KeywordMatcher implements IOperator {
                         //relevantWordsInQueryOffset maintains the offset position of tokens in query
                         List<Integer> relevantWordsInQueryOffset = new ArrayList<>();
                         String[] queryArray = query.split(" ");
+                        /*
+                        queryTokens are split using analyzer. queryArray needs to be to split with spaces for the
+                        logic which is following. analyser will remove the stop words , so we wont relative position
+                        differences. Ex: new and york. we want to know new and york have a word in between.
+
+                         */
                         if (allTokenPresent) {
                             for(int iter = 0; iter < queryArray.length; iter++){
                                 if(queryTokens.contains(queryArray[iter])){
