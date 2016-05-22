@@ -65,6 +65,9 @@ public class KeywordMatcher implements IOperator {
      *
      *          Query phrase should exist in a document. 'Stop words' (as considered in Lucene Analyzer) are
      *          considered as placeholders and are not exactly matched, only main search tokens are exactly matched.
+     *          Lucene can only provide positions of tokens in phrase query. The phrase query will keep changing
+     *          thus phrase positioning cant be provided by lucene. We have to combine tokens.
+
      *          Ex:
      *          if Query is "lin clooney and angry"
      *          and document is "Lin Clooney is Short and lin clooney is Angry"
