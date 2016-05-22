@@ -56,13 +56,29 @@ public class KeywordMatcher implements IOperator {
      * @about Gets next matched tuple. Returns a new span tuple including the
      *        span results. Performs a scan based search or an index based search depending
      *        on the sourceOperator provided while initializing KeywordPredicate.
-     *        It scans documents returned by sourceOperator for provided keywords.
-     *        All tokens of Query should appear in a Single Field of each document in document
-     *        otherwise it doesn't return anything. It uses AND logic. For each field, if all the query tokens
-     *        appear in the field, then we add its spans to the results.
-     *        If one of the query tokens doesn't appear in the field, we ignore this field.
+     *        It scans documents returned by sourceOperator for provided keywords/phrase (Depending on provided
+     *        KeywordOperatorType).
      *
-     * @overview  For each tuple returned by the the sourceOperator loop
+     *        Presently 2 types of KeywordOperatorType are supported:
+     *
+     *        KeywordOperatorType.PHRASE:
+     *
+     *          Query phrase should exist in a document. 'Stop words' (as considered in Lucene Analyzer) are
+     *          considered as placeholders and are'nt exactly matched, only main search tokens are exactly matched.
+     *          Ex:
+     *          if Query is "lin clooney and angry"
+     *          and document is "Lin Clooney is Short and lin clooney is Angry"
+     *          we will return combined span "lin clooney is angry" and ignore "Lin Clooney"
+     *
+     *
+     *        KeywordOperatorType.BASIC:
+     *
+     *           All tokens of Query should appear in a Single Field of each document in document
+     *           otherwise it doesn't return anything. It uses AND logic. For each field, if all the query tokens
+     *           appear in the field, then we add its spans to the results.
+     *           If one of the query tokens doesn't appear in the field, we ignore this field.
+     *
+     *           For each tuple returned by the the sourceOperator loop
      *           through all the fields in the attributeList. For each field, loop through all the
      *           matches. Returns only one tuple per document. If there are
      *           multiple matches, all spans are included in a list. Java Regex
@@ -80,9 +96,6 @@ public class KeywordMatcher implements IOperator {
      *           DESCRIPTION (type 'Text'): "Lin is like Angelina and is a merry person"
      *           Query : "Lin george",
      *           it won't match any document
-     *
-     *
-     *
      */
     @Override
     public ITuple getNextTuple() throws DataFlowException {
@@ -154,11 +167,7 @@ public class KeywordMatcher implements IOperator {
                             while(iter < spanForThisField.size()){
 
                                 /*Verify if span in the spanForThisField correspond to our phrase query, ie relative position offsets should be similar
-                                and the value should be same.
-                                *Ex:
-                                * if Query is "lin clooney and angry"
-                                * and document is "Lin Clooney is Short and lin clooney is Angry"
-                                * we want to return combined span "lin clooney is angry" and ignore "Lin Clooney"
+                                and the value should be same. See phrase search example provided in this method's about
                                 *
                                  */
                                 int flag=0;// flag checks if a mismatch in spans occurs

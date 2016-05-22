@@ -45,13 +45,13 @@ public class PhraseMatcherTest {
     private KeywordMatcher KeywordMatcher;
     private IDataWriter dataWriter;
     private DataStore dataStore;
-    private Analyzer analyzer;
+    private Analyzer luceneAnalyzer;
 
     @Before
     public void setUp() throws Exception {
         dataStore = new DataStore(DataConstants.INDEX_DIR, TestConstants.SCHEMA_PEOPLE);
-        analyzer = new StandardAnalyzer();
-        dataWriter = new DataWriter(dataStore, analyzer);
+        luceneAnalyzer = new StandardAnalyzer();
+        dataWriter = new DataWriter(dataStore, luceneAnalyzer);
         dataWriter.clearData();
         dataWriter.writeData(TestConstants.getSamplePeopleTuples());
     }
@@ -74,7 +74,7 @@ public class PhraseMatcherTest {
 
     public List<ITuple> getPeopleQueryResults(String query, ArrayList<Attribute> attributeList) throws DataFlowException, ParseException {
 
-        IPredicate predicate = new KeywordPredicate(query, attributeList, DataConstants.KeywordOperatorType.PHRASE, analyzer, dataStore);
+        IPredicate predicate = new KeywordPredicate(query, attributeList, DataConstants.KeywordOperatorType.PHRASE, luceneAnalyzer, dataStore);
         KeywordMatcher = new KeywordMatcher(predicate);
         KeywordMatcher.open();
 
@@ -88,7 +88,25 @@ public class PhraseMatcherTest {
         return results;
     }
 
+    /**
+     * Verifies Phrase Matcher where Query phrase doesn't exist in any document.
+     * @throws Exception
+     */
+    @Test
+    public void testKeywordMatcher() throws Exception {
+        //Prepare Query
+        String query = "lin clooney is short and angry";
+        ArrayList<Attribute> attributeList = new ArrayList<>();
+        attributeList.add(TestConstants.FIRST_NAME_ATTR);
+        attributeList.add(TestConstants.LAST_NAME_ATTR);
+        attributeList.add(TestConstants.DESCRIPTION_ATTR);
 
+        //Perform Query
+        List<ITuple> results = getPeopleQueryResults(query, attributeList);
+
+        //Perform Check
+        Assert.assertEquals(0,results.size());
+    }
 
     /**
      * Verifies List<ITuple> returned by Phrase Matcher on multiple
