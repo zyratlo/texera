@@ -64,7 +64,7 @@ public class KeywordMatcher implements IOperator {
      *        KeywordOperatorType.PHRASE:
      *
      *          Query phrase should exist in a document. 'Stop words' (as considered in Lucene Analyzer) are
-     *          considered as placeholders and are'nt exactly matched, only main search tokens are exactly matched.
+     *          considered as placeholders and are not exactly matched, only main search tokens are exactly matched.
      *          Ex:
      *          if Query is "lin clooney and angry"
      *          and document is "Lin Clooney is Short and lin clooney is Angry"
@@ -196,19 +196,20 @@ public class KeywordMatcher implements IOperator {
                                 and the value should be same.
                                 *
                                  */
-                                int flag=0;// flag checks if a mismatch in spans occurs
+                                int isMismatchInSpan=0;// flag to check if a mismatch in spans occurs
                                 if(iter <= spanForThisField.size()-relevantWordsInQuery.size()){
                                     int i; // To check all the terms in query are verified
                                     for(i=0; i < relevantWordsInQuery.size()-1; i++) {
-                                        Span A = spanForThisField.get(iter+i);
-                                        Span B = spanForThisField.get(iter +i+ 1);
-                                        if (!(B.getTokenOffset() - A.getTokenOffset() == relevantWordsInQueryOffset.get(i+1) - relevantWordsInQueryOffset.get(i) &&
-                                                A.getValue().equalsIgnoreCase(relevantWordsInQuery.get(i)) && B.getValue().equalsIgnoreCase(relevantWordsInQuery.get(i+1)))) {
+                                        Span first = spanForThisField.get(iter+i);
+                                        Span second = spanForThisField.get(iter +i+ 1);
+                                        if (!(second.getTokenOffset() - first.getTokenOffset() == relevantWordsInQueryOffset.get(i+1) - relevantWordsInQueryOffset.get(i) &&
+                                                first.getValue().equalsIgnoreCase(relevantWordsInQuery.get(i)) && second.getValue().equalsIgnoreCase(relevantWordsInQuery.get(i+1)))) {
                                             iter++;
-                                            flag=1;
+                                            isMismatchInSpan=1;
+                                            break;
                                         }
                                     }
-                                    if(flag==1)continue;
+                                    if(isMismatchInSpan==1)continue;
                                 }
 
                                 int combinedSpanStartIndex = spanForThisField.get(iter).getStart();
