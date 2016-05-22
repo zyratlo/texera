@@ -110,6 +110,12 @@ public class KeywordMatcher implements IOperator {
             List<Span> spanList =
                     (List<Span>)sourceTuple.getField(schemaIndex).getValue();
             Collections.sort(spanList, tokenOffsetComp);
+            /*
+            sort is required for combining the span info for the phrase search. Suppose target query is
+            "new is york" , and document contains multiple "new" and "york" term usage, then lucene will return all
+            "new " occurences followed by all "york" occurences, thus to combine span we require to sort it by
+            termOffset
+            * */
             for(int attributeIndex = 0; attributeIndex < attributeList.size(); attributeIndex++) {
                 String fieldName = attributeList.get(attributeIndex).getFieldName();
                 IField field = sourceTuple.getField(fieldName);
@@ -148,6 +154,26 @@ public class KeywordMatcher implements IOperator {
                     }
 
                     else if(predicate.getOperatorType() == KeywordOperatorType.PHRASE){
+                        /*Ex:
+
+                       Document: "Lin Clooney is Short and lin clooney is Angry"
+                        Query 1 : "lin and and angry"
+                        upon searching lucene will find documents where 'lin' occurs, followed by 2 words, then 'angry'
+                        occurs. With each source tuple it will return span info for the tokens in query( in our
+                        case 'lin' & 'angry').
+                        spanList -> ["lin":{tokenOffset:0,start:0,end:3},"lin":{tokenOffset:5,start:25,end:28},
+                        "angry":{tokenOffset:8,start:40,end:45}]
+                        for our phrase search we want to combine "lin" at tokenOffset=5 and "angry" at tokenOffset=8.
+
+                        Query 2:"lin clooney and angry"
+                        spanList -> ["lin":{tokenOffset:0,start:0,end:3},"lin":{tokenOffset:5,start:25,end:28},
+                        "clooney":{tokenOffset:1,start:4,end:11}, "clooney":{tokenOffset:6,start:29,end:36},
+                        "angry":{tokenOffset:8,start:40,end:45}]
+                        for our phrase search we want to combine "lin" at tokenOffset=5,"clooney" at tokenOffset=6
+                        and "angry" at tokenOffset=8.
+
+                        So in generalized logic we check for tokens in query corresponding to the phrase query semantics.
+                         */
 
                         spanList.removeAll(spanForThisField);
                         //relevantWordsInQuery has all the tokens (including duplicates but excluding stop words) in the query.
@@ -167,7 +193,7 @@ public class KeywordMatcher implements IOperator {
                             while(iter < spanForThisField.size()){
 
                                 /*Verify if span in the spanForThisField correspond to our phrase query, ie relative position offsets should be similar
-                                and the value should be same. See phrase search example provided in this method's about
+                                and the value should be same.
                                 *
                                  */
                                 int flag=0;// flag checks if a mismatch in spans occurs

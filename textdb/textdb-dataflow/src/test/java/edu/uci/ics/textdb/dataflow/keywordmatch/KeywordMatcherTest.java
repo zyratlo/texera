@@ -147,7 +147,6 @@ public class KeywordMatcherTest {
         //Perform Check
         boolean contains = TestUtils.containsAllResults(expectedResultList, resultList);
         Assert.assertTrue(contains);
-        Assert.assertEquals(1,resultList.size());
     }
 
 
@@ -199,7 +198,6 @@ public class KeywordMatcherTest {
         //Perform Check
         boolean contains = TestUtils.containsAllResults(expectedResultList, resultList);
         Assert.assertTrue(contains);
-        Assert.assertEquals(2, resultList.size());
     }
 
 
@@ -242,7 +240,6 @@ public class KeywordMatcherTest {
         //Perform Check
         boolean contains = TestUtils.containsAllResults(expectedResultList, resultList);
         Assert.assertTrue(contains);
-        Assert.assertEquals(1,resultList.size());
     }
 
 
@@ -293,7 +290,6 @@ public class KeywordMatcherTest {
         //Perform Check
         boolean contains = TestUtils.containsAllResults(expectedResultList, resultList);
         Assert.assertTrue(contains);
-        Assert.assertEquals(1,resultList.size());
     }
 
     /**

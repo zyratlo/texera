@@ -147,7 +147,6 @@ public class PhraseMatcherTest {
         //Perform Check
         boolean contains = TestUtils.containsAllResults(expectedResultList, resultList);
         Assert.assertTrue(contains);
-        Assert.assertEquals(1,resultList.size());
     }
 
 
@@ -195,7 +194,6 @@ public class PhraseMatcherTest {
         //Perform Check
         boolean contains = TestUtils.containsAllResults(expectedResultList, resultList);
         Assert.assertTrue(contains);
-        Assert.assertEquals(1,resultList.size());
     }
 
     /**
@@ -237,7 +235,6 @@ public class PhraseMatcherTest {
         //Perform Check
         boolean contains = TestUtils.containsAllResults(expectedResultList, resultList);
         Assert.assertTrue(contains);
-        Assert.assertEquals(1,resultList.size());
     }
 
     /**
@@ -279,7 +276,6 @@ public class PhraseMatcherTest {
         //Perform Check
         boolean contains = TestUtils.containsAllResults(expectedResultList, resultList);
         Assert.assertTrue(contains);
-        Assert.assertEquals(1,resultList.size());
     }
 
 
