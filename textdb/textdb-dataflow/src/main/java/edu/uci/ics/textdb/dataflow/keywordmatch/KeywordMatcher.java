@@ -199,20 +199,20 @@ public class KeywordMatcher implements IOperator {
                                 and the value should be same.
                                 *
                                  */
-                                int isMismatchInSpan=0;// flag to check if a mismatch in spans occurs
+                                boolean isMismatchInSpan=false;// flag to check if a mismatch in spans occurs
                                 if(iter <= spanForThisField.size()-relevantWordsInQuery.size()){
-                                    int i; // To check all the terms in query are verified
-                                    for(i=0; i < relevantWordsInQuery.size()-1; i++) {
+                                     // To check all the terms in query are verified
+                                    for(int i=0; i < relevantWordsInQuery.size()-1; i++) {
                                         Span first = spanForThisField.get(iter+i);
                                         Span second = spanForThisField.get(iter +i+ 1);
                                         if (!(second.getTokenOffset() - first.getTokenOffset() == relevantWordsInQueryOffset.get(i+1) - relevantWordsInQueryOffset.get(i) &&
                                                 first.getValue().equalsIgnoreCase(relevantWordsInQuery.get(i)) && second.getValue().equalsIgnoreCase(relevantWordsInQuery.get(i+1)))) {
                                             iter++;
-                                            isMismatchInSpan=1;
+                                            isMismatchInSpan=true;
                                             break;
                                         }
                                     }
-                                    if(isMismatchInSpan==1)continue;
+                                    if(isMismatchInSpan==true)continue;
                                 }
 
                                 int combinedSpanStartIndex = spanForThisField.get(iter).getStart();
