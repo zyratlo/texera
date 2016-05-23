@@ -111,15 +111,16 @@ public class DictionaryMatcher implements IOperator {
      *        and scans the documents for matches Presently 2 types of
      *        KeywordOperatorType are supported:
      * 
-     *        SourceOperatorType.SCANOPERATOR: Loop through the dictionary
-     *        entries. For each dictionary entry, loop through the tuples in the
-     *        operator. For each tuple, loop through the fields in the
-     *        attributelist. For each field, loop through all the matches.
-     *        Returns only one tuple per document. If there are multiple
-     *        matches, all spans are included in a list. Java Regex is used to
-     *        match word boundaries. Ex: If dictionary word is "Lin", and text
-     *        is "Lin is Angelina's friend", matches should include Lin but not
-     *        Angelina
+     *        SourceOperatorType.SCANOPERATOR:
+     * 
+     *        Loop through the dictionary entries. For each dictionary entry,
+     *        loop through the tuples in the operator. For each tuple, loop
+     *        through the fields in the attributelist. For each field, loop
+     *        through all the matches. Returns only one tuple per document. If
+     *        there are multiple matches, all spans are included in a list. Java
+     *        Regex is used to match word boundaries. Ex: If dictionary word is
+     *        "Lin", and text is "Lin is Angelina's friend", matches should
+     *        include Lin but not Angelina.
      * 
      *        SourceOperatorType.KEYWORDOPERATOR:
      * 
