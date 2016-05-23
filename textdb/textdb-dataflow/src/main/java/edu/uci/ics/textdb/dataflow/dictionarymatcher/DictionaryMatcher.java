@@ -118,9 +118,11 @@ public class DictionaryMatcher implements IOperator {
      *        through the fields in the attributelist. For each field, loop
      *        through all the matches. Returns only one tuple per document. If
      *        there are multiple matches, all spans are included in a list. Java
-     *        Regex is used to match word boundaries. Ex: If dictionary word is
-     *        "Lin", and text is "Lin is Angelina's friend", matches should
-     *        include Lin but not Angelina.
+     *        Regex is used to match word boundaries.
+     * 
+     *        Ex: If dictionary word is "Lin", and text is
+     *        "Lin is Angelina's friend", matches should include Lin but not
+     *        Angelina.
      * 
      *        SourceOperatorType.KEYWORDOPERATOR:
      * 
@@ -134,7 +136,7 @@ public class DictionaryMatcher implements IOperator {
      *        Loop through the dictionary entries. For each dictionary entry,
      *        keywordmatcher's getNextTuple is called using
      *        KeyWordOperator.PHRASE. The span returned is the span information
-     *        provided by the keywordmatcher's phrase operator
+     *        provided by the keywordmatcher's phrase operator.
      * 
      */
     @Override
@@ -163,7 +165,7 @@ public class DictionaryMatcher implements IOperator {
             // substring of a TextField value in order to be a match.
             if (dataField instanceof TextField) {
                 matcher = pattern.matcher(fieldValue.toLowerCase());
-                // Get position of dict value in the field.
+                // Get position of dictionary value in the field.
                 while (matcher.find(positionIndex) != false) {
                     isPresent = true;
                     int spanStartPosition = matcher.start();
