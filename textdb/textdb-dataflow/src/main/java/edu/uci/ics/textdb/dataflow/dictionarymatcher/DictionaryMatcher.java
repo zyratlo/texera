@@ -65,35 +65,39 @@ public class DictionaryMatcher implements IOperator {
             attributeIndex = 0;
             dictionaryValue = predicate.getNextDictionaryValue();
 
-            if (predicate.getSourceOperatorType() == DataConstants.SourceOperatorType.SCANOPERATOR) {
-                operator = predicate.getScanSourceOperator();
-                operator.open();
-            } else if (predicate.getSourceOperatorType() == DataConstants.SourceOperatorType.KEYWORDOPERATOR) {
-                KeywordPredicate keywordPredicate = new KeywordPredicate(dictionaryValue, predicate.getAttributeList(),
-                        KeywordOperatorType.BASIC, predicate.getAnalyzer(), predicate.getDataStore());
-                operator = new KeywordMatcher(keywordPredicate);
-                operator.open();
-            } else if (predicate.getSourceOperatorType() == DataConstants.SourceOperatorType.PHRASEOPERATOR) {
+            if (predicate.getSourceOperatorType() == DataConstants.SourceOperatorType.PHRASEOPERATOR) {
                 KeywordPredicate keywordPredicate = new KeywordPredicate(dictionaryValue, predicate.getAttributeList(),
                         KeywordOperatorType.PHRASE, predicate.getAnalyzer(), predicate.getDataStore());
                 operator = new KeywordMatcher(keywordPredicate);
                 operator.open();
+            } else {
+
+                if (predicate.getSourceOperatorType() == DataConstants.SourceOperatorType.SCANOPERATOR) {
+                    operator = predicate.getScanSourceOperator();
+                    operator.open();
+                } else if (predicate.getSourceOperatorType() == DataConstants.SourceOperatorType.KEYWORDOPERATOR) {
+                    KeywordPredicate keywordPredicate = new KeywordPredicate(dictionaryValue,
+                            predicate.getAttributeList(), KeywordOperatorType.BASIC, predicate.getAnalyzer(),
+                            predicate.getDataStore());
+                    operator = new KeywordMatcher(keywordPredicate);
+                    operator.open();
+                }
+
+                dataTuple = operator.getNextTuple();
+                fields = dataTuple.getFields();
+                // Java regex is used to detect word boundaries for TextField
+                // match.
+                // '\b' is used to match the beginning and end of the word.
+                regex = "\\b" + dictionaryValue.toLowerCase() + "\\b";
+                pattern = Pattern.compile(regex);
+
+                if (spanSchema == null) {
+                    spanSchema = Utils.createSpanSchema(dataTuple.getSchema());
+                }
+
+                spanList = new ArrayList<>();
+                isPresent = false;
             }
-
-            dataTuple = operator.getNextTuple();
-            fields = dataTuple.getFields();
-            // Java regex is used to detect word boundaries for TextField match.
-            // '\b' is used to match the beginning and end of the word.
-            regex = "\\b" + dictionaryValue.toLowerCase() + "\\b";
-            pattern = Pattern.compile(regex);
-
-            if (spanSchema == null) {
-                spanSchema = Utils.createSpanSchema(dataTuple.getSchema());
-            }
-
-            spanList = new ArrayList<>();
-            isPresent = false;
-
         } catch (Exception e) {
             e.printStackTrace();
             throw new DataFlowException(e.getMessage(), e);
