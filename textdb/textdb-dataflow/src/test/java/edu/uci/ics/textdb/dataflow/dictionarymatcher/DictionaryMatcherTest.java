@@ -106,7 +106,7 @@ public class DictionaryMatcherTest {
      */
 
     @Test
-    public void testSingleWordQueryInStringField() throws Exception {
+    public void testSingleWordQueryInStringFieldUsingScan() throws Exception {
 
         ArrayList<String> names = new ArrayList<String>(Arrays.asList("bruce"));
         IDictionary dictionary = new Dictionary(names);
