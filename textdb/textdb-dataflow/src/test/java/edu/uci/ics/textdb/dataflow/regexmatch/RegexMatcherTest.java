@@ -140,7 +140,7 @@ public class RegexMatcherTest {
 		
 		List<ITuple> expectedResults = new ArrayList<ITuple>();
 		
-		//expected to match "66.220.144.0"
+		//expected to match "k.bocanegra@uci.edu"
 		Schema spanSchema = testHelper.getSpanSchema();
 		List<Span> spans = new ArrayList<Span>();
 		spans.add(new Span(RegexTestConstantStaff.EMAIL, 0, 19, query, "k.bocanegra@uci.edu"));
@@ -149,7 +149,7 @@ public class RegexMatcherTest {
 		fields.add(spanField);
 		expectedResults.add(new DataTuple(spanSchema, fields.toArray(new IField[fields.size()])));
 		
-		//expected to match "180.149.134.141"
+		//expected to match "hwangl@ics.uci.edu"
 		spans.clear();
 		spans.add(new Span(RegexTestConstantStaff.EMAIL, 0, 18, query, "hwangl@ics.uci.edu"));
 		spanField = new ListField<Span>(new ArrayList<Span>(spans));
