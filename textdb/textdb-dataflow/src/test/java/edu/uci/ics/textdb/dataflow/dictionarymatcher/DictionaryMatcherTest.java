@@ -408,4 +408,41 @@ public class DictionaryMatcherTest {
         boolean contains = TestUtils.containsAllResults(expectedResults, returnedResults);
         Assert.assertTrue(contains);
     }
+    /**
+     * Scenario S-9:verifies: data source has multiple attributes, and an entity
+     * can appear in all the fields and multiple times using PHRASE OPERATOR.
+     */
+
+    @Test
+    public void testWordInMultipleFieldsQueryUsingPhrase() throws Exception {
+
+        ArrayList<String> names = new ArrayList<String>(Arrays.asList("lin clooney"));
+        IDictionary dictionary = new Dictionary(names);
+        // create data tuple first
+        List<Span> list = new ArrayList<Span>();
+        Span span1 = new Span("lastName", 0, 11, "lin clooney", "lin clooney");
+        Span span2 = new Span("description", 0, 11, "lin clooney", "Lin Clooney");
+        Span span3 = new Span("description", 25, 36, "lin clooney", "lin clooney");
+        list.add(span1);
+        list.add(span2);
+        list.add(span3);
+        Attribute[] schemaAttributes = new Attribute[TestConstants.ATTRIBUTES_PEOPLE.length + 1];
+        for (int count = 0; count < schemaAttributes.length - 1; count++) {
+            schemaAttributes[count] = TestConstants.ATTRIBUTES_PEOPLE[count];
+        }
+        schemaAttributes[schemaAttributes.length - 1] = SchemaConstants.SPAN_LIST_ATTRIBUTE;
+
+        IField[] fields1 = { new StringField("george lin lin"), new StringField("lin clooney"), new IntegerField(43),
+                new DoubleField(6.06), new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-13-1973")),
+                new TextField("Lin Clooney is Short and lin clooney is Angry"), new ListField<Span>(list) };
+        ITuple tuple1 = new DataTuple(new Schema(schemaAttributes), fields1);
+        List<ITuple> expectedResults = new ArrayList<ITuple>();
+        expectedResults.add(tuple1);
+        List<Attribute> attributes = Arrays.asList(TestConstants.FIRST_NAME_ATTR, TestConstants.LAST_NAME_ATTR,
+                TestConstants.DESCRIPTION_ATTR);
+
+        List<ITuple> returnedResults = getQueryResults(dictionary, SourceOperatorType.PHRASEOPERATOR, attributes);
+        boolean contains = TestUtils.containsAllResults(expectedResults, returnedResults);
+        Assert.assertTrue(contains);
+    }
 }
