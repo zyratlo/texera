@@ -116,7 +116,7 @@ public class NlpExtractor implements IOperator {
             for (Attribute attribute : searchInAttributes) {
                 String fieldName = attribute.getFieldName();
                 IField field = sourceTuple.getField(fieldName);
-                spanList.addAll(extractInfoSpans(field, fieldName));
+                spanList.addAll(extractNlpSpans(field, fieldName));
             }
 
             ITuple returnTuple = Utils.getSpanTuple(sourceTuple.getFields(), spanList, returnSchema);
@@ -156,7 +156,7 @@ public class NlpExtractor implements IOperator {
      * The NLP package has annotations for the start and end position of a token
      * and it perfectly matches the span design so we just use them.
      */
-    private List<Span> extractInfoSpans(IField iField, String fieldName) {
+    private List<Span> extractNlpSpans(IField iField, String fieldName) {
         List<Span> spanList = new ArrayList<>();
         String text = (String) iField.getValue();
         Properties props = new Properties();
@@ -182,7 +182,7 @@ public class NlpExtractor implements IOperator {
                 }
 
 
-                NlpConstants thisNlpConstant = getInfoConstant(StanfordNlpConstant);
+                NlpConstants thisNlpConstant = getNlpConstant(StanfordNlpConstant);
                 if (thisNlpConstant == null) {
                     continue;
                 }
@@ -239,14 +239,14 @@ public class NlpExtractor implements IOperator {
 
 
     /**
-     * @param NLPConstant
+     * @param StanfordConstant
      * @return
      * @about This function takes a Stanford NLP Constant (Named Entity 7 classes: LOCATION,PERSON,ORGANIZATION,MONEY,PERCENT,DATE,
      * TIME and NUMBER and Part of Speech Constants) and returns the corresponding enum type NlpConstant.
      * (For Part of Speech, we match all Stanford Constant to only 4 types: Noun, Verb, Adjective and Adverb.
      */
-    private NlpConstants getInfoConstant(String NLPConstant) {
-        switch (NLPConstant) {
+    private NlpConstants getNlpConstant(String StanfordConstant) {
+        switch (StanfordConstant) {
             case "NUMBER":
                 return NlpConstants.Number;
             case "LOCATION":
