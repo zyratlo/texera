@@ -124,16 +124,18 @@ public class DictionaryMatcher implements IOperator {
      * 
      *        SourceOperatorType.KEYWORDOPERATOR:
      * 
+     *        Loop through the dictionary entries. For each dictionary entry,
+     *        keywordmatcher's getNextTuple is called using
+     *        KeyWordOperator.BASIC. Updates span information at the end of the
+     *        tuple.
+     * 
      *        SourceOperatorType.PHRASEOPERATOR:
      * 
-     * @overview Loop through the dictionary entries. For each dictionary entry,
-     *           loop through the tuples in the operator. For each tuple, loop
-     *           through all the fields. For each field, loop through all the
-     *           matches. Returns only one tuple per document. If there are
-     *           multiple matches, all spans are included in a list. Java Regex
-     *           is used to match word boundaries. Ex : If text is
-     *           "Lin is Angelina's friend" and the dictionary word is "Lin",
-     *           matches should include Lin but not Angelina.
+     *        Loop through the dictionary entries. For each dictionary entry,
+     *        keywordmatcher's getNextTuple is called using
+     *        KeyWordOperator.PHRASE. The span returned is the span information
+     *        provided by the keywordmatcher's phrase operator
+     * 
      */
     @Override
     public ITuple getNextTuple() throws Exception {

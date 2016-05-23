@@ -102,6 +102,12 @@ public class Utils {
             boolean removeLastField) {
         IField spanListField = new ListField<Span>(new ArrayList<>(spanList));
         List<IField> fieldListDuplicate = new ArrayList<>(fieldList);
+        // If SourceOperator is of type Keyword, KeywordMatcher also includes a
+        // span which should be discarded by dictionary matcher.
+        // The dictionary matcher creates another span and returns the tuple
+        // Ex: If text is "New York is beautiful" and given dictionary value is
+        // "New York", keyword matcher returns two spans for New and York
+        // separately, which we discard and create a span for "New York"
         if (removeLastField) {
             fieldListDuplicate.remove(fieldListDuplicate.size() - 1);
         }
@@ -120,6 +126,8 @@ public class Utils {
      */
     public static Schema createSpanSchema(Schema schema) {
         List<Attribute> dataTupleAttributes = schema.getAttributes();
+        // If SourceOperator is of type Keyword, spanschema is already provided
+        // by keywordmatcher, so there is no need to create a new span schema
         if (dataTupleAttributes.get(dataTupleAttributes.size() - 1).equals(SchemaConstants.SPAN_LIST_ATTRIBUTE)) {
             return schema;
         }
