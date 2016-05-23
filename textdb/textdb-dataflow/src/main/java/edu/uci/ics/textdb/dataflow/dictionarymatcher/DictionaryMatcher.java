@@ -12,6 +12,7 @@ import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.common.Schema;
 import edu.uci.ics.textdb.api.dataflow.IOperator;
 import edu.uci.ics.textdb.common.constants.DataConstants;
+import edu.uci.ics.textdb.common.constants.DataConstants.KeywordOperatorType;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
 import edu.uci.ics.textdb.common.field.Span;
 import edu.uci.ics.textdb.common.field.StringField;
@@ -69,7 +70,12 @@ public class DictionaryMatcher implements IOperator {
                 operator.open();
             } else if (predicate.getSourceOperatorType() == DataConstants.SourceOperatorType.KEYWORDOPERATOR) {
                 KeywordPredicate keywordPredicate = new KeywordPredicate(dictionaryValue, predicate.getAttributeList(),
-                        predicate.getAnalyzer(), predicate.getDataStore());
+                        KeywordOperatorType.BASIC, predicate.getAnalyzer(), predicate.getDataStore());
+                operator = new KeywordMatcher(keywordPredicate);
+                operator.open();
+            } else if (predicate.getSourceOperatorType() == DataConstants.SourceOperatorType.PHRASEOPERATOR) {
+                KeywordPredicate keywordPredicate = new KeywordPredicate(dictionaryValue, predicate.getAttributeList(),
+                        KeywordOperatorType.PHRASE, predicate.getAnalyzer(), predicate.getDataStore());
                 operator = new KeywordMatcher(keywordPredicate);
                 operator.open();
             }
@@ -110,6 +116,10 @@ public class DictionaryMatcher implements IOperator {
      */
     @Override
     public ITuple getNextTuple() throws Exception {
+        if (predicate.getSourceOperatorType() == DataConstants.SourceOperatorType.PHRASEOPERATOR) {
+            return operator.getNextTuple();
+        }
+
         if (attributeIndex < predicate.getAttributeList().size()) {
             IField dataField = dataTuple.getField(predicate.getAttributeList().get(attributeIndex).getFieldName());
             String fieldValue = (String) dataField.getValue();
@@ -182,7 +192,7 @@ public class DictionaryMatcher implements IOperator {
                 operator.open();
             } else if (predicate.getSourceOperatorType() == DataConstants.SourceOperatorType.KEYWORDOPERATOR) {
                 KeywordPredicate keywordPredicate = new KeywordPredicate(dictionaryValue, predicate.getAttributeList(),
-                        predicate.getAnalyzer(), predicate.getDataStore());
+                        KeywordOperatorType.BASIC, predicate.getAnalyzer(), predicate.getDataStore());
                 operator = new KeywordMatcher(keywordPredicate);
                 operator.open();
             }
