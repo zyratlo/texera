@@ -173,7 +173,7 @@ public class DataReader implements IDataReader {
 
             cursor++;
 
-            ITuple dataTuple = Utils.getSpanTuple(fields, spanList, spanSchema, false);
+            ITuple dataTuple = Utils.getSpanTuple(fields, spanList, spanSchema);
             return dataTuple;
 
         } catch (IOException e) {

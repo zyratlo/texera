@@ -75,7 +75,7 @@ public class NEExtractorTestConstants {
 
         Schema returnSchema = Utils.createSpanSchema(tuple1.getSchema());
 
-        ITuple returnTuple = Utils.getSpanTuple(tuple1.getFields(), spanList, returnSchema, false);
+        ITuple returnTuple = Utils.getSpanTuple(tuple1.getFields(), spanList, returnSchema);
         resultList.add(returnTuple);
 
         return resultList;
@@ -96,7 +96,7 @@ public class NEExtractorTestConstants {
 
         Schema returnSchema = Utils.createSpanSchema(tuple1.getSchema());
 
-        ITuple returnTuple = Utils.getSpanTuple(tuple1.getFields(), spanList, returnSchema, false);
+        ITuple returnTuple = Utils.getSpanTuple(tuple1.getFields(), spanList, returnSchema);
         resultList.add(returnTuple);
         return resultList;
     }
@@ -123,7 +123,7 @@ public class NEExtractorTestConstants {
 
         Schema returnSchema = Utils.createSpanSchema(tuple1.getSchema());
 
-        ITuple returnTuple = Utils.getSpanTuple(tuple1.getFields(), spanList, returnSchema, false);
+        ITuple returnTuple = Utils.getSpanTuple(tuple1.getFields(), spanList, returnSchema);
         resultList.add(returnTuple);
 
         return resultList;
@@ -151,7 +151,7 @@ public class NEExtractorTestConstants {
 
         Schema returnSchema = Utils.createSpanSchema(tuple1.getSchema());
 
-        ITuple returnTuple = Utils.getSpanTuple(tuple1.getFields(), spanList, returnSchema, false);
+        ITuple returnTuple = Utils.getSpanTuple(tuple1.getFields(), spanList, returnSchema);
         resultList.add(returnTuple);
 
         return resultList;
@@ -173,7 +173,7 @@ public class NEExtractorTestConstants {
 
         Schema returnSchema = Utils.createSpanSchema(tuple1.getSchema());
 
-        ITuple returnTuple = Utils.getSpanTuple(tuple1.getFields(), spanList, returnSchema, false);
+        ITuple returnTuple = Utils.getSpanTuple(tuple1.getFields(), spanList, returnSchema);
         resultList.add(returnTuple);
 
         return resultList;

@@ -94,7 +94,7 @@ public class NamedEntityExtractor implements IOperator {
                 spanList.addAll(extractNESpans(field, fieldName));
             }
 
-            ITuple returnTuple = Utils.getSpanTuple(sourceTuple.getFields(), spanList, returnSchema, false);
+            ITuple returnTuple = Utils.getSpanTuple(sourceTuple.getFields(), spanList, returnSchema);
             sourceTuple = sourceOperator.getNextTuple();
             return returnTuple;
         }

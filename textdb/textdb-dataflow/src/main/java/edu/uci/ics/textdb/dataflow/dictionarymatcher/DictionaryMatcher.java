@@ -28,7 +28,7 @@ import edu.uci.ics.textdb.dataflow.keywordmatch.KeywordMatcher;
  */
 public class DictionaryMatcher implements IOperator {
 
-    private IOperator operator;
+    private IOperator sourceOperator;
     private String dictionaryValue;
     private int positionIndex; // next position in the field to be checked.
     private int attributeIndex; // Index of the next field to be checked.
@@ -68,22 +68,22 @@ public class DictionaryMatcher implements IOperator {
             if (predicate.getSourceOperatorType() == DataConstants.SourceOperatorType.PHRASEOPERATOR) {
                 KeywordPredicate keywordPredicate = new KeywordPredicate(dictionaryValue, predicate.getAttributeList(),
                         KeywordOperatorType.PHRASE, predicate.getAnalyzer(), predicate.getDataStore());
-                operator = new KeywordMatcher(keywordPredicate);
-                operator.open();
+                sourceOperator = new KeywordMatcher(keywordPredicate);
+                sourceOperator.open();
             } else {
 
                 if (predicate.getSourceOperatorType() == DataConstants.SourceOperatorType.SCANOPERATOR) {
-                    operator = predicate.getScanSourceOperator();
-                    operator.open();
+                    sourceOperator = predicate.getScanSourceOperator();
+                    sourceOperator.open();
                 } else if (predicate.getSourceOperatorType() == DataConstants.SourceOperatorType.KEYWORDOPERATOR) {
                     KeywordPredicate keywordPredicate = new KeywordPredicate(dictionaryValue,
                             predicate.getAttributeList(), KeywordOperatorType.BASIC, predicate.getAnalyzer(),
                             predicate.getDataStore());
-                    operator = new KeywordMatcher(keywordPredicate);
-                    operator.open();
+                    sourceOperator = new KeywordMatcher(keywordPredicate);
+                    sourceOperator.open();
                 }
 
-                dataTuple = operator.getNextTuple();
+                dataTuple = sourceOperator.getNextTuple();
                 fields = dataTuple.getFields();
                 // Java regex is used to detect word boundaries for TextField
                 // match.
@@ -91,9 +91,7 @@ public class DictionaryMatcher implements IOperator {
                 regex = "\\b" + dictionaryValue.toLowerCase() + "\\b";
                 pattern = Pattern.compile(regex);
 
-                if (spanSchema == null) {
-                    spanSchema = Utils.createSpanSchema(dataTuple.getSchema());
-                }
+                spanSchema = getSpanSchema(dataTuple.getSchema());
 
                 spanList = new ArrayList<>();
                 isPresent = false;
@@ -142,13 +140,13 @@ public class DictionaryMatcher implements IOperator {
     @Override
     public ITuple getNextTuple() throws Exception {
         if (predicate.getSourceOperatorType() == DataConstants.SourceOperatorType.PHRASEOPERATOR) {
-            if ((dataTuple = operator.getNextTuple()) != null) {
+            if ((dataTuple = sourceOperator.getNextTuple()) != null) {
                 return dataTuple;
             } else if ((dictionaryValue = predicate.getNextDictionaryValue()) != null) {
                 KeywordPredicate keywordPredicate = new KeywordPredicate(dictionaryValue, predicate.getAttributeList(),
                         KeywordOperatorType.PHRASE, predicate.getAnalyzer(), predicate.getDataStore());
-                operator = new KeywordMatcher(keywordPredicate);
-                operator.open();
+                sourceOperator = new KeywordMatcher(keywordPredicate);
+                sourceOperator.open();
                 return getNextTuple();
             }
 
@@ -200,11 +198,14 @@ public class DictionaryMatcher implements IOperator {
         } else if (attributeIndex == predicate.getAttributeList().size() && isPresent) {
             isPresent = false;
             positionIndex = 0;
-            boolean isKeywordOperator = (predicate
-                    .getSourceOperatorType() == DataConstants.SourceOperatorType.KEYWORDOPERATOR) ? true : false;
-            return Utils.getSpanTuple(fields, spanList, spanSchema, isKeywordOperator);
+            if (predicate.getSourceOperatorType() == DataConstants.SourceOperatorType.KEYWORDOPERATOR) {
+                List<IField> fieldlist = removeSpanFromTuple(fields);
+                return Utils.getSpanTuple(fieldlist, spanList, spanSchema);
+            } else {
+                return Utils.getSpanTuple(fields, spanList, spanSchema);
+            }
 
-        } else if ((dataTuple = operator.getNextTuple()) != null) {
+        } else if ((dataTuple = sourceOperator.getNextTuple()) != null) {
             attributeIndex = 0;
             positionIndex = 0;
             spanList.clear();
@@ -224,16 +225,16 @@ public class DictionaryMatcher implements IOperator {
             pattern = Pattern.compile(regex);
 
             if (predicate.getSourceOperatorType() == DataConstants.SourceOperatorType.SCANOPERATOR) {
-                operator.close();
-                operator.open();
+                sourceOperator.close();
+                sourceOperator.open();
             } else if (predicate.getSourceOperatorType() == DataConstants.SourceOperatorType.KEYWORDOPERATOR) {
                 KeywordPredicate keywordPredicate = new KeywordPredicate(dictionaryValue, predicate.getAttributeList(),
                         KeywordOperatorType.BASIC, predicate.getAnalyzer(), predicate.getDataStore());
-                operator = new KeywordMatcher(keywordPredicate);
-                operator.open();
+                sourceOperator = new KeywordMatcher(keywordPredicate);
+                sourceOperator.open();
             }
 
-            dataTuple = operator.getNextTuple();
+            dataTuple = sourceOperator.getNextTuple();
             fields = dataTuple.getFields();
             return getNextTuple();
         }
@@ -246,13 +247,26 @@ public class DictionaryMatcher implements IOperator {
         spanList.add(span);
     }
 
+    private List<IField> removeSpanFromTuple(List<IField> fieldList) {
+        List<IField> fieldListDuplicate = new ArrayList<>(fieldList);
+        fieldListDuplicate.remove(fieldListDuplicate.size() - 1);
+        return fieldListDuplicate;
+    }
+
+    private Schema getSpanSchema(Schema schema) {
+        if (spanSchema == null || predicate.getSourceOperatorType() == DataConstants.SourceOperatorType.SCANOPERATOR) {
+            spanSchema = Utils.createSpanSchema(dataTuple.getSchema());
+        }
+        return spanSchema;
+    }
+
     /**
      * @about Closes the operator
      */
     @Override
     public void close() throws DataFlowException {
         try {
-            operator.close();
+            sourceOperator.close();
         } catch (Exception e) {
             e.printStackTrace();
             throw new DataFlowException(e.getMessage(), e);
