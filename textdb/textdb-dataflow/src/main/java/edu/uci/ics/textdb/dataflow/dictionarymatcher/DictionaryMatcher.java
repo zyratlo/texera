@@ -147,7 +147,7 @@ public class DictionaryMatcher implements IOperator {
             } else if (dataField instanceof StringField) {
                 // Dictionary value should exactly match fieldValue for a
                 // StringField
-                if (fieldValue.equals(dictionaryValue.toLowerCase())) {
+                if (fieldValue.equals(dictionaryValue)) {
                     isPresent = true;
                     int spanStartPosition = 0;
                     positionIndex = spanStartPosition + dictionaryValue.length();
@@ -183,6 +183,7 @@ public class DictionaryMatcher implements IOperator {
             // and we need to scan them again for a different dictionary value
             attributeIndex = 0;
             positionIndex = 0;
+            spanList.clear();
 
             regex = "\\b" + dictionaryValue.toLowerCase() + "\\b";
             pattern = Pattern.compile(regex);
