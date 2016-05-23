@@ -51,14 +51,18 @@ public class RegexMatcherTestHelper {
 	public Schema getSpanSchema() {
 		return regexMatcher.getSpanSchema();
 	}
-
+	
 	public void runTest(String regex, Attribute attribute) throws Exception {
+		runTest(regex, attribute, true);
+	}
+
+	public void runTest(String regex, Attribute attribute, boolean useTranslator) throws Exception {
 		results.clear();
 		RegexPredicate regexPredicate = new RegexPredicate(
 				regex, Arrays.asList(new Attribute[]{attribute}), 
 				luceneAnalyzer, dataStore);
 
-		regexMatcher = new RegexMatcher(regexPredicate);
+		regexMatcher = new RegexMatcher(regexPredicate, useTranslator);
 		regexMatcher.open();
 		ITuple nextTuple = null;
 		while ((nextTuple = regexMatcher.getNextTuple()) != null) {

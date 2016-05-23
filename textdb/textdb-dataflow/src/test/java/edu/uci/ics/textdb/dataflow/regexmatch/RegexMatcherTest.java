@@ -161,5 +161,20 @@ public class RegexMatcherTest {
 		
 		testHelper.cleanUp();
 	}
+	
+	@Test
+	public void testRegexText1() throws Exception {
+		List<ITuple> data = RegexTestConstantsText.getSampleTextTuples();
+		RegexMatcherTestHelper testHelper = new RegexMatcherTestHelper(RegexTestConstantsText.SCHEMA_TEXT, data);
+		
+		String regex = "\btest(er|ing|ed|s)?\b";
+		testHelper.runTest(regex, RegexTestConstantsText.CONTENT_ATTR, false);
+		for (ITuple result : testHelper.getResults()) {
+			System.out.println("result is "+result);
+		}
+	}
 
 }
+
+
+
