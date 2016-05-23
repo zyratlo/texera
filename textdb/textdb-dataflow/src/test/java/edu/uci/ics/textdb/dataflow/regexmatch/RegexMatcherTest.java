@@ -182,8 +182,40 @@ public class RegexMatcherTest {
 		String regex = "test(er|ing|ed|s)?";
 		testHelper.runTest(regex, RegexTestConstantsText.CONTENT_ATTR, false);
 
-		printResults(testHelper.getResults());
+		List<ITuple> exactResults = testHelper.getResults();
+		
+		List<ITuple> expectedResults = new ArrayList<ITuple>();
+		
+		
+		//expected to match "test" & testing"
+		Schema spanSchema = testHelper.getSpanSchema();
+		List<Span> spans = new ArrayList<Span>();
+		spans.add(new Span(RegexTestConstantsText.CONTENT, 5, 9, regex, "test"));
+		spans.add(new Span(RegexTestConstantsText.CONTENT, 21, 28, regex, "testing"));
+		IField spanField = new ListField<Span>(new ArrayList<Span>(spans));
+		List<IField> fields = new ArrayList<IField>(data.get(0).getFields());
+		fields.add(spanField);
+		expectedResults.add(new DataTuple(spanSchema, fields.toArray(new IField[fields.size()])));
+		
+		//expected to match "tests"
+		spans.clear();
+		spans.add(new Span(RegexTestConstantsText.CONTENT, 87, 92, regex, "tests"));
+		spanField = new ListField<Span>(new ArrayList<Span>(spans));
+		fields = new ArrayList<IField>(data.get(2).getFields());
+		fields.add(spanField);
+		expectedResults.add(new DataTuple(spanSchema, fields.toArray(new IField[fields.size()])));
+		
+		//expected to match "tested"
+		spans.clear();
+		spans.add(new Span(RegexTestConstantsText.CONTENT, 43, 49, regex, "tested"));
+		spanField = new ListField<Span>(new ArrayList<Span>(spans));
+		fields = new ArrayList<IField>(data.get(3).getFields());
+		fields.add(spanField);
+		expectedResults.add(new DataTuple(spanSchema, fields.toArray(new IField[fields.size()])));
 
+		Assert.assertTrue(TestUtils.containsAllResults(expectedResults, exactResults));
+		
+		testHelper.cleanUp();
 	}
 
 }
