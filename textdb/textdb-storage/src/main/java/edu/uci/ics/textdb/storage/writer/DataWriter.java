@@ -5,7 +5,6 @@ import java.nio.file.Paths;
 import java.util.List;
 
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
@@ -63,7 +62,6 @@ public class DataWriter implements IDataWriter{
         try {
             Directory directory = FSDirectory.open(Paths
                     .get(dataStore.getDataDirectory()));
-            Analyzer analyzer = new StandardAnalyzer();
             IndexWriterConfig conf = new IndexWriterConfig(analyzer);
             luceneIndexWriter = new IndexWriter(directory, conf);
             

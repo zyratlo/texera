@@ -16,7 +16,7 @@ public class RegexTestConstantsText {
     // Sample test data of some random text
     public static final String CONTENT = "content";
     
-    public static final Attribute CONTENT_ATTR = new Attribute(CONTENT, FieldType.STRING);
+    public static final Attribute CONTENT_ATTR = new Attribute(CONTENT, FieldType.TEXT);
 
     public static final Attribute[] ATTRIBUTES_TEXT = { CONTENT_ATTR };
     public static final Schema SCHEMA_TEXT = new Schema(ATTRIBUTES_TEXT);

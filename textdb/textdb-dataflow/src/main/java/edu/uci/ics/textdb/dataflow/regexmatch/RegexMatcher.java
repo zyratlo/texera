@@ -23,6 +23,7 @@ import edu.uci.ics.textdb.common.field.Span;
 import edu.uci.ics.textdb.common.utils.Utils;
 import edu.uci.ics.textdb.dataflow.common.RegexPredicate;
 import edu.uci.ics.textdb.dataflow.source.IndexBasedSourceOperator;
+import edu.uci.ics.textdb.dataflow.source.RegexIndexBasedSourceOperator;
 import edu.uci.ics.textdb.storage.DataReaderPredicate;
 
 /**
@@ -35,8 +36,11 @@ public class RegexMatcher implements IOperator {
     private String regex;
     private List<String> fieldNameList;
     
-    private Schema sourceTupleSchema = null;
-    private Schema spanSchema = null;
+    private Schema sourceTupleSchema;
+    private Schema spanSchema;
+    
+    private String luceneQueryStr;
+    private Query luceneQuery;
     
 	private Analyzer luceneAnalyzer;
 	private ISourceOperator sourceOperator;
@@ -63,6 +67,9 @@ public class RegexMatcher implements IOperator {
     	this.fieldNameList = regexPredicate.getFieldNameList();
     	this.luceneAnalyzer = regexPredicate.getLuceneAnalyzer();
     	
+		this.sourceTupleSchema = regexPredicate.getDataStore().getSchema();
+		this.spanSchema = Utils.createSpanSchema(this.sourceTupleSchema);
+    	
     	// try to use RE2J first
     	try {
     		this.re2jPattern = com.google.re2j.Pattern.compile(regexPredicate.getRegex());
@@ -78,23 +85,22 @@ public class RegexMatcher implements IOperator {
     		}
     	}
     	
-    	String luceneQueryStr;
     	if (useTranslator && regexEngine == RegexEngine.RE2J) {
-			luceneQueryStr = RegexToGramQueryTranslator.translate(regex).getLuceneQueryString();
+			this.luceneQueryStr = RegexToGramQueryTranslator.translate(regex).getLuceneQueryString();
     	} else {
-    		luceneQueryStr =  DataConstants.SCAN_QUERY;
+    		this.luceneQueryStr =  DataConstants.SCAN_QUERY;
     	}
     	
-    	Query luceneQuery;
     	try {
-    		luceneQuery = generateLuceneQuery(fieldNameList, luceneQueryStr);
+    		this.luceneQuery = generateLuceneQuery(fieldNameList, luceneQueryStr);
     	} catch (ParseException e) {
     		throw new DataFlowException(e.getMessage());
     	}
-    	
+    	    	
 		DataReaderPredicate dataReaderPredicate = new DataReaderPredicate(regexPredicate.getDataStore(), 
-				luceneQuery, luceneQueryStr, luceneAnalyzer, regexPredicate.getAttributeList());
-		this.sourceOperator = new IndexBasedSourceOperator(dataReaderPredicate);
+				this.luceneQuery, this.luceneQueryStr, luceneAnalyzer, regexPredicate.getAttributeList());
+		this.sourceOperator = new RegexIndexBasedSourceOperator(dataReaderPredicate);
+		
     }
     
     
@@ -116,12 +122,6 @@ public class RegexMatcher implements IOperator {
             this.spanList = computeMatches(sourceTuple);
             
             if (spanList != null && spanList.size() != 0) { // a list of matches found
-            	if (sourceTupleSchema == null) {
-            		sourceTupleSchema = sourceTuple.getSchema();
-            	}
-            	if (spanSchema == null) {
-            		spanSchema = Utils.createSpanSchema(sourceTupleSchema);
-            	}
             	List<IField> fields = sourceTuple.getFields();
             	return constructSpanTuple(fields, this.spanList);
             } else { // no match found
@@ -221,6 +221,10 @@ public class RegexMatcher implements IOperator {
 
     public Schema getSpanSchema() {
     	return spanSchema;
+    }
+    
+    public String getLueneQueryString() {
+    	return this.luceneQueryStr;
     }
     
     public String getRegex() {

@@ -26,12 +26,12 @@ import edu.uci.ics.textdb.storage.writer.DataWriter;
  */
 public class RegexMatcherTestHelper {
 
-	private RegexMatcher regexMatcher;
-	private IDataWriter dataWriter;
-	private IDataStore dataStore;
+	RegexMatcher regexMatcher;
+	IDataWriter dataWriter;
+	IDataStore dataStore;
 	
-	private List<ITuple> results;
-    private Analyzer luceneAnalyzer;
+	List<ITuple> results;
+    Analyzer luceneAnalyzer;
 	
 	public RegexMatcherTestHelper(Schema schema, List<ITuple> data) throws Exception {
 		dataStore = new DataStore(DataConstants.INDEX_DIR, schema);
