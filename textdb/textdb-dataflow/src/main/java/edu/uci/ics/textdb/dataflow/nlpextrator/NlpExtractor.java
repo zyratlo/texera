@@ -1,4 +1,4 @@
-package edu.uci.ics.textdb.dataflow.neextrator;
+package edu.uci.ics.textdb.dataflow.nlpextrator;
 
 import edu.stanford.nlp.ling.CoreAnnotations;
 import edu.stanford.nlp.ling.CoreLabel;
@@ -35,7 +35,7 @@ import java.util.Properties;
  *         ["sentence1,0,6,Google, NE_ORGANIZATION", "sentence2,22,25,Mountain View, NE_LOCATION"]
  */
 
-public class NamedEntityExtractor implements IOperator {
+public class NlpExtractor implements IOperator {
 
 
     private IOperator sourceOperator;
@@ -54,15 +54,12 @@ public class NamedEntityExtractor implements IOperator {
     public static final String NE_TIME = "Time";
 
 
-    public NamedEntityExtractor(IOperator operator, List<Attribute> searchInAttributes) {
+    public NlpExtractor(IOperator operator, List<Attribute> searchInAttributes) {
         this.sourceOperator = operator;
         this.searchInAttributes = searchInAttributes;
     }
 
 
-    /**
-     * @about Opens Named Entity Extractor
-     */
     @Override
     public void open() throws Exception {
         try {
@@ -250,9 +247,7 @@ public class NamedEntityExtractor implements IOperator {
     }
 
 
-    /**
-     * @about Closes the operator
-     */
+
     @Override
     public void close() throws DataFlowException {
         try {
