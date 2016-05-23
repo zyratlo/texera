@@ -566,7 +566,7 @@ public class DictionaryMatcherTest {
     }
     
     /**
-     * Scenario S-13:verifies:  Query with Stop Words match corresponding phrases in the document
+     * Scenario S-14:verifies: Query with Stop Words match corresponding phrases in the document
      *  using PHRASE OPERATOR.
      */
 
