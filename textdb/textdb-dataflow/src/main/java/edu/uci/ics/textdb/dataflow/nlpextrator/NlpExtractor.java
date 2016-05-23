@@ -16,23 +16,19 @@ import edu.uci.ics.textdb.common.exception.DataFlowException;
 import edu.uci.ics.textdb.common.field.Span;
 import edu.uci.ics.textdb.common.utils.Utils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 
 /**
- * @author Feng [sam0227] on 4/27/16.
- *         <p>
- *         Wrap the Stanford NLP Named Entity Recognizer as an operator.
- *         This operator would recognize 7 classes: Location, Person, Organization, Money, Percent, Date and Time.
- *         Return the recoginized data as a list of spans that are appended to the original tuple as a field.
- *         <p>
- *         For example: Given tuple with two fields: sentence1, sentence2.
- *         tuple: ["Google is an organization.", "Its headquarter is in Mountain View."]
- *         <p>
- *         Append a list of spans then return:
- *         ["sentence1,0,6,Google, NE_ORGANIZATION", "sentence2,22,25,Mountain View, NE_LOCATION"]
+ * @author Feng
+ * @about Wrap the Stanford NLP as an operator to extractor desire information (Named Entities, Part of Speech).
+ * This operator could recognize 7 Named Entity classes: Location, Person, Organization, Money, Percent, Date and Time.
+ * It'll also detect 4 types of Part of Speech: Noun, Verb, Adjective and Adverb.
+ * Return the extracted token as a list of spans and appends to the original tuple as a new field.
+ * For example: Given tuple with two fields: sentence1, sentence2,  specify to extract all Named Entities.
+ * Source Tuple: ["Google is an organization.", "Its headquarter is in Mountain View."]
+ * Appends a list of spans as a field for the return tuple.:
+ * ["sentence1,0,6,Google, Organization", "sentence2,22,25,Mountain View, Location"]
  */
 
 public class NlpExtractor implements IOperator {
@@ -42,21 +38,47 @@ public class NlpExtractor implements IOperator {
     private List<Attribute> searchInAttributes;
     private ITuple sourceTuple;
     private Schema returnSchema;
+    private NlpConstants NlpConstant = null;
+    private String flag = null;
 
 
-    public static final String NE_NUMBER = "Number";
-    public static final String NE_LOCATION = "Location";
-    public static final String NE_PERSON = "Person";
-    public static final String NE_ORGANIZATION = "Organization";
-    public static final String NE_MONEY = "Money";
-    public static final String NE_PERCENT = "Percent";
-    public static final String NE_DATE = "Date";
-    public static final String NE_TIME = "Time";
+    /**
+     * Named Entity Constants: NE, Number, Location, Person, Organization, Money, Percent, Date, Time.
+     * Part Of Speech Constants: Noun, Verb, Adjective, Adverb
+     */
+    public enum NlpConstants {
+        NE, Number, Location, Person, Organization, Money, Percent, Date, Time, Noun, Verb, Adjective, Adverb;
+
+        private static boolean isPOSConstant(NlpConstants constant) {
+            if (constant.equals(NlpConstants.Adjective) || constant.equals(NlpConstants.Adverb) || constant.equals(NlpConstants.Noun) || constant.equals(NlpConstants.Verb)) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+    }
+
+    ;
 
 
-    public NlpExtractor(IOperator operator, List<Attribute> searchInAttributes) {
+    /**
+     * @param operator
+     * @param searchInAttributes
+     * @param nlpConstant
+     * @throws DataFlowException
+     * @about The constructor of the NlpExtractor. Allow users to pass a list of attributes and a NlpConstant.
+     * The operator will only search within the attributes and return the same token that recognized as the same input
+     * NlpConstant. IF the input constant is NlpConstants.NE, return all tokens that recognized as NamedEntity Constants.
+     */
+    public NlpExtractor(IOperator operator, List<Attribute> searchInAttributes, NlpConstants nlpConstant) throws DataFlowException {
         this.sourceOperator = operator;
         this.searchInAttributes = searchInAttributes;
+        this.NlpConstant = nlpConstant;
+        if (NlpConstants.isPOSConstant(nlpConstant)) {
+            flag = "POS";
+        } else {
+            flag = "NE";
+        }
     }
 
 
@@ -73,12 +95,13 @@ public class NlpExtractor implements IOperator {
 
 
     /**
-     * @about Return all named entities that are recognized in a document.
-     * Return format is a Tuple that contains only one field which is
-     * a list of spans of the result.
-     * @overview First get a tuple from the source operator then process it
-     * using the Stanford NLP package. for all recognized words, compute their
-     * spans and return all as a list.
+     * @about Return the extracted data as a list of spans
+     * and appends to the original tuple as a new field.
+     * @overview Get a tuple from the source operator
+     * Use the Stanford NLP package to process specified fields.
+     * For all recognized tokens that match the input constant,
+     * create their spans and make them as a list. Appends the list
+     * as a field in the original tuple.
      */
     @Override
     public ITuple getNextTuple() throws Exception {
@@ -93,7 +116,7 @@ public class NlpExtractor implements IOperator {
             for (Attribute attribute : searchInAttributes) {
                 String fieldName = attribute.getFieldName();
                 IField field = sourceTuple.getField(fieldName);
-                spanList.addAll(extractNESpans(field, fieldName));
+                spanList.addAll(extractInfoSpans(field, fieldName));
             }
 
             ITuple returnTuple = Utils.getSpanTuple(sourceTuple.getFields(), spanList, returnSchema);
@@ -104,51 +127,73 @@ public class NlpExtractor implements IOperator {
 
     /**
      * @param iField
-     * @return a List of spans of the extracted information
-     * @about This function takes an (TextField) IField and a String
-     * (the field's name) as input and uses the Stanford NLP package to process the field.
-     * It returns a list of spans
-     * In the returning span: Value -> the word itself
-     * Key   -> NE_Constant
-     * @overview Using the Stanford NLP package to process the textField value.
-     * First set up a pipeline of Annotators for the string: TokenizerAnnotator,
+     * @param fieldName
+     * @return
+     * @about This function takes an IField(TextField) and a String
+     * (the field's name) as input and uses the Stanford NLP package
+     * to process the field based on the input constant and flag.
+     * In the result spans, value represents the word itself
+     * and key represents the recognized constant
+     * @overview First set up a pipeline of Annotators based on the flag.
+     * If the flag is "NE", we set up the NamedEntityTagAnnotator,
+     * if it's "POS", then only PartOfSpeechAnnotator is needed.
+     * <p>
+     * The pipeline has to be this order: TokenizerAnnotator,
      * SentencesAnnotator, PartOfSpeechAnnotator, LemmaAnnotator and
-     * NamedEntityTagAnnotator. The order is mandatory because they have
-     * dependencies. After the pipeline, each token is wrapped as a CoreLabel
+     * NamedEntityTagAnnotator.
+     * <p>
+     * In the pipeline, each token is wrapped as a CoreLabel
      * and each sentence is wrapped as CoreMap. Each annotator adds its
      * annotation to the CoreMap(sentence) or CoreLabel(token) object.
      * <p>
-     * After the pipeline is done, scan each CoreLabel(token) for
-     * its NamedEntityAnnotation, if it's a valid value (not 'O'),
-     * then makes it a span and add to the return list.
-     * The Stanford NLP constants are mapped into the NE constants.
+     * After the pipeline, scan each CoreLabel(token) for its
+     * NamedEntityAnnotation or PartOfSpeechAnnotator depends on the flag
+     * <p>
+     * For each Stanford NLP annotation, get it's corresponding NlpConstant
+     * that used in this package, then check if it equals to the input constant.
+     * If yes, makes it a span and add to the return list.
+     * <p>
      * The NLP package has annotations for the start and end position of a token
      * and it perfectly matches the span design so we just use them.
-     *
      */
-    private List<Span> extractNESpans(IField iField, String fieldName) {
+    private List<Span> extractInfoSpans(IField iField, String fieldName) {
         List<Span> spanList = new ArrayList<>();
         String text = (String) iField.getValue();
         Properties props = new Properties();
-        props.setProperty("annotators", "tokenize, ssplit, pos, lemma, ner");
+
+        if (flag.equals("POS")) {
+            props.setProperty("annotators", "tokenize, ssplit, pos");
+        } else {
+            props.setProperty("annotators", "tokenize, ssplit, pos, lemma, ner");
+        }
+
         StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
         Annotation documentAnnotation = new Annotation(text);
         pipeline.annotate(documentAnnotation);
         List<CoreMap> sentences = documentAnnotation.get(CoreAnnotations.SentencesAnnotation.class);
         for (CoreMap sentence : sentences) {
             for (CoreLabel token : sentence.get(CoreAnnotations.TokensAnnotation.class)) {
-                String NLPConstant = token.get(CoreAnnotations.NamedEntityTagAnnotation.class);
-                if (!NLPConstant.equals("O")) {
 
-                    String NEConstant = getNEConstant(NLPConstant);
+                String StanfordNlpConstant;
+                if (flag.equals("POS")) {
+                    StanfordNlpConstant = token.get(CoreAnnotations.PartOfSpeechAnnotation.class);
+                } else {
+                    StanfordNlpConstant = token.get(CoreAnnotations.NamedEntityTagAnnotation.class);
+                }
+
+
+                NlpConstants thisNlpConstant = getInfoConstant(StanfordNlpConstant);
+                if (thisNlpConstant == null) {
+                    continue;
+                }
+                if (NlpConstant.equals(NlpConstants.NE) || NlpConstant.equals(thisNlpConstant)) {
                     int start = token.get(CoreAnnotations.CharacterOffsetBeginAnnotation.class);
                     int end = token.get(CoreAnnotations.CharacterOffsetEndAnnotation.class);
                     String word = token.get(CoreAnnotations.TextAnnotation.class);
 
-                    Span span = new Span(fieldName, start, end, NEConstant, word);
+                    Span span = new Span(fieldName, start, end, thisNlpConstant.toString(), word);
 
-
-                    if (spanList.size() >= 1) {
+                    if (spanList.size() >= 1 && (flag.equals("NE"))) {
                         Span previousSpan = spanList.get(spanList.size() - 1);
                         if (previousSpan.getFieldName().equals(span.getFieldName())
                                 && (span.getStart() - previousSpan.getEnd() <= 1)
@@ -159,8 +204,8 @@ public class NlpExtractor implements IOperator {
                         }
                     }
                     spanList.add(span);
-
                 }
+
             }
 
         }
@@ -188,69 +233,78 @@ public class NlpExtractor implements IOperator {
      * 3. The two spans have the same key (Organization, Person,... etc)
      */
     private Span mergeTwoSpans(Span previousSpan, Span currentSpan) {
-        String previousWord = previousSpan.getValue();
-        String currentWord = currentSpan.getValue();
-
-        String newWord = previousWord + " " + currentWord;
-
-        String NEConstant = previousSpan.getKey();
-        String fieldName = previousSpan.getFieldName();
-        int start = previousSpan.getStart();
-        int end = currentSpan.getEnd();
-
-        Span mergedspan = new Span(fieldName, start, end, NEConstant, newWord);
-
-        return mergedspan;
-
+        String newWord = previousSpan.getValue() + " " + currentSpan.getValue();
+        return new Span(previousSpan.getFieldName(), previousSpan.getStart(), currentSpan.getEnd(), previousSpan.getKey(), newWord);
     }
+
 
     /**
-     * This function takes a Stanford NLP Constant (The 7 Classes as LOCATION,PERSON,ORGANIZATION,MONEY,PERCENT,DATE,
-     * TIME and NUMBER) and returns the corresponding NE Constant.
-     *
      * @param NLPConstant
      * @return
+     * @about This function takes a Stanford NLP Constant (Named Entity 7 classes: LOCATION,PERSON,ORGANIZATION,MONEY,PERCENT,DATE,
+     * TIME and NUMBER and Part of Speech Constants) and returns the corresponding enum type NlpConstant.
+     * (For Part of Speech, we match all Stanford Constant to only 4 types: Noun, Verb, Adjective and Adverb.
      */
-    private String getNEConstant(String NLPConstant) {
-        String NEConstant;
+    private NlpConstants getInfoConstant(String NLPConstant) {
         switch (NLPConstant) {
             case "NUMBER":
-                NEConstant = this.NE_NUMBER;
-                break;
+                return NlpConstants.Number;
             case "LOCATION":
-                NEConstant = this.NE_LOCATION;
-                break;
+                return NlpConstants.Location;
             case "PERSON":
-                NEConstant = this.NE_PERSON;
-                break;
+                return NlpConstants.Person;
             case "ORGANIZATION":
-                NEConstant = this.NE_ORGANIZATION;
-                break;
+                return NlpConstants.Organization;
             case "MONEY":
-                NEConstant = this.NE_MONEY;
-                break;
+                return NlpConstants.Money;
             case "PERCENT":
-                NEConstant = this.NE_PERCENT;
-                break;
+                return NlpConstants.Percent;
             case "DATE":
-                NEConstant = this.NE_DATE;
-                break;
+                return NlpConstants.Date;
             case "TIME":
-                NEConstant = this.NE_TIME;
-                break;
+                return NlpConstants.Time;
+            case "JJ":
+                return NlpConstants.Adjective;
+            case "JJR":
+                return NlpConstants.Adjective;
+            case "JJS":
+                return NlpConstants.Adjective;
+            case "RB":
+                return NlpConstants.Adverb;
+            case "RBR":
+                return NlpConstants.Adverb;
+            case "RBS":
+                return NlpConstants.Adverb;
+            case "NN":
+                return NlpConstants.Noun;
+            case "NNS":
+                return NlpConstants.Noun;
+            case "NNP":
+                return NlpConstants.Noun;
+            case "NNPS":
+                return NlpConstants.Noun;
+            case "VB":
+                return NlpConstants.Verb;
+            case "VBD":
+                return NlpConstants.Verb;
+            case "VBG":
+                return NlpConstants.Verb;
+            case "VBN":
+                return NlpConstants.Verb;
+            case "VBP":
+                return NlpConstants.Verb;
+            case "VBZ":
+                return NlpConstants.Verb;
             default:
-                NEConstant = null;
-                break;
+                return null;
         }
-        return NEConstant;
-
     }
-
 
 
     @Override
     public void close() throws DataFlowException {
         try {
+            NlpConstant = null;
             searchInAttributes = null;
             sourceTuple = null;
             returnSchema = null;
