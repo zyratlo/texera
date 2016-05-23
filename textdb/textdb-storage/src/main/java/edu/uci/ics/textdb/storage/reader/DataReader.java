@@ -8,20 +8,19 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.uci.ics.textdb.common.field.Span;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.index.PostingsEnum;
+import org.apache.lucene.index.Terms;
+import org.apache.lucene.index.TermsEnum;
+import org.apache.lucene.search.DocIdSetIterator;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
-import org.apache.lucene.index.Terms;
-import org.apache.lucene.index.TermsEnum;
 import org.apache.lucene.util.BytesRef;
-import org.apache.lucene.index.PostingsEnum;
-import org.apache.lucene.search.DocIdSetIterator;
 
 import edu.uci.ics.textdb.api.common.Attribute;
 import edu.uci.ics.textdb.api.common.FieldType;
@@ -33,6 +32,7 @@ import edu.uci.ics.textdb.api.storage.IDataReader;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
 import edu.uci.ics.textdb.common.exception.ErrorMessages;
 import edu.uci.ics.textdb.common.field.DataTuple;
+import edu.uci.ics.textdb.common.field.Span;
 import edu.uci.ics.textdb.common.utils.Utils;
 import edu.uci.ics.textdb.storage.DataReaderPredicate;
 
@@ -40,7 +40,7 @@ import edu.uci.ics.textdb.storage.DataReaderPredicate;
  * @author sandeepreddy602
  *
  */
-public class DataReader implements IDataReader{
+public class DataReader implements IDataReader {
 
     private int cursor = CLOSED;
     private IndexSearcher luceneIndexSearcher;
@@ -52,38 +52,39 @@ public class DataReader implements IDataReader{
     private List<BytesRef> queryTokensInBytesRef;
     // The schema of the data tuple
     private Schema schema;
-    //The schema of the data tuple along with the span information.
+    // The schema of the data tuple along with the span information.
     private Schema spanSchema;
 
     public DataReader(IPredicate dataReaderPredicate) {
-        this.dataReaderPredicate = (DataReaderPredicate)dataReaderPredicate;
+        this.dataReaderPredicate = (DataReaderPredicate) dataReaderPredicate;
     }
-    
+
     @Override
     public void open() throws DataFlowException {
-
 
         try {
             String dataDirectory = dataReaderPredicate.getDataStore().getDataDirectory();
             Directory directory = FSDirectory.open(Paths.get(dataDirectory));
             luceneIndexReader = DirectoryReader.open(directory);
-                		
+
             luceneIndexSearcher = new IndexSearcher(luceneIndexReader);
             TopDocs topDocs = luceneIndexSearcher.search(dataReaderPredicate.getLuceneQuery(), Integer.MAX_VALUE);
             scoreDocs = topDocs.scoreDocs;
             cursor = OPENED;
 
-            this.queryTokens = Utils.tokenizeQuery(dataReaderPredicate.getLuceneAnalyzer(),dataReaderPredicate.getQueryString());
+            this.queryTokens = Utils.tokenizeQuery(dataReaderPredicate.getLuceneAnalyzer(),
+                    dataReaderPredicate.getQueryString());
 
             // sort the query tokens, as the term vector are also sorted.
             // This makes the seek faster.
             this.queryTokens.sort(String.CASE_INSENSITIVE_ORDER);
 
             // The terms in the term vector are stored as ByteRef,
-            // hence convert token from String format to ByteRef and then search.
+            // hence convert token from String format to ByteRef and then
+            // search.
 
             this.queryTokensInBytesRef = new ArrayList<>();
-            for(String token: queryTokens) {
+            for (String token : queryTokens) {
                 BytesRef byteRef = new BytesRef(token.toLowerCase().getBytes());
                 this.queryTokensInBytesRef.add(byteRef);
             }
@@ -100,18 +101,18 @@ public class DataReader implements IDataReader{
 
     @Override
     public ITuple getNextTuple() throws DataFlowException {
-        if(cursor == CLOSED){
+        if (cursor == CLOSED) {
             throw new DataFlowException(ErrorMessages.OPERATOR_NOT_OPENED);
         }
         try {
-            if(cursor >= scoreDocs.length){
+            if (cursor >= scoreDocs.length) {
                 return null;
             }
             Document document = luceneIndexSearcher.doc(scoreDocs[cursor].doc);
             List<Span> spanList = new ArrayList<>();
             List<IField> fields = new ArrayList<IField>();
 
-            for (Attribute  attr : schema.getAttributes()) {
+            for (Attribute attr : schema.getAttributes()) {
                 FieldType fieldType = attr.getFieldType();
                 String fieldValue = document.get(attr.getFieldName());
                 fields.add(Utils.getField(fieldType, fieldValue));
@@ -120,28 +121,30 @@ public class DataReader implements IDataReader{
             // If the span Information is not requested,
             // just return the dataTuple without span information.
 
-            if(!dataReaderPredicate.getIsSpanInformationAdded()){
+            if (!dataReaderPredicate.getIsSpanInformationAdded()) {
                 cursor++;
                 DataTuple dataTuple = new DataTuple(schema, fields.toArray(new IField[fields.size()]));
-                return  dataTuple;
+                return dataTuple;
             }
 
             // Create span information.
 
-            for(Attribute attr: attributeList){
+            for (Attribute attr : attributeList) {
 
-                String fieldName  = attr.getFieldName();
+                String fieldName = attr.getFieldName();
                 // Get the term vector for the current field.
-                Terms vector = luceneIndexReader.getTermVector(scoreDocs[cursor].doc,fieldName);
+                Terms vector = luceneIndexReader.getTermVector(scoreDocs[cursor].doc, fieldName);
 
                 if (vector != null) {
                     TermsEnum vectorEnum = vector.iterator();
                     int queryTokenIndex = 0;
-                    // Search for all the query tokens in the term vector one by one.
-                    for(BytesRef term: queryTokensInBytesRef){
+                    // Search for all the query tokens in the term vector one by
+                    // one.
+                    for (BytesRef term : queryTokensInBytesRef) {
 
-                        //If Term is found, calculate the position info and add to the Spans
-                        if(vectorEnum.seekExact(term)){
+                        // If Term is found, calculate the position info and add
+                        // to the Spans
+                        if (vectorEnum.seekExact(term)) {
                             PostingsEnum postings = vectorEnum.postings(null, PostingsEnum.POSITIONS);
 
                             while (postings.nextDoc() != DocIdSetIterator.NO_MORE_DOCS) {
@@ -150,9 +153,9 @@ public class DataReader implements IDataReader{
                                 while (freq-- > 0) {
                                     int tokenOffset = postings.nextPosition();
                                     int start = postings.startOffset();
-                                    int end = start+term.length;
+                                    int end = start + term.length;
                                     String key = queryTokens.get(queryTokenIndex);
-                                    String value = document.get(fieldName).substring(start,end);
+                                    String value = document.get(fieldName).substring(start, end);
                                     Span span = new Span(fieldName, start, end, key, value, tokenOffset);
                                     spanList.add(span);
                                 }
@@ -164,18 +167,13 @@ public class DataReader implements IDataReader{
                         queryTokenIndex++;
                     }
 
-
                 }
-
-
 
             }
 
             cursor++;
 
-
-
-            ITuple dataTuple  = Utils.getSpanTuple(fields, spanList, spanSchema);
+            ITuple dataTuple = Utils.getSpanTuple(fields, spanList, spanSchema, false);
             return dataTuple;
 
         } catch (IOException e) {
@@ -185,13 +183,13 @@ public class DataReader implements IDataReader{
             e.printStackTrace();
             throw new DataFlowException(e.getMessage(), e);
         }
-        
+
     }
 
     @Override
     public void close() throws Exception {
         cursor = CLOSED;
-        if(luceneIndexReader != null){
+        if (luceneIndexReader != null) {
             try {
                 luceneIndexReader.close();
                 luceneIndexReader = null;
@@ -201,5 +199,5 @@ public class DataReader implements IDataReader{
             }
         }
     }
-    
+
 }
