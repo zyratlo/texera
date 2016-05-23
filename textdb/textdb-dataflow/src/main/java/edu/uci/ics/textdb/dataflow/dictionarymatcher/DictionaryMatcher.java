@@ -106,8 +106,24 @@ public class DictionaryMatcher implements IOperator {
 
     /**
      * @about Gets next matched tuple. Returns a new span tuple including the
-     *        span results. Performs a scan/keyword based search, gets the
-     *        dictionary value and scans the documents for matches
+     *        span results. Performs a scan, keyword or a phrase based search
+     *        depending on the sourceoperator type, gets the dictionary value
+     *        and scans the documents for matches Presently 2 types of
+     *        KeywordOperatorType are supported:
+     * 
+     *        SourceOperatorType.SCANOPERATOR: Loop through the dictionary
+     *        entries. For each dictionary entry, loop through the tuples in the
+     *        operator. For each tuple, loop through the fields in the
+     *        attributelist. For each field, loop through all the matches.
+     *        Returns only one tuple per document. If there are multiple
+     *        matches, all spans are included in a list. Java Regex is used to
+     *        match word boundaries. Ex: If dictionary word is "Lin", and text
+     *        is "Lin is Angelina's friend", matches should include Lin but not
+     *        Angelina
+     * 
+     *        SourceOperatorType.KEYWORDOPERATOR:
+     * 
+     *        SourceOperatorType.PHRASEOPERATOR:
      * 
      * @overview Loop through the dictionary entries. For each dictionary entry,
      *           loop through the tuples in the operator. For each tuple, loop
@@ -121,14 +137,24 @@ public class DictionaryMatcher implements IOperator {
     @Override
     public ITuple getNextTuple() throws Exception {
         if (predicate.getSourceOperatorType() == DataConstants.SourceOperatorType.PHRASEOPERATOR) {
-            return operator.getNextTuple();
+            if ((dataTuple = operator.getNextTuple()) != null) {
+                return dataTuple;
+            } else if ((dictionaryValue = predicate.getNextDictionaryValue()) != null) {
+                KeywordPredicate keywordPredicate = new KeywordPredicate(dictionaryValue, predicate.getAttributeList(),
+                        KeywordOperatorType.PHRASE, predicate.getAnalyzer(), predicate.getDataStore());
+                operator = new KeywordMatcher(keywordPredicate);
+                operator.open();
+                return getNextTuple();
+            }
+
+            return null;
         }
 
         if (attributeIndex < predicate.getAttributeList().size()) {
             IField dataField = dataTuple.getField(predicate.getAttributeList().get(attributeIndex).getFieldName());
             String fieldValue = (String) dataField.getValue();
 
-            // Lucene tokenizes TextField before indexing, but not StrignField,
+            // Lucene tokenizes TextField before indexing, but not StringField,
             // so while matching a dictionary value, the dictionary value should
             // be the same as a StringField, while the dictionary value can be a
             // substring of a TextField value in order to be a match.
