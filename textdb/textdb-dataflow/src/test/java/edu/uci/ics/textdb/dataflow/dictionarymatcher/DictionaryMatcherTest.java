@@ -147,11 +147,12 @@ public class DictionaryMatcherTest {
         Dictionary dictionary = new Dictionary(names);
         
         // create data tuple first
-        List<Span> list = new ArrayList<Span>();
-        Span span1 = new Span("firstName", 0, 5, "bruce", "bruce");
-        Span span2 = new Span("lastName", 0, 8, "john Lee", "john Lee");
-        list.add(span1);
-        list.add(span2);
+        List<Span> list1 = new ArrayList<Span>();
+        List<Span> list2 = new ArrayList<Span>();
+        Span span1 = new Span("lastName", 0, 8, "john Lee", "john Lee");
+        Span span2 = new Span("firstName", 0, 5, "bruce", "bruce");
+        list1.add(span1);
+        list2.add(span2);
         Attribute[] schemaAttributes = new Attribute[TestConstants.ATTRIBUTES_PEOPLE.length + 1];
         for (int count = 0; count < schemaAttributes.length - 1; count++) {
             schemaAttributes[count] = TestConstants.ATTRIBUTES_PEOPLE[count];
@@ -160,14 +161,19 @@ public class DictionaryMatcherTest {
 
         IField[] fields1 = { new StringField("bruce"), new StringField("john Lee"), new IntegerField(46),
                 new DoubleField(5.50), new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-14-1970")),
-                new TextField("Tall Angry"), new ListField<Span>(list) };
+                new TextField("Tall Angry"), new ListField<Span>(list1) };
         ITuple tuple1 = new DataTuple(new Schema(schemaAttributes), fields1);
+        IField[] fields2 = { new StringField("bruce"), new StringField("john Lee"), new IntegerField(46),
+                new DoubleField(5.50), new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-14-1970")),
+                new TextField("Tall Angry"), new ListField<Span>(list2) };
+        ITuple tuple2 = new DataTuple(new Schema(schemaAttributes), fields2);
         List<ITuple> expectedResults = new ArrayList<ITuple>();
         expectedResults.add(tuple1);
+        expectedResults.add(tuple2);
         List<Attribute> attributes = Arrays.asList(TestConstants.FIRST_NAME_ATTR, TestConstants.LAST_NAME_ATTR,
                 TestConstants.DESCRIPTION_ATTR);
 
-        List<ITuple> returnedResults = getQueryResults(dictionary, SourceOperatorType.KEYWORDOPERATOR, attributes);
+        List<ITuple> returnedResults = getQueryResults(dictionary, SourceOperatorType.SCANOPERATOR, attributes);
         boolean contains = TestUtils.containsAllResults(expectedResults, returnedResults);
         Assert.assertTrue(contains);
     }
