@@ -255,10 +255,12 @@ public class DictionaryMatcher implements IOperator {
     }
 
     private Schema getSpanSchema(Schema schema) {
-        if (spanSchema == null || predicate.getSourceOperatorType() == DataConstants.SourceOperatorType.SCANOPERATOR) {
-            spanSchema = Utils.createSpanSchema(dataTuple.getSchema());
+        if (predicate.getSourceOperatorType() == DataConstants.SourceOperatorType.SCANOPERATOR) {
+            return Utils.createSpanSchema(dataTuple.getSchema());
+        } else {
+            return dataTuple.getSchema();
         }
-        return spanSchema;
+
     }
 
     /**
