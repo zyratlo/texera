@@ -60,9 +60,6 @@ public class NlpExtractor implements IOperator {
     }
 
 
-    /**
-     * @about Opens Named Entity Extractor
-     */
     @Override
     public void open() throws Exception {
         try {
@@ -250,9 +247,7 @@ public class NlpExtractor implements IOperator {
     }
 
 
-    /**
-     * @about Closes the operator
-     */
+
     @Override
     public void close() throws DataFlowException {
         try {
