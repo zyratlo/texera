@@ -134,7 +134,6 @@ public class NlpExtractor implements IOperator {
                 IField field = sourceTuple.getField(fieldName);
                 spanList.addAll(extractNlpSpans(field, fieldName));
             }
-
             ITuple returnTuple = Utils.getSpanTuple(sourceTuple.getFields(),
                     spanList, returnSchema);
             sourceTuple = sourceOperator.getNextTuple();
@@ -198,7 +197,6 @@ public class NlpExtractor implements IOperator {
             props.setProperty("annotators", "tokenize, ssplit, pos, lemma, " +
                     "ner");
         }
-
         StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
         Annotation documentAnnotation = new Annotation(text);
         pipeline.annotate(documentAnnotation);
@@ -216,8 +214,6 @@ public class NlpExtractor implements IOperator {
                     stanfordNlpConstant = token.get(CoreAnnotations
                             .NamedEntityTagAnnotation.class);
                 }
-
-
                 NlpConstant thisNlpConstant = getNlpConstant
                         (stanfordNlpConstant);
                 if (thisNlpConstant == null) {
@@ -234,7 +230,6 @@ public class NlpExtractor implements IOperator {
 
                     Span span = new Span(fieldName, start, end,
                             thisNlpConstant.toString(), word);
-
                     if (spanList.size() >= 1 && (flag.equals("NE_ALL"))) {
                         Span previousSpan = spanList.get(spanList.size() - 1);
                         if (previousSpan.getFieldName().equals(span
@@ -248,11 +243,8 @@ public class NlpExtractor implements IOperator {
                     }
                     spanList.add(span);
                 }
-
             }
-
         }
-
         return spanList;
     }
 
