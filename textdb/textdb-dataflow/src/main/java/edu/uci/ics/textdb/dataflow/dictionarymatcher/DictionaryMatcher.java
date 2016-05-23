@@ -180,6 +180,7 @@ public class DictionaryMatcher implements IOperator {
             } else if (dataField instanceof StringField) {
                 // Dictionary value should exactly match fieldValue for a
                 // StringField
+
                 if (fieldValue.equals(dictionaryValue)) {
                     isPresent = true;
                     int spanStartPosition = 0;
