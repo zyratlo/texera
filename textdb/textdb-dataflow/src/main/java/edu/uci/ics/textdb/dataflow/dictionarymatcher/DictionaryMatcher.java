@@ -200,6 +200,16 @@ public class DictionaryMatcher implements IOperator {
             isPresent = false;
             positionIndex = 0;
             if (predicate.getSourceOperatorType() == DataConstants.SourceOperatorType.KEYWORDOPERATOR) {
+                // If SourceOperator is of type Keyword, KeywordMatcher also
+                // includes a span which should be discarded by dictionary
+                // matcher.
+                // The dictionary matcher creates another span and returns the
+                // tuple.
+                // Ex: If text is "New York is beautiful" and given dictionary
+                // value is "New York", keyword matcher returns two spans for
+                // New and
+                // York separately, which we discard and create a span for "New
+                // York"
                 List<IField> fieldlist = removeSpanFromTuple(fields);
                 return Utils.getSpanTuple(fieldlist, spanList, spanSchema);
             } else {
@@ -255,6 +265,8 @@ public class DictionaryMatcher implements IOperator {
     }
 
     private Schema getSpanSchema(Schema schema) {
+        // If SourceOperator is of type Keyword, spanschema is already provided
+        // by keywordmatcher, so there is no need to create a new span schema
         if (predicate.getSourceOperatorType() == DataConstants.SourceOperatorType.SCANOPERATOR) {
             return Utils.createSpanSchema(dataTuple.getSchema());
         } else {
