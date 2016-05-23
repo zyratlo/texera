@@ -34,7 +34,7 @@ import java.util.*;
  * Mountain View."]
  * Appends a list of spans as a field for the return tuple.:
  * ["sentence1,0,6,Google, Organization", "sentence2,22,25,Mountain View,
- *      Location"]
+ * Location"]
  */
 
 public class NlpExtractor implements IOperator {
@@ -61,14 +61,15 @@ public class NlpExtractor implements IOperator {
             if (constant.equals(NlpConstant.Adjective) ||
                     constant.equals(NlpConstant.Adverb) ||
                     constant.equals(NlpConstant.Noun) ||
-                    constant.equals(NlpConstant.Verb))
-            {
+                    constant.equals(NlpConstant.Verb)) {
                 return true;
             } else {
                 return false;
             }
         }
-    };
+    }
+
+    ;
 
 
     /**
@@ -171,13 +172,20 @@ public class NlpExtractor implements IOperator {
      * <p>
      * The NLP package has annotations for the start and end position of a token
      * and it perfectly matches the span design so we just use them.
-     *
-     *
-     *
-     *
-     *
-     *
-     *
+     * <p>
+     * For Example: With TextField value: "Microsoft, Google and Facebook are
+     * organizations while Donald Trump and Barack Obama are persons", with
+     * fieldName: Sentence1 and inputConstant is Organization. The flag would
+     * set to "NE" by constructor.
+     * The pipeline would set up to cover the Named Entity Recognizer. Then
+     * get the value of NamedEntityTagAnnotation for each CoreLabel(token).If
+     * the value is the constant "Organization", then it meets the
+     * requirement. In this cases "Microsoft","Google" and "Facebook" will
+     * satisfied the requirement. "Donald Trump" and "Barack Obama" would
+     * have constant "Person" and not meet the requirement. For each
+     * qualified token, create a span accordingly and add it to the return
+     * list. In this case, token "Microsoft" would have span:
+     * ["Sentence1", 0, 9, Organization, "Microsoft"]
      */
     private List<Span> extractNlpSpans(IField iField, String fieldName) {
         List<Span> spanList = new ArrayList<>();
