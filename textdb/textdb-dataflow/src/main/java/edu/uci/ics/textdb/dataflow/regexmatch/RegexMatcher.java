@@ -190,7 +190,10 @@ public class RegexMatcher implements IOperator {
 	private void re2jRegexMatch(String fieldValue, String fieldName, List<Span> spanList) {
 		com.google.re2j.Matcher re2jMatcher = this.re2jPattern.matcher(fieldValue);
 		while (re2jMatcher.find()) {
-			spanList.add(new Span(fieldName, re2jMatcher.start(), re2jMatcher.end(), this.regexPredicate.getRegex(), fieldValue));
+			int start = re2jMatcher.start();
+			int end = re2jMatcher.end();
+			spanList.add(new Span(fieldName, start, end, 
+					this.regexPredicate.getRegex(), fieldValue.substring(start, end)));
 		}
 	}
     
