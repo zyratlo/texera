@@ -1,4 +1,4 @@
-package edu.uci.ics.textdb.dataflow.dictionarymatcher;
+package edu.uci.ics.textdb.dataflow.common;
 
 import edu.uci.ics.textdb.api.common.IDictionary;
 
