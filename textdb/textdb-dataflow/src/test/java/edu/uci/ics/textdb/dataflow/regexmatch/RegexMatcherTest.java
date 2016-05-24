@@ -217,6 +217,50 @@ public class RegexMatcherTest {
 		
 		testHelper.cleanUp();
 	}
+	
+	@Test
+	public void testRegexText2() throws Exception {
+		List<ITuple> data = RegexTestConstantsText.getSampleTextTuples();
+		RegexMatcherTestHelper testHelper = new RegexMatcherTestHelper(RegexTestConstantsText.SCHEMA_TEXT, data);
+		
+		String regex = "follow(-| )?up";
+		testHelper.runTest(regex, RegexTestConstantsText.CONTENT_ATTR, false);
+
+		List<ITuple> exactResults = testHelper.getResults();
+		
+		List<ITuple> expectedResults = new ArrayList<ITuple>();
+		
+		//expected to match "followup"
+		Schema spanSchema = testHelper.getSpanSchema();
+		List<Span> spans = new ArrayList<Span>();
+		spans.add(new Span(RegexTestConstantsText.CONTENT, 28, 36, regex, "followup"));
+		spans.add(new Span(RegexTestConstantsText.CONTENT, 54, 62, regex, "followup"));
+		IField spanField = new ListField<Span>(new ArrayList<Span>(spans));
+		List<IField> fields = new ArrayList<IField>(data.get(4).getFields());
+		fields.add(spanField);
+		expectedResults.add(new DataTuple(spanSchema, fields.toArray(new IField[fields.size()])));
+		
+		//expected to match "follow up"
+		spans.clear();
+		spans.add(new Span(RegexTestConstantsText.CONTENT, 18, 27, regex, "follow up"));
+		spans.add(new Span(RegexTestConstantsText.CONTENT, 51, 60, regex, "follow up"));
+		spanField = new ListField<Span>(new ArrayList<Span>(spans));
+		fields = new ArrayList<IField>(data.get(5).getFields());
+		fields.add(spanField);
+		expectedResults.add(new DataTuple(spanSchema, fields.toArray(new IField[fields.size()])));
+		
+		spans.clear();
+		spans.add(new Span(RegexTestConstantsText.CONTENT, 24, 33, regex, "follow-up"));
+		spans.add(new Span(RegexTestConstantsText.CONTENT, 38, 46, regex, "followup"));
+		spanField = new ListField<Span>(new ArrayList<Span>(spans));
+		fields = new ArrayList<IField>(data.get(6).getFields());
+		fields.add(spanField);
+		expectedResults.add(new DataTuple(spanSchema, fields.toArray(new IField[fields.size()])));
+		
+		Assert.assertTrue(TestUtils.containsAllResults(expectedResults, exactResults));
+		
+		testHelper.cleanUp();
+	}
 
 }
 

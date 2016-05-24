@@ -34,6 +34,10 @@ public class RegexTestConstantsText {
     	textTuples.add(getTextTuple("Testing is really really important and we need to write a large amount of high quality tests"));
     	textTuples.add(getTextTuple("We need to make sure that corner cases are tested"));
 
+    	textTuples.add(getTextTuple("The patient will be seen in followup. She will have a followup."));
+    	textTuples.add(getTextTuple("The patient is to follow up with Dr. Smith. I will follow up the patient in two weeks."));
+    	textTuples.add(getTextTuple("The patient will have a follow-up (or followup) examination."));
+    	
     	return textTuples;
     }
 }
