@@ -17,6 +17,11 @@ import edu.uci.ics.textdb.common.utils.Utils;
 import org.json.*;
 
 /*
+ * This class defines Medline data schema.
+ * It also provides functions to read Medline file 
+ * from local machine, parse json format,
+ * and return a generated ITuple one by one.
+ * 
  * @author Zuozhi Wang
  * @author Jinggang Diao
  */

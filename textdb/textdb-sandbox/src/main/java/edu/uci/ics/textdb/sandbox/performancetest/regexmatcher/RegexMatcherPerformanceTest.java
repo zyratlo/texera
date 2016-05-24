@@ -17,6 +17,12 @@ import edu.uci.ics.textdb.sandbox.medlineIndexBuilder.MedlineData;
 import edu.uci.ics.textdb.sandbox.medlineIndexBuilder.MedlineIndexWriter;
 import edu.uci.ics.textdb.storage.DataStore;
 
+/*
+ * This is a sample performance test 
+ * using Medline data and helper functions.
+ * 
+ * @author Zuozhi Wang
+ */
 public class RegexMatcherPerformanceTest {
 	
 	public static void main(String[] args) throws StorageException, IOException, DataFlowException {

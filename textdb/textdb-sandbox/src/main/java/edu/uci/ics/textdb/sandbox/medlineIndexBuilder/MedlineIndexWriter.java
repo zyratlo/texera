@@ -10,6 +10,12 @@ import edu.uci.ics.textdb.common.exception.StorageException;
 import edu.uci.ics.textdb.storage.DataStore;
 import edu.uci.ics.textdb.storage.writer.DataWriter;
 
+/*
+ * This class provides a helper function
+ * that can write Medline data to index.
+ * 
+ * @author Zuozhi Wang
+ */
 public class MedlineIndexWriter {
 	
 	/*
