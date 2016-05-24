@@ -1,0 +1,109 @@
+package edu.uci.ics.textdb.sandbox.medlineIndexBuilder;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Scanner;
+
+import edu.uci.ics.textdb.api.common.Attribute;
+import edu.uci.ics.textdb.api.common.FieldType;
+import edu.uci.ics.textdb.api.common.IField;
+import edu.uci.ics.textdb.api.common.ITuple;
+import edu.uci.ics.textdb.api.common.Schema;
+import edu.uci.ics.textdb.common.field.DataTuple;
+import edu.uci.ics.textdb.common.utils.Utils;
+
+import org.json.*;
+
+/*
+ * @author Zuozhi Wang
+ * @author Jinggang Diao
+ */
+public class MedlineData {
+
+	public static final String PMID = "pmid";
+	public static final String AFFILIATION = "affiliation";
+	public static final String ARTICLE_TITLE = "article_title";
+	public static final String AUTHORS = "authors";
+	public static final String JOURNAL_ISSUE = "journal_issue";
+	public static final String JOURNAL_TITLE = "journal_title";
+	public static final String KEYWORDS = "keywords";
+	public static final String MESH_HEADINGS = "mesh_headings";
+	public static final String ABSTRACT = "abstract";
+	public static final String ZIPF_SCORE = "zipf_score";
+
+	public static final Attribute PMID_ATTR = new Attribute(PMID, FieldType.INTEGER);
+	public static final Attribute AFFILIATION_ATTR = new Attribute(AFFILIATION, FieldType.TEXT);
+	public static final Attribute ARTICLE_TITLE_ATTR = new Attribute(ARTICLE_TITLE, FieldType.TEXT);
+	public static final Attribute AUTHORS_ATTR = new Attribute(AUTHORS, FieldType.STRING);
+	public static final Attribute JOURNAL_ISSUE_ATTR = new Attribute(JOURNAL_ISSUE, FieldType.STRING);
+	public static final Attribute JOURNAL_TITLE_ATTR = new Attribute(JOURNAL_TITLE, FieldType.TEXT);
+	public static final Attribute KEYWORDS_ATTR = new Attribute(KEYWORDS, FieldType.TEXT);
+	public static final Attribute MESH_HEADINGS_ATTR = new Attribute(MESH_HEADINGS, FieldType.TEXT);
+	public static final Attribute ABSTRACT_ATTR = new Attribute(ABSTRACT, FieldType.TEXT);
+	public static final Attribute ZIPF_SCORE_ATTR = new Attribute(ZIPF_SCORE, FieldType.DOUBLE);
+
+	public static final Attribute[] ATTRIBUTES_MEDLINE = { 
+		PMID_ATTR, AFFILIATION_ATTR, ARTICLE_TITLE_ATTR, AUTHORS_ATTR, JOURNAL_ISSUE_ATTR,
+		JOURNAL_TITLE_ATTR, KEYWORDS_ATTR, MESH_HEADINGS_ATTR, ABSTRACT_ATTR, ZIPF_SCORE_ATTR };
+	
+	public static final Schema SCHEMA_MEDLINE = new Schema(ATTRIBUTES_MEDLINE);
+	
+	public static int cursor = 0;
+	private static Scanner scanner;
+	
+	public static void open(String medlineFilePath) throws FileNotFoundException {
+		scanner = new Scanner(new File(medlineFilePath));
+	}
+	
+	public static void close() {
+		if (scanner != null) {
+			scanner.close();
+		}
+	}
+	
+	/*
+	 * Use a while loop to add records to DataWriter!
+	 * Otherwise you'll get "java GC overhead limit exceeded" error.
+	 */
+	public static ITuple getNextMedlineTuple() {
+		if (scanner == null) {
+			return null;
+		}
+		if (! scanner.hasNextLine()) {
+			return null;
+		}
+		try {
+			return recordToTuple(scanner.nextLine());
+		} catch (JSONException|ParseException e) {
+			System.out.println("record not added");
+			return getNextMedlineTuple();
+		}
+	}
+	
+	private static ITuple recordToTuple(String record) throws JSONException, ParseException {
+		JSONObject json = new JSONObject(record);
+		ArrayList<IField> fieldList = new ArrayList<IField>();
+		for (Attribute attr: ATTRIBUTES_MEDLINE) {
+			fieldList.add(Utils.getField(attr.getFieldType(), json.get(attr.getFieldName()).toString()) );
+		}
+		IField[] fieldArray = new IField[fieldList.size()];
+		ITuple tuple = new DataTuple(SCHEMA_MEDLINE, fieldList.toArray(fieldArray));
+		return tuple;
+	}
+	
+	
+	public static void main(String[] args) 
+			throws FileNotFoundException, JSONException, ParseException {
+		open("/Users/georgewang/Documents/Project_Medextract/dataset/abstract_1M.txt");
+		while (true) {
+			ITuple tuple = getNextMedlineTuple();
+			if (tuple == null) {
+				break;
+			}
+		}
+		System.out.println("done");
+	}
+
+}
