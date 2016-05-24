@@ -12,6 +12,7 @@ import java.util.List;
  * Created by shiladityasen on 4/30/16.
  *
  * Two algorithms implemented to perform different use-case for segmenting query: Dynamic Programming and Brute Force
+ * Brute Force algorithm is not deprecated in absence of better method to return all possible tokenizations
  *
  * Dynamic Programming algorithm to take input a query string and output a single member array of strings as most-likely rewritten query
  * A query is a string that may comprise of multiple space separated strings called terms
@@ -24,6 +25,7 @@ import java.util.List;
  *
  * For example -> ["newyorkcity"] -> ["new york city", "newyorkcity"]
  * Here, "new york city" is a returned phrase because "new", "york" and "city" are valid words in the word base.
+ *
  */
 public class QuerySegmenter {
     //Data members
@@ -140,7 +142,7 @@ public class QuerySegmenter {
      */
     private static List<String> bruteRewriteTerm(String term) {
         List<String> termsList = bruteRewrite(term);
-        if(! term.equals(termsList.get(termsList.size()-1)))
+        if(term == "" || !term.equals(termsList.get(termsList.size()-1)))
             termsList.add(term);
         return termsList;
     }
