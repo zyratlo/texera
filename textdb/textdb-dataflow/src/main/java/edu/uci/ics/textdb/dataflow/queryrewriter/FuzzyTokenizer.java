@@ -48,6 +48,13 @@ public class FuzzyTokenizer {
      * Splits phrase into terms by whitespace delimiter
      * For each term, rewrites(tokenizes) term to detect likely missing spaces
      * Concatenates all rewritten terms with singlespace delimiter
+     *
+     * For example, if input phrase is "newyork city", it would first split it into "newyork" and "city"
+     * rewriteTerm on "newyork" should return "new york"
+     * rewriteTerm on "city" should return "city"
+     * The two rewritten strings are then concatenated in order by a singlespace to give "new york city"
+     * The result returned as a single-member list is {"new york city"}
+     *
      * @return
      */
     public List<String> getFuzzyTokens() {
