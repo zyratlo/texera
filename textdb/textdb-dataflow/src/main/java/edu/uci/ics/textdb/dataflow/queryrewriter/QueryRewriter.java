@@ -22,21 +22,33 @@ import java.util.List;
 public class QueryRewriter implements IOperator{
 
     private String searchQuery;
-    private FuzzyTokenizer fuzzyTokenizer;
+    private boolean isOpen = false;
+    private boolean allSegmentations = false;
 
     public static final String QUERYLIST = "querylist";
     public static final Attribute QUERYLIST_ATTR = new Attribute(QUERYLIST, FieldType.LIST);
     public static final Schema SCHEMA_QUERY_LIST = new Schema(QUERYLIST_ATTR);
 
-    private ITuple itupleResult;
+    private ITuple sourceTuple;
 
     /**
-     * Parameterized constructor that requires a Search Query String that
-     * is to be rewritten
+     * Parameterized constructor that requires a Search Query String that is to be rewritten
      * @param searchQuery
      */
     public QueryRewriter(String searchQuery) {
         this.searchQuery = searchQuery;
+    }
+
+    /**
+     * Parameterized constructor that requires a Search Query String that is to be rewritten
+     * and boolean flag set to true if all possible tokenizations are to be returned
+     *                     and false if only most likely tokenization is to be returned
+     * @param searchQuery
+     * @param allSegmentations
+     */
+    public QueryRewriter(String searchQuery, boolean allSegmentations) {
+        this.searchQuery = searchQuery;
+        this.allSegmentations = allSegmentations;
     }
 
     /**
@@ -46,29 +58,35 @@ public class QueryRewriter implements IOperator{
      */
     @Override
     public void open() throws Exception {
-        this.fuzzyTokenizer = new FuzzyTokenizer(searchQuery);
-        this.itupleResult = null;
+        this.isOpen = true;
+        this.sourceTuple = null;
     }
 
     /**
      * Calls appropriate implementation methods to populate the list
-     * of rewritten search queries, and constructing a tuple from it. 
+     * of rewritten search queries, and constructing a tuple from it.
+     * The class QuerySegmenter implements two methods to rewrite search queries
+     * The DP algorithm returns the most likely tokenization - called if allSegmentations is false
+     * The brute force algorithm returns all possible tokenizations - called if allSegmentations is true
      * @return - Tuple with the rewritten queries as a comma separated string
      * @throws Exception
      */
     @Override
     public ITuple getNextTuple() throws Exception {
 
-        boolean notOpen = (fuzzyTokenizer == null);    //Ensures QueryRewriter is open before calling getNextTuple
-        boolean endOfResult = (itupleResult != null);   //Ensures you can call QueryRewriter.getNextTuple only once
+        boolean endOfResult = (sourceTuple != null);   //Ensures you can call QueryRewriter.getNextTuple only once
 
-        if(notOpen || endOfResult)
+        if(!isOpen || endOfResult)
             return null;
         else {
-            List<String> queryStrings = fuzzyTokenizer.getFuzzyTokens();
+            List<String> queryStrings;
+            if(allSegmentations)
+                queryStrings = QuerySegmenter.getAllTokens(searchQuery);
+            else
+                queryStrings = QuerySegmenter.getLikelyTokens(searchQuery);
             IField[] iFieldResult = {new ListField(queryStrings)};
-            itupleResult = new DataTuple(SCHEMA_QUERY_LIST, iFieldResult);
-            return itupleResult;
+            sourceTuple = new DataTuple(SCHEMA_QUERY_LIST, iFieldResult);
+            return sourceTuple;
         }
     }
 
@@ -78,8 +96,8 @@ public class QueryRewriter implements IOperator{
      */
     @Override
     public void close() throws Exception {
-        this.fuzzyTokenizer = null;
+        this.isOpen = false;
         this.searchQuery = null;
-        this.itupleResult = null;
+        this.sourceTuple = null;
     }
 }

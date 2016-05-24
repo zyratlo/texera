@@ -29,9 +29,10 @@ public class QueryRewriterTest {
     public void testHorseShoeString() throws Exception {
 
         String query = "horseshoe";
-        List<String> expectedRewrittenStrings = Arrays.asList("hor se shoe", "hors es hoe", "horse shoe", "horses hoe","horseshoe");
+        List<String> expectedRewrittenStrings = Arrays.asList("horse shoe");
+        List<String> expectedAllRewrittenStrings = Arrays.asList("horse sh oe", "horse shoe", "horseshoe");
 
-        boolean isSame = queryRewriterTestBoilerplate(query, expectedRewrittenStrings);
+        boolean isSame = queryRewriterTestBoilerplate(query, expectedRewrittenStrings, expectedAllRewrittenStrings);
 
         Assert.assertTrue(isSame);
     }
@@ -44,9 +45,10 @@ public class QueryRewriterTest {
     public void testHorseSpaceShoeString() throws Exception {
 
         String query = "horse shoe";
-        List<String> expectedRewrittenStrings = Arrays.asList("hor se shoe", "horse shoe");
+        List<String> expectedRewrittenStrings = Arrays.asList("horse shoe");
+        List<String> expectedAllRewrittenStrings = Arrays.asList("horse sh oe", "horse shoe");
 
-        boolean isSame = queryRewriterTestBoilerplate(query, expectedRewrittenStrings);
+        boolean isSame = queryRewriterTestBoilerplate(query, expectedRewrittenStrings, expectedAllRewrittenStrings);
 
         Assert.assertTrue(isSame);
     }
@@ -59,9 +61,10 @@ public class QueryRewriterTest {
     public void testNewYorkCityString() throws Exception {
 
         String query = "newyork city";
-        List<String> expectedRewrittenStrings = Arrays.asList("new york city","newyork city");
+        List<String> expectedRewrittenStrings = Arrays.asList("new york city");
+        List<String> expectedAllRewrittenStrings = Arrays.asList("new york city", "newyork city");
 
-        boolean isSame = queryRewriterTestBoilerplate(query, expectedRewrittenStrings);
+        boolean isSame = queryRewriterTestBoilerplate(query, expectedRewrittenStrings, expectedAllRewrittenStrings);
 
         Assert.assertTrue(isSame);
     }
@@ -75,13 +78,14 @@ public class QueryRewriterTest {
 
         String query = "";
         List<String> expectedRewrittenStrings = Arrays.asList("");
+        List<String> expectedAllRewrittenStrings = Arrays.asList("");
 
-        boolean isSame = queryRewriterTestBoilerplate(query, expectedRewrittenStrings);
+        boolean isSame = queryRewriterTestBoilerplate(query, expectedRewrittenStrings, expectedAllRewrittenStrings);
 
         Assert.assertTrue(isSame);
     }
 
-    public static boolean queryRewriterTestBoilerplate(String query, List<String> expectedRewrittenStrings) throws Exception {
+    public static boolean queryRewriterTestBoilerplate(String query, List<String> expectedRewrittenStrings, List<String> expectedAllRewrittenStrings) throws Exception {
 
         QueryRewriter queryRewriter = new QueryRewriter(query);
         queryRewriter.open();
@@ -89,7 +93,16 @@ public class QueryRewriterTest {
         ArrayList<String> rewrittenStrings = new ArrayList<String>((List<String>)resultItuple.getField(QueryRewriter.QUERYLIST).getValue());
         queryRewriter.close();
 
-        return TestUtils.containsAllResults(rewrittenStrings, new ArrayList<String>(expectedRewrittenStrings));
+        QueryRewriter allQueryRewriter = new QueryRewriter(query, true);
+        allQueryRewriter.open();
+        resultItuple = allQueryRewriter.getNextTuple();
+        ArrayList<String> allRewrittenStrings = new ArrayList<String>((List<String>)resultItuple.getField(QueryRewriter.QUERYLIST).getValue());
+        queryRewriter.close();
+
+        boolean mostLikelyRewriteTest = TestUtils.containsAllResults(rewrittenStrings, new ArrayList<String>(expectedRewrittenStrings));
+        boolean allRewriteTest = TestUtils.containsAllResults(allRewrittenStrings, new ArrayList<String>(expectedAllRewrittenStrings));
+
+        return (mostLikelyRewriteTest && allRewriteTest);
     }
 
     /**
@@ -104,6 +117,10 @@ public class QueryRewriterTest {
 
         ITuple resultItuple = queryRewriter.getNextTuple();
         Assert.assertNull(resultItuple);
+
+        QueryRewriter allQueryRewriter = new QueryRewriter(query, true);
+        resultItuple = allQueryRewriter.getNextTuple();
+        Assert.assertNull(resultItuple);
     }
 
     /**
@@ -114,10 +131,18 @@ public class QueryRewriterTest {
     public void testOneTupleReturn() throws Exception {
 
         String query = "";
+
         QueryRewriter queryRewriter = new QueryRewriter(query);
         queryRewriter.open();
         queryRewriter.getNextTuple();
         ITuple resultITuple = queryRewriter.getNextTuple();
+
+        Assert.assertNull(resultITuple);
+
+        QueryRewriter allQueryRewriter = new QueryRewriter(query, true);
+        allQueryRewriter.open();
+        allQueryRewriter.getNextTuple();
+        resultITuple = allQueryRewriter.getNextTuple();
 
         Assert.assertNull(resultITuple);
     }
@@ -130,11 +155,19 @@ public class QueryRewriterTest {
     public void testCloseEffectiveness() throws Exception {
 
         String query = "";
+
         QueryRewriter queryRewriter = new QueryRewriter(query);
         queryRewriter.open();
         queryRewriter.close();
 
         ITuple resultITuple = queryRewriter.getNextTuple();
+        Assert.assertNull(resultITuple);
+
+        QueryRewriter allQueryRewriter = new QueryRewriter(query, true);
+        allQueryRewriter.open();
+        allQueryRewriter.close();
+
+        resultITuple = allQueryRewriter.getNextTuple();
         Assert.assertNull(resultITuple);
     }
 }
