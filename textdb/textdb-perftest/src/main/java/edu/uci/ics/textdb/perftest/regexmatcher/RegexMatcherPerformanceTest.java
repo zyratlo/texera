@@ -1,6 +1,8 @@
 package edu.uci.ics.textdb.perftest.regexmatcher;
 
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 
 import org.apache.lucene.analysis.Analyzer;
@@ -26,7 +28,10 @@ import edu.uci.ics.textdb.storage.DataStore;
 public class RegexMatcherPerformanceTest {
 	
 	public static void main(String[] args) throws StorageException, IOException, DataFlowException {
-		performanceTest1();
+		Path currentRelativePath = Paths.get("");
+		String s = currentRelativePath.toAbsolutePath().toString();
+		System.out.println("Current relative path is: " + s);
+//		performanceTest1();
 	}
 
 	public static void performanceTest1() throws StorageException, IOException, DataFlowException {
