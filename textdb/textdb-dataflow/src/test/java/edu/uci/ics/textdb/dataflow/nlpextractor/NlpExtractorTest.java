@@ -76,7 +76,7 @@ public class NlpExtractorTest {
     /**
      * Scenario 1: Test getNextTuple with only one span in the return list
      * Text : Microsoft is a organization.
-     * Search for all NE_ALL constants
+     * Search for all NE_ALL token types
      *
      * @throws Exception
      */
@@ -100,7 +100,7 @@ public class NlpExtractorTest {
     /**
      * Scenario 2: Test getNextTuple with more than one span in the return list
      * Text: Microsoft, Google and Facebook are organizations
-     * Search for all NE_ALL constants
+     * Search for all NE_ALL token types
      */
     @Test
     public void getNextTupleTest2() throws Exception {
@@ -122,7 +122,7 @@ public class NlpExtractorTest {
     /**
      * Scenario 3: Test getNextTuple with more than one span in the return list and with different recognized classes.
      * Text: Microsoft, Google and Facebook are organizations and Donald Trump and Barack Obama are persons.
-     * Search for all NE_ALL constants
+     * Search for all NE_ALL token types
      */
     @Test
     public void getNextTupleTest3() throws Exception {
@@ -148,7 +148,7 @@ public class NlpExtractorTest {
      * <p>
      * Sentence1: Microsoft, Google and Facebook are organizations.
      * Sentence2: Donald Trump and Barack Obama are persons.
-     * Search for all NE_ALL constants
+     * Search for all NE_ALL token types
      */
     @Test
     public void getNextTupleTest4() throws Exception {
@@ -178,7 +178,7 @@ public class NlpExtractorTest {
      * Sentence1: Microsoft, Google and Facebook are organizations.
      * Sentence2: Donald Trump and Barack Obama are persons.
      * <p>
-     * Only search the second field for all NE_ALL constants
+     * Only search the second field for all NE_ALL token types
      */
     @Test
     public void getNextTupleTest5() throws Exception {

@@ -45,7 +45,7 @@ public class NlpExtractor implements IOperator {
     private ITuple sourceTuple;
     private Schema returnSchema;
     private NlpTokenType inputNlpTokenType = null;
-    private String flag = null;
+    private String nlpTypeIndicator = null;
 
 
     /**
@@ -91,9 +91,9 @@ public class NlpExtractor implements IOperator {
         this.searchInAttributes = searchInAttributes;
         this.inputNlpTokenType = inputNlpTokenType;
         if (NlpTokenType.isPOSTokenType(inputNlpTokenType)) {
-            flag = "POS";
+            nlpTypeIndicator = "POS";
         } else {
-            flag = "NE_ALL";
+            nlpTypeIndicator = "NE_ALL";
         }
     }
 
@@ -147,11 +147,11 @@ public class NlpExtractor implements IOperator {
      * @return
      * @about This function takes an IField(TextField) and a String
      * (the field's name) as input and uses the Stanford NLP package
-     * to process the field based on the input token type and flag.
+     * to process the field based on the input token type and nlpTypeIndicator.
      * In the result spans, value represents the word itself
      * and key represents the recognized token type
-     * @overview First set up a pipeline of Annotators based on the flag.
-     * If the flag is "NE_ALL", we set up the NamedEntityTagAnnotator,
+     * @overview First set up a pipeline of Annotators based on the nlpTypeIndicator.
+     * If the nlpTypeIndicator is "NE_ALL", we set up the NamedEntityTagAnnotator,
      * if it's "POS", then only PartOfSpeechAnnotator is needed.
      * <p>
      * The pipeline has to be this order: TokenizerAnnotator,
@@ -163,7 +163,7 @@ public class NlpExtractor implements IOperator {
      * annotation to the CoreMap(sentence) or CoreLabel(token) object.
      * <p>
      * After the pipeline, scan each CoreLabel(token) for its
-     * NamedEntityAnnotation or PartOfSpeechAnnotator depends on the flag
+     * NamedEntityAnnotation or PartOfSpeechAnnotator depends on the nlpTypeIndicator
      * <p>
      * For each Stanford NLP annotation, get it's corresponding inputNlpTokenType
      * that used in this package, then check if it equals to the input token type.
@@ -176,7 +176,7 @@ public class NlpExtractor implements IOperator {
      * organizations while Donald Trump and Barack Obama are persons", with
      * fieldName: Sentence1 and inputTokenType is Organization. Since the
      * inputTokenType require us to use NamedEntity Annotator in the Stanford
-     * NLP package, the flag would be set to "NE".
+     * NLP package, the nlpTypeIndicator would be set to "NE".
      * The pipeline would set up to cover the Named Entity Recognizer. Then
      * get the value of NamedEntityTagAnnotation for each CoreLabel(token).If
      * the value is the token type "Organization", then it meets the
@@ -192,8 +192,8 @@ public class NlpExtractor implements IOperator {
         String text = (String) iField.getValue();
         Properties props = new Properties();
 
-        //Setup Stanford NLP pipeline based on flag
-        if (flag.equals("POS")) {
+        //Setup Stanford NLP pipeline based on nlpTypeIndicator
+        if (nlpTypeIndicator.equals("POS")) {
             props.setProperty("annotators", "tokenize, ssplit, pos");
         } else {
             props.setProperty("annotators", "tokenize, ssplit, pos, lemma, " +
@@ -210,8 +210,8 @@ public class NlpExtractor implements IOperator {
 
                 String stanfordNlpConstant;
 
-                //Extract annotations based on flag
-                if (flag.equals("POS")) {
+                //Extract annotations based on nlpTypeIndicator
+                if (nlpTypeIndicator.equals("POS")) {
                     stanfordNlpConstant = token.get(CoreAnnotations
                             .PartOfSpeechAnnotation.class);
                 } else {
@@ -236,7 +236,7 @@ public class NlpExtractor implements IOperator {
 
                     Span span = new Span(fieldName, start, end,
                             thisNlpTokenType.toString(), word);
-                    if (spanList.size() >= 1 && (flag.equals("NE_ALL"))) {
+                    if (spanList.size() >= 1 && (nlpTypeIndicator.equals("NE_ALL"))) {
                         Span previousSpan = spanList.get(spanList.size() - 1);
                         if (previousSpan.getFieldName().equals(span
                                 .getFieldName())
