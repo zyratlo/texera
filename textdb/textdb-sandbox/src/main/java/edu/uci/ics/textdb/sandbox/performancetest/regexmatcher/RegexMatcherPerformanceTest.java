@@ -26,10 +26,10 @@ import edu.uci.ics.textdb.storage.DataStore;
 public class RegexMatcherPerformanceTest {
 	
 	public static void main(String[] args) throws StorageException, IOException, DataFlowException {
-		peoformanceTest1();
+		performanceTest1();
 	}
 
-	public static void peoformanceTest1() throws StorageException, IOException, DataFlowException {
+	public static void performanceTest1() throws StorageException, IOException, DataFlowException {
 		
 		Analyzer luceneAnalyzer = CustomAnalyzer.builder()
 				.withTokenizer(NGramTokenizerFactory.class, new String[]{"minGramSize", "3", "maxGramSize", "3"})
