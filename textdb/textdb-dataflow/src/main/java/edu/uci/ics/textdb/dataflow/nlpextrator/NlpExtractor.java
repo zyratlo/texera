@@ -49,19 +49,19 @@ public class NlpExtractor implements IOperator {
 
 
     /**
-     * Named Entity Constants: NE_ALL, Number, Location, Person,
+     * Named Entity Token Types: NE_ALL, Number, Location, Person,
      * Organization, Money, Percent, Date, Time.
-     * Part Of Speech Constants: Noun, Verb, Adjective, Adverb
+     * Part Of Speech Token Types: Noun, Verb, Adjective, Adverb
      */
     public enum NlpTokenType {
         NE_ALL, Number, Location, Person, Organization, Money, Percent,
         Date, Time, Noun, Verb, Adjective, Adverb;
 
-        private static boolean isPOSConstant(NlpTokenType constant) {
-            if (constant.equals(NlpTokenType.Adjective) ||
-                    constant.equals(NlpTokenType.Adverb) ||
-                    constant.equals(NlpTokenType.Noun) ||
-                    constant.equals(NlpTokenType.Verb)) {
+        private static boolean isPOSTokenType(NlpTokenType tokenType) {
+            if (tokenType.equals(NlpTokenType.Adjective) ||
+                    tokenType.equals(NlpTokenType.Adverb) ||
+                    tokenType.equals(NlpTokenType.Noun) ||
+                    tokenType.equals(NlpTokenType.Verb)) {
                 return true;
             } else {
                 return false;
@@ -78,11 +78,11 @@ public class NlpExtractor implements IOperator {
      * @param inputNlpTokenType
      * @throws DataFlowException
      * @about The constructor of the NlpExtractor. Allow users to pass
-     * a list of attributes and an inputNlpConstant.
+     * a list of attributes and an inputNlpTokenType.
      * The operator will only search within the attributes and return
      * the same tokens that are recognized as the same input
-     * inputNlpTokenType. If the input constant is NlpTokenType.NE_ALL,
-     * return all tokens that are recognized as NamedEntity Constants.
+     * inputNlpTokenType. If the input token type is NlpTokenType.NE_ALL,
+     * return all tokens that are recognized as NamedEntity Token Types.
      */
     public NlpExtractor(IOperator operator, List<Attribute>
             searchInAttributes, NlpTokenType inputNlpTokenType)
@@ -90,7 +90,7 @@ public class NlpExtractor implements IOperator {
         this.sourceOperator = operator;
         this.searchInAttributes = searchInAttributes;
         this.inputNlpTokenType = inputNlpTokenType;
-        if (NlpTokenType.isPOSConstant(inputNlpTokenType)) {
+        if (NlpTokenType.isPOSTokenType(inputNlpTokenType)) {
             flag = "POS";
         } else {
             flag = "NE_ALL";
@@ -111,11 +111,11 @@ public class NlpExtractor implements IOperator {
 
 
     /**
-     * @about Extract a list of spans based on the input constant.
+     * @about Extract a list of spans based on the input token type.
      * Append the list as a new field to the original tuple and return.
      * @overview Get a tuple from the source operator
      * Use the Stanford NLP package to process specified fields.
-     * For all recognized tokens that match the input constant,
+     * For all recognized tokens that match the input token type,
      * create their spans and make them as a list. Append the list
      * as a field in the original tuple.
      */
@@ -147,9 +147,9 @@ public class NlpExtractor implements IOperator {
      * @return
      * @about This function takes an IField(TextField) and a String
      * (the field's name) as input and uses the Stanford NLP package
-     * to process the field based on the input constant and flag.
+     * to process the field based on the input token type and flag.
      * In the result spans, value represents the word itself
-     * and key represents the recognized constant
+     * and key represents the recognized token type
      * @overview First set up a pipeline of Annotators based on the flag.
      * If the flag is "NE_ALL", we set up the NamedEntityTagAnnotator,
      * if it's "POS", then only PartOfSpeechAnnotator is needed.
@@ -166,7 +166,7 @@ public class NlpExtractor implements IOperator {
      * NamedEntityAnnotation or PartOfSpeechAnnotator depends on the flag
      * <p>
      * For each Stanford NLP annotation, get it's corresponding inputNlpTokenType
-     * that used in this package, then check if it equals to the input constant.
+     * that used in this package, then check if it equals to the input token type.
      * If yes, makes it a span and add to the return list.
      * <p>
      * The NLP package has annotations for the start and end position of a token
@@ -174,15 +174,15 @@ public class NlpExtractor implements IOperator {
      * <p>
      * For Example: With TextField value: "Microsoft, Google and Facebook are
      * organizations while Donald Trump and Barack Obama are persons", with
-     * fieldName: Sentence1 and inputConstant is Organization. Since the
-     * inputConstant require us to use NamedEntity Annotator in the Stanford
+     * fieldName: Sentence1 and inputTokenType is Organization. Since the
+     * inputTokenType require us to use NamedEntity Annotator in the Stanford
      * NLP package, the flag would be set to "NE".
      * The pipeline would set up to cover the Named Entity Recognizer. Then
      * get the value of NamedEntityTagAnnotation for each CoreLabel(token).If
-     * the value is the constant "Organization", then it meets the
+     * the value is the token type "Organization", then it meets the
      * requirement. In this case "Microsoft","Google" and "Facebook" will
      * satisfy the requirement. "Donald Trump" and "Barack Obama" would
-     * have constant "Person" and do not meet the requirement. For each
+     * have token type "Person" and do not meet the requirement. For each
      * qualified token, create a span accordingly and add it to the returned
      * list. In this case, token "Microsoft" would be span:
      * ["Sentence1", 0, 9, Organization, "Microsoft"]
@@ -192,7 +192,7 @@ public class NlpExtractor implements IOperator {
         String text = (String) iField.getValue();
         Properties props = new Properties();
 
-        //Setup Stanford NLP pipelien based on flag
+        //Setup Stanford NLP pipeline based on flag
         if (flag.equals("POS")) {
             props.setProperty("annotators", "tokenize, ssplit, pos");
         } else {
@@ -220,7 +220,7 @@ public class NlpExtractor implements IOperator {
                 }
 
 
-                NlpTokenType thisNlpTokenType = getNlpConstant
+                NlpTokenType thisNlpTokenType = getNlpTokenType
                         (stanfordNlpConstant);
                 if (thisNlpTokenType == null) {
                     continue;
@@ -287,12 +287,12 @@ public class NlpExtractor implements IOperator {
      * @return
      * @about This function takes a Stanford NLP Constant (Named Entity 7
      * classes: LOCATION,PERSON,ORGANIZATION,MONEY,PERCENT,DATE,
-     * TIME and NUMBER and Part of Speech Constants) and returns the
+     * TIME and NUMBER and Part of Speech Token Types) and returns the
      * corresponding enum NlpTokenType.
      * (For Part of Speech, we match all Stanford Constant to only 4 types:
      * Noun, Verb, Adjective and Adverb.
      */
-    private NlpTokenType getNlpConstant(String stanfordConstant) {
+    private NlpTokenType getNlpTokenType(String stanfordConstant) {
         switch (stanfordConstant) {
             case "NUMBER":
                 return NlpTokenType.Number;
