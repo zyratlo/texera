@@ -1,6 +1,6 @@
 package edu.uci.ics.textdb.dataflow.queryrewriter;
 
-import edu.uci.ics.textdb.dataflow.dictionarymatcher.Dictionary;
+import edu.uci.ics.textdb.dataflow.common.Dictionary;
 
 import java.io.IOException;
 import java.util.ArrayList;
