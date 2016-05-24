@@ -15,7 +15,10 @@ out/
 .classpath
 .project
 .settings
+
+# Ignoring index folder and data folder
 index
+data-files
 
 
 # Ignoring Mac OSX specific files

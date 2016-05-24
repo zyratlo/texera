@@ -1,8 +1,6 @@
 package edu.uci.ics.textdb.perftest.regexmatcher;
 
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Arrays;
 
 import org.apache.lucene.analysis.Analyzer;
@@ -28,13 +26,11 @@ import edu.uci.ics.textdb.storage.DataStore;
 public class RegexMatcherPerformanceTest {
 	
 	public static void main(String[] args) throws StorageException, IOException, DataFlowException {
-		Path currentRelativePath = Paths.get("");
-		String s = currentRelativePath.toAbsolutePath().toString();
-		System.out.println("Current relative path is: " + s);
-//		performanceTest1();
+		samplePerformanceTest("./data-files/abstract_100K.txt", "./index");	
 	}
 
-	public static void performanceTest1() throws StorageException, IOException, DataFlowException {
+	public static void samplePerformanceTest(String filePath, String indexPath) 
+			throws StorageException, IOException, DataFlowException {
 		
 		Analyzer luceneAnalyzer = CustomAnalyzer.builder()
 				.withTokenizer(NGramTokenizerFactory.class, new String[]{"minGramSize", "3", "maxGramSize", "3"})
@@ -43,7 +39,7 @@ public class RegexMatcherPerformanceTest {
 		long startIndexTime = System.currentTimeMillis();
 		
 		DataStore dataStore = MedlineIndexWriter.writeMedlineToIndex(
-				"/Users/georgewang/Documents/Project_Medextract/dataset/abstract_100K.txt", "./index", luceneAnalyzer);
+				filePath, indexPath, luceneAnalyzer);
 		
 		long endIndexTime = System.currentTimeMillis();
 		double indexTime = (endIndexTime - startIndexTime)/1000.0;
