@@ -29,7 +29,7 @@ public class QueryRewriterTest {
     public void testHorseShoeString() throws Exception {
 
         String query = "horseshoe";
-        List<String> expectedRewrittenStrings = Arrays.asList("hor se shoe", "hors es hoe", "horse shoe", "horses hoe","horseshoe");
+        List<String> expectedRewrittenStrings = Arrays.asList("horse shoe");
 
         boolean isSame = queryRewriterTestBoilerplate(query, expectedRewrittenStrings);
 
@@ -44,7 +44,7 @@ public class QueryRewriterTest {
     public void testHorseSpaceShoeString() throws Exception {
 
         String query = "horse shoe";
-        List<String> expectedRewrittenStrings = Arrays.asList("hor se shoe", "horse shoe");
+        List<String> expectedRewrittenStrings = Arrays.asList("horse shoe");
 
         boolean isSame = queryRewriterTestBoilerplate(query, expectedRewrittenStrings);
 
@@ -59,7 +59,7 @@ public class QueryRewriterTest {
     public void testNewYorkCityString() throws Exception {
 
         String query = "newyork city";
-        List<String> expectedRewrittenStrings = Arrays.asList("new york city","newyork city");
+        List<String> expectedRewrittenStrings = Arrays.asList("new york city");
 
         boolean isSame = queryRewriterTestBoilerplate(query, expectedRewrittenStrings);
 
