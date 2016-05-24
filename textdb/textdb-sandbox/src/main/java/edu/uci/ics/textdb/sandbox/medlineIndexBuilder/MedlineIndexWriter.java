@@ -5,14 +5,13 @@ import java.io.FileNotFoundException;
 import org.apache.lucene.analysis.Analyzer;
 
 import edu.uci.ics.textdb.api.common.ITuple;
-import edu.uci.ics.textdb.common.constants.DataConstants;
 import edu.uci.ics.textdb.common.exception.StorageException;
 import edu.uci.ics.textdb.storage.DataStore;
 import edu.uci.ics.textdb.storage.writer.DataWriter;
 
 /*
  * This class provides a helper function
- * that can write Medline data to index.
+ * that can index Medline data.
  * 
  * @author Zuozhi Wang
  */
@@ -37,7 +36,7 @@ public class MedlineIndexWriter {
 			String medlineFilePath, String indexPath, Analyzer luceneAnalyzer, int maxDocNumber) 
 			throws FileNotFoundException, StorageException {
 
-		DataStore dataStore = new DataStore(DataConstants.INDEX_DIR, MedlineData.SCHEMA_MEDLINE);
+		DataStore dataStore = new DataStore(indexPath, MedlineData.SCHEMA_MEDLINE);
 		DataWriter dataWriter = new DataWriter(dataStore, luceneAnalyzer);
 		dataWriter.clearData();
 		dataWriter.open();
@@ -46,7 +45,7 @@ public class MedlineIndexWriter {
 		
 		int counter = 0;
 		ITuple tuple = null;
-		while ((tuple = MedlineData.getNextMedlineTuple()) != null 
+		while ((tuple = MedlineData.getNextTuple()) != null 
 				&& counter < maxDocNumber) {
 			dataWriter.writeTuple(tuple);
 			counter++;

@@ -75,11 +75,11 @@ public class MedlineData {
 	}
 	
 	/*
-	 * Get next medlineTuple.
-	 * Get one tuple at a time instead of putting them in an list because
+	 * Get next Medline Tuple.
+	 * Get one tuple at a time instead of putting them in a list because
 	 * if the list gets too big, we will get OutOfMemoryError.
 	 */
-	public static ITuple getNextMedlineTuple() {
+	public static ITuple getNextTuple() {
 		if (scanner == null) {
 			return null;
 		}
@@ -90,7 +90,7 @@ public class MedlineData {
 			return recordToTuple(scanner.nextLine());
 		} catch (JSONException|ParseException e) {
 			System.out.println("record not added");
-			return getNextMedlineTuple();
+			return getNextTuple();
 		}
 	}
 	
