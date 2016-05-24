@@ -5,7 +5,6 @@ import java.nio.file.Paths;
 import java.util.List;
 
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
@@ -63,7 +62,6 @@ public class DataWriter implements IDataWriter{
         try {
             Directory directory = FSDirectory.open(Paths
                     .get(dataStore.getDataDirectory()));
-            Analyzer analyzer = new StandardAnalyzer();
             IndexWriterConfig conf = new IndexWriterConfig(analyzer);
             luceneIndexWriter = new IndexWriter(directory, conf);
             
@@ -73,6 +71,35 @@ public class DataWriter implements IDataWriter{
                 luceneIndexWriter.addDocument(document);
             }
             dataStore.incrementNumDocuments(tuples.size());
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new StorageException(e.getMessage(), e);
+        } finally {
+            if (luceneIndexWriter != null) {
+                try {
+                    luceneIndexWriter.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    throw new StorageException(e.getMessage(), e);
+                }
+            }
+        }
+    }
+    
+    
+    public void writeData(ITuple tuple) throws StorageException {
+        IndexWriter luceneIndexWriter = null;
+        try {
+            Directory directory = FSDirectory.open(Paths
+                    .get(dataStore.getDataDirectory()));
+            IndexWriterConfig conf = new IndexWriterConfig(analyzer);
+            luceneIndexWriter = new IndexWriter(directory, conf);
+            
+            Document document = getDocument(dataStore.getSchema(), tuple);
+            luceneIndexWriter.addDocument(document);
+
+            dataStore.incrementNumDocuments(1);
 
         } catch (IOException e) {
             e.printStackTrace();
