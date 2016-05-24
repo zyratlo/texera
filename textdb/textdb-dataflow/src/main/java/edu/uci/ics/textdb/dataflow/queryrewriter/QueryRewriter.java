@@ -29,7 +29,7 @@ public class QueryRewriter implements IOperator{
     public static final Attribute QUERYLIST_ATTR = new Attribute(QUERYLIST, FieldType.LIST);
     public static final Schema SCHEMA_QUERY_LIST = new Schema(QUERYLIST_ATTR);
 
-    private ITuple itupleResult;
+    private ITuple sourceTuple;
 
     /**
      * Parameterized constructor that requires a Search Query String that is to be rewritten
@@ -59,14 +59,14 @@ public class QueryRewriter implements IOperator{
     @Override
     public void open() throws Exception {
         this.isOpen = true;
-        this.itupleResult = null;
+        this.sourceTuple = null;
     }
 
     /**
      * Calls appropriate implementation methods to populate the list
      * of rewritten search queries, and constructing a tuple from it.
      * The class QuerySegmenter implements two methods to rewrite search queries
-     * The DP algorithm returns the most likely tokenization - is called if allSegmentations is false
+     * The DP algorithm returns the most likely tokenization - called if allSegmentations is false
      * The brute force algorithm returns all possible tokenizations - called if allSegmentations is true
      * @return - Tuple with the rewritten queries as a comma separated string
      * @throws Exception
@@ -74,19 +74,19 @@ public class QueryRewriter implements IOperator{
     @Override
     public ITuple getNextTuple() throws Exception {
 
-        boolean endOfResult = (itupleResult != null);   //Ensures you can call QueryRewriter.getNextTuple only once
+        boolean endOfResult = (sourceTuple != null);   //Ensures you can call QueryRewriter.getNextTuple only once
 
         if(!isOpen || endOfResult)
             return null;
         else {
             List<String> queryStrings;
             if(allSegmentations)
-                queryStrings = QuerySegmenter.bruteGetTokens(searchQuery);
+                queryStrings = QuerySegmenter.getAllTokens(searchQuery);
             else
-                queryStrings = QuerySegmenter.getTokens(searchQuery);
+                queryStrings = QuerySegmenter.getLikelyTokens(searchQuery);
             IField[] iFieldResult = {new ListField(queryStrings)};
-            itupleResult = new DataTuple(SCHEMA_QUERY_LIST, iFieldResult);
-            return itupleResult;
+            sourceTuple = new DataTuple(SCHEMA_QUERY_LIST, iFieldResult);
+            return sourceTuple;
         }
     }
 
@@ -98,6 +98,6 @@ public class QueryRewriter implements IOperator{
     public void close() throws Exception {
         this.isOpen = false;
         this.searchQuery = null;
-        this.itupleResult = null;
+        this.sourceTuple = null;
     }
 }

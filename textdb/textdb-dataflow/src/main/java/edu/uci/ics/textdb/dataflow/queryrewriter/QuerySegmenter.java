@@ -48,18 +48,18 @@ public class QuerySegmenter {
      * Concatenates all rewritten terms with singlespace delimiter
      *
      * For example, if input query string is "newyork city", it would first split it into "newyork" and "city"
-     * rewriteTerm on "newyork" should return "new york"
-     * rewriteTerm on "city" should return "city"
+     * rewriteTermDP on "newyork" should return "new york"
+     * rewriteTermDP on "city" should return "city"
      * The two rewritten strings are then concatenated in order by a singlespace to give "new york city"
      * The result returned as a single-member list is {"new york city"}
      *
      * @return
      */
-    public static List<String> getTokens(String queryString) {
+    public static List<String> getLikelyTokens(String queryString) {
         String[] terms = queryString.split("\\s+");
         String rewrittenQuery = "";
         for(String term : terms)
-            rewrittenQuery += " " + rewriteTerm(term);
+            rewrittenQuery += " " + rewriteTermDP(term);
         rewrittenQuery = rewrittenQuery.substring(1);
         return Arrays.asList(rewrittenQuery);
     }
@@ -72,7 +72,7 @@ public class QuerySegmenter {
      * @param term
      * @return
      */
-    public static String rewriteTerm(String term) {
+    public static String rewriteTermDP(String term) {
         int size = term.length();
         if(size == 0)
             return "";
@@ -115,33 +115,33 @@ public class QuerySegmenter {
      * When called returns array of rewritten query strings
      * Splits query string into delimited (by default, it is delimited using a space) terms
      * For each term performs fuzzy tokenization to create corresponding lists of rewritten terms
-     * Calls method bruteRewriteTerm to perform tokenization over single term
+     * Calls method rewriteTermBruteForce to perform tokenization over single term
      * Performs a cross product concatenation of each rewritten term list and returns final String array
      * Calls method crossCatenate to perform required concatenation of multiple lists
      * @return
      */
-    public static List<String> bruteGetTokens(String phrase) {
+    public static List<String> getAllTokens(String phrase) {
         String[] terms = phrase.split("\\s+");
         List< List<String> > allTermsList = new ArrayList< List <String> >();
         for(String term : terms)
-            allTermsList.add(bruteRewriteTerm(term));
+            allTermsList.add(rewriteTermBruteForce(term));
         return crossCatenate(allTermsList);
     }
 
     /**
-     * Wrapper over main recursive method, bruteRewrite which performs the fuzzy tokenization of a term
+     * Wrapper over main recursive method, rewriteBrute which performs the fuzzy tokenization of a term
      * The original term may not be a valid dictionary word, but be a term particular to the database
-     * The method bruteRewrite only considers terms which are valid dictionary words
-     * In case original term is not a dictionary word, it will not be added to queryList by method bruteRewrite
-     * This wrapper ensures that if bruteRewrite does not include the original term, it will still be included
-     * For example, for the term "newyork", bruteRewrite will return the list <"new york">
+     * The method rewriteBrute only considers terms which are valid dictionary words
+     * In case original term is not a dictionary word, it will not be added to queryList by method rewriteBrute
+     * This wrapper ensures that if rewriteBrute does not include the original term, it will still be included
+     * For example, for the term "newyork", rewriteBrute will return the list <"new york">
      *     But "newyork" also needs to be included in the list to support particular user queries
      *     This wrapper includes "newyork" in this list
      * @param term
      * @return
      */
-    private static List<String> bruteRewriteTerm(String term) {
-        List<String> termsList = bruteRewrite(term);
+    private static List<String> rewriteTermBruteForce(String term) {
+        List<String> termsList = rewriteBrute(term);
         if(term == "" || !term.equals(termsList.get(termsList.size()-1)))
             termsList.add(term);
         return termsList;
@@ -157,7 +157,7 @@ public class QuerySegmenter {
      * @param term
      * @return
      */
-    private static List<String> bruteRewrite(String term) {
+    private static List<String> rewriteBrute(String term) {
         List<String> queryList = new ArrayList<>();
         for(int i = 1; i < term.length(); i++) {
             String prefixString = term.substring(0, i);
@@ -165,7 +165,7 @@ public class QuerySegmenter {
                 prefixString = prefixString.concat(" ");
 
                 String suffixString = term.substring(i, term.length());
-                List<String> suffixList = bruteRewrite(suffixString);
+                List<String> suffixList = rewriteBrute(suffixString);
 
                 for(int j = 0; j < suffixList.size(); j++)
                     suffixList.set(j, prefixString.concat(suffixList.get(j)));
