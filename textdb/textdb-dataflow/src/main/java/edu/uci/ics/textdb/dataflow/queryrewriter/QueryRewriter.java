@@ -22,7 +22,7 @@ import java.util.List;
 public class QueryRewriter implements IOperator{
 
     private String searchQuery;
-    private FuzzyTokenizer fuzzyTokenizer;
+    private boolean isOpen = false;
 
     public static final String QUERYLIST = "querylist";
     public static final Attribute QUERYLIST_ATTR = new Attribute(QUERYLIST, FieldType.LIST);
@@ -46,7 +46,7 @@ public class QueryRewriter implements IOperator{
      */
     @Override
     public void open() throws Exception {
-        this.fuzzyTokenizer = new FuzzyTokenizer(searchQuery);
+        this.isOpen = true;
         this.itupleResult = null;
     }
 
@@ -59,13 +59,12 @@ public class QueryRewriter implements IOperator{
     @Override
     public ITuple getNextTuple() throws Exception {
 
-        boolean notOpen = (fuzzyTokenizer == null);    //Ensures QueryRewriter is open before calling getNextTuple
         boolean endOfResult = (itupleResult != null);   //Ensures you can call QueryRewriter.getNextTuple only once
 
-        if(notOpen || endOfResult)
+        if(!isOpen || endOfResult)
             return null;
         else {
-            List<String> queryStrings = fuzzyTokenizer.getFuzzyTokens();
+            List<String> queryStrings = QuerySegmenter.getTokens(searchQuery);
             IField[] iFieldResult = {new ListField(queryStrings)};
             itupleResult = new DataTuple(SCHEMA_QUERY_LIST, iFieldResult);
             return itupleResult;
@@ -78,7 +77,7 @@ public class QueryRewriter implements IOperator{
      */
     @Override
     public void close() throws Exception {
-        this.fuzzyTokenizer = null;
+        this.isOpen = false;
         this.searchQuery = null;
         this.itupleResult = null;
     }

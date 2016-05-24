@@ -10,18 +10,24 @@ import java.util.List;
 
 /**
  * Created by shiladityasen on 4/30/16.
- * Brute force algorithm to take input a phrase string and output an array of strings as rewritten phrases
- * A phrase is a string that may comprise of multiple space separated strings called terms
+ *
+ * Two algorithms implemented to perform different use-case for segmenting query: Dynamic Programming and Brute Force
+ *
+ * Dynamic Programming algorithm to take input a query string and output a single member array of strings as most-likely rewritten query
+ * A query is a string that may comprise of multiple space separated strings called terms
+ *
+ * For example -> ["newyorkcity"] -> ["new york city"]
+ *
+ * Brute force algorithm to take input a query string and output an array of strings as rewritten queries
  * Algorithm tries to find a valid prefix of a term and parses the rest of the term recursively
  * After recursive call returns with a set of parsed strings, prefix is appended in front of each string
  *
  * For example -> ["newyorkcity"] -> ["new york city", "newyorkcity"]
  * Here, "new york city" is a returned phrase because "new", "york" and "city" are valid words in the word base.
  */
-public class FuzzyTokenizer {
+public class QuerySegmenter {
     //Data members
     private static Dictionary wordBase;
-    private String phrase;
     private static final String wordBaseSourceFilePath = "/queryrewriter/english_dict.csv";
 
     static {
@@ -34,22 +40,12 @@ public class FuzzyTokenizer {
     }
 
     /**
-     * Parameterized constructor requires phrase string that is to be tokenized
-     * Creates wordBase object containing knowledge base of words in file wordsEn.txt
-     * @param phrase
-     * @throws IOException
-     */
-    public FuzzyTokenizer(String phrase) {
-        this.phrase = phrase;
-    }
-
-    /**
-     * When called returns a single-member list containing most-likely tokenization of phrase
-     * Splits phrase into terms by whitespace delimiter
+     * When called returns a single-member list containing most-likely tokenization of query string
+     * Splits query string into terms by whitespace delimiter
      * For each term, rewrites(tokenizes) term to detect likely missing spaces
      * Concatenates all rewritten terms with singlespace delimiter
      *
-     * For example, if input phrase is "newyork city", it would first split it into "newyork" and "city"
+     * For example, if input query string is "newyork city", it would first split it into "newyork" and "city"
      * rewriteTerm on "newyork" should return "new york"
      * rewriteTerm on "city" should return "city"
      * The two rewritten strings are then concatenated in order by a singlespace to give "new york city"
@@ -57,8 +53,8 @@ public class FuzzyTokenizer {
      *
      * @return
      */
-    public List<String> getFuzzyTokens() {
-        String[] terms = phrase.split("\\s+");
+    public static List<String> getTokens(String queryString) {
+        String[] terms = queryString.split("\\s+");
         String rewrittenPhrase = "";
         for(String term : terms)
             rewrittenPhrase += " " + rewriteTerm(term);
@@ -74,7 +70,7 @@ public class FuzzyTokenizer {
      * @param term
      * @return
      */
-    public String rewriteTerm(String term) {
+    public static String rewriteTerm(String term) {
         int size = term.length();
         if(size == 0)
             return "";
@@ -104,25 +100,25 @@ public class FuzzyTokenizer {
             }
         }
 
-        String tokenization = "";
+        String tokenizedQuery = new String();
 
         for(int pos = size-1; pos > 0; pos = preBestGap[pos]-1) {
-            tokenization = " " + term.substring(preBestGap[pos], pos+1) + tokenization;
+            tokenizedQuery = " " + term.substring(preBestGap[pos], pos+1) + tokenizedQuery;
         }
 
-        return tokenization.substring(1);
+        return tokenizedQuery.substring(1);
     }
 
     /**
-     * When called returns array of rewritten phrases
-     * Splits phrase string into delimited (by default, it is delimited using a space) terms
+     * When called returns array of rewritten query strings
+     * Splits query string into delimited (by default, it is delimited using a space) terms
      * For each term performs fuzzy tokenization to create corresponding lists of rewritten terms
      * Calls method bruteRewriteTerm to perform tokenization over single term
      * Performs a cross product concatenation of each rewritten term list and returns final String array
      * Calls method crossCatenate to perform required concatenation of multiple lists
      * @return
      */
-    public List<String> bruteGetFuzzyTokens() {
+    public static List<String> bruteGetTokens(String phrase) {
         String[] terms = phrase.split("\\s+");
         List< List<String> > allTermsList = new ArrayList< List <String> >();
         for(String term : terms)
@@ -142,7 +138,7 @@ public class FuzzyTokenizer {
      * @param term
      * @return
      */
-    private List<String> bruteRewriteTerm(String term) {
+    private static List<String> bruteRewriteTerm(String term) {
         List<String> termsList = bruteRewrite(term);
         if(! term.equals(termsList.get(termsList.size()-1)))
             termsList.add(term);
@@ -150,17 +146,17 @@ public class FuzzyTokenizer {
     }
 
     /**
-     * Main recursive algorithm to find possible phrase strings that original phrase term can be mapped to
-     * Assumes original phrase term may have a tokenization mistake due to missing multiple space delimiters
+     * Main recursive algorithm to find possible query strings that original term can be mapped to
+     * Assumes original term may have a tokenization mistake due to missing multiple space delimiters
      * Tries to find all possible valid prefixes of original term as per word knowledge base
      * For each prefix, sends rest of string to a recursive call to get all possible rewritten suffixes
      * Attaches prefix term in front of each rewritten suffix in the list
-     * Returns final phrase term list
+     * Returns final term list
      * @param term
      * @return
      */
-    private List<String> bruteRewrite(String term) {
-        List<String> queryList = new ArrayList<String>();
+    private static List<String> bruteRewrite(String term) {
+        List<String> queryList = new ArrayList<>();
         for(int i = 1; i < term.length(); i++) {
             String prefixString = term.substring(0, i);
             if(wordBase.contains(prefixString)) {
@@ -190,7 +186,7 @@ public class FuzzyTokenizer {
      * @param allWordsList
      * @return
      */
-    private List<String> crossCatenate(List<List<String>> allWordsList) {
+    private static List<String> crossCatenate(List<List<String>> allWordsList) {
         List<String> crossList = new ArrayList<String>(allWordsList.get(0));
 
         for(List<String> wordList : allWordsList.subList(1, allWordsList.size())) {
@@ -214,7 +210,7 @@ public class FuzzyTokenizer {
      * @param n
      * @return
      */
-    private List<String> replicate(List<String> list, int n) {
+    private static List<String> replicate(List<String> list, int n) {
         List<String> originalList = new ArrayList<>(list);
         for(int i = 1; i < n; i++) {
             list.addAll(originalList);
