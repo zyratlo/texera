@@ -1,4 +1,4 @@
-package edu.uci.ics.textdb.sandbox.medlineIndexBuilder;
+package edu.uci.ics.textdb.perftest.medline;
 
 import java.io.File;
 import java.io.FileNotFoundException;

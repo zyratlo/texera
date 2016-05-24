@@ -1,4 +1,4 @@
-package edu.uci.ics.textdb.sandbox.performancetest.regexmatcher;
+package edu.uci.ics.textdb.perftest.regexmatcher;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -13,8 +13,8 @@ import edu.uci.ics.textdb.common.exception.DataFlowException;
 import edu.uci.ics.textdb.common.exception.StorageException;
 import edu.uci.ics.textdb.dataflow.common.RegexPredicate;
 import edu.uci.ics.textdb.dataflow.regexmatch.RegexMatcher;
-import edu.uci.ics.textdb.sandbox.medlineIndexBuilder.MedlineData;
-import edu.uci.ics.textdb.sandbox.medlineIndexBuilder.MedlineIndexWriter;
+import edu.uci.ics.textdb.perftest.medline.MedlineData;
+import edu.uci.ics.textdb.perftest.medline.MedlineIndexWriter;
 import edu.uci.ics.textdb.storage.DataStore;
 
 /*
