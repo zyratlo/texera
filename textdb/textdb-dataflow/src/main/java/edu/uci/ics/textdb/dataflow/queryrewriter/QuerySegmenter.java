@@ -55,11 +55,11 @@ public class QuerySegmenter {
      */
     public static List<String> getTokens(String queryString) {
         String[] terms = queryString.split("\\s+");
-        String rewrittenPhrase = "";
+        String rewrittenQuery = "";
         for(String term : terms)
-            rewrittenPhrase += " " + rewriteTerm(term);
-        rewrittenPhrase = rewrittenPhrase.substring(1);
-        return Arrays.asList(rewrittenPhrase);
+            rewrittenQuery += " " + rewriteTerm(term);
+        rewrittenQuery = rewrittenQuery.substring(1);
+        return Arrays.asList(rewrittenQuery);
     }
 
     /**
