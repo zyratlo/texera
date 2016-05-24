@@ -23,7 +23,6 @@ import edu.uci.ics.textdb.common.field.Span;
 import edu.uci.ics.textdb.common.utils.Utils;
 import edu.uci.ics.textdb.dataflow.common.RegexPredicate;
 import edu.uci.ics.textdb.dataflow.source.IndexBasedSourceOperator;
-import edu.uci.ics.textdb.dataflow.source.RegexIndexBasedSourceOperator;
 import edu.uci.ics.textdb.storage.DataReaderPredicate;
 
 /**
@@ -99,7 +98,7 @@ public class RegexMatcher implements IOperator {
     	    	
 		DataReaderPredicate dataReaderPredicate = new DataReaderPredicate(regexPredicate.getDataStore(), 
 				this.luceneQuery, this.luceneQueryStr, luceneAnalyzer, regexPredicate.getAttributeList());
-		this.sourceOperator = new RegexIndexBasedSourceOperator(dataReaderPredicate);
+		this.sourceOperator = new IndexBasedSourceOperator(dataReaderPredicate);
 		
     }
     
