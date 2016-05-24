@@ -183,12 +183,7 @@ public class RegexMatcherTest {
 
 		testHelper.runTest(regex, RegexTestConstantsText.CONTENT_ATTR, true);
 
-		List<ITuple> exactResults = testHelper.getResults();
-		
-//		System.out.println("luceneQueryStr:");
-//		System.out.println(testHelper.regexMatcher.getLueneQueryString());
-//		System.out.println("is exact empty? "+exactResults.isEmpty());
-		
+		List<ITuple> exactResults = testHelper.getResults();	
 		List<ITuple> expectedResults = new ArrayList<ITuple>();
 		
 		

@@ -90,7 +90,7 @@ public class RegexDataReader implements IDataReader{
 //
 //            this.attributeList = dataReaderPredicate.getAttributeList();
             this.schema = dataReaderPredicate.getDataStore().getSchema();
-//            this.spanSchema = Utils.createSpanSchema(schema);
+            this.spanSchema = Utils.createSpanSchema(schema);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -120,63 +120,63 @@ public class RegexDataReader implements IDataReader{
             // If the span Information is not requested,
             // just return the dataTuple without span information.
 
-//            if(!dataReaderPredicate.getIsSpanInformationAdded()){
+            if(!dataReaderPredicate.getIsSpanInformationAdded()){
                 cursor++;
                 DataTuple dataTuple = new DataTuple(schema, fields.toArray(new IField[fields.size()]));
                 return  dataTuple;
-//            }
-//
-//            // Create span information.
-//
-//            for(Attribute attr: attributeList){
-//
-//                String fieldName  = attr.getFieldName();
-//                // Get the term vector for the current field.
-//                Terms vector = luceneIndexReader.getTermVector(scoreDocs[cursor].doc,fieldName);
-//
-//                if (vector != null) {
-//                    TermsEnum vectorEnum = vector.iterator();
-//                    int queryTokenIndex = 0;
-//                    // Search for all the query tokens in the term vector one by one.
-//                    for(BytesRef term: queryTokensInBytesRef){
-//
-//                        //If Term is found, calculate the position info and add to the Spans
-//                        if(vectorEnum.seekExact(term)){
-//                            PostingsEnum postings = vectorEnum.postings(null, PostingsEnum.POSITIONS);
-//
-//                            while (postings.nextDoc() != DocIdSetIterator.NO_MORE_DOCS) {
-//                                int freq = postings.freq();
-//                                // Create a new span for every occurrence.
-//                                while (freq-- > 0) {
-//                                    int tokenOffset = postings.nextPosition();
-//                                    int start = postings.startOffset();
-//                                    int end = start+term.length;
-//                                    String key = queryTokens.get(queryTokenIndex);
-//                                    String value = document.get(fieldName).substring(start,end);
-//                                    Span span = new Span(fieldName, start, end, key, value, tokenOffset);
-//                                    spanList.add(span);
-//                                }
-//
-//                            }
-//
-//                        }
-//
-//                        queryTokenIndex++;
-//                    }
-//
-//
-//                }
-//
-//
-//
-//            }
-//
-//            cursor++;
-//
-//
-//
-//            ITuple dataTuple  = Utils.getSpanTuple(fields, spanList, spanSchema);
-//            return dataTuple;
+            }
+
+            // Create span information.
+
+            for(Attribute attr: attributeList){
+
+                String fieldName  = attr.getFieldName();
+                // Get the term vector for the current field.
+                Terms vector = luceneIndexReader.getTermVector(scoreDocs[cursor].doc,fieldName);
+
+                if (vector != null) {
+                    TermsEnum vectorEnum = vector.iterator();
+                    int queryTokenIndex = 0;
+                    // Search for all the query tokens in the term vector one by one.
+                    for(BytesRef term: queryTokensInBytesRef){
+
+                        //If Term is found, calculate the position info and add to the Spans
+                        if(vectorEnum.seekExact(term)){
+                            PostingsEnum postings = vectorEnum.postings(null, PostingsEnum.POSITIONS);
+
+                            while (postings.nextDoc() != DocIdSetIterator.NO_MORE_DOCS) {
+                                int freq = postings.freq();
+                                // Create a new span for every occurrence.
+                                while (freq-- > 0) {
+                                    int tokenOffset = postings.nextPosition();
+                                    int start = postings.startOffset();
+                                    int end = start+term.length;
+                                    String key = queryTokens.get(queryTokenIndex);
+                                    String value = document.get(fieldName).substring(start,end);
+                                    Span span = new Span(fieldName, start, end, key, value, tokenOffset);
+                                    spanList.add(span);
+                                }
+
+                            }
+
+                        }
+
+                        queryTokenIndex++;
+                    }
+
+
+                }
+
+
+
+            }
+
+            cursor++;
+
+
+
+            ITuple dataTuple  = Utils.getSpanTuple(fields, spanList, spanSchema);
+            return dataTuple;
 
         } catch (IOException e) {
             e.printStackTrace();
