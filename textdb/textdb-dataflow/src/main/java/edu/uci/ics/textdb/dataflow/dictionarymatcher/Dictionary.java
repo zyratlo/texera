@@ -37,7 +37,13 @@ public class Dictionary implements IDictionary {
             while ((line = dictionaryReader.readLine()) != null) {
                 String[] lineContents = line.split(",");
                 String word = lineContents[0];
-                double frequency = Double.parseDouble(lineContents[1]);
+                double frequency;
+                try {
+                    frequency = Double.parseDouble(lineContents[1]);
+                }
+                catch (ArrayIndexOutOfBoundsException e) {
+                    frequency = 1;
+                }
                 wordFrequencyMap.put(word, frequency);
             }
 
