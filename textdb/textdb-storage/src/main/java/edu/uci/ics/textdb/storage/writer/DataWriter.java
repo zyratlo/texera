@@ -5,7 +5,6 @@ import java.nio.file.Paths;
 import java.util.List;
 
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
@@ -26,6 +25,8 @@ public class DataWriter implements IDataWriter{
     
     private IDataStore dataStore;
     private Analyzer analyzer;
+    
+    private IndexWriter luceneIndexWriter;
 
     public DataWriter(IDataStore dataStore, Analyzer analyzer) {
         this.dataStore = dataStore;
@@ -63,7 +64,6 @@ public class DataWriter implements IDataWriter{
         try {
             Directory directory = FSDirectory.open(Paths
                     .get(dataStore.getDataDirectory()));
-            Analyzer analyzer = new StandardAnalyzer();
             IndexWriterConfig conf = new IndexWriterConfig(analyzer);
             luceneIndexWriter = new IndexWriter(directory, conf);
             
@@ -88,7 +88,47 @@ public class DataWriter implements IDataWriter{
             }
         }
     }
+    
+    
+    public void open() throws StorageException {
+    	if (this.luceneIndexWriter == null) {
+	        try {
+	            Directory directory = FSDirectory.open(Paths
+	                    .get(dataStore.getDataDirectory()));
+	            IndexWriterConfig conf = new IndexWriterConfig(analyzer);
+	            this.luceneIndexWriter = new IndexWriter(directory, conf);
+	        } catch (IOException e) {
+	        	e.printStackTrace();
+	            throw new StorageException(e.getMessage(), e);
+	        }
+    	}
+    }
+    
+    public void close() throws StorageException {
+    	if (this.luceneIndexWriter != null) {
+    		try {
+				this.luceneIndexWriter.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+                throw new StorageException(e.getMessage(), e);
+			}
+    	}
+    }
+    
+    public void writeTuple(ITuple tuple) throws StorageException {
+    	if (this.luceneIndexWriter == null) {
+    		open();
+    	}
+    	try {
+            Document document = getDocument(dataStore.getSchema(), tuple);
+            this.luceneIndexWriter.addDocument(document);
+    	} catch (IOException e) {
+			e.printStackTrace();
+            throw new StorageException(e.getMessage(), e);
+    	}
+    }
 
+    
     private Document getDocument(Schema schema, ITuple tuple) {
         List<IField> fields = tuple.getFields();
         List<Attribute> attributes = schema.getAttributes();
