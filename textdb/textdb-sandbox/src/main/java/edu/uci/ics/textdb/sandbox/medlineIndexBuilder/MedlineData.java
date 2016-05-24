@@ -53,10 +53,16 @@ public class MedlineData {
 	public static int cursor = 0;
 	private static Scanner scanner;
 	
+	/*
+	 * Be sure to call open() before calling getNextMedlineTuple() !
+	 */
 	public static void open(String medlineFilePath) throws FileNotFoundException {
 		scanner = new Scanner(new File(medlineFilePath));
 	}
 	
+	/*
+	 * Be sure to call close() in the end !
+	 */
 	public static void close() {
 		if (scanner != null) {
 			scanner.close();
@@ -64,8 +70,9 @@ public class MedlineData {
 	}
 	
 	/*
-	 * Use a while loop to add records to DataWriter!
-	 * Otherwise you'll get "java GC overhead limit exceeded" error.
+	 * Get next medlineTuple.
+	 * Get one tuple at a time instead of putting them in an list because
+	 * if the list gets too big, we will get OutOfMemoryError.
 	 */
 	public static ITuple getNextMedlineTuple() {
 		if (scanner == null) {
@@ -91,19 +98,6 @@ public class MedlineData {
 		IField[] fieldArray = new IField[fieldList.size()];
 		ITuple tuple = new DataTuple(SCHEMA_MEDLINE, fieldList.toArray(fieldArray));
 		return tuple;
-	}
-	
-	
-	public static void main(String[] args) 
-			throws FileNotFoundException, JSONException, ParseException {
-		open("/Users/georgewang/Documents/Project_Medextract/dataset/abstract_1M.txt");
-		while (true) {
-			ITuple tuple = getNextMedlineTuple();
-			if (tuple == null) {
-				break;
-			}
-		}
-		System.out.println("done");
 	}
 
 }

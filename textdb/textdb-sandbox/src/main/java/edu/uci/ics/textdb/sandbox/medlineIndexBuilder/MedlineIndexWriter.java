@@ -11,9 +11,24 @@ import edu.uci.ics.textdb.storage.DataStore;
 import edu.uci.ics.textdb.storage.writer.DataWriter;
 
 public class MedlineIndexWriter {
-
+	
+	/*
+	 * Write medline records from "medlineFilePath"
+	 * to index in "indexPath".
+	 */
 	public static DataStore writeMedlineToIndex(
-			String medlineFilePath, String indexPath, Analyzer luceneAnalyzer, int docNumber) 
+			String medlineFilePath, String indexPath, Analyzer luceneAnalyzer) 
+			throws FileNotFoundException, StorageException {
+		return writeMedlineToIndex(medlineFilePath, indexPath, luceneAnalyzer, Integer.MAX_VALUE);
+	}
+
+	/*
+	 * Write a maximum of "maxDocNumber" records
+	 * from "medlineFilePath"
+	 * to index in "indexPath".
+	 */
+	public static DataStore writeMedlineToIndex(
+			String medlineFilePath, String indexPath, Analyzer luceneAnalyzer, int maxDocNumber) 
 			throws FileNotFoundException, StorageException {
 
 		DataStore dataStore = new DataStore(DataConstants.INDEX_DIR, MedlineData.SCHEMA_MEDLINE);
@@ -24,11 +39,10 @@ public class MedlineIndexWriter {
 		MedlineData.open(medlineFilePath);
 		
 		int counter = 0;
-		ITuple tuple = MedlineData.getNextMedlineTuple();
-		while (tuple != null && counter < docNumber) {
+		ITuple tuple = null;
+		while ((tuple = MedlineData.getNextMedlineTuple()) != null 
+				&& counter < maxDocNumber) {
 			dataWriter.writeTuple(tuple);
-			
-			tuple = MedlineData.getNextMedlineTuple();
 			counter++;
 		}
 		
