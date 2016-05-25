@@ -26,7 +26,7 @@ import edu.uci.ics.textdb.storage.DataStore;
 public class RegexMatcherPerformanceTest {
 	
 	public static void main(String[] args) throws StorageException, IOException, DataFlowException {
-		samplePerformanceTest("./data-files/abstract_100K.txt", "./index");	
+		samplePerformanceTest("./data-files/abstract_1M.txt", "./index");	
 	}
 
 	public static void samplePerformanceTest(String filePath, String indexPath) 
@@ -46,14 +46,19 @@ public class RegexMatcherPerformanceTest {
 		System.out.printf("index time: %f\n", indexTime);
 		
 		
-		String regex = "water";
+		String regex = "\\bmedic(ine|al|ation|are|aid)?\\b";
 		Attribute[] attributeList = new Attribute[]{ MedlineData.ABSTRACT_ATTR };
-		
+		 
 		RegexPredicate regexPredicate = new RegexPredicate(
 				regex, Arrays.asList(attributeList), 
 				luceneAnalyzer, dataStore);
 		
-		RegexMatcher regexMatcher = new RegexMatcher(regexPredicate);
+		RegexMatcher regexMatcher = new RegexMatcher(regexPredicate, true);
+		
+		regexMatcher.setUseJavaRegex();
+		System.out.println(regexMatcher.getLueneQueryString());
+		System.out.println(regexMatcher.getRegexEngine());
+		
 		regexMatcher.open();
 		
 		long startMatchTime = System.currentTimeMillis();
