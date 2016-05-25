@@ -41,7 +41,7 @@ public class MedlineData {
 	public static final Attribute PMID_ATTR = new Attribute(PMID, FieldType.INTEGER);
 	public static final Attribute AFFILIATION_ATTR = new Attribute(AFFILIATION, FieldType.TEXT);
 	public static final Attribute ARTICLE_TITLE_ATTR = new Attribute(ARTICLE_TITLE, FieldType.TEXT);
-	public static final Attribute AUTHORS_ATTR = new Attribute(AUTHORS, FieldType.STRING);
+	public static final Attribute AUTHORS_ATTR = new Attribute(AUTHORS, FieldType.TEXT);
 	public static final Attribute JOURNAL_ISSUE_ATTR = new Attribute(JOURNAL_ISSUE, FieldType.STRING);
 	public static final Attribute JOURNAL_TITLE_ATTR = new Attribute(JOURNAL_TITLE, FieldType.TEXT);
 	public static final Attribute KEYWORDS_ATTR = new Attribute(KEYWORDS, FieldType.TEXT);
