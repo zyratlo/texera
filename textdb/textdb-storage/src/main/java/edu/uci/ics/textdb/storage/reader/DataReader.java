@@ -72,25 +72,28 @@ public class DataReader implements IDataReader{
             TopDocs topDocs = luceneIndexSearcher.search(dataReaderPredicate.getLuceneQuery(), Integer.MAX_VALUE);
             scoreDocs = topDocs.scoreDocs;
             cursor = OPENED;
-
-            this.queryTokens = Utils.tokenizeQuery(dataReaderPredicate.getLuceneAnalyzer(),dataReaderPredicate.getQueryString());
-
-            // sort the query tokens, as the term vector are also sorted.
-            // This makes the seek faster.
-            this.queryTokens.sort(String.CASE_INSENSITIVE_ORDER);
-
-            // The terms in the term vector are stored as ByteRef,
-            // hence convert token from String format to ByteRef and then search.
-
-            this.queryTokensInBytesRef = new ArrayList<>();
-            for(String token: queryTokens) {
-                BytesRef byteRef = new BytesRef(token.toLowerCase().getBytes());
-                this.queryTokensInBytesRef.add(byteRef);
-            }
-
-            this.attributeList = dataReaderPredicate.getAttributeList();
+            
             this.schema = dataReaderPredicate.getDataStore().getSchema();
-            this.spanSchema = Utils.createSpanSchema(schema);
+
+            if (this.dataReaderPredicate.getIsSpanInformationAdded()) {
+                this.queryTokens = Utils.tokenizeQuery(dataReaderPredicate.getLuceneAnalyzer(),dataReaderPredicate.getQueryString());
+
+                // sort the query tokens, as the term vector are also sorted.
+                // This makes the seek faster.
+                this.queryTokens.sort(String.CASE_INSENSITIVE_ORDER);
+
+                // The terms in the term vector are stored as ByteRef,
+                // hence convert token from String format to ByteRef and then search.
+
+                this.queryTokensInBytesRef = new ArrayList<>();
+                for(String token: queryTokens) {
+                    BytesRef byteRef = new BytesRef(token.toLowerCase().getBytes());
+                    this.queryTokensInBytesRef.add(byteRef);
+                }
+
+                this.attributeList = dataReaderPredicate.getAttributeList();
+                this.spanSchema = Utils.createSpanSchema(schema);
+            }
 
         } catch (IOException e) {
             e.printStackTrace();

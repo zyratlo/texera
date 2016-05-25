@@ -6,12 +6,7 @@ import java.util.List;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.queryparser.classic.ParseException;
-import org.apache.lucene.queryparser.classic.QueryParser;
-import org.apache.lucene.search.BooleanClause;
-import org.apache.lucene.search.BooleanQuery;
-import org.apache.lucene.search.Query;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -79,7 +74,7 @@ public class KeywordMatcherTest {
 
     public List<ITuple> getPeopleQueryResults(String query, ArrayList<Attribute> attributeList) throws DataFlowException, ParseException {
 
-        IPredicate predicate = new KeywordPredicate(query, attributeList, analyzer, dataStore);
+        IPredicate predicate = new KeywordPredicate(query, attributeList, DataConstants.KeywordOperatorType.BASIC, analyzer, dataStore);
         keywordMatcher = new KeywordMatcher(predicate);
         keywordMatcher.open();
 
@@ -152,7 +147,6 @@ public class KeywordMatcherTest {
         //Perform Check
         boolean contains = TestUtils.containsAllResults(expectedResultList, resultList);
         Assert.assertTrue(contains);
-        Assert.assertEquals(1,resultList.size());
     }
 
 
@@ -204,7 +198,6 @@ public class KeywordMatcherTest {
         //Perform Check
         boolean contains = TestUtils.containsAllResults(expectedResultList, resultList);
         Assert.assertTrue(contains);
-        Assert.assertEquals(2, resultList.size());
     }
 
 
@@ -247,7 +240,6 @@ public class KeywordMatcherTest {
         //Perform Check
         boolean contains = TestUtils.containsAllResults(expectedResultList, resultList);
         Assert.assertTrue(contains);
-        Assert.assertEquals(1,resultList.size());
     }
 
 
@@ -298,7 +290,6 @@ public class KeywordMatcherTest {
         //Perform Check
         boolean contains = TestUtils.containsAllResults(expectedResultList, resultList);
         Assert.assertTrue(contains);
-        Assert.assertEquals(1,resultList.size());
     }
 
     /**
