@@ -217,6 +217,10 @@ public class RegexMatcher implements IOperator {
 			}
 		}
 	}
+	
+	public String getRegexEngine() {
+		return this.regexEngine.toString();
+	}
     
     
     @Override
