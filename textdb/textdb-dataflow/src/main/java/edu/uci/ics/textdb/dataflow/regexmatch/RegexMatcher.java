@@ -195,6 +195,28 @@ public class RegexMatcher implements IOperator {
 					this.regexPredicate.getRegex(), fieldValue.substring(start, end)));
 		}
 	}
+	
+	public void setUseJavaRegex() throws java.util.regex.PatternSyntaxException {
+		if (this.regexEngine == RegexEngine.JavaRegex) {
+			return;
+		} else {
+			this.javaPattern = java.util.regex.Pattern.compile(this.regex);
+			this.regexEngine = RegexEngine.JavaRegex;
+		}
+	}
+	
+	public void setUseRE2J() throws java.util.regex.PatternSyntaxException {
+		if (this.regexEngine == RegexEngine.RE2J) {
+			return;
+		} else {
+			try {
+				this.re2jPattern = com.google.re2j.Pattern.compile(this.regex);
+				this.regexEngine = RegexEngine.RE2J;
+			} catch (com.google.re2j.PatternSyntaxException e) {
+				throw new java.util.regex.PatternSyntaxException(e.getDescription(), e.getPattern(), e.getIndex());
+			}
+		}
+	}
     
     
     @Override
