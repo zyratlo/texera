@@ -38,12 +38,13 @@ public class RegexMatcherPerformanceTest {
 		
 		long startIndexTime = System.currentTimeMillis();
 		
-		DataStore dataStore = MedlineIndexWriter.writeMedlineToIndex(
-				filePath, indexPath, luceneAnalyzer);
+		DataStore dataStore = new DataStore(indexPath, MedlineData.SCHEMA_MEDLINE);
+
+		MedlineIndexWriter.writeMedlineToIndex(filePath, dataStore, luceneAnalyzer);
 		
 		long endIndexTime = System.currentTimeMillis();
 		double indexTime = (endIndexTime - startIndexTime)/1000.0;
-		System.out.printf("index time: %f\n", indexTime);
+		System.out.printf("index time: %.4f seconds\n", indexTime);
 		
 		
 		String regex = "water";
@@ -66,7 +67,7 @@ public class RegexMatcherPerformanceTest {
 		
 		long endMatchTime = System.currentTimeMillis();
 		double matchTime = (endMatchTime - startMatchTime)/1000.0;
-		System.out.printf("match time: %f\n", matchTime);
+		System.out.printf("match time: %.4f seconds\n", matchTime);
 		
 		System.out.printf("total: %d results\n", counter);
 	}

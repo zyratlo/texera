@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import org.apache.lucene.analysis.Analyzer;
 
 import edu.uci.ics.textdb.api.common.ITuple;
+import edu.uci.ics.textdb.api.storage.IDataStore;
 import edu.uci.ics.textdb.common.exception.StorageException;
 import edu.uci.ics.textdb.storage.DataStore;
 import edu.uci.ics.textdb.storage.writer.DataWriter;
@@ -21,10 +22,10 @@ public class MedlineIndexWriter {
 	 * Write medline records from "medlineFilePath"
 	 * to index in "indexPath".
 	 */
-	public static DataStore writeMedlineToIndex(
-			String medlineFilePath, String indexPath, Analyzer luceneAnalyzer) 
+	public static void writeMedlineToIndex(
+			String filePath, IDataStore dataStore, Analyzer luceneAnalyzer) 
 			throws FileNotFoundException, StorageException {
-		return writeMedlineToIndex(medlineFilePath, indexPath, luceneAnalyzer, Integer.MAX_VALUE);
+		writeMedlineToIndex(filePath, dataStore, luceneAnalyzer, Integer.MAX_VALUE);
 	}
 
 	/*
@@ -32,16 +33,15 @@ public class MedlineIndexWriter {
 	 * from "medlineFilePath"
 	 * to index in "indexPath".
 	 */
-	public static DataStore writeMedlineToIndex(
-			String medlineFilePath, String indexPath, Analyzer luceneAnalyzer, int maxDocNumber) 
+	public static void writeMedlineToIndex(
+			String filePath, IDataStore dataStore, Analyzer luceneAnalyzer, int maxDocNumber) 
 			throws FileNotFoundException, StorageException {
 
-		DataStore dataStore = new DataStore(indexPath, MedlineData.SCHEMA_MEDLINE);
 		DataWriter dataWriter = new DataWriter(dataStore, luceneAnalyzer);
 		dataWriter.clearData();
 		dataWriter.open();
 		
-		MedlineData.open(medlineFilePath);
+		MedlineData.open(filePath);
 		
 		int counter = 0;
 		ITuple tuple = null;
@@ -54,7 +54,6 @@ public class MedlineIndexWriter {
 		MedlineData.close();
 		dataWriter.close();
 
-		return dataStore;
 	}
 	
 }
