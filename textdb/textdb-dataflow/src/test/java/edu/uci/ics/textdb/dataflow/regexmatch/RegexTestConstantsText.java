@@ -11,6 +11,7 @@ import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.common.Schema;
 import edu.uci.ics.textdb.common.field.DataTuple;
 import edu.uci.ics.textdb.common.field.StringField;
+import edu.uci.ics.textdb.common.field.TextField;
 
 public class RegexTestConstantsText {
     // Sample test data of some random text
@@ -22,7 +23,7 @@ public class RegexTestConstantsText {
     public static final Schema SCHEMA_TEXT = new Schema(ATTRIBUTES_TEXT);
     
     private static ITuple getTextTuple(String content) {
-    	IField field = new StringField(content);
+    	IField field = new TextField(content);
     	ITuple tuple = new DataTuple(SCHEMA_TEXT, field);
     	return tuple;
     }
