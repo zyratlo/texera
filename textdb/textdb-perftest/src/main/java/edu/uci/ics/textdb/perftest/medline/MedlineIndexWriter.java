@@ -44,11 +44,19 @@ public class MedlineIndexWriter {
 		MedlineReader.open(filePath);
 		
 		int counter = 0;
+		int errorCounter = 0;
 		ITuple tuple = null;
 		while ((tuple = MedlineReader.getNextTuple()) != null 
 				&& counter < maxDocNumber) {
-			dataWriter.writeTuple(tuple);
-			counter++;
+			try {
+				dataWriter.writeTuple(tuple);
+				counter++;
+			} catch (Exception e) {		
+				if (errorCounter < 10) {
+					e.printStackTrace();
+				} 
+				errorCounter++;
+			}
 		}
 		
 		MedlineReader.close();
