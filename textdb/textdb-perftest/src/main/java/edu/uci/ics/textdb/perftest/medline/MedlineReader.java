@@ -25,7 +25,7 @@ import org.json.*;
  * @author Zuozhi Wang
  * @author Jinggang Diao
  */
-public class MedlineData {
+public class MedlineReader {
 
 	public static final String PMID = "pmid";
 	public static final String AFFILIATION = "affiliation";
