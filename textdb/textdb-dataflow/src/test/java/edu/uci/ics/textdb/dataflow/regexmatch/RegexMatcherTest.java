@@ -254,6 +254,7 @@ public class RegexMatcherTest {
 		fields.add(spanField);
 		expectedResults.add(new DataTuple(spanSchema, fields.toArray(new IField[fields.size()])));
 		
+		//expected to match "follow-up" & "followup"
 		spans.clear();
 		spans.add(new Span(RegexTestConstantsText.CONTENT, 24, 33, regex, "follow-up"));
 		spans.add(new Span(RegexTestConstantsText.CONTENT, 38, 46, regex, "followup"));
@@ -267,6 +268,44 @@ public class RegexMatcherTest {
 		testHelper.cleanUp();
 	}
 
+	
+	@Test
+	public void testRegexText3() throws Exception {
+		List<ITuple> data = RegexTestConstantsText.getSampleTextTuples();
+		RegexMatcherTestHelper testHelper = new RegexMatcherTestHelper(RegexTestConstantsText.SCHEMA_TEXT, data);
+		
+		String regex = "\\wo\\wato";
+		testHelper.runTest(regex, RegexTestConstantsText.CONTENT_ATTR, false);
+
+		List<ITuple> exactResults = testHelper.getResults();
+		
+		printResults(exactResults);
+		
+		List<ITuple> expectedResults = new ArrayList<ITuple>();
+		
+		//expected to match "tomato"
+		Schema spanSchema = testHelper.getSpanSchema();
+		List<Span> spans = new ArrayList<Span>();
+		spans.add(new Span(RegexTestConstantsText.CONTENT, 0, 6, regex, "Tomato"));
+		spans.add(new Span(RegexTestConstantsText.CONTENT, 94, 100, regex, "tomato"));
+		IField spanField = new ListField<Span>(new ArrayList<Span>(spans));
+		List<IField> fields = new ArrayList<IField>(data.get(7).getFields());
+		fields.add(spanField);
+		expectedResults.add(new DataTuple(spanSchema, fields.toArray(new IField[fields.size()])));
+		
+		spans.clear();
+		spans.add(new Span(RegexTestConstantsText.CONTENT, 0, 6, regex, "Potato"));
+		spanField = new ListField<Span>(new ArrayList<Span>(spans));
+		fields = new ArrayList<IField>(data.get(8).getFields());
+		fields.add(spanField);
+		expectedResults.add(new DataTuple(spanSchema, fields.toArray(new IField[fields.size()])));
+		System.out.println(exactResults);
+		System.out.println(expectedResults);
+		
+		Assert.assertTrue(TestUtils.containsAllResults(expectedResults, exactResults));
+		
+		testHelper.cleanUp();
+	}
 }
 
 
