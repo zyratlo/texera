@@ -25,7 +25,7 @@ import org.json.*;
  * @author Zuozhi Wang
  * @author Jinggang Diao
  */
-public class MedlineData {
+public class MedlineReader {
 
 	public static final String PMID = "pmid";
 	public static final String AFFILIATION = "affiliation";
@@ -60,6 +60,9 @@ public class MedlineData {
 	
 	/*
 	 * Be sure to call open() before calling getNextMedlineTuple() !
+	 * Please put data files in "data-files" folder under testdb-perftest".
+	 * So we have a common relative path "./data-files/FILE_NAME".
+	 * Data files under that folder will also be ignored by git.
 	 */
 	public static void open(String medlineFilePath) throws FileNotFoundException {
 		scanner = new Scanner(new File(medlineFilePath));
