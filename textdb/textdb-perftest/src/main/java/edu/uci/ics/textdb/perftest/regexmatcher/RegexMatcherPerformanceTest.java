@@ -49,7 +49,7 @@ public class RegexMatcherPerformanceTest {
 		
 		String regex = "\\bmedic(ine|al|ation|are|aid)?\\b";
 		Attribute[] attributeList = new Attribute[]{ MedlineReader.ABSTRACT_ATTR };
-		 
+
 		RegexPredicate regexPredicate = new RegexPredicate(
 				regex, Arrays.asList(attributeList), 
 				luceneAnalyzer, dataStore);
