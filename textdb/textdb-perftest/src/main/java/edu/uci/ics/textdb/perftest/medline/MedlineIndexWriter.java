@@ -41,17 +41,17 @@ public class MedlineIndexWriter {
 		dataWriter.clearData();
 		dataWriter.open();
 		
-		MedlineData.open(filePath);
+		MedlineReader.open(filePath);
 		
 		int counter = 0;
 		ITuple tuple = null;
-		while ((tuple = MedlineData.getNextTuple()) != null 
+		while ((tuple = MedlineReader.getNextTuple()) != null 
 				&& counter < maxDocNumber) {
 			dataWriter.writeTuple(tuple);
 			counter++;
 		}
 		
-		MedlineData.close();
+		MedlineReader.close();
 		dataWriter.close();
 
 	}

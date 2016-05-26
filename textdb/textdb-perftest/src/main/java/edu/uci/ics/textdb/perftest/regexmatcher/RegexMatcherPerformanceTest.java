@@ -13,7 +13,7 @@ import edu.uci.ics.textdb.common.exception.DataFlowException;
 import edu.uci.ics.textdb.common.exception.StorageException;
 import edu.uci.ics.textdb.dataflow.common.RegexPredicate;
 import edu.uci.ics.textdb.dataflow.regexmatch.RegexMatcher;
-import edu.uci.ics.textdb.perftest.medline.MedlineData;
+import edu.uci.ics.textdb.perftest.medline.MedlineReader;
 import edu.uci.ics.textdb.perftest.medline.MedlineIndexWriter;
 import edu.uci.ics.textdb.storage.DataStore;
 
@@ -38,7 +38,7 @@ public class RegexMatcherPerformanceTest {
 		
 		long startIndexTime = System.currentTimeMillis();
 		
-		DataStore dataStore = new DataStore(indexPath, MedlineData.SCHEMA_MEDLINE);
+		DataStore dataStore = new DataStore(indexPath, MedlineReader.SCHEMA_MEDLINE);
 
 		MedlineIndexWriter.writeMedlineToIndex(filePath, dataStore, luceneAnalyzer);
 		
@@ -48,7 +48,7 @@ public class RegexMatcherPerformanceTest {
 		
 		
 		String regex = "water";
-		Attribute[] attributeList = new Attribute[]{ MedlineData.ABSTRACT_ATTR };
+		Attribute[] attributeList = new Attribute[]{ MedlineReader.ABSTRACT_ATTR };
 		
 		RegexPredicate regexPredicate = new RegexPredicate(
 				regex, Arrays.asList(attributeList), 
