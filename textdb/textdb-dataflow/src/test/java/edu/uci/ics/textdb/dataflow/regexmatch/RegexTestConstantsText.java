@@ -38,6 +38,8 @@ public class RegexTestConstantsText {
     	textTuples.add(getTextTuple("The patient is to follow up with Dr. Smith. I will follow up the patient in two weeks."));
     	textTuples.add(getTextTuple("The patient will have a follow-up (or followup) examination."));
     	
+    	textTuples.add(getTextTuple("Tomato is the edible, often red berry-type fruit of Solanum lycopersicum, commonly known as a tomato plant."));
+    	textTuples.add(getTextTuple("Potato is a cool-season vegetable that ranks with wheat and rice as one of the most important staple crops in the human diet around the world."));
     	return textTuples;
     }
 }
