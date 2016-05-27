@@ -1,5 +1,6 @@
 package edu.uci.ics.textdb.dataflow.regexmatch;
 
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -212,11 +213,6 @@ public class RegexMatcherTest {
 		fields = new ArrayList<IField>(data.get(3).getFields());
 		fields.add(spanField);
 		expectedResults.add(new DataTuple(spanSchema, fields.toArray(new IField[fields.size()])));
-		
-		System.out.println("expected:");
-		printResults(expectedResults);
-		System.out.println("\nexact:");
-		printResults(exactResults);
 
 		Assert.assertTrue(TestUtils.containsAllResults(expectedResults, exactResults));
 		
@@ -274,16 +270,14 @@ public class RegexMatcherTest {
 		List<ITuple> data = RegexTestConstantsText.getSampleTextTuples();
 		RegexMatcherTestHelper testHelper = new RegexMatcherTestHelper(RegexTestConstantsText.SCHEMA_TEXT, data);
 		
-		String regex = "\\wo\\wato";
+		String regex = "(\\w)+o\\wa\\wo";
 		testHelper.runTest(regex, RegexTestConstantsText.CONTENT_ATTR, false);
 
 		List<ITuple> exactResults = testHelper.getResults();
 		
-		printResults(exactResults);
-		
 		List<ITuple> expectedResults = new ArrayList<ITuple>();
 		
-		//expected to match "tomato"
+		//expected to match "Tomato" & "tomato"
 		Schema spanSchema = testHelper.getSpanSchema();
 		List<Span> spans = new ArrayList<Span>();
 		spans.add(new Span(RegexTestConstantsText.CONTENT, 0, 6, regex, "Tomato"));
@@ -293,19 +287,63 @@ public class RegexMatcherTest {
 		fields.add(spanField);
 		expectedResults.add(new DataTuple(spanSchema, fields.toArray(new IField[fields.size()])));
 		
+		//expected to match "Potato"
 		spans.clear();
 		spans.add(new Span(RegexTestConstantsText.CONTENT, 0, 6, regex, "Potato"));
 		spanField = new ListField<Span>(new ArrayList<Span>(spans));
 		fields = new ArrayList<IField>(data.get(8).getFields());
 		fields.add(spanField);
 		expectedResults.add(new DataTuple(spanSchema, fields.toArray(new IField[fields.size()])));
-		System.out.println(exactResults);
-		System.out.println(expectedResults);
+		
+		//expected to match "avocado"
+		spans.clear();
+		spans.add(new Span(RegexTestConstantsText.CONTENT, 53, 60, regex, "avocado"));
+		spanField = new ListField<Span>(new ArrayList<Span>(spans));
+		fields = new ArrayList<IField>(data.get(9).getFields());
+		fields.add(spanField);
+		expectedResults.add(new DataTuple(spanSchema, fields.toArray(new IField[fields.size()])));
 		
 		Assert.assertTrue(TestUtils.containsAllResults(expectedResults, exactResults));
 		
 		testHelper.cleanUp();
 	}
+	
+	@Test
+	public void testRegexText4() throws Exception {
+		List<ITuple> data = RegexTestConstantsText.getSampleTextTuples();
+		RegexMatcherTestHelper testHelper = new RegexMatcherTestHelper(RegexTestConstantsText.SCHEMA_TEXT, data);
+		
+		String regex = "\\[(.)?\\]";
+		testHelper.runTest(regex, RegexTestConstantsText.CONTENT_ATTR, false);
+
+		List<ITuple> exactResults = testHelper.getResults();
+		printResults(exactResults);
+		
+		List<ITuple> expectedResults = new ArrayList<ITuple>();
+		
+		//expected to match [a] & [!]
+		Schema spanSchema = testHelper.getSpanSchema();
+		List<Span> spans = new ArrayList<Span>();
+		spans.add(new Span(RegexTestConstantsText.CONTENT, 110, 113, regex, "[a]"));
+		spans.add(new Span(RegexTestConstantsText.CONTENT, 120, 123, regex, "[!]"));
+		IField spanField = new ListField<Span>(new ArrayList<Span>(spans));
+		List<IField> fields = new ArrayList<IField>(data.get(10).getFields());
+		fields.add(spanField);
+		expectedResults.add(new DataTuple(spanSchema, fields.toArray(new IField[fields.size()])));
+		
+		//expected to match "Potato"
+//		spans.clear();
+//		spans.add(new Span(RegexTestConstantsText.CONTENT, 0, 6, regex, "Potato"));
+//		spanField = new ListField<Span>(new ArrayList<Span>(spans));
+//		fields = new ArrayList<IField>(data.get(8).getFields());
+//		fields.add(spanField);
+//		expectedResults.add(new DataTuple(spanSchema, fields.toArray(new IField[fields.size()])));
+		
+		Assert.assertTrue(TestUtils.containsAllResults(expectedResults, exactResults));
+		
+		testHelper.cleanUp();
+	}
+	
 }
 
 

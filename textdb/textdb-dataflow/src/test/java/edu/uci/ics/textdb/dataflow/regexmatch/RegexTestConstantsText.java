@@ -41,6 +41,9 @@ public class RegexTestConstantsText {
     	
     	textTuples.add(getTextTuple("Tomato is the edible, often red berry-type fruit of Solanum lycopersicum, commonly known as a tomato plant."));
     	textTuples.add(getTextTuple("Potato is a cool-season vegetable that ranks with wheat and rice as one of the most important staple crops in the human diet around the world."));
+    	textTuples.add(getTextTuple("Most fruit consists primarily of carbohydrate, while avocado is high in healthy fats."));
+    	
+    	textTuples.add(getTextTuple("This regex matches any single character surrounded by brackets, since the brackets are escaped, for example: '[a]' and '[!]'."));
     	return textTuples;
     }
 }
