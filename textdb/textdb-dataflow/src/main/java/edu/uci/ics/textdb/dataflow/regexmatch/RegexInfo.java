@@ -81,15 +81,25 @@ class RegexInfo {
 	
 	/**
 	 * This function simplifies the regexInfo. <br>
-	 * If the "exact" set gets too large, it will add exact to the query tree,
+	 * If the "exact" set gets too large, it will add "exact" to the query tree,
 	 * and move relevant pieces into prefix and suffix. <br>
 	 * 
 	 * Simplification is performed under three circumstances. <br>
-	 * 1, the size ofexact set is larger than a threshold. <br>
-	 * 2, the minimum length of strings in exact is larger than {@code gramLength+1}, 
+	 * 1, the size of "exact" set is larger than a threshold. <br>
+	 * 2, the minimum length of strings in "exact" is greater than 
+	 * or equal to {@code gramLength+1}, 
 	 *    if we do not set {@code force = true}. <br>
-	 * 3, the minimum length of strings in exact is larger than {@code gramLength}, 
-	 *    if we set {@code force = true}. <br>
+	 * 3, the minimum length of strings in "exact" is greater than
+	 * or equal to {@code gramLength}, if we set {@code force = true}. <br>
+	 * 
+	 * For example, if {@code gramLength} = 3, MAX_EXACT_SIZE = 5. 
+	 * 1. "exact" = {"ab", "bc", "cd", "de", "ef", "fg"} will be simplified because
+	 * its size is greater than 5, no matter {@code force} is true or false.
+	 * 2. "exact" = {"abcd", "efghj"} will be simplified, no matter
+	 * {@code force} is true or false, because its shortest string's
+	 * length, 4, is greater than or equal to gramLength+1, 4.
+	 * 3. "exact" = {"abc", "efg"} will simplified only if {@code force}
+	 * if true.
 	 * @param force
 	 */
 	RegexInfo simplify(boolean force) {
@@ -125,7 +135,7 @@ class RegexInfo {
 	
 	/**
 	 * simplifyAffix reduces the size of the given set (either prefix or suffix).
-	 * If the set gets too big, it moves information in prefix/suffix into match query.
+	 * If the set gets too big, it moves information in prefix/suffix into "match" query.
 	 * @param strList
 	 * @param isSuffix indicates if given string list is suffix list or not
 	 */
@@ -133,10 +143,10 @@ class RegexInfo {
 		TranslatorUtils.removeDuplicateAffix(strList, isSuffix);
 		int gramLength = this.match.gramLength;
 		
-		// Add the current prefix/suffix set to match query.
+		// Add the current prefix/suffix set to "match" query.
 		match.add(strList);
 		
-		// This loop cuts the length of prefix/suffix. It cuts all
+		// This loop reduces the length of prefix/suffix. It cuts all
 		// strings longer than {@code gramLength}, and continues to cut strings
 		// until the size of the list is below a threshold.
 		// It cuts a prefix (suffix) string by only retaining the first (last) n characters of it

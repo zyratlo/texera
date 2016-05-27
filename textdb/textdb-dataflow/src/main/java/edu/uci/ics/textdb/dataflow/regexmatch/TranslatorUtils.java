@@ -16,7 +16,7 @@ public class TranslatorUtils {
 	static final int MAX_EXACT_SIZE = 7;
 	
 	/** Prefix and suffix sets are limited to maxSet strings.
-	 * If they get too big, simplify will replace groups of strings
+	 * If they get too big, "simplify" will replace groups of strings
 	 * sharing a common leading prefix (or trailing suffix) with
 	 * that common prefix (or suffix).  It is useful for maxSet
 	 * to be at least 2³ = 8 so that we can exactly
