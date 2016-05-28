@@ -10,9 +10,13 @@ import edu.uci.ics.textdb.api.common.IField;
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.common.Schema;
 import edu.uci.ics.textdb.common.field.DataTuple;
-import edu.uci.ics.textdb.common.field.StringField;
 import edu.uci.ics.textdb.common.field.TextField;
 
+/*
+ * Test data of some text contents.
+ * @author Zuozhi Wang
+ * @author Qing Tang
+ */
 public class RegexTestConstantsText {
     // Sample test data of some random text
     public static final String CONTENT = "content";

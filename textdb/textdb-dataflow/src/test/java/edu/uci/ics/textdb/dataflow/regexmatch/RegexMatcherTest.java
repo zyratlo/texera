@@ -1,6 +1,5 @@
 package edu.uci.ics.textdb.dataflow.regexmatch;
 
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,12 +16,12 @@ import edu.uci.ics.textdb.common.field.Span;
 import edu.uci.ics.textdb.dataflow.utils.TestUtils;
 
 /**
- * @author zuozhi
- * @author shuying
- * @author chenli
- * @author qing
- * 	
- * Unit test for RegexMatcher
+ * Unit tests for RegexMatcher.
+ * Integration tests with RegexToGramTranslator.
+ * 
+ * @author Shuying Lai
+ * @author Zuozhi Wang
+ * @author Qing Tang
  */
 public class RegexMatcherTest {
 	
