@@ -68,27 +68,30 @@ public class RegexMatcher implements IOperator {
     	
 		this.sourceTupleSchema = regexPredicate.getDataStore().getSchema();
 		this.spanSchema = Utils.createSpanSchema(this.sourceTupleSchema);
-    	
-    	// try to use RE2J first
-    	try {
-    		this.re2jPattern = com.google.re2j.Pattern.compile(regexPredicate.getRegex());
-			this.regexEngine = RegexEngine.RE2J;
-		// if RE2J fails, try to use Java Regex
-    	} catch (com.google.re2j.PatternSyntaxException re2jException) {
-    		try {
-				this.javaPattern = java.util.regex.Pattern.compile(regex);
-				this.regexEngine = RegexEngine.JavaRegex;
-			// if Java Regex fails, throw exception
-    		} catch (java.util.regex.PatternSyntaxException javaException) {
-    			throw new DataFlowException(javaException.getMessage());
-    		}
-    	}
-    	
-    	if (useTranslator && regexEngine == RegexEngine.RE2J) {
-			this.luceneQueryStr = RegexToGramQueryTranslator.translate(regex).getLuceneQueryString();
-    	} else {
-    		this.luceneQueryStr =  DataConstants.SCAN_QUERY;
-    	}
+		
+		// try Java Regex first
+		try {
+			this.javaPattern = java.util.regex.Pattern.compile(regex);
+			this.regexEngine = RegexEngine.JavaRegex;
+		// if Java Regex fails, try RE2J
+		} catch (java.util.regex.PatternSyntaxException javaException) {
+	    	try {
+	    		this.re2jPattern = com.google.re2j.Pattern.compile(regexPredicate.getRegex());
+				this.regexEngine = RegexEngine.RE2J;
+			// if RE2J also fails, throw exception
+	    	} catch (com.google.re2j.PatternSyntaxException re2jException) {
+				throw new DataFlowException(javaException.getMessage());
+	    	}
+		}
+		
+		this.luceneQueryStr =  DataConstants.SCAN_QUERY;
+		// try to translate if useTranslator is true 
+		if (useTranslator) {
+			try {
+				this.luceneQueryStr = RegexToGramQueryTranslator.translate(regex).getLuceneQueryString();
+			} catch (com.google.re2j.PatternSyntaxException e) {
+			}
+		}
     	
     	try {
     		this.luceneQuery = generateLuceneQuery(fieldNameList, luceneQueryStr);
@@ -196,7 +199,13 @@ public class RegexMatcher implements IOperator {
 		}
 	}
 	
-	public void setUseJavaRegex() throws java.util.regex.PatternSyntaxException {
+	/**
+	 * Use RE2J Regex Engine. <br>
+	 * RegexMatcher is set to use Java Regex Engine by default. 
+	 * Because Java Regex is usually faster than RE2J <br>
+	 * @throws java.util.regex.PatternSyntaxException
+	 */
+	public void setRegexEngineToRE2J() throws java.util.regex.PatternSyntaxException {
 		if (this.regexEngine == RegexEngine.JavaRegex) {
 			return;
 		} else {
@@ -205,7 +214,12 @@ public class RegexMatcher implements IOperator {
 		}
 	}
 	
-	public void setUseRE2J() throws java.util.regex.PatternSyntaxException {
+	/**
+	 * Use Java's built-in Regex Engine. <br>
+	 * RegexMatcher is set to use Java Regex Engine by default. <br>
+	 * @throws java.util.regex.PatternSyntaxException
+	 */
+	public void setRegexEngineToJava() throws java.util.regex.PatternSyntaxException {
 		if (this.regexEngine == RegexEngine.RE2J) {
 			return;
 		} else {
@@ -218,7 +232,7 @@ public class RegexMatcher implements IOperator {
 		}
 	}
 	
-	public String getRegexEngine() {
+	public String getRegexEngineString() {
 		return this.regexEngine.toString();
 	}
     

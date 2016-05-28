@@ -147,10 +147,15 @@ public class TranslatorUtils {
 		return unionList;
 	}
 	
-	// A list of characters that need to be escaped in Lucene
+	/**
+	 * A list of characters that need to be escaped in Lucene <br>
+	 * <a href="http://lucene.apache.org/core/5_5_0/queryparser/org/apache/lucene/queryparser/classic/package-summary.html#Escaping_Special_Characters">
+	 * Special characters in Lucene 5.5.0
+	 * </a>
+	 */
 	static List<String> specialLuceneCharacters = Arrays.asList(new String[]{
 			"+", "-", "&&", "||", "!", "(", ")", "{", "}", "[", "]", 
-			"^", "\"", "~", "*", "?", ":", "\\", " ", "AND", "OR"
+			"^", "\"", "~", "*", "?", ":", "\\", " ", "AND", "OR", "NOT"
 	});
 	
 	/**
