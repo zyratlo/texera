@@ -185,7 +185,10 @@ public class RegexMatcher implements IOperator {
 	private void javaRegexMatch(String fieldValue, String fieldName, List<Span> spanList) {
 		java.util.regex.Matcher javaMatcher = this.javaPattern.matcher(fieldValue);
 		while (javaMatcher.find()) {
-			spanList.add(new Span(fieldName, javaMatcher.start(), javaMatcher.end(), this.regexPredicate.getRegex(), fieldValue));
+			int start = javaMatcher.start();
+			int end = javaMatcher.end();
+			spanList.add(new Span(fieldName, start, end, 
+					this.regexPredicate.getRegex(), fieldValue.substring(start, end)));
 		}
 	}
 	
