@@ -32,6 +32,7 @@ public class RegexToGramQueryTranslator {
 	    re = PublicSimplify.simplify(re);  
 	    RegexInfo regexInfo = analyze(re);
 	    regexInfo.simplify(true);
+	    TranslatorUtils.escapeSpecialCharacters(regexInfo.match);
 	    return regexInfo.match;
 	}
 	

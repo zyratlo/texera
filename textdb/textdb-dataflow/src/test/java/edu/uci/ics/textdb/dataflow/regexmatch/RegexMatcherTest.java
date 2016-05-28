@@ -16,13 +16,27 @@ import edu.uci.ics.textdb.common.field.Span;
 import edu.uci.ics.textdb.dataflow.utils.TestUtils;
 
 /**
- * @author zuozhi
- * @author shuying
- * @author chenli
- * 	
- * Unit test for RegexMatcher
+ * Unit tests for RegexMatcher.
+ * Integration tests with RegexToGramTranslator.
+ * 
+ * @author Shuying Lai
+ * @author Zuozhi Wang
+ * @author Qing Tang
  */
 public class RegexMatcherTest {
+	
+	private void printResults(List<ITuple> results) {
+		for (ITuple result : results) {
+			List<Span> a = ((ListField<Span>) result.getField("spanList")).getValue();
+			for (Span i : a) {
+				System.out.printf("start: %d, end: %d, fieldName: %s, key: %s, value: %s\n", 
+						i.getStart(), i.getEnd(), i.getFieldName(), i.getKey(), i.getValue());
+			}
+		}
+		System.out.println();
+	}
+	
+	
 	@Test
 	public void testGetNextTuplePeopleFirstName() throws Exception {
 		List<ITuple> data = TestConstants.getSamplePeopleTuples();
@@ -36,7 +50,7 @@ public class RegexMatcherTest {
 		//expected to match "brad lie angelina"
 		Schema spanSchema = testHelper.getSpanSchema();
 		List<Span> spans = new ArrayList<Span>();
-		spans.add(new Span(TestConstants.FIRST_NAME, 11, 17, "g[^\\s]*", "brad lie angelina"));
+		spans.add(new Span(TestConstants.FIRST_NAME, 11, 17, "g[^\\s]*", "gelina"));
 		IField spanField = new ListField<Span>(new ArrayList<Span>(spans));
 		List<IField> fields = new ArrayList<IField>(data.get(2).getFields());
 		fields.add(spanField);
@@ -44,12 +58,12 @@ public class RegexMatcherTest {
 		
 		//expected to match "george lin lin"
 		spans.clear();
-		spans.add(new Span(TestConstants.FIRST_NAME, 0, 6, "g[^\\s]*", "george lin lin"));
+		spans.add(new Span(TestConstants.FIRST_NAME, 0, 6, "g[^\\s]*", "george"));
 		spanField = new ListField<Span>(new ArrayList<Span>(spans));
 		fields = new ArrayList<IField>(data.get(3).getFields());
 		fields.add(spanField);
 		expectedResults.add(new DataTuple(spanSchema, fields.toArray(new IField[fields.size()])));
-		
+				
 		Assert.assertTrue(TestUtils.containsAllResults(expectedResults, exactResults));
 		
 		testHelper.cleanUp();
@@ -82,7 +96,7 @@ public class RegexMatcherTest {
 		fields = new ArrayList<IField>(data.get(2).getFields());
 		fields.add(spanField);
 		expectedResults.add(new DataTuple(spanSchema, fields.toArray(new IField[fields.size()])));
-		
+
 		Assert.assertTrue(TestUtils.containsAllResults(expectedResults, exactResults));
 		
 		testHelper.cleanUp();
@@ -123,7 +137,7 @@ public class RegexMatcherTest {
 		fields = new ArrayList<IField>(data.get(2).getFields());
 		fields.add(spanField);
 		expectedResults.add(new DataTuple(spanSchema, fields.toArray(new IField[fields.size()])));
-		
+
 		Assert.assertTrue(TestUtils.containsAllResults(expectedResults, exactResults));
 		
 		testHelper.cleanUp();
@@ -140,20 +154,109 @@ public class RegexMatcherTest {
 		
 		List<ITuple> expectedResults = new ArrayList<ITuple>();
 		
-		//expected to match "66.220.144.0"
+		//expected to match "k.bocanegra@uci.edu"
 		Schema spanSchema = testHelper.getSpanSchema();
 		List<Span> spans = new ArrayList<Span>();
-		spans.add(new Span(RegexTestConstantStaff.EMAIL, 0, 19, query, "k.bocanegra@uci.edu"));
+		spans.add(new Span(RegexTestConstantStaff.EMAIL, 0, 19, query, "m.bocanegra@164.com"));
 		IField spanField = new ListField<Span>(new ArrayList<Span>(spans));
 		List<IField> fields = new ArrayList<IField>(data.get(0).getFields());
 		fields.add(spanField);
 		expectedResults.add(new DataTuple(spanSchema, fields.toArray(new IField[fields.size()])));
 		
-		//expected to match "180.149.134.141"
+		//expected to match "hwangl@ics.uci.edu"
 		spans.clear();
-		spans.add(new Span(RegexTestConstantStaff.EMAIL, 0, 18, query, "hwangl@ics.uci.edu"));
+		spans.add(new Span(RegexTestConstantStaff.EMAIL, 0, 18, query, "hwangk@ske.akb.edu"));
 		spanField = new ListField<Span>(new ArrayList<Span>(spans));
 		fields = new ArrayList<IField>(data.get(1).getFields());
+		fields.add(spanField);
+		expectedResults.add(new DataTuple(spanSchema, fields.toArray(new IField[fields.size()])));
+				
+		Assert.assertTrue(TestUtils.containsAllResults(expectedResults, exactResults));
+		
+		testHelper.cleanUp();
+	}
+	
+	@Test
+	public void testRegexText1() throws Exception {
+		List<ITuple> data = RegexTestConstantsText.getSampleTextTuples();
+		RegexMatcherTestHelper testHelper = new RegexMatcherTestHelper(RegexTestConstantsText.SCHEMA_TEXT, data);
+		
+		String regex = "test(er|ing|ed|s)?";
+
+		testHelper.runTest(regex, RegexTestConstantsText.CONTENT_ATTR, true);
+
+		List<ITuple> exactResults = testHelper.getResults();	
+		List<ITuple> expectedResults = new ArrayList<ITuple>();
+		
+		
+		//expected to match "test" & testing"
+		Schema spanSchema = testHelper.getSpanSchema();
+		List<Span> spans = new ArrayList<Span>();
+		spans.add(new Span(RegexTestConstantsText.CONTENT, 5, 9, regex, "test"));
+		spans.add(new Span(RegexTestConstantsText.CONTENT, 21, 28, regex, "testing"));
+		IField spanField = new ListField<Span>(new ArrayList<Span>(spans));
+		List<IField> fields = new ArrayList<IField>(data.get(0).getFields());
+		fields.add(spanField);
+		expectedResults.add(new DataTuple(spanSchema, fields.toArray(new IField[fields.size()])));
+		
+		//expected to match "tests"
+		spans.clear();
+		spans.add(new Span(RegexTestConstantsText.CONTENT, 87, 92, regex, "tests"));
+		spanField = new ListField<Span>(new ArrayList<Span>(spans));
+		fields = new ArrayList<IField>(data.get(2).getFields());
+		fields.add(spanField);
+		expectedResults.add(new DataTuple(spanSchema, fields.toArray(new IField[fields.size()])));
+		
+		//expected to match "tested"
+		spans.clear();
+		spans.add(new Span(RegexTestConstantsText.CONTENT, 43, 49, regex, "tested"));
+		spanField = new ListField<Span>(new ArrayList<Span>(spans));
+		fields = new ArrayList<IField>(data.get(3).getFields());
+		fields.add(spanField);
+		expectedResults.add(new DataTuple(spanSchema, fields.toArray(new IField[fields.size()])));
+
+		Assert.assertTrue(TestUtils.containsAllResults(expectedResults, exactResults));
+		
+		testHelper.cleanUp();
+	}
+	
+	@Test
+	public void testRegexText2() throws Exception {
+		List<ITuple> data = RegexTestConstantsText.getSampleTextTuples();
+		RegexMatcherTestHelper testHelper = new RegexMatcherTestHelper(RegexTestConstantsText.SCHEMA_TEXT, data);
+		
+		String regex = "follow(-| )?up";
+		testHelper.runTest(regex, RegexTestConstantsText.CONTENT_ATTR, true);
+
+		List<ITuple> exactResults = testHelper.getResults();
+		
+		List<ITuple> expectedResults = new ArrayList<ITuple>();
+		
+		//expected to match "followup"
+		Schema spanSchema = testHelper.getSpanSchema();
+		List<Span> spans = new ArrayList<Span>();
+		spans.add(new Span(RegexTestConstantsText.CONTENT, 28, 36, regex, "followup"));
+		spans.add(new Span(RegexTestConstantsText.CONTENT, 54, 62, regex, "followup"));
+		IField spanField = new ListField<Span>(new ArrayList<Span>(spans));
+		List<IField> fields = new ArrayList<IField>(data.get(4).getFields());
+		fields.add(spanField);
+		expectedResults.add(new DataTuple(spanSchema, fields.toArray(new IField[fields.size()])));
+		
+		//expected to match "follow up"
+		spans.clear();
+		spans.add(new Span(RegexTestConstantsText.CONTENT, 18, 27, regex, "follow up"));
+		spans.add(new Span(RegexTestConstantsText.CONTENT, 51, 60, regex, "follow up"));
+		spanField = new ListField<Span>(new ArrayList<Span>(spans));
+		fields = new ArrayList<IField>(data.get(5).getFields());
+		fields.add(spanField);
+		expectedResults.add(new DataTuple(spanSchema, fields.toArray(new IField[fields.size()])));
+		
+		//expected to match "follow-up" & "followup"
+		spans.clear();
+		spans.add(new Span(RegexTestConstantsText.CONTENT, 24, 33, regex, "follow-up"));
+		spans.add(new Span(RegexTestConstantsText.CONTENT, 38, 46, regex, "followup"));
+		spanField = new ListField<Span>(new ArrayList<Span>(spans));
+		fields = new ArrayList<IField>(data.get(6).getFields());
 		fields.add(spanField);
 		expectedResults.add(new DataTuple(spanSchema, fields.toArray(new IField[fields.size()])));
 		
@@ -162,4 +265,78 @@ public class RegexMatcherTest {
 		testHelper.cleanUp();
 	}
 
+	
+	@Test
+	public void testRegexText3() throws Exception {
+		List<ITuple> data = RegexTestConstantsText.getSampleTextTuples();
+		RegexMatcherTestHelper testHelper = new RegexMatcherTestHelper(RegexTestConstantsText.SCHEMA_TEXT, data);
+		
+		String regex = "([a-zA-Z])+o[a-z]a[a-z]o";
+		testHelper.runTest(regex, RegexTestConstantsText.CONTENT_ATTR, true);
+
+		List<ITuple> exactResults = testHelper.getResults();
+		
+		List<ITuple> expectedResults = new ArrayList<ITuple>();
+		
+		//expected to match "Tomato" & "tomato"
+		Schema spanSchema = testHelper.getSpanSchema();
+		List<Span> spans = new ArrayList<Span>();
+		spans.add(new Span(RegexTestConstantsText.CONTENT, 0, 6, regex, "Tomato"));
+		spans.add(new Span(RegexTestConstantsText.CONTENT, 94, 100, regex, "tomato"));
+		IField spanField = new ListField<Span>(new ArrayList<Span>(spans));
+		List<IField> fields = new ArrayList<IField>(data.get(7).getFields());
+		fields.add(spanField);
+		expectedResults.add(new DataTuple(spanSchema, fields.toArray(new IField[fields.size()])));
+		
+		//expected to match "Potato"
+		spans.clear();
+		spans.add(new Span(RegexTestConstantsText.CONTENT, 0, 6, regex, "Potato"));
+		spanField = new ListField<Span>(new ArrayList<Span>(spans));
+		fields = new ArrayList<IField>(data.get(8).getFields());
+		fields.add(spanField);
+		expectedResults.add(new DataTuple(spanSchema, fields.toArray(new IField[fields.size()])));
+		
+		//expected to match "avocado"
+		spans.clear();
+		spans.add(new Span(RegexTestConstantsText.CONTENT, 53, 60, regex, "avocado"));
+		spanField = new ListField<Span>(new ArrayList<Span>(spans));
+		fields = new ArrayList<IField>(data.get(9).getFields());
+		fields.add(spanField);
+		expectedResults.add(new DataTuple(spanSchema, fields.toArray(new IField[fields.size()])));
+		
+		Assert.assertTrue(TestUtils.containsAllResults(expectedResults, exactResults));
+		
+		testHelper.cleanUp();
+	}
+	
+	@Test
+	public void testRegexText4() throws Exception {
+		List<ITuple> data = RegexTestConstantsText.getSampleTextTuples();
+		RegexMatcherTestHelper testHelper = new RegexMatcherTestHelper(RegexTestConstantsText.SCHEMA_TEXT, data);
+		
+		String regex = "\\[(.)?\\]";
+		testHelper.runTest(regex, RegexTestConstantsText.CONTENT_ATTR, true);
+
+		List<ITuple> exactResults = testHelper.getResults();
+		
+		List<ITuple> expectedResults = new ArrayList<ITuple>();
+		
+		//expected to match [a] & [!]
+		Schema spanSchema = testHelper.getSpanSchema();
+		List<Span> spans = new ArrayList<Span>();
+		spans.add(new Span(RegexTestConstantsText.CONTENT, 110, 113, regex, "[a]"));
+		spans.add(new Span(RegexTestConstantsText.CONTENT, 120, 123, regex, "[!]"));
+		IField spanField = new ListField<Span>(new ArrayList<Span>(spans));
+		List<IField> fields = new ArrayList<IField>(data.get(10).getFields());
+		fields.add(spanField);
+		expectedResults.add(new DataTuple(spanSchema, fields.toArray(new IField[fields.size()])));
+		
+		Assert.assertTrue(TestUtils.containsAllResults(expectedResults, exactResults));
+		
+		testHelper.cleanUp();
+	}
+	
 }
+
+
+

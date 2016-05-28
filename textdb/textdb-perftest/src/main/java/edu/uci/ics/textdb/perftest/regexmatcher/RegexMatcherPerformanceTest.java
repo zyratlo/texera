@@ -26,7 +26,7 @@ import edu.uci.ics.textdb.storage.DataStore;
 public class RegexMatcherPerformanceTest {
 	
 	public static void main(String[] args) throws StorageException, IOException, DataFlowException {
-		samplePerformanceTest("./data-files/abstract_100K.txt", "./index");	
+		samplePerformanceTest("./data-files/ipubmed_abs_present.json", "./index");	
 	}
 
 	public static void samplePerformanceTest(String filePath, String indexPath) 
@@ -36,26 +36,39 @@ public class RegexMatcherPerformanceTest {
 				.withTokenizer(NGramTokenizerFactory.class, new String[]{"minGramSize", "3", "maxGramSize", "3"})
 				.build();
 		
-		long startIndexTime = System.currentTimeMillis();
+		long startIndexTime = System.currentTimeMillis(); 
 		
 		DataStore dataStore = new DataStore(indexPath, MedlineReader.SCHEMA_MEDLINE);
 
-		MedlineIndexWriter.writeMedlineToIndex(filePath, dataStore, luceneAnalyzer);
+//		MedlineIndexWriter.writeMedlineToIndex(filePath, dataStore, luceneAnalyzer);
 		
 		long endIndexTime = System.currentTimeMillis();
 		double indexTime = (endIndexTime - startIndexTime)/1000.0;
 		System.out.printf("index time: %.4f seconds\n", indexTime);
 		
 		
-		String regex = "water";
+		String regex = "\\bmedic(ine|al|ation|are|aid)?\\b";
 		Attribute[] attributeList = new Attribute[]{ MedlineReader.ABSTRACT_ATTR };
-		
+
 		RegexPredicate regexPredicate = new RegexPredicate(
 				regex, Arrays.asList(attributeList), 
 				luceneAnalyzer, dataStore);
 		
-		RegexMatcher regexMatcher = new RegexMatcher(regexPredicate);
+		RegexMatcher regexMatcher = new RegexMatcher(regexPredicate, true);
+		
+		regexMatcher.setRegexEngineToJava();
+//		regexMatcher.setRegexEngineToRE2J();
+		System.out.println(regexMatcher.getLueneQueryString());
+		System.out.println(regexMatcher.getRegexEngineString());
+		
+		long startLuceneQueryTime = System.currentTimeMillis();
+		
 		regexMatcher.open();
+		
+		long endLuceneQueryTime = System.currentTimeMillis();
+		double luceneQueryTime = (endLuceneQueryTime - startLuceneQueryTime)/1000.0;
+		System.out.printf("lucene Query time: %.4f seconds\n", luceneQueryTime);
+		
 		
 		long startMatchTime = System.currentTimeMillis();
 

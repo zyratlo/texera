@@ -1,6 +1,7 @@
 package edu.uci.ics.textdb.dataflow.regexmatch;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -144,6 +145,37 @@ public class TranslatorUtils {
 		TranslatorUtils.removeDuplicateAffix(unionList, isSuffix);
 		
 		return unionList;
+	}
+	
+	/**
+	 * A list of characters that need to be escaped in Lucene <br>
+	 * <a href="http://lucene.apache.org/core/5_5_0/queryparser/org/apache/lucene/queryparser/classic/package-summary.html#Escaping_Special_Characters">
+	 * Special characters in Lucene 5.5.0
+	 * </a>
+	 */
+	static List<String> specialLuceneCharacters = Arrays.asList(new String[]{
+			"+", "-", "&&", "||", "!", "(", ")", "{", "}", "[", "]", 
+			"^", "\"", "~", "*", "?", ":", "\\", " ", "AND", "OR", "NOT"
+	});
+	
+	/**
+	 * This function escapes special characters in Lucene. <br>
+	 * For example, if an operand is "a)b", Lucene will treat ")" as
+	 * a special character. This function changes it to "a\)b". <br>
+	 * @param query
+	 */
+	static void escapeSpecialCharacters(GramBooleanQuery query) {
+		HashSet<String> escapedOperandSet = new HashSet<String>();
+		for (String operand : query.operandSet) {
+			for (String specialChar : specialLuceneCharacters) {
+				escapedOperandSet.add(operand.replace(specialChar, "\\"+specialChar));
+			}
+		}
+		query.operandSet = escapedOperandSet;
+		
+		for (GramBooleanQuery subQuery : query.subQuerySet) {
+			escapeSpecialCharacters(subQuery);
+		}
 	}
 
 }

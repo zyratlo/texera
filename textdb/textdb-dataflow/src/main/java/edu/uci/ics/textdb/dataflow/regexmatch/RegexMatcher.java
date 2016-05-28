@@ -35,8 +35,11 @@ public class RegexMatcher implements IOperator {
     private String regex;
     private List<String> fieldNameList;
     
-    private Schema sourceTupleSchema = null;
-    private Schema spanSchema = null;
+    private Schema sourceTupleSchema;
+    private Schema spanSchema;
+    
+    private String luceneQueryStr;
+    private Query luceneQuery;
     
 	private Analyzer luceneAnalyzer;
 	private ISourceOperator sourceOperator;
@@ -63,38 +66,43 @@ public class RegexMatcher implements IOperator {
     	this.fieldNameList = regexPredicate.getFieldNameList();
     	this.luceneAnalyzer = regexPredicate.getLuceneAnalyzer();
     	
-    	// try to use RE2J first
-    	try {
-    		this.re2jPattern = com.google.re2j.Pattern.compile(regexPredicate.getRegex());
-			this.regexEngine = RegexEngine.RE2J;
-		// if RE2J fails, try to use Java Regex
-    	} catch (com.google.re2j.PatternSyntaxException re2jException) {
-    		try {
-				this.javaPattern = java.util.regex.Pattern.compile(regex);
-				this.regexEngine = RegexEngine.JavaRegex;
-			// if Java Regex fails, throw exception
-    		} catch (java.util.regex.PatternSyntaxException javaException) {
-    			throw new DataFlowException(javaException.getMessage());
-    		}
-    	}
+		this.sourceTupleSchema = regexPredicate.getDataStore().getSchema();
+		this.spanSchema = Utils.createSpanSchema(this.sourceTupleSchema);
+		
+		// try Java Regex first
+		try {
+			this.javaPattern = java.util.regex.Pattern.compile(regex);
+			this.regexEngine = RegexEngine.JavaRegex;
+		// if Java Regex fails, try RE2J
+		} catch (java.util.regex.PatternSyntaxException javaException) {
+	    	try {
+	    		this.re2jPattern = com.google.re2j.Pattern.compile(regexPredicate.getRegex());
+				this.regexEngine = RegexEngine.RE2J;
+			// if RE2J also fails, throw exception
+	    	} catch (com.google.re2j.PatternSyntaxException re2jException) {
+				throw new DataFlowException(javaException.getMessage());
+	    	}
+		}
+		
+		this.luceneQueryStr =  DataConstants.SCAN_QUERY;
+		// try to translate if useTranslator is true 
+		if (useTranslator) {
+			try {
+				this.luceneQueryStr = RegexToGramQueryTranslator.translate(regex).getLuceneQueryString();
+			} catch (com.google.re2j.PatternSyntaxException e) {
+			}
+		}
     	
-    	String luceneQueryStr;
-    	if (useTranslator && regexEngine == RegexEngine.RE2J) {
-			luceneQueryStr = RegexToGramQueryTranslator.translate(regex).getLuceneQueryString();
-    	} else {
-    		luceneQueryStr =  DataConstants.SCAN_QUERY;
-    	}
-    	
-    	Query luceneQuery;
     	try {
-    		luceneQuery = generateLuceneQuery(fieldNameList, luceneQueryStr);
+    		this.luceneQuery = generateLuceneQuery(fieldNameList, luceneQueryStr);
     	} catch (ParseException e) {
     		throw new DataFlowException(e.getMessage());
     	}
-    	
+    	    	
 		DataReaderPredicate dataReaderPredicate = new DataReaderPredicate(regexPredicate.getDataStore(), 
-				luceneQuery, luceneQueryStr, luceneAnalyzer, regexPredicate.getAttributeList());
+				this.luceneQuery, this.luceneQueryStr, luceneAnalyzer, regexPredicate.getAttributeList());
 		this.sourceOperator = new IndexBasedSourceOperator(dataReaderPredicate);
+		
     }
     
     
@@ -116,12 +124,6 @@ public class RegexMatcher implements IOperator {
             this.spanList = computeMatches(sourceTuple);
             
             if (spanList != null && spanList.size() != 0) { // a list of matches found
-            	if (sourceTupleSchema == null) {
-            		sourceTupleSchema = sourceTuple.getSchema();
-            	}
-            	if (spanSchema == null) {
-            		spanSchema = Utils.createSpanSchema(sourceTupleSchema);
-            	}
             	List<IField> fields = sourceTuple.getFields();
             	return constructSpanTuple(fields, this.spanList);
             } else { // no match found
@@ -183,15 +185,58 @@ public class RegexMatcher implements IOperator {
 	private void javaRegexMatch(String fieldValue, String fieldName, List<Span> spanList) {
 		java.util.regex.Matcher javaMatcher = this.javaPattern.matcher(fieldValue);
 		while (javaMatcher.find()) {
-			spanList.add(new Span(fieldName, javaMatcher.start(), javaMatcher.end(), this.regexPredicate.getRegex(), fieldValue));
+			int start = javaMatcher.start();
+			int end = javaMatcher.end();
+			spanList.add(new Span(fieldName, start, end, 
+					this.regexPredicate.getRegex(), fieldValue.substring(start, end)));
 		}
 	}
 	
 	private void re2jRegexMatch(String fieldValue, String fieldName, List<Span> spanList) {
 		com.google.re2j.Matcher re2jMatcher = this.re2jPattern.matcher(fieldValue);
 		while (re2jMatcher.find()) {
-			spanList.add(new Span(fieldName, re2jMatcher.start(), re2jMatcher.end(), this.regexPredicate.getRegex(), fieldValue));
+			int start = re2jMatcher.start();
+			int end = re2jMatcher.end();
+			spanList.add(new Span(fieldName, start, end, 
+					this.regexPredicate.getRegex(), fieldValue.substring(start, end)));
 		}
+	}
+	
+	/**
+	 * Use RE2J Regex Engine. <br>
+	 * RegexMatcher is set to use Java Regex Engine by default. 
+	 * Because Java Regex is usually faster than RE2J <br>
+	 * @throws java.util.regex.PatternSyntaxException
+	 */
+	public void setRegexEngineToRE2J() throws java.util.regex.PatternSyntaxException {
+		if (this.regexEngine == RegexEngine.JavaRegex) {
+			return;
+		} else {
+			this.javaPattern = java.util.regex.Pattern.compile(this.regex);
+			this.regexEngine = RegexEngine.JavaRegex;
+		}
+	}
+	
+	/**
+	 * Use Java's built-in Regex Engine. <br>
+	 * RegexMatcher is set to use Java Regex Engine by default. <br>
+	 * @throws java.util.regex.PatternSyntaxException
+	 */
+	public void setRegexEngineToJava() throws java.util.regex.PatternSyntaxException {
+		if (this.regexEngine == RegexEngine.RE2J) {
+			return;
+		} else {
+			try {
+				this.re2jPattern = com.google.re2j.Pattern.compile(this.regex);
+				this.regexEngine = RegexEngine.RE2J;
+			} catch (com.google.re2j.PatternSyntaxException e) {
+				throw new java.util.regex.PatternSyntaxException(e.getDescription(), e.getPattern(), e.getIndex());
+			}
+		}
+	}
+	
+	public String getRegexEngineString() {
+		return this.regexEngine.toString();
 	}
     
     
@@ -218,6 +263,10 @@ public class RegexMatcher implements IOperator {
 
     public Schema getSpanSchema() {
     	return spanSchema;
+    }
+    
+    public String getLueneQueryString() {
+    	return this.luceneQueryStr;
     }
     
     public String getRegex() {

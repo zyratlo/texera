@@ -47,8 +47,12 @@ public class MedlineIndexWriter {
 		ITuple tuple = null;
 		while ((tuple = MedlineReader.getNextTuple()) != null 
 				&& counter < maxDocNumber) {
-			dataWriter.writeTuple(tuple);
-			counter++;
+			try {
+				dataWriter.writeTuple(tuple);
+				counter++;
+			} catch (Exception e) {		
+					e.printStackTrace();
+			}
 		}
 		
 		MedlineReader.close();
