@@ -56,10 +56,10 @@ public class RegexMatcherPerformanceTest {
 		
 		RegexMatcher regexMatcher = new RegexMatcher(regexPredicate, true);
 		
-//		regexMatcher.setUseJavaRegex();
-		regexMatcher.setUseRE2J();
+		regexMatcher.setRegexEngineToJava();
+//		regexMatcher.setRegexEngineToRE2J();
 		System.out.println(regexMatcher.getLueneQueryString());
-		System.out.println(regexMatcher.getRegexEngine());
+		System.out.println(regexMatcher.getRegexEngineString());
 		
 		long startLuceneQueryTime = System.currentTimeMillis();
 		
