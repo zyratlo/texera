@@ -157,7 +157,7 @@ public class RegexMatcherTest {
 		//expected to match "k.bocanegra@uci.edu"
 		Schema spanSchema = testHelper.getSpanSchema();
 		List<Span> spans = new ArrayList<Span>();
-		spans.add(new Span(RegexTestConstantStaff.EMAIL, 0, 19, query, "k.bocanegra@uci.edu"));
+		spans.add(new Span(RegexTestConstantStaff.EMAIL, 0, 19, query, "m.bocanegra@164.com"));
 		IField spanField = new ListField<Span>(new ArrayList<Span>(spans));
 		List<IField> fields = new ArrayList<IField>(data.get(0).getFields());
 		fields.add(spanField);
@@ -165,7 +165,7 @@ public class RegexMatcherTest {
 		
 		//expected to match "hwangl@ics.uci.edu"
 		spans.clear();
-		spans.add(new Span(RegexTestConstantStaff.EMAIL, 0, 18, query, "hwangl@ics.uci.edu"));
+		spans.add(new Span(RegexTestConstantStaff.EMAIL, 0, 18, query, "hwangk@ske.akb.edu"));
 		spanField = new ListField<Span>(new ArrayList<Span>(spans));
 		fields = new ArrayList<IField>(data.get(1).getFields());
 		fields.add(spanField);
