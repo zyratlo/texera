@@ -20,17 +20,12 @@ public class RegexToGramQueryTranslatorTest {
 		
 		System.out.println("query tree: ");
 		System.out.println(exactQuery.printQueryTree());
-		System.out.println();
 		
-		System.out.println("DNF: ");
 		GramBooleanQuery dnf = GramBooleanQuery.toDNF(exactQuery);
-		System.out.println(dnf.printQueryTree());
-		System.out.println();
+		GramBooleanQuery simplifiedDNF = GramBooleanQuery.simplifyDNF(dnf);
 		
 		System.out.println("Simplified DNF: ");
-		GramBooleanQuery simplifiedDNF = GramBooleanQuery.simplifyDNF(dnf);
 		System.out.println(simplifiedDNF.printQueryTree());
-		System.out.println();
 
 		System.out.println();
 	}

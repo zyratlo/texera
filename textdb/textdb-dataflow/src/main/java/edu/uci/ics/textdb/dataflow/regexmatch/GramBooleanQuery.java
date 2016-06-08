@@ -361,21 +361,16 @@ public class GramBooleanQuery {
 		OuterLoop:
 		while (outerIterator.hasNext()) {
 			GramBooleanQuery outerAndQuery = outerIterator.next();
-			System.out.println("checking: "+outerAndQuery.operandSet);
 			for (String operand : query.operandSet) {
-				System.out.println("with: "+operand);
 				if (outerAndQuery.operandSet.contains(operand)) {
-					System.out.println("don't add");
 					continue OuterLoop;
 				}
 			}
 			Iterator<GramBooleanQuery> innerIterator = query.subQuerySet.iterator();
 			while (innerIterator.hasNext()) {
 				GramBooleanQuery innerAndQuery = innerIterator.next();
-				System.out.println("with: "+innerAndQuery.operandSet);
 				if (outerAndQuery != innerAndQuery) {
 					if (outerAndQuery.operandSet.containsAll(innerAndQuery.operandSet)) {
-						System.out.println("don't add");
 						outerIterator.remove();
 						continue OuterLoop;
 					}				
