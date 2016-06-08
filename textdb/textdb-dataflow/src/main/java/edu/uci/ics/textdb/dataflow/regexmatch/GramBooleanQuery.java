@@ -2,6 +2,7 @@ package edu.uci.ics.textdb.dataflow.regexmatch;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.StringJoiner;
@@ -293,6 +294,138 @@ public class GramBooleanQuery {
 			}
 		}
 	}
+	
+	public boolean isEmpty() {
+		if (this.operandSet.size() > 0) {
+			return false;
+		}
+		for (GramBooleanQuery subQuery : this.subQuerySet) {
+			if (! subQuery.isEmpty()) {
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	// "AND" two DNF tree
+	// Apply distributive laws: 
+	// (a OR b) AND (c OR d) --> (a AND c) OR (a AND d) OR (b AND c) OR (c AND d)
+	private static GramBooleanQuery andDNF(GramBooleanQuery left, GramBooleanQuery right) {
+		if (left.isEmpty()) {
+			return right;
+		}
+		if (right.isEmpty()) {
+			return left;
+		}
+		GramBooleanQuery resultQuery = new GramBooleanQuery(QueryOp.OR);
+		for (String leftOperand : left.operandSet) {
+			for (String rightOperand : right.operandSet) {
+				GramBooleanQuery tempQuery = new GramBooleanQuery(QueryOp.AND);
+				tempQuery.operandSet.add(leftOperand);
+				tempQuery.operandSet.add(rightOperand);
+				resultQuery.subQuerySet.add(tempQuery);
+			}
+			for (GramBooleanQuery rightSubQuery : right.subQuerySet) {
+				GramBooleanQuery tempQuery = new GramBooleanQuery(QueryOp.AND);
+				tempQuery.operandSet.add(leftOperand);
+				tempQuery.operandSet.addAll(rightSubQuery.operandSet);
+				resultQuery.subQuerySet.add(tempQuery);
+			}
+		}
+		for (GramBooleanQuery leftSubQuery : left.subQuerySet) {
+			for (String rightOperand : right.operandSet) {
+				GramBooleanQuery tempQuery = new GramBooleanQuery(QueryOp.AND);
+				tempQuery.operandSet.addAll(leftSubQuery.operandSet);
+				tempQuery.operandSet.add(rightOperand);
+				resultQuery.subQuerySet.add(tempQuery);
+			}
+			for (GramBooleanQuery rightSubQuery : right.subQuerySet) {
+				GramBooleanQuery tempQuery = new GramBooleanQuery(QueryOp.AND);
+				tempQuery.operandSet.addAll(leftSubQuery.operandSet);
+				tempQuery.operandSet.addAll(rightSubQuery.operandSet);
+				resultQuery.subQuerySet.add(tempQuery);
+			}
+		}
+		return resultQuery;
+	}
+	
+	// After Transforming to DNF, apply Absorption laws to simplify it
+	// a OR (a AND b) --> a
+	// Tree must be already transformed to DNF before calling this function!
+	public static GramBooleanQuery simplifyDNF(GramBooleanQuery query) {
+		GramBooleanQuery result = new GramBooleanQuery(QueryOp.OR);
+		result.operandSet.addAll(query.operandSet);
+		
+		
+		Iterator<GramBooleanQuery> outerIterator = query.subQuerySet.iterator();
+		OuterLoop:
+		while (outerIterator.hasNext()) {
+			GramBooleanQuery outerAndQuery = outerIterator.next();
+			System.out.println("checking: "+outerAndQuery.operandSet);
+			for (String operand : query.operandSet) {
+				System.out.println("with: "+operand);
+				if (outerAndQuery.operandSet.contains(operand)) {
+					System.out.println("don't add");
+					continue OuterLoop;
+				}
+			}
+			Iterator<GramBooleanQuery> innerIterator = query.subQuerySet.iterator();
+			while (innerIterator.hasNext()) {
+				GramBooleanQuery innerAndQuery = innerIterator.next();
+				System.out.println("with: "+innerAndQuery.operandSet);
+				if (outerAndQuery != innerAndQuery) {
+					if (outerAndQuery.operandSet.containsAll(innerAndQuery.operandSet)) {
+						System.out.println("don't add");
+						outerIterator.remove();
+						continue OuterLoop;
+					}				
+				}
+			}
+			// if reach this code, then add a copy of it to result
+			GramBooleanQuery tempQuery = new GramBooleanQuery(QueryOp.AND);
+			tempQuery.operandSet.addAll(outerAndQuery.operandSet);
+			result.subQuerySet.add(tempQuery);
+		}
+		
+		return query;
+	}
+	
+	// Transform the GramBooleanQuery tree to Disjunctive normal form (DNF)
+	// which is OR of different ANDs
+	public static GramBooleanQuery toDNF(GramBooleanQuery query) {
+		if (query.operator == QueryOp.AND) {
+			GramBooleanQuery firstOrNode = new GramBooleanQuery(QueryOp.OR);
+			if (query.operandSet.size() != 0) {
+				GramBooleanQuery firstAndNode = new GramBooleanQuery(QueryOp.AND);
+				firstAndNode.operandSet.addAll(query.operandSet);
+				firstOrNode.subQuerySet.add(firstAndNode);
+			}
+			
+			ArrayList<GramBooleanQuery> subDNFList = new ArrayList<>();
+			for (GramBooleanQuery subQuery : query.subQuerySet) {
+				subDNFList.add(toDNF(subQuery));
+			}
+			
+			GramBooleanQuery result = subDNFList.stream().reduce(firstOrNode, (left, right) -> andDNF(left, right));
+			return result;
+		} else if (query.operator == QueryOp.OR) {
+			GramBooleanQuery result = new GramBooleanQuery(QueryOp.OR);
+			result.operandSet.addAll(query.operandSet);
+			for (GramBooleanQuery subQuery : query.subQuerySet) {
+				GramBooleanQuery newSubQuery = toDNF(subQuery);
+				result.subQuerySet.addAll(newSubQuery.subQuerySet);
+				result.operandSet.addAll(newSubQuery.operandSet);
+			}
+			return result;
+		}
+		
+		// ANY or NONE, no need to simplify
+		return query;
+	}
+	
+
+	
+	
 
 	
 }

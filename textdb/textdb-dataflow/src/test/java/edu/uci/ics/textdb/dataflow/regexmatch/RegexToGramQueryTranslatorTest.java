@@ -17,80 +17,110 @@ public class RegexToGramQueryTranslatorTest {
 		
 		System.out.println("regex: "+regex);
 		System.out.println("boolean expression: "+exactQuery.getLuceneQueryString());
+		
 		System.out.println("query tree: ");
 		System.out.println(exactQuery.printQueryTree());
+		System.out.println();
+		
+		System.out.println("DNF: ");
+		GramBooleanQuery dnf = GramBooleanQuery.toDNF(exactQuery);
+		System.out.println(dnf.printQueryTree());
+		System.out.println();
+		
+		System.out.println("Simplified DNF: ");
+		GramBooleanQuery simplifiedDNF = GramBooleanQuery.simplifyDNF(dnf);
+		System.out.println(simplifiedDNF.printQueryTree());
+		System.out.println();
+
 		System.out.println();
 	}
 	
 	@Test
 	public void testEmptyRegex() {
-		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate("");
+		String regex = "";
+		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate(regex);
 		GramBooleanQuery expectedQuery = new GramBooleanQuery(GramBooleanQuery.QueryOp.ANY);
-
+		printTranslatorResult(regex);
+		
 		Assert.assertTrue(exactQuery.equals(expectedQuery));
 	}
 	
 	@Test
 	public void testStarRegex() {
-		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate("a*");
+		String regex = "a*";
+		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate(regex);
 		GramBooleanQuery expectedQuery = new GramBooleanQuery(GramBooleanQuery.QueryOp.ANY);
-		
+		printTranslatorResult(regex);
+
 		Assert.assertTrue(exactQuery.equals(expectedQuery));
 	}
 	
 	@Test
 	public void testLiteral1() {
-		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate("abc");
+		String regex = "abc";
+		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate(regex);
 		GramBooleanQuery expectedQuery = new GramBooleanQuery(GramBooleanQuery.QueryOp.AND);
 		expectedQuery.operandSet.addAll(Arrays.asList(new String[]{"abc"}));
-		
+		printTranslatorResult(regex);
+
 		Assert.assertTrue(exactQuery.equals(expectedQuery));
 	}
 	
 	@Test
 	public void testLiteral2() {
-		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate("ab");
+		String regex = "ab";
+		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate(regex);
 		GramBooleanQuery expectedQuery = new GramBooleanQuery(GramBooleanQuery.QueryOp.AND);
 		expectedQuery.operandSet.addAll(Arrays.asList(new String[]{}));
-		
+		printTranslatorResult(regex);
+
 		Assert.assertTrue(exactQuery.equals(expectedQuery));
 	}
 	
 	@Test
 	public void testLiteral3() {
-		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate("abcd");
+		String regex = "abcd";
+		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate(regex);
 		GramBooleanQuery expectedQuery = new GramBooleanQuery(GramBooleanQuery.QueryOp.AND);
 		expectedQuery.operandSet.addAll(Arrays.asList(new String[]{"abc", "bcd"}));
-		
+		printTranslatorResult(regex);
+
 		Assert.assertTrue(exactQuery.equals(expectedQuery));
 	}
 	
 	@Test
 	public void testLiteral4() {
-		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate("ucirvine");
+		String regex = "ucirvine";
+		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate(regex);
 		GramBooleanQuery expectedQuery = new GramBooleanQuery(GramBooleanQuery.QueryOp.AND);
 		expectedQuery.operandSet.addAll(Arrays.asList(new String[]{"uci", "cir", "irv", "rvi", "vin", "ine"}));
-		
+		printTranslatorResult(regex);
+
 		Assert.assertTrue(exactQuery.equals(expectedQuery));
 	}
 	
 	@Test
 	public void testLiteral5() {
-		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate("textdb");
+		String regex = "textdb";
+		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate(regex);
 		GramBooleanQuery expectedQuery = new GramBooleanQuery(GramBooleanQuery.QueryOp.AND);
 		expectedQuery.operandSet.addAll(Arrays.asList(new String[]{"tex", "ext", "xtd", "tdb"}));
-		
+		printTranslatorResult(regex);
+
 		Assert.assertTrue(exactQuery.equals(expectedQuery));
 	}
 	
 	@Test
 	public void testCharClass1() {
-		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate("[a-b][c-d][e-f]");
+		String regex = "[a-b][c-d][e-f]";
+		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate(regex);
 		GramBooleanQuery expectedQuery = new GramBooleanQuery(GramBooleanQuery.QueryOp.AND);
 		GramBooleanQuery expectedQueryOrLevel = new GramBooleanQuery(GramBooleanQuery.QueryOp.OR);
 		expectedQueryOrLevel.operandSet.addAll(Arrays.asList(
 				new String[]{"ace", "acf", "bce", "bcf", "ade", "adf", "bde", "bdf"}));
 		expectedQuery.subQuerySet.add(expectedQueryOrLevel);
+		
+		printTranslatorResult(regex);
 		
 		Assert.assertTrue(exactQuery.equals(expectedQuery));
 	}
