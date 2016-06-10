@@ -14,12 +14,14 @@ public class GramBooleanQuery {
 	enum QueryOp {
 		NONE, // doesn't match any string
 		ANY,  // matches any string
+
+		LEAF, // leaf node, no child
 		
 		AND,
 		OR
 	}
 	QueryOp operator;
-	Set<String> operandSet;
+	String leaf;
 	Set<GramBooleanQuery> subQuerySet;
 	
 	int gramLength;
@@ -34,9 +36,15 @@ public class GramBooleanQuery {
 	
 	GramBooleanQuery(QueryOp operator, int gramLength) {
 		this.operator = operator;
-		operandSet = new HashSet<String>();
+		leaf = "";
 		subQuerySet = new HashSet<GramBooleanQuery>();
 		this.gramLength = gramLength;
+	}
+
+	private static GramBooleanQuery newLeafNode(String literal) {
+		GramBooleanQuery leafNode = new GramBooleanQuery(QueryOp.LEAF);
+		leafNode.leaf = literal;
+		return leafNode;
 	}
 	
 	
@@ -77,19 +85,31 @@ public class GramBooleanQuery {
 	 * @param literal
 	 */
 	private void addAndNode(String literal) {
-		if (literal.length() < gramLength) {
-			return;
-		} else if (literal.length() == gramLength) {
-			this.operandSet.add(literal);
+		GramBooleanQuery andNode;
+		if (this.operator == QueryOp.AND) {
+			andNode = this;
 		} else {
-			if (this.operator == QueryOp.AND) {
-				this.operandSet.addAll(literalToNGram(literal));
-			} else {
-				GramBooleanQuery query = new GramBooleanQuery(GramBooleanQuery.QueryOp.AND);
-				query.operandSet.addAll(literalToNGram(literal));
-				this.subQuerySet.add(query);
-			}
+			andNode = new GramBooleanQuery(QueryOp.AND);
+			this.subQuerySet.add(andNode);
 		}
+		for (String gram : literalToNGram(literal)) {
+			andNode.subQuerySet.add(newLeafNode(gram));
+		}
+
+		// if (literal.length() < gramLength) {
+		// 	return;
+		// } else if (literal.length() == gramLength) {
+		// 	this.subQuerySet.add(newLeafNode(literal));
+		// 	this.operandSet.add(literal);
+		// } else {
+		// 	if (this.operator == QueryOp.AND) {
+		// 		this.operandSet.addAll(literalToNGram(literal));
+		// 	} else {
+		// 		GramBooleanQuery query = new GramBooleanQuery(GramBooleanQuery.QueryOp.AND);
+		// 		query.operandSet.addAll(literalToNGram(literal));
+		// 		this.subQuerySet.add(query);
+		// 	}
+		// }
 	}
 	
 	/**
@@ -109,6 +129,14 @@ public class GramBooleanQuery {
 		return nGrams;
 	}
 	
+	private void addToSubQuery(GramBooleanQuery that) {
+		if (that.operator == QueryOp.LEAF) {
+			this.subQuerySet.add(that);
+		} else {
+			this.subQuerySet.addAll(that.subQuerySet);
+		}
+	}
+	
 	/**
 	 * This function "AND"s two query trees together. <br>
 	 * It also performs simple simplifications. <br>
@@ -118,54 +146,58 @@ public class GramBooleanQuery {
 	 */
 	GramBooleanQuery computeConjunction (GramBooleanQuery that) {
 		if (that.operator == QueryOp.ANY) {
-			return this;
+			return deepCopy(this);
 		}
 		if (that.operator == QueryOp.NONE) {
-			return that;
+			return deepCopy(that);
 		}
 		if (this.operator == QueryOp.ANY) {
-			return that;
+			return deepCopy(that);
 		}
 		if (this.operator == QueryOp.NONE) {
-			return this;
+			return deepCopy(this);
 		}
-
-		if (this.operator == QueryOp.AND && that.operator == QueryOp.AND) {
-			this.operandSet.addAll(that.operandSet);
-			this.subQuerySet.addAll(that.subQuerySet);
-			return this;
+		if ((this.operator == QueryOp.AND && that.operator == QueryOp.AND)
+			|| (this.operator == QueryOp.AND && that.operator == QueryOp.LEAF)
+			|| (this.operator == QueryOp.LEAF && that.operator == QueryOp.AND)) {
+			GramBooleanQuery toReturn = new GramBooleanQuery(QueryOp.AND, gramLength);
+			toReturn.addToSubQuery(deepCopy(this));
+			toReturn.addToSubQuery(deepCopy(that));
+			return toReturn;
 		} else {
-			GramBooleanQuery query = new GramBooleanQuery(QueryOp.AND, gramLength);
-			query.subQuerySet.add(this);
-			query.subQuerySet.add(that);
-			return query;
+			GramBooleanQuery toReturn = new GramBooleanQuery(QueryOp.AND, gramLength);
+			toReturn.subQuerySet.add(deepCopy(this));
+			toReturn.subQuerySet.add(deepCopy(that));
+			return toReturn;
 		}
 	}
 	
 	GramBooleanQuery computeDisjunction (GramBooleanQuery that) {
 		if (that.operator == QueryOp.ANY) {
-			return that;
+			return deepCopy(that);
 		}
 		if (that.operator == QueryOp.NONE) {
-			return this;
+			return deepCopy(this);
 		}
 		if (this.operator == QueryOp.ANY) {
-			return this;
+			return deepCopy(this);
 		}
 		if (this.operator == QueryOp.NONE) {
-			return that;
+			return deepCopy(that);
 		}
-		
-		if (this.operator == QueryOp.OR && that.operator == QueryOp.OR) {
-			this.operandSet.addAll(that.operandSet);
-			this.subQuerySet.addAll(that.subQuerySet);
-			return this;
-		} else {
-			GramBooleanQuery query = new GramBooleanQuery(QueryOp.OR, gramLength);
-			query.subQuerySet.add(this);
-			query.subQuerySet.add(that);
-			return query;
-		}
+		if ((this.operator == QueryOp.OR && that.operator == QueryOp.OR)
+				|| (this.operator == QueryOp.OR && that.operator == QueryOp.LEAF)
+				|| (this.operator == QueryOp.LEAF && that.operator == QueryOp.OR)) {
+				GramBooleanQuery toReturn = new GramBooleanQuery(QueryOp.OR, gramLength);
+				toReturn.addToSubQuery(deepCopy(this));
+				toReturn.addToSubQuery(deepCopy(that));
+				return toReturn;
+			} else {
+				GramBooleanQuery toReturn = new GramBooleanQuery(QueryOp.OR, gramLength);
+				toReturn.subQuerySet.add(deepCopy(this));
+				toReturn.subQuerySet.add(deepCopy(that));
+				return toReturn;
+			}
 	}
 	
 	/**
@@ -177,8 +209,8 @@ public class GramBooleanQuery {
 	@Override
 	public int hashCode() {
 		int hashCode = operator.toString().hashCode();
-		for (String s : operandSet) {
-			hashCode = hashCode ^ s.hashCode();
+		if (operator == QueryOp.LEAF) {
+			hashCode = hashCode ^ leaf.hashCode();
 		}
 		return hashCode;
 	}
@@ -198,14 +230,18 @@ public class GramBooleanQuery {
 		
 		GramBooleanQuery that = (GramBooleanQuery) compareTo;
 		if (this.operator != that.operator
-			|| this.operandSet.size() != that.operandSet.size()
+			// || this.operandSet.size() != that.operandSet.size()
 			|| this.subQuerySet.size() != that.subQuerySet.size()) {
 			return false;
 		}
-		
-		if (!this.operandSet.equals(that.operandSet)) {
-			return false;
+
+		if (this.operator == QueryOp.LEAF) {
+			return this.leaf.equals(that.leaf);
 		}
+		
+		// if (!this.operandSet.equals(that.operandSet)) {
+		// 	return false;
+		// }
 		
 		if (!this.subQuerySet.equals(that.subQuerySet)) {
 			return false;
@@ -228,17 +264,24 @@ public class GramBooleanQuery {
 		for (int i = 0; i < indentation; i++) {
 			s += indentStr;
 		}
+
+		if (query.operator == QueryOp.LEAF) {
+			s += query.leaf;
+			s += "\n";
+			return s; 
+		}
+
 		s += query.operator.toString();
 		s += "\n";
 		
 		indentation++;
-		for (String operand : query.operandSet) {
-			for (int i = 0; i < indentation; i++) {
-				s += indentStr;
-			}
-			s += operand;
-			s += "\n";
-		}
+		// for (String operand : query.operandSet) {
+		// 	for (int i = 0; i < indentation; i++) {
+		// 		s += indentStr;
+		// 	}
+		// 	s += operand;
+		// 	s += "\n";
+		// }
 		for (GramBooleanQuery subQuery : query.subQuerySet) {
 			s += queryTreeToString(subQuery, indentation, indentStr);
 		}
@@ -275,12 +318,14 @@ public class GramBooleanQuery {
 			return "";
 		} else if (query.operator == QueryOp.NONE) {
 			return "";
+		} else if (query.operator == QueryOp.LEAF) {
+			return query.leaf;
 		} else {
 			StringJoiner joiner =  new StringJoiner(
 					(query.operator == QueryOp.AND) ? " AND " : " OR ");
-			for (String operand : query.operandSet) {
-				joiner.add(operand);
-			}
+			// for (String operand : query.operandSet) {
+			// 	joiner.add(operand);
+			// }
 			for (GramBooleanQuery subQuery : query.subQuerySet) {
 				String subQueryStr = toLuceneQueryString(subQuery);
 				if (! subQueryStr.equals("")) 
@@ -296,8 +341,11 @@ public class GramBooleanQuery {
 	}
 	
 	public boolean isEmpty() {
-		if (this.operandSet.size() > 0) {
-			return false;
+		// if (this.operandSet.size() > 0) {
+		// 	return false;
+		// }
+		if (this.operator == QueryOp.LEAF) {
+			return this.leaf.isEmpty();
 		}
 		for (GramBooleanQuery subQuery : this.subQuerySet) {
 			if (! subQuery.isEmpty()) {
@@ -305,6 +353,20 @@ public class GramBooleanQuery {
 			}
 		}
 		return true;
+	}
+	
+	public static GramBooleanQuery deepCopy(GramBooleanQuery query) {
+		if (query.operator == QueryOp.ANY || query.operator == QueryOp.NONE) {
+			return new GramBooleanQuery(query.operator);
+		} else if (query.operator == QueryOp.LEAF) {
+			return newLeafNode(query.leaf);
+		} else {
+			GramBooleanQuery toReturn = new GramBooleanQuery(query.operator);
+			for (GramBooleanQuery subQuery : query.subQuerySet) {
+				toReturn.subQuerySet.add(deepCopy(subQuery));
+			}
+			return toReturn;
+		}
 	}
 	
 	// "AND" two DNF tree
@@ -317,69 +379,68 @@ public class GramBooleanQuery {
 		if (right.isEmpty()) {
 			return left;
 		}
+
 		GramBooleanQuery resultQuery = new GramBooleanQuery(QueryOp.OR);
-		for (String leftOperand : left.operandSet) {
-			for (String rightOperand : right.operandSet) {
-				GramBooleanQuery tempQuery = new GramBooleanQuery(QueryOp.AND);
-				tempQuery.operandSet.add(leftOperand);
-				tempQuery.operandSet.add(rightOperand);
-				resultQuery.subQuerySet.add(tempQuery);
-			}
-			for (GramBooleanQuery rightSubQuery : right.subQuerySet) {
-				GramBooleanQuery tempQuery = new GramBooleanQuery(QueryOp.AND);
-				tempQuery.operandSet.add(leftOperand);
-				tempQuery.operandSet.addAll(rightSubQuery.operandSet);
-				resultQuery.subQuerySet.add(tempQuery);
-			}
-		}
+
 		for (GramBooleanQuery leftSubQuery : left.subQuerySet) {
-			for (String rightOperand : right.operandSet) {
-				GramBooleanQuery tempQuery = new GramBooleanQuery(QueryOp.AND);
-				tempQuery.operandSet.addAll(leftSubQuery.operandSet);
-				tempQuery.operandSet.add(rightOperand);
-				resultQuery.subQuerySet.add(tempQuery);
-			}
 			for (GramBooleanQuery rightSubQuery : right.subQuerySet) {
-				GramBooleanQuery tempQuery = new GramBooleanQuery(QueryOp.AND);
-				tempQuery.operandSet.addAll(leftSubQuery.operandSet);
-				tempQuery.operandSet.addAll(rightSubQuery.operandSet);
-				resultQuery.subQuerySet.add(tempQuery);
+				System.out.println(leftSubQuery);
+				System.out.println(rightSubQuery);
+				
+				GramBooleanQuery conjunction = leftSubQuery.computeConjunction(rightSubQuery);
+				
+				System.out.println(conjunction);
+
+				resultQuery.subQuerySet.add(conjunction);
+//				GramBooleanQuery tempQuery = new GramBooleanQuery(QueryOp.AND);
+//				tempQuery.operandSet.addAll(leftSubQuery.operandSet);
+//				tempQuery.operandSet.addAll(rightSubQuery.operandSet);
+//				resultQuery.subQuerySet.add(tempQuery);
 			}
 		}
+
 		return resultQuery;
 	}
-	
+
 	// After Transforming to DNF, apply Absorption laws to simplify it
 	// a OR (a AND b) --> a
 	// Tree must be already transformed to DNF before calling this function!
 	public static GramBooleanQuery simplifyDNF(GramBooleanQuery query) {
 		GramBooleanQuery result = new GramBooleanQuery(QueryOp.OR);
-		result.operandSet.addAll(query.operandSet);
-		
-		
+
 		Iterator<GramBooleanQuery> outerIterator = query.subQuerySet.iterator();
 		OuterLoop:
 		while (outerIterator.hasNext()) {
-			GramBooleanQuery outerAndQuery = outerIterator.next();
-			for (String operand : query.operandSet) {
-				if (outerAndQuery.operandSet.contains(operand)) {
-					continue OuterLoop;
+			GramBooleanQuery outerQuery = outerIterator.next();
+
+			if (outerQuery.operator == QueryOp.LEAF) {
+				result.subQuerySet.add(outerQuery);
+			// else it's AND
+			} else {
+				Iterator<GramBooleanQuery> innerIterator = query.subQuerySet.iterator();
+				while (innerIterator.hasNext()) {
+					GramBooleanQuery innerQuery = innerIterator.next();
+					if (outerQuery != innerQuery) {
+						if (innerQuery.operator == QueryOp.LEAF) {
+							if (outerQuery.subQuerySet.contains(innerQuery)) {
+								continue OuterLoop;
+							}
+						} else {
+							if (outerQuery.subQuerySet.containsAll(innerQuery.subQuerySet)) {
+								continue OuterLoop;
+							}
+						}
+					}
 				}
 			}
-			Iterator<GramBooleanQuery> innerIterator = query.subQuerySet.iterator();
-			while (innerIterator.hasNext()) {
-				GramBooleanQuery innerAndQuery = innerIterator.next();
-				if (outerAndQuery != innerAndQuery) {
-					if (outerAndQuery.operandSet.containsAll(innerAndQuery.operandSet)) {
-						outerIterator.remove();
-						continue OuterLoop;
-					}				
-				}
-			}
+
 			// if reach this code, then add a copy of it to result
-			GramBooleanQuery tempQuery = new GramBooleanQuery(QueryOp.AND);
-			tempQuery.operandSet.addAll(outerAndQuery.operandSet);
-			result.subQuerySet.add(tempQuery);
+//			GramBooleanQuery tempQuery = new GramBooleanQuery(QueryOp.AND);
+//			tempQuery.operandSet.addAll(outerAndQuery.operandSet);
+//			result.subQuerySet.add(tempQuery);
+			
+			result.subQuerySet.add(outerQuery);
+
 		}
 		
 		return query;
@@ -388,39 +449,32 @@ public class GramBooleanQuery {
 	// Transform the GramBooleanQuery tree to Disjunctive normal form (DNF)
 	// which is OR of different ANDs
 	public static GramBooleanQuery toDNF(GramBooleanQuery query) {
-		if (query.operator == QueryOp.AND) {
-			GramBooleanQuery firstOrNode = new GramBooleanQuery(QueryOp.OR);
-			if (query.operandSet.size() != 0) {
-				GramBooleanQuery firstAndNode = new GramBooleanQuery(QueryOp.AND);
-				firstAndNode.operandSet.addAll(query.operandSet);
-				firstOrNode.subQuerySet.add(firstAndNode);
-			}
-			
-			ArrayList<GramBooleanQuery> subDNFList = new ArrayList<>();
-			for (GramBooleanQuery subQuery : query.subQuerySet) {
-				subDNFList.add(toDNF(subQuery));
-			}
-			
-			GramBooleanQuery result = subDNFList.stream().reduce(firstOrNode, (left, right) -> andDNF(left, right));
-			return result;
-		} else if (query.operator == QueryOp.OR) {
-			GramBooleanQuery result = new GramBooleanQuery(QueryOp.OR);
-			result.operandSet.addAll(query.operandSet);
-			for (GramBooleanQuery subQuery : query.subQuerySet) {
-				GramBooleanQuery newSubQuery = toDNF(subQuery);
-				result.subQuerySet.addAll(newSubQuery.subQuerySet);
-				result.operandSet.addAll(newSubQuery.operandSet);
-			}
-			return result;
+		// if ANY or NONE, return itself
+		if (query.operator == QueryOp.ANY || query.operator == QueryOp.NONE) {
+			return query;
 		}
-		
-		// ANY or NONE, no need to simplify
-		return query;
+
+		GramBooleanQuery result = new GramBooleanQuery(QueryOp.OR);
+
+		if (query.operator == QueryOp.AND) {
+			result = 
+				query.subQuerySet.stream()
+				.map(x -> toDNF(x))
+				.reduce(new GramBooleanQuery(QueryOp.OR), (acc, next) -> andDNF(acc, next));
+
+		} else if (query.operator == QueryOp.OR) {
+			result = 
+				query.subQuerySet.stream()
+				.map(x -> toDNF(x))
+				.reduce(result, (acc, next) -> {acc.subQuerySet.addAll(next.subQuerySet); return acc;});
+
+		} else if (query.operator == QueryOp.LEAF) {
+			result.subQuerySet.add(query);
+
+		}
+
+		return result;	
 	}
 	
-
-	
-	
-
 	
 }

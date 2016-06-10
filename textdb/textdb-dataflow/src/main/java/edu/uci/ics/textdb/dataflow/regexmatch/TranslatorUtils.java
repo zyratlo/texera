@@ -6,6 +6,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
+import edu.uci.ics.textdb.dataflow.regexmatch.GramBooleanQuery.QueryOp;
+
 /**
  * @author Zuozhi Wang
  * @author Shuying Lai
@@ -166,13 +168,11 @@ public class TranslatorUtils {
 	 */
 	static void escapeSpecialCharacters(GramBooleanQuery query) {
 		HashSet<String> escapedOperandSet = new HashSet<String>();
-		for (String operand : query.operandSet) {
+		if (query.operator == QueryOp.LEAF) {
 			for (String specialChar : specialLuceneCharacters) {
-				escapedOperandSet.add(operand.replace(specialChar, "\\"+specialChar));
+				query.leaf = query.leaf.replace(specialChar, "\\"+specialChar);
 			}
-		}
-		query.operandSet = escapedOperandSet;
-		
+		}		
 		for (GramBooleanQuery subQuery : query.subQuerySet) {
 			escapeSpecialCharacters(subQuery);
 		}
