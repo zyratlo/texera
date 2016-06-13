@@ -12,6 +12,7 @@ import org.junit.Test;
 
 public class RegexToGramQueryTranslatorTest {
 	
+	// Helper function to print query tree for debugging purposes.
 	private void printTranslatorResult(String regex) {
 		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate(regex);
 		
@@ -42,7 +43,7 @@ public class RegexToGramQueryTranslatorTest {
 		
 //		printTranslatorResult(regex);
 
-		Assert.assertTrue(simplifiedDNF.equals(expectedQuery));
+		Assert.assertEquals(expectedQuery, simplifiedDNF);
 	}
 	
 	@Test
@@ -56,7 +57,7 @@ public class RegexToGramQueryTranslatorTest {
 		
 //		printTranslatorResult(regex);
 
-		Assert.assertTrue(simplifiedDNF.equals(expectedQuery));
+		Assert.assertEquals(expectedQuery, simplifiedDNF);
 	}
 	
 	@Test
@@ -69,14 +70,15 @@ public class RegexToGramQueryTranslatorTest {
 		
 		GramBooleanQuery expectedQuery = new GramBooleanQuery(GramBooleanQuery.QueryOp.OR);
 		GramBooleanQuery expectedAndNode = new GramBooleanQuery(GramBooleanQuery.QueryOp.AND);
-		expectedAndNode.operandSet.addAll(Arrays.asList(new String[]{"abc"}));
+		expectedAndNode.operandSet.addAll(Arrays.asList("abc"));
 		expectedQuery.subQuerySet.add(expectedAndNode);
 		
 //		printTranslatorResult(regex);
 
-		Assert.assertTrue(simplifiedDNF.equals(expectedQuery));
+		Assert.assertEquals(expectedQuery, simplifiedDNF);
 	}
 	
+	// "ab" can't form a trigram, so the result is an empty OR node.
 	@Test
 	public void testLiteral2() {
 		String regex = "ab";
@@ -89,7 +91,7 @@ public class RegexToGramQueryTranslatorTest {
 		
 //		printTranslatorResult(regex);
 
-		Assert.assertTrue(simplifiedDNF.equals(expectedQuery));
+		Assert.assertEquals(expectedQuery, simplifiedDNF);
 	}
 	
 	@Test
@@ -102,12 +104,12 @@ public class RegexToGramQueryTranslatorTest {
 		
 		GramBooleanQuery expectedQuery = new GramBooleanQuery(GramBooleanQuery.QueryOp.OR);
 		GramBooleanQuery expectedAndNode = new GramBooleanQuery(GramBooleanQuery.QueryOp.AND);
-		expectedAndNode.operandSet.addAll(Arrays.asList(new String[]{"abc", "bcd"}));
+		expectedAndNode.operandSet.addAll(Arrays.asList("abc", "bcd"));
 		expectedQuery.subQuerySet.add(expectedAndNode);
 		
 //		printTranslatorResult(regex);
 
-		Assert.assertTrue(simplifiedDNF.equals(expectedQuery));
+		Assert.assertEquals(expectedQuery, simplifiedDNF);
 	}
 	
 	@Test
@@ -120,30 +122,12 @@ public class RegexToGramQueryTranslatorTest {
 
 		GramBooleanQuery expectedQuery = new GramBooleanQuery(GramBooleanQuery.QueryOp.OR);
 		GramBooleanQuery expectedAndNode = new GramBooleanQuery(GramBooleanQuery.QueryOp.AND);
-		expectedAndNode.operandSet.addAll(Arrays.asList(new String[]{"uci", "cir", "irv", "rvi", "vin", "ine"}));
+		expectedAndNode.operandSet.addAll(Arrays.asList("uci", "cir", "irv", "rvi", "vin", "ine"));
 		expectedQuery.subQuerySet.add(expectedAndNode);
 		
 //		printTranslatorResult(regex);
 
-		Assert.assertTrue(simplifiedDNF.equals(expectedQuery));
-	}
-	
-	@Test
-	public void testLiteral5() {
-		String regex = "textdb";
-		
-		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate(regex);
-		GramBooleanQuery dnf = GramBooleanQuery.toDNF(exactQuery);
-		GramBooleanQuery simplifiedDNF = GramBooleanQuery.simplifyDNF(dnf);
-
-		GramBooleanQuery expectedQuery = new GramBooleanQuery(GramBooleanQuery.QueryOp.OR);
-		GramBooleanQuery expectedAndNode = new GramBooleanQuery(GramBooleanQuery.QueryOp.AND);
-		expectedAndNode.operandSet.addAll(Arrays.asList(new String[]{"tex", "ext", "xtd", "tdb"}));
-		expectedQuery.subQuerySet.add(expectedAndNode);
-		
-//		printTranslatorResult(regex);
-
-		Assert.assertTrue(simplifiedDNF.equals(expectedQuery));
+		Assert.assertEquals(expectedQuery, simplifiedDNF);
 	}
 	
 	@Test
@@ -156,11 +140,11 @@ public class RegexToGramQueryTranslatorTest {
 		
 		GramBooleanQuery expectedQuery = new GramBooleanQuery(GramBooleanQuery.QueryOp.OR);
 		expectedQuery.operandSet.addAll(Arrays.asList(
-				new String[]{"ace", "acf", "bce", "bcf", "ade", "adf", "bde", "bdf"}));
+				"ace", "acf", "bce", "bcf", "ade", "adf", "bde", "bdf"));
 		
 //		printTranslatorResult(regex);
 		
-		Assert.assertTrue(simplifiedDNF.equals(expectedQuery));
+		Assert.assertEquals(expectedQuery, simplifiedDNF);
 	}
 
 	
@@ -174,11 +158,11 @@ public class RegexToGramQueryTranslatorTest {
 		
 		GramBooleanQuery expectedQuery = new GramBooleanQuery(GramBooleanQuery.QueryOp.OR);
 		expectedQuery.operandSet.addAll(Arrays.asList(
-				new String[]{"uci", "ics"}));
+				"uci", "ics"));
 
 //		printTranslatorResult(regex);
 		
-		Assert.assertTrue(simplifiedDNF.equals(expectedQuery));
+		Assert.assertEquals(expectedQuery, simplifiedDNF);
 	}
 	
 	@Test
@@ -191,17 +175,15 @@ public class RegexToGramQueryTranslatorTest {
 		
 		GramBooleanQuery expectedQuery = new GramBooleanQuery(GramBooleanQuery.QueryOp.OR);
 		GramBooleanQuery expectedFirstAnd = new GramBooleanQuery(GramBooleanQuery.QueryOp.AND);
-		expectedFirstAnd.operandSet.addAll(Arrays.asList(
-				new String[]{"dat", "bcd"}));
+		expectedFirstAnd.operandSet.addAll(Arrays.asList("dat", "bcd"));
 		expectedQuery.subQuerySet.add(expectedFirstAnd);
 		GramBooleanQuery expectedSecondAnd = new GramBooleanQuery(GramBooleanQuery.QueryOp.AND);
-		expectedSecondAnd.operandSet.addAll(Arrays.asList(
-				new String[]{"dat", "pqr"}));
+		expectedSecondAnd.operandSet.addAll(Arrays.asList("dat", "pqr"));
 		expectedQuery.subQuerySet.add(expectedSecondAnd);
 
 //		printTranslatorResult(regex);
 		
-		Assert.assertTrue(simplifiedDNF.equals(expectedQuery));
+		Assert.assertEquals(expectedQuery, simplifiedDNF);
 
 	}
 
@@ -215,12 +197,12 @@ public class RegexToGramQueryTranslatorTest {
 		
 		GramBooleanQuery expectedQuery = new GramBooleanQuery(GramBooleanQuery.QueryOp.OR);
 		GramBooleanQuery expectedAndNode = new GramBooleanQuery(GramBooleanQuery.QueryOp.AND);
-		expectedAndNode.operandSet.addAll(Arrays.asList(new String[]{"abc"}));
+		expectedAndNode.operandSet.addAll(Arrays.asList("abc"));
 		expectedQuery.subQuerySet.add(expectedAndNode);
 		
 //		printTranslatorResult(regex);
 
-		Assert.assertTrue(simplifiedDNF.equals(expectedQuery));
+		Assert.assertEquals(expectedQuery, simplifiedDNF);
 	}
 	
 	@Test
@@ -233,13 +215,12 @@ public class RegexToGramQueryTranslatorTest {
 		
 		GramBooleanQuery expectedQuery = new GramBooleanQuery(GramBooleanQuery.QueryOp.OR);
 		GramBooleanQuery expectedFirstAnd = new GramBooleanQuery(GramBooleanQuery.QueryOp.AND);
-		expectedFirstAnd.operandSet.addAll(Arrays.asList(
-				new String[]{"abc", "cpq", "pqr"}));
+		expectedFirstAnd.operandSet.addAll(Arrays.asList("abc", "cpq", "pqr"));
 		expectedQuery.subQuerySet.add(expectedFirstAnd);
 		
 //		printTranslatorResult(regex);
 
-		Assert.assertTrue(simplifiedDNF.equals(expectedQuery));		
+		Assert.assertEquals(expectedQuery, simplifiedDNF);		
 	}
 	
 	@Test
@@ -254,7 +235,7 @@ public class RegexToGramQueryTranslatorTest {
 		
 //		printTranslatorResult(regex);
 
-		Assert.assertTrue(simplifiedDNF.equals(expectedQuery));
+		Assert.assertEquals(expectedQuery, simplifiedDNF);
 	}
 	
 	@Test
@@ -267,17 +248,15 @@ public class RegexToGramQueryTranslatorTest {
 		
 		GramBooleanQuery expectedQuery = new GramBooleanQuery(GramBooleanQuery.QueryOp.OR);
 		GramBooleanQuery expectedFirstAnd = new GramBooleanQuery(GramBooleanQuery.QueryOp.AND);
-		expectedFirstAnd.operandSet.addAll(Arrays.asList(
-				new String[]{"abp", "bpq"}));
+		expectedFirstAnd.operandSet.addAll(Arrays.asList("abp", "bpq"));
 		expectedQuery.subQuerySet.add(expectedFirstAnd);
 		GramBooleanQuery expectedSecondAnd = new GramBooleanQuery(GramBooleanQuery.QueryOp.AND);
-		expectedSecondAnd.operandSet.addAll(Arrays.asList(
-				new String[]{"abc", "bcp", "cpq"}));
+		expectedSecondAnd.operandSet.addAll(Arrays.asList("abc", "bcp", "cpq"));
 		expectedQuery.subQuerySet.add(expectedSecondAnd);
 		
 //		printTranslatorResult(regex);
 
-		Assert.assertTrue(simplifiedDNF.equals(expectedQuery));		
+		Assert.assertEquals(expectedQuery, simplifiedDNF);		
 	}
 	
 	@Test
@@ -292,12 +271,12 @@ public class RegexToGramQueryTranslatorTest {
 		
 		GramBooleanQuery expectedQuery = new GramBooleanQuery(GramBooleanQuery.QueryOp.OR);
 		GramBooleanQuery expectedAndNode = new GramBooleanQuery(GramBooleanQuery.QueryOp.AND);
-		expectedAndNode.operandSet.addAll(Arrays.asList(new String[]{"abc"}));
+		expectedAndNode.operandSet.addAll(Arrays.asList("abc"));
 		expectedQuery.subQuerySet.add(expectedAndNode);
 		
 //		printTranslatorResult(regex);
 
-		Assert.assertTrue(simplifiedDNF.equals(expectedQuery));
+		Assert.assertEquals(expectedQuery, simplifiedDNF);
 	}
 	
 	@Test
@@ -310,13 +289,12 @@ public class RegexToGramQueryTranslatorTest {
 		
 		GramBooleanQuery expectedQuery = new GramBooleanQuery(GramBooleanQuery.QueryOp.OR);
 		GramBooleanQuery expectedFirstAnd = new GramBooleanQuery(GramBooleanQuery.QueryOp.AND);
-		expectedFirstAnd.operandSet.addAll(Arrays.asList(
-				new String[]{"abc", "bcq", "cqw", "qwe", "wer"}));
+		expectedFirstAnd.operandSet.addAll(Arrays.asList("abc", "bcq", "cqw", "qwe", "wer"));
 		expectedQuery.subQuerySet.add(expectedFirstAnd);
 		
 //		printTranslatorResult(regex);
 
-		Assert.assertTrue(simplifiedDNF.equals(expectedQuery));		
+		Assert.assertEquals(expectedQuery, simplifiedDNF);		
 	}
 	
 	@Test
@@ -331,7 +309,7 @@ public class RegexToGramQueryTranslatorTest {
 		
 //		printTranslatorResult(regex);
 
-		Assert.assertTrue(simplifiedDNF.equals(expectedQuery));
+		Assert.assertEquals(expectedQuery, simplifiedDNF);
 	}	
 	
 }
