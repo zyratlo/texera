@@ -12,6 +12,17 @@ import org.junit.Test;
 
 public class RegexToGramQueryTranslatorTest {
 	
+	/*
+	 * We need to check equivalence of two trees, but two equivalent trees could have many different forms.
+	 * The equals function in GramBooleanQuery only compares two trees shallowly,
+	 * it returns true if two trees' form (and content) are identical.
+	 * 
+	 * So we transform the tree to DNF form, and apply simplifications to remove redundant nodes.
+	 * After transformation and simplification, two equivalent trees should have identical form.
+	 * Then we can use the equals() function two check equivalence.
+	 * 
+	 */
+	
 	// Helper function to print query tree for debugging purposes.
 	private void printTranslatorResult(String regex) {
 		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate(regex);
@@ -78,7 +89,7 @@ public class RegexToGramQueryTranslatorTest {
 		Assert.assertEquals(expectedQuery, simplifiedDNF);
 	}
 	
-	// "ab" can't form a trigram, so the result is an empty OR node.
+	// "ab" can't form a gram(default length 3), so the result is an empty OR node.
 	@Test
 	public void testLiteral2() {
 		String regex = "ab";
