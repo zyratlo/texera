@@ -402,7 +402,7 @@ public class GramBooleanQuery {
 	 * Associative laws: (a OR b) OR c = a OR (b OR c) = a OR b OR c, when transforming OR nodes,
 	 * Distributive laws: a AND (b OR c) = (a AND b) OR (a AND c), when transforming AND nodes,
 	 * 
-	 * For each node, it's children will be transformed to DNF form first, then 
+	 * For each node, its children will be transformed to DNF form first, then 
 	 * if it's OR, apply associative laws, if it's AND, apply distributive laws.
 	 * Then recursively apply the same rules all the way up to the top node.
 	 * 
