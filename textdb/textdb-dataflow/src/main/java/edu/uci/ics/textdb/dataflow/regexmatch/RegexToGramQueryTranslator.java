@@ -193,7 +193,7 @@ public class RegexToGramQueryTranslator {
 		
 		xyInfo.emptyable = xInfo.emptyable || yInfo.emptyable;
 		
-		xyInfo.match = xInfo.match.computeDisjunction(yInfo.match);
+		xyInfo.match = GramBooleanQuery.computeDisjunction(xInfo.match, yInfo.match);
 		
 		xyInfo.simplify(false);
 		return xyInfo;
@@ -208,7 +208,7 @@ public class RegexToGramQueryTranslator {
 	private static RegexInfo concat(RegexInfo xInfo, RegexInfo yInfo) {
 		RegexInfo xyInfo = new RegexInfo();
 		
-		xyInfo.match = xInfo.match.computeConjunction(yInfo.match);
+		xyInfo.match = GramBooleanQuery.computeConjunction(xInfo.match, yInfo.match);
 		
 		if (!xInfo.exact.isEmpty() && !yInfo.exact.isEmpty()) {
 			xyInfo.exact = TranslatorUtils.cartesianProduct(xInfo.exact, yInfo.exact, false);
@@ -235,7 +235,7 @@ public class RegexToGramQueryTranslator {
 		if (xInfo.exact.isEmpty() && yInfo.exact.isEmpty() &&
 				xInfo.suffix.size() <= TranslatorUtils.MAX_SET_SIZE && 
 				yInfo.prefix.size() <= TranslatorUtils.MAX_SET_SIZE &&
-				TranslatorUtils.minLenOfString(xInfo.suffix) + TranslatorUtils.minLenOfString(yInfo.prefix) >= xyInfo.match.gramLength) {
+				TranslatorUtils.minLenOfString(xInfo.suffix) + TranslatorUtils.minLenOfString(yInfo.prefix) >= TranslatorUtils.MIN_GRAM_LENGTH) {
 
 			xyInfo.match.add(TranslatorUtils.cartesianProduct(xInfo.suffix, yInfo.prefix, false));
 		}

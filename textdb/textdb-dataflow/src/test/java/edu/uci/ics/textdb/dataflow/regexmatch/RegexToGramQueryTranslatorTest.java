@@ -15,21 +15,26 @@ public class RegexToGramQueryTranslatorTest {
 	private void printTranslatorResult(String regex) {
 		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate(regex);
 		
-		System.out.println("regex: "+regex);
-		System.out.println("boolean expression: "+exactQuery.getLuceneQueryString());
-		
-		System.out.println("query tree: ");
-		System.out.println(exactQuery.printQueryTree());
-		
 		GramBooleanQuery dnf = GramBooleanQuery.toDNF(exactQuery);
 		GramBooleanQuery simplifiedDNF = GramBooleanQuery.simplifyDNF(dnf);
+		
+		System.out.println();
+		System.out.println("----------------------------");
+		
+		System.out.println("regex: "+regex);
+		System.out.println("boolean expression: "+simplifiedDNF.getLuceneQueryString());
+		System.out.println();
+		
+		System.out.println("original query tree: ");
+		System.out.println(exactQuery.printQueryTree());
 		
 		System.out.println("DNF: ");
 		System.out.println(dnf.printQueryTree());
 		
 		System.out.println("Simplified DNF: ");
 		System.out.println(simplifiedDNF.printQueryTree());
-
+		
+		System.out.println("----------------------------");
 		System.out.println();
 	}
 	
@@ -41,7 +46,7 @@ public class RegexToGramQueryTranslatorTest {
 		GramBooleanQuery dnf = GramBooleanQuery.toDNF(exactQuery);
 		GramBooleanQuery simplifiedDNF = GramBooleanQuery.simplifyDNF(dnf);
 		
-		GramBooleanQuery expectedQuery = new GramBooleanQuery(GramBooleanQuery.QueryOp.ANY);
+		GramBooleanQuery expectedQuery = new GramBooleanQuery(GramBooleanQuery.QueryOp.OR);
 		
 		printTranslatorResult(regex);
 
@@ -55,7 +60,7 @@ public class RegexToGramQueryTranslatorTest {
 		GramBooleanQuery dnf = GramBooleanQuery.toDNF(exactQuery);
 		GramBooleanQuery simplifiedDNF = GramBooleanQuery.simplifyDNF(dnf);
 		
-		GramBooleanQuery expectedQuery = new GramBooleanQuery(GramBooleanQuery.QueryOp.ANY);
+		GramBooleanQuery expectedQuery = new GramBooleanQuery(GramBooleanQuery.QueryOp.OR);
 		
 		printTranslatorResult(regex);
 
@@ -71,9 +76,7 @@ public class RegexToGramQueryTranslatorTest {
 		GramBooleanQuery simplifiedDNF = GramBooleanQuery.simplifyDNF(dnf);
 		
 		GramBooleanQuery expectedQuery = new GramBooleanQuery(GramBooleanQuery.QueryOp.OR);
-		GramBooleanQuery expectedAndNode = new GramBooleanQuery(GramBooleanQuery.QueryOp.AND);
-//		expectedAndNode.operandSet.addAll(Arrays.asList(new String[]{"abc"}));
-		expectedQuery.subQuerySet.add(expectedAndNode);
+		expectedQuery.subQuerySet.add(GramBooleanQuery.newLeafNode("abc"));
 		
 		printTranslatorResult(regex);
 
@@ -115,7 +118,7 @@ public class RegexToGramQueryTranslatorTest {
 	
 	@Test
 	public void testLiteral4() {
-		String regex = "ucirvine";
+		String regex = "abcde";
 		
 		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate(regex);
 		GramBooleanQuery dnf = GramBooleanQuery.toDNF(exactQuery);

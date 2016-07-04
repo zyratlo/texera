@@ -20,33 +20,34 @@ public class GramBooleanQuery {
 		AND,
 		OR
 	}
+	
 	QueryOp operator;
 	String leaf;
 	Set<GramBooleanQuery> subQuerySet;
-	
-	int gramLength;
-	
+		
 	/**
 	 * Constructs a GramBooleanQuery with default gram length 3. <br>
 	 * @param operator
 	 */
 	GramBooleanQuery(QueryOp operator) {
-		this(operator, 3);
-	}
-	
-	GramBooleanQuery(QueryOp operator, int gramLength) {
 		this.operator = operator;
 		leaf = "";
 		subQuerySet = new HashSet<GramBooleanQuery>();
-		this.gramLength = gramLength;
 	}
-
-	private static GramBooleanQuery newLeafNode(String literal) {
+	
+	static GramBooleanQuery newLeafNode(String literal) {
 		GramBooleanQuery leafNode = new GramBooleanQuery(QueryOp.LEAF);
 		leafNode.leaf = literal;
 		return leafNode;
 	}
 	
+
+	void add(List<String> list) {
+		GramBooleanQuery result = computeDisjunction(this, listNode(list));
+		this.operator = result.operator;
+		this.leaf = result.leaf;
+		this.subQuerySet = result.subQuerySet;
+	}
 	
 	/**
 	 * This method takes a list of strings and adds them to the query tree. <br>
@@ -55,25 +56,16 @@ public class GramBooleanQuery {
 	 * OR operator is assumed for a list of strings. <br>
 	 * @param list, a list of strings to be added into query.
 	 */
-	void add(List<String> list) {
-		addOrNode(list);
-	}
-	
-	private void addOrNode(List<String> literalList) {
-		if (TranslatorUtils.minLenOfString(literalList) < gramLength) {
-			return;
+	private GramBooleanQuery listNode(List<String> literalList) {
+		if (TranslatorUtils.minLenOfString(literalList) < TranslatorUtils.MIN_GRAM_LENGTH) {
+			return new GramBooleanQuery(QueryOp.ANY);
 		}
-		if (literalList.size() == 0) {
-			return;
-		} else if (literalList.size() == 1) {
-			this.addAndNode(literalList.get(0));
-		} else {
-			GramBooleanQuery query = new GramBooleanQuery(QueryOp.OR);
-			for (String literal : literalList) {
-				query.addAndNode(literal);
-			}
-			this.subQuerySet.add(query);
+		
+		GramBooleanQuery listNode = new GramBooleanQuery(QueryOp.OR);
+		for (String literal : literalList) {
+			listNode.subQuerySet.add(literalNode(literal));
 		}
+		return listNode;
 	}
 	
 	/**
@@ -84,43 +76,22 @@ public class GramBooleanQuery {
 	 * AND operator is assumed for a single string. <br>
 	 * @param literal
 	 */
-	private void addAndNode(String literal) {
-		GramBooleanQuery andNode;
-		if (this.operator == QueryOp.AND) {
-			andNode = this;
-		} else {
-			andNode = new GramBooleanQuery(QueryOp.AND);
-			this.subQuerySet.add(andNode);
-		}
+	private GramBooleanQuery literalNode(String literal) {
+		GramBooleanQuery literalNode = new GramBooleanQuery(QueryOp.AND);
 		for (String gram : literalToNGram(literal)) {
-			andNode.subQuerySet.add(newLeafNode(gram));
+			literalNode.subQuerySet.add(newLeafNode(gram));
 		}
-
-		// if (literal.length() < gramLength) {
-		// 	return;
-		// } else if (literal.length() == gramLength) {
-		// 	this.subQuerySet.add(newLeafNode(literal));
-		// 	this.operandSet.add(literal);
-		// } else {
-		// 	if (this.operator == QueryOp.AND) {
-		// 		this.operandSet.addAll(literalToNGram(literal));
-		// 	} else {
-		// 		GramBooleanQuery query = new GramBooleanQuery(GramBooleanQuery.QueryOp.AND);
-		// 		query.operandSet.addAll(literalToNGram(literal));
-		// 		this.subQuerySet.add(query);
-		// 	}
-		// }
-	}
+		return literalNode;
+	}	
 	
 	/**
 	 * This function builds a list of N-Grams that a given literal contains. <br>
 	 * If the length of the literal is smaller than N, it returns an empty list. <br>
 	 * For example, for literal "textdb", its tri-gram list should be ["tex", "ext", "xtd", "tdb"]
-	 * @param literal
-	 * @return
 	 */
 	private List<String> literalToNGram(String literal) {
 		ArrayList<String> nGrams = new ArrayList<>();
+		int gramLength = TranslatorUtils.MIN_GRAM_LENGTH;
 		if (literal.length() >= gramLength) {
 			for (int i = 0; i <= literal.length()-gramLength; ++i) {
 				nGrams.add(literal.substring(i, i+gramLength));
@@ -129,7 +100,71 @@ public class GramBooleanQuery {
 		return nGrams;
 	}
 	
-	private void addToSubQuery(GramBooleanQuery that) {
+	/**
+	 * This function "AND"s two query trees together. <br>
+	 * It also performs simple simplifications. <br>
+	 */
+	static GramBooleanQuery computeConjunction(GramBooleanQuery left, GramBooleanQuery right) {		
+		if (right.operator == QueryOp.ANY) {
+			return deepCopy(left);
+		}
+		if (right.operator == QueryOp.NONE) {
+			return deepCopy(right);
+		}
+		if (left.operator == QueryOp.ANY) {
+			return deepCopy(right);
+		}
+		if (left.operator == QueryOp.NONE) {
+			return deepCopy(left);
+		}
+		if ((left.operator == QueryOp.AND && right.operator == QueryOp.AND)
+			|| (left.operator == QueryOp.AND && right.operator == QueryOp.LEAF)
+			|| (left.operator == QueryOp.LEAF && right.operator == QueryOp.AND)) {
+			GramBooleanQuery toReturn = new GramBooleanQuery(QueryOp.AND);
+			toReturn.mergeIntoSubquery(deepCopy(left));
+			toReturn.mergeIntoSubquery(deepCopy(right));
+			return toReturn;
+		} else {
+			GramBooleanQuery toReturn = new GramBooleanQuery(QueryOp.AND);
+			toReturn.subQuerySet.add(deepCopy(left));
+			toReturn.subQuerySet.add(deepCopy(right));
+			return toReturn;
+		}
+	}
+	
+	/**
+	 * This function "OR"s two query trees together. <br>
+	 * It also performs simple simplifications. <br>
+	 */
+	static GramBooleanQuery computeDisjunction(GramBooleanQuery left, GramBooleanQuery right) {
+		if (right.operator == QueryOp.ANY) {
+			return deepCopy(right);
+		}
+		if (right.operator == QueryOp.NONE) {
+			return deepCopy(left);
+		}
+		if (left.operator == QueryOp.ANY) {
+			return deepCopy(left);
+		}
+		if (left.operator == QueryOp.NONE) {
+			return deepCopy(right);
+		}
+		if ((left.operator == QueryOp.OR && right.operator == QueryOp.OR)
+			|| (left.operator == QueryOp.OR && right.operator == QueryOp.LEAF)
+			|| (left.operator == QueryOp.LEAF && right.operator == QueryOp.OR)) {
+			GramBooleanQuery toReturn = new GramBooleanQuery(QueryOp.OR);
+			toReturn.mergeIntoSubquery(deepCopy(left));
+			toReturn.mergeIntoSubquery(deepCopy(right));
+			return toReturn;
+		} else {
+			GramBooleanQuery toReturn = new GramBooleanQuery(QueryOp.OR);
+			toReturn.subQuerySet.add(deepCopy(left));
+			toReturn.subQuerySet.add(deepCopy(right));
+			return toReturn;
+		}
+	}
+	
+	private void mergeIntoSubquery(GramBooleanQuery that) {
 		if (that.operator == QueryOp.LEAF) {
 			this.subQuerySet.add(that);
 		} else {
@@ -137,67 +172,116 @@ public class GramBooleanQuery {
 		}
 	}
 	
-	/**
-	 * This function "AND"s two query trees together. <br>
-	 * It also performs simple simplifications. <br>
-	 * TODO: add more logic for more complicated and effecitve simplifications
-	 * @param that GramBooleanQuery
-	 * @return
-	 */
-	GramBooleanQuery computeConjunction (GramBooleanQuery that) {
-		if (that.operator == QueryOp.ANY) {
-			return deepCopy(this);
+	
+	// Transform the GramBooleanQuery tree to Disjunctive normal form (DNF)
+	// which is OR of different ANDs
+	public static GramBooleanQuery toDNF(GramBooleanQuery query) {
+		GramBooleanQuery result = new GramBooleanQuery(QueryOp.OR);
+		
+		if (query.operator == QueryOp.ANY || query.operator == QueryOp.NONE) {
+			return result;
 		}
-		if (that.operator == QueryOp.NONE) {
-			return deepCopy(that);
+		if (query.operator == QueryOp.AND) {
+			for (GramBooleanQuery subQuery : query.subQuerySet) {
+				result = dnfConjunction(result, toDNF(subQuery));
+			}
 		}
-		if (this.operator == QueryOp.ANY) {
-			return deepCopy(that);
+		if (query.operator == QueryOp.OR) {
+			for (GramBooleanQuery subQuery : query.subQuerySet) {
+				result.subQuerySet.addAll(toDNF(subQuery).subQuerySet);
+			}
 		}
-		if (this.operator == QueryOp.NONE) {
-			return deepCopy(this);
+		if (query.operator == QueryOp.LEAF) {
+			result.subQuerySet.add(deepCopy(query));
 		}
-		if ((this.operator == QueryOp.AND && that.operator == QueryOp.AND)
-			|| (this.operator == QueryOp.AND && that.operator == QueryOp.LEAF)
-			|| (this.operator == QueryOp.LEAF && that.operator == QueryOp.AND)) {
-			GramBooleanQuery toReturn = new GramBooleanQuery(QueryOp.AND, gramLength);
-			toReturn.addToSubQuery(deepCopy(this));
-			toReturn.addToSubQuery(deepCopy(that));
-			return toReturn;
-		} else {
-			GramBooleanQuery toReturn = new GramBooleanQuery(QueryOp.AND, gramLength);
-			toReturn.subQuerySet.add(deepCopy(this));
-			toReturn.subQuerySet.add(deepCopy(that));
-			return toReturn;
+
+		return result;	
+	}
+
+	
+	// "AND" two DNF tree
+	// Apply distributive laws: 
+	// (a OR b) AND (c OR d) --> (a AND c) OR (a AND d) OR (b AND c) OR (c AND d)
+	private static GramBooleanQuery dnfConjunction(GramBooleanQuery left, GramBooleanQuery right) {
+		if (left.isEmpty()) {
+			return right;
 		}
+		if (right.isEmpty()) {
+			return left;
+		}
+
+		GramBooleanQuery resultQuery = new GramBooleanQuery(QueryOp.OR);
+
+		for (GramBooleanQuery leftSubQuery : left.subQuerySet) {
+			for (GramBooleanQuery rightSubQuery : right.subQuerySet) {
+				GramBooleanQuery conjunction = computeConjunction(leftSubQuery, rightSubQuery);
+				resultQuery.subQuerySet.add(conjunction);
+			}
+		}
+
+		return resultQuery;
 	}
 	
-	GramBooleanQuery computeDisjunction (GramBooleanQuery that) {
-		if (that.operator == QueryOp.ANY) {
-			return deepCopy(that);
-		}
-		if (that.operator == QueryOp.NONE) {
-			return deepCopy(this);
-		}
-		if (this.operator == QueryOp.ANY) {
-			return deepCopy(this);
-		}
-		if (this.operator == QueryOp.NONE) {
-			return deepCopy(that);
-		}
-		if ((this.operator == QueryOp.OR && that.operator == QueryOp.OR)
-				|| (this.operator == QueryOp.OR && that.operator == QueryOp.LEAF)
-				|| (this.operator == QueryOp.LEAF && that.operator == QueryOp.OR)) {
-				GramBooleanQuery toReturn = new GramBooleanQuery(QueryOp.OR, gramLength);
-				toReturn.addToSubQuery(deepCopy(this));
-				toReturn.addToSubQuery(deepCopy(that));
-				return toReturn;
-			} else {
-				GramBooleanQuery toReturn = new GramBooleanQuery(QueryOp.OR, gramLength);
-				toReturn.subQuerySet.add(deepCopy(this));
-				toReturn.subQuerySet.add(deepCopy(that));
-				return toReturn;
+
+	// After Transforming to DNF, apply Absorption laws to simplify it
+	// a OR (a AND b) --> a
+	// Tree must be already transformed to DNF before calling this function!
+	public static GramBooleanQuery simplifyDNF(GramBooleanQuery query) {
+		GramBooleanQuery result = new GramBooleanQuery(QueryOp.OR);
+		
+		for (GramBooleanQuery subQuery : query.subQuerySet) {
+			if (! isRedundantQuery(subQuery, query.subQuerySet)) {
+				result.subQuerySet.add(deepCopy(subQuery));
 			}
+		}
+		
+		return result;
+	}
+	
+	private static boolean isRedundantQuery(GramBooleanQuery query, Set<GramBooleanQuery> querySet) {
+		if (query.operator == QueryOp.LEAF) {
+			return false;
+		}
+		for (GramBooleanQuery compareTo : querySet) {
+			if (query == compareTo) {
+				continue;
+			}
+			if (compareTo.operator == QueryOp.LEAF) {
+				if (query.subQuerySet.contains(compareTo)) {
+					return true;
+				}
+			}
+			else if (compareTo.operator == QueryOp.AND) {
+				if (query.subQuerySet.containsAll(compareTo.subQuerySet)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+
+	
+	
+	/* 
+	 * Class related functions
+	--------------------------------------------------------- */
+	
+	/**
+	 * This function returns a deep copy of the tree data structure.
+	 */
+	public static GramBooleanQuery deepCopy(GramBooleanQuery query) {
+		if (query.operator == QueryOp.ANY || query.operator == QueryOp.NONE) {
+			return new GramBooleanQuery(query.operator);
+		} else if (query.operator == QueryOp.LEAF) {
+			return newLeafNode(query.leaf);
+		} else {
+			GramBooleanQuery toReturn = new GramBooleanQuery(query.operator);
+			for (GramBooleanQuery subQuery : query.subQuerySet) {
+				toReturn.subQuerySet.add(deepCopy(subQuery));
+			}
+			return toReturn;
+		}
 	}
 	
 	/**
@@ -211,6 +295,8 @@ public class GramBooleanQuery {
 		int hashCode = operator.toString().hashCode();
 		if (operator == QueryOp.LEAF) {
 			hashCode = hashCode ^ leaf.hashCode();
+		} else {
+			hashCode = hashCode ^ new Integer(this.subQuerySet.size()).hashCode();
 		}
 		return hashCode;
 	}
@@ -229,19 +315,15 @@ public class GramBooleanQuery {
 		}
 		
 		GramBooleanQuery that = (GramBooleanQuery) compareTo;
-		if (this.operator != that.operator
-			// || this.operandSet.size() != that.operandSet.size()
-			|| this.subQuerySet.size() != that.subQuerySet.size()) {
+		if (this.operator != that.operator) {
 			return false;
 		}
-
+		if (this.operator == QueryOp.ANY || this.operator == QueryOp.NONE) {
+			return true;
+		}
 		if (this.operator == QueryOp.LEAF) {
 			return this.leaf.equals(that.leaf);
 		}
-		
-		// if (!this.operandSet.equals(that.operandSet)) {
-		// 	return false;
-		// }
 		
 		if (!this.subQuerySet.equals(that.subQuerySet)) {
 			return false;
@@ -249,10 +331,75 @@ public class GramBooleanQuery {
 		
 		return true;
 	}
-
+	
+	public boolean isEmpty() {
+		// if (this.operandSet.size() > 0) {
+		// 	return false;
+		// }
+		if (this.operator == QueryOp.LEAF) {
+			return this.leaf.isEmpty();
+		}
+		for (GramBooleanQuery subQuery : this.subQuerySet) {
+			if (! subQuery.isEmpty()) {
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	
+	/* 
+	 * To String functions
+	--------------------------------------------------------- */
 	
 	/**
-	 * This returns a String that visualizes the query tree. <br>
+	 * This function generates a string representing the query that can be directly parsed by Lucene.
+	 * @return boolean expression string
+	 */
+	public String toString() {
+		return this.getLuceneQueryString();
+	}
+	
+	/**
+	 * This function generates a string representing the query that can be directly parsed by Lucene.
+	 * @return boolean expression string
+	 */
+	public String getLuceneQueryString() {
+		String luceneQueryString = toLuceneQueryString(this);
+		if (luceneQueryString.isEmpty()) {
+			return DataConstants.SCAN_QUERY;
+		} else {
+			return luceneQueryString;
+		}
+	}
+	
+	private static String toLuceneQueryString(GramBooleanQuery query) {
+		if (query.operator == QueryOp.ANY) {
+			return "";
+		}
+		if (query.operator == QueryOp.NONE) {
+			return "";
+		}
+		if (query.operator == QueryOp.LEAF) {
+			return query.leaf;
+		} 
+
+		StringJoiner joiner =  new StringJoiner(
+				(query.operator == QueryOp.AND) ? " AND " : " OR ");
+		for (GramBooleanQuery subQuery : query.subQuerySet) {
+			String subQueryStr = toLuceneQueryString(subQuery);
+			if (! subQueryStr.equals("")) 
+				joiner.add(subQueryStr);
+		}		
+		if (joiner.length() == 0) {
+			return "";
+		}
+		return "("+joiner.toString()+")";
+	}
+	
+	
+	/**
+	 * This function returns a String that visualizes the query tree.
 	 */
 	String printQueryTree() {
 		return queryTreeToString(this, 0, "  ");
@@ -275,206 +422,13 @@ public class GramBooleanQuery {
 		s += "\n";
 		
 		indentation++;
-		// for (String operand : query.operandSet) {
-		// 	for (int i = 0; i < indentation; i++) {
-		// 		s += indentStr;
-		// 	}
-		// 	s += operand;
-		// 	s += "\n";
-		// }
 		for (GramBooleanQuery subQuery : query.subQuerySet) {
 			s += queryTreeToString(subQuery, indentation, indentStr);
 		}
 		indentation--;
 		return s;
 	}
-
-	/**
-	 * This returns a String that represents Lucene query. <br>
-	 * @return boolean expression 
-	 */
-	public String toString() {
-		return this.getLuceneQueryString();
-	}
 	
-	/**
-	 * This function recursively connects 
-	 *   operand in {@code operandList} and subqueries in {@code subqueryList} 
-	 *   with {@code operator}. <br>
-	 * It generates a string representing the query that can be directly parsed by Lucene.
-	 * @return boolean expression
-	 */
-	public String getLuceneQueryString() {
-		String luceneQueryString = toLuceneQueryString(this);
-		if (luceneQueryString.isEmpty()) {
-			return DataConstants.SCAN_QUERY;
-		} else {
-			return luceneQueryString;
-		}
-	}
-	
-	private static String toLuceneQueryString(GramBooleanQuery query) {
-		if (query.operator == QueryOp.ANY) {
-			return "";
-		} else if (query.operator == QueryOp.NONE) {
-			return "";
-		} else if (query.operator == QueryOp.LEAF) {
-			return query.leaf;
-		} else {
-			StringJoiner joiner =  new StringJoiner(
-					(query.operator == QueryOp.AND) ? " AND " : " OR ");
-			// for (String operand : query.operandSet) {
-			// 	joiner.add(operand);
-			// }
-			for (GramBooleanQuery subQuery : query.subQuerySet) {
-				String subQueryStr = toLuceneQueryString(subQuery);
-				if (! subQueryStr.equals("")) 
-					joiner.add(subQueryStr);
-			}
-			
-			if (joiner.length() == 0) {
-				return "";
-			} else {
-				return "("+joiner.toString()+")";
-			}
-		}
-	}
-	
-	public boolean isEmpty() {
-		// if (this.operandSet.size() > 0) {
-		// 	return false;
-		// }
-		if (this.operator == QueryOp.LEAF) {
-			return this.leaf.isEmpty();
-		}
-		for (GramBooleanQuery subQuery : this.subQuerySet) {
-			if (! subQuery.isEmpty()) {
-				return false;
-			}
-		}
-		return true;
-	}
-	
-	public static GramBooleanQuery deepCopy(GramBooleanQuery query) {
-		if (query.operator == QueryOp.ANY || query.operator == QueryOp.NONE) {
-			return new GramBooleanQuery(query.operator);
-		} else if (query.operator == QueryOp.LEAF) {
-			return newLeafNode(query.leaf);
-		} else {
-			GramBooleanQuery toReturn = new GramBooleanQuery(query.operator);
-			for (GramBooleanQuery subQuery : query.subQuerySet) {
-				toReturn.subQuerySet.add(deepCopy(subQuery));
-			}
-			return toReturn;
-		}
-	}
-	
-	// "AND" two DNF tree
-	// Apply distributive laws: 
-	// (a OR b) AND (c OR d) --> (a AND c) OR (a AND d) OR (b AND c) OR (c AND d)
-	private static GramBooleanQuery andDNF(GramBooleanQuery left, GramBooleanQuery right) {
-		if (left.isEmpty()) {
-			return right;
-		}
-		if (right.isEmpty()) {
-			return left;
-		}
-
-		GramBooleanQuery resultQuery = new GramBooleanQuery(QueryOp.OR);
-
-		for (GramBooleanQuery leftSubQuery : left.subQuerySet) {
-			for (GramBooleanQuery rightSubQuery : right.subQuerySet) {
-				System.out.println(leftSubQuery);
-				System.out.println(rightSubQuery);
-				
-				GramBooleanQuery conjunction = leftSubQuery.computeConjunction(rightSubQuery);
-				
-				System.out.println(conjunction);
-
-				resultQuery.subQuerySet.add(conjunction);
-//				GramBooleanQuery tempQuery = new GramBooleanQuery(QueryOp.AND);
-//				tempQuery.operandSet.addAll(leftSubQuery.operandSet);
-//				tempQuery.operandSet.addAll(rightSubQuery.operandSet);
-//				resultQuery.subQuerySet.add(tempQuery);
-			}
-		}
-
-		return resultQuery;
-	}
-
-	// After Transforming to DNF, apply Absorption laws to simplify it
-	// a OR (a AND b) --> a
-	// Tree must be already transformed to DNF before calling this function!
-	public static GramBooleanQuery simplifyDNF(GramBooleanQuery query) {
-		GramBooleanQuery result = new GramBooleanQuery(QueryOp.OR);
-
-		Iterator<GramBooleanQuery> outerIterator = query.subQuerySet.iterator();
-		OuterLoop:
-		while (outerIterator.hasNext()) {
-			GramBooleanQuery outerQuery = outerIterator.next();
-
-			if (outerQuery.operator == QueryOp.LEAF) {
-				result.subQuerySet.add(outerQuery);
-			// else it's AND
-			} else {
-				Iterator<GramBooleanQuery> innerIterator = query.subQuerySet.iterator();
-				while (innerIterator.hasNext()) {
-					GramBooleanQuery innerQuery = innerIterator.next();
-					if (outerQuery != innerQuery) {
-						if (innerQuery.operator == QueryOp.LEAF) {
-							if (outerQuery.subQuerySet.contains(innerQuery)) {
-								continue OuterLoop;
-							}
-						} else {
-							if (outerQuery.subQuerySet.containsAll(innerQuery.subQuerySet)) {
-								continue OuterLoop;
-							}
-						}
-					}
-				}
-			}
-
-			// if reach this code, then add a copy of it to result
-//			GramBooleanQuery tempQuery = new GramBooleanQuery(QueryOp.AND);
-//			tempQuery.operandSet.addAll(outerAndQuery.operandSet);
-//			result.subQuerySet.add(tempQuery);
-			
-			result.subQuerySet.add(outerQuery);
-
-		}
-		
-		return query;
-	}
-	
-	// Transform the GramBooleanQuery tree to Disjunctive normal form (DNF)
-	// which is OR of different ANDs
-	public static GramBooleanQuery toDNF(GramBooleanQuery query) {
-		// if ANY or NONE, return itself
-		if (query.operator == QueryOp.ANY || query.operator == QueryOp.NONE) {
-			return query;
-		}
-
-		GramBooleanQuery result = new GramBooleanQuery(QueryOp.OR);
-
-		if (query.operator == QueryOp.AND) {
-			result = 
-				query.subQuerySet.stream()
-				.map(x -> toDNF(x))
-				.reduce(new GramBooleanQuery(QueryOp.OR), (acc, next) -> andDNF(acc, next));
-
-		} else if (query.operator == QueryOp.OR) {
-			result = 
-				query.subQuerySet.stream()
-				.map(x -> toDNF(x))
-				.reduce(result, (acc, next) -> {acc.subQuerySet.addAll(next.subQuerySet); return acc;});
-
-		} else if (query.operator == QueryOp.LEAF) {
-			result.subQuerySet.add(query);
-
-		}
-
-		return result;	
-	}
 	
 	
 }

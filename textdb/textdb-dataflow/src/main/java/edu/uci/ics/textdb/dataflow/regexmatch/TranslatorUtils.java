@@ -28,6 +28,10 @@ public class TranslatorUtils {
 	 */
 	static final int MAX_SET_SIZE = 20;
 	
+	
+	static final int MIN_GRAM_LENGTH = 3;
+	
+	
 	/**
 	 * This function interface provides a method to fold
 	 * (concat / alternate) two {@code RegexInfo} objects.
