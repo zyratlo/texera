@@ -2,7 +2,6 @@ package edu.uci.ics.textdb.dataflow.regexmatch;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.StringJoiner;
@@ -11,6 +10,7 @@ import edu.uci.ics.textdb.common.constants.DataConstants;
 
 
 public class GramBooleanQuery {
+	
 	enum QueryOp {
 		NONE, // doesn't match any string
 		ANY,  // matches any string
@@ -25,10 +25,6 @@ public class GramBooleanQuery {
 	String leaf;
 	Set<GramBooleanQuery> subQuerySet;
 		
-	/**
-	 * Constructs a GramBooleanQuery with default gram length 3. <br>
-	 * @param operator
-	 */
 	GramBooleanQuery(QueryOp operator) {
 		this.operator = operator;
 		leaf = "";
@@ -40,6 +36,13 @@ public class GramBooleanQuery {
 		leafNode.leaf = literal;
 		return leafNode;
 	}
+	
+	
+	
+	
+	/* 
+	 * logic for adding a list of strings to the query tree
+	--------------------------------------------------------- */
 	
 
 	void add(List<String> list) {
@@ -99,6 +102,13 @@ public class GramBooleanQuery {
 		}
 		return nGrams;
 	}
+	
+	
+	
+	
+	/* 
+	 * basic boolean logic (conjunction, disjunction)
+	--------------------------------------------------------- */
 	
 	/**
 	 * This function "AND"s two query trees together. <br>
@@ -172,10 +182,17 @@ public class GramBooleanQuery {
 		}
 	}
 	
+
+
 	
-	// Transform the GramBooleanQuery tree to Disjunctive normal form (DNF)
+	/* 
+	 * transform tree to Disjunctive Normal Form (DNF)
+	--------------------------------------------------------- */	
+	
+	
+	// Transform the GramBooleanQuery tree to Disjunctive Normal Form (DNF)
 	// which is OR of different ANDs
-	public static GramBooleanQuery toDNF(GramBooleanQuery query) {
+	static GramBooleanQuery toDNF(GramBooleanQuery query) {
 		GramBooleanQuery result = new GramBooleanQuery(QueryOp.OR);
 		
 		if (query.operator == QueryOp.ANY || query.operator == QueryOp.NONE) {
@@ -225,8 +242,9 @@ public class GramBooleanQuery {
 
 	// After Transforming to DNF, apply Absorption laws to simplify it
 	// a OR (a AND b) --> a
+	// (a) --> a
 	// Tree must be already transformed to DNF before calling this function!
-	public static GramBooleanQuery simplifyDNF(GramBooleanQuery query) {
+	static GramBooleanQuery simplifyDNF(GramBooleanQuery query) {
 		GramBooleanQuery result = new GramBooleanQuery(QueryOp.OR);
 		
 		for (GramBooleanQuery subQuery : query.subQuerySet) {
@@ -260,11 +278,11 @@ public class GramBooleanQuery {
 		return false;
 	}
 	
-
+	
 	
 	
 	/* 
-	 * Class related functions
+	 * class related functions
 	--------------------------------------------------------- */
 	
 	/**
@@ -333,9 +351,6 @@ public class GramBooleanQuery {
 	}
 	
 	public boolean isEmpty() {
-		// if (this.operandSet.size() > 0) {
-		// 	return false;
-		// }
 		if (this.operator == QueryOp.LEAF) {
 			return this.leaf.isEmpty();
 		}
@@ -348,8 +363,10 @@ public class GramBooleanQuery {
 	}
 	
 	
+	
+	
 	/* 
-	 * To String functions
+	 * string representations of the query tree
 	--------------------------------------------------------- */
 	
 	/**
@@ -434,7 +451,6 @@ public class GramBooleanQuery {
 		indentation--;
 		return s;
 	}
-	
 	
 	
 }
