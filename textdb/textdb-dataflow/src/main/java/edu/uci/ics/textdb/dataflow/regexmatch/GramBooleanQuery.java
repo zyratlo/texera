@@ -43,7 +43,7 @@ public class GramBooleanQuery {
 	
 
 	void add(List<String> list) {
-		GramBooleanQuery result = computeDisjunction(this, listNode(list));
+		GramBooleanQuery result = computeConjunction(this, listNode(list));
 		this.operator = result.operator;
 		this.leaf = result.leaf;
 		this.subQuerySet = result.subQuerySet;
@@ -414,6 +414,12 @@ public class GramBooleanQuery {
 
 		if (query.operator == QueryOp.LEAF) {
 			s += query.leaf;
+			s += "\n";
+			return s; 
+		}
+		
+		if (query.operator == QueryOp.ANY || query.operator == QueryOp.NONE) {
+			s += query.operator.toString();
 			s += "\n";
 			return s; 
 		}
