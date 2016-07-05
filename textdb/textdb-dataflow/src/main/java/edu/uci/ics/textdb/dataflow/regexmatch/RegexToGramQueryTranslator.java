@@ -28,6 +28,21 @@ public class RegexToGramQueryTranslator {
 	public static GramBooleanQuery translate(String regex) 
 		throws com.google.re2j.PatternSyntaxException{
 		
+		GramBooleanQuery exactQuery = translateUnsimplified(regex);
+		GramBooleanQuery dnf = GramBooleanQuery.toDNF(exactQuery);
+		GramBooleanQuery simplifiedDNF = GramBooleanQuery.simplifyDNF(dnf);
+		
+		return simplifiedDNF;
+	}
+	
+	/*
+	 * This returns the query tree before simplification. 
+	 * It's used internally for debugging purposes.
+	 * 
+	 */
+	static GramBooleanQuery translateUnsimplified(String regex)
+			throws com.google.re2j.PatternSyntaxException{
+
 	    PublicRegexp re = PublicParser.parse(regex, PublicRE2.PERL);
 	    re = PublicSimplify.simplify(re);  
 	    RegexInfo regexInfo = analyze(re);
