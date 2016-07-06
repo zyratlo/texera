@@ -196,11 +196,11 @@ public class RegexToGramQueryTranslator {
 		} else if (!xInfo.exact.isEmpty()) {
 			xyInfo.prefix = TranslatorUtils.union(xInfo.exact, yInfo.prefix, false);
 			xyInfo.suffix = TranslatorUtils.union(xInfo.exact, yInfo.suffix, true);
-			xInfo.match.add(xInfo.exact);
+			xInfo.match = GramBooleanQuery.combine(xInfo.match, xInfo.exact);
 		} else if (!yInfo.exact.isEmpty()) {
 			xyInfo.prefix = TranslatorUtils.union(xInfo.prefix, yInfo.exact, false);
 			xyInfo.suffix = TranslatorUtils.union(xInfo.suffix, yInfo.exact, true);
-			yInfo.match.add(yInfo.exact);
+			yInfo.match = GramBooleanQuery.combine(yInfo.match, yInfo.exact);
 		} else {
 			xyInfo.prefix = TranslatorUtils.union(xInfo.prefix, yInfo.prefix, false);
 			xyInfo.suffix = TranslatorUtils.union(xInfo.suffix, yInfo.suffix, true);
@@ -252,7 +252,8 @@ public class RegexToGramQueryTranslator {
 				yInfo.prefix.size() <= TranslatorUtils.MAX_SET_SIZE &&
 				TranslatorUtils.minLenOfString(xInfo.suffix) + TranslatorUtils.minLenOfString(yInfo.prefix) >= TranslatorUtils.MIN_GRAM_LENGTH) {
 
-			xyInfo.match.add(TranslatorUtils.cartesianProduct(xInfo.suffix, yInfo.prefix, false));
+			xyInfo.match = GramBooleanQuery.combine(xyInfo.match, 
+					TranslatorUtils.cartesianProduct(xInfo.suffix, yInfo.prefix, false));
 		}
 		
 		xyInfo.simplify(false);

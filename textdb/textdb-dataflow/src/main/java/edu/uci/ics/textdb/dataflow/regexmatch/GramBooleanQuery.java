@@ -2,9 +2,12 @@ package edu.uci.ics.textdb.dataflow.regexmatch;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.StringJoiner;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import edu.uci.ics.textdb.common.constants.DataConstants;
 
@@ -31,10 +34,14 @@ public class GramBooleanQuery {
 		subQuerySet = new HashSet<GramBooleanQuery>();
 	}
 	
+	GramBooleanQuery(String literal) {
+		this.operator = QueryOp.LEAF;
+		this.leaf = literal;
+		this.subQuerySet = new HashSet<GramBooleanQuery>();
+	}
+	
 	static GramBooleanQuery newLeafNode(String literal) {
-		GramBooleanQuery leafNode = new GramBooleanQuery(QueryOp.LEAF);
-		leafNode.leaf = literal;
-		return leafNode;
+		return new GramBooleanQuery(literal);
 	}
 	
 	
@@ -44,12 +51,8 @@ public class GramBooleanQuery {
 	 * logic for adding a list of strings to the query tree
 	--------------------------------------------------------- */
 	
-
-	void add(List<String> list) {
-		GramBooleanQuery result = computeConjunction(this, listNode(list));
-		this.operator = result.operator;
-		this.leaf = result.leaf;
-		this.subQuerySet = result.subQuerySet;
+	static GramBooleanQuery combine(GramBooleanQuery query, List<String> list) {
+		return computeConjunction(query, listNode(list));
 	}
 	
 	/**
@@ -59,7 +62,7 @@ public class GramBooleanQuery {
 	 * OR operator is assumed for a list of strings. <br>
 	 * @param list, a list of strings to be added into query.
 	 */
-	private GramBooleanQuery listNode(List<String> literalList) {
+	private static GramBooleanQuery listNode(List<String> literalList) {
 		if (TranslatorUtils.minLenOfString(literalList) < TranslatorUtils.MIN_GRAM_LENGTH) {
 			return new GramBooleanQuery(QueryOp.ANY);
 		}
@@ -79,20 +82,20 @@ public class GramBooleanQuery {
 	 * AND operator is assumed for a single string. <br>
 	 * @param literal
 	 */
-	private GramBooleanQuery literalNode(String literal) {
+	private static GramBooleanQuery literalNode(String literal) {
 		GramBooleanQuery literalNode = new GramBooleanQuery(QueryOp.AND);
 		for (String gram : literalToNGram(literal)) {
 			literalNode.subQuerySet.add(newLeafNode(gram));
 		}
 		return literalNode;
-	}	
+	}
 	
 	/**
 	 * This function builds a list of N-Grams that a given literal contains. <br>
 	 * If the length of the literal is smaller than N, it returns an empty list. <br>
 	 * For example, for literal "textdb", its tri-gram list should be ["tex", "ext", "xtd", "tdb"]
 	 */
-	private List<String> literalToNGram(String literal) {
+	private static List<String> literalToNGram(String literal) {
 		ArrayList<String> nGrams = new ArrayList<>();
 		int gramLength = TranslatorUtils.MIN_GRAM_LENGTH;
 		if (literal.length() >= gramLength) {
@@ -275,22 +278,26 @@ public class GramBooleanQuery {
 	 */
 	static GramBooleanQuery simplifyDNF(GramBooleanQuery query) {
 		GramBooleanQuery result = applyAbsorption(query);
-		replaceWithChild(result);
+		result = replaceWithChild(result);
 		return result;
 	}
 	
 	// Replace node with its child if it only has one child: (a) -> a <br> 
-	private static void replaceWithChild(GramBooleanQuery query) {
-		while (query.subQuerySet.size() == 1) {
-			GramBooleanQuery child = query.subQuerySet.iterator().next();
-			query.operator = child.operator;
-			query.leaf = child.leaf;
-			query.subQuerySet = child.subQuerySet;
+	private static GramBooleanQuery replaceWithChild(GramBooleanQuery query) {
+		GramBooleanQuery result = query;
+		while (result.subQuerySet.size() == 1) {
+			GramBooleanQuery child = result.subQuerySet.iterator().next();
+			result = child;
 		}
 		
-		for (GramBooleanQuery subQuery : query.subQuerySet) {
-			replaceWithChild(subQuery);
-		}	
+		Set<GramBooleanQuery> newSubQuerySet = new HashSet<GramBooleanQuery>();
+		for (GramBooleanQuery subQuery : result.subQuerySet) {
+			newSubQuerySet.add(replaceWithChild(subQuery));
+		}
+		
+		result.subQuerySet = newSubQuerySet;
+
+		return result;
 	}
 	
 	// Apply Absorption laws: a OR (a AND b) -> a <br>
@@ -361,17 +368,22 @@ public class GramBooleanQuery {
 	 */
 	@Override
 	public int hashCode() {
-		int hashCode = operator.toString().hashCode();
+		int hashCode = this.operator.toString().hashCode();
 		if (operator == QueryOp.LEAF) {
-			hashCode = hashCode ^ leaf.hashCode();
-		} else {
-			hashCode = hashCode * this.subQuerySet.size();
+			hashCode = hashCode ^ this.leaf.hashCode();
 		}
+		// hashCode is required to be immutable in Java
+		// otherwise, it will cause errors equals() in hash based collections
+		// since subQuerySet may change, using it in hash function will cause hash code to change
+//		else {
+//			hashCode = hashCode * this.subQuerySet.size();
+//		}
+		
 		return hashCode;
 	}
 	
 	/**
-	 * This overrides "equals" function. Whenever a GramBooleanQUery 
+	 * This overrides "equals" function. Whenever a GramBooleanQuery 
 	 * object is compared to another object, this function will be called. <br>
 	 * It recursively traverses the query tree and compares 
 	 * the set of sub-queries (order doesn't matter). <br>
@@ -393,7 +405,6 @@ public class GramBooleanQuery {
 		if (this.operator == QueryOp.LEAF) {
 			return this.leaf.equals(that.leaf);
 		}
-		
 		if (!this.subQuerySet.equals(that.subQuerySet)) {
 			return false;
 		}
@@ -421,7 +432,8 @@ public class GramBooleanQuery {
 	--------------------------------------------------------- */
 	
 	/**
-	 * This function generates a string representing the query that can be directly parsed by Lucene.
+	 * This function generates a string representing the query that can be directly parsed by Lucene. <br>
+	 * Same as getLuceneQueryString().
 	 * @return boolean expression string
 	 */
 	@Override
@@ -476,7 +488,7 @@ public class GramBooleanQuery {
 		return queryTreeToString(this, 0, "  ");
 	}
 	
-	private String queryTreeToString(GramBooleanQuery query, int indentation, String indentStr) {
+	private static String queryTreeToString(GramBooleanQuery query, int indentation, String indentStr) {
 		String s = "";
 		
 		for (int i = 0; i < indentation; i++) {
