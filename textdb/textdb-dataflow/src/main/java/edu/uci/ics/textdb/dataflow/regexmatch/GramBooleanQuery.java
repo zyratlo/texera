@@ -2,12 +2,9 @@ package edu.uci.ics.textdb.dataflow.regexmatch;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.StringJoiner;
-import java.util.TreeSet;
-import java.util.stream.Collectors;
 
 import edu.uci.ics.textdb.common.constants.DataConstants;
 
@@ -33,15 +30,11 @@ public class GramBooleanQuery {
 		leaf = "";
 		subQuerySet = new HashSet<GramBooleanQuery>();
 	}
-	
-	GramBooleanQuery(String literal) {
-		this.operator = QueryOp.LEAF;
-		this.leaf = literal;
-		this.subQuerySet = new HashSet<GramBooleanQuery>();
-	}
-	
+
 	static GramBooleanQuery newLeafNode(String literal) {
-		return new GramBooleanQuery(literal);
+		GramBooleanQuery leafNode = new GramBooleanQuery(QueryOp.LEAF);
+		leafNode.leaf = literal;
+		return leafNode;
 	}
 	
 	
@@ -51,16 +44,24 @@ public class GramBooleanQuery {
 	 * logic for adding a list of strings to the query tree
 	--------------------------------------------------------- */
 	
+	/**
+	 * This method combines a list of strings with an existing query tree.
+	 * @param query, existing query tree
+	 * @param list, a list of strings to be combined with the query tree
+	 * @return new query tree
+	 */
 	static GramBooleanQuery combine(GramBooleanQuery query, List<String> list) {
 		return computeConjunction(query, listNode(list));
 	}
 	
-	/**
-	 * This method takes a list of strings and adds them to the query tree. <br>
+	/*
+	 * This method transforms a list of strings to a query tree <br>
 	 * For example, if the list is {abcd, wxyz}, then: <br>
-	 * trigrams({abcd, wxyz}) = trigrams(abcd) OR trigrams(wxyz) <br>
-	 * OR operator is assumed for a list of strings. <br>
-	 * @param list, a list of strings to be added into query.
+	 * trigrams({abcd, wxyz})
+	 * -> trigrams(abcd) OR trigrams(wxyz) <br>
+	 * -> ((abc AND bcd) OR (wxy AND xyz)) <br>
+	 * 
+	 * The relation of strings in a list is OR. <br>
 	 */
 	private static GramBooleanQuery listNode(List<String> literalList) {
 		if (TranslatorUtils.minLenOfString(literalList) < TranslatorUtils.MIN_GRAM_LENGTH) {
@@ -74,13 +75,13 @@ public class GramBooleanQuery {
 		return listNode;
 	}
 	
-	/**
+	/*
 	 * This method takes a single string and adds it to the query tree. <br>
 	 * The string is converted to multiple n-grams with an AND operator. <br>
 	 * For example: if the string is abcd, then: <br>
 	 * trigrams(abcd) = abc AND bcd <br>
-	 * AND operator is assumed for a single string. <br>
-	 * @param literal
+	 * 
+	 * The relation of grams in a string is AND. <br>
 	 */
 	private static GramBooleanQuery literalNode(String literal) {
 		GramBooleanQuery literalNode = new GramBooleanQuery(QueryOp.AND);
@@ -90,7 +91,7 @@ public class GramBooleanQuery {
 		return literalNode;
 	}
 	
-	/**
+	/*
 	 * This function builds a list of N-Grams that a given literal contains. <br>
 	 * If the length of the literal is smaller than N, it returns an empty list. <br>
 	 * For example, for literal "textdb", its tri-gram list should be ["tex", "ext", "xtd", "tdb"]
@@ -114,8 +115,8 @@ public class GramBooleanQuery {
 	--------------------------------------------------------- */
 	
 	/**
-	 * This function "AND"s two query trees together. <br>
-	 * It also performs simple simplifications. <br>
+	 * This function "AND"s two query trees together, <br>
+	 * and returns the result as a new tree. <br>
 	 */
 	static GramBooleanQuery computeConjunction(GramBooleanQuery left, GramBooleanQuery right) {		
 		if (right.operator == QueryOp.ANY) {
@@ -134,8 +135,8 @@ public class GramBooleanQuery {
 			|| (left.operator == QueryOp.AND && right.operator == QueryOp.LEAF)
 			|| (left.operator == QueryOp.LEAF && right.operator == QueryOp.AND)) {
 			GramBooleanQuery toReturn = new GramBooleanQuery(QueryOp.AND);
-			toReturn.mergeIntoSubquery(deepCopy(left));
-			toReturn.mergeIntoSubquery(deepCopy(right));
+			mergeIntoSubquery(toReturn, deepCopy(left));
+			mergeIntoSubquery(toReturn, deepCopy(right));
 			return toReturn;
 		} else {
 			GramBooleanQuery toReturn = new GramBooleanQuery(QueryOp.AND);
@@ -147,7 +148,7 @@ public class GramBooleanQuery {
 	
 	/**
 	 * This function "OR"s two query trees together. <br>
-	 * It also performs simple simplifications. <br>
+	 * and returns the result as a new tree. <br>
 	 */
 	static GramBooleanQuery computeDisjunction(GramBooleanQuery left, GramBooleanQuery right) {
 		if (right.operator == QueryOp.ANY) {
@@ -166,8 +167,8 @@ public class GramBooleanQuery {
 			|| (left.operator == QueryOp.OR && right.operator == QueryOp.LEAF)
 			|| (left.operator == QueryOp.LEAF && right.operator == QueryOp.OR)) {
 			GramBooleanQuery toReturn = new GramBooleanQuery(QueryOp.OR);
-			toReturn.mergeIntoSubquery(deepCopy(left));
-			toReturn.mergeIntoSubquery(deepCopy(right));
+			mergeIntoSubquery(toReturn, deepCopy(left));
+			mergeIntoSubquery(toReturn, deepCopy(right));
 			return toReturn;
 		} else {
 			GramBooleanQuery toReturn = new GramBooleanQuery(QueryOp.OR);
@@ -177,11 +178,16 @@ public class GramBooleanQuery {
 		}
 	}
 	
-	private void mergeIntoSubquery(GramBooleanQuery that) {
-		if (that.operator == QueryOp.LEAF) {
-			this.subQuerySet.add(that);
+	/*
+	 * Helper function to merge subQuerySet from src query tree to dest query tree.
+	 * If src is a LEAF, it will be added to dest.
+	 * If src is not a LEAF, it subQuerySet will be added to dest.
+	 */
+	private static void mergeIntoSubquery(GramBooleanQuery dest, GramBooleanQuery src) {
+		if (src.operator == QueryOp.LEAF) {
+			dest.subQuerySet.add(src);
 		} else {
-			this.subQuerySet.addAll(that.subQuerySet);
+			dest.subQuerySet.addAll(src.subQuerySet);
 		}
 	}
 	
@@ -313,6 +319,8 @@ public class GramBooleanQuery {
 		return result;
 	}
 	
+	// Check if the query is redundant (can be absorbed by another query) in the query set.
+	// for example, a OR (a AND b) -> (a AND b) can be absorbed by a.
 	private static boolean isRedundantQuery(GramBooleanQuery query, Set<GramBooleanQuery> querySet) {
 		if (query.operator == QueryOp.LEAF) {
 			return false;
