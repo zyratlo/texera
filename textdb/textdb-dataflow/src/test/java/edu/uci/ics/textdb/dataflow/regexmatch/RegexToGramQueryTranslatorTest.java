@@ -27,7 +27,7 @@ public class RegexToGramQueryTranslatorTest {
 	
 	// Helper function to print query tree for debugging purposes.
 	private void printTranslatorResult(String regex) {
-		boolean DEBUG = true;
+		boolean DEBUG = false;
 		if (! DEBUG) {
 			return;
 		}
