@@ -44,9 +44,9 @@ public class RegexToGramQueryTranslatorTest {
 		System.out.println("boolean expression: "+simplifiedDNF.getLuceneQueryString());
 		System.out.println();
 		
-//		System.out.println("original query tree: ");
-//		System.out.println(exactQuery.printQueryTree());
-//		
+		System.out.println("original query tree: ");
+		System.out.println(exactQuery.printQueryTree());
+		
 		System.out.println("DNF: ");
 		System.out.println(dnf.printQueryTree());
 		
@@ -325,8 +325,6 @@ public class RegexToGramQueryTranslatorTest {
 		String regex = "(abc)(qwer)";
 		
 		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate(regex);
-		GramBooleanQuery dnf = GramBooleanQuery.toDNF(exactQuery);
-		GramBooleanQuery simplifiedDNF = GramBooleanQuery.simplifyDNF(dnf);
 		
 		GramBooleanQuery expectedQuery = new GramBooleanQuery(GramBooleanQuery.QueryOp.AND);
 		
