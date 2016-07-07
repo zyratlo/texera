@@ -88,7 +88,7 @@ public class QueryRewriter implements IOperator{
                 queryStrings = QuerySegmenter.getAllTokens(searchQuery);
             else
                 queryStrings = QuerySegmenter.getLikelyTokens(searchQuery);
-            IField[] iFieldResult = {new ListField(queryStrings)};
+            IField[] iFieldResult = {new ListField<String>(queryStrings)};
             sourceTuple = new DataTuple(SCHEMA_QUERY_LIST, iFieldResult);
             return sourceTuple;
         }

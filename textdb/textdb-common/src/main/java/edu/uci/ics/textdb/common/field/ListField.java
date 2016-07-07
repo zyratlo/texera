@@ -33,8 +33,8 @@ public class ListField<T> implements IField {
         if (obj == null)
             return false;
         if (getClass() != obj.getClass())
-            return false;
-        ListField other = (ListField) obj;
+            return false; 
+        ListField<Object> other = (ListField<Object>) obj;
         if (list == null) {
             if (other.list != null)
                 return false;
