@@ -19,7 +19,6 @@ public class LuceneDemoTest {
 
 	private Indexer indexer;
 	private Searcher searcher;
-	private IndexSearcher iSearcher;
 	@Before
 	public void setUp() throws IOException {
 		indexer = new Indexer();

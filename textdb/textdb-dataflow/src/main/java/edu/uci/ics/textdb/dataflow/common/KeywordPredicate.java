@@ -31,7 +31,6 @@ import java.util.List;
 public class KeywordPredicate implements IPredicate{
 
     private final List<Attribute> attributeList;
-    private final String[] fields;
     private final String query;
     private final Query luceneQuery;
     private ArrayList<String> tokens;
@@ -51,12 +50,6 @@ public class KeywordPredicate implements IPredicate{
             this.attributeList = attributeList;
             this.operatorType = operatorType;
             this.dataStore = dataStore;
-            String[] temp = new String[attributeList.size()];
-
-            for(int i=0; i < attributeList.size(); i++){
-                temp[i] = attributeList.get(i).getFieldName();
-            }
-            this.fields = temp;
             this.luceneAnalyzer = luceneAnalyzer;
             this.luceneQuery = createLuceneQueryObject();
         } catch (Exception e) {
