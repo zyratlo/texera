@@ -9,7 +9,6 @@ import org.junit.Test;
 import edu.uci.ics.textdb.api.common.IField;
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.common.Schema;
-import edu.uci.ics.textdb.common.constants.SchemaConstants;
 import edu.uci.ics.textdb.common.constants.TestConstants;
 import edu.uci.ics.textdb.common.field.DataTuple;
 import edu.uci.ics.textdb.common.field.ListField;
@@ -29,13 +28,8 @@ public class RegexMatcherTest {
 	// Helper function to print results for debugging purposes
 	private void printResults(List<ITuple> results) {
 		for (ITuple result : results) {
-			IField spanListField = result.getField(SchemaConstants.SPAN_LIST);
-			if (!(spanListField instanceof ListField<?>)) {
-				return;
-			}
-			
-			List<Span> spanList = ((ListField<Span>) spanListField).getValue();
-			for (Span i : spanList) {
+			List<Span> a = ((ListField<Span>) result.getField("spanList")).getValue();
+			for (Span i : a) {
 				System.out.printf("start: %d, end: %d, fieldName: %s, key: %s, value: %s\n", 
 						i.getStart(), i.getEnd(), i.getFieldName(), i.getKey(), i.getValue());
 			}
@@ -344,6 +338,5 @@ public class RegexMatcherTest {
 	}
 	
 }
-
 
 
