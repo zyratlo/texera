@@ -24,16 +24,27 @@ public class RegexToGramQueryTranslator {
 	 * 
 	 * @param regex, the regex string to be translated.
 	 * @return GamBooleanQeruy, a boolean query of n-grams.
-	 */
+	 */	
 	public static GramBooleanQuery translate(String regex) 
 		throws com.google.re2j.PatternSyntaxException{
 		
-		GramBooleanQuery exactQuery = translateUnsimplified(regex);
-		GramBooleanQuery dnf = GramBooleanQuery.toDNF(exactQuery);
+		GramBooleanQuery result = translateUnsimplified(regex);
+		GramBooleanQuery dnf = GramBooleanQuery.toDNF(result);
 		GramBooleanQuery simplifiedDNF = GramBooleanQuery.simplifyDNF(dnf);
 		
 		return simplifiedDNF;
 	}
+	
+	public static GramBooleanQuery translate(String regex, int gramLength)
+			throws com.google.re2j.PatternSyntaxException{
+		
+		TranslatorUtils.GRAM_LENGTH = gramLength;
+		GramBooleanQuery result = translate(regex);
+		TranslatorUtils.GRAM_LENGTH = TranslatorUtils.DEFAULT_GRAM_LENGTH;
+		
+		return result;
+	}
+
 	
 	/*
 	 * This returns the query tree before simplification. 
@@ -45,9 +56,11 @@ public class RegexToGramQueryTranslator {
 
 	    PublicRegexp re = PublicParser.parse(regex, PublicRE2.PERL);
 	    re = PublicSimplify.simplify(re);  
+	    
 	    RegexInfo regexInfo = analyze(re);
 	    regexInfo.simplify(true);
 	    TranslatorUtils.escapeSpecialCharacters(regexInfo.match);
+	    
 	    return regexInfo.match;
 	}
 	
@@ -249,7 +262,7 @@ public class RegexToGramQueryTranslator {
 		
 		if (xInfo.exact.isEmpty() && yInfo.exact.isEmpty() &&
 				xInfo.suffix.size() <= TranslatorUtils.MAX_SET_SIZE && 
-				yInfo.prefix.size() <= TranslatorUtils.MAX_SET_SIZE &&
+				yInfo.prefix.size() <= TranslatorUtils.MAX_SET_SIZE && 
 				TranslatorUtils.minLenOfString(xInfo.suffix) + TranslatorUtils.minLenOfString(yInfo.prefix) >= TranslatorUtils.DEFAULT_GRAM_LENGTH) {
 
 			xyInfo.match = GramBooleanQuery.combine(xyInfo.match, 

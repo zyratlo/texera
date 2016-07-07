@@ -30,6 +30,7 @@ public class TranslatorUtils {
 	
 	
 	static final int DEFAULT_GRAM_LENGTH = 3;
+	static int GRAM_LENGTH = DEFAULT_GRAM_LENGTH;
 	
 	
 	/**
@@ -171,7 +172,6 @@ public class TranslatorUtils {
 	 * @param query
 	 */
 	static void escapeSpecialCharacters(GramBooleanQuery query) {
-		HashSet<String> escapedOperandSet = new HashSet<String>();
 		if (query.operator == QueryOp.LEAF) {
 			for (String specialChar : specialLuceneCharacters) {
 				query.leaf = query.leaf.replace(specialChar, "\\"+specialChar);

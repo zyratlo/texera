@@ -26,9 +26,7 @@ public class GramBooleanQuery {
 	//leaf is useful only when operator == LEAF
 	String leaf;
 	//subQuerySet is useful only when (operator == AND || operator == OR)
-	Set<GramBooleanQuery> subQuerySet;
-	
-	
+	Set<GramBooleanQuery> subQuerySet;	
 		
 	GramBooleanQuery(QueryOp operator) {
 		this.operator = operator;
