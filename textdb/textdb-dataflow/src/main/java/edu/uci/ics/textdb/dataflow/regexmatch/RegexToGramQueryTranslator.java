@@ -17,9 +17,9 @@ import com.google.re2j.PublicSimplify;
 public class RegexToGramQueryTranslator {	
 	/**
 	 * This method translates a regular expression to 
-	 * a boolean expression of n-grams. <br>
+	 * a boolean expression of 3-grams. <br>
 	 * Then the boolean expression can be queried using 
-	 * an n-gram inverted index to speed up regex matching. <br>
+	 * a 3-gram inverted index to speed up regex matching. <br>
 	 * 
 	 * 
 	 * @param regex, the regex string to be translated.
@@ -35,6 +35,13 @@ public class RegexToGramQueryTranslator {
 		return simplifiedDNF;
 	}
 	
+	/**
+	 * This method translates a regular expression to 
+	 * a boolean expression of a custom gram length. <br>
+	 * 
+	 * @param regex, the regex string to be translated.
+	 * @return GamBooleanQeruy, a boolean query of n-grams.
+	 */	
 	public static GramBooleanQuery translate(String regex, int gramLength)
 			throws com.google.re2j.PatternSyntaxException{
 		
@@ -263,7 +270,7 @@ public class RegexToGramQueryTranslator {
 		if (xInfo.exact.isEmpty() && yInfo.exact.isEmpty() &&
 				xInfo.suffix.size() <= TranslatorUtils.MAX_SET_SIZE && 
 				yInfo.prefix.size() <= TranslatorUtils.MAX_SET_SIZE && 
-				TranslatorUtils.minLenOfString(xInfo.suffix) + TranslatorUtils.minLenOfString(yInfo.prefix) >= TranslatorUtils.DEFAULT_GRAM_LENGTH) {
+				TranslatorUtils.minLenOfString(xInfo.suffix) + TranslatorUtils.minLenOfString(yInfo.prefix) >= TranslatorUtils.GRAM_LENGTH) {
 
 			xyInfo.match = GramBooleanQuery.combine(xyInfo.match, 
 					TranslatorUtils.cartesianProduct(xInfo.suffix, yInfo.prefix, false));
