@@ -3,6 +3,7 @@ package edu.uci.ics.textdb.common.utils;
 import java.io.StringReader;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -50,9 +51,10 @@ public class Utils {
             case TEXT:
                 field = new TextField(fieldValue);
                 break;
-
-            default:
-                break;
+            case LIST:
+            	// LIST FIELD SHOULD BE CREATED ON ITS OWN
+            	field = new ListField<String>(Arrays.asList(fieldValue));
+            	break;
         }
         return field;
     }
@@ -94,7 +96,9 @@ public class Utils {
                         fieldName,(String) fieldValue,luceneFieldType);
 
                 break;
-
+            case LIST:
+            	// Lucene doesn't have list field
+            	break;
         }
         return luceneField;
     }
