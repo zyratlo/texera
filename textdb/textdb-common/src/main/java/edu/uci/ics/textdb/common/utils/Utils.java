@@ -3,6 +3,7 @@ package edu.uci.ics.textdb.common.utils;
 import java.io.StringReader;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -50,9 +51,8 @@ public class Utils {
             case TEXT:
                 field = new TextField(fieldValue);
                 break;
-
-            default:
-                break;
+			case LIST:
+				throw new RuntimeException("Can't get list field");
         }
         return field;
     }
