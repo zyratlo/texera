@@ -32,7 +32,9 @@ public class RegexToGramQueryTranslatorTest {
 			return;
 		}
 		
-		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translateUnsimplified(regex);
+		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translateUnsimplified(regex, TranslatorUtils.DEFAULT_GRAM_LENGTH);
+//		GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translateUnsimplified(regex, 2);
+
 		
 		GramBooleanQuery dnf = GramBooleanQuery.toDNF(exactQuery);
 		GramBooleanQuery simplifiedDNF = GramBooleanQuery.simplifyDNF(dnf);
@@ -44,11 +46,11 @@ public class RegexToGramQueryTranslatorTest {
 		System.out.println("boolean expression: "+simplifiedDNF.getLuceneQueryString());
 		System.out.println();
 		
-		System.out.println("original query tree: ");
-		System.out.println(exactQuery.printQueryTree());
-		
-		System.out.println("DNF: ");
-		System.out.println(dnf.printQueryTree());
+//		System.out.println("original query tree: ");
+//		System.out.println(exactQuery.printQueryTree());
+//		
+//		System.out.println("DNF: ");
+//		System.out.println(dnf.printQueryTree());
 		
 		System.out.println("Simplified DNF: ");
 		System.out.println(simplifiedDNF.printQueryTree());

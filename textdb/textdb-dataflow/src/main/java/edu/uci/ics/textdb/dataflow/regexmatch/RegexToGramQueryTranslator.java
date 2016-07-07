@@ -28,11 +28,7 @@ public class RegexToGramQueryTranslator {
 	public static GramBooleanQuery translate(String regex) 
 		throws com.google.re2j.PatternSyntaxException{
 		
-		GramBooleanQuery result = translateUnsimplified(regex);
-		GramBooleanQuery dnf = GramBooleanQuery.toDNF(result);
-		GramBooleanQuery simplifiedDNF = GramBooleanQuery.simplifyDNF(dnf);
-		
-		return simplifiedDNF;
+		return translate(regex, TranslatorUtils.DEFAULT_GRAM_LENGTH);
 	}
 	
 	/**
@@ -45,11 +41,11 @@ public class RegexToGramQueryTranslator {
 	public static GramBooleanQuery translate(String regex, int gramLength)
 			throws com.google.re2j.PatternSyntaxException{
 		
-		TranslatorUtils.GRAM_LENGTH = gramLength;
-		GramBooleanQuery result = translate(regex);
-		TranslatorUtils.GRAM_LENGTH = TranslatorUtils.DEFAULT_GRAM_LENGTH;
+		GramBooleanQuery result = translateUnsimplified(regex, 3);
+		GramBooleanQuery dnf = GramBooleanQuery.toDNF(result);
+		GramBooleanQuery simplifiedDNF = GramBooleanQuery.simplifyDNF(dnf);
 		
-		return result;
+		return simplifiedDNF;
 	}
 
 	
@@ -58,8 +54,10 @@ public class RegexToGramQueryTranslator {
 	 * It's used internally for debugging purposes.
 	 * 
 	 */
-	static GramBooleanQuery translateUnsimplified(String regex)
+	static GramBooleanQuery translateUnsimplified(String regex, int gramLength)
 			throws com.google.re2j.PatternSyntaxException{
+		
+		TranslatorUtils.GRAM_LENGTH = gramLength;
 
 	    PublicRegexp re = PublicParser.parse(regex, PublicRE2.PERL);
 	    re = PublicSimplify.simplify(re);  
@@ -67,6 +65,8 @@ public class RegexToGramQueryTranslator {
 	    RegexInfo regexInfo = analyze(re);
 	    regexInfo.simplify(true);
 	    TranslatorUtils.escapeSpecialCharacters(regexInfo.match);
+	    
+		TranslatorUtils.GRAM_LENGTH = TranslatorUtils.DEFAULT_GRAM_LENGTH;
 	    
 	    return regexInfo.match;
 	}
