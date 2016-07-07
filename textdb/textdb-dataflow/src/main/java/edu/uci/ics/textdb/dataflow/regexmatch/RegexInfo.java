@@ -106,7 +106,7 @@ class RegexInfo {
 	 */
 	RegexInfo simplify(boolean force) {
 		TranslatorUtils.removeDuplicateAffix(exact, false);
-		int gramLength = TranslatorUtils.DEFAULT_GRAM_LENGTH;
+		int gramLength = TranslatorUtils.GRAM_LENGTH;
 		
 		if ( exact.size() > TranslatorUtils.MAX_EXACT_SIZE ||
 			( TranslatorUtils.minLenOfString(exact) >= gramLength && force) ||
@@ -143,7 +143,7 @@ class RegexInfo {
 	 */
 	void simplifyAffix(List<String> strList, boolean isSuffix) {
 		TranslatorUtils.removeDuplicateAffix(strList, isSuffix);
-		int gramLength = TranslatorUtils.DEFAULT_GRAM_LENGTH;
+		int gramLength = TranslatorUtils.GRAM_LENGTH;
 		
 		// Add the current prefix/suffix set to "match" query.
 		match = GramBooleanQuery.combine(match, strList);

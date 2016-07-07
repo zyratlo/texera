@@ -26,9 +26,7 @@ public class GramBooleanQuery {
 	//leaf is useful only when operator == LEAF
 	String leaf;
 	//subQuerySet is useful only when (operator == AND || operator == OR)
-	Set<GramBooleanQuery> subQuerySet;
-	
-	
+	Set<GramBooleanQuery> subQuerySet;	
 		
 	GramBooleanQuery(QueryOp operator) {
 		this.operator = operator;
@@ -69,7 +67,7 @@ public class GramBooleanQuery {
 	 * The relation of strings in a list is OR. <br>
 	 */
 	private static GramBooleanQuery listNode(List<String> literalList) {
-		if (TranslatorUtils.minLenOfString(literalList) < TranslatorUtils.DEFAULT_GRAM_LENGTH) {
+		if (TranslatorUtils.minLenOfString(literalList) < TranslatorUtils.GRAM_LENGTH) {
 			return new GramBooleanQuery(QueryOp.ANY);
 		}
 		
@@ -103,7 +101,7 @@ public class GramBooleanQuery {
 	 */
 	private static List<String> literalToNGram(String literal) {
 		ArrayList<String> nGrams = new ArrayList<>();
-		int gramLength = TranslatorUtils.DEFAULT_GRAM_LENGTH;
+		int gramLength = TranslatorUtils.GRAM_LENGTH;
 		if (literal.length() >= gramLength) {
 			for (int i = 0; i <= literal.length()-gramLength; ++i) {
 				nGrams.add(literal.substring(i, i+gramLength));
