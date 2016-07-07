@@ -17,9 +17,10 @@ import com.google.re2j.PublicSimplify;
 public class RegexToGramQueryTranslator {	
 	/**
 	 * This method translates a regular expression to 
-	 * a boolean expression of 3-grams. <br>
+	 * a boolean expression of n-grams. 
+	 * (default is TranslatorUtils.DEFAULT_GRAM_LENGTH, which is 3) <br>
 	 * Then the boolean expression can be queried using 
-	 * a 3-gram inverted index to speed up regex matching. <br>
+	 * a n-gram inverted index to speed up regex matching. <br>
 	 * 
 	 * 
 	 * @param regex, the regex string to be translated.
@@ -41,7 +42,7 @@ public class RegexToGramQueryTranslator {
 	public static GramBooleanQuery translate(String regex, int gramLength)
 			throws com.google.re2j.PatternSyntaxException{
 		
-		GramBooleanQuery result = translateUnsimplified(regex, 3);
+		GramBooleanQuery result = translateUnsimplified(regex, gramLength);
 		GramBooleanQuery dnf = GramBooleanQuery.toDNF(result);
 		GramBooleanQuery simplifiedDNF = GramBooleanQuery.simplifyDNF(dnf);
 		
