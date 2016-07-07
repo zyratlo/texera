@@ -49,6 +49,8 @@ public class Main {
         }
 
         System.out.println("performSearch done");
+        
+        reader.close();
 
 
     }
