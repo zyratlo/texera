@@ -72,8 +72,7 @@ public class RegexMatcherPerformanceTest {
 		long startMatchTime = System.currentTimeMillis();
 
 		int counter = 0;
-		ITuple nextTuple = null;
-		while ((nextTuple = regexMatcher.getNextTuple()) != null) {
+		while ((regexMatcher.getNextTuple()) != null) {
 			counter++;
 		}
 		

@@ -51,7 +51,6 @@ public class LuceneDemoTest {
 
 		
 		TopDocs topDocs = searcher.performSearch(queryString, maxResults);
-		Term t = new Term("content",queryString);
 		SpanTermQuery spanTerm = searcher.makeSpanTermQuery(queryString);
 		
 		SpanWeight W = spanTerm.createWeight(Se, false);
@@ -81,7 +80,7 @@ public class LuceneDemoTest {
 		
 		
 		System.out.println("Results found: " + topDocs.totalHits);
-		ScoreDoc[] hits = topDocs.scoreDocs;
+//		ScoreDoc[] hits = topDocs.scoreDocs;
 //		for (int i = 0; i < hits.length; i++) {
 //			Document doc = searcher.getDocument(hits[i].doc);
 //			System.out.println("Id: " + doc.get(ID_FIELD) + ", Name: " + doc.get(NAME_FIELD) + " " + ", Content: "
