@@ -22,8 +22,13 @@ public class GramBooleanQuery {
 	}
 	
 	QueryOp operator;
+	
+	//leaf is useful only when operator == LEAF
 	String leaf;
+	//subQuerySet is useful only when (operator == AND || operator == OR)
 	Set<GramBooleanQuery> subQuerySet;
+	
+	
 		
 	GramBooleanQuery(QueryOp operator) {
 		this.operator = operator;
@@ -64,7 +69,7 @@ public class GramBooleanQuery {
 	 * The relation of strings in a list is OR. <br>
 	 */
 	private static GramBooleanQuery listNode(List<String> literalList) {
-		if (TranslatorUtils.minLenOfString(literalList) < TranslatorUtils.MIN_GRAM_LENGTH) {
+		if (TranslatorUtils.minLenOfString(literalList) < TranslatorUtils.DEFAULT_GRAM_LENGTH) {
 			return new GramBooleanQuery(QueryOp.ANY);
 		}
 		
@@ -98,7 +103,7 @@ public class GramBooleanQuery {
 	 */
 	private static List<String> literalToNGram(String literal) {
 		ArrayList<String> nGrams = new ArrayList<>();
-		int gramLength = TranslatorUtils.MIN_GRAM_LENGTH;
+		int gramLength = TranslatorUtils.DEFAULT_GRAM_LENGTH;
 		if (literal.length() >= gramLength) {
 			for (int i = 0; i <= literal.length()-gramLength; ++i) {
 				nGrams.add(literal.substring(i, i+gramLength));
@@ -131,6 +136,9 @@ public class GramBooleanQuery {
 		if (left.operator == QueryOp.NONE) {
 			return deepCopy(left);
 		}
+		// if both left and right are AND, or one is AND and the other is LEAF,
+		// we merge them together instead of creating a new node
+		// to avoid one unnecessary level of depth of the tree.
 		if ((left.operator == QueryOp.AND && right.operator == QueryOp.AND)
 			|| (left.operator == QueryOp.AND && right.operator == QueryOp.LEAF)
 			|| (left.operator == QueryOp.LEAF && right.operator == QueryOp.AND)) {
@@ -163,6 +171,7 @@ public class GramBooleanQuery {
 		if (left.operator == QueryOp.NONE) {
 			return deepCopy(right);
 		}
+		// see comments above in computeConjunction
 		if ((left.operator == QueryOp.OR && right.operator == QueryOp.OR)
 			|| (left.operator == QueryOp.OR && right.operator == QueryOp.LEAF)
 			|| (left.operator == QueryOp.LEAF && right.operator == QueryOp.OR)) {
@@ -181,7 +190,7 @@ public class GramBooleanQuery {
 	/*
 	 * Helper function to merge subQuerySet from src query tree to dest query tree.
 	 * If src is a LEAF, it will be added to dest.
-	 * If src is not a LEAF, it subQuerySet will be added to dest.
+	 * If src is not a LEAF, its subQuerySet will be added to dest.
 	 */
 	private static void mergeIntoSubquery(GramBooleanQuery dest, GramBooleanQuery src) {
 		if (src.operator == QueryOp.LEAF) {
@@ -289,6 +298,7 @@ public class GramBooleanQuery {
 	}
 	
 	// Replace node with its child if it only has one child: (a) -> a <br> 
+	// OR -> AND -> a  ---> a
 	private static GramBooleanQuery replaceWithChild(GramBooleanQuery query) {
 		GramBooleanQuery result = query;
 		while (result.subQuerySet.size() == 1) {
@@ -321,6 +331,7 @@ public class GramBooleanQuery {
 	
 	// Check if the query is redundant (can be absorbed by another query) in the query set.
 	// for example, a OR (a AND b) -> (a AND b) can be absorbed by a.
+	// (a AND b) or (a AND b AND c)
 	private static boolean isRedundantQuery(GramBooleanQuery query, Set<GramBooleanQuery> querySet) {
 		if (query.operator == QueryOp.LEAF) {
 			return false;
@@ -350,6 +361,14 @@ public class GramBooleanQuery {
 	 * class related functions
 	--------------------------------------------------------- */
 	
+	/*
+	 *  The tree is deepCopyed in many places because 
+	 *  during tree transformations (conjunction, disjunction, toDNF),
+	 *  not copying the tree will mess up the original tree,
+	 *  thus lead to many bugs.
+	 *  
+	 */
+	
 	/**
 	 * Obtain a deep copy of the query tree. <br>
 	 * It traverses the tree and deep copies every node. <br>
@@ -367,6 +386,7 @@ public class GramBooleanQuery {
 			return toReturn;
 		}
 	}
+
 	
 	/**
 	 * This returns a GramBooleanQuery's hash code. <br>
@@ -380,7 +400,7 @@ public class GramBooleanQuery {
 		if (operator == QueryOp.LEAF) {
 			hashCode = hashCode ^ this.leaf.hashCode();
 		}
-		// hashCode is required to be immutable in Java
+		// this hashCode() function requires the query object to be immutable
 		// otherwise, it will cause errors equals() in hash based collections
 		// since subQuerySet may change, using it in hash function will cause hash code to change
 //		else {

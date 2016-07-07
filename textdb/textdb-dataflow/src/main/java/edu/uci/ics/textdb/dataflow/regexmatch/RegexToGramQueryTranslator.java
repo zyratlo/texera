@@ -250,7 +250,7 @@ public class RegexToGramQueryTranslator {
 		if (xInfo.exact.isEmpty() && yInfo.exact.isEmpty() &&
 				xInfo.suffix.size() <= TranslatorUtils.MAX_SET_SIZE && 
 				yInfo.prefix.size() <= TranslatorUtils.MAX_SET_SIZE &&
-				TranslatorUtils.minLenOfString(xInfo.suffix) + TranslatorUtils.minLenOfString(yInfo.prefix) >= TranslatorUtils.MIN_GRAM_LENGTH) {
+				TranslatorUtils.minLenOfString(xInfo.suffix) + TranslatorUtils.minLenOfString(yInfo.prefix) >= TranslatorUtils.DEFAULT_GRAM_LENGTH) {
 
 			xyInfo.match = GramBooleanQuery.combine(xyInfo.match, 
 					TranslatorUtils.cartesianProduct(xInfo.suffix, yInfo.prefix, false));
