@@ -69,10 +69,6 @@ public class Indexer {
         getIndexWriter();
         indexWriter.deleteAll();
 
-
-        //load data from DATA
-        News[] newses=Data.getNewes();
-
         // Index all Accommodation entries
         for (News news : Data.getNewes()) {
             indexNews(news);

@@ -39,12 +39,6 @@ public class Searcher {
     }
     
     public SpanTermQuery makeSpanTermQuery(String text) {
-    	try {
-			Query query = parser.parse(text);
-		} catch (ParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
     	Term t = new Term("content",text);
         return new SpanTermQuery(t);
     }
