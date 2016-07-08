@@ -53,6 +53,7 @@ public class Utils {
                 break;
             case LIST:
             	// LIST FIELD SHOULD BE CREATED ON ITS OWN
+            	// WARNING! This case should never be reached.
             	field = new ListField<String>(Arrays.asList(fieldValue));
             	break;
         }
@@ -98,6 +99,7 @@ public class Utils {
                 break;
             case LIST:
             	// Lucene doesn't have list field
+            	// WARNING! This case should never be reached.
             	break;
         }
         return luceneField;
