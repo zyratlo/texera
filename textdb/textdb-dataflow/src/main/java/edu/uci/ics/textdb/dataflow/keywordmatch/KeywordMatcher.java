@@ -207,6 +207,7 @@ public class KeywordMatcher implements IOperator {
                                 *
                                  */
                                 boolean isMismatchInSpan=false;// flag to check if a mismatch in spans occurs
+                                
                                 if(iter <= spanForThisField.size()-relevantWordsInQuery.size()){
                                      // To check all the terms in query are verified
                                     for(int i=0; i < relevantWordsInQuery.size()-1; i++) {
@@ -219,15 +220,21 @@ public class KeywordMatcher implements IOperator {
                                             break;
                                         }
                                     }
-                                    if(isMismatchInSpan==true)continue;
+                                    
+                                    if(isMismatchInSpan)
+                                    	continue;
+
+                                    int combinedSpanStartIndex = spanForThisField.get(iter).getStart();
+                                    int combinedSpanEndIndex = spanForThisField.get(iter+relevantWordsInQuery.size()-1).getEnd();
+
+                                    Span combinedSpan = new Span(fieldName, combinedSpanStartIndex, combinedSpanEndIndex, query, fieldValue.substring(combinedSpanStartIndex, combinedSpanEndIndex));
+                                    spanList.add(combinedSpan);
+                                    iter = iter + relevantWordsInQuery.size();
+                                    
+                                } else {
+                                	break;
                                 }
 
-                                int combinedSpanStartIndex = spanForThisField.get(iter).getStart();
-                                int combinedSpanEndIndex = spanForThisField.get(iter+relevantWordsInQuery.size()-1).getEnd();
-
-                                Span combinedSpan = new Span(fieldName, combinedSpanStartIndex, combinedSpanEndIndex, query, fieldValue.substring(combinedSpanStartIndex, combinedSpanEndIndex));
-                                spanList.add(combinedSpan);
-                                iter = iter + relevantWordsInQuery.size();
                             }
                         }
                     }
