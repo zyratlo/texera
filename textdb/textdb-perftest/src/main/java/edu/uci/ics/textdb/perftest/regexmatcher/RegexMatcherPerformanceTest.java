@@ -24,7 +24,7 @@ import edu.uci.ics.textdb.storage.DataStore;
 public class RegexMatcherPerformanceTest {
 	
 	public static void main(String[] args) throws StorageException, IOException, DataFlowException {
-		samplePerformanceTest("./data-files/abstract_1K.txt", "./index/regex_abstract_1K");	
+		samplePerformanceTest("./data-files/ipubmed_abs_present.json", "./index");	
 	}
 
 	public static void samplePerformanceTest(String filePath, String indexPath) 
@@ -46,6 +46,7 @@ public class RegexMatcherPerformanceTest {
 		
 		
 		String regex = "\\bmedic(ine|al|ation|are|aid)?\\b";
+
 		Attribute[] attributeList = new Attribute[]{ MedlineReader.ABSTRACT_ATTR };
 
 		RegexPredicate regexPredicate = new RegexPredicate(

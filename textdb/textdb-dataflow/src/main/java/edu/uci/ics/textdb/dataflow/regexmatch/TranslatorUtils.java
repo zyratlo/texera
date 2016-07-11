@@ -175,9 +175,7 @@ public class TranslatorUtils {
 	static void escapeSpecialCharacters(GramBooleanQuery query) {
 		if (query.operator == QueryOp.LEAF) {
 			for (String specialChar : specialLuceneCharacters) {
-				System.out.println("leaf before:" + query.leaf);
 				query.leaf = query.leaf.replace(specialChar, "\\"+specialChar);
-				System.out.println("leaf after:" + query.leaf);
 			}
 		} else {
 			for (GramBooleanQuery subQuery : query.subQuerySet) {
