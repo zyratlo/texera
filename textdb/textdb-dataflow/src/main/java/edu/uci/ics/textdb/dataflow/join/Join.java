@@ -6,8 +6,14 @@ import edu.uci.ics.textdb.api.dataflow.IOperator;
 
 public class Join implements IOperator{
 	
-	public Join(ITuple outer, ITuple inner, IPredicate joinPredicate) {
-		
+	private ITuple outerTuple;
+	private ITuple innerTuple;
+	private IPredicate joinPredicate;
+	
+	public Join(ITuple outerTuple, ITuple innerTuple, IPredicate joinPredicate) {
+		this.outerTuple = outerTuple;
+		this.innerTuple = innerTuple;
+		this.joinPredicate = joinPredicate;
 	}
 
 	@Override
@@ -28,4 +34,8 @@ public class Join implements IOperator{
 		
 	}
 	
+	public ITuple compareAndJoin() {
+		ITuple result = null;
+		return result;
+	}
 }
