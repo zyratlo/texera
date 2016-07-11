@@ -1,16 +1,17 @@
 package edu.uci.ics.textdb.common.utils;
 
-import java.io.StringReader;
+import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
+import org.apache.lucene.analysis.util.CharArraySet;
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.DateTools;
 import org.apache.lucene.document.DateTools.Resolution;
 import org.apache.lucene.document.Field.Store;
@@ -141,27 +142,42 @@ public class Utils {
      * @return ArrayList<String> list of results
      */
     public static ArrayList<String> tokenizeQuery(Analyzer luceneAnalyzer, String query) {
-        HashSet<String> resultSet = new HashSet<>();
-        ArrayList<String> result = new ArrayList<String>();
-        TokenStream tokenStream  = luceneAnalyzer.tokenStream(null, new StringReader(query));
-        CharTermAttribute charTermAttribute = tokenStream.addAttribute(CharTermAttribute.class);
-
-        try{
-            tokenStream.reset();
-            while (tokenStream.incrementToken()) {
-                String token = charTermAttribute.toString();
-                int tokenIndex = query.toLowerCase().indexOf(token);
-                // Since tokens are converted to lower case,
-                // get the exact token from the query string.
-                String actualQueryToken = query.substring(tokenIndex, tokenIndex+token.length());
-                resultSet.add(actualQueryToken);
-            }
-            tokenStream.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        result.addAll(resultSet);
-
-        return result;
+    	ArrayList<String> result = new ArrayList<String>();
+        TokenStream tokenStream = luceneAnalyzer.tokenStream(null, query);
+        CharTermAttribute term = tokenStream.addAttribute(CharTermAttribute.class);
+        try {
+			tokenStream.reset();
+	        while (tokenStream.incrementToken()) {
+	            result.add(term.toString());
+	        }
+	        tokenStream.end();
+	        tokenStream.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	return result;
     }
+    
+    public static ArrayList<String> tokenizeQueryWithStopwords(String query) {
+    	ArrayList<String> result = new ArrayList<String>();
+    	CharArraySet emptyStopwords = new CharArraySet(1, true);
+    	Analyzer luceneAnalyzer = new StandardAnalyzer(emptyStopwords);
+        TokenStream tokenStream = luceneAnalyzer.tokenStream(null, query);
+        CharTermAttribute term = tokenStream.addAttribute(CharTermAttribute.class);
+        try {
+			tokenStream.reset();
+	        while (tokenStream.incrementToken()) {
+	            result.add(term.toString());
+	        }
+	        tokenStream.end();
+	        tokenStream.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        luceneAnalyzer.close();
+    	return result;
+    }
+    
 }

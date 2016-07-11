@@ -5,10 +5,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.TokenStream;
-import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
-
 import edu.uci.ics.textdb.api.common.Attribute;
 import edu.uci.ics.textdb.api.common.IField;
 import edu.uci.ics.textdb.api.common.IPredicate;
@@ -190,6 +186,8 @@ public class KeywordMatcher implements IOperator {
                         //relevantWordsInQueryOffset maintains the offset position of tokens in query
                         List<Integer> relevantWordsInQueryOffset = new ArrayList<>();
                         
+                        List<String> queryTokensWithStopwords = Utils.tokenizeQueryWithStopwords(query);
+                        
                         /*
                         queryTokens are split using analyzer. queryArray needs to be to split with spaces for the
                         logic which is following. analyser will remove the stop words , so we wont relative position
@@ -197,9 +195,12 @@ public class KeywordMatcher implements IOperator {
 
                          */
                         if (allTokenPresent) {
-                            for(int iter = 0; iter < queryTokens.size(); iter++){
-                                relevantWordsInQuery.add(queryTokens.get(iter));
-                                relevantWordsInQueryOffset.add(iter);                           
+                            for(int iter = 0; iter < queryTokensWithStopwords.size(); iter++){
+                                if (queryTokens.contains(queryTokensWithStopwords.get(iter))) {
+                                    relevantWordsInQuery.add(queryTokensWithStopwords.get(iter));
+                                    relevantWordsInQueryOffset.add(iter);  
+                                }
+                            
                             }
 
                             int iter = 0; // maintains position of term being checked in spanForThisField list
@@ -225,7 +226,7 @@ public class KeywordMatcher implements IOperator {
                                     }
                                     
                                     if(isMismatchInSpan)
-                                    	continue;
+                                        continue;
 
                                     int combinedSpanStartIndex = spanForThisField.get(iter).getStart();
                                     int combinedSpanEndIndex = spanForThisField.get(iter+relevantWordsInQuery.size()-1).getEnd();
@@ -235,7 +236,7 @@ public class KeywordMatcher implements IOperator {
                                     iter = iter + relevantWordsInQuery.size();
                                     
                                 } else {
-                                	break;
+                                    break;
                                 }
 
                             }
