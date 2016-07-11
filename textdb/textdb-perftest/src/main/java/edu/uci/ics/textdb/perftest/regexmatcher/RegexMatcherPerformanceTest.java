@@ -24,7 +24,7 @@ import edu.uci.ics.textdb.storage.DataStore;
 public class RegexMatcherPerformanceTest {
 	
 	public static void main(String[] args) throws StorageException, IOException, DataFlowException {
-		samplePerformanceTest("./data-files/ipubmed_abs_present.json", "./index");	
+		samplePerformanceTest("./data-files/abstract_1K.txt", "./index/regex_abstract_1K");	
 	}
 
 	public static void samplePerformanceTest(String filePath, String indexPath) 
