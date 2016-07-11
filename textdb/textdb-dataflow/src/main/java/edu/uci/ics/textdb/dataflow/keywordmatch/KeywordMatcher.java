@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+
 import edu.uci.ics.textdb.api.common.Attribute;
 import edu.uci.ics.textdb.api.common.IField;
 import edu.uci.ics.textdb.api.common.IPredicate;
@@ -122,7 +123,7 @@ public class KeywordMatcher implements IOperator {
             for(int attributeIndex = 0; attributeIndex < attributeList.size(); attributeIndex++) {
                 String fieldName = attributeList.get(attributeIndex).getFieldName();
                 IField field = sourceTuple.getField(fieldName);
-                String fieldValue = (String) (field).getValue();
+                String fieldValue = (field).getValue().toString();
 
                 if (!(field instanceof TextField)) {
 
