@@ -46,6 +46,8 @@ public class RegexToGramQueryTranslator {
 		GramBooleanQuery dnf = GramBooleanQuery.toDNF(result);
 		GramBooleanQuery simplifiedDNF = GramBooleanQuery.simplifyDNF(dnf);
 		
+	    TranslatorUtils.escapeSpecialCharacters(simplifiedDNF);
+		
 		return simplifiedDNF;
 	}
 
@@ -65,7 +67,6 @@ public class RegexToGramQueryTranslator {
 	    
 	    RegexInfo regexInfo = analyze(re);
 	    regexInfo.simplify(true);
-	    TranslatorUtils.escapeSpecialCharacters(regexInfo.match);
 	    
 		TranslatorUtils.GRAM_LENGTH = TranslatorUtils.DEFAULT_GRAM_LENGTH;
 	    
