@@ -20,6 +20,7 @@ import edu.uci.ics.textdb.common.constants.SchemaConstants;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
 import edu.uci.ics.textdb.common.field.Span;
 import edu.uci.ics.textdb.common.field.TextField;
+import edu.uci.ics.textdb.common.utils.Utils;
 import edu.uci.ics.textdb.dataflow.common.KeywordPredicate;
 import edu.uci.ics.textdb.dataflow.source.IndexBasedSourceOperator;
 import edu.uci.ics.textdb.storage.DataReaderPredicate;
@@ -127,7 +128,7 @@ public class KeywordMatcher implements IOperator {
             for(int attributeIndex = 0; attributeIndex < attributeList.size(); attributeIndex++) {
                 String fieldName = attributeList.get(attributeIndex).getFieldName();
                 IField field = sourceTuple.getField(fieldName);
-                String fieldValue = (String) (field).getValue();
+                String fieldValue = (field).getValue().toString();
 
                 if (!(field instanceof TextField)) {
 
@@ -189,19 +190,6 @@ public class KeywordMatcher implements IOperator {
                         //relevantWordsInQueryOffset maintains the offset position of tokens in query
                         List<Integer> relevantWordsInQueryOffset = new ArrayList<>();
                         
-                        ArrayList<String> queryArray = new ArrayList<String>();
-                        // Tokenize query according to lucene anazlyer
-                        TokenStream tokenStream = this.predicate.getLuceneAnalyzer().tokenStream(fieldName, query);
-                        CharTermAttribute term = tokenStream.addAttribute(CharTermAttribute.class);
-                        
-                        tokenStream.reset();
-                        while (tokenStream.incrementToken()) {
-                            System.out.println(term.toString());
-                            queryArray.add(term.toString());
-                        }
-                        tokenStream.end();
-                        tokenStream.close();
-                        
                         /*
                         queryTokens are split using analyzer. queryArray needs to be to split with spaces for the
                         logic which is following. analyser will remove the stop words , so we wont relative position
@@ -209,11 +197,9 @@ public class KeywordMatcher implements IOperator {
 
                          */
                         if (allTokenPresent) {
-                            for(int iter = 0; iter < queryArray.size(); iter++){
-                                if(queryTokens.contains(queryArray.get(iter))){
-                                    relevantWordsInQuery.add(queryArray.get(iter));
-                                    relevantWordsInQueryOffset.add(iter);
-                                }
+                            for(int iter = 0; iter < queryTokens.size(); iter++){
+                                relevantWordsInQuery.add(queryTokens.get(iter));
+                                relevantWordsInQueryOffset.add(iter);                           
                             }
 
                             int iter = 0; // maintains position of term being checked in spanForThisField list
