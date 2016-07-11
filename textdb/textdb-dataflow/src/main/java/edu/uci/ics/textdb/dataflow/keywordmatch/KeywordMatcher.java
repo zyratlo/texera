@@ -5,6 +5,10 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
+
 import edu.uci.ics.textdb.api.common.Attribute;
 import edu.uci.ics.textdb.api.common.IField;
 import edu.uci.ics.textdb.api.common.IPredicate;
@@ -184,7 +188,20 @@ public class KeywordMatcher implements IOperator {
                         List<String> relevantWordsInQuery = new ArrayList<>();
                         //relevantWordsInQueryOffset maintains the offset position of tokens in query
                         List<Integer> relevantWordsInQueryOffset = new ArrayList<>();
-                        String[] queryArray = query.split(" ");
+                        
+                        ArrayList<String> queryArray = new ArrayList<String>();
+                        // Tokenize query according to lucene anazlyer
+                        TokenStream tokenStream = this.predicate.getLuceneAnalyzer().tokenStream(fieldName, query);
+                        CharTermAttribute term = tokenStream.addAttribute(CharTermAttribute.class);
+                        
+                        tokenStream.reset();
+                        while (tokenStream.incrementToken()) {
+                            System.out.println(term.toString());
+                            queryArray.add(term.toString());
+                        }
+                        tokenStream.end();
+                        tokenStream.close();
+                        
                         /*
                         queryTokens are split using analyzer. queryArray needs to be to split with spaces for the
                         logic which is following. analyser will remove the stop words , so we wont relative position
@@ -192,9 +209,9 @@ public class KeywordMatcher implements IOperator {
 
                          */
                         if (allTokenPresent) {
-                            for(int iter = 0; iter < queryArray.length; iter++){
-                                if(queryTokens.contains(queryArray[iter])){
-                                    relevantWordsInQuery.add(queryArray[iter]);
+                            for(int iter = 0; iter < queryArray.size(); iter++){
+                                if(queryTokens.contains(queryArray.get(iter))){
+                                    relevantWordsInQuery.add(queryArray.get(iter));
                                     relevantWordsInQueryOffset.add(iter);
                                 }
                             }
