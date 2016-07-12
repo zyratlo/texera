@@ -189,8 +189,59 @@ public class Utils {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        
+        luceneAnalyzer.close();
 
         return result;
+    }
+    
+    public static String getTupleString(ITuple tuple) {
+    	StringBuilder sb = new StringBuilder();
+    	
+    	Schema schema = tuple.getSchema();
+    	for (Attribute attribute : schema.getAttributes()) {
+    		if (attribute.getFieldName().equals(SchemaConstants.SPAN_LIST)) {
+    			List<Span> spanList = ((ListField<Span>) tuple.getField(SchemaConstants.SPAN_LIST)).getValue();
+    			sb.append(getSpanListString(spanList));
+    			sb.append("\n");
+    		}
+    		else {
+    			sb.append(attribute.getFieldName());
+    			sb.append("(");
+    			sb.append(attribute.getFieldType().toString());
+    			sb.append(")");
+    			sb.append(": ");
+    			sb.append(tuple.getField(attribute.getFieldName()).getValue().toString());
+    			sb.append("\n");
+    		}
+    	}
+    	
+    	return sb.toString();
+    }
+    
+    public static String getSpanListString(List<Span> spanList) {
+    	StringBuilder sb = new StringBuilder();
+    	
+    	sb.append("span list:\n");
+    	for (Span span : spanList) {
+    		sb.append(getSpanString(span));
+    		sb.append("\n");
+    	}
+    	
+    	return sb.toString();
+    }
+    
+    public static String getSpanString(Span span) {
+    	StringBuilder sb = new StringBuilder();
+    	
+    	sb.append("field: "+span.getFieldName()+"\n");
+    	sb.append("start: "+span.getStart()+"\n");
+    	sb.append("end:   "+span.getEnd()+"\n");
+    	sb.append("key:   "+span.getKey()+"\n");
+    	sb.append("value: "+span.getValue()+"\n");
+    	sb.append("token offset: "+span.getTokenOffset()+"\n");
+    	
+    	return sb.toString();
     }
     
 }

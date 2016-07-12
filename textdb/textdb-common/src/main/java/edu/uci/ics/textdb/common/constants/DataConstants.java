@@ -12,7 +12,7 @@ public class DataConstants {
     public static final String SCAN_QUERY = "*:*";
     public static final int MAX_RESULTS = 100;
     
-    public static enum SourceOperatorType {
+    public static enum DictionaryOperatorType {
         SCANOPERATOR, KEYWORDOPERATOR, PHRASEOPERATOR
     };
 
