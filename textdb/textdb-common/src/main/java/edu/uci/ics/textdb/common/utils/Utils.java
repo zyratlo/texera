@@ -1,5 +1,6 @@
 package edu.uci.ics.textdb.common.utils;
 
+import java.io.IOException;
 import java.io.StringReader;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -11,6 +12,8 @@ import java.util.List;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
+import org.apache.lucene.analysis.util.CharArraySet;
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.DateTools;
 import org.apache.lucene.document.DateTools.Resolution;
 import org.apache.lucene.document.Field.Store;
@@ -164,4 +167,30 @@ public class Utils {
 
         return result;
     }
+    
+    public static ArrayList<String> tokenizeQueryWithStopwords(String query) {    	
+        ArrayList<String> result = new ArrayList<String>();
+    	CharArraySet emptyStopwords = new CharArraySet(1, true);
+    	Analyzer luceneAnalyzer = new StandardAnalyzer(emptyStopwords);
+        TokenStream tokenStream  = luceneAnalyzer.tokenStream(null, new StringReader(query));
+        CharTermAttribute term = tokenStream.addAttribute(CharTermAttribute.class);
+
+        try{
+            tokenStream.reset();
+            while (tokenStream.incrementToken()) {
+                String token = term.toString();
+                int tokenIndex = query.toLowerCase().indexOf(token);
+                // Since tokens are converted to lower case,
+                // get the exact token from the query string.
+                String actualQueryToken = query.substring(tokenIndex, tokenIndex+token.length());
+                result.add(actualQueryToken);
+            }
+            tokenStream.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return result;
+    }
+    
 }
