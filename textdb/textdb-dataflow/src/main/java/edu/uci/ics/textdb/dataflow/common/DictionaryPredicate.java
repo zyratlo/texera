@@ -47,6 +47,10 @@ public class DictionaryPredicate implements IPredicate {
     public DictionaryOperatorType getSourceOperatorType() {
         return srcOpType;
     }
+    
+    public void resetDictCursor() {
+    	dictionary.resetCursor();
+    }
 
     public String getNextDictEntry() {
         return dictionary.getNextValue();

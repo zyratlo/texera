@@ -34,11 +34,10 @@ public class DictionaryMatcher implements IOperator {
     private ITuple currentTuple;
     private String currentDictEntry;
 
-
     private final DictionaryPredicate predicate;
 
     /**
-     * 
+     * Constructs a DictionaryMatcher with a dictionary predicate
      * @param predicate
      * 
      */
@@ -49,23 +48,22 @@ public class DictionaryMatcher implements IOperator {
     }
 
     /**
-     * @about Opens dictionary matcher. Initializes positionIndex and fieldIndex
-     *        Gets first sourceoperator tuple and dictionary value.
+     * @about Opens dictionary matcher. Must call open() before calling getNextTuple().
      */
     @Override
     public void open() throws DataFlowException {
         try {	
-            currentDictEntry = predicate.getNextDictEntry();
+        	currentDictEntry = predicate.getNextDictEntry();
             if (currentDictEntry == null) {
             	throw new DataFlowException("Dictionary is empty");
             }
-
-            if (predicate.getSourceOperatorType() == DataConstants.DictionaryOperatorType.PHRASEOPERATOR) {
+            
+            if (predicate.getSourceOperatorType() == DataConstants.DictionaryOperatorType.KEYWORD_PHRASE) {
                 KeywordPredicate keywordPredicate = new KeywordPredicate(currentDictEntry, predicate.getAttributeList(),
                         KeywordOperatorType.PHRASE, predicate.getAnalyzer(), predicate.getDataStore());
                 sourceOperator = new KeywordMatcher(keywordPredicate);
                 sourceOperator.open();
-            } else if (predicate.getSourceOperatorType() == DataConstants.DictionaryOperatorType.KEYWORDOPERATOR) {
+            } else if (predicate.getSourceOperatorType() == DataConstants.DictionaryOperatorType.KEYWORD_BASIC) {
                 KeywordPredicate keywordPredicate = new KeywordPredicate(currentDictEntry, predicate.getAttributeList(),
                         KeywordOperatorType.BASIC, predicate.getAnalyzer(), predicate.getDataStore());
                 sourceOperator = new KeywordMatcher(keywordPredicate);
@@ -81,48 +79,39 @@ public class DictionaryMatcher implements IOperator {
     }
 
     /**
-     * @about Gets next matched tuple. Returns a new span tuple including the
-     *        span results. Performs a scan, keyword or a phrase based search
-     *        depending on the sourceoperator type, gets the dictionary value
-     *        and scans the documents for matches Presently 2 types of
-     *        KeywordOperatorType are supported:
+     * @about Gets next matched tuple. <br>
+     * 		  Returns the tuple with results in spanList. <br>
      * 
-     *        SourceOperatorType.SCANOPERATOR:
+     * 		  Performs SCAN, KEYWORD_BASIC, or KEYWORD_PHRASE depends on the 
+     * 		  dictionary predicate. <br> 
      * 
-     *        Loop through the dictionary entries. For each dictionary entry,
-     *        loop through the tuples in the operator. For each tuple, loop
-     *        through the fields in the attributelist. For each field, loop
-     *        through all the matches. Returns only one tuple per document. If
-     *        there are multiple matches, all spans are included in a list. Java
-     *        Regex is used to match word boundaries.
-     * 
-     *        Ex: If dictionary word is "Lin", and text is
-     *        "Lin is Angelina's friend", matches should include Lin but not
-     *        Angelina.
-     * 
-     *        SourceOperatorType.KEYWORDOPERATOR:
-     * 
-     *        Loop through the dictionary entries. For each dictionary entry,
-     *        keywordmatcher's getNextTuple is called using
-     *        KeyWordOperator.BASIC. Updates span information at the end of the
-     *        tuple.
-     * 
-     *        SourceOperatorType.PHRASEOPERATOR:
-     * 
-     *        Loop through the dictionary entries. For each dictionary entry,
-     *        keywordmatcher's getNextTuple is called using
-     *        KeyWordOperator.PHRASE. The span returned is the span information
-     *        provided by the keywordmatcher's phrase operator.
-     * 
+     *        DictionaryOperatorType.SCAN: <br>
+     *        Scan the document using ScanSourceOperator. <br>
+     *        For each tuple from the document, loop through the dictionary 
+     *        and find results. <br> <br>
+     *        
+     *        DictionaryOperatorType.KEYWORD_BASIC, KEYWORD_PHRASE: <br>
+     *        Use KeywordMatcher to find results. <br>
+     *        
+     *        KEYWORD_BASIC corresponds to KeywordOperatorType.BASIC, which
+     *        performs keyword search on the document. The input query is tokenized.
+     *        The order of the tokens doesn't matter. <br>
+     *        
+     *        KEYWORD_PHRASE corresponds to KeywordOperatorType.PHRASE, which
+     *        performs phrase search on the document. The input query is tokenized.
+     *        The order of the tokens does matter. Stopwords are treated as placeholders 
+     *        to indicate an arbitary token. <br>
+     *        
      */
     @Override
     public ITuple getNextTuple() throws Exception {
-    	if (predicate.getSourceOperatorType() == DataConstants.DictionaryOperatorType.PHRASEOPERATOR
-    	||  predicate.getSourceOperatorType() == DataConstants.DictionaryOperatorType.KEYWORDOPERATOR) {
+    	if (predicate.getSourceOperatorType() == DataConstants.DictionaryOperatorType.KEYWORD_PHRASE
+    	||  predicate.getSourceOperatorType() == DataConstants.DictionaryOperatorType.KEYWORD_BASIC) {
+    		// for each dictionary entry
+    		// get all result from KeywordMatcher
     		
-    		ITuple nextTuple = null;
-            if ((nextTuple = sourceOperator.getNextTuple()) != null) {
-                return nextTuple;
+            if ((currentTuple = sourceOperator.getNextTuple()) != null) {
+            	return currentTuple;
             }
             
 			if ((currentDictEntry = predicate.getNextDictEntry()) == null) {
@@ -130,7 +119,7 @@ public class DictionaryMatcher implements IOperator {
 			}
 			
 			KeywordOperatorType keywordOperatorType;
-			if (predicate.getSourceOperatorType() == DataConstants.DictionaryOperatorType.PHRASEOPERATOR) {
+			if (predicate.getSourceOperatorType() == DataConstants.DictionaryOperatorType.KEYWORD_PHRASE) {
 				keywordOperatorType = KeywordOperatorType.PHRASE;
 			} else {
 				keywordOperatorType = KeywordOperatorType.BASIC;
@@ -146,16 +135,25 @@ public class DictionaryMatcher implements IOperator {
 			return getNextTuple();
         }
     	else {
-    		if (currentDictEntry == null) {
-    			return null;
+    		// for each tuple
+    		// iterate through the dictionary
+    		
+    		if (currentTuple == null) {
+    			if ((currentTuple = sourceOperator.getNextTuple()) == null) {
+    				return null;
+    			}
     		}
     		
-    		if ((currentTuple = sourceOperator.getNextTuple()) == null) {
+    		if (currentDictEntry == null) {
+    			predicate.resetDictCursor();
     			currentDictEntry = predicate.getNextDictEntry();
+    			currentTuple = sourceOperator.getNextTuple();
     			return getNextTuple();
     		}
     		    		
     		ITuple result = matchTuple(currentDictEntry, currentTuple);
+    		
+    		currentDictEntry = predicate.getNextDictEntry();
     		
     		if (result == currentTuple) {
     			return getNextTuple();

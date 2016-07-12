@@ -13,7 +13,7 @@ public class DataConstants {
     public static final int MAX_RESULTS = 100;
     
     public static enum DictionaryOperatorType {
-        SCANOPERATOR, KEYWORDOPERATOR, PHRASEOPERATOR
+        SCAN, KEYWORD_BASIC, KEYWORD_PHRASE
     };
 
     public static  enum KeywordOperatorType{

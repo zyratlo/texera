@@ -90,4 +90,11 @@ public class Dictionary implements IDictionary {
             return -1;
         }
     }
+    /**
+     * Reset the cursor of dictionary
+     */
+    @Override
+    public void resetCursor() {
+        iterator = wordFrequencyMap.keySet().iterator();
+    }
 }

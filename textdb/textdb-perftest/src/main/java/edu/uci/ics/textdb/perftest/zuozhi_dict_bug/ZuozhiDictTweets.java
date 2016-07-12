@@ -40,7 +40,7 @@ public class ZuozhiDictTweets {
 						dictionary, 
 						new StandardAnalyzer(),
 						Arrays.asList(TweetsConstants.TEXT_ATTR),
-						DictionaryOperatorType.PHRASEOPERATOR,
+						DictionaryOperatorType.KEYWORD_PHRASE,
 						dataStore);
 		
 		DictionaryMatcher dictionaryMatcher = 
