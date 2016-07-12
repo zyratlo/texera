@@ -240,7 +240,7 @@ public class PhraseMatcherTest {
     }
 
     /**
-     * Verifies: Query with Stop Words match corresponding phrases with Medline data
+     * Verifies: Query with Stop Words match corresponding phrases in the document
      * @throws Exception
      */
     @Test
@@ -414,7 +414,7 @@ public class PhraseMatcherTest {
 
         //Prepare expected result list
         List<Span> list = new ArrayList<>();
-        Span span1 = new Span(keywordTestConstants.ABSTRACT, 28, 33, "gain weight", "gain weight");
+        Span span1 = new Span(keywordTestConstants.ABSTRACT, 26, 37, "gain weight", "gain weight");
 
         list.add(span1);
 
