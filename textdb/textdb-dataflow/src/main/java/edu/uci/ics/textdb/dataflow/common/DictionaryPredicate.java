@@ -48,7 +48,7 @@ public class DictionaryPredicate implements IPredicate {
         return srcOpType;
     }
 
-    public String getNextDictionaryValue() {
+    public String getNextDictEntry() {
         return dictionary.getNextValue();
     }
 

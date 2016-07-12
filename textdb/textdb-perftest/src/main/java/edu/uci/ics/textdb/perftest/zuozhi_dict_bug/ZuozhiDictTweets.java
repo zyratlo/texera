@@ -1,7 +1,6 @@
 package edu.uci.ics.textdb.perftest.zuozhi_dict_bug;
 
 import java.io.FileNotFoundException;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -13,15 +12,12 @@ import edu.uci.ics.textdb.api.common.IDictionary;
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.common.constants.DataConstants;
 import edu.uci.ics.textdb.common.constants.DataConstants.DictionaryOperatorType;
-import edu.uci.ics.textdb.common.constants.TestConstants;
 import edu.uci.ics.textdb.common.exception.StorageException;
 import edu.uci.ics.textdb.common.field.ListField;
 import edu.uci.ics.textdb.common.field.Span;
 import edu.uci.ics.textdb.dataflow.common.Dictionary;
 import edu.uci.ics.textdb.dataflow.common.DictionaryPredicate;
-import edu.uci.ics.textdb.dataflow.common.KeywordPredicate;
 import edu.uci.ics.textdb.dataflow.dictionarymatcher.DictionaryMatcher;
-import edu.uci.ics.textdb.dataflow.keywordmatch.KeywordMatcher;
 import edu.uci.ics.textdb.perftest.medline.MedlineIndexWriter;
 import edu.uci.ics.textdb.perftest.medline.MedlineReader;
 import edu.uci.ics.textdb.storage.DataStore;
@@ -36,7 +32,7 @@ public class ZuozhiDictTweets {
 		
 		ArrayList<String> dictList = new ArrayList<>();
 		
-		dictList.add("adfadsdsdsd");
+		dictList.add("zika-virus");
 		IDictionary dictionary = new Dictionary(dictList);
 
 		DictionaryPredicate dictionaryPredicate = 
@@ -44,7 +40,7 @@ public class ZuozhiDictTweets {
 						dictionary, 
 						new StandardAnalyzer(),
 						Arrays.asList(TweetsConstants.TEXT_ATTR),
-						DictionaryOperatorType.KEYWORDOPERATOR,
+						DictionaryOperatorType.PHRASEOPERATOR,
 						dataStore);
 		
 		DictionaryMatcher dictionaryMatcher = 

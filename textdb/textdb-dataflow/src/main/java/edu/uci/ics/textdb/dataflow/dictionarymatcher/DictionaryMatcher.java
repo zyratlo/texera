@@ -29,8 +29,11 @@ import edu.uci.ics.textdb.dataflow.keywordmatch.KeywordMatcher;
 public class DictionaryMatcher implements IOperator {
 
     private IOperator sourceOperator;
-    private String currentDictEntry;
     private Schema spanSchema;
+    
+    private ITuple currentTuple;
+    private String currentDictEntry;
+
 
     private final DictionaryPredicate predicate;
 
@@ -52,7 +55,7 @@ public class DictionaryMatcher implements IOperator {
     @Override
     public void open() throws DataFlowException {
         try {	
-            currentDictEntry = predicate.getNextDictionaryValue();
+            currentDictEntry = predicate.getNextDictEntry();
             if (currentDictEntry == null) {
             	throw new DataFlowException("Dictionary is empty");
             }
@@ -122,7 +125,7 @@ public class DictionaryMatcher implements IOperator {
                 return nextTuple;
             }
             
-			if ((currentDictEntry = predicate.getNextDictionaryValue()) == null) {
+			if ((currentDictEntry = predicate.getNextDictEntry()) == null) {
 				return null;
 			}
 			
@@ -143,13 +146,18 @@ public class DictionaryMatcher implements IOperator {
 			return getNextTuple();
         }
     	else {
-    		ITuple nextTuple = null;
-    		if ((nextTuple = sourceOperator.getNextTuple()) == null) {
+    		if (currentDictEntry == null) {
     			return null;
     		}
     		
-    		ITuple result = matchTuple(currentDictEntry, nextTuple);
-    		if (result == nextTuple) {
+    		if ((currentTuple = sourceOperator.getNextTuple()) == null) {
+    			currentDictEntry = predicate.getNextDictEntry();
+    			return getNextTuple();
+    		}
+    		    		
+    		ITuple result = matchTuple(currentDictEntry, currentTuple);
+    		
+    		if (result == currentTuple) {
     			return getNextTuple();
     		} else {
     			return result;
