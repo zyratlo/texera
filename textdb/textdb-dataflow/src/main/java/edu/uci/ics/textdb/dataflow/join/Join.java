@@ -36,31 +36,15 @@ public class Join implements IOperator{
 
 	/**
 	 * Gets the next tuple which is a joint of two tuples which passed the criteria set in the JoinPredicate.
+	 * <br> Example in JoinPredicate.java
 	 * 
-	 * <p>
-	 * Example 1:
-	 * JoinPredicate joinPre = new JoinPredicate(ID_ATTR, DESCRIPTION_ATTR, ID_ATTR, DESCRIPTION_ATTR, 10);
-	 * Join join = new Join(regexMatcher, keywordMatcher, joinPre);
-	 * 
-	 * if the ID's of both the documents are same and if the spans are 10 characters apart, the spans are 
-	 * joined.
-	 * </p>
-	 * <p>
-	 * Example 2:
-	 * JoinPredicate joinPre = new JoinPredicate(ID_ATTR, DESCRIPTION_ATTR, ID_ATTR, AUTHOR_ATTR, 10);
-	 * Join join = new Join(regexMatcher, keywordMatcher, joinPre);
-	 * 
-	 * even if the ID's of both the documents are same, since the attributes to be joined upon are different,
-	 * join won't take place.
-	 * </p>
-	 * 
-	 * @return result the resulting joint tuple
+	 * @return nextTuple
 	 */
 	@Override
 	public ITuple getNextTuple() throws Exception {
 		// TODO Auto-generated method stub
-		ITuple result = null;
-		return result;
+		ITuple nextTuple = null;
+		return nextTuple;
 	}
 
 	@Override
