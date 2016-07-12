@@ -5,8 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.custom.CustomAnalyzer;
-import org.apache.lucene.analysis.ngram.NGramTokenizerFactory;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.junit.After;
@@ -15,6 +13,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import edu.uci.ics.textdb.api.common.Attribute;
+import edu.uci.ics.textdb.api.common.FieldType;
 import edu.uci.ics.textdb.api.common.IField;
 import edu.uci.ics.textdb.api.common.IPredicate;
 import edu.uci.ics.textdb.api.common.ITuple;
@@ -279,7 +278,7 @@ public class PhraseMatcherTest {
         boolean contains = TestUtils.containsAllResults(expectedResultList, resultList);
         Assert.assertTrue(contains);
     }
-    
+
     /**
      * Verifies: Query with Stop Words match corresponding phrases with Medline data
      * @throws Exception with Medline data
@@ -332,8 +331,6 @@ public class PhraseMatcherTest {
         while ((nextTuple = KeywordMatcher.getNextTuple()) != null) {
             results.add(nextTuple);
         }
-        System.out.println(results);
-        System.out.println(expectedResultList);
         //Perform Check
         boolean contains = TestUtils.containsAllResults(expectedResultList, results);
         Assert.assertTrue(contains);
@@ -358,7 +355,7 @@ public class PhraseMatcherTest {
 
         //Prepare expected result list
         List<Span> list = new ArrayList<>();
-        Span span1 = new Span(keywordTestConstants.ABSTRACT, 28, 33, "x-ray", "x-ray");
+        Span span1 = new Span(keywordTestConstants.ABSTRACT, 226, 231, "x-ray", "x-ray");
 
         list.add(span1);
 
@@ -371,7 +368,7 @@ public class PhraseMatcherTest {
 	    IField [] fields = {new IntegerField(17832788), new TextField(""), new TextField("Cosmic X-ray Sources."),
 		new TextField("S Bowyer, E T Byram, T A Chubb, H Friedman"), new StringField("147-3656 Jan 22, 1965"), new TextField("Science (New York, N.Y.)"), new TextField(""),
 		new TextField(""), new TextField("Eight new sources of cosmic x-rays were detected by two Aerobee surveys in 1964. One source, from Sagittarius, is close to the galactic center, and the other, "
-				+ "from Ophiuchus, may coincide with Kepler's 1604 supernova. All the x-ray sources are fairly close to the galactic plane."), new DoubleField(0.667832788)};
+				+ "from Ophiuchus, may coincide with Kepler's 1604 supernova. All the x-ray sources are fairly close to the galactic plane."), new DoubleField(0.667832788), new ListField<>(list)};
 
         ITuple tuple1 = new DataTuple(new Schema(schemaAttributes), fields);
         List<ITuple> expectedResultList = new ArrayList<>();
@@ -388,8 +385,6 @@ public class PhraseMatcherTest {
         while ((nextTuple = KeywordMatcher.getNextTuple()) != null) {
             results.add(nextTuple);
         }
-        System.out.println(results);
-        System.out.println(expectedResultList);
         //Perform Check
         boolean contains = TestUtils.containsAllResults(expectedResultList, results);
         Assert.assertTrue(contains);
@@ -437,7 +432,7 @@ public class PhraseMatcherTest {
 	    				+ "life. Its bacteriostatic effect on specific E. coli may be of practical significance in feed preparations where "
 	    				+ "terminal sterilization and refrigeration are not available. The study was conducted during the week after birth, and "
 	    				+ "no conclusions are derived for older infants. The long-term effects of trometamol are unknown. No recommendation can "
-	    				+ "be given for the addition of sodium bicarbonate to milks containing a higher content of sodium."), new DoubleField(0.667832788)};
+	    				+ "be given for the addition of sodium bicarbonate to milks containing a higher content of sodium."), new DoubleField(0.667832788), new ListField<>(list)};
 	    
 
         ITuple tuple1 = new DataTuple(new Schema(schemaAttributes), fields);
@@ -455,12 +450,9 @@ public class PhraseMatcherTest {
         while ((nextTuple = KeywordMatcher.getNextTuple()) != null) {
             results.add(nextTuple);
         }
-        System.out.println(results);
-        System.out.println(expectedResultList);
         //Perform Check
         boolean contains = TestUtils.containsAllResults(expectedResultList, results);
         Assert.assertTrue(contains);
     }
-
 
 }
