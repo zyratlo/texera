@@ -14,7 +14,7 @@ import edu.uci.ics.textdb.api.dataflow.IOperator;
 import edu.uci.ics.textdb.api.storage.IDataReader;
 import edu.uci.ics.textdb.api.storage.IDataStore;
 import edu.uci.ics.textdb.common.constants.DataConstants;
-import edu.uci.ics.textdb.common.constants.DataConstants.DictionaryOperatorType;
+import edu.uci.ics.textdb.common.constants.DataConstants.KeywordMatchingType;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
 import edu.uci.ics.textdb.dataflow.source.ScanBasedSourceOperator;
 import edu.uci.ics.textdb.storage.DataReaderPredicate;
@@ -26,7 +26,7 @@ public class DictionaryPredicate implements IPredicate {
     private Analyzer luceneAnalyzer;
     private List<Attribute> attributeList;
     private IDataStore dataStore;
-    private DictionaryOperatorType srcOpType;
+    private KeywordMatchingType srcOpType;
     
     /*
     dictionary refers to list of phrases to search for.
@@ -35,7 +35,7 @@ public class DictionaryPredicate implements IPredicate {
      */
 
     public DictionaryPredicate(IDictionary dictionary, Analyzer luceneAnalyzer, List<Attribute> attributeList,
-            DictionaryOperatorType srcOpType, IDataStore dataStore) {
+            KeywordMatchingType srcOpType, IDataStore dataStore) {
 
         this.dictionary = dictionary;
         this.luceneAnalyzer = luceneAnalyzer;
@@ -44,7 +44,7 @@ public class DictionaryPredicate implements IPredicate {
         this.dataStore = dataStore;
     }
 
-    public DictionaryOperatorType getSourceOperatorType() {
+    public KeywordMatchingType getSourceOperatorType() {
         return srcOpType;
     }
     

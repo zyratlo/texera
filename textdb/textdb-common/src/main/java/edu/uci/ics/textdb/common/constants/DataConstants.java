@@ -12,11 +12,8 @@ public class DataConstants {
     public static final String SCAN_QUERY = "*:*";
     public static final int MAX_RESULTS = 100;
     
-    public static enum DictionaryOperatorType {
-        SCAN, KEYWORD_BASIC, KEYWORD_PHRASE
+    public static enum KeywordMatchingType {
+        SUBSTRING_SCANBASED, CONJUNCTION_INDEXBASED, PHRASE_INDEXBASED
     };
-
-    public static  enum KeywordOperatorType{
-        BASIC, PHRASE
-    }
+    
 }

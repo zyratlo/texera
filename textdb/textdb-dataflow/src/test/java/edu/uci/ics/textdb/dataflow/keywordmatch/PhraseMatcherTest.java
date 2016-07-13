@@ -75,7 +75,7 @@ public class PhraseMatcherTest {
 
     public List<ITuple> getPeopleQueryResults(String query, ArrayList<Attribute> attributeList) throws DataFlowException, ParseException {
 
-        IPredicate predicate = new KeywordPredicate(query, attributeList, DataConstants.KeywordOperatorType.PHRASE, luceneAnalyzer, dataStore);
+        IPredicate predicate = new KeywordPredicate(query, attributeList, DataConstants.KeywordMatchingType.PHRASE_INDEXBASED, luceneAnalyzer, dataStore);
         KeywordMatcher = new KeywordMatcher(predicate);
         KeywordMatcher.open();
 
@@ -321,7 +321,7 @@ public class PhraseMatcherTest {
         expectedResultList.add(tuple1);
 
         //Perform Query
-        IPredicate predicate = new KeywordPredicate(query, attributeList, DataConstants.KeywordOperatorType.PHRASE, MedAnalyzer, MedDataStore);
+        IPredicate predicate = new KeywordPredicate(query, attributeList, DataConstants.KeywordMatchingType.PHRASE_INDEXBASED, MedAnalyzer, MedDataStore);
         KeywordMatcher = new KeywordMatcher(predicate);
         KeywordMatcher.open();
 
@@ -375,7 +375,7 @@ public class PhraseMatcherTest {
         expectedResultList.add(tuple1);
 
         //Perform Query
-        IPredicate predicate = new KeywordPredicate(query, attributeList, DataConstants.KeywordOperatorType.PHRASE, MedAnalyzer, MedDataStore);
+        IPredicate predicate = new KeywordPredicate(query, attributeList, DataConstants.KeywordMatchingType.PHRASE_INDEXBASED, MedAnalyzer, MedDataStore);
         KeywordMatcher = new KeywordMatcher(predicate);
         KeywordMatcher.open();
 
@@ -440,7 +440,7 @@ public class PhraseMatcherTest {
         expectedResultList.add(tuple1);
 
         //Perform Query
-        IPredicate predicate = new KeywordPredicate(query, attributeList, DataConstants.KeywordOperatorType.PHRASE, MedAnalyzer, MedDataStore);
+        IPredicate predicate = new KeywordPredicate(query, attributeList, DataConstants.KeywordMatchingType.PHRASE_INDEXBASED, MedAnalyzer, MedDataStore);
         KeywordMatcher = new KeywordMatcher(predicate);
         KeywordMatcher.open();
 

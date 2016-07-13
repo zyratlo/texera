@@ -13,7 +13,7 @@ import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.common.Schema;
 import edu.uci.ics.textdb.api.dataflow.IOperator;
 import edu.uci.ics.textdb.common.constants.DataConstants;
-import edu.uci.ics.textdb.common.constants.DataConstants.KeywordOperatorType;
+import edu.uci.ics.textdb.common.constants.DataConstants.KeywordMatchingType;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
 import edu.uci.ics.textdb.common.field.Span;
 import edu.uci.ics.textdb.common.utils.Utils;
@@ -58,14 +58,14 @@ public class DictionaryMatcher implements IOperator {
             	throw new DataFlowException("Dictionary is empty");
             }
             
-            if (predicate.getSourceOperatorType() == DataConstants.DictionaryOperatorType.KEYWORD_PHRASE) {
+            if (predicate.getSourceOperatorType() == DataConstants.KeywordMatchingType.PHRASE_INDEXBASED) {
                 KeywordPredicate keywordPredicate = new KeywordPredicate(currentDictEntry, predicate.getAttributeList(),
-                        KeywordOperatorType.PHRASE, predicate.getAnalyzer(), predicate.getDataStore());
+                        KeywordMatchingType.PHRASE_INDEXBASED, predicate.getAnalyzer(), predicate.getDataStore());
                 sourceOperator = new KeywordMatcher(keywordPredicate);
                 sourceOperator.open();
-            } else if (predicate.getSourceOperatorType() == DataConstants.DictionaryOperatorType.KEYWORD_BASIC) {
+            } else if (predicate.getSourceOperatorType() == DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED) {
                 KeywordPredicate keywordPredicate = new KeywordPredicate(currentDictEntry, predicate.getAttributeList(),
-                        KeywordOperatorType.BASIC, predicate.getAnalyzer(), predicate.getDataStore());
+                        KeywordMatchingType.CONJUNCTION_INDEXBASED, predicate.getAnalyzer(), predicate.getDataStore());
                 sourceOperator = new KeywordMatcher(keywordPredicate);
                 sourceOperator.open();
             } else {
@@ -86,9 +86,12 @@ public class DictionaryMatcher implements IOperator {
      * 		  dictionary predicate. <br> 
      * 
      *        DictionaryOperatorType.SCAN: <br>
-     *        Scan the document using ScanSourceOperator. <br>
-     *        For each tuple from the document, loop through the dictionary 
-     *        and find results. <br> <br>
+     *        Scan the tuples using ScanSourceOperator. <br>
+     *        For each tuple, loop through the dictionary 
+     *        and find results. <br> 
+     *        We assume the dictionary is smaller than the data at the 
+     *        source operator, we treat the data source as the outer
+     *        relation to reduce the number of disk IOs. <br>
      *        
      *        DictionaryOperatorType.KEYWORD_BASIC, KEYWORD_PHRASE: <br>
      *        Use KeywordMatcher to find results. <br>
@@ -105,34 +108,33 @@ public class DictionaryMatcher implements IOperator {
      */
     @Override
     public ITuple getNextTuple() throws Exception {
-    	if (predicate.getSourceOperatorType() == DataConstants.DictionaryOperatorType.KEYWORD_PHRASE
-    	||  predicate.getSourceOperatorType() == DataConstants.DictionaryOperatorType.KEYWORD_BASIC) {
+    	if (predicate.getSourceOperatorType() == DataConstants.KeywordMatchingType.PHRASE_INDEXBASED
+    	||  predicate.getSourceOperatorType() == DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED) {
     		// for each dictionary entry
     		// get all result from KeywordMatcher
     		
-            if ((currentTuple = sourceOperator.getNextTuple()) != null) {
-            	return currentTuple;
-            }
-            
-			if ((currentDictEntry = predicate.getNextDictEntry()) == null) {
-				return null;
-			}
-			
-			KeywordOperatorType keywordOperatorType;
-			if (predicate.getSourceOperatorType() == DataConstants.DictionaryOperatorType.KEYWORD_PHRASE) {
-				keywordOperatorType = KeywordOperatorType.PHRASE;
-			} else {
-				keywordOperatorType = KeywordOperatorType.BASIC;
-			}
-			
-			KeywordPredicate keywordPredicate = new KeywordPredicate(currentDictEntry, predicate.getAttributeList(),
-					keywordOperatorType, predicate.getAnalyzer(), predicate.getDataStore());
-			
-			sourceOperator.close();
-			sourceOperator = new KeywordMatcher(keywordPredicate);
-			sourceOperator.open();
-			
-			return getNextTuple();
+    		while (true) {
+    			if ((currentTuple = sourceOperator.getNextTuple()) != null) {
+    				return currentTuple;
+    			}
+    			if ((currentDictEntry = predicate.getNextDictEntry()) == null) {
+    				return null;
+    			}
+    			
+    			KeywordMatchingType keywordMatchingType;
+    			if (predicate.getSourceOperatorType() == DataConstants.KeywordMatchingType.PHRASE_INDEXBASED) {
+    				keywordMatchingType = KeywordMatchingType.PHRASE_INDEXBASED;
+    			} else {
+    				keywordMatchingType = KeywordMatchingType.CONJUNCTION_INDEXBASED;
+    			}
+    			
+    			KeywordPredicate keywordPredicate = new KeywordPredicate(currentDictEntry, predicate.getAttributeList(),
+    					keywordMatchingType, predicate.getAnalyzer(), predicate.getDataStore());
+    			
+    			sourceOperator.close();
+    			sourceOperator = new KeywordMatcher(keywordPredicate);
+    			sourceOperator.open();
+    		}
         }
     	else {
     		if (currentTuple == null) {
