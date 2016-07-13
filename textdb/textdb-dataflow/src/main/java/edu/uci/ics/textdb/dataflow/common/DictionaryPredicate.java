@@ -48,6 +48,9 @@ public class DictionaryPredicate implements IPredicate {
         return srcOpType;
     }
     
+    /**
+     * Reset the Dictionary Cursor to the beginning.
+     */
     public void resetDictCursor() {
     	dictionary.resetCursor();
     }
