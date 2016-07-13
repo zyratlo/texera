@@ -135,32 +135,30 @@ public class DictionaryMatcher implements IOperator {
 			return getNextTuple();
         }
     	else {
-    		// for each tuple
-    		// iterate through the dictionary
-    		
     		if (currentTuple == null) {
     			if ((currentTuple = sourceOperator.getNextTuple()) == null) {
     				return null;
     			}
     		}
     		
-    		if (currentDictEntry == null) {
-    			predicate.resetDictCursor();
-    			currentDictEntry = predicate.getNextDictEntry();
-    			currentTuple = sourceOperator.getNextTuple();
-    			return getNextTuple();
-    		}
-    		    		
-    		ITuple result = matchTuple(currentDictEntry, currentTuple);
+    		ITuple result;
+    		do {
+    			result = matchTuple(currentDictEntry, currentTuple);
+    			advanceCursor();
+    		} while (result == currentTuple && currentTuple != null);
     		
-    		currentDictEntry = predicate.getNextDictEntry();
-    		
-    		if (result == currentTuple) {
-    			return getNextTuple();
-    		} else {
-    			return result;
-    		}
+    		return result;
     	}
+    }
+    
+    private void advanceCursor() throws Exception {
+    	if ((currentDictEntry = predicate.getNextDictEntry()) != null) {
+    		return;
+    	}
+    	predicate.resetDictCursor();
+    	currentDictEntry = predicate.getNextDictEntry();
+    	currentTuple = sourceOperator.getNextTuple();
+    	System.out.println(Utils.getTupleString(currentTuple));
     }
     
     /*
@@ -191,6 +189,7 @@ public class DictionaryMatcher implements IOperator {
     			while (matcher.find()) {
     				int start = matcher.start();
     				int end = matcher.end();
+
     				spanList.add(new Span(fieldName, start, end, key, fieldValue.substring(start, end)));
     			}
     		}
