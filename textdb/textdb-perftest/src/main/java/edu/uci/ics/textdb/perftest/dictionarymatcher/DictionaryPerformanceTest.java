@@ -32,7 +32,7 @@ public class DictionaryPerformanceTest {
 	public static final String indexFolder = "./index/";
 	
 	public static void main(String[] args) throws Exception{
-		samplePerformanceTest("abstract_10K", "./index");
+		samplePerformanceTest("abstract_100K", "./index");
 	}
 
 	public static void writeIndex(String fileName, Analyzer luceneAnalyzer) throws FileNotFoundException, StorageException{
@@ -90,11 +90,11 @@ public class DictionaryPerformanceTest {
 		ArrayList<String> queryList = new ArrayList<String>();
 		
 		//dict.add("medical");
-		readDict("/Users/Shirley/Desktop/dictionaries/WebMD_symptoms.txt");
+		readDict("./data-files/dictionaries/WebMD_symptoms.txt");
 		
 		for (String d:dict){
 			System.out.print("\n"+d+"\n");
-			IDictionary dictionary = new Dictionary(dict);
+			IDictionary dictionary = new Dictionary(Arrays.asList(d));
 	    	IPredicate dictionaryPredicate = new DictionaryPredicate(dictionary, luceneAnalyzer, attributes, DictionaryOperatorType.SCAN, dataStore);
 	    	DictionaryMatcher dictionaryMatcher = new DictionaryMatcher(dictionaryPredicate);
 	    	long startLuceneQueryTime = System.currentTimeMillis();

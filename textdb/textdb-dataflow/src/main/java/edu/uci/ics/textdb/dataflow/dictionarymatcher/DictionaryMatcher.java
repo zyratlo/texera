@@ -141,16 +141,25 @@ public class DictionaryMatcher implements IOperator {
     			}
     		}
     		
-    		ITuple result;
-    		do {
+    		ITuple result = currentTuple;
+    		while (currentTuple != null) {
     			result = matchTuple(currentDictEntry, currentTuple);
+    			if (result != currentTuple) {
+    				advanceCursor();
+
+    				return result;
+    			}
     			advanceCursor();
-    		} while (result == currentTuple && currentTuple != null);
-    		
-    		return result;
+    		}
+
+    		return null;
     	}
     }
     
+    /*
+     * Advance the cursor of dictionary. if reach the end of the dictionary,
+     * advance the cursor of tuples and reset dictionary
+     */
     private void advanceCursor() throws Exception {
     	if ((currentDictEntry = predicate.getNextDictEntry()) != null) {
     		return;
@@ -158,7 +167,6 @@ public class DictionaryMatcher implements IOperator {
     	predicate.resetDictCursor();
     	currentDictEntry = predicate.getNextDictEntry();
     	currentTuple = sourceOperator.getNextTuple();
-    	System.out.println(Utils.getTupleString(currentTuple));
     }
     
     /*
