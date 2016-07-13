@@ -52,7 +52,7 @@ public class DictionaryMatcher implements IOperator {
      */
     @Override
     public void open() throws DataFlowException {
-        try {	
+        try {
         	currentDictEntry = predicate.getNextDictEntry();
             if (currentDictEntry == null) {
             	throw new DataFlowException("Dictionary is empty");
@@ -114,13 +114,18 @@ public class DictionaryMatcher implements IOperator {
     		// get all result from KeywordMatcher
     		
     		while (true) {
+    			// if there's result from current keywordMatcher, return it
     			if ((currentTuple = sourceOperator.getNextTuple()) != null) {
     				return currentTuple;
     			}
+    			// if all results from current keywordMatcher are consumed, 
+    			// advance to next dictionary entry
+    			// return null if reach the end of dictionary
     			if ((currentDictEntry = predicate.getNextDictEntry()) == null) {
     				return null;
     			}
     			
+    			// construct a new KeywordMatcher with the new dictionary entry
     			KeywordMatchingType keywordMatchingType;
     			if (predicate.getSourceOperatorType() == DataConstants.KeywordMatchingType.PHRASE_INDEXBASED) {
     				keywordMatchingType = KeywordMatchingType.PHRASE_INDEXBASED;
@@ -146,7 +151,7 @@ public class DictionaryMatcher implements IOperator {
     		ITuple result = currentTuple;
     		while (currentTuple != null) {
     			result = matchTuple(currentDictEntry, currentTuple);
-    			if (result != currentTuple) {
+    			if (result != null) {
     				advanceCursor();
 
     				return result;
@@ -206,7 +211,7 @@ public class DictionaryMatcher implements IOperator {
     	}
     	
     	if (spanList.size() == 0) {
-    		return dataTuple;
+    		return null;
     	} else {
     		return Utils.getSpanTuple(dataTuple.getFields(), spanList, this.spanSchema);
     	}
