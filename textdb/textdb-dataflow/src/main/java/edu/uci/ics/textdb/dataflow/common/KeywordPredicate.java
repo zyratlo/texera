@@ -16,7 +16,7 @@ import edu.uci.ics.textdb.api.common.Attribute;
 import edu.uci.ics.textdb.api.common.FieldType;
 import edu.uci.ics.textdb.api.common.IPredicate;
 import edu.uci.ics.textdb.api.storage.IDataStore;
-import edu.uci.ics.textdb.common.constants.DataConstants.KeywordOperatorType;
+import edu.uci.ics.textdb.common.constants.DataConstants.KeywordMatchingType;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
 import edu.uci.ics.textdb.common.utils.Utils;
 import edu.uci.ics.textdb.storage.DataReaderPredicate;
@@ -37,14 +37,14 @@ public class KeywordPredicate implements IPredicate{
     private ArrayList<String> tokens;
     private Analyzer luceneAnalyzer;
     private IDataStore dataStore;
-    private KeywordOperatorType operatorType;
+    private KeywordMatchingType operatorType;
 
     /*
     query refers to string of keywords to search for.
     For Ex. New york if searched in TextField, we would consider both tokens
     New and York; if searched in String field we search for Exact string.
      */
-    public KeywordPredicate(String query, List<Attribute> attributeList, KeywordOperatorType operatorType, Analyzer luceneAnalyzer, IDataStore dataStore ) throws DataFlowException{
+    public KeywordPredicate(String query, List<Attribute> attributeList, KeywordMatchingType operatorType, Analyzer luceneAnalyzer, IDataStore dataStore ) throws DataFlowException{
         try {
             this.query = query;
             this.tokens = Utils.tokenizeQuery(luceneAnalyzer, query);
@@ -104,14 +104,14 @@ public class KeywordPredicate implements IPredicate{
         BooleanQuery queryOnTextFields = new BooleanQuery();
         MultiFieldQueryParser parser = new MultiFieldQueryParser(remainingTextFields, luceneAnalyzer);
 
-        if(operatorType == KeywordOperatorType.BASIC) {
+        if(operatorType == KeywordMatchingType.CONJUNCTION_INDEXBASED) {
             for (String searchToken : this.tokens) {
                 Query termQuery = parser.parse(searchToken);
                 queryOnTextFields.add(termQuery, BooleanClause.Occur.MUST);
             }
         }
 
-        else if(operatorType == KeywordOperatorType.PHRASE){
+        else if(operatorType == KeywordMatchingType.PHRASE_INDEXBASED){
             Query termQuery = parser.parse("\""+query+"\"");
             queryOnTextFields.add(termQuery, BooleanClause.Occur.MUST);
         }
@@ -122,7 +122,7 @@ public class KeywordPredicate implements IPredicate{
         return luceneBooleanQuery;
     }
 
-    public KeywordOperatorType getOperatorType() { return operatorType; }
+    public KeywordMatchingType getOperatorType() { return operatorType; }
 
     public String getQuery(){
         return query;

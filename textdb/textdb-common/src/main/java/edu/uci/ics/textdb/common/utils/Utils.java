@@ -11,6 +11,8 @@ import java.util.List;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
+import org.apache.lucene.analysis.util.CharArraySet;
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.DateTools;
 import org.apache.lucene.document.DateTools.Resolution;
 import org.apache.lucene.document.Field.Store;
@@ -164,4 +166,96 @@ public class Utils {
 
         return result;
     }
+    
+    public static ArrayList<String> tokenizeQueryWithStopwords(String query) {    	
+        ArrayList<String> result = new ArrayList<String>();
+    	CharArraySet emptyStopwords = new CharArraySet(1, true);
+    	Analyzer luceneAnalyzer = new StandardAnalyzer(emptyStopwords);
+        TokenStream tokenStream  = luceneAnalyzer.tokenStream(null, new StringReader(query));
+        CharTermAttribute term = tokenStream.addAttribute(CharTermAttribute.class);
+
+        try{
+            tokenStream.reset();
+            while (tokenStream.incrementToken()) {
+                String token = term.toString();
+                int tokenIndex = query.toLowerCase().indexOf(token);
+                // Since tokens are converted to lower case,
+                // get the exact token from the query string.
+                String actualQueryToken = query.substring(tokenIndex, tokenIndex+token.length());
+                result.add(actualQueryToken);
+            }
+            tokenStream.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
+        luceneAnalyzer.close();
+
+        return result;
+    }
+    
+    /**
+     * Transform a tuple into string
+     * @param tuple
+     * @return string representation of the tuple
+     */
+    public static String getTupleString(ITuple tuple) {
+    	StringBuilder sb = new StringBuilder();
+    	
+    	Schema schema = tuple.getSchema();
+    	for (Attribute attribute : schema.getAttributes()) {
+    		if (attribute.getFieldName().equals(SchemaConstants.SPAN_LIST)) {
+    			List<Span> spanList = ((ListField<Span>) tuple.getField(SchemaConstants.SPAN_LIST)).getValue();
+    			sb.append(getSpanListString(spanList));
+    			sb.append("\n");
+    		}
+    		else {
+    			sb.append(attribute.getFieldName());
+    			sb.append("(");
+    			sb.append(attribute.getFieldType().toString());
+    			sb.append(")");
+    			sb.append(": ");
+    			sb.append(tuple.getField(attribute.getFieldName()).getValue().toString());
+    			sb.append("\n");
+    		}
+    	}
+    	
+    	return sb.toString();
+    }
+    
+    /**
+     * Transform a list of spans into string
+     * @param tuple
+     * @return string representation of a list of spans
+     */
+    public static String getSpanListString(List<Span> spanList) {
+    	StringBuilder sb = new StringBuilder();
+    	
+    	sb.append("span list:\n");
+    	for (Span span : spanList) {
+    		sb.append(getSpanString(span));
+    		sb.append("\n");
+    	}
+    	
+    	return sb.toString();
+    }
+    
+    /**
+     * Transform a span into string
+     * @param tuple
+     * @return string representation of a span
+     */
+    public static String getSpanString(Span span) {
+    	StringBuilder sb = new StringBuilder();
+    	
+    	sb.append("field: "+span.getFieldName()+"\n");
+    	sb.append("start: "+span.getStart()+"\n");
+    	sb.append("end:   "+span.getEnd()+"\n");
+    	sb.append("key:   "+span.getKey()+"\n");
+    	sb.append("value: "+span.getValue()+"\n");
+    	sb.append("token offset: "+span.getTokenOffset()+"\n");
+    	
+    	return sb.toString();
+    }
+    
 }
