@@ -55,7 +55,7 @@ public class DictionaryPredicate implements IPredicate {
     	dictionary.resetCursor();
     }
 
-    public String getNextDictEntry() {
+    public String getNextDictionaryEntry() {
         return dictionary.getNextValue();
     }
 

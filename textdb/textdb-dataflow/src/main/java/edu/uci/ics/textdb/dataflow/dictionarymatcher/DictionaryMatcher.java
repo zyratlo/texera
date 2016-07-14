@@ -32,7 +32,7 @@ public class DictionaryMatcher implements IOperator {
     private Schema spanSchema;
     
     private ITuple currentTuple;
-    private String currentDictEntry;
+    private String currentDictionaryEntry;
 
     private final DictionaryPredicate predicate;
 
@@ -53,18 +53,18 @@ public class DictionaryMatcher implements IOperator {
     @Override
     public void open() throws DataFlowException {
         try {
-        	currentDictEntry = predicate.getNextDictEntry();
-            if (currentDictEntry == null) {
+        	currentDictionaryEntry = predicate.getNextDictionaryEntry();
+            if (currentDictionaryEntry == null) {
             	throw new DataFlowException("Dictionary is empty");
             }
             
             if (predicate.getSourceOperatorType() == DataConstants.KeywordMatchingType.PHRASE_INDEXBASED) {
-                KeywordPredicate keywordPredicate = new KeywordPredicate(currentDictEntry, predicate.getAttributeList(),
+                KeywordPredicate keywordPredicate = new KeywordPredicate(currentDictionaryEntry, predicate.getAttributeList(),
                         KeywordMatchingType.PHRASE_INDEXBASED, predicate.getAnalyzer(), predicate.getDataStore());
                 sourceOperator = new KeywordMatcher(keywordPredicate);
                 sourceOperator.open();
             } else if (predicate.getSourceOperatorType() == DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED) {
-                KeywordPredicate keywordPredicate = new KeywordPredicate(currentDictEntry, predicate.getAttributeList(),
+                KeywordPredicate keywordPredicate = new KeywordPredicate(currentDictionaryEntry, predicate.getAttributeList(),
                         KeywordMatchingType.CONJUNCTION_INDEXBASED, predicate.getAnalyzer(), predicate.getDataStore());
                 sourceOperator = new KeywordMatcher(keywordPredicate);
                 sourceOperator.open();
@@ -79,7 +79,7 @@ public class DictionaryMatcher implements IOperator {
     }
 
     /**
-     * @about Gets next matched tuple. <br>
+     * @about Gets the next matched tuple. <br>
      * 		  Returns the tuple with results in spanList. <br>
      * 
      * 		  Performs SCAN, KEYWORD_BASIC, or KEYWORD_PHRASE depends on the 
@@ -110,22 +110,22 @@ public class DictionaryMatcher implements IOperator {
     public ITuple getNextTuple() throws Exception {
     	if (predicate.getSourceOperatorType() == DataConstants.KeywordMatchingType.PHRASE_INDEXBASED
     	||  predicate.getSourceOperatorType() == DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED) {
-    		// for each dictionary entry
-    		// get all result from KeywordMatcher
+    		// For each dictionary entry, 
+    		// get all result from KeywordMatcher.
     		
     		while (true) {
-    			// if there's result from current keywordMatcher, return it
+    			// If there's result from current keywordMatcher, return it.
     			if ((currentTuple = sourceOperator.getNextTuple()) != null) {
     				return currentTuple;
     			}
-    			// if all results from current keywordMatcher are consumed, 
-    			// advance to next dictionary entry
-    			// return null if reach the end of dictionary
-    			if ((currentDictEntry = predicate.getNextDictEntry()) == null) {
+    			// If all results from current keywordMatcher are consumed, 
+    			// advance to next dictionary entry, and
+    			// return null if reach the end of dictionary.
+    			if ((currentDictionaryEntry = predicate.getNextDictionaryEntry()) == null) {
     				return null;
     			}
     			
-    			// construct a new KeywordMatcher with the new dictionary entry
+    			// Construct a new KeywordMatcher with the new dictionary entry.
     			KeywordMatchingType keywordMatchingType;
     			if (predicate.getSourceOperatorType() == DataConstants.KeywordMatchingType.PHRASE_INDEXBASED) {
     				keywordMatchingType = KeywordMatchingType.PHRASE_INDEXBASED;
@@ -133,7 +133,7 @@ public class DictionaryMatcher implements IOperator {
     				keywordMatchingType = KeywordMatchingType.CONJUNCTION_INDEXBASED;
     			}
     			
-    			KeywordPredicate keywordPredicate = new KeywordPredicate(currentDictEntry, predicate.getAttributeList(),
+    			KeywordPredicate keywordPredicate = new KeywordPredicate(currentDictionaryEntry, predicate.getAttributeList(),
     					keywordMatchingType, predicate.getAnalyzer(), predicate.getDataStore());
     			
     			sourceOperator.close();
@@ -150,7 +150,7 @@ public class DictionaryMatcher implements IOperator {
     		
     		ITuple result = currentTuple;
     		while (currentTuple != null) {
-    			result = matchTuple(currentDictEntry, currentTuple);
+    			result = matchTuple(currentDictionaryEntry, currentTuple);
     			if (result != null) {
     				advanceCursor();
 
@@ -168,18 +168,18 @@ public class DictionaryMatcher implements IOperator {
      * advance the cursor of tuples and reset dictionary
      */
     private void advanceCursor() throws Exception {
-    	if ((currentDictEntry = predicate.getNextDictEntry()) != null) {
+    	if ((currentDictionaryEntry = predicate.getNextDictionaryEntry()) != null) {
     		return;
     	}
     	predicate.resetDictCursor();
-    	currentDictEntry = predicate.getNextDictEntry();
+    	currentDictionaryEntry = predicate.getNextDictionaryEntry();
     	currentTuple = sourceOperator.getNextTuple();
     }
     
     /*
      * Match the key against the dataTuple.
-     * if no match, returns the original dataTuple object,
-     * if has match, return a new dataTuple with span list added
+     * if there's no match, returns the original dataTuple object,
+     * if there's a match, return a new dataTuple with span list added
      */
     private ITuple matchTuple(String key, ITuple dataTuple) {
     	
@@ -190,13 +190,13 @@ public class DictionaryMatcher implements IOperator {
     		String fieldName = attr.getFieldName();
     		String fieldValue = dataTuple.getField(fieldName).getValue().toString();
     		
-    		// if attribute type is not TEXT, then key needs to match exact fieldValue
+    		// if attribute type is not TEXT, then key needs to match the fieldValue exactly
     		if (attr.getFieldType() != FieldType.TEXT) {
     			if (fieldValue.equals(key)) {
     				spanList.add(new Span(fieldName, 0, fieldValue.length(), key, fieldValue));
     			}
     		}
-    		// if attribute type is TEXT, then key can match partial fieldValue
+    		// if attribute type is TEXT, then key can match a substring of fieldValue
     		else {
     			String regex = "\\b" + key.toLowerCase() + "\\b";
     			Pattern pattern = Pattern.compile(regex);

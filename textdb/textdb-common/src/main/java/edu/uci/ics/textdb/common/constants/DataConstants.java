@@ -23,20 +23,20 @@ public class DataConstants {
      * 
      * CONJUNCTION_INDEXBASED: <br>
      * Performs search of conjunction of query tokens. 
-     * The query is tokenized into tokens, with each token treated as a separate keyword. 
-     * The order of tokens doesn't matter on the source tuple. <br>
+     * The query is tokenized into keywords, with each token treated as a separate keyword. 
+     * The order of tokens doesn't matter in the source tuple. <br>
      * 
      * For example: <br>
      * query "book appointment" <br>
      * matches: "book appointment with the doctor" <br>
-     * also matches: "an appointment to pick up book" <br>
+     * also matches: "an appointment to pick up a book" <br>
      * <br>
      * 
      * 
      * PHRASE_INDEXBASED: <br>
-     * Performs phrase search of the query.
-     * The query is tokenized into tokens, with stopwords treated as placeholders.
-     * The order of tokens matters on the source tuple. A stopword matches an arbitary token. <br>
+     * Performs a phrase search.
+     * The query is tokenized into keywords, with stopwords treated as placeholders.
+     * The order of tokens matters in the source tuple. A stopword matches an arbitary token. <br>
      * 
      * For example: <br>
      * query "book appointment" <br>
@@ -51,12 +51,14 @@ public class DataConstants {
      * doesn't match "nice gentle person" <br>
      * <br>
      * 
-     * A list of stopwords:
-     * "a", "an", "and", "are", "as", "at", "be", "but", "by",
-     * "for", "if", "in", "into", "is", "it",
-     * "no", "not", "of", "on", "or", "such",
-     * "that", "the", "their", "then", "there", "these",
-     * "they", "this", "to", "was", "will", "with"
+     * Default list of stopwords:
+     * in org.apache.lucene.analysis.standard.StandardAnalyzer: <br>
+     * StandardAnalyzer.STOP_WORDS_SET 
+     * which includes:
+     * 
+     * but, be, with, such, then, for, no, will, not, are, and,
+     * their, if, this, on, into, a, or, there, in, that, they, 
+     * was, is, it, an, the, as, at, these, by, to, of
      * 
      */
     public static enum KeywordMatchingType {

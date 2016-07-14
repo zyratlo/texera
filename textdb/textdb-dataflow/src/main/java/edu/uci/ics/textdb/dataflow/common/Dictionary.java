@@ -66,7 +66,7 @@ public class Dictionary implements IDictionary {
     }
 
     /**
-     * Gets next value from the dictionary
+     * Gets next dictionary entry from the dictionary
      */
     @Override
     public String getNextValue() {
@@ -90,8 +90,9 @@ public class Dictionary implements IDictionary {
             return -1;
         }
     }
+    
     /**
-     * Reset the cursor of dictionary
+     * Reset the cursor to the start of the dictionary.
      */
     @Override
     public void resetCursor() {

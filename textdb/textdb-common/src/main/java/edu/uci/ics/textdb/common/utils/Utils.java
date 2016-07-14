@@ -1,6 +1,5 @@
 package edu.uci.ics.textdb.common.utils;
 
-import java.io.IOException;
 import java.io.StringReader;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -195,6 +194,11 @@ public class Utils {
         return result;
     }
     
+    /**
+     * Transform a tuple into string
+     * @param tuple
+     * @return string representation of the tuple
+     */
     public static String getTupleString(ITuple tuple) {
     	StringBuilder sb = new StringBuilder();
     	
@@ -219,6 +223,11 @@ public class Utils {
     	return sb.toString();
     }
     
+    /**
+     * Transform a list of spans into string
+     * @param tuple
+     * @return string representation of a list of spans
+     */
     public static String getSpanListString(List<Span> spanList) {
     	StringBuilder sb = new StringBuilder();
     	
@@ -231,6 +240,11 @@ public class Utils {
     	return sb.toString();
     }
     
+    /**
+     * Transform a span into string
+     * @param tuple
+     * @return string representation of a span
+     */
     public static String getSpanString(Span span) {
     	StringBuilder sb = new StringBuilder();
     	
