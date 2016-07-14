@@ -1,6 +1,5 @@
 package edu.uci.ics.textdb.common.utils;
 
-import java.io.IOException;
 import java.io.StringReader;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -189,8 +188,74 @@ public class Utils {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        
+        luceneAnalyzer.close();
 
         return result;
+    }
+    
+    /**
+     * Transform a tuple into string
+     * @param tuple
+     * @return string representation of the tuple
+     */
+    public static String getTupleString(ITuple tuple) {
+    	StringBuilder sb = new StringBuilder();
+    	
+    	Schema schema = tuple.getSchema();
+    	for (Attribute attribute : schema.getAttributes()) {
+    		if (attribute.getFieldName().equals(SchemaConstants.SPAN_LIST)) {
+    			List<Span> spanList = ((ListField<Span>) tuple.getField(SchemaConstants.SPAN_LIST)).getValue();
+    			sb.append(getSpanListString(spanList));
+    			sb.append("\n");
+    		}
+    		else {
+    			sb.append(attribute.getFieldName());
+    			sb.append("(");
+    			sb.append(attribute.getFieldType().toString());
+    			sb.append(")");
+    			sb.append(": ");
+    			sb.append(tuple.getField(attribute.getFieldName()).getValue().toString());
+    			sb.append("\n");
+    		}
+    	}
+    	
+    	return sb.toString();
+    }
+    
+    /**
+     * Transform a list of spans into string
+     * @param tuple
+     * @return string representation of a list of spans
+     */
+    public static String getSpanListString(List<Span> spanList) {
+    	StringBuilder sb = new StringBuilder();
+    	
+    	sb.append("span list:\n");
+    	for (Span span : spanList) {
+    		sb.append(getSpanString(span));
+    		sb.append("\n");
+    	}
+    	
+    	return sb.toString();
+    }
+    
+    /**
+     * Transform a span into string
+     * @param tuple
+     * @return string representation of a span
+     */
+    public static String getSpanString(Span span) {
+    	StringBuilder sb = new StringBuilder();
+    	
+    	sb.append("field: "+span.getFieldName()+"\n");
+    	sb.append("start: "+span.getStart()+"\n");
+    	sb.append("end:   "+span.getEnd()+"\n");
+    	sb.append("key:   "+span.getKey()+"\n");
+    	sb.append("value: "+span.getValue()+"\n");
+    	sb.append("token offset: "+span.getTokenOffset()+"\n");
+    	
+    	return sb.toString();
     }
     
 }

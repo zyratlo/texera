@@ -11,7 +11,7 @@ import edu.uci.ics.textdb.api.common.IPredicate;
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.dataflow.IOperator;
 import edu.uci.ics.textdb.api.dataflow.ISourceOperator;
-import edu.uci.ics.textdb.common.constants.DataConstants.KeywordOperatorType;
+import edu.uci.ics.textdb.common.constants.DataConstants.KeywordMatchingType;
 import edu.uci.ics.textdb.common.constants.SchemaConstants;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
 import edu.uci.ics.textdb.common.field.Span;
@@ -151,14 +151,14 @@ public class KeywordMatcher implements IOperator {
                     }
 
                     boolean allTokenPresent = areAllTrue(tokensPresent);
-                    if(predicate.getOperatorType() == KeywordOperatorType.BASIC) {
+                    if(predicate.getOperatorType() == KeywordMatchingType.CONJUNCTION_INDEXBASED) {
 
                         if (!allTokenPresent) {
                             spanList.removeAll(spanForThisField);
                         }
                     }
 
-                    else if(predicate.getOperatorType() == KeywordOperatorType.PHRASE){
+                    else if(predicate.getOperatorType() == KeywordMatchingType.PHRASE_INDEXBASED){
                         /*Ex:
 
                        Document: "Lin Clooney is Short and lin clooney is Angry"
