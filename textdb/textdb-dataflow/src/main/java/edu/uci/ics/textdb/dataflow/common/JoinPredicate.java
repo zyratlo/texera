@@ -10,8 +10,7 @@ import edu.uci.ics.textdb.api.common.IPredicate;
  */
 public class JoinPredicate implements IPredicate {
 	
-	private Attribute outerIdAttribute;
-	private Attribute innerIdAttribute;
+	private Attribute idAttribute;
 	private Attribute joinAttribute;
 	private Integer threshold;
 	
@@ -20,8 +19,8 @@ public class JoinPredicate implements IPredicate {
 	 * Operator.</p>
 	 * 
 	 * <p>
-	 * JoinPredicate joinPre = new JoinPredicate(Attribute outerIdAttr, 
-	 * Attribute InnerIdAttr, Attribute descriptionAttr, 10)
+	 * JoinPredicate joinPre = new JoinPredicate(Attribute idAttr, 
+	 * Attribute descriptionAttr, 10)
 	 * <br>will create a predicate that joins the spans of type 
 	 * descriptionAttr of outer and inner operators (that agree on the idAttr 
 	 * id attributes) and outputs tuples which satisfy the criteria of being
@@ -48,8 +47,7 @@ public class JoinPredicate implements IPredicate {
 	 * 
 	 * where <spanStartIndex, spanEndIndex> represents a span.
 	 * 
-	 * JoinPredicate joinPre = new JoinPredicate(innerIdAttr, outerIdAttr, 
-	 * reviewAttr, 10);
+	 * JoinPredicate joinPre = new JoinPredicate(idAttr, reviewAttr, 10);
 	 * <p>
 	 * 
 	 * <p>
@@ -72,26 +70,20 @@ public class JoinPredicate implements IPredicate {
 	 * characters apart and hence join won't produce a result and simply returns
 	 *  the tuple bookTuple1. </p>
 	 * 
-	 * @param outerIdAttribute is the ID attribute of the outer operator
-	 * @param innerIdAttribute is the ID attribute of the inner operator
+	 * @param idAttribute is the ID attribute used to compare if documents are same
 	 * @param joinAttribute is the Attribute to perform join on
 	 * @param threshold is the maximum distance (in characters) between any two
 	 *  spans
 	 */
-	public JoinPredicate(Attribute outerIdAttribute, Attribute innerIdAttribute, 
-			Attribute joinAttribute, Integer threshold) {
-		this.outerIdAttribute = outerIdAttribute;
-		this.innerIdAttribute = innerIdAttribute;
+	public JoinPredicate(Attribute idAttribute, Attribute joinAttribute, 
+			Integer threshold) {
+		this.idAttribute = idAttribute;
 		this.joinAttribute = joinAttribute;
 		this.threshold = threshold;
 	}
 	
-	public Attribute getOuterIdAttribute() {
-		return this.outerIdAttribute;
-	}
-	
-	public Attribute getInnerIdAttribute() {
-		return this.innerIdAttribute;
+	public Attribute getidAttribute() {
+		return this.idAttribute;
 	}
 	
 	
@@ -101,17 +93,5 @@ public class JoinPredicate implements IPredicate {
 	
 	public Integer getThreshold() {
 		return this.threshold;
-	}
-	
-	/**
-	 * Compares the IDs of the tuples. Returns true if IDs match else returns 
-	 * false.
-	 * @return compResult
-	 */
-	public boolean compareId() {
-		// TODO Implement the method to compare the IDs of the two tuples to be
-		// joined.
-		boolean compResult = false;
-		return compResult;
 	}
 }
