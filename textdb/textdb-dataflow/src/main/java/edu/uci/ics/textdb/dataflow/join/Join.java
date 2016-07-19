@@ -32,7 +32,7 @@ public class Join implements IOperator{
 	private ITuple innerTuple = null;
 	private List<ITuple> innerTupleList = new ArrayList<>();
 	// Cursor to maintain the position of tuple to be obtained from innerTupleList.
-	private Integer cursor = 0;
+	private Integer innerOperatorCursor = 0;
 	// Value to be used as key in Span.
 	private Integer spanKey = 0;
 
@@ -58,6 +58,12 @@ public class Join implements IOperator{
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new DataFlowException(e.getMessage(), e);
+		}
+		if(!(joinPredicate.getjoinAttribute().getFieldType().equals(FieldType.STRING)||
+				joinPredicate.getjoinAttribute().getFieldType().equals(FieldType.TEXT))) {
+			outerOperator.close();
+			innerOperator.close();
+			throw new Exception("Fields other than \"STRING\" and \"TEXT\" are not supported by Join yet.");
 		}
 		// Load the inner tuple list into memory on open.
 		while((innerTuple = innerOperator.getNextTuple()) != null) {
@@ -85,13 +91,13 @@ public class Join implements IOperator{
 			}
 		}
 
-		if (cursor < innerTupleList.size() -1 ) {
-			innerTuple = innerTupleList.get(cursor);
-			cursor++;
-		} else if(cursor == innerTupleList.size() - 1) {
-			innerTuple = innerTupleList.get(cursor);
-			cursor = 0;
-			getOuterOperatorNextTuple = true;
+		if (innerOperatorCursor <= innerTupleList.size() - 1) {
+			innerTuple = innerTupleList.get(innerOperatorCursor);
+			innerOperatorCursor++;
+			if(innerOperatorCursor == innerTupleList.size()) {
+				innerOperatorCursor = 0;
+				getOuterOperatorNextTuple = true;
+			}
 		}
 
 		ITuple nextTuple = processTuples(outerTuple, innerTuple, joinPredicate);
@@ -127,7 +133,9 @@ public class Join implements IOperator{
 		ITuple nextTuple = null;
 		List<Span> newJoinSpanList = new ArrayList<>();
 
-		if(compareId(outerTuple, innerTuple)) {
+		if(!compareId(outerTuple, innerTuple)) {
+			return null;
+		} else {
 			Integer indexOfInnerSpanList = innerTuple.getSchema().getIndex(SchemaConstants.SPAN_LIST);
 			Integer indexOfOuterSpanList = outerTuple.getSchema().getIndex(SchemaConstants.SPAN_LIST);
 			// If either/both tuples have no span information, return null.
@@ -151,46 +159,40 @@ public class Join implements IOperator{
 			while(outerSpanIter.hasNext()) {
 				Span outerSpan = outerSpanIter.next();
 				// Check if the field matches the filed over which we want to join. If not return null.
-				if(outerSpan.getFieldName().equals(joinPredicate.getjoinAttribute().getFieldName())) {
-					while(innerSpanIter.hasNext()) {
-						Span innerSpan = innerSpanIter.next();
-						if(innerSpan.getFieldName().equals(joinPredicate.getjoinAttribute().getFieldName())) {
-							Integer threshold = joinPredicate.getThreshold();
-							if(Math.abs(outerSpan.getStart() - innerSpan.getStart()) <= threshold &&
-									Math.abs(outerSpan.getEnd() - innerSpan.getEnd()) <= threshold) {
-								Integer newSpanStartIndex = Math.min(outerSpan.getStart(), innerSpan.getStart());
-								Integer newSpanEndIndex = Math.max(outerSpan.getEnd(), innerSpan.getEnd());
-
-								if(joinPredicate.getjoinAttribute().getFieldType().equals(FieldType.STRING)||
-										joinPredicate.getjoinAttribute().getFieldType().equals(FieldType.TEXT)) {
-									spanKey++;
-									String fieldName = joinPredicate.getjoinAttribute().getFieldName();
-									String fieldValue = (String) innerTuple.getField(fieldName).getValue();
-									String newFieldValue = fieldValue.substring(newSpanStartIndex, newSpanEndIndex);
-									Span newSpan = new Span(
-											joinPredicate.getjoinAttribute().getFieldName(), 
-											newSpanStartIndex, newSpanEndIndex, 
-											spanKey.toString(), newFieldValue);
-									newJoinSpanList.add(newSpan);
-								} else {
-									throw new Exception("Fields other than \"STRING\" and \"TEXT\" are not supported by Join yet.");
-								}
-							}
-						} else {
-							return null;
-						}
+				if(!outerSpan.getFieldName().equals(joinPredicate.getjoinAttribute().getFieldName())) {
+					break;
+				}
+				while(innerSpanIter.hasNext()) {
+					Span innerSpan = innerSpanIter.next();
+					if(!innerSpan.getFieldName().equals(joinPredicate.getjoinAttribute().getFieldName())) {
+						break;
 					}
-				} else {
-					return null;
+					Integer threshold = joinPredicate.getThreshold();
+					if(Math.abs(outerSpan.getStart() - innerSpan.getStart()) <= threshold &&
+							Math.abs(outerSpan.getEnd() - innerSpan.getEnd()) <= threshold) {
+						Integer newSpanStartIndex = Math.min(outerSpan.getStart(), innerSpan.getStart());
+						Integer newSpanEndIndex = Math.max(outerSpan.getEnd(), innerSpan.getEnd());
+
+						spanKey++;
+						String fieldName = joinPredicate.getjoinAttribute().getFieldName();
+						String fieldValue = (String) innerTuple.getField(fieldName).getValue();
+						String newFieldValue = fieldValue.substring(newSpanStartIndex, newSpanEndIndex);
+						Span newSpan = new Span(
+								joinPredicate.getjoinAttribute().getFieldName(), 
+								newSpanStartIndex, newSpanEndIndex, 
+								spanKey.toString(), newFieldValue);
+						newJoinSpanList.add(newSpan);
+					}
 				}
 			}
 		}
 
+		// TODO schema has to match the type of systemT output and not innerTuple or outerTuple
 		Schema schema = innerTuple.getSchema();
 		List<IField> fieldList = innerTuple.getFields();
 		IField[] nextTupleField = new IField[fieldList.size()];
 
-		for(Integer index = 0; index < nextTupleField.length - 1; index++) {
+		for(int index = 0; index < nextTupleField.length - 1; index++) {
 			nextTupleField[index] = fieldList.get(index);
 		}
 
