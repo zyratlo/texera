@@ -69,6 +69,7 @@ public class Join implements IOperator{
 		while((innerTuple = innerOperator.getNextTuple()) != null) {
 			innerTupleList.add(innerTuple);
 		}
+		//TODO(Flavio): call innerOperator.close(), we are not going to use it anymore
 	}
 
 	/**
@@ -99,7 +100,10 @@ public class Join implements IOperator{
 				getOuterOperatorNextTuple = true;
 			}
 		}
-
+		
+		// TODO(Flavio): if processTuples returns null, that means that the tuples don't
+		// match and we should try the next tuple. Right now the code is just returning,
+		// null, which means there are no more tuples available, which is wrong
 		ITuple nextTuple = processTuples(outerTuple, innerTuple, joinPredicate);
 
 		return nextTuple;
@@ -121,6 +125,7 @@ public class Join implements IOperator{
 
 	// Used to compare IDs of the tuples.
 	private boolean compareId(ITuple outerTuple, ITuple innerTuple) {
+		// TODO(Flavio): what if the join predicate has an invalid id attribute?
 		if(outerTuple.getField(joinPredicate.getidAttribute().getFieldName()).getValue()==
 				innerTuple.getField(joinPredicate.getidAttribute().getFieldName()).getValue()) {
 			return true;
@@ -135,7 +140,10 @@ public class Join implements IOperator{
 
 		if(!compareId(outerTuple, innerTuple)) {
 			return null;
-		} else {
+		} else {//TODO(Flavio): remove the else block(not the code), if the id matches the code just continues
+			//TODO(Flavio): getIndex will always return an int, if SchemaConstants.SPAN_LIST doesn't 
+			// exists a NullPointerException will be thrown, it will never return null and the
+			// following comparison will be useless
 			Integer indexOfInnerSpanList = innerTuple.getSchema().getIndex(SchemaConstants.SPAN_LIST);
 			Integer indexOfOuterSpanList = outerTuple.getSchema().getIndex(SchemaConstants.SPAN_LIST);
 			// If either/both tuples have no span information, return null.
@@ -146,6 +154,8 @@ public class Join implements IOperator{
 			List<Span> innerSpanList = null;
 			List<Span> outerSpanList = null;
 			// Check if both the fields obtained from the indexes are indeed of type ListField
+			// TODO(Flavio): should SchemaConstants.SPAN_LIST be a reserved or special 
+			// fieldName? In that case we don't need to check if the classes are equal
 			if(innerTuple.getField(indexOfInnerSpanList).getClass().equals(ListField.class)) {
 				innerSpanList = (List<Span>) innerTuple.getField(indexOfInnerSpanList).getValue();
 			}
@@ -162,6 +172,7 @@ public class Join implements IOperator{
 				if(!outerSpan.getFieldName().equals(joinPredicate.getjoinAttribute().getFieldName())) {
 					break;
 				}
+				// TODO(Flavio): reset innerSpanIter before using it
 				while(innerSpanIter.hasNext()) {
 					Span innerSpan = innerSpanIter.next();
 					if(!innerSpan.getFieldName().equals(joinPredicate.getjoinAttribute().getFieldName())) {
@@ -178,15 +189,19 @@ public class Join implements IOperator{
 						String fieldValue = (String) innerTuple.getField(fieldName).getValue();
 						String newFieldValue = fieldValue.substring(newSpanStartIndex, newSpanEndIndex);
 						Span newSpan = new Span(
+								// TODO(Flavio): would be nice to use fieldName on the line below
 								joinPredicate.getjoinAttribute().getFieldName(), 
 								newSpanStartIndex, newSpanEndIndex, 
+								// TODO(Flavio): Check the right values for key and value
 								spanKey.toString(), newFieldValue);
 						newJoinSpanList.add(newSpan);
 					}
 				}
 			}
 		}
-
+		
+		// TODO(Flavio): if newJoinSpanList is empty, should an empty span list be returned or
+		// just don't return the tuple?
 		// TODO schema has to match the type of systemT output and not innerTuple or outerTuple
 		Schema schema = innerTuple.getSchema();
 		List<IField> fieldList = innerTuple.getFields();
