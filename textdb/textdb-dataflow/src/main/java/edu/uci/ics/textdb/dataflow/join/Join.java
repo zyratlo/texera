@@ -69,6 +69,14 @@ public class Join implements IOperator{
 		while((innerTuple = innerOperator.getNextTuple()) != null) {
 			innerTupleList.add(innerTuple);
 		}
+		// Close the inner operator as all the required tuples are already 
+		// loaded into memory.
+		try {
+			innerOperator.close();
+		} catch(Exception e) {
+			e.printStackTrace();
+			throw new DataFlowException(e.getMessage(), e);
+		}
 		//TODO(Flavio): call innerOperator.close(), we are not going to use it anymore
 	}
 
@@ -84,27 +92,31 @@ public class Join implements IOperator{
 			return null;
 		}
 
-		if(getOuterOperatorNextTuple == true) {
-			if((outerTuple = outerOperator.getNextTuple()) != null) {
-				getOuterOperatorNextTuple = false;
-			} else {
-				return null;
-			}
-		}
+		ITuple nextTuple = null;
 
-		if (innerOperatorCursor <= innerTupleList.size() - 1) {
-			innerTuple = innerTupleList.get(innerOperatorCursor);
-			innerOperatorCursor++;
-			if(innerOperatorCursor == innerTupleList.size()) {
-				innerOperatorCursor = 0;
-				getOuterOperatorNextTuple = true;
+		do {
+			if(getOuterOperatorNextTuple == true) {
+				if((outerTuple = outerOperator.getNextTuple()) != null) {
+					getOuterOperatorNextTuple = false;
+				} else {
+					return null;
+				}
 			}
-		}
-		
-		// TODO(Flavio): if processTuples returns null, that means that the tuples don't
-		// match and we should try the next tuple. Right now the code is just returning,
-		// null, which means there are no more tuples available, which is wrong
-		ITuple nextTuple = processTuples(outerTuple, innerTuple, joinPredicate);
+
+			if (innerOperatorCursor <= innerTupleList.size() - 1) {
+				innerTuple = innerTupleList.get(innerOperatorCursor);
+				innerOperatorCursor++;
+				if(innerOperatorCursor == innerTupleList.size()) {
+					innerOperatorCursor = 0;
+					getOuterOperatorNextTuple = true;
+				}
+			}
+
+			// TODO(Flavio): if processTuples returns null, that means that the tuples don't
+			// match and we should try the next tuple. Right now the code is just returning,
+			// null, which means there are no more tuples available, which is wrong
+			nextTuple = processTuples(outerTuple, innerTuple, joinPredicate);
+		} while(nextTuple == null);
 
 		return nextTuple;
 	}
@@ -113,7 +125,7 @@ public class Join implements IOperator{
 	public void close() throws Exception {
 		try {
 			outerOperator.close();
-			innerOperator.close();
+			// innerOperator.close(); already called in open()
 
 		} catch(Exception e) {
 			e.printStackTrace();
@@ -140,69 +152,78 @@ public class Join implements IOperator{
 
 		if(!compareId(outerTuple, innerTuple)) {
 			return null;
-		} else {//TODO(Flavio): remove the else block(not the code), if the id matches the code just continues
-			//TODO(Flavio): getIndex will always return an int, if SchemaConstants.SPAN_LIST doesn't 
-			// exists a NullPointerException will be thrown, it will never return null and the
-			// following comparison will be useless
-			Integer indexOfInnerSpanList = innerTuple.getSchema().getIndex(SchemaConstants.SPAN_LIST);
-			Integer indexOfOuterSpanList = outerTuple.getSchema().getIndex(SchemaConstants.SPAN_LIST);
-			// If either/both tuples have no span information, return null.
-			if(indexOfInnerSpanList == null || indexOfOuterSpanList == null) {
+		}
+		//TODO(Flavio): remove the else block(not the code), if the id matches the code just continues
+		//TODO(Flavio): getIndex will always return an int, if SchemaConstants.SPAN_LIST doesn't 
+		// exists a NullPointerException will be thrown, it will never return null and the
+		// following comparison will be useless
+		// If either/both tuples have no span information, return null.
+		Integer indexOfInnerSpanList = null;
+		Integer indexOfOuterSpanList = null;
+		try {
+			indexOfInnerSpanList = innerTuple.getSchema().getIndex(SchemaConstants.SPAN_LIST);
+			indexOfOuterSpanList = outerTuple.getSchema().getIndex(SchemaConstants.SPAN_LIST);
+		} catch(Exception e) {
+			return null;
+		}
+		// If either/both tuples have no span information, return null.
+		//		if(indexOfInnerSpanList == null || indexOfOuterSpanList == null) {
+		//			return null;
+		//		}
+
+		List<Span> innerSpanList = null;
+		List<Span> outerSpanList = null;
+		// Check if both the fields obtained from the indexes are indeed of type ListField
+		// TODO(Flavio): should SchemaConstants.SPAN_LIST be a reserved or special 
+		// fieldName? In that case we don't need to check if the classes are equal
+		if(innerTuple.getField(indexOfInnerSpanList).getClass().equals(ListField.class)) {
+			innerSpanList = (List<Span>) innerTuple.getField(indexOfInnerSpanList).getValue();
+		}
+		if(outerTuple.getField(indexOfOuterSpanList).getClass().equals(ListField.class)) {
+			outerSpanList = (List<Span>) outerTuple.getField(indexOfOuterSpanList).getValue();
+		}
+
+		Iterator<Span> outerSpanIter = outerSpanList.iterator();
+
+		while(outerSpanIter.hasNext()) {
+			Span outerSpan = outerSpanIter.next();
+			// Check if the field matches the filed over which we want to join. If not return null.
+			if(!outerSpan.getFieldName().equals(joinPredicate.getjoinAttribute().getFieldName())) {
 				return null;
 			}
-
-			List<Span> innerSpanList = null;
-			List<Span> outerSpanList = null;
-			// Check if both the fields obtained from the indexes are indeed of type ListField
-			// TODO(Flavio): should SchemaConstants.SPAN_LIST be a reserved or special 
-			// fieldName? In that case we don't need to check if the classes are equal
-			if(innerTuple.getField(indexOfInnerSpanList).getClass().equals(ListField.class)) {
-				innerSpanList = (List<Span>) innerTuple.getField(indexOfInnerSpanList).getValue();
-			}
-			if(outerTuple.getField(indexOfOuterSpanList).getClass().equals(ListField.class)) {
-				outerSpanList = (List<Span>) outerTuple.getField(indexOfOuterSpanList).getValue();
-			}
-
+			// TODO(Flavio): reset innerSpanIter before using it
 			Iterator<Span> innerSpanIter = innerSpanList.iterator();
-			Iterator<Span> outerSpanIter = outerSpanList.iterator();
-
-			while(outerSpanIter.hasNext()) {
-				Span outerSpan = outerSpanIter.next();
-				// Check if the field matches the filed over which we want to join. If not return null.
-				if(!outerSpan.getFieldName().equals(joinPredicate.getjoinAttribute().getFieldName())) {
-					break;
+			while(innerSpanIter.hasNext()) {
+				Span innerSpan = innerSpanIter.next();
+				if(!innerSpan.getFieldName().equals(joinPredicate.getjoinAttribute().getFieldName())) {
+					return null;
 				}
-				// TODO(Flavio): reset innerSpanIter before using it
-				while(innerSpanIter.hasNext()) {
-					Span innerSpan = innerSpanIter.next();
-					if(!innerSpan.getFieldName().equals(joinPredicate.getjoinAttribute().getFieldName())) {
-						break;
-					}
-					Integer threshold = joinPredicate.getThreshold();
-					if(Math.abs(outerSpan.getStart() - innerSpan.getStart()) <= threshold &&
-							Math.abs(outerSpan.getEnd() - innerSpan.getEnd()) <= threshold) {
-						Integer newSpanStartIndex = Math.min(outerSpan.getStart(), innerSpan.getStart());
-						Integer newSpanEndIndex = Math.max(outerSpan.getEnd(), innerSpan.getEnd());
+				Integer threshold = joinPredicate.getThreshold();
+				if(Math.abs(outerSpan.getStart() - innerSpan.getStart()) <= threshold &&
+						Math.abs(outerSpan.getEnd() - innerSpan.getEnd()) <= threshold) {
+					Integer newSpanStartIndex = Math.min(outerSpan.getStart(), innerSpan.getStart());
+					Integer newSpanEndIndex = Math.max(outerSpan.getEnd(), innerSpan.getEnd());
 
-						spanKey++;
-						String fieldName = joinPredicate.getjoinAttribute().getFieldName();
-						String fieldValue = (String) innerTuple.getField(fieldName).getValue();
-						String newFieldValue = fieldValue.substring(newSpanStartIndex, newSpanEndIndex);
-						Span newSpan = new Span(
-								// TODO(Flavio): would be nice to use fieldName on the line below
-								joinPredicate.getjoinAttribute().getFieldName(), 
-								newSpanStartIndex, newSpanEndIndex, 
-								// TODO(Flavio): Check the right values for key and value
-								spanKey.toString(), newFieldValue);
-						newJoinSpanList.add(newSpan);
-					}
+					spanKey++;
+					String fieldName = joinPredicate.getjoinAttribute().getFieldName();
+					String fieldValue = (String) innerTuple.getField(fieldName).getValue();
+					String newFieldValue = fieldValue.substring(newSpanStartIndex, newSpanEndIndex);
+					Span newSpan = new Span(
+							// TODO(Flavio): would be nice to use fieldName on the line below
+							fieldName, newSpanStartIndex, newSpanEndIndex, 
+							// TODO(Flavio): Check the right values for key and value
+							spanKey.toString(), newFieldValue);
+					newJoinSpanList.add(newSpan);
 				}
 			}
 		}
-		
+
 		// TODO(Flavio): if newJoinSpanList is empty, should an empty span list be returned or
 		// just don't return the tuple?
 		// TODO schema has to match the type of systemT output and not innerTuple or outerTuple
+		if(newJoinSpanList.isEmpty()) {
+			return null;
+		}
 		Schema schema = innerTuple.getSchema();
 		List<IField> fieldList = innerTuple.getFields();
 		IField[] nextTupleField = new IField[fieldList.size()];
