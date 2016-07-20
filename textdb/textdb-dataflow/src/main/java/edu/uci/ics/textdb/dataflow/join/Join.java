@@ -77,7 +77,6 @@ public class Join implements IOperator{
 			e.printStackTrace();
 			throw new DataFlowException(e.getMessage(), e);
 		}
-		//TODO(Flavio): call innerOperator.close(), we are not going to use it anymore
 	}
 
 	/**
@@ -112,9 +111,6 @@ public class Join implements IOperator{
 				}
 			}
 
-			// TODO(Flavio): if processTuples returns null, that means that the tuples don't
-			// match and we should try the next tuple. Right now the code is just returning,
-			// null, which means there are no more tuples available, which is wrong
 			nextTuple = processTuples(outerTuple, innerTuple, joinPredicate);
 		} while(nextTuple == null);
 
@@ -153,7 +149,6 @@ public class Join implements IOperator{
 		if(!compareId(outerTuple, innerTuple)) {
 			return null;
 		}
-		//TODO(Flavio): remove the else block(not the code), if the id matches the code just continues
 		//TODO(Flavio): getIndex will always return an int, if SchemaConstants.SPAN_LIST doesn't 
 		// exists a NullPointerException will be thrown, it will never return null and the
 		// following comparison will be useless
@@ -191,7 +186,6 @@ public class Join implements IOperator{
 			if(!outerSpan.getFieldName().equals(joinPredicate.getjoinAttribute().getFieldName())) {
 				return null;
 			}
-			// TODO(Flavio): reset innerSpanIter before using it
 			Iterator<Span> innerSpanIter = innerSpanList.iterator();
 			while(innerSpanIter.hasNext()) {
 				Span innerSpan = innerSpanIter.next();
@@ -218,8 +212,6 @@ public class Join implements IOperator{
 			}
 		}
 
-		// TODO(Flavio): if newJoinSpanList is empty, should an empty span list be returned or
-		// just don't return the tuple?
 		// TODO schema has to match the type of systemT output and not innerTuple or outerTuple
 		if(newJoinSpanList.isEmpty()) {
 			return null;
