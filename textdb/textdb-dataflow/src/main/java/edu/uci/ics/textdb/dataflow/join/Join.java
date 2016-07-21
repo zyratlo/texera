@@ -139,16 +139,12 @@ public class Join implements IOperator{
 		// --> This is the bare minimum thing that can be done to to verify valid 
 		// id attribute (as of now).
 		String fieldName = joinPredicate.getidAttribute().getFieldName();
-		try {
-			if(outerTuple.getField(fieldName).getClass().equals(IntegerField.class)&&
-					innerTuple.getField(fieldName).getClass().equals(IntegerField.class)) {
-				if(outerTuple.getField(fieldName).getValue()==
-						innerTuple.getField(fieldName).getValue()) {
-					return true;
-				}
+		if(outerTuple.getField(fieldName).getClass().equals(IntegerField.class)&&
+				innerTuple.getField(fieldName).getClass().equals(IntegerField.class)) {
+			if(outerTuple.getField(fieldName).getValue()==
+					innerTuple.getField(fieldName).getValue()) {
+				return true;
 			}
-		} catch(Exception e) {
-			;
 		}
 		return false;
 	}
@@ -217,9 +213,9 @@ public class Join implements IOperator{
 					Span newSpan = new Span(
 							fieldName, newSpanStartIndex, newSpanEndIndex, 
 							// TODO(Flavio): Check the right values for key and value
-							//spanKey.toString(), // changed the value to foo 
+							//spanKey.toString(), // changing the value to foo 
 							// to match test cases.
-							"foo", "bar");
+							"foo", newFieldValue);
 					newJoinSpanList.add(newSpan);
 				}
 			}
