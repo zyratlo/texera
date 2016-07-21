@@ -2,16 +2,23 @@ package edu.uci.ics.textdb.perftest.regexmatcher;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
 
 import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.core.LowerCaseFilterFactory;
 import org.apache.lucene.analysis.custom.CustomAnalyzer;
 import org.apache.lucene.analysis.ngram.NGramTokenizerFactory;
 
 import edu.uci.ics.textdb.api.common.Attribute;
+import edu.uci.ics.textdb.api.common.ITuple;
+import edu.uci.ics.textdb.common.constants.SchemaConstants;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
 import edu.uci.ics.textdb.common.exception.StorageException;
+import edu.uci.ics.textdb.common.field.ListField;
+import edu.uci.ics.textdb.common.field.Span;
 import edu.uci.ics.textdb.dataflow.common.RegexPredicate;
 import edu.uci.ics.textdb.dataflow.regexmatch.RegexMatcher;
+import edu.uci.ics.textdb.perftest.medline.MedlineIndexWriter;
 import edu.uci.ics.textdb.perftest.medline.MedlineReader;
 import edu.uci.ics.textdb.storage.DataStore;
 
@@ -24,7 +31,7 @@ import edu.uci.ics.textdb.storage.DataStore;
 public class RegexMatcherPerformanceTest {
 	
 	public static void main(String[] args) throws StorageException, IOException, DataFlowException {
-		samplePerformanceTest("./data-files/ipubmed_abs_present.json", "./index");	
+		samplePerformanceTest("C:\\Users\\dennis126\\Desktop\\Summer2017\\labLUNA\\MedlineDataset\\abstract_100K.txt", ".\\index");	
 	}
 
 	public static void samplePerformanceTest(String filePath, String indexPath) 
@@ -32,12 +39,14 @@ public class RegexMatcherPerformanceTest {
 		
 		Analyzer luceneAnalyzer = CustomAnalyzer.builder()
 				.withTokenizer(NGramTokenizerFactory.class, new String[]{"minGramSize", "3", "maxGramSize", "3"})
+				.addTokenFilter(LowerCaseFilterFactory.class)
 				.build();
 		
 		long startIndexTime = System.currentTimeMillis(); 
 		
 		DataStore dataStore = new DataStore(indexPath, MedlineReader.SCHEMA_MEDLINE);
 
+		//not need this if indexes already exist
 //		MedlineIndexWriter.writeMedlineToIndex(filePath, dataStore, luceneAnalyzer);
 		
 		long endIndexTime = System.currentTimeMillis();
@@ -45,8 +54,10 @@ public class RegexMatcherPerformanceTest {
 		System.out.printf("index time: %.4f seconds\n", indexTime);
 		
 		
-		String regex = "\\bmedic(ine|al|ation|are|aid)?\\b";
-
+//		String regex = "\\bmedic(ine|al|ation|are|aid)?\\b";
+//		String regex = "[Mm]arket";
+		String regex = "[Vv][ir]{2}[us]{2}";
+		
 		Attribute[] attributeList = new Attribute[]{ MedlineReader.ABSTRACT_ATTR };
 
 		RegexPredicate regexPredicate = new RegexPredicate(
@@ -72,8 +83,11 @@ public class RegexMatcherPerformanceTest {
 		long startMatchTime = System.currentTimeMillis();
 
 		int counter = 0;
-		while ((regexMatcher.getNextTuple()) != null) {
-			counter++;
+		ITuple result = null;
+		while ((result = regexMatcher.getNextTuple()) != null) {
+//			System.out.println(Utils.getTupleString(result));
+			List<Span> spanList = ((ListField<Span>) result.getField(SchemaConstants.SPAN_LIST)).getValue();
+            counter += spanList.size();
 		}
 		
 		long endMatchTime = System.currentTimeMillis();
