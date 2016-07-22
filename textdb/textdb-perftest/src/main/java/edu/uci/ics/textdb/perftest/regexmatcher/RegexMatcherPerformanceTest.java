@@ -12,7 +12,7 @@ import edu.uci.ics.textdb.common.exception.DataFlowException;
 import edu.uci.ics.textdb.common.exception.StorageException;
 import edu.uci.ics.textdb.dataflow.common.RegexPredicate;
 import edu.uci.ics.textdb.dataflow.regexmatch.RegexMatcher;
-import edu.uci.ics.textdb.perftest.medline.MedlineReader;
+import edu.uci.ics.textdb.perftest.medline.MedlineIndexWriter;
 import edu.uci.ics.textdb.storage.DataStore;
 
 /*
@@ -23,12 +23,12 @@ import edu.uci.ics.textdb.storage.DataStore;
  */
 public class RegexMatcherPerformanceTest {
 	
-	public static void main(String[] args) throws StorageException, IOException, DataFlowException {
-		samplePerformanceTest("./data-files/ipubmed_abs_present.json", "./index");	
+	public static void main(String[] args) throws Exception {
+		samplePerformanceTest("./all-data-files/abstract_1K.txt", "./index/regex_sample_index/");	
 	}
 
 	public static void samplePerformanceTest(String filePath, String indexPath) 
-			throws StorageException, IOException, DataFlowException {
+			throws Exception {
 		
 		Analyzer luceneAnalyzer = CustomAnalyzer.builder()
 				.withTokenizer(NGramTokenizerFactory.class, new String[]{"minGramSize", "3", "maxGramSize", "3"})
@@ -36,9 +36,9 @@ public class RegexMatcherPerformanceTest {
 		
 		long startIndexTime = System.currentTimeMillis(); 
 		
-		DataStore dataStore = new DataStore(indexPath, MedlineReader.SCHEMA_MEDLINE);
+		DataStore dataStore = new DataStore(indexPath, MedlineIndexWriter.SCHEMA_MEDLINE);
 
-//		MedlineIndexWriter.writeMedlineToIndex(filePath, dataStore, luceneAnalyzer);
+		MedlineIndexWriter.writeMedlineToIndex(filePath, dataStore, luceneAnalyzer);
 		
 		long endIndexTime = System.currentTimeMillis();
 		double indexTime = (endIndexTime - startIndexTime)/1000.0;
@@ -47,7 +47,7 @@ public class RegexMatcherPerformanceTest {
 		
 		String regex = "\\bmedic(ine|al|ation|are|aid)?\\b";
 
-		Attribute[] attributeList = new Attribute[]{ MedlineReader.ABSTRACT_ATTR };
+		Attribute[] attributeList = new Attribute[]{ MedlineIndexWriter.ABSTRACT_ATTR };
 
 		RegexPredicate regexPredicate = new RegexPredicate(
 				regex, Arrays.asList(attributeList), 

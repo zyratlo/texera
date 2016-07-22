@@ -29,8 +29,12 @@ public class FileSourceOperator implements ISourceOperator {
 
 	@Override
 	public ITuple getNextTuple() throws Exception {
-		if (scanner.hasNext()) {
-			return this.toTupleFunc.convertToTuple(scanner.nextLine());
+		if (scanner.hasNextLine()) {
+			try {
+				return this.toTupleFunc.convertToTuple(scanner.nextLine());		 
+			} catch (Exception e) {
+				return getNextTuple();
+			}
 		}	
 		return null;
 	}
