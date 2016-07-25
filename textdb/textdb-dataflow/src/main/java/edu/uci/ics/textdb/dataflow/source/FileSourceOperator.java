@@ -39,6 +39,7 @@ public class FileSourceOperator implements ISourceOperator {
 			try {
 				return this.toTupleFunc.convertToTuple(scanner.nextLine());		 
 			} catch (Exception e) {
+				e.printStackTrace(System.err);
 				return getNextTuple();
 			}
 		}	

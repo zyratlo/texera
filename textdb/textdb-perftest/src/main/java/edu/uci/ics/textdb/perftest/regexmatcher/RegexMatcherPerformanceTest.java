@@ -12,6 +12,7 @@ import edu.uci.ics.textdb.common.exception.DataFlowException;
 import edu.uci.ics.textdb.common.exception.StorageException;
 import edu.uci.ics.textdb.dataflow.common.RegexPredicate;
 import edu.uci.ics.textdb.dataflow.regexmatch.RegexMatcher;
+import edu.uci.ics.textdb.engine.Engine;
 import edu.uci.ics.textdb.perftest.medline.MedlineIndexWriter;
 import edu.uci.ics.textdb.storage.DataStore;
 
@@ -38,7 +39,9 @@ public class RegexMatcherPerformanceTest {
 		
 		DataStore dataStore = new DataStore(indexPath, MedlineIndexWriter.SCHEMA_MEDLINE);
 
-		MedlineIndexWriter.writeMedlineToIndex(filePath, dataStore, luceneAnalyzer);
+		Engine writeIndexEngine = Engine.getEngine();
+
+		writeIndexEngine.evaluate(MedlineIndexWriter.getMedlineIndexPlan(filePath, dataStore, luceneAnalyzer));
 		
 		long endIndexTime = System.currentTimeMillis();
 		double indexTime = (endIndexTime - startIndexTime)/1000.0;

@@ -14,11 +14,13 @@ import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.common.Schema;
 import edu.uci.ics.textdb.api.dataflow.ISink;
 import edu.uci.ics.textdb.api.dataflow.ISourceOperator;
+import edu.uci.ics.textdb.api.plan.Plan;
 import edu.uci.ics.textdb.api.storage.IDataStore;
 import edu.uci.ics.textdb.common.field.DataTuple;
 import edu.uci.ics.textdb.common.utils.Utils;
 import edu.uci.ics.textdb.dataflow.sink.IndexSink;
 import edu.uci.ics.textdb.dataflow.source.FileSourceOperator;
+import edu.uci.ics.textdb.engine.Engine;
 
 /*
  * This class defines Medline data schema.
@@ -72,12 +74,13 @@ public class MedlineIndexWriter {
 	}
 	
 	
-	public static void writeMedlineToIndex(String filePath, IDataStore dataStore, Analyzer luceneAnalyzer) throws Exception {
+	public static Plan getMedlineIndexPlan(String filePath, IDataStore dataStore, Analyzer luceneAnalyzer) throws Exception {
 		ISourceOperator fileSourceOperator  = new FileSourceOperator(filePath, (s -> recordToTuple(s)));
-		ISink indexSink = new IndexSink(fileSourceOperator, dataStore.getDataDirectory(), dataStore.getSchema(), luceneAnalyzer);
-		indexSink.open();
-		indexSink.processTuples();
-		indexSink.close();
+		ISink medlineIndexSink = new IndexSink(fileSourceOperator, dataStore.getDataDirectory(), dataStore.getSchema(), luceneAnalyzer);
+		
+		Plan writeIndexPlan = new Plan(medlineIndexSink);
+
+		return writeIndexPlan;
 	}
 
 }
