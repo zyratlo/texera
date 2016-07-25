@@ -72,7 +72,14 @@ public class MedlineIndexWriter {
 		return tuple;
 	}
 	
-	
+	/**
+	 * This function generates a plan that reads file using FileSourceOperator, then writes index using IndexSink.
+	 * @param filePath, path of the file to be read
+	 * @param dataStore, dataStore of the index to be written into
+	 * @param luceneAnalyzer
+	 * @return the plan to write Medline index
+	 * @throws Exception
+	 */	
 	public static Plan getMedlineIndexPlan(String filePath, IDataStore dataStore, Analyzer luceneAnalyzer) throws Exception {
 		ISourceOperator fileSourceOperator  = new FileSourceOperator(filePath, (s -> recordToTuple(s)));
 		ISink medlineIndexSink = new IndexSink(fileSourceOperator, dataStore.getDataDirectory(), dataStore.getSchema(), luceneAnalyzer);
