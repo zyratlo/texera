@@ -47,6 +47,8 @@ public class RegexToGramQueryTranslator {
 		GramBooleanQuery simplifiedDNF = GramBooleanQuery.simplifyDNF(dnf);
 		
 	    TranslatorUtils.escapeSpecialCharacters(simplifiedDNF);
+	    
+	    //Since the inverted index relies on lower-case grams, we need to convert the characters to lower case.
 	    TranslatorUtils.toLowerCase(simplifiedDNF);
 		
 		return simplifiedDNF;

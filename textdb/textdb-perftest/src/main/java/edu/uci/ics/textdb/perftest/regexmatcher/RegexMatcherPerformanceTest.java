@@ -31,7 +31,7 @@ import edu.uci.ics.textdb.storage.DataStore;
 public class RegexMatcherPerformanceTest {
 	
 	public static void main(String[] args) throws StorageException, IOException, DataFlowException {
-		samplePerformanceTest("C:\\Users\\dennis126\\Desktop\\Summer2017\\labLUNA\\MedlineDataset\\abstract_100K.txt", ".\\index");	
+		samplePerformanceTest("./data-files/abstract_100.txt", "./index");	
 	}
 
 	public static void samplePerformanceTest(String filePath, String indexPath) 
@@ -39,6 +39,7 @@ public class RegexMatcherPerformanceTest {
 		
 		Analyzer luceneAnalyzer = CustomAnalyzer.builder()
 				.withTokenizer(NGramTokenizerFactory.class, new String[]{"minGramSize", "3", "maxGramSize", "3"})
+				//Since the inverted index relies on lower-case grams, we need to convert the characters to lower case.
 				.addTokenFilter(LowerCaseFilterFactory.class)
 				.build();
 		
@@ -46,8 +47,8 @@ public class RegexMatcherPerformanceTest {
 		
 		DataStore dataStore = new DataStore(indexPath, MedlineReader.SCHEMA_MEDLINE);
 
-		//not need this if indexes already exist
-//		MedlineIndexWriter.writeMedlineToIndex(filePath, dataStore, luceneAnalyzer);
+		//Write into index. The following line is not necessary if index already exist.
+		MedlineIndexWriter.writeMedlineToIndex(filePath, dataStore, luceneAnalyzer);
 		
 		long endIndexTime = System.currentTimeMillis();
 		double indexTime = (endIndexTime - startIndexTime)/1000.0;
@@ -55,8 +56,7 @@ public class RegexMatcherPerformanceTest {
 		
 		
 //		String regex = "\\bmedic(ine|al|ation|are|aid)?\\b";
-//		String regex = "[Mm]arket";
-		String regex = "[Vv][ir]{2}[us]{2}";
+		String regex = "[Mm]arket";
 		
 		Attribute[] attributeList = new Attribute[]{ MedlineReader.ABSTRACT_ATTR };
 
