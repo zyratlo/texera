@@ -20,7 +20,6 @@ import edu.uci.ics.textdb.common.field.DataTuple;
 import edu.uci.ics.textdb.common.utils.Utils;
 import edu.uci.ics.textdb.dataflow.sink.IndexSink;
 import edu.uci.ics.textdb.dataflow.source.FileSourceOperator;
-import edu.uci.ics.textdb.engine.Engine;
 
 /*
  * This class defines Medline data schema.

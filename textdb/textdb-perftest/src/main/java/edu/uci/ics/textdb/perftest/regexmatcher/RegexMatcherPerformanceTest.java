@@ -1,6 +1,5 @@
 package edu.uci.ics.textdb.perftest.regexmatcher;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -12,21 +11,12 @@ import org.apache.lucene.analysis.ngram.NGramTokenizerFactory;
 import edu.uci.ics.textdb.api.common.Attribute;
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.common.constants.SchemaConstants;
-import edu.uci.ics.textdb.common.exception.DataFlowException;
-import edu.uci.ics.textdb.common.exception.StorageException;
 import edu.uci.ics.textdb.common.field.ListField;
 import edu.uci.ics.textdb.common.field.Span;
 import edu.uci.ics.textdb.dataflow.common.RegexPredicate;
 import edu.uci.ics.textdb.dataflow.regexmatch.RegexMatcher;
-<<<<<<< HEAD
 import edu.uci.ics.textdb.engine.Engine;
 import edu.uci.ics.textdb.perftest.medline.MedlineIndexWriter;
-||||||| merged common ancestors
-import edu.uci.ics.textdb.perftest.medline.MedlineReader;
-=======
-import edu.uci.ics.textdb.perftest.medline.MedlineIndexWriter;
-import edu.uci.ics.textdb.perftest.medline.MedlineReader;
->>>>>>> 6f65681f5580ed16758962ec6662a965ca52d348
 import edu.uci.ics.textdb.storage.DataStore;
 
 /*
@@ -38,7 +28,7 @@ import edu.uci.ics.textdb.storage.DataStore;
 public class RegexMatcherPerformanceTest {
 	
 
-	public static void main(String[] args) throws StorageException, IOException, DataFlowException {
+	public static void main(String[] args) throws Exception {
 		samplePerformanceTest("./data-files/abstract_10K.txt", "./index/trigram/sample_regex_index/");	
 	}
 
