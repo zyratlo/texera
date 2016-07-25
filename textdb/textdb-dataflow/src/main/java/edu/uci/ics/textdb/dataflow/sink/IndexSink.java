@@ -9,6 +9,10 @@ import edu.uci.ics.textdb.common.exception.StorageException;
 import edu.uci.ics.textdb.storage.DataStore;
 import edu.uci.ics.textdb.storage.writer.DataWriter;
 
+/**
+ * IndexSink is a sink that write tuples to index.
+ * @author zuozhi
+ */
 public class IndexSink extends AbstractSink {
 	
 	private DataWriter dataWriter;

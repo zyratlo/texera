@@ -6,6 +6,12 @@ import java.util.Scanner;
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.dataflow.ISourceOperator;
 
+/**
+ * FileSourceOperator treats files in disk as a source.
+ * FileSourceOperator reads a file line by line.
+ * User can provide a custom function to convert a string to tuple. 
+ * @author zuozhi
+ */
 public class FileSourceOperator implements ISourceOperator {
 	
 	@FunctionalInterface

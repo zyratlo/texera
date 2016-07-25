@@ -6,6 +6,10 @@ import java.util.stream.Stream;
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.dataflow.ISourceOperator;
 
+/**
+ * TupleSourceOperator treats tuples in memory as a source.
+ * @author zuozhi
+ */
 public class TupleSourceOperator implements ISourceOperator {
 	
 	Stream<ITuple> tupleStream;

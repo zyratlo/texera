@@ -1,10 +1,7 @@
 package edu.uci.ics.textdb.perftest.medline;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Scanner;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.json.JSONException;
