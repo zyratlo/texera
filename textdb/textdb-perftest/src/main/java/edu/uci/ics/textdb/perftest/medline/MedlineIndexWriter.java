@@ -73,11 +73,11 @@ public class MedlineIndexWriter {
 	}
 	
 	/**
-	 * This function generates a plan that reads file using FileSourceOperator, then writes index using IndexSink.
+	 * This function generates a plan that reads a file using FileSourceOperator, then writes index using IndexSink.
 	 * @param filePath, path of the file to be read
 	 * @param dataStore, dataStore of the index to be written into
 	 * @param luceneAnalyzer
-	 * @return the plan to write Medline index
+	 * @return the plan to write a Medline index
 	 * @throws Exception
 	 */	
 	public static Plan getMedlineIndexPlan(String filePath, IDataStore dataStore, Analyzer luceneAnalyzer) throws Exception {

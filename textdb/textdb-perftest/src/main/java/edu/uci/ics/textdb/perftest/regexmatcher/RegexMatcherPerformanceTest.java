@@ -35,7 +35,7 @@ public class RegexMatcherPerformanceTest {
 	public static void samplePerformanceTest(String filePath, String indexPath) 
 			throws Exception {
 		
-		// analyzer should generate trigrams all in lower case to build a lower case index. 
+		// analyzer should generate grams all in lower case to build a lower case index. 
 		Analyzer luceneAnalyzer = CustomAnalyzer.builder()
 				.withTokenizer(NGramTokenizerFactory.class, new String[]{"minGramSize", "3", "maxGramSize", "3"})
 				.addTokenFilter(LowerCaseFilterFactory.class)
