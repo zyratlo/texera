@@ -73,7 +73,7 @@ public class KeywordPredicate implements IPredicate{
     private Query createLuceneQueryObject() throws ParseException {
 
         List<String> textFieldList = new ArrayList<String>();
-        BooleanQuery luceneBooleanQuery = new BooleanQuery();
+        BooleanQuery.Builder booleanQueryBuilder = new BooleanQuery.Builder();
 
         for(int i=0; i < attributeList.size(); i++){
 
@@ -85,7 +85,7 @@ public class KeywordPredicate implements IPredicate{
              */
             if(attributeList.get(i).getFieldType() == FieldType.STRING){
                 Query termQuery = new TermQuery(new Term(fieldName, query));
-                luceneBooleanQuery.add(termQuery, BooleanClause.Occur.SHOULD);
+                booleanQueryBuilder.add(termQuery, BooleanClause.Occur.SHOULD);
             }
             else {
                 textFieldList.add(fieldName);
@@ -93,7 +93,7 @@ public class KeywordPredicate implements IPredicate{
         }
 
         if(textFieldList.size()==0){
-            return luceneBooleanQuery;
+            return booleanQueryBuilder.build();
         }
 
         /*
@@ -101,25 +101,25 @@ public class KeywordPredicate implements IPredicate{
         and generate  boolean query (Textfield is Case Insensitive)
          */
         String[] remainingTextFields = (String[]) textFieldList.toArray(new String[0]);
-        BooleanQuery queryOnTextFields = new BooleanQuery();
+        BooleanQuery.Builder queryOnTextFieldsBuilder = new BooleanQuery.Builder();
         MultiFieldQueryParser parser = new MultiFieldQueryParser(remainingTextFields, luceneAnalyzer);
 
         if(operatorType == KeywordMatchingType.CONJUNCTION_INDEXBASED) {
             for (String searchToken : this.tokens) {
                 Query termQuery = parser.parse(searchToken);
-                queryOnTextFields.add(termQuery, BooleanClause.Occur.MUST);
+                queryOnTextFieldsBuilder.add(termQuery, BooleanClause.Occur.MUST);
             }
         }
 
         else if(operatorType == KeywordMatchingType.PHRASE_INDEXBASED){
             Query termQuery = parser.parse("\""+query+"\"");
-            queryOnTextFields.add(termQuery, BooleanClause.Occur.MUST);
+            queryOnTextFieldsBuilder.add(termQuery, BooleanClause.Occur.MUST);
         }
         /*
         Merge the query for non-String fields with the StringField Query
          */
-        luceneBooleanQuery.add(queryOnTextFields,BooleanClause.Occur.SHOULD);
-        return luceneBooleanQuery;
+        booleanQueryBuilder.add(queryOnTextFieldsBuilder.build(), BooleanClause.Occur.SHOULD);
+        return booleanQueryBuilder.build();
     }
 
     public KeywordMatchingType getOperatorType() { return operatorType; }
