@@ -136,7 +136,6 @@ public class NlpExtractor implements IOperator {
             }
             ITuple returnTuple = Utils.getSpanTuple(sourceTuple.getFields(),
                     spanList, returnSchema);
-            sourceTuple = sourceOperator.getNextTuple();
             return returnTuple;
         }
     }
