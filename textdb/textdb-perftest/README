@@ -1,14 +1,19 @@
 NOTE: Don't remove the file named .gitignore in any directory! 
 
-Step 1-Prepare Index:
-By default, there is a small data set named "abstract_100.txt" in ./data-files/, and the data
-set has already been written into an index located at ./index/.
-If you are satisfied with the default data set and index, then move onto Step 2.
+Step 1-Prepare Data Set:
 
+By default, there is a small data set named "abstract_100.txt" in ./data-files/.
 If you want to get results from more data sets, please put the data files into ./data-files/. 
-Then, run WriteIndex.java in edu.uci.ics.textdb.perftest.run.
 
-Step 2-Prepare Queries:
+More data set can be found at:
+https://drive.google.com/drive/u/0/folders/0Bxp0qxtbSGxYd0s3NXZPQTJtUkE
+ 
+Step 2-Prepare Index:
+In order to write index, run WriteIndex.java in edu.uci.ics.textdb.perftest.run.
+NOTE: Once index is created, it can be reused (no writing index needed in the future)!!!!
+		However, if you make changes to your data set(s), writing index is still needed.
+
+Step 3-Prepare Queries:
 By default, there is a sample query file named "sample_queries.txt" in ./data-files/queries/.
 These queries are used in all operator performance test except regexmatcher.
 The default regex queries is defined in RunPerftests.java.
@@ -20,10 +25,10 @@ or change the regex queries listed in RunPerftests.java.
 In RunPerftests.java, you can see some operator performance tests take in a query file as a parameter.
 Please change the query file name to the one you want in
  
-Step 3-Run Performance Tests:
+Step 4-Run Performance Tests:
 In order to run the performance tests, please run RunPerftests.java in edu.uci.ics.textdb.perftest.run
 
-Step 3-Review Test Results:
+Step 5-Review Test Results:
 Performance test results can be found in the corresponding folders in ./data-files/results/.
 For example, test results for dictionary matcher can be found in ./data-files/results/queries/.
  
