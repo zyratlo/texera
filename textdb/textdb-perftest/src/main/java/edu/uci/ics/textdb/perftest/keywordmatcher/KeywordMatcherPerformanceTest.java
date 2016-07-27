@@ -71,7 +71,7 @@ public class KeywordMatcherPerformanceTest {
 		ArrayList<String> queries = PerfTestUtils.readQueries(PerfTestUtils.getQueryPath(queryFileName));
 
 		// Checks whether "keyword" folder exists in
-		// ./data-files/results/keyword/
+		// ./data-files/results/
 		if (!new File(PerfTestUtils.resultFolder, "keyword").exists()) {
 			File resultFile = new File(PerfTestUtils.resultFolder + csvFileFolder);
 			resultFile.mkdir();
