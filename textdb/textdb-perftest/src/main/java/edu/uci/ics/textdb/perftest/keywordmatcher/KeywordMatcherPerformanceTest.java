@@ -160,7 +160,7 @@ public class KeywordMatcherPerformanceTest {
 			double matchTime = (endMatchTime - startMatchTime)/1000.0;
 		
 			timeResults.add(Double.parseDouble(String.format("%.4f", matchTime)));
-			totalResultCount+= counter;
+			totalResultCount += counter;
  
 			}
 		}
