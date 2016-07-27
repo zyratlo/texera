@@ -184,5 +184,15 @@ public class TranslatorUtils {
 		}
 
 	}
+	
+	static void toLowerCase(GramBooleanQuery query){
+		if (query.operator == QueryOp.LEAF) {
+			query.leaf = query.leaf.toLowerCase();
+		} else {
+			for (GramBooleanQuery subQuery : query.subQuerySet) {
+				toLowerCase(subQuery);
+			}
+		}
+	}
 
 }
