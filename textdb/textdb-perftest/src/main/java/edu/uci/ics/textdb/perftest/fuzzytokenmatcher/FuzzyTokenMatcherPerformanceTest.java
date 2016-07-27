@@ -48,7 +48,7 @@ public class FuzzyTokenMatcherPerformanceTest {
 	 *            this file contains line(s) of queries; the file must be placed
 	 *            in ./data-files/queries/
 	 * @param iterationNumber:
-	 *            the number of times the test expected to be ran
+	 *            the number of times the test expected to be run
 	 * @param thresholds:
 	 *            a list of thresholds
 	 * @return
@@ -66,17 +66,24 @@ public class FuzzyTokenMatcherPerformanceTest {
 	public static void runTest(String queryFileName, int iterationNumber, List<Double> thresholds)
 			throws StorageException, DataFlowException, IOException {
 
-		ArrayList<String> queries = PerfTestUtils.readQueries(PerfTestUtils.getQueryPath(dictFile));
+		// Reads queries from query file into a list
+		ArrayList<String> queries = PerfTestUtils.readQueries(PerfTestUtils.getQueryPath(queryFileName));
 		FileWriter fileWriter = null;
-
+		
+		// Checks whether "fuzzytoken" folder exists in
+		// ./data-files/results/. If not create one.
 		if (!new File(PerfTestUtils.resultFolder, "fuzzytoken").exists()) {
 			File resultFile = new File(PerfTestUtils.resultFolder + csvFileFolder);
 			resultFile.mkdir();
 		}
 
+		// Gets the current time for naming the cvs file
 		String currentTime = PerfTestUtils.formatTime(System.currentTimeMillis());
 		String csvFile = csvFileFolder + currentTime + ".csv";
 		fileWriter = new FileWriter(PerfTestUtils.getResultPath(csvFile));
+		
+		// Iterates through the times of test
+		// Writes results to the csv file
 		for (int i = 1; i <= iterationNumber; i++) {
 			fileWriter.append("Cycle" + i);
 			fileWriter.append(newLine);
