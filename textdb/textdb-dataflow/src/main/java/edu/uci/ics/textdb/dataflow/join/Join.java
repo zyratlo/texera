@@ -139,7 +139,7 @@ public class Join implements IOperator{
 		// Will throw an exception if it doesn't exist. This leads to return false.
 		// Then check if both the fields are of type IntegerField.
 		// --> This is the bare minimum thing that can be done to to verify valid 
-		// id attribute (as of now) (better to add a field called ID).
+		// id attribute (as of now) (probably it is better to add a field called ID).
 		String fieldName = joinPredicate.getidAttribute().getFieldName();
 		try {
 			if(outerTuple.getField(fieldName).getClass().equals(IntegerField.class)&&
