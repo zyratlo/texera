@@ -45,7 +45,7 @@ public class DictionaryMatcherPerformanceTest {
 
 	/**
 	 * @param queryFileName:
-	 *            this file contains line(s) of phrases/words which used to form
+	 *            this file contains line(s) of phrases/words which are used to form
 	 *            a dictionary for matching; the file must be placed in
 	 *            ./data-files/queries/.
 	 * 
