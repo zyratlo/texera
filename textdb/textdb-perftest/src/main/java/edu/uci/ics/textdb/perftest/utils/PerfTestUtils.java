@@ -27,7 +27,7 @@ public class PerfTestUtils {
 	public static final String standardIndexFolder = "./index/standard/";
 	public static final String trigramIndexFolder = "./index/trigram/";
 	public static final String resultFolder = "./data-files/results/";
-	public static final String dictFolder = "./data-files/dictionaries/";
+	public static final String dictFolder = "./data-files/queries/";
 	
 	/**
 	 * 
