@@ -112,7 +112,7 @@ public class Join implements IOperator{
 				}
 			}
 
-			nextTuple = processTuples(outerTuple, innerTuple, joinPredicate);
+			nextTuple = joinTuples(outerTuple, innerTuple, joinPredicate);
 		} while(nextTuple == null);
 
 		return nextTuple;
@@ -134,8 +134,9 @@ public class Join implements IOperator{
 
 	// Used to compare IDs of the tuples.
 	private boolean compareId(ITuple outerTuple, ITuple innerTuple) {
-		// TODO(Flavio): what if the join predicate has an invalid id attribute?
-		// First check if the field in question exits by using try catch.
+		// Check for the Validity of ID field and if both the ID fields are equal.
+		
+		// First check if the field in question exists by using try catch.
 		// Will throw an exception if it doesn't exist. This leads to return false.
 		// Then check if both the fields are of type IntegerField.
 		// --> This is the bare minimum thing that can be done to to verify valid 
@@ -144,8 +145,8 @@ public class Join implements IOperator{
 		try {
 			if(outerTuple.getField(fieldName).getClass().equals(IntegerField.class)&&
 					innerTuple.getField(fieldName).getClass().equals(IntegerField.class)) {
-				if(outerTuple.getField(fieldName).getValue()==
-						innerTuple.getField(fieldName).getValue()) {
+				if(outerTuple.getField(fieldName).getValue()
+						.equals(innerTuple.getField(fieldName).getValue())) {
 					return true;
 				}
 			}
@@ -156,22 +157,23 @@ public class Join implements IOperator{
 	}
 
 	// Process the tuples to get a tuple with join result if predicate is satisfied.
-	private ITuple processTuples(ITuple outerTuple, ITuple innerTuple, JoinPredicate joinPredicate) throws Exception {
+	private ITuple joinTuples(ITuple outerTuple, ITuple innerTuple, JoinPredicate joinPredicate) throws Exception {
 		ITuple nextTuple = null;
 		List<Span> newJoinSpanList = new ArrayList<>();
 
 		if(!compareId(outerTuple, innerTuple)) {
 			return null;
 		}
-		//TODO(Flavio): getIndex will always return an int, if SchemaConstants.SPAN_LIST doesn't 
-		// exists a NullPointerException will be thrown, it will never return null and the
-		// following comparison will be useless
+
 		// If either/both tuples have no span information, return null.
-		Integer indexOfInnerSpanList = null;
-		Integer indexOfOuterSpanList = null;
+		// Check using try/catch if both the tuples have span information.
+		// If not return null; so we can process next tuple.
+		
+		IField spanFieldOfInnerTuple = null;
+		IField spanFieldOfOuterTuple = null;
 		try {
-			indexOfInnerSpanList = innerTuple.getSchema().getIndex(SchemaConstants.SPAN_LIST);
-			indexOfOuterSpanList = outerTuple.getSchema().getIndex(SchemaConstants.SPAN_LIST);
+			spanFieldOfInnerTuple = innerTuple.getField(SchemaConstants.SPAN_LIST);
+			spanFieldOfOuterTuple = outerTuple.getField(SchemaConstants.SPAN_LIST);
 		} catch(Exception e) {
 			return null;
 		}
@@ -185,11 +187,11 @@ public class Join implements IOperator{
 		// Check if both the fields obtained from the indexes are indeed of type ListField
 		// TODO(Flavio): should SchemaConstants.SPAN_LIST be a reserved or special 
 		// fieldName? In that case we don't need to check if the classes are equal
-		if(innerTuple.getField(indexOfInnerSpanList).getClass().equals(ListField.class)) {
-			innerSpanList = (List<Span>) innerTuple.getField(indexOfInnerSpanList).getValue();
+		if(spanFieldOfInnerTuple.getClass().equals(ListField.class)) {
+			innerSpanList = (List<Span>) spanFieldOfInnerTuple.getValue();
 		}
-		if(outerTuple.getField(indexOfOuterSpanList).getClass().equals(ListField.class)) {
-			outerSpanList = (List<Span>) outerTuple.getField(indexOfOuterSpanList).getValue();
+		if(spanFieldOfOuterTuple.getClass().equals(ListField.class)) {
+			outerSpanList = (List<Span>) spanFieldOfOuterTuple.getValue();
 		}
 
 		Iterator<Span> outerSpanIter = outerSpanList.iterator();
@@ -198,13 +200,13 @@ public class Join implements IOperator{
 			Span outerSpan = outerSpanIter.next();
 			// Check if the field matches the filed over which we want to join. If not return null.
 			if(!outerSpan.getFieldName().equals(joinPredicate.getjoinAttribute().getFieldName())) {
-				return null;
+				continue;
 			}
 			Iterator<Span> innerSpanIter = innerSpanList.iterator();
 			while(innerSpanIter.hasNext()) {
 				Span innerSpan = innerSpanIter.next();
 				if(!innerSpan.getFieldName().equals(joinPredicate.getjoinAttribute().getFieldName())) {
-					return null;
+					continue;
 				}
 				Integer threshold = joinPredicate.getThreshold();
 				if(Math.abs(outerSpan.getStart() - innerSpan.getStart()) <= threshold &&
