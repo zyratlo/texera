@@ -1,11 +1,13 @@
 package edu.uci.ics.textdb.dataflow.common;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
@@ -30,130 +32,161 @@ import edu.uci.ics.textdb.storage.DataReaderPredicate;
 /**
  * This class handles creation of predicate for querying using Keyword Matcher
  */
-public class KeywordPredicate implements IPredicate{
+public class KeywordPredicate implements IPredicate {
 
-    private final List<Attribute> attributeList;
-    private final String query;
-    private final Query luceneQuery;
-    private ArrayList<String> tokens;
-    private Analyzer luceneAnalyzer;
-    private IDataStore dataStore;
-    private KeywordMatchingType operatorType;
+	private final List<Attribute> attributeList;
+	private final String query;
+	private final Query luceneQuery;
+	private ArrayList<String> tokenList;
+	private Set<String> tokenSet;
+	private Analyzer luceneAnalyzer;
+	private IDataStore dataStore;
+	private KeywordMatchingType operatorType;
 
-    /*
-    query refers to string of keywords to search for.
-    For Ex. New york if searched in TextField, we would consider both tokens
-    New and York; if searched in String field we search for Exact string.
-     */
-    public KeywordPredicate(String query, List<Attribute> attributeList, KeywordMatchingType operatorType, Analyzer luceneAnalyzer, IDataStore dataStore ) throws DataFlowException{
-        try {
-            this.query = query;
-            this.tokens = Utils.tokenizeQueryWithStopwords(query);
-            this.attributeList = attributeList;
-            this.operatorType = operatorType;
-            this.dataStore = dataStore;
-            this.luceneAnalyzer = luceneAnalyzer;
-            this.luceneQuery = createLuceneQueryObject();
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new DataFlowException(e.getMessage(), e);
-        }
-    }
-
-    /**
-     * Creates a Query object as a boolean Query on all attributes
-     * Example: For creating a query like
-     * (TestConstants.DESCRIPTION + ":lin" + " AND " + TestConstants.LAST_NAME + ":lin")
-     * we provide a list of AttributeFields (Description, Last_name) to search on and a query string (lin)
-     *
-     * TODO #88:BooleanQuery() is deprecated. In future a better solution could be worked out in Query builder layer
-     *
-     * @return Query
-     * @throws ParseException
-     */
-    private Query createLuceneQueryObject() throws ParseException {
-
-        List<String> textFieldList = new ArrayList<String>();
-        BooleanQuery.Builder booleanQueryBuilder = new BooleanQuery.Builder();
-        
-        for(int i=0; i < attributeList.size(); i++){
-
-            String fieldName = attributeList.get(i).getFieldName();
-
-            /*
-            If the field type is String, we need to perform an exact match
-            without parsing the query (Case Sensitive). Hence add them directly to the Query.
-             */
-            if(attributeList.get(i).getFieldType() == FieldType.STRING){
-                Query termQuery = new TermQuery(new Term(fieldName, query));
-                booleanQueryBuilder.add(termQuery, BooleanClause.Occur.SHOULD);
-            } else {
-				if (tokens.size() >= 2) {
-					PhraseQuery.Builder builder = new PhraseQuery.Builder();
-					for (int j = 0; j < tokens.size(); j++) {
-						builder.add(new Term(attributeList.get(i)
-								.getFieldName(), tokens.get(j)), j);
-					}
-					PhraseQuery pq = builder.build();
-					booleanQueryBuilder.add(pq, BooleanClause.Occur.SHOULD);
-				} else {
-					textFieldList.add(fieldName);
-				}
-            }
-        }
-        if(textFieldList.size()==0){
-            return booleanQueryBuilder.build();
-        }
-
-        /*
-        For all the other fields , parse the query using query parser
-        and generate  boolean query (Textfield is Case Insensitive)
-         */
-        String[] remainingTextFields = (String[]) textFieldList.toArray(new String[0]);
-        BooleanQuery.Builder queryOnTextFieldsBuilder = new BooleanQuery.Builder();
-        MultiFieldQueryParser parser = new MultiFieldQueryParser(remainingTextFields, luceneAnalyzer);
-
-        if(operatorType == KeywordMatchingType.CONJUNCTION_INDEXBASED) {
-            for (String searchToken : this.tokens) {
-                Query termQuery = parser.parse(searchToken);
-                queryOnTextFieldsBuilder.add(termQuery, BooleanClause.Occur.MUST);
-            }
-        }
-
-        else if(operatorType == KeywordMatchingType.PHRASE_INDEXBASED){
-            Query termQuery = parser.parse("\""+query+"\"");
-            queryOnTextFieldsBuilder.add(termQuery, BooleanClause.Occur.MUST);
-        }
-        /*
-        Merge the query for non-String fields with the StringField Query
-         */
-        booleanQueryBuilder.add(queryOnTextFieldsBuilder.build(), BooleanClause.Occur.SHOULD);
-        return booleanQueryBuilder.build();
+	/*
+	 * query refers to string of keywords to search for. For Ex. New york if
+	 * searched in TextField, we would consider both tokens New and York; if
+	 * searched in String field we search for Exact string.
+	 */
+	public KeywordPredicate(String query, List<Attribute> attributeList, KeywordMatchingType operatorType,
+			Analyzer luceneAnalyzer, IDataStore dataStore) throws DataFlowException {
+		try {
+			this.query = query;
+			this.tokenList = Utils.tokenizeQuery(luceneAnalyzer, query);
+			this.tokenSet = new HashSet<>(this.tokenList);
+			this.attributeList = attributeList;
+			this.operatorType = operatorType;
+			this.dataStore = dataStore;
+			this.luceneAnalyzer = luceneAnalyzer;
+			this.luceneQuery = createLuceneQueryObject();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new DataFlowException(e.getMessage(), e);
+		}
 	}
 
-    public KeywordMatchingType getOperatorType() { return operatorType; }
+	/**
+	 * Creates a Query object as a boolean Query on all attributes Example: For
+	 * creating a query like (TestConstants.DESCRIPTION + ":lin" + " AND " +
+	 * TestConstants.LAST_NAME + ":lin") we provide a list of AttributeFields
+	 * (Description, Last_name) to search on and a query string (lin)
+	 *
+	 * @return Query
+	 * @throws ParseException
+	 */
+	private Query createLuceneQueryObject() throws ParseException {
+		Query query = null;
+		if (this.operatorType == KeywordMatchingType.CONJUNCTION_INDEXBASED) {
+			query = buildConjunctionQuery();
+		}
+		if (this.operatorType == KeywordMatchingType.PHRASE_INDEXBASED) {
+			query = buildPhraseQuery();
+		}
+		if (this.operatorType == KeywordMatchingType.SUBSTRING_SCANBASED) {
+			query = buildScanQuery();
+		}
 
-    public String getQuery(){
-        return query;
-    }
+		return query;
+	}
+	
+	
+	
+	private Query buildConjunctionQuery() {
+		BooleanQuery.Builder booleanQueryBuilder = new BooleanQuery.Builder();
+		
+		for (Attribute attribute : this.attributeList) {
+			String fieldName = attribute.getFieldName();
+			FieldType fieldType = attribute.getFieldType();
+			
+			if (fieldType == FieldType.STRING) {
+				Query termQuery = new TermQuery(new Term(fieldName, this.query));
+				booleanQueryBuilder.add(termQuery, BooleanClause.Occur.SHOULD);
+			}		
+			if (fieldType == FieldType.TEXT) {
+				BooleanQuery.Builder fieldQueryBuilder = new BooleanQuery.Builder();
+				for (String token : this.tokenSet) {
+					Query termQuery = new TermQuery(new Term(fieldName, token.toLowerCase()));
+					fieldQueryBuilder.add(termQuery, BooleanClause.Occur.MUST);
+				}
+				booleanQueryBuilder.add(fieldQueryBuilder.build(), BooleanClause.Occur.SHOULD);
+			}
+			
+			// if it's not TEXT or STRING, we don't send query here
+		}
+		
+		return booleanQueryBuilder.build();	
+	}
+	
+	
+	private Query buildPhraseQuery() {
+		BooleanQuery.Builder booleanQueryBuilder = new BooleanQuery.Builder();
+		
+		List<String> tokenListWithStopWords = Utils.tokenizeQueryWithStopwords(this.query);
+		
+		for (Attribute attribute : this.attributeList) {
+			String fieldName = attribute.getFieldName();
+			FieldType fieldType = attribute.getFieldType();
+			
+			if (fieldType == FieldType.STRING) {
+				Query termQuery = new TermQuery(new Term(fieldName, this.query));
+				booleanQueryBuilder.add(termQuery, BooleanClause.Occur.SHOULD);
+			}		
+			if (fieldType == FieldType.TEXT) {
+				if (tokenList.size() == 1) {
+					Query termQuery = new TermQuery(new Term(fieldName, this.query.toLowerCase()));
+					booleanQueryBuilder.add(termQuery, BooleanClause.Occur.SHOULD);
+				} else {
+					PhraseQuery.Builder phraseQueryBuilder = new PhraseQuery.Builder();
+					for (int i = 0; i < tokenListWithStopWords.size(); i++) {
+						if (! StandardAnalyzer.STOP_WORDS_SET.contains(tokenListWithStopWords.get(i))) {
+							phraseQueryBuilder.add(new Term(fieldName, tokenListWithStopWords.get(i).toLowerCase()), i);
+						}
+					}
+					PhraseQuery phraseQuery = phraseQueryBuilder.build();
+					booleanQueryBuilder.add(phraseQuery, BooleanClause.Occur.SHOULD);
+				}
+			}
+			
+			// if it's not TEXT or STRING, we don't send query here
+		}
+		
+		return booleanQueryBuilder.build();
+	}
+	
+	private Query buildScanQuery() {
+		return null;
+	}
 
-    public List<Attribute> getAttributeList() {
-        return attributeList;
-    }
+	
+	
+	public KeywordMatchingType getOperatorType() {
+		return operatorType;
+	}
 
-    public Query getQueryObject(){return this.luceneQuery;}
+	public String getQuery() {
+		return query;
+	}
 
-    public ArrayList<String> getTokens(){return this.tokens;}
+	public List<Attribute> getAttributeList() {
+		return attributeList;
+	}
 
-    public Analyzer getLuceneAnalyzer(){
-        return luceneAnalyzer;
-    }
+	public Query getQueryObject() {
+		return this.luceneQuery;
+	}
 
-    public DataReaderPredicate getDataReaderPredicate() {
-        DataReaderPredicate dataReaderPredicate = new DataReaderPredicate(this.dataStore, this.luceneQuery,
-                this.query, this.luceneAnalyzer, this.attributeList);
-        return dataReaderPredicate;
-    }
+	public ArrayList<String> getTokens() {
+		return this.tokenList;
+	}
 
+	public Analyzer getLuceneAnalyzer() {
+		return luceneAnalyzer;
+	}
+
+	public DataReaderPredicate getDataReaderPredicate() {
+		DataReaderPredicate dataReaderPredicate = new DataReaderPredicate(this.dataStore, this.luceneQuery, this.query,
+				this.luceneAnalyzer, this.attributeList);
+		return dataReaderPredicate;
+	}
 
 }

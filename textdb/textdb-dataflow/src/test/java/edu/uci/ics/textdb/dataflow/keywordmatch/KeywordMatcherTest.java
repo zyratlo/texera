@@ -31,6 +31,7 @@ import edu.uci.ics.textdb.common.field.ListField;
 import edu.uci.ics.textdb.common.field.Span;
 import edu.uci.ics.textdb.common.field.StringField;
 import edu.uci.ics.textdb.common.field.TextField;
+import edu.uci.ics.textdb.common.utils.Utils;
 import edu.uci.ics.textdb.dataflow.common.KeywordPredicate;
 import edu.uci.ics.textdb.dataflow.utils.TestUtils;
 import edu.uci.ics.textdb.storage.DataStore;
@@ -145,10 +146,6 @@ public class KeywordMatcherTest {
         //Perform Query
         List<ITuple> resultList = getPeopleQueryResults(query, attributeList);
         
-        for (ITuple tuple11 : resultList){
-        	System.out.println(tuple11.toString());
-        }
-
         //Perform Check
         boolean contains = TestUtils.containsAllResults(expectedResultList, resultList);
         Assert.assertTrue(contains);
@@ -198,7 +195,7 @@ public class KeywordMatcherTest {
 
         //Perform Query
         List<ITuple> resultList = getPeopleQueryResults(query, attributeList);
-
+        
         //Perform Check
         boolean contains = TestUtils.containsAllResults(expectedResultList, resultList);
         Assert.assertTrue(contains);

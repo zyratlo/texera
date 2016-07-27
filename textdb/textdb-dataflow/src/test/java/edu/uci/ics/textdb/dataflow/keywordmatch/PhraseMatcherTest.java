@@ -31,6 +31,7 @@ import edu.uci.ics.textdb.common.field.ListField;
 import edu.uci.ics.textdb.common.field.Span;
 import edu.uci.ics.textdb.common.field.StringField;
 import edu.uci.ics.textdb.common.field.TextField;
+import edu.uci.ics.textdb.common.utils.Utils;
 import edu.uci.ics.textdb.dataflow.common.KeywordPredicate;
 import edu.uci.ics.textdb.dataflow.utils.TestUtils;
 import edu.uci.ics.textdb.storage.DataStore;
@@ -144,6 +145,7 @@ public class PhraseMatcherTest {
 
         //Perform Query
         List<ITuple> resultList = getPeopleQueryResults(query, attributeList);
+        System.out.println(Utils.getTupleListString(resultList));
 
         //Perform Check
         boolean contains = TestUtils.containsAllResults(expectedResultList, resultList);
