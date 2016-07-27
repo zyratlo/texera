@@ -10,6 +10,7 @@ import org.apache.lucene.queryparser.classic.ParseException;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import edu.uci.ics.textdb.api.common.Attribute;
@@ -143,6 +144,10 @@ public class KeywordMatcherTest {
 
         //Perform Query
         List<ITuple> resultList = getPeopleQueryResults(query, attributeList);
+        
+        for (ITuple tuple11 : resultList){
+        	System.out.println(tuple11.toString());
+        }
 
         //Perform Check
         boolean contains = TestUtils.containsAllResults(expectedResultList, resultList);
@@ -155,7 +160,6 @@ public class KeywordMatcherTest {
      * word queries in Text Field
      * @throws Exception
      */
-
     @Test
     public void testSingleWordQueryInTextField() throws Exception {
         //Prepare Query

@@ -9,6 +9,7 @@ import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.PhraseQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
 
@@ -47,7 +48,7 @@ public class KeywordPredicate implements IPredicate{
     public KeywordPredicate(String query, List<Attribute> attributeList, KeywordMatchingType operatorType, Analyzer luceneAnalyzer, IDataStore dataStore ) throws DataFlowException{
         try {
             this.query = query;
-            this.tokens = Utils.tokenizeQuery(luceneAnalyzer, query);
+            this.tokens = Utils.tokenizeQueryWithStopwords(query);
             this.attributeList = attributeList;
             this.operatorType = operatorType;
             this.dataStore = dataStore;
@@ -73,8 +74,8 @@ public class KeywordPredicate implements IPredicate{
     private Query createLuceneQueryObject() throws ParseException {
 
         List<String> textFieldList = new ArrayList<String>();
-        BooleanQuery luceneBooleanQuery = new BooleanQuery();
-
+        BooleanQuery.Builder booleanQueryBuilder = new BooleanQuery.Builder();
+        
         for(int i=0; i < attributeList.size(); i++){
 
             String fieldName = attributeList.get(i).getFieldName();
@@ -85,15 +86,23 @@ public class KeywordPredicate implements IPredicate{
              */
             if(attributeList.get(i).getFieldType() == FieldType.STRING){
                 Query termQuery = new TermQuery(new Term(fieldName, query));
-                luceneBooleanQuery.add(termQuery, BooleanClause.Occur.SHOULD);
-            }
-            else {
-                textFieldList.add(fieldName);
+                booleanQueryBuilder.add(termQuery, BooleanClause.Occur.SHOULD);
+            } else {
+				if (tokens.size() >= 2) {
+					PhraseQuery.Builder builder = new PhraseQuery.Builder();
+					for (int j = 0; j < tokens.size(); j++) {
+						builder.add(new Term(attributeList.get(i)
+								.getFieldName(), tokens.get(j)), j);
+					}
+					PhraseQuery pq = builder.build();
+					booleanQueryBuilder.add(pq, BooleanClause.Occur.SHOULD);
+				} else {
+					textFieldList.add(fieldName);
+				}
             }
         }
-
         if(textFieldList.size()==0){
-            return luceneBooleanQuery;
+            return booleanQueryBuilder.build();
         }
 
         /*
@@ -101,26 +110,26 @@ public class KeywordPredicate implements IPredicate{
         and generate  boolean query (Textfield is Case Insensitive)
          */
         String[] remainingTextFields = (String[]) textFieldList.toArray(new String[0]);
-        BooleanQuery queryOnTextFields = new BooleanQuery();
+        BooleanQuery.Builder queryOnTextFieldsBuilder = new BooleanQuery.Builder();
         MultiFieldQueryParser parser = new MultiFieldQueryParser(remainingTextFields, luceneAnalyzer);
 
         if(operatorType == KeywordMatchingType.CONJUNCTION_INDEXBASED) {
             for (String searchToken : this.tokens) {
                 Query termQuery = parser.parse(searchToken);
-                queryOnTextFields.add(termQuery, BooleanClause.Occur.MUST);
+                queryOnTextFieldsBuilder.add(termQuery, BooleanClause.Occur.MUST);
             }
         }
 
         else if(operatorType == KeywordMatchingType.PHRASE_INDEXBASED){
             Query termQuery = parser.parse("\""+query+"\"");
-            queryOnTextFields.add(termQuery, BooleanClause.Occur.MUST);
+            queryOnTextFieldsBuilder.add(termQuery, BooleanClause.Occur.MUST);
         }
         /*
         Merge the query for non-String fields with the StringField Query
          */
-        luceneBooleanQuery.add(queryOnTextFields,BooleanClause.Occur.SHOULD);
-        return luceneBooleanQuery;
-    }
+        booleanQueryBuilder.add(queryOnTextFieldsBuilder.build(), BooleanClause.Occur.SHOULD);
+        return booleanQueryBuilder.build();
+	}
 
     public KeywordMatchingType getOperatorType() { return operatorType; }
 
