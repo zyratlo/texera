@@ -1,0 +1,17 @@
+NOTE: Don't remove the file named .gitignore in any directory! 
+
+Step 1-Prepare Index:
+By default, there is a small data set in ./data-files/, and the data
+set has already been written into an index located at ./index/.
+If you are satisfied with the default data set and index, then move onto Step 2.
+
+If you want to get results from more data sets, please put the data files into ./data-files/. 
+Then, run RunIndexWriter.java in edu.uci.ics.textdb.perftest.run.
+ 
+Step 2-Run Performance Tests:
+In order to run the performance tests, please run RunPerftests.java in edu.uci.ics.textdb.perftest.run
+
+Step 3-Review Test Results:
+Performance test results can be found in the corresponding folders in ./data-files/results/.
+For example, test results for dictionary matcher can be found in ./data-files/results/dictionary.
+ 

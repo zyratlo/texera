@@ -49,8 +49,8 @@ public class KeywordMatcherPerformanceTest {
 	private static String csvFileFolder = "keyword/";
 	 
 	/**
-	 * @param dictFile: this file contains line(s) of queries; the file must be placed in ./data-files/dictionaries/
-	 * @param testCycle: the number of times the test expected to be ran 
+	 * @param queryFileName: this file contains line(s) of queries; the file must be placed in ./data-files/dictionaries/
+	 * @param iterationNumber: the number of times the test expected to be ran 
 	 * @return 
 	 * 
 	 * This function will match the queries against all indices in ./index/standard/
@@ -61,48 +61,52 @@ public class KeywordMatcherPerformanceTest {
 	 * ./data-files/results/keyword/.
 	 * 
 	 * */
-	public static void runTest(String dictFile, int testCycle) throws StorageException, DataFlowException, IOException{
+	public static void runTest(String queryFileName, int iterationNumber) throws StorageException, DataFlowException, IOException{
 		
-		ArrayList<String> queries = PerfTestUtils.readDict(PerfTestUtils.getDictPath(dictFile));
+		//Reads queries from query file into a list
+		ArrayList<String> queries = PerfTestUtils.readDict(PerfTestUtils.getDictPath(queryFileName));
 		
-		FileWriter fileWriter = null;
-		
+		//Checks whether "keyword" folder exists in ./data-files/results/keyword/
 		if(!new File(PerfTestUtils.resultFolder, "keyword").exists()){
 			File resultFile = new File(PerfTestUtils.resultFolder+csvFileFolder);
 			resultFile.mkdir();
 		}
 		 
+		//Gets the current time for naming the cvs file
 		String currentTime = PerfTestUtils.formatTime(System.currentTimeMillis());
-		String csvFile = csvFileFolder+currentTime+".csv";
-		fileWriter = new FileWriter(PerfTestUtils.getResultPath(csvFile));
+		String csvFile = csvFileFolder + currentTime + ".csv";
+		FileWriter fileWriter = new FileWriter(PerfTestUtils.getResultPath(csvFile));
  
-		
+		//Iterates through the times of test
+		//Writes results to the csv file
 		File indexFiles = new File(PerfTestUtils.standardIndexFolder);
-		double avg = 0;
-		for(int i = 1; i <= testCycle; i++){
-			fileWriter.append("Cycle" +i);
+		double avgTime = 0;
+		for(int i = 1; i <= iterationNumber; i++){
+			fileWriter.append("Cycle" + i);
 			fileWriter.append(newLine);
 			fileWriter.append(HEADER);
+			
+			//Does match against each index in ./index/
 			for(File file: indexFiles.listFiles()){
 				if (file.getName().startsWith(".")) {
 					continue;
 				}
 				DataStore dataStore = new DataStore(PerfTestUtils.getIndexPath(file.getName()), MedlineIndexWriter.SCHEMA_MEDLINE);
 			
-				fileWriter.append(file.getName()+",");
+				fileWriter.append(file.getName() + ",");
 				fileWriter.append(basicHeader);
-				clear();
+				resetStats();
 				match(queries, DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED, new StandardAnalyzer(), dataStore);	
-				avg = PerfTestUtils.calculateAverage(timeResults);
-				fileWriter.append(Collections.min(timeResults)+","+Collections.max(timeResults)+","+avg+","+PerfTestUtils.calculateSTD(timeResults, avg)+","+String.format("%.2f", totalResultCount*1.0/queries.size()));
+				avgTime = PerfTestUtils.calculateAverage(timeResults);
+				fileWriter.append(Collections.min(timeResults) + "," + Collections.max(timeResults) + "," + avgTime + "," + PerfTestUtils.calculateSTD(timeResults, avgTime) + "," + String.format("%.2f", totalResultCount*1.0/queries.size()));
 				fileWriter.append(newLine);
 				
-				fileWriter.append(file.getName()+",");
+				fileWriter.append(file.getName() + ",");
 				fileWriter.append(phraseHeader);
-				clear();
+				resetStats();
 				match(queries, DataConstants.KeywordMatchingType.PHRASE_INDEXBASED, new StandardAnalyzer(), dataStore);
-				avg = PerfTestUtils.calculateAverage(timeResults);
-				fileWriter.append(Collections.min(timeResults)+","+Collections.max(timeResults)+","+avg+","+PerfTestUtils.calculateSTD(timeResults, avg)+","+String.format("%.2f", totalResultCount*1.0/queries.size()));
+				avgTime = PerfTestUtils.calculateAverage(timeResults);
+				fileWriter.append(Collections.min(timeResults)+","+Collections.max(timeResults)+","+avgTime+","+PerfTestUtils.calculateSTD(timeResults, avgTime)+","+String.format("%.2f", totalResultCount*1.0/queries.size()));
 				fileWriter.append(newLine);
 			 
 			}
@@ -118,7 +122,7 @@ public class KeywordMatcherPerformanceTest {
 	/**
 	 * reset timeResults and totalResultCount
 	 * */
-	public static void clear(){
+	public static void resetStats(){
 		timeResults = new ArrayList<Double>();
 		totalResultCount = 0;
 	}
