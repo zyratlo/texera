@@ -29,112 +29,117 @@ import edu.uci.ics.textdb.storage.DataStore;
 /**
  * @author Qing Tang
  * 
- * This is the performance test of fuzzy token operator.
- * */
+ *         This is the performance test of fuzzy token operator.
+ */
 
-public class FuzzyTokenMatcherPerformanceTest{
-	
+public class FuzzyTokenMatcherPerformanceTest {
+
 	private static String HEADER = "Record #, Threshold, isSpanInfoAdded, Min, Max, Average, Std, Average Results\n";
 	private static String trueHeader = "true,";
 	private static String newLine = "\n";
-	
- 
-	private static 	List<Double> timeResults = null;
+
+	private static List<Double> timeResults = null;
 	private static int totalResultCount = 0;
 	private static boolean bool = true;
 	private static String csvFileFolder = "fuzzytoken/";
-	
-	
+
 	/**
-	 * @param dictFile: this file contains line(s) of queries; the file must be placed in ./data-files/dictionaries/
-	 * @param testCycle: the number of times the test expected to be ran 
-	 * @param thresholds: a list of thresholds 
-	 * @return 
+	 * @param queryFileName:
+	 *            this file contains line(s) of queries; the file must be placed
+	 *            in ./data-files/queries/
+	 * @param iterationNumber:
+	 *            the number of times the test expected to be ran
+	 * @param thresholds:
+	 *            a list of thresholds
+	 * @return
 	 * 
-	 * This function will match the queries against all indices in ./index/standard/
+	 * 		This function will match the queries against all indices in
+	 *         ./index/standard/
 	 * 
-	 *Test results includes minimum runtime, maximum runtime, average runtime, the standard deviation and
-	 * the average results for each index, each threshold and each test cycle. 
-	 *They are written in a csv file that is named by current time and located at
-	 * ./data-files/results/fuzzytoken/.
+	 *         Test results includes minimum runtime, maximum runtime, average
+	 *         runtime, the standard deviation and the average results for each
+	 *         index, each threshold and each test cycle. They are written in a
+	 *         csv file that is named by current time and located at
+	 *         ./data-files/results/fuzzytoken/.
 	 * 
-	 * */
-	public static void runTest(String dictFile, int testCycle, List<Double> thresholds) throws StorageException, DataFlowException, IOException{
-		
-		ArrayList<String> queries = PerfTestUtils.readDict(PerfTestUtils.getDictPath(dictFile));		
+	 */
+	public static void runTest(String queryFileName, int iterationNumber, List<Double> thresholds)
+			throws StorageException, DataFlowException, IOException {
+
+		ArrayList<String> queries = PerfTestUtils.readQueries(PerfTestUtils.getQueryPath(dictFile));
 		FileWriter fileWriter = null;
-		
-		if(!new File(PerfTestUtils.resultFolder, "fuzzytoken").exists()){
-			File resultFile = new File(PerfTestUtils.resultFolder+csvFileFolder);
+
+		if (!new File(PerfTestUtils.resultFolder, "fuzzytoken").exists()) {
+			File resultFile = new File(PerfTestUtils.resultFolder + csvFileFolder);
 			resultFile.mkdir();
 		}
-		
+
 		String currentTime = PerfTestUtils.formatTime(System.currentTimeMillis());
-		String csvFile = csvFileFolder+currentTime+".csv";
+		String csvFile = csvFileFolder + currentTime + ".csv";
 		fileWriter = new FileWriter(PerfTestUtils.getResultPath(csvFile));
-		for(int i = 1; i <= testCycle; i++){
-			fileWriter.append("Cycle" +i);
+		for (int i = 1; i <= iterationNumber; i++) {
+			fileWriter.append("Cycle" + i);
 			fileWriter.append(newLine);
 			fileWriter.append(HEADER);
-			
+
 			File indexFiles = new File(PerfTestUtils.standardIndexFolder);
 			double avg = 0;
-			for(double threshold: thresholds){
-				for(File file: indexFiles.listFiles()){
+			for (double threshold : thresholds) {
+				for (File file : indexFiles.listFiles()) {
 					if (file.getName().startsWith(".")) {
 						continue;
 					}
-					DataStore dataStore = new DataStore(PerfTestUtils.getIndexPath(file.getName()), MedlineIndexWriter.SCHEMA_MEDLINE);
-					
-				
-					fileWriter.append(file.getName()+",");
-					fileWriter.append(Double.toString(threshold)+",");
+					DataStore dataStore = new DataStore(PerfTestUtils.getIndexPath(file.getName()),
+							MedlineIndexWriter.SCHEMA_MEDLINE);
+
+					fileWriter.append(file.getName() + ",");
+					fileWriter.append(Double.toString(threshold) + ",");
 					fileWriter.append(trueHeader);
-					clear();
-					match(queries, threshold, new StandardAnalyzer(), dataStore, bool);	
+					resetStats();
+					match(queries, threshold, new StandardAnalyzer(), dataStore, bool);
 					avg = PerfTestUtils.calculateAverage(timeResults);
-					fileWriter.append(Collections.min(timeResults)+","+Collections.max(timeResults)+","+avg+","+
-					PerfTestUtils.calculateSTD(timeResults, avg)+","+totalResultCount/queries.size());
+					fileWriter.append(Collections.min(timeResults) + "," + Collections.max(timeResults) + "," + avg
+							+ "," + PerfTestUtils.calculateSTD(timeResults, avg) + ","
+							+ totalResultCount / queries.size());
 					fileWriter.append(newLine);
-					
+
 				}
-				fileWriter.append(newLine);	
+				fileWriter.append(newLine);
 			}
-		} 
+		}
 		fileWriter.flush();
-	    fileWriter.close();
+		fileWriter.close();
 	}
-	
+
 	/**
 	 * reset timeResults and totalReusltCount
-	 * */
-	public static void clear(){
+	 */
+	public static void resetStats() {
 		timeResults = new ArrayList<Double>();
 		totalResultCount = 0;
 	}
-	
- 
+
 	/**
-	 * @param dict:  queries
-	 * @param threshold 
+	 * @param queryList: queries
+	 * @param threshold
 	 * @param luceneAnalyzer
 	 * @param DataStore
 	 * @return
 	 * 
 	 * This function does match for a list of queries
-	 * */
-	public static void match(ArrayList<String> queries, double threshold, Analyzer luceneAnalyzer, DataStore dataStore, boolean bool) 
-			throws DataFlowException, IOException {
- 
-		Attribute[] attributeList = new Attribute[]{ MedlineIndexWriter.ABSTRACT_ATTR };
-			
-		for (String query:queries){
-			IPredicate predicate = new FuzzyTokenPredicate(query, Arrays.asList(attributeList),
-	        luceneAnalyzer, dataStore, threshold, true);
+	 */
+	public static void match(ArrayList<String> queryList, double threshold, Analyzer luceneAnalyzer,
+			DataStore dataStore, boolean bool) throws DataFlowException, IOException {
+
+		Attribute[] attributeList = new Attribute[] { MedlineIndexWriter.ABSTRACT_ATTR };
+
+		for (String query : queryList) {
+			IPredicate predicate = new FuzzyTokenPredicate(query, Arrays.asList(attributeList), luceneAnalyzer,
+					dataStore, threshold, true);
 			FuzzyTokenMatcher fuzzyTokenMatcher = new FuzzyTokenMatcher(predicate);
-			
+
 			long startMatchTime = System.currentTimeMillis();
-			fuzzyTokenMatcher.open();	 		
+			fuzzyTokenMatcher.open();
 			int counter = 0;
 			ITuple nextTuple = null;
 			while ((nextTuple = fuzzyTokenMatcher.getNextTuple()) != null) {
@@ -142,13 +147,12 @@ public class FuzzyTokenMatcherPerformanceTest{
 				counter += spanList.size();
 			}
 			long endMatchTime = System.currentTimeMillis();
-			double matchTime = (endMatchTime - startMatchTime)/1000.0;
-			
+			double matchTime = (endMatchTime - startMatchTime) / 1000.0;
+
 			timeResults.add(Double.parseDouble(String.format("%.4f", matchTime)));
 			totalResultCount += counter;
-			}
-			
 		}
-	
-	 
+
+	}
+
 }
