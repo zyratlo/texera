@@ -198,8 +198,8 @@ public class DictionaryMatcher implements IOperator {
     		}
     		// if attribute type is TEXT, then key can match a substring of fieldValue
     		else {
-    			String regex = "\\b" + key.toLowerCase() + "\\b";
-    			Pattern pattern = Pattern.compile(regex);
+    			String regex =  key.toLowerCase();
+    			Pattern pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
     			Matcher matcher = pattern.matcher(fieldValue.toLowerCase());
     			while (matcher.find()) {
     				int start = matcher.start();
