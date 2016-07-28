@@ -227,7 +227,8 @@ public class JoinTest {
 		String reviewField = attributeList.get(4).getFieldName();
 		// The "foo" (key) and "bar" (value) is a tentative key-value pair; will 
 		// be replaced by actual key-value pair once implementation is fixed.
-		Span span1 = new Span(reviewField, 11, 33, "foo", "bar");
+		Span span1 = new Span(reviewField, 11, 33, "foo", "special kind of " 
+				+ "writer");
 		spanList.add(span1);
 
 		IField[] book1 = { new IntegerField(52), new StringField("Mary Roach"), 
@@ -343,7 +344,8 @@ public class JoinTest {
 		String reviewField = attributeList.get(4).getFieldName();
 		// The "foo" (key) and "bar" (value) is a tentative key-value pair; will 
 		// be replaced by actual key-value pair once implementation is fixed.
-		Span span1 = new Span(reviewField, 3, 33, "foo", "bar");
+		Span span1 = new Span(reviewField, 3, 33, "foo", "takes a special " 
+				+ "kind of writer");
 		spanList.add(span1);
 
 		IField[] book1 = { new IntegerField(52), new StringField("Mary Roach"), 
@@ -421,7 +423,8 @@ public class JoinTest {
 		String reviewField = attributeList.get(4).getFieldName();
 		// The "foo" (key) and "bar" (value) is a tentative key-value pair; will 
 		// be replaced by actual key-value pair once implementation is fixed.
-		Span span1 = new Span(reviewField, 75, 109, "foo", "bar");
+		Span span1 = new Span(reviewField, 75, 109, "foo", "gastrointestinal " 
+				+ "tract interesting");
 		spanList.add(span1);
 
 		IField[] book1 = { new IntegerField(52), new StringField("Mary Roach"), 
@@ -494,7 +497,7 @@ public class JoinTest {
 		String reviewField = attributeList.get(4).getFieldName();
 		// The "foo" (key) and "bar" (value) is a tentative key-value pair; will 
 		// be replaced by actual key-value pair once implementation is fixed.
-		Span span1 = new Span(reviewField, 11, 18, "foo", "bar");
+		Span span1 = new Span(reviewField, 11, 18, "foo", "special");
 		spanList.add(span1);
 
 		IField[] book1 = { new IntegerField(52), new StringField("Mary Roach"), 

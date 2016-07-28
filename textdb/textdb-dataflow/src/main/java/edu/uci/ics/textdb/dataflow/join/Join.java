@@ -22,20 +22,31 @@ import edu.uci.ics.textdb.dataflow.common.JoinPredicate;
  * @author sripadks
  *
  */
+
+// The Join operator is an operator which intends to perform a "join" over the 
+// the outputs of two other operators based on certain conditions defined 
+// using the JoinPredicate.
+// The JoinPredicate currently takes:
+// ID attribute -> Which serves as the document/tuple ID. Only for the tuples 
+// whose ID match, we perform the join.
+// Join Attribute -> The attribute to perform Join on.
+// and Threshold -> The value within which the difference of span starts and 
+// the difference of span ends should be for the join to take place.
+
 public class Join implements IOperator{
 
 	private IOperator outerOperator;
 	private IOperator innerOperator;
 	private JoinPredicate joinPredicate;
 	// To indicate if next result from outer operator has to be obtained.
-	private boolean getOuterOperatorNextTuple = true;			
+	private boolean getOuterOperatorNextTuple;			
 	private ITuple outerTuple = null;
 	private ITuple innerTuple = null;
 	private List<ITuple> innerTupleList = new ArrayList<>();
 	// Cursor to maintain the position of tuple to be obtained from innerTupleList.
 	private Integer innerOperatorCursor = 0;
 	// Value to be used as key in Span.
-	//	private Integer spanKey = 0;
+	// private Integer spanKey = 0;
 
 	/**
 	 * This constructor is used to set the operators whose output is to be compared and joined and the 
@@ -53,6 +64,11 @@ public class Join implements IOperator{
 
 	@Override
 	public void open() throws Exception, DataFlowException {
+		if(!(joinPredicate.getjoinAttribute().getFieldType().equals(FieldType.STRING)||
+				joinPredicate.getjoinAttribute().getFieldType().equals(FieldType.TEXT))) {
+			throw new Exception("Fields other than \"STRING\" and \"TEXT\" are not supported by Join yet.");
+		}
+		
 		try {
 			outerOperator.open();
 			innerOperator.open();
@@ -60,16 +76,14 @@ public class Join implements IOperator{
 			e.printStackTrace();
 			throw new DataFlowException(e.getMessage(), e);
 		}
-		if(!(joinPredicate.getjoinAttribute().getFieldType().equals(FieldType.STRING)||
-				joinPredicate.getjoinAttribute().getFieldType().equals(FieldType.TEXT))) {
-			outerOperator.close();
-			innerOperator.close();
-			throw new Exception("Fields other than \"STRING\" and \"TEXT\" are not supported by Join yet.");
-		}
+		
+		getOuterOperatorNextTuple = true;
+		
 		// Load the inner tuple list into memory on open.
 		while((innerTuple = innerOperator.getNextTuple()) != null) {
 			innerTupleList.add(innerTuple);
 		}
+		
 		// Close the inner operator as all the required tuples are already 
 		// loaded into memory.
 		try {
@@ -195,7 +209,12 @@ public class Join implements IOperator{
 		}
 
 		Iterator<Span> outerSpanIter = outerSpanList.iterator();
-
+		
+		// TODO Currently we are using two loops to go over two span lists.
+		// We can optimize it by sorting the spans based on the start position 
+		// and then doing a "sort merge" of the two lists.
+		// (Also probably weed out the spans with fields that don't agree with 
+		// the ones specified in the JoinPredicate during "sort merge"?)
 		while(outerSpanIter.hasNext()) {
 			Span outerSpan = outerSpanIter.next();
 			// Check if the field matches the filed over which we want to join. If not return null.
@@ -223,16 +242,18 @@ public class Join implements IOperator{
 							// TODO(Flavio): Check the right values for key and value
 							//spanKey.toString(), // changed the value to foo 
 							// to match test cases.
-							"foo", "bar");
+							"foo", newFieldValue);
 					newJoinSpanList.add(newSpan);
 				}
 			}
 		}
 
-		// TODO schema has to match the type of systemT output and not innerTuple or outerTuple
 		if(newJoinSpanList.isEmpty()) {
 			return null;
 		}
+		
+		// TODO Discuss and implement as to what Schema has to be.
+		// It shouldn't just be inner tuple or outer tuple schema.
 		Schema schema = innerTuple.getSchema();
 		List<IField> fieldList = innerTuple.getFields();
 		IField[] nextTupleField = new IField[fieldList.size()];
