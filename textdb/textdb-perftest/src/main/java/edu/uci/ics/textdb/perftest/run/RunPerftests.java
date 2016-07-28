@@ -10,6 +10,7 @@ import java.util.List;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
 import edu.uci.ics.textdb.common.exception.StorageException;
 import edu.uci.ics.textdb.perftest.keywordmatcher.*;
+import edu.uci.ics.textdb.perftest.nlpextractor.NlpExtractorPerformanceTest;
 import edu.uci.ics.textdb.perftest.regexmatcher.RegexMatcherPerformanceTest;
 import edu.uci.ics.textdb.perftest.dictionarymatcher.*;
 import edu.uci.ics.textdb.perftest.fuzzytokenmatcher.*;
@@ -35,6 +36,7 @@ public class RunPerftests {
 			DictionaryMatcherPerformanceTest.runTest("sample_queries.txt", 1);
 			FuzzyTokenMatcherPerformanceTest.runTest("sample_queries.txt", 1, thresholds);
 			RegexMatcherPerformanceTest.runTest(regexQueries, 2);
+			NlpExtractorPerformanceTest.runTest(1);
 
 		} catch (StorageException | DataFlowException | IOException e) {
 			e.printStackTrace();
