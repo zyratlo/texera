@@ -91,10 +91,11 @@ public class RegexMatcherPerformanceTest {
 					fileWriter.append(",");
 					fileWriter.append(Integer.toString(regexResultCount));
 					fileWriter.append("\n");
-
 				}
-				fileWriter.append("\n");
+				
 			}
+			fileWriter.append("\n");
+			
 		}
 		fileWriter.flush();
 		fileWriter.close();
