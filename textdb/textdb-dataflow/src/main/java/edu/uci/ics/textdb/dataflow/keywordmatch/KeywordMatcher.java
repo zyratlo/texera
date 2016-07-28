@@ -106,7 +106,7 @@ public class KeywordMatcher implements IOperator {
 			
     		// types other than TEXT and STRING: throw Exception for now
 			if (fieldType != FieldType.STRING && fieldType != FieldType.TEXT) {
-	    		throw new DataFlowException("Fields other than STRING and TEXT are not supported yet");
+	    		throw new DataFlowException("KeywordMatcher: Fields other than STRING and TEXT are not supported yet");
 			}
     		
 			// for STRING type, the query should match the fieldValue completely
@@ -147,7 +147,7 @@ public class KeywordMatcher implements IOperator {
     		
     		// types other than TEXT and STRING: throw Exception for now
 			if (fieldType != FieldType.STRING && fieldType != FieldType.TEXT) {
-	    		throw new DataFlowException("Fields other than STRING and TEXT are not supported yet");
+	    		throw new DataFlowException("KeywordMatcher: Fields other than STRING and TEXT are not supported yet");
 			}
     		
 			// for STRING type, the query should match the fieldValue completely
@@ -239,7 +239,7 @@ public class KeywordMatcher implements IOperator {
     		
     		// types other than TEXT and STRING: throw Exception for now
 			if (fieldType != FieldType.STRING && fieldType != FieldType.TEXT) {
-	    		throw new DataFlowException("Fields other than STRING and TEXT are not supported yet");
+	    		throw new DataFlowException("KeywordMatcher: Fields other than STRING and TEXT are not supported yet");
 			}
     		
 			// for STRING type, the query should match the fieldValue completely

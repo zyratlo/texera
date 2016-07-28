@@ -36,9 +36,9 @@ import edu.uci.ics.textdb.storage.DataReaderPredicate;
  */
 public class KeywordPredicate implements IPredicate {
 
-	private final List<Attribute> attributeList;
-	private final String query;
-	private final Query luceneQuery;
+	private List<Attribute> attributeList;
+	private String query;
+	private Query luceneQuery;
 	private ArrayList<String> queryTokenList;
 	private HashSet<String> queryTokenSet;
 	private ArrayList<String> queryTokensWithStopwords;
@@ -80,8 +80,9 @@ public class KeywordPredicate implements IPredicate {
 	 *
 	 * @return Query
 	 * @throws ParseException
+	 * @throws DataFlowException 
 	 */
-	private Query createLuceneQueryObject() throws ParseException {
+	private Query createLuceneQueryObject() throws DataFlowException {
 		Query query = null;
 		if (this.operatorType == KeywordMatchingType.CONJUNCTION_INDEXBASED) {
 			query = buildConjunctionQuery();
@@ -98,12 +99,17 @@ public class KeywordPredicate implements IPredicate {
 	
 	
 	
-	private Query buildConjunctionQuery() {
+	private Query buildConjunctionQuery() throws DataFlowException {
 		BooleanQuery.Builder booleanQueryBuilder = new BooleanQuery.Builder();
 		
 		for (Attribute attribute : this.attributeList) {
 			String fieldName = attribute.getFieldName();
 			FieldType fieldType = attribute.getFieldType();
+			
+    		// types other than TEXT and STRING: throw Exception for now
+			if (fieldType != FieldType.STRING && fieldType != FieldType.TEXT) {
+	    		throw new DataFlowException("KeywordPredicate: Fields other than STRING and TEXT are not supported yet");
+			}
 			
 			if (fieldType == FieldType.STRING) {
 				Query termQuery = new TermQuery(new Term(fieldName, this.query));
@@ -118,20 +124,24 @@ public class KeywordPredicate implements IPredicate {
 				booleanQueryBuilder.add(fieldQueryBuilder.build(), BooleanClause.Occur.SHOULD);
 			}
 			
-			// if it's not TEXT or STRING, we don't send query here
 		}
 		
 		return booleanQueryBuilder.build();	
 	}
 	
 	
-	private Query buildPhraseQuery() {
+	private Query buildPhraseQuery() throws DataFlowException {
 		BooleanQuery.Builder booleanQueryBuilder = new BooleanQuery.Builder();
 		
 		
 		for (Attribute attribute : this.attributeList) {
 			String fieldName = attribute.getFieldName();
 			FieldType fieldType = attribute.getFieldType();
+			
+    		// types other than TEXT and STRING: throw Exception for now
+			if (fieldType != FieldType.STRING && fieldType != FieldType.TEXT) {
+	    		throw new DataFlowException("KeywordPredicate: Fields other than STRING and TEXT are not supported yet");
+			}
 			
 			if (fieldType == FieldType.STRING) {
 				Query termQuery = new TermQuery(new Term(fieldName, this.query));
@@ -153,14 +163,22 @@ public class KeywordPredicate implements IPredicate {
 				}
 			}
 			
-			// if it's not TEXT or STRING, we don't send query here
 		}
 		
 		return booleanQueryBuilder.build();
 	}
 	
 	
-	private Query buildScanQuery() {
+	private Query buildScanQuery() throws DataFlowException {
+		for (Attribute attribute : this.attributeList) {
+			FieldType fieldType = attribute.getFieldType();
+			
+			// types other than TEXT and STRING: throw Exception for now
+			if (fieldType != FieldType.STRING && fieldType != FieldType.TEXT) {
+	    		throw new DataFlowException("KeywordPredicate: Fields other than STRING and TEXT are not supported yet");
+			}		
+		}
+		
 		return new MatchAllDocsQuery();
 	}
 
