@@ -67,23 +67,19 @@ public class JoinTest {
 		final Attribute pagesAttr = new Attribute("numberOfPages", FieldType.INTEGER);
 		final Attribute reviewAttr = new Attribute("reviewOfBook", FieldType.TEXT);
 
-		final Attribute[] bookAttr = { idAttr, authorAttr, titleAttr, pagesAttr, 
-				reviewAttr};
+		final Attribute[] bookAttr = { idAttr, authorAttr, titleAttr, pagesAttr, reviewAttr };
 		final Schema bookSchema = new Schema(bookAttr);
 
-		IField[] book1 = { new IntegerField(52), new StringField("Mary Roach"), 
-				new StringField("Grunt: The Curious Science of Humans at War"), 
-				new IntegerField(288), new TextField("It takes a special kind "
-						+ "of writer to make topics ranging from death to our "
+		IField[] book1 = { new IntegerField(52), new StringField("Mary Roach"),
+				new StringField("Grunt: The Curious Science of Humans at War"), new IntegerField(288),
+				new TextField("It takes a special kind " + "of writer to make topics ranging from death to our "
 						+ "gastrointestinal tract interesting (sometimes "
-						+ "hilariously so), and pop science writer Mary Roach is "
-						+ "always up to the task.") };
+						+ "hilariously so), and pop science writer Mary Roach is " + "always up to the task.") };
 
 		IField[] book2 = { new IntegerField(62), new StringField("Siddhartha Mukherjee"),
 				new StringField("The Gene: An Intimate History"), new IntegerField(608),
 				new TextField("In 2010, Siddhartha Mukherjee was awarded the "
-						+ "Pulitzer Prize for his book The Emperor of All "
-						+ "Maladies, a “biography” of cancer.") };
+						+ "Pulitzer Prize for his book The Emperor of All " + "Maladies, a “biography” of cancer.") };
 
 		attributeList = Arrays.asList(bookAttr);
 		ArrayList<Attribute> attLis = new ArrayList<>();
@@ -106,11 +102,9 @@ public class JoinTest {
 	}
 
 	// A helper method to get join result. Called from each test case
-	public List<ITuple> getJoinResults(IOperator outer, IOperator inner, 
-			Attribute idAttribute, Attribute joinAttribute, 
+	public List<ITuple> getJoinResults(IOperator outer, IOperator inner, Attribute idAttribute, Attribute joinAttribute,
 			Integer threshold) throws Exception {
-		IPredicate joinPredicate = new JoinPredicate(idAttribute, joinAttribute, 
-				threshold);
+		IPredicate joinPredicate = new JoinPredicate(idAttribute, joinAttribute, threshold);
 		join = new Join(outer, inner, joinPredicate);
 		join.open();
 
@@ -133,33 +127,29 @@ public class JoinTest {
 
 	// A helper methods to setup the test cases.
 	// types allowed (as of now) are: index -> CONJUNCTION_INDEXBASED
-	//											   KeywordMatcher
-	//								  phrase -> PHRASE_INDEXBASED
-	//											KeywordMatcher
+	// KeywordMatcher
+	// phrase -> PHRASE_INDEXBASED
+	// KeywordMatcher
 	// whichOperator is to specify either "outer" or "inner" operator
 	public IOperator setupOperators(String query, String type, String whichOperator) throws DataFlowException {
 		IPredicate predicate = null;
 		switch (type) {
 		case "index":
-			if(whichOperator == "outer") {
-				predicate = new KeywordPredicate(query, modifiedAttributeList, 
-						DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED, analyzer, 
-						dataStoreForOuter);
-			} else if(whichOperator == "inner") {
-				predicate = new KeywordPredicate(query, modifiedAttributeList, 
-						DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED, analyzer, 
-						dataStoreForInner);
+			if (whichOperator == "outer") {
+				predicate = new KeywordPredicate(query, modifiedAttributeList,
+						DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED, analyzer, dataStoreForOuter);
+			} else if (whichOperator == "inner") {
+				predicate = new KeywordPredicate(query, modifiedAttributeList,
+						DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED, analyzer, dataStoreForInner);
 			}
 			break;
 		case "phrase":
-			if(whichOperator == "outer") {
-				predicate = new KeywordPredicate(query, modifiedAttributeList, 
-						DataConstants.KeywordMatchingType.PHRASE_INDEXBASED, analyzer, 
-						dataStoreForOuter);
-			} else if(whichOperator == "inner") {
-				predicate = new KeywordPredicate(query, modifiedAttributeList, 
-						DataConstants.KeywordMatchingType.PHRASE_INDEXBASED, analyzer, 
-						dataStoreForInner);
+			if (whichOperator == "outer") {
+				predicate = new KeywordPredicate(query, modifiedAttributeList,
+						DataConstants.KeywordMatchingType.PHRASE_INDEXBASED, analyzer, dataStoreForOuter);
+			} else if (whichOperator == "inner") {
+				predicate = new KeywordPredicate(query, modifiedAttributeList,
+						DataConstants.KeywordMatchingType.PHRASE_INDEXBASED, analyzer, dataStoreForInner);
 			}
 			break;
 
@@ -189,19 +179,18 @@ public class JoinTest {
 
 		Attribute idAttr = attributeList.get(0);
 		Attribute reviewAttr = attributeList.get(4);
-		List<ITuple> resultList = getJoinResults(keywordMatcherOuter, 
-				keywordMatcherInner, idAttr, reviewAttr, 10);
+		List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 10);
 		Assert.assertEquals(0, resultList.size());
 	}
 
-	// This case tests for the scenario when the IDs of the documents match, 
-	// fields to join match and the difference of keyword spans is within 
-	// the given span threshold. 
-	// Test result: The list contains a tuple with all the fields and a span 
-	// list consisting of the joined span. The joined span is made up of the 
-	// field name, start and stop index (computed as <min(span1 spanStartIndex, 
-	// span2 spanStartIndex), max(span1 spanEndIndex, span2 spanEndIndex)>) 
-	// key (combination of span1 key and span2 key) and value (combination of 
+	// This case tests for the scenario when the IDs of the documents match,
+	// fields to join match and the difference of keyword spans is within
+	// the given span threshold.
+	// Test result: The list contains a tuple with all the fields and a span
+	// list consisting of the joined span. The joined span is made up of the
+	// field name, start and stop index (computed as <min(span1 spanStartIndex,
+	// span2 spanStartIndex), max(span1 spanEndIndex, span2 spanEndIndex)>)
+	// key (combination of span1 key and span2 key) and value (combination of
 	// span1 value and span2 value).
 	@Test
 	public void testIdsMatchFieldsMatchWithinSpan() throws Exception {
@@ -214,44 +203,41 @@ public class JoinTest {
 
 		Attribute idAttr = attributeList.get(0);
 		Attribute reviewAttr = attributeList.get(4);
-		List<ITuple> resultList = getJoinResults(keywordMatcherOuter, 
-				keywordMatcherInner, idAttr, reviewAttr, 20);
+		List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 20);
 
 		Attribute[] schemaAttributes = new Attribute[attributeList.size() + 1];
-		for(int index = 0; index < schemaAttributes.length-1; index++) {
+		for (int index = 0; index < schemaAttributes.length - 1; index++) {
 			schemaAttributes[index] = attributeList.get(index);
 		}
 		schemaAttributes[schemaAttributes.length - 1] = SchemaConstants.SPAN_LIST_ATTRIBUTE;
 
 		List<Span> spanList = new ArrayList<>();
 		String reviewField = attributeList.get(4).getFieldName();
-		// The "foo" (key) and "bar" (value) is a tentative key-value pair; will 
+		// The "foo" (key) and "bar" (value) is a tentative key-value pair; will
 		// be replaced by actual key-value pair once implementation is fixed.
-		Span span1 = new Span(reviewField, 11, 33, "foo", "special kind of " 
-				+ "writer");
+		Span span1 = new Span(reviewField, 11, 33, "foo", "special kind of " + "writer");
 		spanList.add(span1);
 
-		IField[] book1 = { new IntegerField(52), new StringField("Mary Roach"), 
-				new StringField("Grunt: The Curious Science of Humans at War"), 
-				new IntegerField(288), new TextField("It takes a special kind "
-						+ "of writer to make topics ranging from death to our "
+		IField[] book1 = { new IntegerField(52), new StringField("Mary Roach"),
+				new StringField("Grunt: The Curious Science of Humans at War"), new IntegerField(288),
+				new TextField("It takes a special kind " + "of writer to make topics ranging from death to our "
 						+ "gastrointestinal tract interesting (sometimes "
-						+ "hilariously so), and pop science writer Mary Roach is "
-						+ "always up to the task."), new ListField<>(spanList) };
+						+ "hilariously so), and pop science writer Mary Roach is " + "always up to the task."),
+				new ListField<>(spanList) };
 		ITuple expectedTuple = new DataTuple(new Schema(schemaAttributes), book1);
 		List<ITuple> expectedResult = new ArrayList<>(1);
 		expectedResult.add(expectedTuple);
 
 		boolean contains = TestUtils.containsAllResults(expectedResult, resultList);
 		// A tentative solution to make the test cases pass.
-		//		contains = true;
-		//		resultList.add(expectedTuple);
+		// contains = true;
+		// resultList.add(expectedTuple);
 		//
 		Assert.assertEquals(1, resultList.size());
 		Assert.assertTrue(contains);
 	}
 
-	// This case tests for the scenario when the IDs match, fields to join match 
+	// This case tests for the scenario when the IDs match, fields to join match
 	// but the difference of keyword spans to be joined is greater than the
 	// threshold.
 	// Test result: An empty list is returned.
@@ -266,13 +252,12 @@ public class JoinTest {
 
 		Attribute idAttr = attributeList.get(0);
 		Attribute reviewAttr = attributeList.get(4);
-		List<ITuple> resultList = getJoinResults(keywordMatcherOuter, 
-				keywordMatcherInner, idAttr, reviewAttr, 20);
+		List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 20);
 		Assert.assertEquals(0, resultList.size());
 	}
 
-	// This case tests for the scenario when either/both of the operators' 
-	// result lists are empty (i.e. when one/both of the operators' are 
+	// This case tests for the scenario when either/both of the operators'
+	// result lists are empty (i.e. when one/both of the operators' are
 	// not able to find any suitable matches)
 	// Test result: Join should return an empty list.
 	@Test
@@ -286,13 +271,12 @@ public class JoinTest {
 
 		Attribute idAttr = attributeList.get(0);
 		Attribute reviewAttr = attributeList.get(4);
-		List<ITuple> resultList = getJoinResults(keywordMatcherOuter, 
-				keywordMatcherInner, idAttr, reviewAttr, 20);
+		List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 20);
 		Assert.assertEquals(0, resultList.size());
 	}
 
-	// This case tests for the scenario when the IDs match, fields to be joined 
-	// match, but one of the operators result lists has no span. This can happen 
+	// This case tests for the scenario when the IDs match, fields to be joined
+	// match, but one of the operators result lists has no span. This can happen
 	// when one is using FuzzyTokenMatcher with "isSpanInformationAdded = false"
 	// Test result: Join should return an empty list.
 	@Test
@@ -305,8 +289,8 @@ public class JoinTest {
 		query = "this writer writes well";
 		double thresholdRatio = 0.25;
 		boolean isSpanInformationAdded = false;
-		IPredicate fuzzyPredicateInner = new FuzzyTokenPredicate(query, attributeList, 
-				analyzer, dataStoreForInner, thresholdRatio, isSpanInformationAdded);
+		IPredicate fuzzyPredicateInner = new FuzzyTokenPredicate(query, attributeList, analyzer, dataStoreForInner,
+				thresholdRatio, isSpanInformationAdded);
 		FuzzyTokenMatcher fuzzyMatcherInner = new FuzzyTokenMatcher(fuzzyPredicateInner);
 
 		Attribute idAttr = attributeList.get(0);
@@ -315,9 +299,10 @@ public class JoinTest {
 		Assert.assertEquals(0, resultList.size());
 	}
 
-	// This case tests for the scenario when the IDs match, fields to be joined 
-	// match, but one of the spans to be joined is bigger than the other span 
-	// and encompasses it and both |(span 1 spanStartIndex) - (span 2 spanStartIndex)|,
+	// This case tests for the scenario when the IDs match, fields to be joined
+	// match, but one of the spans to be joined is bigger than the other span
+	// and encompasses it and both |(span 1 spanStartIndex) - (span 2
+	// spanStartIndex)|,
 	// |(span 1 spanEndIndex) - (span 2 spanEndIndex)| are within threshold.
 	// Test result: A bigger span should be returned.
 	@Test
@@ -331,46 +316,44 @@ public class JoinTest {
 
 		Attribute idAttr = attributeList.get(0);
 		Attribute reviewAttr = attributeList.get(4);
-		List<ITuple> resultList = getJoinResults(keywordMatcherOuter, 
-				keywordMatcherInner, idAttr, reviewAttr, 20);
+		List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 20);
 
 		Attribute[] schemaAttributes = new Attribute[attributeList.size() + 1];
-		for(int index = 0; index < schemaAttributes.length-1; index++) {
+		for (int index = 0; index < schemaAttributes.length - 1; index++) {
 			schemaAttributes[index] = attributeList.get(index);
 		}
 		schemaAttributes[schemaAttributes.length - 1] = SchemaConstants.SPAN_LIST_ATTRIBUTE;
 
 		List<Span> spanList = new ArrayList<>();
 		String reviewField = attributeList.get(4).getFieldName();
-		// The "foo" (key) and "bar" (value) is a tentative key-value pair; will 
+		// The "foo" (key) and "bar" (value) is a tentative key-value pair; will
 		// be replaced by actual key-value pair once implementation is fixed.
-		Span span1 = new Span(reviewField, 3, 33, "foo", "takes a special " 
-				+ "kind of writer");
+		Span span1 = new Span(reviewField, 3, 33, "foo", "takes a special " + "kind of writer");
 		spanList.add(span1);
 
-		IField[] book1 = { new IntegerField(52), new StringField("Mary Roach"), 
-				new StringField("Grunt: The Curious Science of Humans at War"), 
-				new IntegerField(288), new TextField("It takes a special kind "
-						+ "of writer to make topics ranging from death to our "
+		IField[] book1 = { new IntegerField(52), new StringField("Mary Roach"),
+				new StringField("Grunt: The Curious Science of Humans at War"), new IntegerField(288),
+				new TextField("It takes a special kind " + "of writer to make topics ranging from death to our "
 						+ "gastrointestinal tract interesting (sometimes "
-						+ "hilariously so), and pop science writer Mary Roach is "
-						+ "always up to the task."), new ListField<>(spanList) };
+						+ "hilariously so), and pop science writer Mary Roach is " + "always up to the task."),
+				new ListField<>(spanList) };
 		ITuple expectedTuple = new DataTuple(new Schema(schemaAttributes), book1);
 		List<ITuple> expectedResult = new ArrayList<>(1);
 		expectedResult.add(expectedTuple);
 
 		boolean contains = TestUtils.containsAllResults(expectedResult, resultList);
 		// A tentative solution to make the test cases pass.
-		//		contains = true;
-		//		resultList.add(expectedTuple);
+		// contains = true;
+		// resultList.add(expectedTuple);
 		//
 		Assert.assertEquals(1, resultList.size());
 		Assert.assertTrue(contains);
 	}
 
-	// This case tests for the scenario when the IDs match, fields to be joined 
+	// This case tests for the scenario when the IDs match, fields to be joined
 	// match, but one of the spans to be joined is bigger than the other span
-	// and encompasses it and |(span 1 spanStartIndex) - (span 2 spanStartIndex)| 
+	// and encompasses it and |(span 1 spanStartIndex) - (span 2
+	// spanStartIndex)|
 	// and/or |(span 1 spanEndIndex) - (span 2 spanEndIndex)| exceed threshold.
 	// Test result: Join should return an empty list.
 	@Test
@@ -384,20 +367,19 @@ public class JoinTest {
 
 		Attribute idAttr = attributeList.get(0);
 		Attribute reviewAttr = attributeList.get(4);
-		List<ITuple> resultList = getJoinResults(keywordMatcherOuter, 
-				keywordMatcherInner, idAttr, reviewAttr, 10);
+		List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 10);
 		Assert.assertEquals(0, resultList.size());
 	}
 
-	// This case tests for the scenario when the IDs match, fields to be joined 
-	// match, but the spans to be joined have some overlap and both 
-	// |(span 1 spanStartIndex) - (span 2 spanStartIndex)|, 
+	// This case tests for the scenario when the IDs match, fields to be joined
+	// match, but the spans to be joined have some overlap and both
+	// |(span 1 spanStartIndex) - (span 2 spanStartIndex)|,
 	// |(span 1 spanEndIndex) - (span 2 spanEndIndex)| are within threshold.
-	// Test result: The list contains a tuple with all the fields and a span 
-	// list consisting of the joined span. The joined span is made up of the 
-	// field name, start and stop index (computed as <min(span1 spanStartIndex, 
-	// span2 spanStartIndex), max(span1 spanEndIndex, span2 spanEndIndex)>) 
-	// key (combination of span1 key and span2 key) and value (combination of 
+	// Test result: The list contains a tuple with all the fields and a span
+	// list consisting of the joined span. The joined span is made up of the
+	// field name, start and stop index (computed as <min(span1 spanStartIndex,
+	// span2 spanStartIndex), max(span1 spanEndIndex, span2 spanEndIndex)>)
+	// key (combination of span1 key and span2 key) and value (combination of
 	// span1 value and span2 value).
 	@Test
 	public void testSpansOverlapAndWithinThreshold() throws Exception {
@@ -410,46 +392,43 @@ public class JoinTest {
 
 		Attribute idAttr = attributeList.get(0);
 		Attribute reviewAttr = attributeList.get(4);
-		List<ITuple> resultList = getJoinResults(keywordMatcherOuter, 
-				keywordMatcherInner, idAttr, reviewAttr, 20);
+		List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 20);
 
 		Attribute[] schemaAttributes = new Attribute[attributeList.size() + 1];
-		for(int index = 0; index < schemaAttributes.length-1; index++) {
+		for (int index = 0; index < schemaAttributes.length - 1; index++) {
 			schemaAttributes[index] = attributeList.get(index);
 		}
 		schemaAttributes[schemaAttributes.length - 1] = SchemaConstants.SPAN_LIST_ATTRIBUTE;
 
 		List<Span> spanList = new ArrayList<>();
 		String reviewField = attributeList.get(4).getFieldName();
-		// The "foo" (key) and "bar" (value) is a tentative key-value pair; will 
+		// The "foo" (key) and "bar" (value) is a tentative key-value pair; will
 		// be replaced by actual key-value pair once implementation is fixed.
-		Span span1 = new Span(reviewField, 75, 109, "foo", "gastrointestinal " 
-				+ "tract interesting");
+		Span span1 = new Span(reviewField, 75, 109, "foo", "gastrointestinal " + "tract interesting");
 		spanList.add(span1);
 
-		IField[] book1 = { new IntegerField(52), new StringField("Mary Roach"), 
-				new StringField("Grunt: The Curious Science of Humans at War"), 
-				new IntegerField(288), new TextField("It takes a special kind "
-						+ "of writer to make topics ranging from death to our "
+		IField[] book1 = { new IntegerField(52), new StringField("Mary Roach"),
+				new StringField("Grunt: The Curious Science of Humans at War"), new IntegerField(288),
+				new TextField("It takes a special kind " + "of writer to make topics ranging from death to our "
 						+ "gastrointestinal tract interesting (sometimes "
-						+ "hilariously so), and pop science writer Mary Roach is "
-						+ "always up to the task."), new ListField<>(spanList) };
+						+ "hilariously so), and pop science writer Mary Roach is " + "always up to the task."),
+				new ListField<>(spanList) };
 		ITuple expectedTuple = new DataTuple(new Schema(schemaAttributes), book1);
 		List<ITuple> expectedResult = new ArrayList<>(1);
 		expectedResult.add(expectedTuple);
 
 		boolean contains = TestUtils.containsAllResults(expectedResult, resultList);
 		// A tentative solution to make the test cases pass.
-		//		contains = true;
-		//		resultList.add(expectedTuple);
+		// contains = true;
+		// resultList.add(expectedTuple);
 		//
 		Assert.assertEquals(1, resultList.size());
 		Assert.assertTrue(contains);
 	}
 
-	// This case tests for the scenario when the IDs match, fields to be joined 
-	// match, but the spans to be joined have some overlap and 
-	// |(span 1 spanStartIndex) - (span 2 spanStartIndex)| and/or 
+	// This case tests for the scenario when the IDs match, fields to be joined
+	// match, but the spans to be joined have some overlap and
+	// |(span 1 spanStartIndex) - (span 2 spanStartIndex)| and/or
 	// |(span 1 spanEndIndex) - (span 2 spanEndIndex)| exceed threshold.
 	// Test result: Join should return an empty list.
 	@Test
@@ -463,15 +442,14 @@ public class JoinTest {
 
 		Attribute idAttr = attributeList.get(0);
 		Attribute reviewAttr = attributeList.get(4);
-		List<ITuple> resultList = getJoinResults(keywordMatcherOuter, 
-				keywordMatcherInner, idAttr, reviewAttr, 10);
+		List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 10);
 		Assert.assertEquals(0, resultList.size());
 	}
 
-	// This case tests for the scenario when the IDs match, fields to be joined 
-	// match, but the spans to be joined are the same, i.e. both the keywords 
+	// This case tests for the scenario when the IDs match, fields to be joined
+	// match, but the spans to be joined are the same, i.e. both the keywords
 	// are same.
-	// Test result: Join should return same span and key and value in span 
+	// Test result: Join should return same span and key and value in span
 	// should be the same.
 	@Test
 	public void testBothTheSpansAreSame() throws Exception {
@@ -484,37 +462,35 @@ public class JoinTest {
 
 		Attribute idAttr = attributeList.get(0);
 		Attribute reviewAttr = attributeList.get(4);
-		List<ITuple> resultList = getJoinResults(keywordMatcherOuter, 
-				keywordMatcherInner, idAttr, reviewAttr, 20);
+		List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 20);
 
 		Attribute[] schemaAttributes = new Attribute[attributeList.size() + 1];
-		for(int index = 0; index < schemaAttributes.length-1; index++) {
+		for (int index = 0; index < schemaAttributes.length - 1; index++) {
 			schemaAttributes[index] = attributeList.get(index);
 		}
 		schemaAttributes[schemaAttributes.length - 1] = SchemaConstants.SPAN_LIST_ATTRIBUTE;
 
 		List<Span> spanList = new ArrayList<>();
 		String reviewField = attributeList.get(4).getFieldName();
-		// The "foo" (key) and "bar" (value) is a tentative key-value pair; will 
+		// The "foo" (key) and "bar" (value) is a tentative key-value pair; will
 		// be replaced by actual key-value pair once implementation is fixed.
 		Span span1 = new Span(reviewField, 11, 18, "foo", "special");
 		spanList.add(span1);
 
-		IField[] book1 = { new IntegerField(52), new StringField("Mary Roach"), 
-				new StringField("Grunt: The Curious Science of Humans at War"), 
-				new IntegerField(288), new TextField("It takes a special kind "
-						+ "of writer to make topics ranging from death to our "
+		IField[] book1 = { new IntegerField(52), new StringField("Mary Roach"),
+				new StringField("Grunt: The Curious Science of Humans at War"), new IntegerField(288),
+				new TextField("It takes a special kind " + "of writer to make topics ranging from death to our "
 						+ "gastrointestinal tract interesting (sometimes "
-						+ "hilariously so), and pop science writer Mary Roach is "
-						+ "always up to the task."), new ListField<>(spanList) };
+						+ "hilariously so), and pop science writer Mary Roach is " + "always up to the task."),
+				new ListField<>(spanList) };
 		ITuple expectedTuple = new DataTuple(new Schema(schemaAttributes), book1);
 		List<ITuple> expectedResult = new ArrayList<>(1);
 		expectedResult.add(expectedTuple);
 
 		boolean contains = TestUtils.containsAllResults(expectedResult, resultList);
 		// A tentative solution to make the test cases pass.
-		//		contains = true;
-		//		resultList.add(expectedTuple);
+		// contains = true;
+		// resultList.add(expectedTuple);
 		//
 		Assert.assertEquals(1, resultList.size());
 		Assert.assertTrue(contains);
