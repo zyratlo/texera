@@ -1,4 +1,4 @@
-package edu.uci.ics.textdb.perftest.run;
+package edu.uci.ics.textdb.perftest.runme;
 
 /**
  * @author Hailey Pan
@@ -13,7 +13,7 @@ public class WriteIndex {
 	public static void main(String[] args) {
 
 		try {
-			PerfTestUtils.writeIndices();
+			PerfTestUtils.writeStandardAnalyzerIndices();
 			PerfTestUtils.writeTrigramIndices();
 		} catch (Exception e) {
 			e.printStackTrace();
