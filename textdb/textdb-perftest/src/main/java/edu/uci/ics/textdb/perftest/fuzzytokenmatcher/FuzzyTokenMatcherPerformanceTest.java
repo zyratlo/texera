@@ -90,7 +90,7 @@ public class FuzzyTokenMatcherPerformanceTest {
 			fileWriter.append(HEADER);
 
 			File indexFiles = new File(PerfTestUtils.standardIndexFolder);
-			double avg = 0;
+			double avgTime = 0;
 			for (double threshold : thresholds) {
 				for (File file : indexFiles.listFiles()) {
 					if (file.getName().startsWith(".")) {
@@ -104,9 +104,9 @@ public class FuzzyTokenMatcherPerformanceTest {
 					fileWriter.append(trueHeader);
 					resetStats();
 					match(queries, threshold, new StandardAnalyzer(), dataStore, bool);
-					avg = PerfTestUtils.calculateAverage(timeResults);
-					fileWriter.append(Collections.min(timeResults) + "," + Collections.max(timeResults) + "," + avg
-							+ "," + PerfTestUtils.calculateSTD(timeResults, avg) + ","
+					avgTime = PerfTestUtils.calculateAverage(timeResults);
+					fileWriter.append(Collections.min(timeResults) + "," + Collections.max(timeResults) + "," + avgTime
+							+ "," + PerfTestUtils.calculateSTD(timeResults, avgTime) + ","
 							+ totalResultCount / queries.size());
 					fileWriter.append(newLine);
 
