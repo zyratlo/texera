@@ -97,9 +97,9 @@ public class JoinTest {
 		bookTuple2 = new ArrayList<>(1);
 		bookTuple2.add(new DataTuple(bookSchema, book2));
 
-		dataStoreForOuter = new DataStore("../join_test_dir_1", bookSchema);
+		dataStoreForOuter = new DataStore(DataConstants.INDEX_DIR + "/join_test_dir_1", bookSchema);
 		dataWriterForOuter = new DataWriter(dataStoreForOuter, analyzer);
-		dataStoreForInner = new DataStore("../join_test_dir_2", bookSchema);
+		dataStoreForInner = new DataStore(DataConstants.INDEX_DIR + "/join_test_dir_2", bookSchema);
 		dataWriterForInner = new DataWriter(dataStoreForInner, analyzer);
 		dataWriterForOuter.clearData();
 		dataWriterForInner.clearData();

@@ -18,9 +18,6 @@ out/
 
 # Ignoring index folder and data folder
 index
-join_test_dir_1
-join_test_dir_2
-
 
 # Ignoring Mac OSX specific files
 .DS_Store

@@ -152,8 +152,8 @@ public class Join implements IOperator{
 		// First check if the field in question exists by using try catch.
 		// Will throw an exception if it doesn't exist. This leads to return false.
 		// Then check if both the fields are of type IntegerField.
-		// --> This is the bare minimum thing that can be done to to verify valid 
-		// id attribute (as of now) (probably it is better to add a field called ID).
+		// (This is the bare minimum thing that can be done to verify valid 
+		// id attribute. (as of now) (probably it is better to add a field called ID))
 		String fieldName = joinPredicate.getidAttribute().getFieldName();
 		try {
 			if(outerTuple.getField(fieldName).getClass().equals(IntegerField.class)&&
@@ -190,16 +190,10 @@ public class Join implements IOperator{
 		} catch(Exception e) {
 			return null;
 		}
-		// If either/both tuples have no span information, return null.
-		//		if(indexOfInnerSpanList == null || indexOfOuterSpanList == null) {
-		//			return null;
-		//		}
 
 		List<Span> innerSpanList = null;
 		List<Span> outerSpanList = null;
 		// Check if both the fields obtained from the indexes are indeed of type ListField
-		// TODO: should SchemaConstants.SPAN_LIST be a reserved or special 
-		// fieldName? In that case we don't need to check if the classes are equal
 		if(spanFieldOfInnerTuple.getClass().equals(ListField.class)) {
 			innerSpanList = (List<Span>) spanFieldOfInnerTuple.getValue();
 		}
