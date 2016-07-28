@@ -198,7 +198,7 @@ public class Join implements IOperator{
 		List<Span> innerSpanList = null;
 		List<Span> outerSpanList = null;
 		// Check if both the fields obtained from the indexes are indeed of type ListField
-		// TODO(Flavio): should SchemaConstants.SPAN_LIST be a reserved or special 
+		// TODO: should SchemaConstants.SPAN_LIST be a reserved or special 
 		// fieldName? In that case we don't need to check if the classes are equal
 		if(spanFieldOfInnerTuple.getClass().equals(ListField.class)) {
 			innerSpanList = (List<Span>) spanFieldOfInnerTuple.getValue();
@@ -238,7 +238,7 @@ public class Join implements IOperator{
 					String newFieldValue = fieldValue.substring(newSpanStartIndex, newSpanEndIndex);
 					Span newSpan = new Span(
 							fieldName, newSpanStartIndex, newSpanEndIndex, 
-							// TODO(Flavio): Check the right values for key and value
+							// TODO: Check the right values for key and value
 							//spanKey.toString(), // changed the value to foo 
 							// to match test cases.
 							"foo", newFieldValue);
