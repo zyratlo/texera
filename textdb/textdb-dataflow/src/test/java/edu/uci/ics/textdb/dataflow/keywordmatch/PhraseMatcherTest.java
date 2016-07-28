@@ -13,7 +13,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import edu.uci.ics.textdb.api.common.Attribute;
-import edu.uci.ics.textdb.api.common.FieldType;
 import edu.uci.ics.textdb.api.common.IField;
 import edu.uci.ics.textdb.api.common.IPredicate;
 import edu.uci.ics.textdb.api.common.ITuple;
