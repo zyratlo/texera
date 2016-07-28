@@ -250,7 +250,7 @@ public class KeywordMatcher implements IOperator {
     		}
     		
     		if (fieldType == FieldType.TEXT) {
-    			String regex = "\\b" + query.toLowerCase() + "\\b";
+    			String regex = query.toLowerCase();
     			Pattern pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE); 
     			Matcher matcher = pattern.matcher(fieldValue.toLowerCase());
     			while (matcher.find()) {
