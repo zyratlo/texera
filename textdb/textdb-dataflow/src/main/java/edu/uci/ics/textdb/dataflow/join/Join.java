@@ -28,7 +28,7 @@ import edu.uci.ics.textdb.dataflow.common.JoinPredicate;
 // using the JoinPredicate.
 // The JoinPredicate currently takes:
 // ID attribute -> Which serves as the document/tuple ID. Only for the tuples 
-// whose ID match, we perform the join.
+// whose IDs match, we perform the join.
 // Join Attribute -> The attribute to perform Join on.
 // and Threshold -> The value within which the difference of span starts and 
 // the difference of span ends should be for the join to take place.
@@ -39,7 +39,7 @@ public class Join implements IOperator{
 	private IOperator innerOperator;
 	private JoinPredicate joinPredicate;
 	// To indicate if next result from outer operator has to be obtained.
-	private boolean getOuterOperatorNextTuple;			
+	private boolean shouldIGetOuterOperatorNextTuple;			
 	private ITuple outerTuple = null;
 	private ITuple innerTuple = null;
 	private List<ITuple> innerTupleList = new ArrayList<>();
@@ -77,7 +77,7 @@ public class Join implements IOperator{
 			throw new DataFlowException(e.getMessage(), e);
 		}
 		
-		getOuterOperatorNextTuple = true;
+		shouldIGetOuterOperatorNextTuple = true;
 		
 		// Load the inner tuple list into memory on open.
 		while((innerTuple = innerOperator.getNextTuple()) != null) {
@@ -109,12 +109,11 @@ public class Join implements IOperator{
 		ITuple nextTuple = null;
 
 		do {
-			if(getOuterOperatorNextTuple == true) {
-				if((outerTuple = outerOperator.getNextTuple()) != null) {
-					getOuterOperatorNextTuple = false;
-				} else {
+			if(shouldIGetOuterOperatorNextTuple == true) {
+				if((outerTuple = outerOperator.getNextTuple()) == null) {
 					return null;
 				}
+				shouldIGetOuterOperatorNextTuple = false;
 			}
 
 			if (innerOperatorCursor <= innerTupleList.size() - 1) {
@@ -122,7 +121,7 @@ public class Join implements IOperator{
 				innerOperatorCursor++;
 				if(innerOperatorCursor == innerTupleList.size()) {
 					innerOperatorCursor = 0;
-					getOuterOperatorNextTuple = true;
+					shouldIGetOuterOperatorNextTuple = true;
 				}
 			}
 
