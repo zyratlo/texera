@@ -145,7 +145,6 @@ public class PhraseMatcherTest {
 
         //Perform Query
         List<ITuple> resultList = getPeopleQueryResults(query, attributeList);
-        System.out.println(Utils.getTupleListString(resultList));
 
         //Perform Check
         boolean contains = TestUtils.containsAllResults(expectedResultList, resultList);
