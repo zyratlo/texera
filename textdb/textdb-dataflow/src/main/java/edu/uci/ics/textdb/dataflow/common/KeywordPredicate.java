@@ -11,6 +11,7 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.PhraseQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
@@ -26,6 +27,8 @@ import edu.uci.ics.textdb.storage.DataReaderPredicate;
 
 /**
  *  @author prakul
+ *  @author Zhenfeng Qi
+ *  @author Zuozhi Wang
  *
  */
 
@@ -37,8 +40,9 @@ public class KeywordPredicate implements IPredicate {
 	private final List<Attribute> attributeList;
 	private final String query;
 	private final Query luceneQuery;
-	private ArrayList<String> tokenList;
-	private Set<String> tokenSet;
+	private ArrayList<String> queryTokenList;
+	private HashSet<String> queryTokenSet;
+	private ArrayList<String> queryTokensWithStopwords;
 	private Analyzer luceneAnalyzer;
 	private IDataStore dataStore;
 	private KeywordMatchingType operatorType;
@@ -52,13 +56,17 @@ public class KeywordPredicate implements IPredicate {
 			Analyzer luceneAnalyzer, IDataStore dataStore) throws DataFlowException {
 		try {
 			this.query = query;
-			this.tokenList = Utils.tokenizeQuery(luceneAnalyzer, query);
-			this.tokenSet = new HashSet<>(this.tokenList);
+			this.queryTokenList = Utils.tokenizeQuery(luceneAnalyzer, query);
+			this.queryTokenSet = new HashSet<>(this.queryTokenList);
+			this.queryTokensWithStopwords = Utils.tokenizeQueryWithStopwords(query);
+			
 			this.attributeList = attributeList;
 			this.operatorType = operatorType;
 			this.dataStore = dataStore;
+			
 			this.luceneAnalyzer = luceneAnalyzer;
 			this.luceneQuery = createLuceneQueryObject();
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new DataFlowException(e.getMessage(), e);
@@ -104,7 +112,7 @@ public class KeywordPredicate implements IPredicate {
 			}		
 			if (fieldType == FieldType.TEXT) {
 				BooleanQuery.Builder fieldQueryBuilder = new BooleanQuery.Builder();
-				for (String token : this.tokenSet) {
+				for (String token : this.queryTokenSet) {
 					Query termQuery = new TermQuery(new Term(fieldName, token.toLowerCase()));
 					fieldQueryBuilder.add(termQuery, BooleanClause.Occur.MUST);
 				}
@@ -121,7 +129,6 @@ public class KeywordPredicate implements IPredicate {
 	private Query buildPhraseQuery() {
 		BooleanQuery.Builder booleanQueryBuilder = new BooleanQuery.Builder();
 		
-		List<String> tokenListWithStopWords = Utils.tokenizeQueryWithStopwords(this.query);
 		
 		for (Attribute attribute : this.attributeList) {
 			String fieldName = attribute.getFieldName();
@@ -132,14 +139,14 @@ public class KeywordPredicate implements IPredicate {
 				booleanQueryBuilder.add(termQuery, BooleanClause.Occur.SHOULD);
 			}		
 			if (fieldType == FieldType.TEXT) {
-				if (tokenList.size() == 1) {
+				if (queryTokenList.size() == 1) {
 					Query termQuery = new TermQuery(new Term(fieldName, this.query.toLowerCase()));
 					booleanQueryBuilder.add(termQuery, BooleanClause.Occur.SHOULD);
 				} else {
 					PhraseQuery.Builder phraseQueryBuilder = new PhraseQuery.Builder();
-					for (int i = 0; i < tokenListWithStopWords.size(); i++) {
-						if (! StandardAnalyzer.STOP_WORDS_SET.contains(tokenListWithStopWords.get(i))) {
-							phraseQueryBuilder.add(new Term(fieldName, tokenListWithStopWords.get(i).toLowerCase()), i);
+					for (int i = 0; i < queryTokensWithStopwords.size(); i++) {
+						if (! StandardAnalyzer.STOP_WORDS_SET.contains(queryTokensWithStopwords.get(i))) {
+							phraseQueryBuilder.add(new Term(fieldName, queryTokensWithStopwords.get(i).toLowerCase()), i);
 						}
 					}
 					PhraseQuery phraseQuery = phraseQueryBuilder.build();
@@ -153,8 +160,9 @@ public class KeywordPredicate implements IPredicate {
 		return booleanQueryBuilder.build();
 	}
 	
+	
 	private Query buildScanQuery() {
-		return null;
+		return new MatchAllDocsQuery();
 	}
 
 	
@@ -175,8 +183,16 @@ public class KeywordPredicate implements IPredicate {
 		return this.luceneQuery;
 	}
 
-	public ArrayList<String> getTokens() {
-		return this.tokenList;
+	public ArrayList<String> getQueryTokenList() {
+		return this.queryTokenList;
+	}
+	
+	public HashSet<String> getQueryTokenSet() {
+		return this.queryTokenSet;
+	}
+	
+	public ArrayList<String> getQueryTokensWithStopwords() {
+		return this.queryTokensWithStopwords;
 	}
 
 	public Analyzer getLuceneAnalyzer() {
