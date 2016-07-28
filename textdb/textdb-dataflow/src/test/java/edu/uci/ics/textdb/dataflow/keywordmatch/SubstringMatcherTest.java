@@ -77,7 +77,7 @@ public class SubstringMatcherTest {
     
     public List<ITuple> getPeopleQueryResults(String query, ArrayList<Attribute> attributeList) throws DataFlowException, ParseException {
 
-        IPredicate predicate = new KeywordPredicate(query, attributeList, DataConstants.KeywordMatchingType.PHRASE_INDEXBASED, luceneAnalyzer, dataStore);
+        IPredicate predicate = new KeywordPredicate(query, attributeList, DataConstants.KeywordMatchingType.SUBSTRING_SCANBASED, luceneAnalyzer, dataStore);
         KeywordMatcher = new KeywordMatcher(predicate);
         KeywordMatcher.open();
 
@@ -146,7 +146,6 @@ public class SubstringMatcherTest {
 
         //Perform Query
         List<ITuple> resultList = getPeopleQueryResults(query, attributeList);
-        System.out.println(Utils.getTupleListString(resultList));
 
         //Perform Check
         boolean contains = TestUtils.containsAllResults(expectedResultList, resultList);
@@ -169,13 +168,9 @@ public class SubstringMatcherTest {
 
         //Prepare expected result list
         List<Span> list = new ArrayList<>();
-        Span span1 = new Span("FirstName", 6, 11, " lin ", " lin ");
-        Span span2 = new Span("description", 0, 5, " lin ", " Lin ");
-        Span span3 = new Span("description", 24, 29, " lin ", " lin ");
+        Span span1 = new Span("description", 24, 29, " lin ", " lin ");
 
         list.add(span1);
-        list.add(span2);
-        list.add(span3);
 
         Attribute[] schemaAttributes = new Attribute[TestConstants.ATTRIBUTES_PEOPLE.length + 1];
         for(int count = 0; count < schemaAttributes.length - 1; count++) {
@@ -185,7 +180,7 @@ public class SubstringMatcherTest {
 
         IField[] fields1 = { new StringField("george lin lin"), new StringField("lin clooney"), new IntegerField(43),
                 new DoubleField(6.06), new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-13-1973")),
-                new TextField(" Lin Clooney is Short and lin clooney is Angry"), new ListField<>(list) };
+                new TextField("Lin Clooney is Short and lin clooney is Angry"), new ListField<>(list) };
 
         ITuple tuple1 = new DataTuple(new Schema(schemaAttributes), fields1);
         List<ITuple> expectedResultList = new ArrayList<>();
@@ -193,7 +188,7 @@ public class SubstringMatcherTest {
 
         //Perform Query
         List<ITuple> resultList = getPeopleQueryResults(query, attributeList);
-
+        
         //Perform Check
         boolean contains = TestUtils.containsAllResults(expectedResultList, resultList);
         Assert.assertTrue(contains);

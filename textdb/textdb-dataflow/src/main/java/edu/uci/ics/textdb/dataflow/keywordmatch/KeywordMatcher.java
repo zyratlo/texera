@@ -228,10 +228,14 @@ public class KeywordMatcher implements IOperator {
     private ITuple processSubstring(ITuple currentTuple) throws DataFlowException {
     	List<Span> spanList = (List<Span>) currentTuple.getField(SchemaConstants.SPAN_LIST).getValue(); 
     	
+		// remove all spans retuned by DataReader
+    	spanList.clear();
+    	
     	for (Attribute attribute : this.predicate.getAttributeList()) {
     		String fieldName = attribute.getFieldName();
     		FieldType fieldType = attribute.getFieldType();
     		String fieldValue = currentTuple.getField(fieldName).getValue().toString();
+    		
     		
     		// types other than TEXT and STRING: throw Exception for now
 			if (fieldType != FieldType.STRING && fieldType != FieldType.TEXT) {
