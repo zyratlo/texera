@@ -65,7 +65,7 @@ public class PerfTestUtils {
 	 * 
 	 * @throws Exception
 	 */
-	public static void writeIndices() throws Exception {
+	public static void writeStandardAnalyzerIndices() throws Exception {
 		File files = new File(fileFolder);
 		for (File file : files.listFiles()) {
 			if (file.getName().startsWith(".")) {
@@ -113,12 +113,16 @@ public class PerfTestUtils {
 		if (indexType.equalsIgnoreCase("trigram")) {
 			dataStore = new DataStore(getTrigramIndexPath(fileName.replace(".txt", "")),
 					MedlineIndexWriter.SCHEMA_MEDLINE);
-		} else {
+		} 
+		else if(indexType.equalsIgnoreCase("standard")){
 			dataStore = new DataStore(getIndexPath(fileName.replace(".txt", "")), MedlineIndexWriter.SCHEMA_MEDLINE);
 		}
-
+		else{
+			System.out.println("Index is not successfully written.");
+			System.out.println("IndexType has to be either \"standard\" or \"trigram\"  ");
+			return;
+		}
 		Engine writeIndexEngine = Engine.getEngine();
-
 		writeIndexEngine
 				.evaluate(MedlineIndexWriter.getMedlineIndexPlan(fileFolder + fileName, dataStore, luceneAnalyzer));
 

@@ -1,4 +1,4 @@
-package edu.uci.ics.textdb.perftest.run;
+package edu.uci.ics.textdb.perftest.runme;
 
 /**
  * @author Hailey Pan 

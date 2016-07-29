@@ -146,7 +146,7 @@ public class KeywordPredicate implements IPredicate {
 			if (fieldType == FieldType.STRING) {
 				Query termQuery = new TermQuery(new Term(fieldName, this.query));
 				booleanQueryBuilder.add(termQuery, BooleanClause.Occur.SHOULD);
-			}		
+			}
 			if (fieldType == FieldType.TEXT) {
 				if (queryTokenList.size() == 1) {
 					Query termQuery = new TermQuery(new Term(fieldName, this.query.toLowerCase()));
