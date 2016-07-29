@@ -58,17 +58,21 @@ public class DictionaryMatcher implements IOperator {
             	throw new DataFlowException("Dictionary is empty");
             }
             
-            if (predicate.getSourceOperatorType() == DataConstants.KeywordMatchingType.PHRASE_INDEXBASED) {
-                KeywordPredicate keywordPredicate = new KeywordPredicate(currentDictionaryEntry, predicate.getAttributeList(),
-                        KeywordMatchingType.PHRASE_INDEXBASED, predicate.getAnalyzer(), predicate.getDataStore());
-                sourceOperator = new KeywordMatcher(keywordPredicate);
-                sourceOperator.open();
-            } else if (predicate.getSourceOperatorType() == DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED) {
-                KeywordPredicate keywordPredicate = new KeywordPredicate(currentDictionaryEntry, predicate.getAttributeList(),
-                        KeywordMatchingType.CONJUNCTION_INDEXBASED, predicate.getAnalyzer(), predicate.getDataStore());
-                sourceOperator = new KeywordMatcher(keywordPredicate);
-                sourceOperator.open();
-            } else {
+			if (predicate.getSourceOperatorType() == DataConstants.KeywordMatchingType.PHRASE_INDEXBASED) {
+				KeywordPredicate keywordPredicate = new KeywordPredicate(
+						currentDictionaryEntry, predicate.getDataStore(),
+						predicate.getAttributeList(), predicate.getAnalyzer(),
+						KeywordMatchingType.PHRASE_INDEXBASED);
+				sourceOperator = new KeywordMatcher(keywordPredicate);
+				sourceOperator.open();
+			} else if (predicate.getSourceOperatorType() == DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED) {
+				KeywordPredicate keywordPredicate = new KeywordPredicate(
+						currentDictionaryEntry, predicate.getDataStore(),
+						predicate.getAttributeList(), predicate.getAnalyzer(),
+						KeywordMatchingType.CONJUNCTION_INDEXBASED);
+				sourceOperator = new KeywordMatcher(keywordPredicate);
+				sourceOperator.open();
+			} else {
                 sourceOperator = predicate.getScanSourceOperator();
                 sourceOperator.open();
             }
@@ -133,8 +137,10 @@ public class DictionaryMatcher implements IOperator {
     				keywordMatchingType = KeywordMatchingType.CONJUNCTION_INDEXBASED;
     			}
     			
-    			KeywordPredicate keywordPredicate = new KeywordPredicate(currentDictionaryEntry, predicate.getAttributeList(),
-    					keywordMatchingType, predicate.getAnalyzer(), predicate.getDataStore());
+				KeywordPredicate keywordPredicate = new KeywordPredicate(
+						currentDictionaryEntry, predicate.getDataStore(),
+						predicate.getAttributeList(), predicate.getAnalyzer(),
+						keywordMatchingType);
     			
     			sourceOperator.close();
     			sourceOperator = new KeywordMatcher(keywordPredicate);

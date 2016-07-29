@@ -133,25 +133,25 @@ public class JoinTest {
 		IPredicate predicate = null;
 		switch (type) {
 		case "substring":
-			if(whichOperator == "outer") {
-				predicate = new KeywordPredicate(query, attributeList, 
-						DataConstants.KeywordMatchingType.SUBSTRING_SCANBASED, analyzer, 
-						dataStoreForOuter);
-			} else if(whichOperator == "inner") {
-				predicate = new KeywordPredicate(query, attributeList, 
-						DataConstants.KeywordMatchingType.SUBSTRING_SCANBASED, analyzer, 
-						dataStoreForInner);
+			if (whichOperator == "outer") {
+				predicate = new KeywordPredicate(query, dataStoreForOuter,
+						attributeList, analyzer,
+						DataConstants.KeywordMatchingType.SUBSTRING_SCANBASED);
+			} else if (whichOperator == "inner") {
+				predicate = new KeywordPredicate(query, dataStoreForInner,
+						attributeList, analyzer,
+						DataConstants.KeywordMatchingType.SUBSTRING_SCANBASED);
 			}
 			break;
 		case "phrase":
-			if(whichOperator == "outer") {
-				predicate = new KeywordPredicate(query, attributeList, 
-						DataConstants.KeywordMatchingType.PHRASE_INDEXBASED, analyzer, 
-						dataStoreForOuter);
-			} else if(whichOperator == "inner") {
-				predicate = new KeywordPredicate(query, attributeList, 
-						DataConstants.KeywordMatchingType.PHRASE_INDEXBASED, analyzer, 
-						dataStoreForInner);
+			if (whichOperator == "outer") {
+				predicate = new KeywordPredicate(query, dataStoreForOuter,
+						attributeList, analyzer,
+						DataConstants.KeywordMatchingType.PHRASE_INDEXBASED);
+			} else if (whichOperator == "inner") {
+				predicate = new KeywordPredicate(query, dataStoreForInner,
+						attributeList, analyzer,
+						DataConstants.KeywordMatchingType.PHRASE_INDEXBASED);
 			}
 			break;
 
@@ -296,8 +296,8 @@ public class JoinTest {
 		query = "this writer writes well";
 		double thresholdRatio = 0.25;
 		boolean isSpanInformationAdded = false;
-		IPredicate fuzzyPredicateInner = new FuzzyTokenPredicate(query, attributeList, 
-				analyzer, dataStoreForInner, thresholdRatio, isSpanInformationAdded);
+		IPredicate fuzzyPredicateInner = new FuzzyTokenPredicate(query, dataStoreForInner, 
+				attributeList, analyzer, thresholdRatio, isSpanInformationAdded);
 		FuzzyTokenMatcher fuzzyMatcherInner = new FuzzyTokenMatcher(fuzzyPredicateInner);
 
 		Attribute idAttr = attributeList.get(0);

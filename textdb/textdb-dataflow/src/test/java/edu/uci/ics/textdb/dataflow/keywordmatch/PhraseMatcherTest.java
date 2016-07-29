@@ -74,7 +74,7 @@ public class PhraseMatcherTest {
 
     public List<ITuple> getPeopleQueryResults(String query, ArrayList<Attribute> attributeList) throws DataFlowException, ParseException {
 
-        IPredicate predicate = new KeywordPredicate(query, attributeList, DataConstants.KeywordMatchingType.PHRASE_INDEXBASED, luceneAnalyzer, dataStore);
+        IPredicate predicate = new KeywordPredicate(query, dataStore, attributeList, luceneAnalyzer, DataConstants.KeywordMatchingType.PHRASE_INDEXBASED);
         KeywordMatcher = new KeywordMatcher(predicate);
         KeywordMatcher.open();
 
@@ -320,7 +320,7 @@ public class PhraseMatcherTest {
         expectedResultList.add(tuple1);
 
         //Perform Query
-        IPredicate predicate = new KeywordPredicate(query, attributeList, DataConstants.KeywordMatchingType.PHRASE_INDEXBASED, MedAnalyzer, MedDataStore);
+        IPredicate predicate = new KeywordPredicate(query, MedDataStore, attributeList, MedAnalyzer, DataConstants.KeywordMatchingType.PHRASE_INDEXBASED);
         KeywordMatcher = new KeywordMatcher(predicate);
         KeywordMatcher.open();
 
@@ -374,7 +374,7 @@ public class PhraseMatcherTest {
         expectedResultList.add(tuple1);
 
         //Perform Query
-        IPredicate predicate = new KeywordPredicate(query, attributeList, DataConstants.KeywordMatchingType.PHRASE_INDEXBASED, MedAnalyzer, MedDataStore);
+        IPredicate predicate = new KeywordPredicate(query, MedDataStore, attributeList, MedAnalyzer, DataConstants.KeywordMatchingType.PHRASE_INDEXBASED);
         KeywordMatcher = new KeywordMatcher(predicate);
         KeywordMatcher.open();
 
@@ -439,7 +439,7 @@ public class PhraseMatcherTest {
         expectedResultList.add(tuple1);
 
         //Perform Query
-        IPredicate predicate = new KeywordPredicate(query, attributeList, DataConstants.KeywordMatchingType.PHRASE_INDEXBASED, MedAnalyzer, MedDataStore);
+        IPredicate predicate = new KeywordPredicate(query, MedDataStore, attributeList, MedAnalyzer, DataConstants.KeywordMatchingType.PHRASE_INDEXBASED);
         KeywordMatcher = new KeywordMatcher(predicate);
         KeywordMatcher.open();
 
