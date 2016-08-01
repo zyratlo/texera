@@ -47,7 +47,7 @@ public class NlpExtractor implements IOperator {
     private NlpTokenType inputNlpTokenType = null;
     private String nlpTypeIndicator = null;
     private int limit = Integer.MAX_VALUE;
-    private int counter = 0;
+    private int cursor;
 
 
     /**
@@ -103,6 +103,7 @@ public class NlpExtractor implements IOperator {
     @Override
     public void open() throws Exception {
         try {
+        	cursor = 0;
             sourceOperator.open();
             returnSchema = null;
         } catch (Exception e) {
@@ -123,7 +124,7 @@ public class NlpExtractor implements IOperator {
      */
     @Override
     public ITuple getNextTuple() throws Exception {
-    	if (counter >= limit){
+    	if (cursor >= limit){
     		return null;
     	}
         sourceTuple = sourceOperator.getNextTuple();
@@ -141,17 +142,17 @@ public class NlpExtractor implements IOperator {
             }
             ITuple returnTuple = Utils.getSpanTuple(sourceTuple.getFields(),
                     spanList, returnSchema);
-            counter++;
+            cursor++;
             return returnTuple;
         }
     }
     
-    public void setLimit(int l){
-    	limit = l;
+    public void setLimit(int limit){
+    	this.limit = limit;
     }
     
     public int getLimit(){
-    	return limit;
+    	return this.limit;
     }
 
     /**

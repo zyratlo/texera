@@ -36,7 +36,7 @@ public class DictionaryMatcher implements IOperator {
 
     private final DictionaryPredicate predicate;
     
-    private int counter = 0;
+    private int cursor;
     private int limit = Integer.MAX_VALUE;
 
     /**
@@ -56,6 +56,7 @@ public class DictionaryMatcher implements IOperator {
     @Override
     public void open() throws DataFlowException {
         try {
+        	cursor = 0;
         	currentDictionaryEntry = predicate.getNextDictionaryEntry();
             if (currentDictionaryEntry == null) {
             	throw new DataFlowException("Dictionary is empty");
@@ -115,10 +116,10 @@ public class DictionaryMatcher implements IOperator {
      */
     @Override
     public ITuple getNextTuple() throws Exception {
-    	if (counter >= limit){
+    	if (cursor >= limit){
     		return null;
     	}
-    	counter++;
+    	cursor++;
     	if (predicate.getSourceOperatorType() == DataConstants.KeywordMatchingType.PHRASE_INDEXBASED
     	||  predicate.getSourceOperatorType() == DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED) {
     		// For each dictionary entry, 
@@ -176,12 +177,12 @@ public class DictionaryMatcher implements IOperator {
     	}
     }
     
-    public void setLimit(int l){
-    	limit = l;
+    public void setLimit(int limit){
+    	this.limit = limit;
     }
     
     public int getLimit(){
-    	return limit;
+    	return this.limit;
     }
     
     /*

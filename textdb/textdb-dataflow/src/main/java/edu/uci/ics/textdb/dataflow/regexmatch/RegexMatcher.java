@@ -45,7 +45,7 @@ public class RegexMatcher implements IOperator {
 	private ISourceOperator sourceOperator;
     
 	private int limit = Integer.MAX_VALUE;
-	private int counter = 0;
+	private int cursor;
     private List<Span> spanList;
         
     // two available regex engines, RegexMatcher will try RE2J first 
@@ -119,7 +119,7 @@ public class RegexMatcher implements IOperator {
     @Override
     public ITuple getNextTuple() throws DataFlowException {
 		try {
-			if (counter >= limit){
+			if (cursor >= limit){
 				return null;
 			}
             ITuple sourceTuple = sourceOperator.getNextTuple();
@@ -131,7 +131,7 @@ public class RegexMatcher implements IOperator {
             
             if (spanList != null && spanList.size() != 0) { // a list of matches found
             	List<IField> fields = sourceTuple.getFields();
-            	counter++;
+            	cursor++;
             	return constructSpanTuple(fields, this.spanList);
             } else { // no match found
             	return getNextTuple();
@@ -142,12 +142,12 @@ public class RegexMatcher implements IOperator {
         }        
     }
     
-    public void setLimit(int l){
-    	limit = l;
+    public void setLimit(int limit){
+    	this.limit = limit;
     }
     
     public int getLimit(){
-    	return limit;
+    	return this.limit;
     }
     
     private ITuple constructSpanTuple(List<IField> fields, List<Span> spans) {
@@ -257,6 +257,7 @@ public class RegexMatcher implements IOperator {
     @Override
     public void open() throws DataFlowException {
         try {
+        	cursor = 0;
             sourceOperator.open();
         } catch (Exception e) {
             e.printStackTrace();
