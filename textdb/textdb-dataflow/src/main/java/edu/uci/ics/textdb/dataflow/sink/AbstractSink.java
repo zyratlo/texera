@@ -14,10 +14,10 @@ import edu.uci.ics.textdb.api.dataflow.ISink;
  */
 public abstract class AbstractSink implements ISink {
 
-    private IOperator childOperator;
+    private IOperator inputOperator;
 
-    public AbstractSink(IOperator childOperator) {
-        this.childOperator = childOperator;
+    public AbstractSink(IOperator inputOperator) {
+        this.inputOperator = inputOperator;
     }
 
     /**
@@ -25,15 +25,23 @@ public abstract class AbstractSink implements ISink {
      */
     @Override
     public void open() throws Exception {
-        childOperator.open();
+    	inputOperator.open();
     }
+    
+	public void setInputOperator(IOperator inputOperator) {
+		this.inputOperator = inputOperator;
+	}
+	
+	public IOperator getSourceOperator() {
+		return this.inputOperator;
+	}
 
     @Override
     public void processTuples() throws Exception {
 
         ITuple nextTuple;
 
-        while ((nextTuple = childOperator.getNextTuple()) != null) {
+        while ((nextTuple = inputOperator.getNextTuple()) != null) {
             processOneTuple(nextTuple);
         }
 
@@ -47,6 +55,6 @@ public abstract class AbstractSink implements ISink {
 
     @Override
     public void close() throws Exception {
-        childOperator.close();
+    	inputOperator.close();
     }
 }

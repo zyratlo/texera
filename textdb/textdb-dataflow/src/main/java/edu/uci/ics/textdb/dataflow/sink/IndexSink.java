@@ -23,6 +23,12 @@ public class IndexSink extends AbstractSink {
 		this.dataWriter = new DataWriter(dataStore, luceneAnalyzer);
 	}
 	
+	public IndexSink(String indexDirectory, Schema schema, Analyzer luceneAnalyzer) {
+		super(null);
+		DataStore dataStore = new DataStore(indexDirectory, schema);
+		this.dataWriter = new DataWriter(dataStore, luceneAnalyzer);
+	}
+	
 	public void open() throws Exception {
 		super.open();
 		this.dataWriter.clearData();
