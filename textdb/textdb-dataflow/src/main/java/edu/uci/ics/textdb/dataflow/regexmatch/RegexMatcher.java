@@ -122,7 +122,6 @@ public class RegexMatcher implements IOperator {
 			if (counter >= limit){
 				return null;
 			}
-			counter++;
             ITuple sourceTuple = sourceOperator.getNextTuple();
             if(sourceTuple == null){
                 return null;
@@ -132,6 +131,7 @@ public class RegexMatcher implements IOperator {
             
             if (spanList != null && spanList.size() != 0) { // a list of matches found
             	List<IField> fields = sourceTuple.getFields();
+            	counter++;
             	return constructSpanTuple(fields, this.spanList);
             } else { // no match found
             	return getNextTuple();

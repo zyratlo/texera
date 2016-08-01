@@ -26,16 +26,16 @@ public class RunPerftests {
 	 */
 	public static void main(String[] args) {
 		try {
-//			List<Double> thresholds = Arrays.asList(0.8,0.65,0.5,0.35);
-//			List<String> regexQueries = Arrays.asList("mosquitos?", "v[ir]{2}[us]{2}",
-//					"market(ing)?", "medic(ine|al|ation|are|aid)?",
-//					"[A-Z][aeiou|AEIOU][A-Za-z]*"
-//					);
+			List<Double> thresholds = Arrays.asList(0.8,0.65,0.5,0.35);
+			List<String> regexQueries = Arrays.asList("mosquitos?", "v[ir]{2}[us]{2}",
+					"market(ing)?", "medic(ine|al|ation|are|aid)?",
+					"[A-Z][aeiou|AEIOU][A-Za-z]*"
+					);
 			
-//			KeywordMatcherPerformanceTest.runTest("sample_queries.txt", 1);
-//			DictionaryMatcherPerformanceTest.runTest("sample_queries.txt", 1);
-//			FuzzyTokenMatcherPerformanceTest.runTest("sample_queries.txt", 1, thresholds);
-//			RegexMatcherPerformanceTest.runTest(regexQueries, 2);
+			KeywordMatcherPerformanceTest.runTest("sample_queries.txt", 1);
+			DictionaryMatcherPerformanceTest.runTest("sample_queries.txt", 1);
+			FuzzyTokenMatcherPerformanceTest.runTest("sample_queries.txt", 1, thresholds);
+			RegexMatcherPerformanceTest.runTest(regexQueries, 2);
 			NlpExtractorPerformanceTest.runTest(1);
 
 		} catch (StorageException | DataFlowException | IOException e) {

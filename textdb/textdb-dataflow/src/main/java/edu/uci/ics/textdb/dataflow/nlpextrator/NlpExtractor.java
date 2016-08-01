@@ -126,7 +126,6 @@ public class NlpExtractor implements IOperator {
     	if (counter >= limit){
     		return null;
     	}
-    	counter++;
         sourceTuple = sourceOperator.getNextTuple();
         if (sourceTuple == null) {
             return null;
@@ -142,6 +141,7 @@ public class NlpExtractor implements IOperator {
             }
             ITuple returnTuple = Utils.getSpanTuple(sourceTuple.getFields(),
                     spanList, returnSchema);
+            counter++;
             return returnTuple;
         }
     }
