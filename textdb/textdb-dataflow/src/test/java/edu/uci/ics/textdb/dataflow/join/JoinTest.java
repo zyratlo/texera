@@ -181,7 +181,7 @@ public class JoinTest {
 		return new KeywordMatcher(predicate);
 	}
 
-	// A helper method to populate tuple's list to query upon. Currently
+	// A helper method to populate tuples' list to query upon. Currently
 	// consists of two sets/lists of tuples with five tuples in each.
 	// Takes in the set number and number of tuples.
 	public List<ITuple> setupTuplesList(int whichList, int numberOfTuples) {
@@ -516,11 +516,10 @@ public class JoinTest {
 	}
 
 	// This case tests for the scenario when the IDs match, fields to be joined
-	// match, but one of the spans to be joined is bigger than the other span
-	// and encompasses it and both |(span 1 spanStartIndex) - (span 2
-	// spanStartIndex)|,
+	// match, but one of the spans to be joined encompasses the other span
+	// and both |(span 1 spanStartIndex) - (span 2 spanStartIndex)|,
 	// |(span 1 spanEndIndex) - (span 2 spanEndIndex)| are within threshold.
-	// Test result: A bigger span should be returned.
+	// Test result: The bigger span should be returned.
 	@Test
 	public void testOneSpanEncompassesOtherAndDifferenceLessThanThreshold()
 			throws Exception {
@@ -575,9 +574,8 @@ public class JoinTest {
 	}
 
 	// This case tests for the scenario when the IDs match, fields to be joined
-	// match, but one of the spans to be joined is bigger than the other span
-	// and encompasses it and |(span 1 spanStartIndex) - (span 2
-	// spanStartIndex)|
+	// match, but one of the spans to be joined encompasses the other span
+	// and |(span 1 spanStartIndex) - (span 2 spanStartIndex)|
 	// and/or |(span 1 spanEndIndex) - (span 2 spanEndIndex)| exceed threshold.
 	// Test result: Join should return an empty list.
 	@Test
@@ -687,7 +685,7 @@ public class JoinTest {
 	// This case tests for the scenario when the IDs match, fields to be joined
 	// match, but the spans to be joined are the same, i.e. both the keywords
 	// are same.
-	// Test result: Join should return same span and key and value in span
+	// Test result: Join should return same span and key and the value in span
 	// should be the same.
 	@Test
 	public void testBothTheSpansAreSame() throws Exception {
