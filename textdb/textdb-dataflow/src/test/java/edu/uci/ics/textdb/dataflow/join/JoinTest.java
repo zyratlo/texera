@@ -206,11 +206,13 @@ public class JoinTest {
 					IField[] book1_5 = { new IntegerField(51),
 							new StringField("author unknown"),
 							new StringField("typical"), new IntegerField(300),
-							new TextField("Review of a "
-									+ "Book. This is a typical review. "
-									+ "This is a test. A book review test. "
-									+ "A test to test queries without actually "
-									+ "using actual review.") };
+							new TextField("Review of a Book. This is a typical "
+									+ "review. This is a test. A book review "
+									+ "test. A test to test queries without "
+									+ "actually using actual review. From "
+									+ "here onwards, we can pretend this to "
+									+ "be actually a review even if it is not "
+									+ "your typical book review.") };
 					index--;
 					tupleArray[index] = new DataTuple(schema, book1_5);
 				} else if (index == 4) {
@@ -219,11 +221,13 @@ public class JoinTest {
 							new StringField("Grunt: The Curious Science of "
 									+ "Humans at War"),
 							new IntegerField(288),
-							new TextField("Review of a "
-									+ "Book. This is a typical review. "
-									+ "This is a test. A book review test. "
-									+ "A test to test queries without actually "
-									+ "using actual review.") };
+							new TextField("Review of a Book. This is a typical "
+									+ "review. This is a test. A book review "
+									+ "test. A test to test queries without "
+									+ "actually using actual review. From "
+									+ "here onwards, we can pretend this to "
+									+ "be actually a review even if it is not "
+									+ "your typical book review.") };
 					index--;
 					tupleArray[index] = new DataTuple(schema, book1_4);
 				} else if (index == 3) {
@@ -231,11 +235,13 @@ public class JoinTest {
 							new StringField("Noah Hawley"),
 							new StringField("Before the Fall"),
 							new IntegerField(400),
-							new TextField("Review of a "
-									+ "Book. This is a typical review. "
-									+ "This is a test. A book review test. "
-									+ "A test to test queries without actually "
-									+ "using actual review.") };
+							new TextField("Review of a Book. This is a typical "
+									+ "review. This is a test. A book review "
+									+ "test. A test to test queries without "
+									+ "actually using actual review. From "
+									+ "here onwards, we can pretend this to "
+									+ "be actually a review even if it is not "
+									+ "your typical book review.") };
 					index--;
 					tupleArray[index] = new DataTuple(schema, book1_3);
 				} else if (index == 2) {
@@ -243,11 +249,13 @@ public class JoinTest {
 							new StringField("Andria Williams"),
 							new StringField("The Longest Night: A Novel"),
 							new IntegerField(400),
-							new TextField("Review of a "
-									+ "Book. This is a typical review. "
-									+ "This is a test. A book review test. "
-									+ "A test to test queries without actually "
-									+ "using actual review.") };
+							new TextField("Review of a Book. This is a typical "
+									+ "review. This is a test. A book review "
+									+ "test. A test to test queries without "
+									+ "actually using actual review. From "
+									+ "here onwards, we can pretend this to "
+									+ "be actually a review even if it is not "
+									+ "your typical book review.") };
 					index--;
 					tupleArray[index] = new DataTuple(schema, book1_2);
 				} else if (index == 1) {
@@ -256,11 +264,13 @@ public class JoinTest {
 							new StringField(
 									"Pumpkinflowers: A Soldier's " + "Story"),
 							new IntegerField(256),
-							new TextField("Review of a "
-									+ "Book. This is a typical review. "
-									+ "This is a test. A book review test. "
-									+ "A test to test queries without actually "
-									+ "using actual review.") };
+							new TextField("Review of a Book. This is a typical "
+									+ "review. This is a test. A book review "
+									+ "test. A test to test queries without "
+									+ "actually using actual review. From "
+									+ "here onwards, we can pretend this to "
+									+ "be actually a review even if it is not "
+									+ "your typical book review.") };
 					index--;
 					tupleArray[index] = new DataTuple(schema, book1_1);
 				}
@@ -273,11 +283,13 @@ public class JoinTest {
 							new StringField("book author"),
 							new StringField("actually typical"),
 							new IntegerField(700),
-							new TextField("Review of a "
-									+ "Book. This is a typical review. "
-									+ "This is a test. A book review test. "
-									+ "A test to test queries without actually "
-									+ "using actual review.") };
+							new TextField("Review of a Book. This is a typical "
+									+ "review. This is a test. A book review "
+									+ "test. A test to test queries without "
+									+ "actually using actual review. From "
+									+ "here onwards, we can pretend this to "
+									+ "be actually a review even if it is not "
+									+ "your typical book review.") };
 					index--;
 					tupleArray[index] = new DataTuple(schema, book2_5);
 				} else if (index == 4) {
@@ -285,11 +297,13 @@ public class JoinTest {
 							new StringField("Siddhartha Mukherjee"),
 							new StringField("The Gene: An Intimate History"),
 							new IntegerField(608),
-							new TextField("Review of a "
-									+ "Book. This is a typical review. "
-									+ "This is a test. A book review test. "
-									+ "A test to test queries without actually "
-									+ "using actual review.") };
+							new TextField("Review of a Book. This is a typical "
+									+ "review. This is a test. A book review "
+									+ "test. A test to test queries without "
+									+ "actually using actual review. From "
+									+ "here onwards, we can pretend this to "
+									+ "be actually a review even if it is not "
+									+ "your typical book review.") };
 					index--;
 					tupleArray[index] = new DataTuple(schema, book2_4);
 				} else if (index == 3) {
@@ -297,11 +311,13 @@ public class JoinTest {
 							new StringField("Paul Kalanithi"),
 							new StringField("When Breath Becomes Air"),
 							new IntegerField(256),
-							new TextField("Review of a "
-									+ "Book. This is a typical review. "
-									+ "This is a test. A book review test. "
-									+ "A test to test queries without actually "
-									+ "using actual review.") };
+							new TextField("Review of a Book. This is a typical "
+									+ "review. This is a test. A book review "
+									+ "test. A test to test queries without "
+									+ "actually using actual review. From "
+									+ "here onwards, we can pretend this to "
+									+ "be actually a review even if it is not "
+									+ "your typical book review.") };
 					index--;
 					tupleArray[index] = new DataTuple(schema, book2_3);
 				} else if (index == 2) {
@@ -311,11 +327,13 @@ public class JoinTest {
 									"Evicted: Poverty and Profit in the "
 											+ "American City"),
 							new IntegerField(432),
-							new TextField("Review of a "
-									+ "Book. This is a typical review. "
-									+ "This is a test. A book review test. "
-									+ "A test to test queries without actually "
-									+ "using actual review.") };
+							new TextField("Review of a Book. This is a typical "
+									+ "review. This is a test. A book review "
+									+ "test. A test to test queries without "
+									+ "actually using actual review. From "
+									+ "here onwards, we can pretend this to "
+									+ "be actually a review even if it is not "
+									+ "your typical book review.") };
 					index--;
 					tupleArray[index] = new DataTuple(schema, book2_2);
 				} else if (index == 1) {
@@ -323,11 +341,13 @@ public class JoinTest {
 							new StringField("Sharon Guskin"),
 							new StringField("The Forgetting Time: A Novel"),
 							new IntegerField(368),
-							new TextField("Review of a "
-									+ "Book. This is a typical review. "
-									+ "This is a test. A book review test. "
-									+ "A test to test queries without actually "
-									+ "using actual review.") };
+							new TextField("Review of a Book. This is a typical "
+									+ "review. This is a test. A book review "
+									+ "test. A test to test queries without "
+									+ "actually using actual review. From "
+									+ "here onwards, we can pretend this to "
+									+ "be actually a review even if it is not "
+									+ "your typical book review.") };
 					index--;
 					tupleArray[index] = new DataTuple(schema, book2_1);
 				}
@@ -402,8 +422,8 @@ public class JoinTest {
 
 		List<Span> spanList = new ArrayList<>();
 		String reviewField = attributeList.get(4).getFieldName();
-		// The "foo" (key) and "bar" (value) is a tentative key-value pair; will
-		// be replaced by actual key-value pair once implementation is fixed.
+		// The "foo" (key) is a tentative key; will be replaced by an actual
+		// key once implementation is fixed.
 		Span span1 = new Span(reviewField, 11, 33, "foo",
 				"special kind of " + "writer");
 		spanList.add(span1);
@@ -424,10 +444,7 @@ public class JoinTest {
 
 		boolean contains = TestUtils.containsAllResults(expectedResult,
 				resultList);
-		// A tentative solution to make the test cases pass.
-		// contains = true;
-		// resultList.add(expectedTuple);
-		//
+
 		Assert.assertEquals(1, resultList.size());
 		Assert.assertTrue(contains);
 	}
@@ -536,8 +553,8 @@ public class JoinTest {
 
 		List<Span> spanList = new ArrayList<>();
 		String reviewField = attributeList.get(4).getFieldName();
-		// The "foo" (key) and "bar" (value) is a tentative key-value pair; will
-		// be replaced by actual key-value pair once implementation is fixed.
+		// The "foo" (key) is a tentative key; will be replaced by an actual
+		// key once implementation is fixed.
 		Span span1 = new Span(reviewField, 3, 33, "foo",
 				"takes a special " + "kind of writer");
 		spanList.add(span1);
@@ -558,10 +575,7 @@ public class JoinTest {
 
 		boolean contains = TestUtils.containsAllResults(expectedResult,
 				resultList);
-		// A tentative solution to make the test cases pass.
-		// contains = true;
-		// resultList.add(expectedTuple);
-		//
+
 		Assert.assertEquals(1, resultList.size());
 		Assert.assertTrue(contains);
 	}
@@ -626,8 +640,8 @@ public class JoinTest {
 
 		List<Span> spanList = new ArrayList<>();
 		String reviewField = attributeList.get(4).getFieldName();
-		// The "foo" (key) and "bar" (value) is a tentative key-value pair; will
-		// be replaced by actual key-value pair once implementation is fixed.
+		// The "foo" (key) is a tentative key; will be replaced by an actual
+		// key once implementation is fixed.
 		Span span1 = new Span(reviewField, 75, 109, "foo",
 				"gastrointestinal " + "tract interesting");
 		spanList.add(span1);
@@ -648,10 +662,7 @@ public class JoinTest {
 
 		boolean contains = TestUtils.containsAllResults(expectedResult,
 				resultList);
-		// A tentative solution to make the test cases pass.
-		// contains = true;
-		// resultList.add(expectedTuple);
-		//
+
 		Assert.assertEquals(1, resultList.size());
 		Assert.assertTrue(contains);
 	}
@@ -709,8 +720,8 @@ public class JoinTest {
 
 		List<Span> spanList = new ArrayList<>();
 		String reviewField = attributeList.get(4).getFieldName();
-		// The "foo" (key) and "bar" (value) is a tentative key-value pair; will
-		// be replaced by actual key-value pair once implementation is fixed.
+		// The "foo" (key) is a tentative key; will be replaced by an actual
+		// key once implementation is fixed.
 		Span span1 = new Span(reviewField, 11, 18, "foo", "special");
 		spanList.add(span1);
 
@@ -730,10 +741,7 @@ public class JoinTest {
 
 		boolean contains = TestUtils.containsAllResults(expectedResult,
 				resultList);
-		// A tentative solution to make the test cases pass.
-		// contains = true;
-		// resultList.add(expectedTuple);
-		//
+
 		Assert.assertEquals(1, resultList.size());
 		Assert.assertTrue(contains);
 	}
@@ -791,7 +799,7 @@ public class JoinTest {
 		Assert.assertEquals(0, resultList.size());
 	}
 
-	// --------------------<END of single tuple test cases.>--------------------
+	// --------------------<END of single tuple test cases>--------------------
 
 	// This case tests for the scenario when both the operators' have multiple
 	// tuples and none of the tuples have same ID (multi-tuple version of the
@@ -853,23 +861,27 @@ public class JoinTest {
 
 		List<Span> spanList = new ArrayList<>();
 		String reviewField = attributeList.get(4).getFieldName();
-		// The "foo" (key) and "bar" (value) is a tentative key-value pair; will
-		// be replaced by actual key-value pair once implementation is fixed.
+		// The "foo" (key) is a tentative key; will be replaced by an actual
+		// key once implementation is fixed.
 		Span span1 = new Span(reviewField, 0, 16, "foo",
 				"Review of a " + "Book");
 		spanList.add(span1);
 		Span span2 = new Span(reviewField, 62, 73, "foo", "book review");
 		spanList.add(span2);
+		Span span3 = new Span(reviewField, 235, 246, "foo", "book review");
+		spanList.add(span3);
 
 		IField[] book1 = { new IntegerField(55),
 				new StringField("Matti Friedman"),
 				new StringField("Pumpkinflowers: A Soldier's " + "Story"),
 				new IntegerField(256),
-				new TextField(
-						"Review of a " + "Book. This is a typical review. "
-								+ "This is a test. A book review test. "
-								+ "A test to test queries without actually "
-								+ "using actual review."),
+				new TextField("Review of a Book. This is a typical "
+						+ "review. This is a test. A book review "
+						+ "test. A test to test queries without "
+						+ "actually using actual review. From "
+						+ "here onwards, we can pretend this to "
+						+ "be actually a review even if it is not "
+						+ "your typical book review."),
 				new ListField<>(spanList) };
 		ITuple expectedTuple = new DataTuple(new Schema(schemaAttributes),
 				book1);
@@ -878,10 +890,7 @@ public class JoinTest {
 
 		boolean contains = TestUtils.containsAllResults(expectedResult,
 				resultList);
-		// A tentative solution to make the test cases pass.
-		// contains = true;
-		// resultList.add(expectedTuple);
-		//
+
 		Assert.assertEquals(1, resultList.size());
 		Assert.assertTrue(contains);
 	}
@@ -954,56 +963,66 @@ public class JoinTest {
 
 		List<Span> spanList = new ArrayList<>();
 		String reviewField = attributeList.get(4).getFieldName();
-		// The "foo" (key) and "bar" (value) is a tentative key-value pair; will
-		// be replaced by actual key-value pair once implementation is fixed.
+		// The "foo" (key) is a tentative key; will be replaced by an actual
+		// key once implementation is fixed.
 		Span span1 = new Span(reviewField, 0, 16, "foo",
 				"Review of a " + "Book");
 		spanList.add(span1);
 		Span span2 = new Span(reviewField, 62, 73, "foo", "book review");
 		spanList.add(span2);
+		Span span3 = new Span(reviewField, 235, 246, "foo", "book review");
+		spanList.add(span3);
 
 		IField[] book1 = { new IntegerField(52), new StringField("Mary Roach"),
 				new StringField(
 						"Grunt: The Curious Science of " + "Humans at War"),
 				new IntegerField(288),
-				new TextField(
-						"Review of a " + "Book. This is a typical review. "
-								+ "This is a test. A book review test. "
-								+ "A test to test queries without actually "
-								+ "using actual review."),
+				new TextField("Review of a Book. This is a typical "
+						+ "review. This is a test. A book review "
+						+ "test. A test to test queries without "
+						+ "actually using actual review. From "
+						+ "here onwards, we can pretend this to "
+						+ "be actually a review even if it is not "
+						+ "your typical book review."),
 				new ListField<>(spanList) };
 
 		IField[] book2 = { new IntegerField(54),
 				new StringField("Andria Williams"),
 				new StringField("The Longest Night: A Novel"),
 				new IntegerField(400),
-				new TextField(
-						"Review of a " + "Book. This is a typical review. "
-								+ "This is a test. A book review test. "
-								+ "A test to test queries without actually "
-								+ "using actual review."),
+				new TextField("Review of a Book. This is a typical "
+						+ "review. This is a test. A book review "
+						+ "test. A test to test queries without "
+						+ "actually using actual review. From "
+						+ "here onwards, we can pretend this to "
+						+ "be actually a review even if it is not "
+						+ "your typical book review."),
 				new ListField<>(spanList) };
 
 		IField[] book3 = { new IntegerField(65),
 				new StringField("Sharon Guskin"),
 				new StringField("The Forgetting Time: A Novel"),
 				new IntegerField(368),
-				new TextField(
-						"Review of a " + "Book. This is a typical review. "
-								+ "This is a test. A book review test. "
-								+ "A test to test queries without actually "
-								+ "using actual review."),
+				new TextField("Review of a Book. This is a typical "
+						+ "review. This is a test. A book review "
+						+ "test. A test to test queries without "
+						+ "actually using actual review. From "
+						+ "here onwards, we can pretend this to "
+						+ "be actually a review even if it is not "
+						+ "your typical book review."),
 				new ListField<>(spanList) };
 
 		IField[] book4 = { new IntegerField(63),
 				new StringField("Paul Kalanithi"),
 				new StringField("When Breath Becomes Air"),
 				new IntegerField(256),
-				new TextField(
-						"Review of a " + "Book. This is a typical review. "
-								+ "This is a test. A book review test. "
-								+ "A test to test queries without actually "
-								+ "using actual review."),
+				new TextField("Review of a Book. This is a typical "
+						+ "review. This is a test. A book review "
+						+ "test. A test to test queries without "
+						+ "actually using actual review. From "
+						+ "here onwards, we can pretend this to "
+						+ "be actually a review even if it is not "
+						+ "your typical book review."),
 				new ListField<>(spanList) };
 
 		ITuple expectedTuple1 = new DataTuple(new Schema(schemaAttributes),
@@ -1022,13 +1041,7 @@ public class JoinTest {
 
 		boolean contains = TestUtils.containsAllResults(expectedResult,
 				resultList);
-		// A tentative solution to make the test cases pass.
-		// contains = true;
-		// resultList.add(expectedTuple1);
-		// resultList.add(expectedTuple2);
-		// resultList.add(expectedTuple3);
-		// resultList.add(expectedTuple4);
-		//
+
 		Assert.assertEquals(4, resultList.size());
 		Assert.assertTrue(contains);
 	}
@@ -1097,63 +1110,76 @@ public class JoinTest {
 
 		List<Span> spanList = new ArrayList<>();
 		String reviewField = attributeList.get(4).getFieldName();
-		// The "foo" (key) and "bar" (value) is a tentative key-value pair; will
-		// be replaced by actual key-value pair once implementation is fixed.
+		// The "foo" (key) is a tentative key; will be replaced by an actual
+		// key once implementation is fixed.
 		Span span1 = new Span(reviewField, 28, 119, "foo",
 				"typical review. " + "This is a test. A book review test. "
 						+ "A test to test queries without actually");
 		spanList.add(span1);
+		Span span2 = new Span(reviewField, 186, 234, "foo",
+				"actually a review " + "even if it is not your typical");
+		spanList.add(span2);
 
 		IField[] book1 = { new IntegerField(51),
 				new StringField("author unknown"), new StringField("typical"),
 				new IntegerField(300),
-				new TextField(
-						"Review of a " + "Book. This is a typical review. "
-								+ "This is a test. A book review test. "
-								+ "A test to test queries without actually "
-								+ "using actual review."),
+				new TextField("Review of a Book. This is a typical "
+						+ "review. This is a test. A book review "
+						+ "test. A test to test queries without "
+						+ "actually using actual review. From "
+						+ "here onwards, we can pretend this to "
+						+ "be actually a review even if it is not "
+						+ "your typical book review."),
 				new ListField<>(spanList) };
 
 		IField[] book2 = { new IntegerField(52), new StringField("Mary Roach"),
 				new StringField(
 						"Grunt: The Curious Science of " + "Humans at War"),
 				new IntegerField(288),
-				new TextField(
-						"Review of a " + "Book. This is a typical review. "
-								+ "This is a test. A book review test. "
-								+ "A test to test queries without actually "
-								+ "using actual review."),
+				new TextField("Review of a Book. This is a typical "
+						+ "review. This is a test. A book review "
+						+ "test. A test to test queries without "
+						+ "actually using actual review. From "
+						+ "here onwards, we can pretend this to "
+						+ "be actually a review even if it is not "
+						+ "your typical book review."),
 				new ListField<>(spanList) };
 
 		IField[] book3 = { new IntegerField(53), new StringField("Noah Hawley"),
 				new StringField("Before the Fall"), new IntegerField(400),
-				new TextField(
-						"Review of a " + "Book. This is a typical review. "
-								+ "This is a test. A book review test. "
-								+ "A test to test queries without actually "
-								+ "using actual review."),
+				new TextField("Review of a Book. This is a typical "
+						+ "review. This is a test. A book review "
+						+ "test. A test to test queries without "
+						+ "actually using actual review. From "
+						+ "here onwards, we can pretend this to "
+						+ "be actually a review even if it is not "
+						+ "your typical book review."),
 				new ListField<>(spanList) };
 
 		IField[] book4 = { new IntegerField(54),
 				new StringField("Andria Williams"),
 				new StringField("The Longest Night: A Novel"),
 				new IntegerField(400),
-				new TextField(
-						"Review of a " + "Book. This is a typical review. "
-								+ "This is a test. A book review test. "
-								+ "A test to test queries without actually "
-								+ "using actual review."),
+				new TextField("Review of a Book. This is a typical "
+						+ "review. This is a test. A book review "
+						+ "test. A test to test queries without "
+						+ "actually using actual review. From "
+						+ "here onwards, we can pretend this to "
+						+ "be actually a review even if it is not "
+						+ "your typical book review."),
 				new ListField<>(spanList) };
 
 		IField[] book5 = { new IntegerField(55),
 				new StringField("Matti Friedman"),
 				new StringField("Pumpkinflowers: A Soldier's " + "Story"),
 				new IntegerField(256),
-				new TextField(
-						"Review of a " + "Book. This is a typical review. "
-								+ "This is a test. A book review test. "
-								+ "A test to test queries without actually "
-								+ "using actual review."),
+				new TextField("Review of a Book. This is a typical "
+						+ "review. This is a test. A book review "
+						+ "test. A test to test queries without "
+						+ "actually using actual review. From "
+						+ "here onwards, we can pretend this to "
+						+ "be actually a review even if it is not "
+						+ "your typical book review."),
 				new ListField<>(spanList) };
 
 		ITuple expectedTuple1 = new DataTuple(new Schema(schemaAttributes),
@@ -1175,14 +1201,7 @@ public class JoinTest {
 
 		boolean contains = TestUtils.containsAllResults(expectedResult,
 				resultList);
-		// A tentative solution to make the test cases pass.
-		// contains = true;
-		// resultList.add(expectedTuple1);
-		// resultList.add(expectedTuple2);
-		// resultList.add(expectedTuple3);
-		// resultList.add(expectedTuple4);
-		// resultList.add(expectedTuple5);
-		//
+
 		Assert.assertEquals(5, resultList.size());
 		Assert.assertTrue(contains);
 	}
