@@ -35,6 +35,9 @@ public class DictionaryMatcher implements IOperator {
     private String currentDictionaryEntry;
 
     private final DictionaryPredicate predicate;
+    
+    private int counter = 0;
+    private int limit = Integer.MAX_VALUE;
 
     /**
      * Constructs a DictionaryMatcher with a dictionary predicate
@@ -112,6 +115,10 @@ public class DictionaryMatcher implements IOperator {
      */
     @Override
     public ITuple getNextTuple() throws Exception {
+    	if (counter >= limit){
+    		return null;
+    	}
+    	counter++;
     	if (predicate.getSourceOperatorType() == DataConstants.KeywordMatchingType.PHRASE_INDEXBASED
     	||  predicate.getSourceOperatorType() == DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED) {
     		// For each dictionary entry, 
@@ -167,6 +174,14 @@ public class DictionaryMatcher implements IOperator {
 
     		return null;
     	}
+    }
+    
+    public void setLimit(int l){
+    	limit = l;
+    }
+    
+    public int getLimit(){
+    	return limit;
     }
     
     /*

@@ -44,6 +44,8 @@ public class RegexMatcher implements IOperator {
 	private Analyzer luceneAnalyzer;
 	private ISourceOperator sourceOperator;
     
+	private int limit = Integer.MAX_VALUE;
+	private int counter = 0;
     private List<Span> spanList;
         
     // two available regex engines, RegexMatcher will try RE2J first 
@@ -117,6 +119,10 @@ public class RegexMatcher implements IOperator {
     @Override
     public ITuple getNextTuple() throws DataFlowException {
 		try {
+			if (counter >= limit){
+				return null;
+			}
+			counter++;
             ITuple sourceTuple = sourceOperator.getNextTuple();
             if(sourceTuple == null){
                 return null;
@@ -136,6 +142,13 @@ public class RegexMatcher implements IOperator {
         }        
     }
     
+    public void setLimit(int l){
+    	limit = l;
+    }
+    
+    public int getLimit(){
+    	return limit;
+    }
     
     private ITuple constructSpanTuple(List<IField> fields, List<Span> spans) {
     	List<IField> fieldListDuplicate = new ArrayList<>(fields);

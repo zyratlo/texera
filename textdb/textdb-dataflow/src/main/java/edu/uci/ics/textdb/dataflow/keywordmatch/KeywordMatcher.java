@@ -32,6 +32,8 @@ public class KeywordMatcher implements IOperator {
     private final KeywordPredicate predicate;
     private ISourceOperator sourceOperator;
     private String query;
+    private int counter = 0;
+    private int limit = Integer.MAX_VALUE;
 
     public KeywordMatcher(IPredicate predicate) {
         this.predicate = (KeywordPredicate)predicate;
@@ -67,6 +69,10 @@ public class KeywordMatcher implements IOperator {
     public ITuple getNextTuple() throws DataFlowException {
 
         try {
+        	if (counter >= limit){
+        		return null;
+        	}
+        	
         	ITuple result = null;
         	do {
                 ITuple sourceTuple = sourceOperator.getNextTuple();
@@ -86,6 +92,9 @@ public class KeywordMatcher implements IOperator {
                 
         	} while (result == null);
 
+        	if (result != null) {
+            	counter++;
+        	}
             return result;
             
         } catch (Exception e) {
@@ -95,6 +104,13 @@ public class KeywordMatcher implements IOperator {
 
     }
     
+    public void setLimit(int l){
+    	limit = l;
+    }
+    
+    public int getLimit(){
+    	return limit;
+    }
     
     private ITuple processConjunction(ITuple currentTuple) throws DataFlowException {
     	List<Span> spanList = (List<Span>) currentTuple.getField(SchemaConstants.SPAN_LIST).getValue(); 
