@@ -158,24 +158,20 @@ public class JoinTest {
 		switch (type) {
 		case "index":
 			if (whichOperator == "outer") {
-				predicate = new KeywordPredicate(query, modifiedAttributeList,
-						DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED,
-						analyzer, dataStoreForOuter);
+				predicate = new KeywordPredicate(query, dataStoreForOuter, modifiedAttributeList,
+						analyzer, DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED);
 			} else if (whichOperator == "inner") {
-				predicate = new KeywordPredicate(query, modifiedAttributeList,
-						DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED,
-						analyzer, dataStoreForInner);
+				predicate = new KeywordPredicate(query, dataStoreForInner, modifiedAttributeList,
+						analyzer, DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED);
 			}
 			break;
 		case "phrase":
 			if (whichOperator == "outer") {
-				predicate = new KeywordPredicate(query, modifiedAttributeList,
-						DataConstants.KeywordMatchingType.PHRASE_INDEXBASED,
-						analyzer, dataStoreForOuter);
+				predicate = new KeywordPredicate(query, dataStoreForOuter, modifiedAttributeList,
+						analyzer, DataConstants.KeywordMatchingType.PHRASE_INDEXBASED);
 			} else if (whichOperator == "inner") {
-				predicate = new KeywordPredicate(query, modifiedAttributeList,
-						DataConstants.KeywordMatchingType.PHRASE_INDEXBASED,
-						analyzer, dataStoreForInner);
+				predicate = new KeywordPredicate(query, dataStoreForInner, modifiedAttributeList,
+						analyzer, DataConstants.KeywordMatchingType.PHRASE_INDEXBASED);
 			}
 			break;
 
@@ -508,11 +504,9 @@ public class JoinTest {
 		query = "this writer writes well";
 		double thresholdRatio = 0.25;
 		boolean isSpanInformationAdded = false;
-		IPredicate fuzzyPredicateInner = new FuzzyTokenPredicate(query,
-				attributeList, analyzer, dataStoreForInner, thresholdRatio,
-				isSpanInformationAdded);
-		FuzzyTokenMatcher fuzzyMatcherInner = new FuzzyTokenMatcher(
-				fuzzyPredicateInner);
+		IPredicate fuzzyPredicateInner = new FuzzyTokenPredicate(query, dataStoreForInner, attributeList, analyzer,
+				thresholdRatio, isSpanInformationAdded);
+		FuzzyTokenMatcher fuzzyMatcherInner = new FuzzyTokenMatcher(fuzzyPredicateInner);
 
 		Attribute idAttr = attributeList.get(0);
 		Attribute reviewAttr = attributeList.get(4);
@@ -787,9 +781,9 @@ public class JoinTest {
 				"outer");
 		query = "kind";
 		IPredicate predicate = new KeywordPredicate(query,
-				modifiedAttributeList,
-				DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED,
-				analyzer, dataStore);
+				dataStore, modifiedAttributeList, analyzer,
+				DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED
+				);
 		keywordMatcherInner = new KeywordMatcher(predicate);
 
 		Attribute idAttr = attributeList.get(0);

@@ -74,7 +74,7 @@ public class PhraseMatcherTest {
 
     public List<ITuple> getPeopleQueryResults(String query, ArrayList<Attribute> attributeList) throws DataFlowException, ParseException {
 
-        IPredicate predicate = new KeywordPredicate(query, attributeList, DataConstants.KeywordMatchingType.PHRASE_INDEXBASED, luceneAnalyzer, dataStore);
+        IPredicate predicate = new KeywordPredicate(query, dataStore, attributeList, luceneAnalyzer, DataConstants.KeywordMatchingType.PHRASE_INDEXBASED);
         KeywordMatcher = new KeywordMatcher(predicate);
         KeywordMatcher.open();
 
@@ -284,9 +284,9 @@ public class PhraseMatcherTest {
      */
     @Test
     public void testWordInMultipleFieldsQueryWithStopWords3() throws Exception {
-    	DataStore MedDataStore = new DataStore("../index/test", keywordTestConstants.SCHEMA_MEDLINE);
+    	DataStore medDataStore = new DataStore("../index/test", keywordTestConstants.SCHEMA_MEDLINE);
         Analyzer MedAnalyzer = new StandardAnalyzer();
-        DataWriter MedDataWriter = new DataWriter(MedDataStore, MedAnalyzer);
+        DataWriter MedDataWriter = new DataWriter(medDataStore, MedAnalyzer);
         MedDataWriter.clearData();
     	MedDataWriter.writeData(keywordTestConstants.getSampleMedlineRecord());
         //Prepare Query
@@ -320,7 +320,7 @@ public class PhraseMatcherTest {
         expectedResultList.add(tuple1);
 
         //Perform Query
-        IPredicate predicate = new KeywordPredicate(query, attributeList, DataConstants.KeywordMatchingType.PHRASE_INDEXBASED, MedAnalyzer, MedDataStore);
+        IPredicate predicate = new KeywordPredicate(query, medDataStore, attributeList, MedAnalyzer, DataConstants.KeywordMatchingType.PHRASE_INDEXBASED);
         KeywordMatcher = new KeywordMatcher(predicate);
         KeywordMatcher.open();
 
@@ -374,7 +374,7 @@ public class PhraseMatcherTest {
         expectedResultList.add(tuple1);
 
         //Perform Query
-        IPredicate predicate = new KeywordPredicate(query, attributeList, DataConstants.KeywordMatchingType.PHRASE_INDEXBASED, MedAnalyzer, MedDataStore);
+        IPredicate predicate = new KeywordPredicate(query, MedDataStore, attributeList, MedAnalyzer, DataConstants.KeywordMatchingType.PHRASE_INDEXBASED);
         KeywordMatcher = new KeywordMatcher(predicate);
         KeywordMatcher.open();
 
@@ -439,7 +439,7 @@ public class PhraseMatcherTest {
         expectedResultList.add(tuple1);
 
         //Perform Query
-        IPredicate predicate = new KeywordPredicate(query, attributeList, DataConstants.KeywordMatchingType.PHRASE_INDEXBASED, MedAnalyzer, MedDataStore);
+        IPredicate predicate = new KeywordPredicate(query, MedDataStore, attributeList, MedAnalyzer, DataConstants.KeywordMatchingType.PHRASE_INDEXBASED);
         KeywordMatcher = new KeywordMatcher(predicate);
         KeywordMatcher.open();
 

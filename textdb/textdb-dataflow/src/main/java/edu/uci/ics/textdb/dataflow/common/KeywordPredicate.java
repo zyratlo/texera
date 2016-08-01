@@ -51,8 +51,8 @@ public class KeywordPredicate implements IPredicate {
 	 * searched in TextField, we would consider both tokens New and York; if
 	 * searched in String field we search for Exact string.
 	 */
-	public KeywordPredicate(String query, List<Attribute> attributeList, KeywordMatchingType operatorType,
-			Analyzer luceneAnalyzer, IDataStore dataStore) throws DataFlowException {
+	public KeywordPredicate(String query, IDataStore dataStore, List<Attribute> attributeList, Analyzer luceneAnalyzer, 
+			KeywordMatchingType operatorType) throws DataFlowException {
 		try {
 			this.query = query;
 			this.queryTokenList = Utils.tokenizeQuery(luceneAnalyzer, query);
@@ -217,8 +217,8 @@ public class KeywordPredicate implements IPredicate {
 	}
 
 	public DataReaderPredicate getDataReaderPredicate() {
-		DataReaderPredicate dataReaderPredicate = new DataReaderPredicate(this.dataStore, this.luceneQuery, this.query,
-				this.luceneAnalyzer, this.attributeList);
+		DataReaderPredicate dataReaderPredicate = new DataReaderPredicate(this.luceneQuery, this.query,
+				this.dataStore, this.attributeList, this.luceneAnalyzer);
 		return dataReaderPredicate;
 	}
 
