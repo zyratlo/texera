@@ -826,11 +826,11 @@ public class JoinTest {
 		Assert.assertEquals(0, resultList.size());
 	}
 
-	// This case tests for the scenario when one of the operator's has multiple
+	// This case tests for the scenario when one of the operators' has multiple
 	// tuples and the other has a single tuple (ID of one of the tuple's in the
 	// list of multiple tuples should match with the ID of the single tuple) and
-	// spans are within threshold.
-	// Test result: Join should result in a list with single tuple with the
+	// spans are within the threshold.
+	// Test result: Join should result in a list with a single tuple with the
 	// matched ID and the corresponding joined spans.
 	@Test
 	public void testMultipleTuplesAndSingleTupleSpanWithinThreshold()
@@ -895,7 +895,7 @@ public class JoinTest {
 		Assert.assertTrue(contains);
 	}
 
-	// This case tests for the scenario when one of the operator's has multiple
+	// This case tests for the scenario when one of the operators' has multiple
 	// tuples and the other has a single tuple (ID of one of the tuple's in the
 	// list of multiple tuples should match with the ID of the single tuple) and
 	// none of the spans are not within threshold.
