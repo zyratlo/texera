@@ -44,8 +44,9 @@ public class RegexMatcher implements IOperator {
 	private Analyzer luceneAnalyzer;
 	private ISourceOperator sourceOperator;
     
-	private int limit = Integer.MAX_VALUE;
+	private int limit;
 	private int cursor;
+	private int offset;
     private List<Span> spanList;
         
     // two available regex engines, RegexMatcher will try RE2J first 
@@ -119,7 +120,7 @@ public class RegexMatcher implements IOperator {
     @Override
     public ITuple getNextTuple() throws DataFlowException {
 		try {
-			if (cursor >= limit){
+			if (cursor >= offset + limit){
 				return null;
 			}
             ITuple sourceTuple = sourceOperator.getNextTuple();
@@ -130,8 +131,11 @@ public class RegexMatcher implements IOperator {
             this.spanList = computeMatches(sourceTuple);
             
             if (spanList != null && spanList.size() != 0) { // a list of matches found
-            	List<IField> fields = sourceTuple.getFields();
             	cursor++;
+            	if (cursor <= offset)
+            		return getNextTuple();
+            	
+            	List<IField> fields = sourceTuple.getFields();
             	return constructSpanTuple(fields, this.spanList);
             } else { // no match found
             	return getNextTuple();
@@ -148,6 +152,15 @@ public class RegexMatcher implements IOperator {
     
     public int getLimit(){
     	return this.limit;
+    }
+    
+    public void setOffset(int offset, int rowCount){
+    	this.offset = offset;
+    	this.limit = rowCount;
+    }
+    
+    public int getOffset(){
+    	return this.offset;
     }
     
     private ITuple constructSpanTuple(List<IField> fields, List<Span> spans) {
@@ -258,6 +271,8 @@ public class RegexMatcher implements IOperator {
     public void open() throws DataFlowException {
         try {
         	cursor = 0;
+        	offset = 0;
+        	limit = Integer.MAX_VALUE;
             sourceOperator.open();
         } catch (Exception e) {
             e.printStackTrace();
