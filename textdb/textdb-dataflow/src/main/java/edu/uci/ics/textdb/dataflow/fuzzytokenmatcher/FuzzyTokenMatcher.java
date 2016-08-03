@@ -57,42 +57,25 @@ public class FuzzyTokenMatcher implements IOperator{
     @Override
     public ITuple getNextTuple() throws DataFlowException {
 		try {
+			//System.out.println(cursor);
 			if (cursor >= limit + offset){
 				return null;
 			}
-		    ITuple sourceTuple = sourceOperator.getNextTuple();
-		    if (sourceTuple == null || !this.predicate.getIsSpanInformationAdded())
-		        return sourceTuple;
-            
-		    int schemaIndex = sourceTuple.getSchema().getIndex(SchemaConstants.SPAN_LIST_ATTRIBUTE.getFieldName());
-		    List<Span> resultSpans =
-                    (List<Span>)sourceTuple.getField(schemaIndex).getValue();
-            
-		    /*The source operator returns spans even for those fields which did not satisfy the threshold criterion.
-		     *  So if two attributes A,B have 10 and 5 matching tokens, and we set threshold to 10,
-		     *  the number of spans returned is 15. So we need to filter those 5 spans for attribute B.
-		    */
-		    for(int attributeIndex = 0; attributeIndex < attributeList.size(); attributeIndex++) {
-		        String fieldName = attributeList.get(attributeIndex).getFieldName();
-		        IField field = sourceTuple.getField(fieldName);
-                
-		        if (field instanceof TextField) {         //Lucene defines Fuzzy Token Matching only for text fields.
-		            int tokensMatched = 0;
-		            List<Span> attributeSpans = new ArrayList<>();
-		            for (Span span : resultSpans) {
-		                if (span.getFieldName().equals(fieldName)) {
-		                    attributeSpans.add(span);
-		                    if (queryTokens.contains(span.getKey()))
-		                        tokensMatched++;
-		                }
-		            }
-		            if (tokensMatched < threshold) {
-		                resultSpans.removeAll(attributeSpans);
-		            }
-		        }
-		    }
-		    cursor++;
-		    return sourceTuple;
+			ITuple result = null;
+			while (true) {
+			    ITuple sourceTuple = sourceOperator.getNextTuple();
+			    if (sourceTuple == null) {
+			    	return null;
+			    }
+		    	result = processTuple(sourceTuple);
+		    	if (result != null) {
+		    		cursor++;
+		    	}
+		    	if (cursor > offset) {
+		    		break;
+		    	}
+			}
+		    return result;
 		} catch (Exception e) {
 		    e.printStackTrace();
 		    throw new DataFlowException(e.getMessage(), e);
@@ -107,14 +90,52 @@ public class FuzzyTokenMatcher implements IOperator{
     	return this.limit;
     }
     
-    public void setOffset(int offset){
+    public void setOffset(int offset, int rowCount){
     	this.offset = offset;
+    	this.limit = rowCount;
     }
     
     public int getOffset(){
     	return this.offset;
     }
 
+    private ITuple processTuple(ITuple currentTuple){
+    	if (currentTuple == null) {
+    		return null;
+    	}
+    	if (! this.predicate.getIsSpanInformationAdded()) {
+    		return currentTuple;
+    	}
+	    int schemaIndex = currentTuple.getSchema().getIndex(SchemaConstants.SPAN_LIST_ATTRIBUTE.getFieldName());
+	    List<Span> resultSpans =
+                (List<Span>)currentTuple.getField(schemaIndex).getValue();
+        
+	    /*The source operator returns spans even for those fields which did not satisfy the threshold criterion.
+	     *  So if two attributes A,B have 10 and 5 matching tokens, and we set threshold to 10,
+	     *  the number of spans returned is 15. So we need to filter those 5 spans for attribute B.
+	    */
+	    for(int attributeIndex = 0; attributeIndex < attributeList.size(); attributeIndex++) {
+	        String fieldName = attributeList.get(attributeIndex).getFieldName();
+	        IField field = currentTuple.getField(fieldName);
+            
+	        if (field instanceof TextField) {         //Lucene defines Fuzzy Token Matching only for text fields.
+	            int tokensMatched = 0;
+	            List<Span> attributeSpans = new ArrayList<>();
+	            for (Span span : resultSpans) {
+	                if (span.getFieldName().equals(fieldName)) {
+	                    attributeSpans.add(span);
+	                    if (queryTokens.contains(span.getKey()))
+	                        tokensMatched++;
+	                }
+	            }
+	            if (tokensMatched < threshold) {
+	                resultSpans.removeAll(attributeSpans);
+	            }
+	        }
+	    }
+	    return currentTuple;
+    }
+    
     @Override
     public void close() throws DataFlowException {
 		try {
