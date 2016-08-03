@@ -33,7 +33,8 @@ public class KeywordMatcher implements IOperator {
     private ISourceOperator sourceOperator;
     private String query;
     private int cursor;
-    private int limit = Integer.MAX_VALUE;
+    private int limit;
+    private int offset;
 
     public KeywordMatcher(IPredicate predicate) {
         this.predicate = (KeywordPredicate)predicate;
@@ -47,6 +48,8 @@ public class KeywordMatcher implements IOperator {
     public void open() throws DataFlowException {
         try {
         	cursor = 0;
+        	limit = Integer.MAX_VALUE;
+        	offset = 0;
             sourceOperator.open();
             query = predicate.getQuery();
 
@@ -68,33 +71,34 @@ public class KeywordMatcher implements IOperator {
      */
     @Override
     public ITuple getNextTuple() throws DataFlowException {
-
         try {
-        	if (cursor >= limit){
+        	if (cursor >= offset + limit){
         		return null;
         	}
-        	
         	ITuple result = null;
-        	do {
-                ITuple sourceTuple = sourceOperator.getNextTuple();
-                if(sourceTuple == null) {
-                    return null;
-                }
-                
-                if (this.predicate.getOperatorType() == DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED) {
-                	result = processConjunction(sourceTuple);
-                }
-                if (this.predicate.getOperatorType() == DataConstants.KeywordMatchingType.PHRASE_INDEXBASED) {
-                	result = processPhrase(sourceTuple);
-                }
-                if (this.predicate.getOperatorType() == DataConstants.KeywordMatchingType.SUBSTRING_SCANBASED) {
-                	result = processSubstring(sourceTuple);
-                }
-                
-        	} while (result == null);
-
-        	if (result != null) {
-        		cursor++;
+        	while (true) {      
+	        	do {
+	                ITuple sourceTuple = sourceOperator.getNextTuple();
+	                if(sourceTuple == null) {
+	                    return null;
+	                }
+	                if (this.predicate.getOperatorType() == DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED) {
+	                	result = processConjunction(sourceTuple);
+	                }
+	                if (this.predicate.getOperatorType() == DataConstants.KeywordMatchingType.PHRASE_INDEXBASED) {
+	                	result = processPhrase(sourceTuple);
+	                }
+	                if (this.predicate.getOperatorType() == DataConstants.KeywordMatchingType.SUBSTRING_SCANBASED) {
+	                	result = processSubstring(sourceTuple);
+	                }
+	                
+	        	} while (result == null);
+            	if (result != null) {
+            		cursor++;
+            	}
+            	if (cursor > offset) {
+            		break;
+            	}
         	}
             return result;
             
@@ -105,13 +109,27 @@ public class KeywordMatcher implements IOperator {
 
     }
     
+    
     public void setLimit(int limit){
     	this.limit = limit;
     }
     
+    
     public int getLimit(){
     	return this.limit;
     }
+    
+    
+    public void setOffset(int offset, int rowCount){
+    	this.offset = offset;
+    	this.limit = rowCount;
+    }
+    
+    
+    public int getOffset(){
+    	return this.offset;
+    }
+    
     
     private ITuple processConjunction(ITuple currentTuple) throws DataFlowException {
     	List<Span> spanList = (List<Span>) currentTuple.getField(SchemaConstants.SPAN_LIST).getValue(); 

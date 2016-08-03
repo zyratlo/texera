@@ -38,6 +38,7 @@ public class DictionaryMatcher implements IOperator {
     
     private int cursor;
     private int limit = Integer.MAX_VALUE;
+    private int offset, rowCount;
 
     /**
      * Constructs a DictionaryMatcher with a dictionary predicate
@@ -116,7 +117,7 @@ public class DictionaryMatcher implements IOperator {
      */
     @Override
     public ITuple getNextTuple() throws Exception {
-    	if (cursor >= limit){
+    	if (cursor >= limit || cursor >= offset + rowCount){
     		return null;
     	}
     	cursor++;
@@ -183,6 +184,19 @@ public class DictionaryMatcher implements IOperator {
     
     public int getLimit(){
     	return this.limit;
+    }
+    
+    public void setOffset(int offset, int rowCount){
+    	this.offset = offset;
+    	this.rowCount = rowCount;
+    }
+    
+    public int getOffset(){
+    	return this.offset;
+    }
+    
+    public int getRowCount(){
+    	return this.rowCount;
     }
     
     /*
