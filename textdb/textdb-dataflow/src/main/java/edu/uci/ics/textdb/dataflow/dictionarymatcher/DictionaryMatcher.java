@@ -117,7 +117,7 @@ public class DictionaryMatcher implements IOperator {
      */
     @Override
     public ITuple getNextTuple() throws Exception {
-    	if (cursor >= limit || cursor >= offset + rowCount){
+    	if (cursor >= limit){
     		return null;
     	}
     	cursor++;

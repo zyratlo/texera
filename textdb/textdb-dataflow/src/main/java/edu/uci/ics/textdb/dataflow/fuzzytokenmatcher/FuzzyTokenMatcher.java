@@ -28,8 +28,9 @@ public class FuzzyTokenMatcher implements IOperator{
     private List<Attribute> attributeList;
     private int threshold;
     private ArrayList<String> queryTokens;
-    private int limit = Integer.MAX_VALUE;
+    private int limit;
     private int cursor;
+    private int offset;
 
     public FuzzyTokenMatcher(IPredicate predicate) {
     	this.predicate = (FuzzyTokenPredicate)predicate;
@@ -41,6 +42,8 @@ public class FuzzyTokenMatcher implements IOperator{
     public void open() throws DataFlowException {
     	try {
     		cursor = 0;
+    		limit = Integer.MAX_VALUE;
+    		offset = 0;
             sourceOperator.open();
             attributeList = predicate.getAttributeList();
             threshold = predicate.getThreshold();
@@ -54,7 +57,7 @@ public class FuzzyTokenMatcher implements IOperator{
     @Override
     public ITuple getNextTuple() throws DataFlowException {
 		try {
-			if (cursor >= limit){
+			if (cursor >= limit + offset){
 				return null;
 			}
 		    ITuple sourceTuple = sourceOperator.getNextTuple();
@@ -102,6 +105,14 @@ public class FuzzyTokenMatcher implements IOperator{
     
     public int getLimit(){
     	return this.limit;
+    }
+    
+    public void setOffset(int offset){
+    	this.offset = offset;
+    }
+    
+    public int getOffset(){
+    	return this.offset;
     }
 
     @Override
