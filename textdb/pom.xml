@@ -31,6 +31,35 @@
     </dependencyManagement>
 
     <build>
+      <pluginManagement>
+          <plugins>
+              <plugin>
+                  <groupId>org.codehaus.mojo</groupId>
+                  <artifactId>exec-maven-plugin</artifactId>
+                  <version>1.5.0</version>
+                  <executions>
+                      <execution>
+                          <phase>test</phase>
+                          <goals>
+                              <goal>java</goal>
+                          </goals>
+                      </execution>
+                  </executions>
+                  <configuration>
+                      <skip>true</skip>
+                      <mainClass>edu.ics.uci.textdb.perftest.runme.WriteIndex</mainClass>
+                      <arguments>
+                        <argument>./textdb-perftest/data-files/</argument>
+                        <argument>./textdb-perftest/index/standard/</argument>
+                        <argument>./textdb-perftest/index/trigram/</argument>
+                      </arguments>
+                  </configuration>
+              </plugin>
+          </plugins>
+      </pluginManagement>
+
+
+
         <plugins>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
