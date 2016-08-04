@@ -120,9 +120,8 @@ public class KeywordMatcher implements IOperator {
     }
     
     
-    public void setOffset(int offset, int rowCount){
+    public void setOffset(int offset){
     	this.offset = offset;
-    	this.limit = rowCount;
     }
     
     

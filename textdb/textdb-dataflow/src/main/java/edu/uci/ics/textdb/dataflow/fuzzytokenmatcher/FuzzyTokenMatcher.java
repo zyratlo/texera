@@ -90,9 +90,8 @@ public class FuzzyTokenMatcher implements IOperator{
     	return this.limit;
     }
     
-    public void setOffset(int offset, int rowCount){
+    public void setOffset(int offset){
     	this.offset = offset;
-    	this.limit = rowCount;
     }
     
     public int getOffset(){
