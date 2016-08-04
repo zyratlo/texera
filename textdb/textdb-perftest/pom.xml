@@ -100,33 +100,17 @@
                         <goals>
                             <goal>java</goal>
                         </goals>
-                        <configuration>
-                            <mainClass>edu.uci.ics.textdb.perftest.runme.WriteIndex</mainClass>
-                            <arguments>
-                              <argument>./textdb-perftest/data-files/</argument>
-                              <argument>./textdb-perftest/index/standard/</argument>
-                              <argument>./textdb-perftest/index/trigram/</argument>
-                            </arguments>
-                            <skip>false</skip>
-                        </configuration>
-                    </execution>
-                    <execution>
-                      <phase>test</phase>
-                      <goals>
-                        <goal>java</goal>
-                      </goals>
-                      <configuration>
-                          <mainClass>edu.uci.ics.textdb.perftest.runme.RunPerftests</mainClass>
-                          <arguments>
-                            <argument>./textdb-perftest/data-files/results/</argument>
-                            <argument>./textdb-perftest/index/standard/</argument>
-                            <argument>./textdb-perftest/index/trigram/</argument>
-                            <argument>./textdb-perftest/data-files/queries/</argument>
-                          </arguments>
-                          <skip>false</skip>
-                      </configuration>
                     </execution>
                 </executions>
+                <configuration>
+                    <mainClass>edu.uci.ics.textdb.perftest.runme.WriteIndex</mainClass>
+                    <arguments>
+                      <argument>./textdb-perftest/data-files/</argument>
+                      <argument>./textdb-perftest/index/standard/</argument>
+                      <argument>./textdb-perftest/index/trigram/</argument>
+                    </arguments>
+                    <skip>false</skip>
+                </configuration>
             </plugin>
         </plugins>
         </pluginManagement>
