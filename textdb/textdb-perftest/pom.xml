@@ -125,7 +125,7 @@
                           </arguments>
                           <skip>false</skip>
                       </configuration>
-                    </execuation>
+                    </execution>
                 </executions>
             </plugin>
         </plugins>
