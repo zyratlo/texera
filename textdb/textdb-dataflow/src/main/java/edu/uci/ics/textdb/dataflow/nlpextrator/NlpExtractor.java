@@ -90,6 +90,9 @@ public class NlpExtractor implements IOperator {
     public NlpExtractor(IOperator operator, List<Attribute>
             searchInAttributes, NlpTokenType inputNlpTokenType)
             throws DataFlowException {
+        this.cursor = 0;
+        this.limit = Integer.MAX_VALUE;
+        this.offset = 0;
         this.sourceOperator = operator;
         this.searchInAttributes = searchInAttributes;
         this.inputNlpTokenType = inputNlpTokenType;
@@ -104,9 +107,6 @@ public class NlpExtractor implements IOperator {
     @Override
     public void open() throws Exception {
         try {
-        	cursor = 0;
-        	limit = Integer.MAX_VALUE;
-        	offset = 0;
             sourceOperator.open();
             returnSchema = null;
         } catch (Exception e) {

@@ -61,9 +61,15 @@ public class RegexMatcher implements IOperator {
 	
     public RegexMatcher(IPredicate predicate) throws DataFlowException{
     	this (predicate, true);
+    	cursor = 0;
+    	offset = 0;
+    	limit = Integer.MAX_VALUE;
     }
 
     public RegexMatcher(IPredicate predicate, boolean useTranslator) throws DataFlowException{
+    	cursor = 0;
+    	offset = 0;
+    	limit = Integer.MAX_VALUE;
     	this.regexPredicate = (RegexPredicate) predicate;
     	this.regex = regexPredicate.getRegex();
     	this.fieldNameList = regexPredicate.getFieldNameList();
@@ -269,9 +275,6 @@ public class RegexMatcher implements IOperator {
     @Override
     public void open() throws DataFlowException {
         try {
-        	cursor = 0;
-        	offset = 0;
-        	limit = Integer.MAX_VALUE;
             sourceOperator.open();
         } catch (Exception e) {
             e.printStackTrace();

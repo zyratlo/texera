@@ -46,6 +46,9 @@ public class DictionaryMatcher implements IOperator {
      * 
      */
     public DictionaryMatcher(IPredicate predicate) {
+        this.cursor = 0;
+        this.limit = Integer.MAX_VALUE;
+        this.offset = 0;
         this.predicate = (DictionaryPredicate) predicate;
         this.spanSchema = Utils.createSpanSchema(this.predicate.getDataStore().getSchema());
 
@@ -57,9 +60,6 @@ public class DictionaryMatcher implements IOperator {
     @Override
     public void open() throws DataFlowException {
         try {
-        	cursor = 0;
-        	limit = Integer.MAX_VALUE;
-        	offset = 0;
         	currentDictionaryEntry = predicate.getNextDictionaryEntry();
             if (currentDictionaryEntry == null) {
             	throw new DataFlowException("Dictionary is empty");

@@ -33,17 +33,17 @@ public class FuzzyTokenMatcher implements IOperator{
     private int offset;
 
     public FuzzyTokenMatcher(IPredicate predicate) {
-    	this.predicate = (FuzzyTokenPredicate)predicate;
-    	DataReaderPredicate dataReaderPredicate = this.predicate.getDataReaderPredicate();
-    	this.sourceOperator = new IndexBasedSourceOperator(dataReaderPredicate);
+        this.cursor = 0;
+        this.limit = Integer.MAX_VALUE;
+        this.offset = 0;
+        this.predicate = (FuzzyTokenPredicate)predicate;
+        DataReaderPredicate dataReaderPredicate = this.predicate.getDataReaderPredicate();
+        this.sourceOperator = new IndexBasedSourceOperator(dataReaderPredicate);
     }
     
     @Override
     public void open() throws DataFlowException {
     	try {
-    		cursor = 0;
-    		limit = Integer.MAX_VALUE;
-    		offset = 0;
             sourceOperator.open();
             attributeList = predicate.getAttributeList();
             threshold = predicate.getThreshold();

@@ -37,6 +37,9 @@ public class KeywordMatcher implements IOperator {
     private int offset;
 
     public KeywordMatcher(IPredicate predicate) {
+        this.cursor = 0;
+        this.limit = Integer.MAX_VALUE;
+        this.offset = 0;
         this.predicate = (KeywordPredicate)predicate;
         DataReaderPredicate dataReaderPredicate = this.predicate.getDataReaderPredicate();
         dataReaderPredicate.setIsSpanInformationAdded(true);
@@ -47,9 +50,6 @@ public class KeywordMatcher implements IOperator {
     @Override
     public void open() throws DataFlowException {
         try {
-            cursor = 0;
-            limit = Integer.MAX_VALUE;
-            offset = 0;
             sourceOperator.open();
             query = predicate.getQuery();
 
