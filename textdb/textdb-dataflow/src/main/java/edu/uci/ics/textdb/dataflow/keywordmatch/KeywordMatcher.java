@@ -47,9 +47,9 @@ public class KeywordMatcher implements IOperator {
     @Override
     public void open() throws DataFlowException {
         try {
-        	cursor = 0;
-        	limit = Integer.MAX_VALUE;
-        	offset = 0;
+            cursor = 0;
+            limit = Integer.MAX_VALUE;
+            offset = 0;
             sourceOperator.open();
             query = predicate.getQuery();
 
@@ -76,23 +76,21 @@ public class KeywordMatcher implements IOperator {
         		return null;
         	}
         	ITuple result = null;
-        	while (true) {      
-	        	do {
-	                ITuple sourceTuple = sourceOperator.getNextTuple();
-	                if(sourceTuple == null) {
-	                    return null;
-	                }
-	                if (this.predicate.getOperatorType() == DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED) {
-	                	result = processConjunction(sourceTuple);
-	                }
-	                if (this.predicate.getOperatorType() == DataConstants.KeywordMatchingType.PHRASE_INDEXBASED) {
-	                	result = processPhrase(sourceTuple);
-	                }
-	                if (this.predicate.getOperatorType() == DataConstants.KeywordMatchingType.SUBSTRING_SCANBASED) {
-	                	result = processSubstring(sourceTuple);
-	                }
+        	while (true) {
+                ITuple sourceTuple = sourceOperator.getNextTuple();
+                if(sourceTuple == null) {
+                    return null;
+                }
+	            if (this.predicate.getOperatorType() == DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED) {
+	                result = processConjunction(sourceTuple);
+	            }
+	            if (this.predicate.getOperatorType() == DataConstants.KeywordMatchingType.PHRASE_INDEXBASED) {
+	                result = processPhrase(sourceTuple);
+	            }
+	            if (this.predicate.getOperatorType() == DataConstants.KeywordMatchingType.SUBSTRING_SCANBASED) {
+	                result = processSubstring(sourceTuple);
+	            }
 	                
-	        	} while (result == null);
             	if (result != null) {
             		cursor++;
             	}
