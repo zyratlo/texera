@@ -387,12 +387,21 @@ public class JoinTest {
 	// This case tests for the scenario when the IDs of the documents match,
 	// fields to join match and the difference of keyword spans is within
 	// the given span threshold.
+	// e.g.
+	// [<11, 18>]
+	// [<27, 33>]
+	// threshold = 20
+	// [   ]
+	//          [  ]
+	// <-------->
+	//     <-------> (within threshold)
 	// Test result: The list contains a tuple with all the fields and a span
 	// list consisting of the joined span. The joined span is made up of the
 	// field name, start and stop index (computed as <min(span1 spanStartIndex,
 	// span2 spanStartIndex), max(span1 spanEndIndex, span2 spanEndIndex)>)
 	// key (combination of span1 key and span2 key) and value (combination of
 	// span1 value and span2 value).
+	// [<11, 33>]
 	@Test
 	public void testIdsMatchFieldsMatchSpanWithinThreshold() throws Exception {
 		writeTuples(bookTuple1, bookTuple1);
@@ -448,6 +457,13 @@ public class JoinTest {
 	// This case tests for the scenario when the IDs match, fields to join match
 	// but the difference of keyword spans to be joined is greater than the
 	// threshold.
+	// e.g.
+	// [<11, 18>]
+	// [<42, 48>]
+	// threshold = 20
+	// [   ]
+	//             [        ]
+	// <--------> (beyond threshold)
 	// Test result: An empty list is returned.
 	@Test
 	public void testIdsMatchFieldsMatchSpanExceedThreshold() throws Exception {
@@ -519,7 +535,15 @@ public class JoinTest {
 	// match, but one of the spans to be joined encompasses the other span
 	// and both |(span 1 spanStartIndex) - (span 2 spanStartIndex)|,
 	// |(span 1 spanEndIndex) - (span 2 spanEndIndex)| are within threshold.
+	// e.g.
+	// [<11, 18>]
+	// [<3, 33>]
+	// threshold = 20
+	//         [    ]
+	//    [               ]
+	//    <---->	<-----> (within threshold)
 	// Test result: The bigger span should be returned.
+	// [<3, 33>]
 	@Test
 	public void testOneSpanEncompassesOtherAndDifferenceLessThanThreshold()
 			throws Exception {
@@ -577,6 +601,13 @@ public class JoinTest {
 	// match, but one of the spans to be joined encompasses the other span
 	// and |(span 1 spanStartIndex) - (span 2 spanStartIndex)|
 	// and/or |(span 1 spanEndIndex) - (span 2 spanEndIndex)| exceed threshold.
+	// e.g.
+	// [<11, 18>]
+	// [<3, 33>]
+	// threshold = 20
+	//         [    ]
+	//    [               ]
+	//    <-->	      <---> (beyond threshold)
 	// Test result: Join should return an empty list.
 	@Test
 	public void testOneSpanEncompassesOtherAndDifferenceGreaterThanThreshold()
@@ -601,12 +632,20 @@ public class JoinTest {
 	// match, but the spans to be joined have some overlap and both
 	// |(span 1 spanStartIndex) - (span 2 spanStartIndex)|,
 	// |(span 1 spanEndIndex) - (span 2 spanEndIndex)| are within threshold.
+	// e.g.
+	// [<75, 97>]
+	// [<92, 109>]
+	// threshold = 20
+	// [       ]
+	//      [          ]
+	// <---->  <-------> (within threshold)
 	// Test result: The list contains a tuple with all the fields and a span
 	// list consisting of the joined span. The joined span is made up of the
 	// field name, start and stop index (computed as <min(span1 spanStartIndex,
 	// span2 spanStartIndex), max(span1 spanEndIndex, span2 spanEndIndex)>)
 	// key (combination of span1 key and span2 key) and value (combination of
 	// span1 value and span2 value).
+	// [<75, 109>]
 	@Test
 	public void testSpansOverlapAndWithinThreshold() throws Exception {
 		writeTuples(bookTuple1, bookTuple1);
@@ -663,6 +702,13 @@ public class JoinTest {
 	// match, but the spans to be joined have some overlap and
 	// |(span 1 spanStartIndex) - (span 2 spanStartIndex)| and/or
 	// |(span 1 spanEndIndex) - (span 2 spanEndIndex)| exceed threshold.
+	// e.g.
+	// [<75, 97>]
+	// [<92, 109>]
+	// threshold = 10
+	// [       ]
+	//      [          ]
+	// <-->    <-----> (beyond threshold)
 	// Test result: Join should return an empty list.
 	@Test
 	public void testSpansOverlapAndExceedThreshold() throws Exception {
@@ -685,8 +731,15 @@ public class JoinTest {
 	// This case tests for the scenario when the IDs match, fields to be joined
 	// match, but the spans to be joined are the same, i.e. both the keywords
 	// are same.
+	// e.g.
+	// [<11, 18>]
+	// [<11, 18>]
+	// threshold = 20 (can be any non-negative number)
+	// [     ]
+	// [     ]
 	// Test result: Join should return same span and key and the value in span
 	// should be the same.
+	// [<11, 18>]
 	@Test
 	public void testBothTheSpansAreSame() throws Exception {
 		writeTuples(bookTuple1, bookTuple1);
@@ -822,8 +875,19 @@ public class JoinTest {
 	// tuples and the other has a single tuple (ID of one of the tuple's in the
 	// list of multiple tuples should match with the ID of the single tuple) and
 	// spans are within the threshold.
+	// e.g.
+	// ID:			1		  2		    3		  4
+	// Tuples: [<67, 73>][<67, 73>][<67, 73>][<67, 73>]
+	// ID:					  2
+	// Tuple:            [<62, 66>]
+	// threshold = 12
+	// [      ]   [          ]       [  ]    [     ]
+	//                 		   [  ]
+	//                         <----->
+	//                            <-----> (ID match, within threshold)
 	// Test result: Join should result in a list with a single tuple with the
 	// matched ID and the corresponding joined spans.
+	// Tuple: [<62, 73>]
 	@Test
 	public void testMultipleTuplesAndSingleTupleSpanWithinThreshold()
 			throws Exception {
@@ -891,6 +955,16 @@ public class JoinTest {
 	// tuples and the other has a single tuple (ID of one of the tuple's in the
 	// list of multiple tuples should match with the ID of the single tuple) and
 	// none of the spans are not within threshold.
+	// e.g.
+	// ID:			1		  2		    3		  4
+	// Tuples: [<67, 73>][<67, 73>][<67, 73>][<67, 73>]
+	// ID:					  2
+	// Tuple:            [<62, 66>]
+	// threshold = 4
+	// [      ]   [          ]       [  ]    [     ]
+	//                 		   [  ]
+	//                         <--->
+	//                            <--> (ID match, beyond threshold)
 	// Test result: Join should result in an empty list.
 	@Test
 	public void testMultipleTuplesAndSingleTupleSpanExceedThreshold()
@@ -916,9 +990,20 @@ public class JoinTest {
 
 	// This case tests for the scenario when both the operators' have multiple
 	// tuples and some of tuples IDs match and spans are within threshold.
+	// e.g.
+	// ID:			1		  2		    3		  4
+	// Tuples: [<67, 73>][<67, 73>][<67, 73>][<67, 73>]
+	// ID:					  2					  4
+	// Tuples:           [<62, 66>]			 [<62, 66>]
+	// threshold = 12
+	// [      ]   [          ]       [  ]    [     ]
+	//     [     ]    [		]  [  ]    [  ]       [		]
+	//                         <----->		 <---->
+	//                            <-----> 		   <---->(ID match, beyond threshold)
 	// Test result: Join should result in a list containing tuples with spans.
 	// The number of tuples is equal to the number of tuples with both ID match
 	// and span within threshold.
+	// [<62, 73>][<62, 73>]
 	@Test
 	public void testBothOperatorsMultipleTuplesSpanWithinThreshold()
 			throws Exception {
@@ -1041,6 +1126,16 @@ public class JoinTest {
 	// This case tests for the scenario when both the operators' have multiple
 	// tuples and some of tuples IDs match, but none of spans are within
 	// threshold.
+	// e.g.
+	// ID:			1		  2		    3		  4
+	// Tuples: [<67, 73>][<67, 73>][<67, 73>][<67, 73>]
+	// ID:					  2					  4
+	// Tuples:           [<62, 66>]			 [<62, 66>]
+	// threshold = 4
+	// [      ]   [          ]       [  ]    [     ]
+	//     [     ]    [		]  [  ]    [  ]       [		]
+	//                         <----->		 <---->
+	//                            <-----> 		   <---->(ID match, beyond threshold)
 	// Test result: Join should result in an empty list.
 	@Test
 	public void testBothOperatorsMultipleTuplesSpanExceedThreshold()
