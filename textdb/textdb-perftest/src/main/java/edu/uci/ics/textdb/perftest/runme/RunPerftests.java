@@ -12,6 +12,7 @@ import edu.uci.ics.textdb.common.exception.StorageException;
 import edu.uci.ics.textdb.perftest.keywordmatcher.*;
 import edu.uci.ics.textdb.perftest.nlpextractor.NlpExtractorPerformanceTest;
 import edu.uci.ics.textdb.perftest.regexmatcher.RegexMatcherPerformanceTest;
+import edu.uci.ics.textdb.perftest.utils.PerfTestUtils;
 import edu.uci.ics.textdb.perftest.dictionarymatcher.*;
 import edu.uci.ics.textdb.perftest.fuzzytokenmatcher.*;
 
@@ -25,6 +26,13 @@ public class RunPerftests {
 	 *
 	 */
 	public static void main(String[] args) {
+		if(args.length!=0){
+			PerfTestUtils.setResultFolder(args[0]);
+			PerfTestUtils.setStandardIndexFolder(args[1]);
+			PerfTestUtils.setTrigramIndexFolder(args[2]);
+			PerfTestUtils.setQueryFolder(args[3]);
+		}
+		
 		try {
 			List<Double> thresholds = Arrays.asList(0.8,0.65,0.5,0.35);
 			List<String> regexQueries = Arrays.asList("mosquitos?", "v[ir]{2}[us]{2}",

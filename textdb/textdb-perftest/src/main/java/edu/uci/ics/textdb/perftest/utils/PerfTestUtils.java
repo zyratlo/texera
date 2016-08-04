@@ -23,12 +23,58 @@ import edu.uci.ics.textdb.storage.DataStore;
 
 public class PerfTestUtils {
 
-	public static final String fileFolder = "./data-files/";
-	public static final String standardIndexFolder = "./index/standard/";
-	public static final String trigramIndexFolder = "./index/trigram/";
-	public static final String resultFolder = "./data-files/results/";
-	public static final String queryFolder = "./data-files/queries/";
-
+	/**
+	 * These default paths work only when the program is run from
+	 * the directory, textdb-perftest
+	 * */
+	public static String fileFolder = "./data-files/";
+	public static String standardIndexFolder = "./index/standard/";
+	public static String trigramIndexFolder = "./index/trigram/";
+	public static String resultFolder = "./data-files/results/";
+	public static String queryFolder = "./data-files/queries/";
+	
+	/**
+	 * The purpose for below setters:
+	 * 
+	 * When the program is not run from the directory, textdb-perftest,
+	 * all path need to be reset so that the program can recognize the paths.
+	 *  
+	 *  For examplem, the default ./data-files/ works well when the program is run from textdb-perftest,
+	 *  but the program is run from the outermost folder of the project, the directory should be 
+	 *  ./textdb-perftest/data-files/
+	 */
+	public static void setFileFolder(String filefolder){
+		if(!filefolder.trim().isEmpty()){
+			fileFolder = filefolder;
+		}
+	}
+	
+	public static void setStandardIndexFolder(String indexFolder){
+		if(!indexFolder.trim().isEmpty()){
+			standardIndexFolder = indexFolder;
+		}
+		
+	}
+	
+	public static void setTrigramIndexFolder(String indexFolder){
+		if(!indexFolder.trim().isEmpty()){
+			trigramIndexFolder = indexFolder;
+		}
+		
+	}
+	
+	
+	public static void setQueryFolder(String queryfolder){
+		if(!queryfolder.trim().isEmpty()){
+			queryFolder = queryfolder;
+		}
+	}
+	
+	public static void setResultFolder(String resultfolder){
+		if(!resultfolder.trim().isEmpty()){
+			resultFolder = resultfolder;
+		}
+	}
 	/**
 	 * 
 	 * @param testResults,
