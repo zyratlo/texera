@@ -49,9 +49,10 @@
                       <skip>true</skip>
                       <mainClass>edu.ics.uci.textdb.perftest.runme.WriteIndex</mainClass>
                       <arguments>
-                        <argument>./textdb-perftest/data-files/</argument>
+                        <argument>./textdb-perftest/data-files/results/</argument>
                         <argument>./textdb-perftest/index/standard/</argument>
                         <argument>./textdb-perftest/index/trigram/</argument>
+                        <argument>./textdb-perftest/data-files/queries/</argument>
                       </arguments>
                   </configuration>
               </plugin>
