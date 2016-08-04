@@ -37,8 +37,8 @@ public class DictionaryMatcher implements IOperator {
     private final DictionaryPredicate predicate;
     
     private int cursor;
-    private int limit = Integer.MAX_VALUE;
-    private int offset, rowCount;
+    private int limit;
+    private int offset;
 
     /**
      * Constructs a DictionaryMatcher with a dictionary predicate
@@ -58,6 +58,8 @@ public class DictionaryMatcher implements IOperator {
     public void open() throws DataFlowException {
         try {
         	cursor = 0;
+        	limit = Integer.MAX_VALUE;
+        	offset = 0;
         	currentDictionaryEntry = predicate.getNextDictionaryEntry();
             if (currentDictionaryEntry == null) {
             	throw new DataFlowException("Dictionary is empty");
@@ -117,7 +119,7 @@ public class DictionaryMatcher implements IOperator {
      */
     @Override
     public ITuple getNextTuple() throws Exception {
-    	if (cursor >= limit){
+    	if (cursor >= limit + offset){
     		return null;
     	}
     	cursor++;
@@ -188,16 +190,13 @@ public class DictionaryMatcher implements IOperator {
     
     public void setOffset(int offset, int rowCount){
     	this.offset = offset;
-    	this.rowCount = rowCount;
+    	this.limit = rowCount;
     }
     
     public int getOffset(){
     	return this.offset;
     }
     
-    public int getRowCount(){
-    	return this.rowCount;
-    }
     
     /*
      * Advance the cursor of dictionary. if reach the end of the dictionary,

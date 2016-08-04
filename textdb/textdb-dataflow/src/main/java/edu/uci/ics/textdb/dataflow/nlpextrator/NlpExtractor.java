@@ -130,24 +130,32 @@ public class NlpExtractor implements IOperator {
     	if (cursor >= limit + offset){
     		return null;
     	}
-        sourceTuple = sourceOperator.getNextTuple();
-        if (sourceTuple == null) {
-            return null;
-        } else {
-            if (returnSchema == null) {
-                returnSchema = Utils.createSpanSchema(sourceTuple.getSchema());
-            }
-            List<Span> spanList = new ArrayList<>();
-            for (Attribute attribute : searchInAttributes) {
-                String fieldName = attribute.getFieldName();
-                IField field = sourceTuple.getField(fieldName);
-                spanList.addAll(extractNlpSpans(field, fieldName));
-            }
-            ITuple returnTuple = Utils.getSpanTuple(sourceTuple.getFields(),
-                    spanList, returnSchema);
-            cursor++;
-            return returnTuple;
-        }
+    	ITuple returnTuple = null;
+    	while (true){
+	        sourceTuple = sourceOperator.getNextTuple();
+	        if (sourceTuple == null) {
+	            return null;
+	        } else {
+	            if (returnSchema == null) {
+	                returnSchema = Utils.createSpanSchema(sourceTuple.getSchema());
+	            }
+	            List<Span> spanList = new ArrayList<>();
+	            for (Attribute attribute : searchInAttributes) {
+	                String fieldName = attribute.getFieldName();
+	                IField field = sourceTuple.getField(fieldName);
+	                spanList.addAll(extractNlpSpans(field, fieldName));
+	            }
+	            returnTuple = Utils.getSpanTuple(sourceTuple.getFields(),
+	                    spanList, returnSchema);
+	        }
+	        if (returnTuple != null){
+	        	cursor++;
+	        }
+	        if (cursor > offset){
+	        	break;
+	        }
+    	}
+    	return returnTuple;
     }
     
     public void setLimit(int limit){
