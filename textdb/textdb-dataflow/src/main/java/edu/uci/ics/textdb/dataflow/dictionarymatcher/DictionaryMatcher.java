@@ -122,7 +122,6 @@ public class DictionaryMatcher implements IOperator {
     	if (cursor >= limit + offset){
     		return null;
     	}
-    	cursor++;
     	if (predicate.getSourceOperatorType() == DataConstants.KeywordMatchingType.PHRASE_INDEXBASED
     	||  predicate.getSourceOperatorType() == DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED) {
     		// For each dictionary entry, 
@@ -131,7 +130,11 @@ public class DictionaryMatcher implements IOperator {
     		while (true) {
     			// If there's result from current keywordMatcher, return it.
     			if ((currentTuple = sourceOperator.getNextTuple()) != null) {
-    				return currentTuple;
+    				cursor++;
+    				if (cursor > offset){
+    					return currentTuple;
+    				}
+    				continue;
     			}
     			// If all results from current keywordMatcher are consumed, 
     			// advance to next dictionary entry, and
@@ -164,19 +167,20 @@ public class DictionaryMatcher implements IOperator {
     				return null;
     			}
     		}
-    		
-    		ITuple result = currentTuple;
-    		while (currentTuple != null) {
-    			result = matchTuple(currentDictionaryEntry, currentTuple);
-    			if (result != null) {
-    				advanceCursor();
+    		ITuple result = null;
+	    	while (currentTuple != null) {
+	    		result = matchTuple(currentDictionaryEntry, currentTuple);
+	    		if (result != null) {
+	    			advanceCursor();
+	    			cursor++;
+	    			if (cursor > offset){
+	    				break;
+	    			}
+	    		}
+	    		advanceCursor();
+	    	}
 
-    				return result;
-    			}
-    			advanceCursor();
-    		}
-
-    		return null;
+    		return result;
     	}
     }
     
