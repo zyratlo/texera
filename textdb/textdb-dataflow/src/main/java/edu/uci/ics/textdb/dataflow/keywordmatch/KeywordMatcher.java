@@ -77,9 +77,9 @@ public class KeywordMatcher implements IOperator {
         	}
         	ITuple result = null;
         	while (true) {
-                ITuple sourceTuple = sourceOperator.getNextTuple();
-                if(sourceTuple == null) {
-                    return null;
+        		ITuple sourceTuple = sourceOperator.getNextTuple();
+        		if(sourceTuple == null) {
+        			return null;
                 }
 	            if (this.predicate.getOperatorType() == DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED) {
 	                result = processConjunction(sourceTuple);
