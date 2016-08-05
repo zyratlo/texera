@@ -54,9 +54,6 @@ public class DictionaryMatcher implements IOperator {
      */
     @Override
     public void open() throws DataFlowException {
-    	if (this.inputOperator == null) {
-    		throw new DataFlowException(ErrorMessages.INPUT_OPERATOR_NOT_SPECIFIED);
-    	}
         try {
         	currentDictionaryEntry = predicate.getNextDictionaryEntry();
             if (currentDictionaryEntry == null) {

@@ -17,6 +17,7 @@ import edu.uci.ics.textdb.api.dataflow.IOperator;
 import edu.uci.ics.textdb.api.dataflow.ISourceOperator;
 import edu.uci.ics.textdb.common.constants.DataConstants;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
+import edu.uci.ics.textdb.common.exception.ErrorMessages;
 import edu.uci.ics.textdb.common.field.DataTuple;
 import edu.uci.ics.textdb.common.field.ListField;
 import edu.uci.ics.textdb.common.field.Span;
@@ -243,6 +244,9 @@ public class RegexMatcher implements IOperator {
     
     @Override
     public void open() throws DataFlowException {
+        if (this.inputOperator == null) {
+            throw new DataFlowException(ErrorMessages.INPUT_OPERATOR_NOT_SPECIFIED);
+        }
         try {
             inputOperator.open();
         } catch (Exception e) {
@@ -254,7 +258,9 @@ public class RegexMatcher implements IOperator {
     @Override
     public void close() throws DataFlowException {
         try {
-            inputOperator.close();
+            if (inputOperator != null) {
+                inputOperator.close();   
+            }
         } catch (Exception e) {
             e.printStackTrace();
             throw new DataFlowException(e.getMessage(), e);
