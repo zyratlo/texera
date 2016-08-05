@@ -17,6 +17,7 @@ import edu.uci.ics.textdb.api.dataflow.ISourceOperator;
 import edu.uci.ics.textdb.common.constants.DataConstants;
 import edu.uci.ics.textdb.common.constants.SchemaConstants;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
+import edu.uci.ics.textdb.common.exception.ErrorMessages;
 import edu.uci.ics.textdb.common.field.Span;
 import edu.uci.ics.textdb.dataflow.common.KeywordPredicate;
 import edu.uci.ics.textdb.dataflow.source.IndexBasedSourceOperator;
@@ -30,21 +31,24 @@ import edu.uci.ics.textdb.storage.DataReaderPredicate;
  */
 public class KeywordMatcher implements IOperator {
     private final KeywordPredicate predicate;
-    private ISourceOperator sourceOperator;
+    private IOperator inputOperator;
     private String query;
 
     public KeywordMatcher(IPredicate predicate) {
         this.predicate = (KeywordPredicate)predicate;
         DataReaderPredicate dataReaderPredicate = this.predicate.getDataReaderPredicate();
         dataReaderPredicate.setIsSpanInformationAdded(true);
-        this.sourceOperator = new IndexBasedSourceOperator(dataReaderPredicate);
+        this.inputOperator = new IndexBasedSourceOperator(dataReaderPredicate);
     }
 
     
     @Override
     public void open() throws DataFlowException {
+    	if (this.inputOperator == null) {
+    		throw new DataFlowException(ErrorMessages.INPUT_OPERATOR_NOT_SPECIFIED);
+    	}
         try {
-            sourceOperator.open();
+            inputOperator.open();
             query = predicate.getQuery();
 
         } catch (Exception e) {
@@ -69,7 +73,7 @@ public class KeywordMatcher implements IOperator {
         try {
         	ITuple result = null;
         	do {
-                ITuple sourceTuple = sourceOperator.getNextTuple();
+                ITuple sourceTuple = inputOperator.getNextTuple();
                 if(sourceTuple == null) {
                     return null;
                 }
@@ -281,11 +285,21 @@ public class KeywordMatcher implements IOperator {
     @Override
     public void close() throws DataFlowException {
         try {
-            sourceOperator.close();
+        	if (inputOperator != null) {
+                inputOperator.close();
+        	}
         } catch (Exception e) {
             e.printStackTrace();
             throw new DataFlowException(e.getMessage(), e);
         }
     }
+    
+    public IOperator getInputOperator() {
+		return inputOperator;
+	}
+
+	public void setInputOperator(ISourceOperator inputOperator) {
+		this.inputOperator = inputOperator;
+	}
 
 }
