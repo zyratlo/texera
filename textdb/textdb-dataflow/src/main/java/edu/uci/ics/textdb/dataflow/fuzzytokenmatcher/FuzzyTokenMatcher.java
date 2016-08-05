@@ -66,7 +66,7 @@ public class FuzzyTokenMatcher implements IOperator{
 			    if (sourceTuple == null) {
 			    	return null;
 			    }
-		    	result = processTuple(sourceTuple);
+		    	result = computeNextTuple(sourceTuple);
 		    	if (result != null) {
 		    		cursor++;
 		    	}
@@ -97,7 +97,7 @@ public class FuzzyTokenMatcher implements IOperator{
     	return this.offset;
     }
 
-    private ITuple processTuple(ITuple currentTuple){
+    private ITuple computeNextTuple(ITuple currentTuple){
     	if (currentTuple == null) {
     		return null;
     	}

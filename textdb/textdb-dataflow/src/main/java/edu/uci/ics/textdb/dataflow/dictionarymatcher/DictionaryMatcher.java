@@ -36,7 +36,7 @@ public class DictionaryMatcher implements IOperator {
 
     private final DictionaryPredicate predicate;
     
-    private int cursor;
+    private int resultCursor;
     private int limit;
     private int offset;
 
@@ -46,7 +46,7 @@ public class DictionaryMatcher implements IOperator {
      * 
      */
     public DictionaryMatcher(IPredicate predicate) {
-        this.cursor = -1;
+        this.resultCursor = -1;
         this.limit = Integer.MAX_VALUE;
         this.offset = 0;
         this.predicate = (DictionaryPredicate) predicate;
@@ -119,7 +119,7 @@ public class DictionaryMatcher implements IOperator {
      */
     @Override
     public ITuple getNextTuple() throws Exception {
-    	if (cursor > limit + offset){
+    	if (resultCursor > limit + offset){
     		return null;
     	}
     	if (predicate.getSourceOperatorType() == DataConstants.KeywordMatchingType.PHRASE_INDEXBASED
@@ -130,8 +130,8 @@ public class DictionaryMatcher implements IOperator {
     		while (true) {
     			// If there's result from current keywordMatcher, return it.
     			if ((currentTuple = sourceOperator.getNextTuple()) != null) {
-    				cursor++;
-    				if (cursor >= offset){
+    				resultCursor++;
+    				if (resultCursor >= offset){
     					return currentTuple;
     				}
     				continue;
@@ -171,13 +171,13 @@ public class DictionaryMatcher implements IOperator {
 	    	while (currentTuple != null) {
 	    		result = matchTuple(currentDictionaryEntry, currentTuple);
 	    		if (result != null) {
-	    			advanceCursor();
-	    			cursor++;
-	    			if (cursor >= offset){
+	    			advanceDictionaryCursor();
+	    			resultCursor++;
+	    			if (resultCursor >= offset){
 	    				break;
 	    			}
 	    		}
-	    		advanceCursor();
+	    		advanceDictionaryCursor();
 	    	}
 
     		return result;
@@ -205,7 +205,7 @@ public class DictionaryMatcher implements IOperator {
      * Advance the cursor of dictionary. if reach the end of the dictionary,
      * advance the cursor of tuples and reset dictionary
      */
-    private void advanceCursor() throws Exception {
+    private void advanceDictionaryCursor() throws Exception {
     	if ((currentDictionaryEntry = predicate.getNextDictionaryEntry()) != null) {
     		return;
     	}
