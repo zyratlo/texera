@@ -36,11 +36,21 @@ public class KeywordMatcher implements IOperator {
     private String query;
 
     public KeywordMatcher(IPredicate predicate, IDataStore dataStore) {
-        this.predicate = (KeywordPredicate)predicate;
+        this(predicate);
         DataReaderPredicate dataReaderPredicate = new DataReaderPredicate(this.predicate.getQueryObject(), this.predicate.getQuery(),
                 dataStore, this.predicate.getAttributeList(), this.predicate.getLuceneAnalyzer());
         dataReaderPredicate.setIsSpanInformationAdded(true);
         this.inputOperator = new IndexBasedSourceOperator(dataReaderPredicate);
+    }
+    
+    public KeywordMatcher(IPredicate predicate) {
+        this.predicate = (KeywordPredicate)predicate;
+        this.query = this.predicate.getQuery();
+    }
+    
+    public KeywordMatcher(IPredicate predicate, IOperator inputOperator) {
+        this(predicate);
+        this.inputOperator = inputOperator;
     }
 
     
