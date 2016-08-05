@@ -16,10 +16,22 @@ import edu.uci.ics.textdb.perftest.utils.PerfTestUtils;
 import edu.uci.ics.textdb.perftest.dictionarymatcher.*;
 import edu.uci.ics.textdb.perftest.fuzzytokenmatcher.*;
 
+
+
 public class RunPerftests {
 
 	/**
 	 * Run all performance tests. 
+	 * 
+	 *  Passed in below arguments:
+	 * 	result folder path (where performance test results stored)
+	 * 	standard index folder path (where standard index stored)
+	 * 	trigram index folder path (where trigram index stored)
+	 * 	queries folder path (where query files stored)
+	 * 
+	 * If above arguments are not passed in, default paths will be used (refer to PerfTestUtils.java)
+	 * If some of the arguments are not applicable, define them as empty string. 
+	 * 
 	 * Make necessary changes for arguments, 
 	 * such as query file name, threshold list, iteration number and
 	 * regexQueries

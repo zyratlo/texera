@@ -8,8 +8,18 @@ import edu.uci.ics.textdb.perftest.utils.PerfTestUtils;
 
 /*
  * Run this class to write all necessary index for performance tests!
+ * 
+ * Passed in below arguments:
+ * 	file folder path (where data set stored)
+ * 	standard index folder path (where standard index stored)
+ * 	trigram index folder path (where trigram index stored)
+ * 
+ * If above arguments are not passed in, default paths will be used (refer to PerfTestUtils.java)
+ * If some of the arguments are not applicable, define them as empty string. 
+ * 
  * */
 public class WriteIndex {
+
 	public static void main(String[] args) {
 		if(args.length !=0){
 			PerfTestUtils.setFileFolder(args[0]);

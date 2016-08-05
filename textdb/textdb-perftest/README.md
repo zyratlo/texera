@@ -1,15 +1,22 @@
 NOTE: Don't remove the file named .gitignore in any directory! 
-
+		Read the comments in the files mentioned here!
+		
 Step 1-Prepare Data Set:
 
 By default, there is a small data set named "abstract_100.txt" in ./data-files/.
-If you want to get results from more data sets, please put the data files into ./data-files/. 
+If you want to get results from more data sets, please put the data files into ./data-files/,
+or specify another path to the data sets when run WriteIndex.java in the next step. 
 
 More data sets can be found at:
 https://github.com/TextDB/textdb/wiki/Data-Sets
  
 Step 2-Prepare Index:
 In order to write index, run WriteIndex.java file in edu.uci.ics.textdb.perftest.run package.
+
+By default, indices are stored in ./index/standard/ and ./index/trigram/.
+If you want to store the indices to somewhere else, you can specify the 
+standard index path or trigram index path when run WriteIndex.
+
 NOTE: Once index is created, it can be reused (no writing index needed in the future)!!!!
 		However, if you make changes to your data set(s), writing index is still needed.
 
@@ -20,15 +27,24 @@ The default regex queries are defined in RunPerftests.java.
 
 If you are satisfied with the default queries, then move onto Step 4.
 
-If you want to use your own queries, please put query files to ./data-files/queries/ 
-or change the regex queries listed in RunPerftests.java.
+If you want to use your own queries, please put query files to ./data-files/queries/ or
+specify the query file's path when run RunPerftests in the next step.
+
+If you want to use your own regex queries, please change the regex queries listed in RunPerftests.java.
+
 In RunPerftests.java, you can see some operator performance tests take in a query file as a parameter.
 Please change the query file name to the one you want.
  
 Step 4-Run Performance Tests:
 In order to run the performance tests, please run RunPerftests.java file in edu.uci.ics.textdb.perftest.run package.
 
+If indices are stored at somewhere other than ./index/standard/ and ./index/trigram/, please
+specify the standard index path and trigram index path before running the class.
+
+If you have a specific location for the test results to be stored, please specify it before running the class.
+
 Step 5-Review Test Results:
-Performance test results can be found in the corresponding folders in ./data-files/results/.
+Performance test results can be found in the corresponding folders in ./data-files/results/
+or the result folder you previously specify.
 For example, test results for dictionary matcher can be found in ./data-files/results/queries/.
  
