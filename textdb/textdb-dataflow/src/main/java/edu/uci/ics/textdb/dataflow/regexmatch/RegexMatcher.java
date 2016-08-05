@@ -61,13 +61,13 @@ public class RegexMatcher implements IOperator {
 	
     public RegexMatcher(IPredicate predicate) throws DataFlowException{
     	this (predicate, true);
-    	this.cursor = 0;
+    	this.cursor = -1;
     	this.offset = 0;
     	this.limit = Integer.MAX_VALUE;
     }
 
     public RegexMatcher(IPredicate predicate, boolean useTranslator) throws DataFlowException{
-    	this.cursor = 0;
+    	this.cursor = -1;
     	this.offset = 0;
     	this.limit = Integer.MAX_VALUE;
     	this.regexPredicate = (RegexPredicate) predicate;
@@ -126,7 +126,7 @@ public class RegexMatcher implements IOperator {
     @Override
     public ITuple getNextTuple() throws DataFlowException {
 		try {
-			if (cursor >= offset + limit){
+			if (cursor > offset + limit){
 				return null;
 			}
             ITuple sourceTuple = sourceOperator.getNextTuple();
@@ -138,7 +138,7 @@ public class RegexMatcher implements IOperator {
             
             if (spanList != null && spanList.size() != 0) { // a list of matches found
             	cursor++;
-            	if (cursor <= offset)
+            	if (cursor < offset)
             		return getNextTuple();
             	
             	List<IField> fields = sourceTuple.getFields();

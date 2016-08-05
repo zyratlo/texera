@@ -37,7 +37,7 @@ public class KeywordMatcher implements IOperator {
     private int offset;
 
     public KeywordMatcher(IPredicate predicate) {
-        this.cursor = 0;
+        this.cursor = -1;
         this.limit = Integer.MAX_VALUE;
         this.offset = 0;
         this.predicate = (KeywordPredicate)predicate;
@@ -72,7 +72,7 @@ public class KeywordMatcher implements IOperator {
     @Override
     public ITuple getNextTuple() throws DataFlowException {
         try {
-        	if (cursor >= offset + limit){
+        	if (cursor > offset + limit){
         		return null;
         	}
         	ITuple result = null;
@@ -94,7 +94,7 @@ public class KeywordMatcher implements IOperator {
             	if (result != null) {
             		cursor++;
             	}
-            	if (cursor > offset) {
+            	if (cursor >= offset) {
             		break;
             	}
         	}

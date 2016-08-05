@@ -33,7 +33,7 @@ public class FuzzyTokenMatcher implements IOperator{
     private int offset;
 
     public FuzzyTokenMatcher(IPredicate predicate) {
-        this.cursor = 0;
+        this.cursor = -1;
         this.limit = Integer.MAX_VALUE;
         this.offset = 0;
         this.predicate = (FuzzyTokenPredicate)predicate;
@@ -57,7 +57,7 @@ public class FuzzyTokenMatcher implements IOperator{
     @Override
     public ITuple getNextTuple() throws DataFlowException {
 		try {
-			if (cursor >= limit + offset){
+			if (cursor > limit + offset){
 				return null;
 			}
 			ITuple result = null;
@@ -70,7 +70,7 @@ public class FuzzyTokenMatcher implements IOperator{
 		    	if (result != null) {
 		    		cursor++;
 		    	}
-		    	if (cursor > offset) {
+		    	if (cursor >= offset) {
 		    		break;
 		    	}
 			}

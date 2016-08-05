@@ -90,7 +90,7 @@ public class NlpExtractor implements IOperator {
     public NlpExtractor(IOperator operator, List<Attribute>
             searchInAttributes, NlpTokenType inputNlpTokenType)
             throws DataFlowException {
-        this.cursor = 0;
+        this.cursor = -1;
         this.limit = Integer.MAX_VALUE;
         this.offset = 0;
         this.sourceOperator = operator;
@@ -127,7 +127,7 @@ public class NlpExtractor implements IOperator {
      */
     @Override
     public ITuple getNextTuple() throws Exception {
-    	if (cursor >= limit + offset){
+    	if (cursor > limit + offset){
     		return null;
     	}
     	ITuple returnTuple = null;
@@ -151,7 +151,7 @@ public class NlpExtractor implements IOperator {
 	        if (returnTuple != null){
 	        	cursor++;
 	        }
-	        if (cursor > offset){
+	        if (cursor >= offset){
 	        	break;
 	        }
     	}

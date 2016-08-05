@@ -46,7 +46,7 @@ public class DictionaryMatcher implements IOperator {
      * 
      */
     public DictionaryMatcher(IPredicate predicate) {
-        this.cursor = 0;
+        this.cursor = -1;
         this.limit = Integer.MAX_VALUE;
         this.offset = 0;
         this.predicate = (DictionaryPredicate) predicate;
@@ -119,7 +119,7 @@ public class DictionaryMatcher implements IOperator {
      */
     @Override
     public ITuple getNextTuple() throws Exception {
-    	if (cursor >= limit + offset){
+    	if (cursor > limit + offset){
     		return null;
     	}
     	if (predicate.getSourceOperatorType() == DataConstants.KeywordMatchingType.PHRASE_INDEXBASED
@@ -131,7 +131,7 @@ public class DictionaryMatcher implements IOperator {
     			// If there's result from current keywordMatcher, return it.
     			if ((currentTuple = sourceOperator.getNextTuple()) != null) {
     				cursor++;
-    				if (cursor > offset){
+    				if (cursor >= offset){
     					return currentTuple;
     				}
     				continue;
@@ -173,7 +173,7 @@ public class DictionaryMatcher implements IOperator {
 	    		if (result != null) {
 	    			advanceCursor();
 	    			cursor++;
-	    			if (cursor > offset){
+	    			if (cursor >= offset){
 	    				break;
 	    			}
 	    		}
