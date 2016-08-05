@@ -158,27 +158,31 @@ public class JoinTest {
 		switch (type) {
 		case "index":
 			if (whichOperator == "outer") {
-				predicate = new KeywordPredicate(query, dataStoreForOuter, modifiedAttributeList,
+				predicate = new KeywordPredicate(query, modifiedAttributeList,
 						analyzer, DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED);
+		        return new KeywordMatcher(predicate, dataStoreForOuter);
 			} else if (whichOperator == "inner") {
-				predicate = new KeywordPredicate(query, dataStoreForInner, modifiedAttributeList,
+				predicate = new KeywordPredicate(query, modifiedAttributeList,
 						analyzer, DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED);
+                return new KeywordMatcher(predicate, dataStoreForInner);
 			}
 			break;
 		case "phrase":
 			if (whichOperator == "outer") {
-				predicate = new KeywordPredicate(query, dataStoreForOuter, modifiedAttributeList,
+				predicate = new KeywordPredicate(query, modifiedAttributeList,
 						analyzer, DataConstants.KeywordMatchingType.PHRASE_INDEXBASED);
+                return new KeywordMatcher(predicate, dataStoreForOuter);
 			} else if (whichOperator == "inner") {
-				predicate = new KeywordPredicate(query, dataStoreForInner, modifiedAttributeList,
+				predicate = new KeywordPredicate(query, modifiedAttributeList,
 						analyzer, DataConstants.KeywordMatchingType.PHRASE_INDEXBASED);
+                return new KeywordMatcher(predicate, dataStoreForInner);
 			}
 			break;
 
 		default:
 			break;
 		}
-		return new KeywordMatcher(predicate);
+		return null;
 	}
 
 	// A helper method to populate tuples' list to query upon. Currently
@@ -832,10 +836,10 @@ public class JoinTest {
 				"outer");
 		query = "kind";
 		IPredicate predicate = new KeywordPredicate(query,
-				dataStore, modifiedAttributeList, analyzer,
+				modifiedAttributeList, analyzer,
 				DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED
 				);
-		keywordMatcherInner = new KeywordMatcher(predicate);
+		keywordMatcherInner = new KeywordMatcher(predicate, dataStore);
 
 		Attribute idAttr = attributeList.get(0);
 		Attribute reviewAttr = attributeList.get(4);

@@ -62,17 +62,17 @@ public class DictionaryMatcher implements IOperator {
             
 			if (predicate.getSourceOperatorType() == DataConstants.KeywordMatchingType.PHRASE_INDEXBASED) {
 				KeywordPredicate keywordPredicate = new KeywordPredicate(
-						currentDictionaryEntry, predicate.getDataStore(),
+						currentDictionaryEntry,
 						predicate.getAttributeList(), predicate.getAnalyzer(),
 						KeywordMatchingType.PHRASE_INDEXBASED);
-				inputOperator = new KeywordMatcher(keywordPredicate);
+				inputOperator = new KeywordMatcher(keywordPredicate, predicate.getDataStore());
 				inputOperator.open();
 			} else if (predicate.getSourceOperatorType() == DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED) {
 				KeywordPredicate keywordPredicate = new KeywordPredicate(
-						currentDictionaryEntry, predicate.getDataStore(),
+						currentDictionaryEntry,
 						predicate.getAttributeList(), predicate.getAnalyzer(),
 						KeywordMatchingType.CONJUNCTION_INDEXBASED);
-				inputOperator = new KeywordMatcher(keywordPredicate);
+				inputOperator = new KeywordMatcher(keywordPredicate, predicate.getDataStore());
 				inputOperator.open();
 			} else {
                 inputOperator = predicate.getScanSourceOperator();
@@ -140,12 +140,12 @@ public class DictionaryMatcher implements IOperator {
     			}
     			
 				KeywordPredicate keywordPredicate = new KeywordPredicate(
-						currentDictionaryEntry, predicate.getDataStore(),
+						currentDictionaryEntry,
 						predicate.getAttributeList(), predicate.getAnalyzer(),
 						keywordMatchingType);
     			
     			inputOperator.close();
-    			inputOperator = new KeywordMatcher(keywordPredicate);
+    			inputOperator = new KeywordMatcher(keywordPredicate, predicate.getDataStore());
     			inputOperator.open();
     		}
         }
