@@ -17,6 +17,7 @@ import edu.uci.ics.textdb.api.common.IPredicate;
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.common.Schema;
 import edu.uci.ics.textdb.api.dataflow.IOperator;
+import edu.uci.ics.textdb.api.storage.IDataStore;
 import edu.uci.ics.textdb.api.storage.IDataWriter;
 import edu.uci.ics.textdb.common.constants.DataConstants;
 import edu.uci.ics.textdb.common.constants.SchemaConstants;
@@ -32,7 +33,9 @@ import edu.uci.ics.textdb.dataflow.common.JoinPredicate;
 import edu.uci.ics.textdb.dataflow.common.KeywordPredicate;
 import edu.uci.ics.textdb.dataflow.fuzzytokenmatcher.FuzzyTokenMatcher;
 import edu.uci.ics.textdb.dataflow.keywordmatch.KeywordMatcher;
+import edu.uci.ics.textdb.dataflow.source.IndexBasedSourceOperator;
 import edu.uci.ics.textdb.dataflow.utils.TestUtils;
+import edu.uci.ics.textdb.storage.DataReaderPredicate;
 import edu.uci.ics.textdb.storage.DataStore;
 import edu.uci.ics.textdb.storage.writer.DataWriter;
 import junit.framework.Assert;
@@ -154,35 +157,43 @@ public class JoinTest {
 	// whichOperator is to specify either "outer" or "inner" operator.
 	public IOperator setupOperators(String query, String type,
 			String whichOperator) throws DataFlowException {
-		IPredicate predicate = null;
+		KeywordPredicate keywordPredicate = null;
+		IDataStore dataStore = null;
 		switch (type) {
 		case "index":
 			if (whichOperator == "outer") {
-				predicate = new KeywordPredicate(query, modifiedAttributeList,
+			    dataStore = dataStoreForOuter;
+				keywordPredicate = new KeywordPredicate(query, modifiedAttributeList,
 						analyzer, DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED);
-		        return new KeywordMatcher(predicate, dataStoreForOuter);
 			} else if (whichOperator == "inner") {
-				predicate = new KeywordPredicate(query, modifiedAttributeList,
+	             dataStore = dataStoreForInner;
+				keywordPredicate = new KeywordPredicate(query, modifiedAttributeList,
 						analyzer, DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED);
-                return new KeywordMatcher(predicate, dataStoreForInner);
 			}
 			break;
 		case "phrase":
 			if (whichOperator == "outer") {
-				predicate = new KeywordPredicate(query, modifiedAttributeList,
+	             dataStore = dataStoreForOuter;
+				keywordPredicate = new KeywordPredicate(query, modifiedAttributeList,
 						analyzer, DataConstants.KeywordMatchingType.PHRASE_INDEXBASED);
-                return new KeywordMatcher(predicate, dataStoreForOuter);
 			} else if (whichOperator == "inner") {
-				predicate = new KeywordPredicate(query, modifiedAttributeList,
+	              dataStore = dataStoreForInner;
+				keywordPredicate = new KeywordPredicate(query, modifiedAttributeList,
 						analyzer, DataConstants.KeywordMatchingType.PHRASE_INDEXBASED);
-                return new KeywordMatcher(predicate, dataStoreForInner);
 			}
 			break;
 
 		default:
 			break;
 		}
-		return null;
+		
+        DataReaderPredicate dataReaderPredicate = new DataReaderPredicate(
+                keywordPredicate.getQueryObject(), keywordPredicate.getQuery(),
+                dataStore, keywordPredicate.getAttributeList(), keywordPredicate.getLuceneAnalyzer());
+        IndexBasedSourceOperator indexInputOperator = new IndexBasedSourceOperator(dataReaderPredicate);
+        KeywordMatcher keywordMatcher = new KeywordMatcher(keywordPredicate, indexInputOperator);
+		
+		return keywordMatcher;
 	}
 
 	// A helper method to populate tuples' list to query upon. Currently
@@ -835,11 +846,16 @@ public class JoinTest {
 		keywordMatcherOuter = (KeywordMatcher) setupOperators(query, "index",
 				"outer");
 		query = "kind";
-		IPredicate predicate = new KeywordPredicate(query,
+		KeywordPredicate keywordPredicate = new KeywordPredicate(query,
 				modifiedAttributeList, analyzer,
 				DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED
 				);
-		keywordMatcherInner = new KeywordMatcher(predicate, dataStore);
+		
+        DataReaderPredicate dataReaderPredicate = new DataReaderPredicate(
+                keywordPredicate.getQueryObject(), keywordPredicate.getQuery(),
+                dataStore, keywordPredicate.getAttributeList(), keywordPredicate.getLuceneAnalyzer());
+        IndexBasedSourceOperator indexInputOperator = new IndexBasedSourceOperator(dataReaderPredicate);
+        keywordMatcherInner = new KeywordMatcher(keywordPredicate, indexInputOperator);
 
 		Attribute idAttr = attributeList.get(0);
 		Attribute reviewAttr = attributeList.get(4);

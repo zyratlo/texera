@@ -31,7 +31,9 @@ import edu.uci.ics.textdb.common.field.Span;
 import edu.uci.ics.textdb.common.field.StringField;
 import edu.uci.ics.textdb.common.field.TextField;
 import edu.uci.ics.textdb.dataflow.common.KeywordPredicate;
+import edu.uci.ics.textdb.dataflow.source.IndexBasedSourceOperator;
 import edu.uci.ics.textdb.dataflow.utils.TestUtils;
+import edu.uci.ics.textdb.storage.DataReaderPredicate;
 import edu.uci.ics.textdb.storage.DataStore;
 import edu.uci.ics.textdb.storage.writer.DataWriter;
 
@@ -42,7 +44,7 @@ import edu.uci.ics.textdb.storage.writer.DataWriter;
 
 public class PhraseMatcherTest {
 
-    private KeywordMatcher KeywordMatcher;
+    private KeywordMatcher keywordMatcher;
     private IDataWriter dataWriter;
     private DataStore dataStore;
     private Analyzer luceneAnalyzer;
@@ -74,14 +76,19 @@ public class PhraseMatcherTest {
 
     public List<ITuple> getPeopleQueryResults(String query, ArrayList<Attribute> attributeList) throws DataFlowException, ParseException {
 
-        IPredicate predicate = new KeywordPredicate(query, attributeList, luceneAnalyzer, DataConstants.KeywordMatchingType.PHRASE_INDEXBASED);
-        KeywordMatcher = new KeywordMatcher(predicate, dataStore);
-        KeywordMatcher.open();
+        KeywordPredicate keywordPredicate = new KeywordPredicate(query, attributeList, luceneAnalyzer, DataConstants.KeywordMatchingType.PHRASE_INDEXBASED);
+        DataReaderPredicate dataReaderPredicate = new DataReaderPredicate(
+                keywordPredicate.getQueryObject(), keywordPredicate.getQuery(),
+                dataStore, keywordPredicate.getAttributeList(), keywordPredicate.getLuceneAnalyzer());
+        IndexBasedSourceOperator indexInputOperator = new IndexBasedSourceOperator(dataReaderPredicate);
+        keywordMatcher = new KeywordMatcher(keywordPredicate, indexInputOperator);
+        keywordMatcher.open();
+
 
         List<ITuple> results = new ArrayList<>();
         ITuple nextTuple = null;
 
-        while ((nextTuple = KeywordMatcher.getNextTuple()) != null) {
+        while ((nextTuple = keywordMatcher.getNextTuple()) != null) {
             results.add(nextTuple);
         }
 
@@ -320,14 +327,18 @@ public class PhraseMatcherTest {
         expectedResultList.add(tuple1);
 
         //Perform Query
-        IPredicate predicate = new KeywordPredicate(query, attributeList, MedAnalyzer, DataConstants.KeywordMatchingType.PHRASE_INDEXBASED);
-        KeywordMatcher = new KeywordMatcher(predicate, medDataStore);
-        KeywordMatcher.open();
+        KeywordPredicate keywordPredicate = new KeywordPredicate(query, attributeList, MedAnalyzer, DataConstants.KeywordMatchingType.PHRASE_INDEXBASED);
+        DataReaderPredicate dataReaderPredicate = new DataReaderPredicate(
+                keywordPredicate.getQueryObject(), keywordPredicate.getQuery(),
+                medDataStore, keywordPredicate.getAttributeList(), keywordPredicate.getLuceneAnalyzer());
+        IndexBasedSourceOperator indexInputOperator = new IndexBasedSourceOperator(dataReaderPredicate);
+        keywordMatcher = new KeywordMatcher(keywordPredicate, indexInputOperator);
+        keywordMatcher.open();
 
         List<ITuple> results = new ArrayList<>();
         ITuple nextTuple = null;
 
-        while ((nextTuple = KeywordMatcher.getNextTuple()) != null) {
+        while ((nextTuple = keywordMatcher.getNextTuple()) != null) {
             results.add(nextTuple);
         }
         //Perform Check
@@ -374,14 +385,18 @@ public class PhraseMatcherTest {
         expectedResultList.add(tuple1);
 
         //Perform Query
-        IPredicate predicate = new KeywordPredicate(query, attributeList, MedAnalyzer, DataConstants.KeywordMatchingType.PHRASE_INDEXBASED);
-        KeywordMatcher = new KeywordMatcher(predicate, medDataStore);
-        KeywordMatcher.open();
+        KeywordPredicate keywordPredicate = new KeywordPredicate(query, attributeList, MedAnalyzer, DataConstants.KeywordMatchingType.PHRASE_INDEXBASED);
+        DataReaderPredicate dataReaderPredicate = new DataReaderPredicate(
+                keywordPredicate.getQueryObject(), keywordPredicate.getQuery(),
+                medDataStore, keywordPredicate.getAttributeList(), keywordPredicate.getLuceneAnalyzer());
+        IndexBasedSourceOperator indexInputOperator = new IndexBasedSourceOperator(dataReaderPredicate);
+        keywordMatcher = new KeywordMatcher(keywordPredicate, indexInputOperator);
+        keywordMatcher.open();
 
         List<ITuple> results = new ArrayList<>();
         ITuple nextTuple = null;
 
-        while ((nextTuple = KeywordMatcher.getNextTuple()) != null) {
+        while ((nextTuple = keywordMatcher.getNextTuple()) != null) {
             results.add(nextTuple);
         }
         //Perform Check
@@ -439,14 +454,18 @@ public class PhraseMatcherTest {
         expectedResultList.add(tuple1);
 
         //Perform Query
-        IPredicate predicate = new KeywordPredicate(query, attributeList, MedAnalyzer, DataConstants.KeywordMatchingType.PHRASE_INDEXBASED);
-        KeywordMatcher = new KeywordMatcher(predicate, medDataStore);
-        KeywordMatcher.open();
+        KeywordPredicate keywordPredicate = new KeywordPredicate(query, attributeList, MedAnalyzer, DataConstants.KeywordMatchingType.PHRASE_INDEXBASED);
+        DataReaderPredicate dataReaderPredicate = new DataReaderPredicate(
+                keywordPredicate.getQueryObject(), keywordPredicate.getQuery(),
+                medDataStore, keywordPredicate.getAttributeList(), keywordPredicate.getLuceneAnalyzer());
+        IndexBasedSourceOperator indexInputOperator = new IndexBasedSourceOperator(dataReaderPredicate);
+        keywordMatcher = new KeywordMatcher(keywordPredicate, indexInputOperator);
+        keywordMatcher.open();
 
         List<ITuple> results = new ArrayList<>();
         ITuple nextTuple = null;
 
-        while ((nextTuple = KeywordMatcher.getNextTuple()) != null) {
+        while ((nextTuple = keywordMatcher.getNextTuple()) != null) {
             results.add(nextTuple);
         }
         //Perform Check

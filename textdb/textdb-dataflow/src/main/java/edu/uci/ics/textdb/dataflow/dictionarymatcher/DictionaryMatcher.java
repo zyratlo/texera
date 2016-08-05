@@ -21,6 +21,8 @@ import edu.uci.ics.textdb.common.utils.Utils;
 import edu.uci.ics.textdb.dataflow.common.DictionaryPredicate;
 import edu.uci.ics.textdb.dataflow.common.KeywordPredicate;
 import edu.uci.ics.textdb.dataflow.keywordmatch.KeywordMatcher;
+import edu.uci.ics.textdb.dataflow.source.IndexBasedSourceOperator;
+import edu.uci.ics.textdb.storage.DataReaderPredicate;
 
 /**
  * @author Sudeep (inkudo)
@@ -60,24 +62,34 @@ public class DictionaryMatcher implements IOperator {
             	throw new DataFlowException("Dictionary is empty");
             }
             
-			if (predicate.getSourceOperatorType() == DataConstants.KeywordMatchingType.PHRASE_INDEXBASED) {
-				KeywordPredicate keywordPredicate = new KeywordPredicate(
-						currentDictionaryEntry,
-						predicate.getAttributeList(), predicate.getAnalyzer(),
-						KeywordMatchingType.PHRASE_INDEXBASED);
-				inputOperator = new KeywordMatcher(keywordPredicate, predicate.getDataStore());
-				inputOperator.open();
-			} else if (predicate.getSourceOperatorType() == DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED) {
-				KeywordPredicate keywordPredicate = new KeywordPredicate(
-						currentDictionaryEntry,
-						predicate.getAttributeList(), predicate.getAnalyzer(),
-						KeywordMatchingType.CONJUNCTION_INDEXBASED);
-				inputOperator = new KeywordMatcher(keywordPredicate, predicate.getDataStore());
-				inputOperator.open();
-			} else {
+            if (predicate.getSourceOperatorType() == DataConstants.KeywordMatchingType.SUBSTRING_SCANBASED) {
                 inputOperator = predicate.getScanSourceOperator();
                 inputOperator.open();
+            } else {
+                KeywordPredicate keywordPredicate = null;
+                if (predicate.getSourceOperatorType() == DataConstants.KeywordMatchingType.PHRASE_INDEXBASED) {
+                    keywordPredicate = new KeywordPredicate(
+                            currentDictionaryEntry,
+                            predicate.getAttributeList(), predicate.getAnalyzer(),
+                            KeywordMatchingType.PHRASE_INDEXBASED);
+                    
+
+                } else if (predicate.getSourceOperatorType() == DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED) {
+                    keywordPredicate = new KeywordPredicate(
+                            currentDictionaryEntry,
+                            predicate.getAttributeList(), predicate.getAnalyzer(),
+                            KeywordMatchingType.CONJUNCTION_INDEXBASED);
+                }
+                
+                DataReaderPredicate dataReaderPredicate = new DataReaderPredicate(
+                        keywordPredicate.getQueryObject(), keywordPredicate.getQuery(),
+                        predicate.getDataStore(), keywordPredicate.getAttributeList(), keywordPredicate.getLuceneAnalyzer());
+                IndexBasedSourceOperator indexInputOperator = new IndexBasedSourceOperator(dataReaderPredicate);
+                inputOperator = new KeywordMatcher(keywordPredicate, indexInputOperator);
+                inputOperator.open();
             }
+            
+
             
         } catch (Exception e) {
             throw new DataFlowException(e.getMessage(), e);
@@ -139,13 +151,18 @@ public class DictionaryMatcher implements IOperator {
     				keywordMatchingType = KeywordMatchingType.CONJUNCTION_INDEXBASED;
     			}
     			
+                inputOperator.close();
+    			
 				KeywordPredicate keywordPredicate = new KeywordPredicate(
 						currentDictionaryEntry,
 						predicate.getAttributeList(), predicate.getAnalyzer(),
 						keywordMatchingType);
     			
-    			inputOperator.close();
-    			inputOperator = new KeywordMatcher(keywordPredicate, predicate.getDataStore());
+                DataReaderPredicate dataReaderPredicate = new DataReaderPredicate(
+                        keywordPredicate.getQueryObject(), keywordPredicate.getQuery(),
+                        predicate.getDataStore(), keywordPredicate.getAttributeList(), keywordPredicate.getLuceneAnalyzer());
+                IndexBasedSourceOperator indexInputOperator = new IndexBasedSourceOperator(dataReaderPredicate);
+    			inputOperator = new KeywordMatcher(keywordPredicate, indexInputOperator);
     			inputOperator.open();
     		}
         }

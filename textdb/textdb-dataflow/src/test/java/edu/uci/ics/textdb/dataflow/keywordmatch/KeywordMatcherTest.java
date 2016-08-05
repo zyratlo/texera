@@ -31,7 +31,9 @@ import edu.uci.ics.textdb.common.field.Span;
 import edu.uci.ics.textdb.common.field.StringField;
 import edu.uci.ics.textdb.common.field.TextField;
 import edu.uci.ics.textdb.dataflow.common.KeywordPredicate;
+import edu.uci.ics.textdb.dataflow.source.IndexBasedSourceOperator;
 import edu.uci.ics.textdb.dataflow.utils.TestUtils;
+import edu.uci.ics.textdb.storage.DataReaderPredicate;
 import edu.uci.ics.textdb.storage.DataStore;
 import edu.uci.ics.textdb.storage.writer.DataWriter;
 
@@ -74,8 +76,12 @@ public class KeywordMatcherTest {
 
     public List<ITuple> getPeopleQueryResults(String query, ArrayList<Attribute> attributeList) throws DataFlowException, ParseException {
 
-        IPredicate predicate = new KeywordPredicate(query, attributeList, analyzer, DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED);
-        keywordMatcher = new KeywordMatcher(predicate, dataStore);
+        KeywordPredicate keywordPredicate = new KeywordPredicate(query, attributeList, analyzer, DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED);
+        DataReaderPredicate dataReaderPredicate = new DataReaderPredicate(
+                keywordPredicate.getQueryObject(), keywordPredicate.getQuery(),
+                dataStore, keywordPredicate.getAttributeList(), keywordPredicate.getLuceneAnalyzer());
+        IndexBasedSourceOperator indexInputOperator = new IndexBasedSourceOperator(dataReaderPredicate);
+        keywordMatcher = new KeywordMatcher(keywordPredicate, indexInputOperator);
         keywordMatcher.open();
 
         List<ITuple> results = new ArrayList<>();

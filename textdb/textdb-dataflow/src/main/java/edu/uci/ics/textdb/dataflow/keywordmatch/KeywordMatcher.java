@@ -20,6 +20,7 @@ import edu.uci.ics.textdb.common.constants.SchemaConstants;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
 import edu.uci.ics.textdb.common.exception.ErrorMessages;
 import edu.uci.ics.textdb.common.field.Span;
+import edu.uci.ics.textdb.common.utils.Utils;
 import edu.uci.ics.textdb.dataflow.common.KeywordPredicate;
 import edu.uci.ics.textdb.dataflow.source.IndexBasedSourceOperator;
 import edu.uci.ics.textdb.storage.DataReaderPredicate;
@@ -35,6 +36,7 @@ public class KeywordMatcher implements IOperator {
     private IOperator inputOperator;
     private String query;
 
+    /*
     public KeywordMatcher(IPredicate predicate, IDataStore dataStore) {
         this(predicate);
         DataReaderPredicate dataReaderPredicate = new DataReaderPredicate(this.predicate.getQueryObject(), this.predicate.getQuery(),
@@ -42,6 +44,7 @@ public class KeywordMatcher implements IOperator {
         dataReaderPredicate.setIsSpanInformationAdded(true);
         this.inputOperator = new IndexBasedSourceOperator(dataReaderPredicate);
     }
+     */
     
     public KeywordMatcher(IPredicate predicate) {
         this.predicate = (KeywordPredicate)predicate;
@@ -154,6 +157,7 @@ public class KeywordMatcher implements IOperator {
     
     
     private ITuple processPhrase(ITuple currentTuple) throws DataFlowException {
+        System.out.println(Utils.getTupleString(currentTuple));
     	List<Span> spanList = (List<Span>) currentTuple.getField(SchemaConstants.SPAN_LIST).getValue(); 
     	
     	for (Attribute attribute : this.predicate.getAttributeList()) {
