@@ -127,7 +127,7 @@ public class NlpExtractor implements IOperator {
      */
     @Override
     public ITuple getNextTuple() throws Exception {
-    	if (cursor > limit + offset){
+    	if (cursor >= limit + offset - 1){
     		return null;
     	}
     	ITuple returnTuple = null;

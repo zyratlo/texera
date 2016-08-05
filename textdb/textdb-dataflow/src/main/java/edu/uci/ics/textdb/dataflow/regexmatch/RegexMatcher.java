@@ -126,26 +126,32 @@ public class RegexMatcher implements IOperator {
     @Override
     public ITuple getNextTuple() throws DataFlowException {
 		try {
-			if (cursor > offset + limit){
+//			System.out.println("1st cursor = "+cursor);
+			if (cursor >= offset + limit - 1 || limit == 0){
 				return null;
 			}
-            ITuple sourceTuple = sourceOperator.getNextTuple();
-            if(sourceTuple == null){
-                return null;
-            }  
-            
-            this.spanList = computeMatches(sourceTuple);
-            
-            if (spanList != null && spanList.size() != 0) { // a list of matches found
-            	cursor++;
-            	if (cursor < offset)
-            		return getNextTuple();
-            	
-            	List<IField> fields = sourceTuple.getFields();
-            	return constructSpanTuple(fields, this.spanList);
-            } else { // no match found
-            	return getNextTuple();
-            }
+			ITuple result = null;
+			while (true){
+	            ITuple sourceTuple = sourceOperator.getNextTuple();
+	            if(sourceTuple == null){
+	                return null;
+	            }  
+	            
+	            result = computeMatches(sourceTuple);
+	            
+	            if (result != null) { // a list of matches found
+//		            if (cursor >= offset){
+//		            	cursor++;
+//	            		return result;
+//		            }
+		            cursor++;
+	            }
+//	            System.out.println("2nd cursor = "+cursor);
+	            if (cursor >= offset){
+	            	break;
+	            }
+			}
+			return result;
         } catch (Exception e) {
             e.printStackTrace();
             throw new DataFlowException(e.getMessage(), e);
@@ -189,16 +195,16 @@ public class RegexMatcher implements IOperator {
 	 * @return a list of spans describing the occurrence of a matching sequence
 	 *         in the document
 	 */
-	public List<Span> computeMatches(ITuple tuple) {
+	public ITuple computeMatches(ITuple tuple) {
 		List<Span> spanList = new ArrayList<>();
 		if (tuple == null) {
-			return spanList; // empty array
+			return null;
 		}
 		for (String fieldName : fieldNameList) {
 			IField field = tuple.getField(fieldName);
 			String fieldValue = field.getValue().toString();
 			if (fieldValue == null) {
-				return spanList;
+				return constructSpanTuple(tuple.getFields(),spanList);
 			} else {
 				switch (regexEngine) {
 				case JavaRegex:
@@ -210,7 +216,7 @@ public class RegexMatcher implements IOperator {
 				}
 			}
 		}
-		return spanList;
+		return constructSpanTuple(tuple.getFields(),spanList);
 	}
 	
 	

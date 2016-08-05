@@ -72,7 +72,7 @@ public class KeywordMatcher implements IOperator {
     @Override
     public ITuple getNextTuple() throws DataFlowException {
         try {
-        	if (cursor > offset + limit){
+        	if (cursor >= offset + limit - 1){
         		return null;
         	}
         	ITuple result = null;

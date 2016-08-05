@@ -57,7 +57,7 @@ public class FuzzyTokenMatcher implements IOperator{
     @Override
     public ITuple getNextTuple() throws DataFlowException {
 		try {
-			if (cursor > limit + offset){
+			if (cursor >= limit + offset - 1){
 				return null;
 			}
 			ITuple result = null;

@@ -119,7 +119,7 @@ public class DictionaryMatcher implements IOperator {
      */
     @Override
     public ITuple getNextTuple() throws Exception {
-    	if (resultCursor > limit + offset){
+    	if (resultCursor >= limit + offset - 1){
     		return null;
     	}
     	if (predicate.getSourceOperatorType() == DataConstants.KeywordMatchingType.PHRASE_INDEXBASED
@@ -169,7 +169,7 @@ public class DictionaryMatcher implements IOperator {
     		}
     		ITuple result = null;
 	    	while (currentTuple != null) {
-	    		result = matchTuple(currentDictionaryEntry, currentTuple);
+	    		result = computeNextTuple(currentDictionaryEntry, currentTuple);
 	    		if (result != null) {
 	    			advanceDictionaryCursor();
 	    			resultCursor++;
@@ -219,7 +219,7 @@ public class DictionaryMatcher implements IOperator {
      * if there's no match, returns the original dataTuple object,
      * if there's a match, return a new dataTuple with span list added
      */
-    private ITuple matchTuple(String key, ITuple dataTuple) {
+    private ITuple computeNextTuple(String key, ITuple dataTuple) {
     	
     	List<Attribute> attributeList = predicate.getAttributeList();
     	List<Span> spanList = new ArrayList<>();
