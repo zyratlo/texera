@@ -35,16 +35,6 @@ public class KeywordMatcher implements IOperator {
     private final KeywordPredicate predicate;
     private IOperator inputOperator;
     private String query;
-
-    /*
-    public KeywordMatcher(IPredicate predicate, IDataStore dataStore) {
-        this(predicate);
-        DataReaderPredicate dataReaderPredicate = new DataReaderPredicate(this.predicate.getQueryObject(), this.predicate.getQuery(),
-                dataStore, this.predicate.getAttributeList(), this.predicate.getLuceneAnalyzer());
-        dataReaderPredicate.setIsSpanInformationAdded(true);
-        this.inputOperator = new IndexBasedSourceOperator(dataReaderPredicate);
-    }
-     */
     
     public KeywordMatcher(IPredicate predicate) {
         this.predicate = (KeywordPredicate)predicate;
@@ -157,7 +147,6 @@ public class KeywordMatcher implements IOperator {
     
     
     private ITuple processPhrase(ITuple currentTuple) throws DataFlowException {
-        System.out.println(Utils.getTupleString(currentTuple));
     	List<Span> spanList = (List<Span>) currentTuple.getField(SchemaConstants.SPAN_LIST).getValue(); 
     	
     	for (Attribute attribute : this.predicate.getAttributeList()) {

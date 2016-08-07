@@ -179,7 +179,18 @@ public class KeywordPredicate implements IPredicate {
 		
 		return new MatchAllDocsQuery();
 	}
-
+	
+	
+	public DataReaderPredicate generateDataReaderPredicate(IDataStore dataStore) {
+	    DataReaderPredicate predicate = new DataReaderPredicate(
+	            this.luceneQuery,
+	            this.query,
+	            dataStore,
+	            this.attributeList,
+	            this.luceneAnalyzer);
+	    predicate.setIsSpanInformationAdded(true);
+	    return predicate;
+	}
 	
 	
 	public KeywordMatchingType getOperatorType() {

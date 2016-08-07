@@ -81,10 +81,7 @@ public class DictionaryMatcher implements IOperator {
                             KeywordMatchingType.CONJUNCTION_INDEXBASED);
                 }
                 
-                DataReaderPredicate dataReaderPredicate = new DataReaderPredicate(
-                        keywordPredicate.getQueryObject(), keywordPredicate.getQuery(),
-                        predicate.getDataStore(), keywordPredicate.getAttributeList(), keywordPredicate.getLuceneAnalyzer());
-                IndexBasedSourceOperator indexInputOperator = new IndexBasedSourceOperator(dataReaderPredicate);
+                IndexBasedSourceOperator indexInputOperator = new IndexBasedSourceOperator(keywordPredicate.generateDataReaderPredicate(predicate.getDataStore()));
                 inputOperator = new KeywordMatcher(keywordPredicate, indexInputOperator);
                 inputOperator.open();
             }
@@ -158,10 +155,7 @@ public class DictionaryMatcher implements IOperator {
 						predicate.getAttributeList(), predicate.getAnalyzer(),
 						keywordMatchingType);
     			
-                DataReaderPredicate dataReaderPredicate = new DataReaderPredicate(
-                        keywordPredicate.getQueryObject(), keywordPredicate.getQuery(),
-                        predicate.getDataStore(), keywordPredicate.getAttributeList(), keywordPredicate.getLuceneAnalyzer());
-                IndexBasedSourceOperator indexInputOperator = new IndexBasedSourceOperator(dataReaderPredicate);
+                IndexBasedSourceOperator indexInputOperator = new IndexBasedSourceOperator(keywordPredicate.generateDataReaderPredicate(predicate.getDataStore()));
     			inputOperator = new KeywordMatcher(keywordPredicate, indexInputOperator);
     			inputOperator.open();
     		}

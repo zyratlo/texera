@@ -77,10 +77,7 @@ public class PhraseMatcherTest {
     public List<ITuple> getPeopleQueryResults(String query, ArrayList<Attribute> attributeList) throws DataFlowException, ParseException {
 
         KeywordPredicate keywordPredicate = new KeywordPredicate(query, attributeList, luceneAnalyzer, DataConstants.KeywordMatchingType.PHRASE_INDEXBASED);
-        DataReaderPredicate dataReaderPredicate = new DataReaderPredicate(
-                keywordPredicate.getQueryObject(), keywordPredicate.getQuery(),
-                dataStore, keywordPredicate.getAttributeList(), keywordPredicate.getLuceneAnalyzer());
-        IndexBasedSourceOperator indexInputOperator = new IndexBasedSourceOperator(dataReaderPredicate);
+        IndexBasedSourceOperator indexInputOperator = new IndexBasedSourceOperator(keywordPredicate.generateDataReaderPredicate(dataStore));
         keywordMatcher = new KeywordMatcher(keywordPredicate, indexInputOperator);
         keywordMatcher.open();
 
@@ -328,10 +325,7 @@ public class PhraseMatcherTest {
 
         //Perform Query
         KeywordPredicate keywordPredicate = new KeywordPredicate(query, attributeList, MedAnalyzer, DataConstants.KeywordMatchingType.PHRASE_INDEXBASED);
-        DataReaderPredicate dataReaderPredicate = new DataReaderPredicate(
-                keywordPredicate.getQueryObject(), keywordPredicate.getQuery(),
-                medDataStore, keywordPredicate.getAttributeList(), keywordPredicate.getLuceneAnalyzer());
-        IndexBasedSourceOperator indexInputOperator = new IndexBasedSourceOperator(dataReaderPredicate);
+        IndexBasedSourceOperator indexInputOperator = new IndexBasedSourceOperator(keywordPredicate.generateDataReaderPredicate(medDataStore));
         keywordMatcher = new KeywordMatcher(keywordPredicate, indexInputOperator);
         keywordMatcher.open();
 
@@ -386,10 +380,7 @@ public class PhraseMatcherTest {
 
         //Perform Query
         KeywordPredicate keywordPredicate = new KeywordPredicate(query, attributeList, MedAnalyzer, DataConstants.KeywordMatchingType.PHRASE_INDEXBASED);
-        DataReaderPredicate dataReaderPredicate = new DataReaderPredicate(
-                keywordPredicate.getQueryObject(), keywordPredicate.getQuery(),
-                medDataStore, keywordPredicate.getAttributeList(), keywordPredicate.getLuceneAnalyzer());
-        IndexBasedSourceOperator indexInputOperator = new IndexBasedSourceOperator(dataReaderPredicate);
+        IndexBasedSourceOperator indexInputOperator = new IndexBasedSourceOperator(keywordPredicate.generateDataReaderPredicate(medDataStore));
         keywordMatcher = new KeywordMatcher(keywordPredicate, indexInputOperator);
         keywordMatcher.open();
 
@@ -455,10 +446,7 @@ public class PhraseMatcherTest {
 
         //Perform Query
         KeywordPredicate keywordPredicate = new KeywordPredicate(query, attributeList, MedAnalyzer, DataConstants.KeywordMatchingType.PHRASE_INDEXBASED);
-        DataReaderPredicate dataReaderPredicate = new DataReaderPredicate(
-                keywordPredicate.getQueryObject(), keywordPredicate.getQuery(),
-                medDataStore, keywordPredicate.getAttributeList(), keywordPredicate.getLuceneAnalyzer());
-        IndexBasedSourceOperator indexInputOperator = new IndexBasedSourceOperator(dataReaderPredicate);
+        IndexBasedSourceOperator indexInputOperator = new IndexBasedSourceOperator(keywordPredicate.generateDataReaderPredicate(medDataStore));
         keywordMatcher = new KeywordMatcher(keywordPredicate, indexInputOperator);
         keywordMatcher.open();
 

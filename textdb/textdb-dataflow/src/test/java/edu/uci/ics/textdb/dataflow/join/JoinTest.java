@@ -187,10 +187,7 @@ public class JoinTest {
 			break;
 		}
 		
-        DataReaderPredicate dataReaderPredicate = new DataReaderPredicate(
-                keywordPredicate.getQueryObject(), keywordPredicate.getQuery(),
-                dataStore, keywordPredicate.getAttributeList(), keywordPredicate.getLuceneAnalyzer());
-        IndexBasedSourceOperator indexInputOperator = new IndexBasedSourceOperator(dataReaderPredicate);
+        IndexBasedSourceOperator indexInputOperator = new IndexBasedSourceOperator(keywordPredicate.generateDataReaderPredicate(dataStore));
         KeywordMatcher keywordMatcher = new KeywordMatcher(keywordPredicate, indexInputOperator);
 		
 		return keywordMatcher;
@@ -851,10 +848,7 @@ public class JoinTest {
 				DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED
 				);
 		
-        DataReaderPredicate dataReaderPredicate = new DataReaderPredicate(
-                keywordPredicate.getQueryObject(), keywordPredicate.getQuery(),
-                dataStore, keywordPredicate.getAttributeList(), keywordPredicate.getLuceneAnalyzer());
-        IndexBasedSourceOperator indexInputOperator = new IndexBasedSourceOperator(dataReaderPredicate);
+        IndexBasedSourceOperator indexInputOperator = new IndexBasedSourceOperator(keywordPredicate.generateDataReaderPredicate(dataStore));
         keywordMatcherInner = new KeywordMatcher(keywordPredicate, indexInputOperator);
 
 		Attribute idAttr = attributeList.get(0);
