@@ -47,8 +47,8 @@
                       </execution>
                   </executions>
                   <configuration>
-                      <!--skip the execution here  -->
-                      <skip>true</skip>
+                      <!--skip the execution here-->
+                      <exec.skip>true</exec.skip>
                   </configuration>
               </plugin>
           </plugins>
