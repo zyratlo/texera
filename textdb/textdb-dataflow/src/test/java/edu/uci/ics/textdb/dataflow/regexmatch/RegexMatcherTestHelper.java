@@ -15,6 +15,7 @@ import edu.uci.ics.textdb.api.storage.IDataStore;
 import edu.uci.ics.textdb.api.storage.IDataWriter;
 import edu.uci.ics.textdb.common.constants.DataConstants;
 import edu.uci.ics.textdb.dataflow.common.RegexPredicate;
+import edu.uci.ics.textdb.dataflow.source.IndexBasedSourceOperator;
 import edu.uci.ics.textdb.storage.DataStore;
 import edu.uci.ics.textdb.storage.writer.DataWriter;
 
@@ -59,10 +60,12 @@ public class RegexMatcherTestHelper {
 	public void runTest(String regex, Attribute attribute, boolean useTranslator) throws Exception {
 		results.clear();
 		RegexPredicate regexPredicate = new RegexPredicate(
-				regex, dataStore, Arrays.asList(new Attribute[]{attribute}), 
+				regex, Arrays.asList(new Attribute[]{attribute}), 
 				luceneAnalyzer);
-
-		regexMatcher = new RegexMatcher(regexPredicate, useTranslator);
+		
+		IndexBasedSourceOperator indexInputOperator = new IndexBasedSourceOperator(regexPredicate.generateDataReaderPredicate(dataStore));
+		regexMatcher = new RegexMatcher(regexPredicate);
+		regexMatcher.setInputOperator(indexInputOperator);
 		regexMatcher.open();
 		ITuple nextTuple = null;
 		while ((nextTuple = regexMatcher.getNextTuple()) != null) {

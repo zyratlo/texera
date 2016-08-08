@@ -39,10 +39,6 @@ public class RegexMatcher implements IOperator {
     private Schema sourceTupleSchema;
     private Schema spanSchema;
     
-    private String luceneQueryStr;
-    private Query luceneQuery;
-    
-	private Analyzer luceneAnalyzer;
 	private IOperator inputOperator;
     
     private List<Span> spanList;
@@ -57,19 +53,11 @@ public class RegexMatcher implements IOperator {
 	private java.util.regex.Pattern javaPattern;
 	
 	
-    public RegexMatcher(IPredicate predicate) throws DataFlowException{
-    	this (predicate, true);
-    }
-
-    public RegexMatcher(IPredicate predicate, boolean useTranslator) throws DataFlowException{
+    public RegexMatcher(IPredicate predicate) throws DataFlowException {
     	this.regexPredicate = (RegexPredicate) predicate;
     	this.regex = regexPredicate.getRegex();
     	this.fieldNameList = regexPredicate.getFieldNameList();
-    	this.luceneAnalyzer = regexPredicate.getLuceneAnalyzer();
-    	
-		this.sourceTupleSchema = regexPredicate.getDataStore().getSchema();
-		this.spanSchema = Utils.createSpanSchema(this.sourceTupleSchema);
-		
+    			
 		// try Java Regex first
 		try {
 			this.javaPattern = java.util.regex.Pattern.compile(regex);
@@ -81,38 +69,10 @@ public class RegexMatcher implements IOperator {
 				this.regexEngine = RegexEngine.RE2J;
 			// if RE2J also fails, throw exception
 	    	} catch (com.google.re2j.PatternSyntaxException re2jException) {
-				throw new DataFlowException(javaException.getMessage());
+				throw new DataFlowException(javaException.getMessage(), javaException);
 	    	}
-		}
-		
-		this.luceneQueryStr =  DataConstants.SCAN_QUERY;
-		// try to translate if useTranslator is true 
-		if (useTranslator) {
-			try {
-				this.luceneQueryStr = RegexToGramQueryTranslator.translate(regex).getLuceneQueryString();
-			} catch (com.google.re2j.PatternSyntaxException e) {
-			}
-		}
-    	
-    	try {
-    		this.luceneQuery = generateLuceneQuery(fieldNameList, luceneQueryStr);
-    	} catch (ParseException e) {
-    		throw new DataFlowException(e.getMessage());
-    	}
-    	    	
-		DataReaderPredicate dataReaderPredicate = new DataReaderPredicate(this.luceneQuery,
-				this.luceneQueryStr, regexPredicate.getDataStore(),
-				regexPredicate.getAttributeList(), luceneAnalyzer);
-		this.inputOperator = new IndexBasedSourceOperator(dataReaderPredicate);
-		
+		}		
     }
-    
-    
-	private Query generateLuceneQuery(List<String> fields, String queryStr) throws ParseException {
-		String[] fieldsArray = new String[fields.size()];
-		QueryParser parser = new MultiFieldQueryParser(fields.toArray(fieldsArray), luceneAnalyzer);
-		return parser.parse(queryStr);
-	}
 	
 	
     @Override
@@ -247,6 +207,7 @@ public class RegexMatcher implements IOperator {
         if (this.inputOperator == null) {
             throw new DataFlowException(ErrorMessages.INPUT_OPERATOR_NOT_SPECIFIED);
         }
+        
         try {
             inputOperator.open();
         } catch (Exception e) {
@@ -270,10 +231,6 @@ public class RegexMatcher implements IOperator {
 
     public Schema getSpanSchema() {
     	return spanSchema;
-    }
-    
-    public String getLueneQueryString() {
-    	return this.luceneQueryStr;
     }
     
     public String getRegex() {
