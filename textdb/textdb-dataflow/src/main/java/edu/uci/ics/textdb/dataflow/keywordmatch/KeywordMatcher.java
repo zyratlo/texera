@@ -14,11 +14,13 @@ import edu.uci.ics.textdb.api.common.IPredicate;
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.dataflow.IOperator;
 import edu.uci.ics.textdb.api.dataflow.ISourceOperator;
+import edu.uci.ics.textdb.api.storage.IDataStore;
 import edu.uci.ics.textdb.common.constants.DataConstants;
 import edu.uci.ics.textdb.common.constants.SchemaConstants;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
 import edu.uci.ics.textdb.common.exception.ErrorMessages;
 import edu.uci.ics.textdb.common.field.Span;
+import edu.uci.ics.textdb.common.utils.Utils;
 import edu.uci.ics.textdb.dataflow.common.KeywordPredicate;
 import edu.uci.ics.textdb.dataflow.source.IndexBasedSourceOperator;
 import edu.uci.ics.textdb.storage.DataReaderPredicate;
@@ -33,12 +35,10 @@ public class KeywordMatcher implements IOperator {
     private final KeywordPredicate predicate;
     private IOperator inputOperator;
     private String query;
-
+    
     public KeywordMatcher(IPredicate predicate) {
         this.predicate = (KeywordPredicate)predicate;
-        DataReaderPredicate dataReaderPredicate = this.predicate.getDataReaderPredicate();
-        dataReaderPredicate.setIsSpanInformationAdded(true);
-        this.inputOperator = new IndexBasedSourceOperator(dataReaderPredicate);
+        this.query = this.predicate.getQuery();
     }
 
     
