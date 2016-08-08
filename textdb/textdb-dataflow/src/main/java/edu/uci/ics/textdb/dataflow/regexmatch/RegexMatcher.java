@@ -39,10 +39,6 @@ public class RegexMatcher implements IOperator {
     private Schema sourceTupleSchema;
     private Schema spanSchema;
     
-    private String luceneQueryStr;
-    private Query luceneQuery;
-    
-	private Analyzer luceneAnalyzer;
 	private IOperator inputOperator;
     
     private List<Span> spanList;
@@ -61,7 +57,6 @@ public class RegexMatcher implements IOperator {
     	this.regexPredicate = (RegexPredicate) predicate;
     	this.regex = regexPredicate.getRegex();
     	this.fieldNameList = regexPredicate.getFieldNameList();
-    	this.luceneAnalyzer = regexPredicate.getLuceneAnalyzer();
     			
 		// try Java Regex first
 		try {
@@ -242,10 +237,6 @@ public class RegexMatcher implements IOperator {
 
     public Schema getSpanSchema() {
     	return spanSchema;
-    }
-    
-    public String getLueneQueryString() {
-    	return this.luceneQueryStr;
     }
     
     public String getRegex() {
