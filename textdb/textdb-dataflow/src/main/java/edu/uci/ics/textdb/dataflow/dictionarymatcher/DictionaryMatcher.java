@@ -15,6 +15,7 @@ import edu.uci.ics.textdb.api.dataflow.IOperator;
 import edu.uci.ics.textdb.common.constants.DataConstants;
 import edu.uci.ics.textdb.common.constants.DataConstants.KeywordMatchingType;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
+import edu.uci.ics.textdb.common.exception.ErrorMessages;
 import edu.uci.ics.textdb.common.field.Span;
 import edu.uci.ics.textdb.common.utils.Utils;
 import edu.uci.ics.textdb.dataflow.common.DictionaryPredicate;
@@ -28,8 +29,9 @@ import edu.uci.ics.textdb.dataflow.keywordmatch.KeywordMatcher;
  */
 public class DictionaryMatcher implements IOperator {
 
-    private IOperator sourceOperator;
-    private Schema spanSchema;
+    private IOperator inputOperator;
+
+	private Schema spanSchema;
     
     private ITuple currentTuple;
     private String currentDictionaryEntry;
@@ -44,8 +46,8 @@ public class DictionaryMatcher implements IOperator {
     public DictionaryMatcher(IPredicate predicate) {
         this.predicate = (DictionaryPredicate) predicate;
         this.spanSchema = Utils.createSpanSchema(this.predicate.getDataStore().getSchema());
-
     }
+    
 
     /**
      * @about Opens dictionary matcher. Must call open() before calling getNextTuple().
@@ -63,18 +65,18 @@ public class DictionaryMatcher implements IOperator {
 						currentDictionaryEntry, predicate.getDataStore(),
 						predicate.getAttributeList(), predicate.getAnalyzer(),
 						KeywordMatchingType.PHRASE_INDEXBASED);
-				sourceOperator = new KeywordMatcher(keywordPredicate);
-				sourceOperator.open();
+				inputOperator = new KeywordMatcher(keywordPredicate);
+				inputOperator.open();
 			} else if (predicate.getSourceOperatorType() == DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED) {
 				KeywordPredicate keywordPredicate = new KeywordPredicate(
 						currentDictionaryEntry, predicate.getDataStore(),
 						predicate.getAttributeList(), predicate.getAnalyzer(),
 						KeywordMatchingType.CONJUNCTION_INDEXBASED);
-				sourceOperator = new KeywordMatcher(keywordPredicate);
-				sourceOperator.open();
+				inputOperator = new KeywordMatcher(keywordPredicate);
+				inputOperator.open();
 			} else {
-                sourceOperator = predicate.getScanSourceOperator();
-                sourceOperator.open();
+                inputOperator = predicate.getScanSourceOperator();
+                inputOperator.open();
             }
             
         } catch (Exception e) {
@@ -119,7 +121,7 @@ public class DictionaryMatcher implements IOperator {
     		
     		while (true) {
     			// If there's result from current keywordMatcher, return it.
-    			if ((currentTuple = sourceOperator.getNextTuple()) != null) {
+    			if ((currentTuple = inputOperator.getNextTuple()) != null) {
     				return currentTuple;
     			}
     			// If all results from current keywordMatcher are consumed, 
@@ -142,14 +144,14 @@ public class DictionaryMatcher implements IOperator {
 						predicate.getAttributeList(), predicate.getAnalyzer(),
 						keywordMatchingType);
     			
-    			sourceOperator.close();
-    			sourceOperator = new KeywordMatcher(keywordPredicate);
-    			sourceOperator.open();
+    			inputOperator.close();
+    			inputOperator = new KeywordMatcher(keywordPredicate);
+    			inputOperator.open();
     		}
         }
     	else {
     		if (currentTuple == null) {
-    			if ((currentTuple = sourceOperator.getNextTuple()) == null) {
+    			if ((currentTuple = inputOperator.getNextTuple()) == null) {
     				return null;
     			}
     		}
@@ -179,7 +181,7 @@ public class DictionaryMatcher implements IOperator {
     	}
     	predicate.resetDictCursor();
     	currentDictionaryEntry = predicate.getNextDictionaryEntry();
-    	currentTuple = sourceOperator.getNextTuple();
+    	currentTuple = inputOperator.getNextTuple();
     }
     
     /*
@@ -230,10 +232,21 @@ public class DictionaryMatcher implements IOperator {
     @Override
     public void close() throws DataFlowException {
         try {
-            sourceOperator.close();
+        	if (inputOperator != null) {
+                inputOperator.close();
+        	}
         } catch (Exception e) {
             e.printStackTrace();
             throw new DataFlowException(e.getMessage(), e);
         }
     }
+    
+    
+    public IOperator getInputOperator() {
+		return inputOperator;
+	}
+
+	public void setInputOperator(IOperator inputOperator) {
+		this.inputOperator = inputOperator;
+	}
 }

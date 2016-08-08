@@ -16,6 +16,7 @@ import edu.uci.ics.textdb.api.dataflow.IOperator;
 import edu.uci.ics.textdb.api.dataflow.ISourceOperator;
 import edu.uci.ics.textdb.common.constants.SchemaConstants;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
+import edu.uci.ics.textdb.common.exception.ErrorMessages;
 import edu.uci.ics.textdb.common.field.Span;
 import edu.uci.ics.textdb.common.field.TextField;
 import edu.uci.ics.textdb.dataflow.common.FuzzyTokenPredicate;
@@ -24,21 +25,25 @@ import edu.uci.ics.textdb.storage.DataReaderPredicate;
 
 public class FuzzyTokenMatcher implements IOperator{
     private final FuzzyTokenPredicate predicate;
-    private ISourceOperator sourceOperator;
-    private List<Attribute> attributeList;
+    private IOperator inputOperator;
+
+	private List<Attribute> attributeList;
     private int threshold;
     private ArrayList<String> queryTokens;
 
     public FuzzyTokenMatcher(IPredicate predicate) {
     	this.predicate = (FuzzyTokenPredicate)predicate;
     	DataReaderPredicate dataReaderPredicate = this.predicate.getDataReaderPredicate();
-    	this.sourceOperator = new IndexBasedSourceOperator(dataReaderPredicate);
+    	this.inputOperator = new IndexBasedSourceOperator(dataReaderPredicate);
     }
     
     @Override
     public void open() throws DataFlowException {
+    	if (this.inputOperator == null) {
+    		throw new DataFlowException(ErrorMessages.INPUT_OPERATOR_NOT_SPECIFIED);
+    	}
     	try {
-            sourceOperator.open();
+            inputOperator.open();
             attributeList = predicate.getAttributeList();
             threshold = predicate.getThreshold();
             queryTokens = predicate.getQueryTokens();
@@ -51,7 +56,7 @@ public class FuzzyTokenMatcher implements IOperator{
     @Override
     public ITuple getNextTuple() throws DataFlowException {
 		try {
-		    ITuple sourceTuple = sourceOperator.getNextTuple();
+		    ITuple sourceTuple = inputOperator.getNextTuple();
 		    if (sourceTuple == null || !this.predicate.getIsSpanInformationAdded())
 		        return sourceTuple;
             
@@ -92,10 +97,20 @@ public class FuzzyTokenMatcher implements IOperator{
     @Override
     public void close() throws DataFlowException {
 		try {
-			sourceOperator.close();
+        	if (inputOperator != null) {
+                inputOperator.close();
+        	}
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new DataFlowException(e.getMessage(), e);
 		}
     }
+    
+    public IOperator getInputOperator() {
+		return inputOperator;
+	}
+
+	public void setInputOperator(ISourceOperator inputOperator) {
+		this.inputOperator = inputOperator;
+	}
 }

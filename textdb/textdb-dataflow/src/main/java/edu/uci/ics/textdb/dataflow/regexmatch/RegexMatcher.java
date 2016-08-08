@@ -17,6 +17,7 @@ import edu.uci.ics.textdb.api.dataflow.IOperator;
 import edu.uci.ics.textdb.api.dataflow.ISourceOperator;
 import edu.uci.ics.textdb.common.constants.DataConstants;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
+import edu.uci.ics.textdb.common.exception.ErrorMessages;
 import edu.uci.ics.textdb.common.field.DataTuple;
 import edu.uci.ics.textdb.common.field.ListField;
 import edu.uci.ics.textdb.common.field.Span;
@@ -42,7 +43,7 @@ public class RegexMatcher implements IOperator {
     private Query luceneQuery;
     
 	private Analyzer luceneAnalyzer;
-	private ISourceOperator sourceOperator;
+	private IOperator inputOperator;
     
     private List<Span> spanList;
         
@@ -102,7 +103,7 @@ public class RegexMatcher implements IOperator {
 		DataReaderPredicate dataReaderPredicate = new DataReaderPredicate(this.luceneQuery,
 				this.luceneQueryStr, regexPredicate.getDataStore(),
 				regexPredicate.getAttributeList(), luceneAnalyzer);
-		this.sourceOperator = new IndexBasedSourceOperator(dataReaderPredicate);
+		this.inputOperator = new IndexBasedSourceOperator(dataReaderPredicate);
 		
     }
     
@@ -117,7 +118,7 @@ public class RegexMatcher implements IOperator {
     @Override
     public ITuple getNextTuple() throws DataFlowException {
 		try {
-            ITuple sourceTuple = sourceOperator.getNextTuple();
+            ITuple sourceTuple = inputOperator.getNextTuple();
             if(sourceTuple == null){
                 return null;
             }  
@@ -243,8 +244,11 @@ public class RegexMatcher implements IOperator {
     
     @Override
     public void open() throws DataFlowException {
+        if (this.inputOperator == null) {
+            throw new DataFlowException(ErrorMessages.INPUT_OPERATOR_NOT_SPECIFIED);
+        }
         try {
-            sourceOperator.open();
+            inputOperator.open();
         } catch (Exception e) {
             e.printStackTrace();
             throw new DataFlowException(e.getMessage(), e);
@@ -254,7 +258,9 @@ public class RegexMatcher implements IOperator {
     @Override
     public void close() throws DataFlowException {
         try {
-            sourceOperator.close();
+            if (inputOperator != null) {
+                inputOperator.close();   
+            }
         } catch (Exception e) {
             e.printStackTrace();
             throw new DataFlowException(e.getMessage(), e);
@@ -273,4 +279,12 @@ public class RegexMatcher implements IOperator {
     public String getRegex() {
     	return this.regex;
     }
+    
+    public IOperator getInputOperator() {
+		return inputOperator;
+	}
+
+	public void setInputOperator(ISourceOperator inputOperator) {
+		this.inputOperator = inputOperator;
+	}
 }
