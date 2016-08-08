@@ -78,7 +78,10 @@ public class PhraseMatcherTest {
 
         KeywordPredicate keywordPredicate = new KeywordPredicate(query, attributeList, luceneAnalyzer, DataConstants.KeywordMatchingType.PHRASE_INDEXBASED);
         IndexBasedSourceOperator indexInputOperator = new IndexBasedSourceOperator(keywordPredicate.generateDataReaderPredicate(dataStore));
-        keywordMatcher = new KeywordMatcher(keywordPredicate, indexInputOperator);
+        
+        keywordMatcher = new KeywordMatcher(keywordPredicate);
+        keywordMatcher.setInputOperator(indexInputOperator);
+        
         keywordMatcher.open();
 
 
@@ -326,7 +329,10 @@ public class PhraseMatcherTest {
         //Perform Query
         KeywordPredicate keywordPredicate = new KeywordPredicate(query, attributeList, MedAnalyzer, DataConstants.KeywordMatchingType.PHRASE_INDEXBASED);
         IndexBasedSourceOperator indexInputOperator = new IndexBasedSourceOperator(keywordPredicate.generateDataReaderPredicate(medDataStore));
-        keywordMatcher = new KeywordMatcher(keywordPredicate, indexInputOperator);
+        
+        keywordMatcher = new KeywordMatcher(keywordPredicate);
+        keywordMatcher.setInputOperator(indexInputOperator);
+        
         keywordMatcher.open();
 
         List<ITuple> results = new ArrayList<>();
@@ -381,7 +387,10 @@ public class PhraseMatcherTest {
         //Perform Query
         KeywordPredicate keywordPredicate = new KeywordPredicate(query, attributeList, MedAnalyzer, DataConstants.KeywordMatchingType.PHRASE_INDEXBASED);
         IndexBasedSourceOperator indexInputOperator = new IndexBasedSourceOperator(keywordPredicate.generateDataReaderPredicate(medDataStore));
-        keywordMatcher = new KeywordMatcher(keywordPredicate, indexInputOperator);
+
+        keywordMatcher = new KeywordMatcher(keywordPredicate);
+        keywordMatcher.setInputOperator(indexInputOperator);
+        
         keywordMatcher.open();
 
         List<ITuple> results = new ArrayList<>();
@@ -447,7 +456,10 @@ public class PhraseMatcherTest {
         //Perform Query
         KeywordPredicate keywordPredicate = new KeywordPredicate(query, attributeList, MedAnalyzer, DataConstants.KeywordMatchingType.PHRASE_INDEXBASED);
         IndexBasedSourceOperator indexInputOperator = new IndexBasedSourceOperator(keywordPredicate.generateDataReaderPredicate(medDataStore));
-        keywordMatcher = new KeywordMatcher(keywordPredicate, indexInputOperator);
+
+        keywordMatcher = new KeywordMatcher(keywordPredicate);
+        keywordMatcher.setInputOperator(indexInputOperator);
+        
         keywordMatcher.open();
 
         List<ITuple> results = new ArrayList<>();

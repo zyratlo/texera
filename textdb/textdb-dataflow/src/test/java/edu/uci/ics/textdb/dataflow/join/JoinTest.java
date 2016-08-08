@@ -188,8 +188,9 @@ public class JoinTest {
 		}
 		
         IndexBasedSourceOperator indexInputOperator = new IndexBasedSourceOperator(keywordPredicate.generateDataReaderPredicate(dataStore));
-        KeywordMatcher keywordMatcher = new KeywordMatcher(keywordPredicate, indexInputOperator);
-		
+        KeywordMatcher keywordMatcher = new KeywordMatcher(keywordPredicate);
+        keywordMatcher.setInputOperator(indexInputOperator);
+        
 		return keywordMatcher;
 	}
 
@@ -849,8 +850,9 @@ public class JoinTest {
 				);
 		
         IndexBasedSourceOperator indexInputOperator = new IndexBasedSourceOperator(keywordPredicate.generateDataReaderPredicate(dataStore));
-        keywordMatcherInner = new KeywordMatcher(keywordPredicate, indexInputOperator);
-
+        keywordMatcherInner = new KeywordMatcher(keywordPredicate);
+        keywordMatcherInner.setInputOperator(indexInputOperator);
+        
 		Attribute idAttr = attributeList.get(0);
 		Attribute reviewAttr = attributeList.get(4);
 		List<ITuple> resultList = getJoinResults(keywordMatcherOuter,

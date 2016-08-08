@@ -158,7 +158,8 @@ public class KeywordMatcherPerformanceTest {
 		for (String query : queryList) {
 	        KeywordPredicate keywordPredicate = new KeywordPredicate(query, Arrays.asList(attributeList), luceneAnalyzer, opType);
             IndexBasedSourceOperator indexInputOperator = new IndexBasedSourceOperator(keywordPredicate.generateDataReaderPredicate(dataStore));
-	        KeywordMatcher keywordMatcher = new KeywordMatcher(keywordPredicate, indexInputOperator);
+	        KeywordMatcher keywordMatcher = new KeywordMatcher(keywordPredicate);
+	        keywordMatcher.setInputOperator(indexInputOperator);
 
 			long startMatchTime = System.currentTimeMillis();
 			keywordMatcher.open();

@@ -40,11 +40,6 @@ public class KeywordMatcher implements IOperator {
         this.predicate = (KeywordPredicate)predicate;
         this.query = this.predicate.getQuery();
     }
-    
-    public KeywordMatcher(IPredicate predicate, IOperator inputOperator) {
-        this(predicate);
-        this.inputOperator = inputOperator;
-    }
 
     
     @Override
