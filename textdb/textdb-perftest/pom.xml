@@ -87,6 +87,8 @@
 
 
     </dependencies>
+
+    <!-- plugin for trigerring performance test-->
     <build>
         <pluginManagement>
         <plugins>

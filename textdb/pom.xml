@@ -30,6 +30,7 @@
         </dependencies>
     </dependencyManagement>
 
+    <!-- plugin for trigerring performance test-->
     <build>
       <pluginManagement>
           <plugins>
