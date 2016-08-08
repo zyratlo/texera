@@ -271,4 +271,9 @@ public class Join implements IOperator {
 
 		return nextTuple;
 	}
+
+    @Override
+    public Schema getOutputSchema() {
+        return innerOperator.getOutputSchema();
+    }
 }

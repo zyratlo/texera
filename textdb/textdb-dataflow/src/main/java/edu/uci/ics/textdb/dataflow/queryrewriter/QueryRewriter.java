@@ -104,4 +104,10 @@ public class QueryRewriter implements IOperator{
         this.searchQuery = null;
         this.sourceTuple = null;
     }
+
+    @Override
+    public Schema getOutputSchema() {
+        // query rewriter has no schema
+        return null;
+    }
 }
