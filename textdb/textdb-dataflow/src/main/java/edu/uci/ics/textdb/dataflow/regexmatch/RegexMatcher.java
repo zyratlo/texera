@@ -47,7 +47,6 @@ public class RegexMatcher implements IOperator {
 	private int limit;
 	private int cursor;
 	private int offset;
-    private List<Span> spanList;
         
     // two available regex engines, RegexMatcher will try RE2J first 
 	private enum RegexEngine {
@@ -126,7 +125,6 @@ public class RegexMatcher implements IOperator {
     @Override
     public ITuple getNextTuple() throws DataFlowException {
 		try {
-//			System.out.println("1st cursor = "+cursor);
 			if (cursor >= offset + limit - 1 || limit == 0){
 				return null;
 			}
@@ -139,14 +137,9 @@ public class RegexMatcher implements IOperator {
 	            
 	            result = computeMatches(sourceTuple);
 	            
-	            if (result != null) { // a list of matches found
-//		            if (cursor >= offset){
-//		            	cursor++;
-//	            		return result;
-//		            }
+	            if (result != null) {
 		            cursor++;
 	            }
-//	            System.out.println("2nd cursor = "+cursor);
 	            if (cursor >= offset){
 	            	break;
 	            }
@@ -204,23 +197,26 @@ public class RegexMatcher implements IOperator {
 			IField field = tuple.getField(fieldName);
 			String fieldValue = field.getValue().toString();
 			if (fieldValue == null) {
-				return constructSpanTuple(tuple.getFields(),spanList);
+				return null;
 			} else {
 				switch (regexEngine) {
 				case JavaRegex:
-					javaRegexMatch(fieldValue, fieldName, spanList);
+					spanList = javaRegexMatch(fieldValue, fieldName, spanList);
 					break;
 				case RE2J:
-					re2jRegexMatch(fieldValue, fieldName, spanList);
+					spanList = re2jRegexMatch(fieldValue, fieldName, spanList);
 					break;
 				}
 			}
+		}
+		if (spanList.isEmpty()) {
+			return null;
 		}
 		return constructSpanTuple(tuple.getFields(),spanList);
 	}
 	
 	
-	private void javaRegexMatch(String fieldValue, String fieldName, List<Span> spanList) {
+	private List<Span> javaRegexMatch(String fieldValue, String fieldName, List<Span> spanList) {
 		java.util.regex.Matcher javaMatcher = this.javaPattern.matcher(fieldValue);
 		while (javaMatcher.find()) {
 			int start = javaMatcher.start();
@@ -228,9 +224,10 @@ public class RegexMatcher implements IOperator {
 			spanList.add(new Span(fieldName, start, end, 
 					this.regexPredicate.getRegex(), fieldValue.substring(start, end)));
 		}
+		return spanList;
 	}
 	
-	private void re2jRegexMatch(String fieldValue, String fieldName, List<Span> spanList) {
+	private List<Span> re2jRegexMatch(String fieldValue, String fieldName, List<Span> spanList) {
 		com.google.re2j.Matcher re2jMatcher = this.re2jPattern.matcher(fieldValue);
 		while (re2jMatcher.find()) {
 			int start = re2jMatcher.start();
@@ -238,6 +235,7 @@ public class RegexMatcher implements IOperator {
 			spanList.add(new Span(fieldName, start, end, 
 					this.regexPredicate.getRegex(), fieldValue.substring(start, end)));
 		}
+		return spanList;
 	}
 	
 	/**
