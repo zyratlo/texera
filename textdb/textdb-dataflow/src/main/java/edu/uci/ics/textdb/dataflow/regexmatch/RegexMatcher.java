@@ -17,6 +17,7 @@ import edu.uci.ics.textdb.api.dataflow.IOperator;
 import edu.uci.ics.textdb.api.dataflow.ISourceOperator;
 import edu.uci.ics.textdb.common.constants.DataConstants;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
+import edu.uci.ics.textdb.common.exception.ErrorMessages;
 import edu.uci.ics.textdb.common.field.DataTuple;
 import edu.uci.ics.textdb.common.field.ListField;
 import edu.uci.ics.textdb.common.field.Span;
@@ -38,11 +39,7 @@ public class RegexMatcher implements IOperator {
     private Schema sourceTupleSchema;
     private Schema spanSchema;
     
-    private String luceneQueryStr;
-    private Query luceneQuery;
-    
-	private Analyzer luceneAnalyzer;
-	private ISourceOperator sourceOperator;
+	private IOperator inputOperator;
     
 	private int limit;
 	private int cursor;
@@ -72,11 +69,7 @@ public class RegexMatcher implements IOperator {
     	this.regexPredicate = (RegexPredicate) predicate;
     	this.regex = regexPredicate.getRegex();
     	this.fieldNameList = regexPredicate.getFieldNameList();
-    	this.luceneAnalyzer = regexPredicate.getLuceneAnalyzer();
-    	
-		this.sourceTupleSchema = regexPredicate.getDataStore().getSchema();
-		this.spanSchema = Utils.createSpanSchema(this.sourceTupleSchema);
-		
+    			
 		// try Java Regex first
 		try {
 			this.javaPattern = java.util.regex.Pattern.compile(regex);
@@ -88,38 +81,10 @@ public class RegexMatcher implements IOperator {
 				this.regexEngine = RegexEngine.RE2J;
 			// if RE2J also fails, throw exception
 	    	} catch (com.google.re2j.PatternSyntaxException re2jException) {
-				throw new DataFlowException(javaException.getMessage());
+				throw new DataFlowException(javaException.getMessage(), javaException);
 	    	}
-		}
-		
-		this.luceneQueryStr =  DataConstants.SCAN_QUERY;
-		// try to translate if useTranslator is true 
-		if (useTranslator) {
-			try {
-				this.luceneQueryStr = RegexToGramQueryTranslator.translate(regex).getLuceneQueryString();
-			} catch (com.google.re2j.PatternSyntaxException e) {
-			}
-		}
-    	
-    	try {
-    		this.luceneQuery = generateLuceneQuery(fieldNameList, luceneQueryStr);
-    	} catch (ParseException e) {
-    		throw new DataFlowException(e.getMessage());
-    	}
-    	    	
-		DataReaderPredicate dataReaderPredicate = new DataReaderPredicate(this.luceneQuery,
-				this.luceneQueryStr, regexPredicate.getDataStore(),
-				regexPredicate.getAttributeList(), luceneAnalyzer);
-		this.sourceOperator = new IndexBasedSourceOperator(dataReaderPredicate);
-		
+		}		
     }
-    
-    
-	private Query generateLuceneQuery(List<String> fields, String queryStr) throws ParseException {
-		String[] fieldsArray = new String[fields.size()];
-		QueryParser parser = new MultiFieldQueryParser(fields.toArray(fieldsArray), luceneAnalyzer);
-		return parser.parse(queryStr);
-	}
 	
 	
     @Override
@@ -130,7 +95,7 @@ public class RegexMatcher implements IOperator {
 			}
 			ITuple result = null;
 			while (true){
-	            ITuple sourceTuple = sourceOperator.getNextTuple();
+	            ITuple sourceTuple = inputOperator.getNextTuple();
 	            if(sourceTuple == null){
 	                return null;
 	            }  
@@ -278,8 +243,12 @@ public class RegexMatcher implements IOperator {
     
     @Override
     public void open() throws DataFlowException {
+        if (this.inputOperator == null) {
+            throw new DataFlowException(ErrorMessages.INPUT_OPERATOR_NOT_SPECIFIED);
+        }
+        
         try {
-            sourceOperator.open();
+            inputOperator.open();
         } catch (Exception e) {
             e.printStackTrace();
             throw new DataFlowException(e.getMessage(), e);
@@ -289,7 +258,9 @@ public class RegexMatcher implements IOperator {
     @Override
     public void close() throws DataFlowException {
         try {
-            sourceOperator.close();
+            if (inputOperator != null) {
+                inputOperator.close();   
+            }
         } catch (Exception e) {
             e.printStackTrace();
             throw new DataFlowException(e.getMessage(), e);
@@ -301,11 +272,15 @@ public class RegexMatcher implements IOperator {
     	return spanSchema;
     }
     
-    public String getLueneQueryString() {
-    	return this.luceneQueryStr;
-    }
-    
     public String getRegex() {
     	return this.regex;
     }
+    
+    public IOperator getInputOperator() {
+		return inputOperator;
+	}
+
+	public void setInputOperator(ISourceOperator inputOperator) {
+		this.inputOperator = inputOperator;
+	}
 }

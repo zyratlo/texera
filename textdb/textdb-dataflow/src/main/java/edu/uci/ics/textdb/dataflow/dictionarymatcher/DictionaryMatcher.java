@@ -15,11 +15,14 @@ import edu.uci.ics.textdb.api.dataflow.IOperator;
 import edu.uci.ics.textdb.common.constants.DataConstants;
 import edu.uci.ics.textdb.common.constants.DataConstants.KeywordMatchingType;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
+import edu.uci.ics.textdb.common.exception.ErrorMessages;
 import edu.uci.ics.textdb.common.field.Span;
 import edu.uci.ics.textdb.common.utils.Utils;
 import edu.uci.ics.textdb.dataflow.common.DictionaryPredicate;
 import edu.uci.ics.textdb.dataflow.common.KeywordPredicate;
 import edu.uci.ics.textdb.dataflow.keywordmatch.KeywordMatcher;
+import edu.uci.ics.textdb.dataflow.source.IndexBasedSourceOperator;
+import edu.uci.ics.textdb.storage.DataReaderPredicate;
 
 /**
  * @author Sudeep (inkudo)
@@ -28,8 +31,9 @@ import edu.uci.ics.textdb.dataflow.keywordmatch.KeywordMatcher;
  */
 public class DictionaryMatcher implements IOperator {
 
-    private IOperator sourceOperator;
-    private Schema spanSchema;
+    private IOperator inputOperator;
+
+	private Schema spanSchema;
     
     private ITuple currentTuple;
     private String currentDictionaryEntry;
@@ -51,8 +55,8 @@ public class DictionaryMatcher implements IOperator {
         this.offset = 0;
         this.predicate = (DictionaryPredicate) predicate;
         this.spanSchema = Utils.createSpanSchema(this.predicate.getDataStore().getSchema());
-
     }
+    
 
     /**
      * @about Opens dictionary matcher. Must call open() before calling getNextTuple().
@@ -65,24 +69,34 @@ public class DictionaryMatcher implements IOperator {
             	throw new DataFlowException("Dictionary is empty");
             }
             
-			if (predicate.getSourceOperatorType() == DataConstants.KeywordMatchingType.PHRASE_INDEXBASED) {
-				KeywordPredicate keywordPredicate = new KeywordPredicate(
-						currentDictionaryEntry, predicate.getDataStore(),
-						predicate.getAttributeList(), predicate.getAnalyzer(),
-						KeywordMatchingType.PHRASE_INDEXBASED);
-				sourceOperator = new KeywordMatcher(keywordPredicate);
-				sourceOperator.open();
-			} else if (predicate.getSourceOperatorType() == DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED) {
-				KeywordPredicate keywordPredicate = new KeywordPredicate(
-						currentDictionaryEntry, predicate.getDataStore(),
-						predicate.getAttributeList(), predicate.getAnalyzer(),
-						KeywordMatchingType.CONJUNCTION_INDEXBASED);
-				sourceOperator = new KeywordMatcher(keywordPredicate);
-				sourceOperator.open();
-			} else {
-                sourceOperator = predicate.getScanSourceOperator();
-                sourceOperator.open();
+            if (predicate.getSourceOperatorType() == DataConstants.KeywordMatchingType.SUBSTRING_SCANBASED) {
+                inputOperator = predicate.getScanSourceOperator();
+                inputOperator.open();
+            } else {
+                KeywordPredicate keywordPredicate = null;
+                if (predicate.getSourceOperatorType() == DataConstants.KeywordMatchingType.PHRASE_INDEXBASED) {
+                    keywordPredicate = new KeywordPredicate(
+                            currentDictionaryEntry,
+                            predicate.getAttributeList(), predicate.getAnalyzer(),
+                            KeywordMatchingType.PHRASE_INDEXBASED);
+                    
+
+                } else if (predicate.getSourceOperatorType() == DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED) {
+                    keywordPredicate = new KeywordPredicate(
+                            currentDictionaryEntry,
+                            predicate.getAttributeList(), predicate.getAnalyzer(),
+                            KeywordMatchingType.CONJUNCTION_INDEXBASED);
+                }
+                
+                IndexBasedSourceOperator indexInputOperator = new IndexBasedSourceOperator(keywordPredicate.generateDataReaderPredicate(predicate.getDataStore()));
+                KeywordMatcher keywordMatcher = new KeywordMatcher(keywordPredicate);
+                keywordMatcher.setInputOperator(indexInputOperator);
+                inputOperator = keywordMatcher;
+                
+                inputOperator.open();
             }
+            
+
             
         } catch (Exception e) {
             throw new DataFlowException(e.getMessage(), e);
@@ -129,7 +143,7 @@ public class DictionaryMatcher implements IOperator {
     		
     		while (true) {
     			// If there's result from current keywordMatcher, return it.
-    			if ((currentTuple = sourceOperator.getNextTuple()) != null) {
+    			if ((currentTuple = inputOperator.getNextTuple()) != null) {
     				resultCursor++;
     				if (resultCursor >= offset){
     					return currentTuple;
@@ -151,19 +165,24 @@ public class DictionaryMatcher implements IOperator {
     				keywordMatchingType = KeywordMatchingType.CONJUNCTION_INDEXBASED;
     			}
     			
+                inputOperator.close();
+    			
 				KeywordPredicate keywordPredicate = new KeywordPredicate(
-						currentDictionaryEntry, predicate.getDataStore(),
+						currentDictionaryEntry,
 						predicate.getAttributeList(), predicate.getAnalyzer(),
 						keywordMatchingType);
     			
-    			sourceOperator.close();
-    			sourceOperator = new KeywordMatcher(keywordPredicate);
-    			sourceOperator.open();
+                IndexBasedSourceOperator indexInputOperator = new IndexBasedSourceOperator(keywordPredicate.generateDataReaderPredicate(predicate.getDataStore()));
+    	        KeywordMatcher keywordMatcher = new KeywordMatcher(keywordPredicate);
+    	        keywordMatcher.setInputOperator(indexInputOperator);
+                inputOperator = keywordMatcher;
+                
+    			inputOperator.open();
     		}
         }
     	else {
     		if (currentTuple == null) {
-    			if ((currentTuple = sourceOperator.getNextTuple()) == null) {
+    			if ((currentTuple = inputOperator.getNextTuple()) == null) {
     				return null;
     			}
     		}
@@ -211,7 +230,7 @@ public class DictionaryMatcher implements IOperator {
     	}
     	predicate.resetDictCursor();
     	currentDictionaryEntry = predicate.getNextDictionaryEntry();
-    	currentTuple = sourceOperator.getNextTuple();
+    	currentTuple = inputOperator.getNextTuple();
     }
     
     /*
@@ -262,10 +281,21 @@ public class DictionaryMatcher implements IOperator {
     @Override
     public void close() throws DataFlowException {
         try {
-            sourceOperator.close();
+        	if (inputOperator != null) {
+                inputOperator.close();
+        	}
         } catch (Exception e) {
             e.printStackTrace();
             throw new DataFlowException(e.getMessage(), e);
         }
     }
+    
+    
+    public IOperator getInputOperator() {
+		return inputOperator;
+	}
+
+	public void setInputOperator(IOperator inputOperator) {
+		this.inputOperator = inputOperator;
+	}
 }

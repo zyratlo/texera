@@ -17,6 +17,7 @@ import edu.uci.ics.textdb.common.field.ListField;
 import edu.uci.ics.textdb.common.field.Span;
 import edu.uci.ics.textdb.dataflow.common.RegexPredicate;
 import edu.uci.ics.textdb.dataflow.regexmatch.RegexMatcher;
+import edu.uci.ics.textdb.dataflow.source.IndexBasedSourceOperator;
 import edu.uci.ics.textdb.perftest.medline.MedlineIndexWriter;
 import edu.uci.ics.textdb.perftest.utils.PerfTestUtils;
 import edu.uci.ics.textdb.storage.DataStore;
@@ -114,9 +115,11 @@ public class RegexMatcherPerformanceTest {
 		// analyzer should generate grams all in lower case to build a lower
 		// case index.
 		Analyzer luceneAnalyzer = DataConstants.getTrigramAnalyzer();
-		RegexPredicate regexPredicate = new RegexPredicate(regex, dataStore, Arrays.asList(attributeList), luceneAnalyzer);
+		RegexPredicate regexPredicate = new RegexPredicate(regex, Arrays.asList(attributeList), luceneAnalyzer);
+		IndexBasedSourceOperator indexInputOperator = new IndexBasedSourceOperator(regexPredicate.generateDataReaderPredicate(dataStore));
 
-		RegexMatcher regexMatcher = new RegexMatcher(regexPredicate, true);
+		RegexMatcher regexMatcher = new RegexMatcher(regexPredicate);
+		regexMatcher.setInputOperator(indexInputOperator);
 
 		long startMatchTime = System.currentTimeMillis();
 		regexMatcher.open();

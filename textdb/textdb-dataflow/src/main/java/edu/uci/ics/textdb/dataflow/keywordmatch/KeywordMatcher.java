@@ -14,10 +14,13 @@ import edu.uci.ics.textdb.api.common.IPredicate;
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.dataflow.IOperator;
 import edu.uci.ics.textdb.api.dataflow.ISourceOperator;
+import edu.uci.ics.textdb.api.storage.IDataStore;
 import edu.uci.ics.textdb.common.constants.DataConstants;
 import edu.uci.ics.textdb.common.constants.SchemaConstants;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
+import edu.uci.ics.textdb.common.exception.ErrorMessages;
 import edu.uci.ics.textdb.common.field.Span;
+import edu.uci.ics.textdb.common.utils.Utils;
 import edu.uci.ics.textdb.dataflow.common.KeywordPredicate;
 import edu.uci.ics.textdb.dataflow.source.IndexBasedSourceOperator;
 import edu.uci.ics.textdb.storage.DataReaderPredicate;
@@ -30,7 +33,7 @@ import edu.uci.ics.textdb.storage.DataReaderPredicate;
  */
 public class KeywordMatcher implements IOperator {
     private final KeywordPredicate predicate;
-    private ISourceOperator sourceOperator;
+    private IOperator inputOperator;
     private String query;
     private int cursor;
     private int limit;
@@ -41,16 +44,17 @@ public class KeywordMatcher implements IOperator {
         this.limit = Integer.MAX_VALUE;
         this.offset = 0;
         this.predicate = (KeywordPredicate)predicate;
-        DataReaderPredicate dataReaderPredicate = this.predicate.getDataReaderPredicate();
-        dataReaderPredicate.setIsSpanInformationAdded(true);
-        this.sourceOperator = new IndexBasedSourceOperator(dataReaderPredicate);
+        this.query = this.predicate.getQuery();
     }
 
     
     @Override
     public void open() throws DataFlowException {
+    	if (this.inputOperator == null) {
+    		throw new DataFlowException(ErrorMessages.INPUT_OPERATOR_NOT_SPECIFIED);
+    	}
         try {
-            sourceOperator.open();
+            inputOperator.open();
             query = predicate.getQuery();
 
         } catch (Exception e) {
@@ -72,15 +76,16 @@ public class KeywordMatcher implements IOperator {
     @Override
     public ITuple getNextTuple() throws DataFlowException {
         try {
-        	if (cursor >= offset + limit - 1){
+        	if (cursor >= offset + limit - 1) {
         		return null;
         	}
         	ITuple result = null;
         	while (true) {
-        		ITuple sourceTuple = sourceOperator.getNextTuple();
+        		ITuple sourceTuple = inputOperator.getNextTuple();
         		if(sourceTuple == null) {
         			return null;
-                }
+        		}
+
 	            if (this.predicate.getOperatorType() == DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED) {
 	                result = processConjunction(sourceTuple);
 	            }
@@ -108,22 +113,22 @@ public class KeywordMatcher implements IOperator {
     }
     
     
-    public void setLimit(int limit){
+    public void setLimit(int limit) {
     	this.limit = limit;
     }
     
     
-    public int getLimit(){
+    public int getLimit() {
     	return this.limit;
     }
     
     
-    public void setOffset(int offset){
+    public void setOffset(int offset) {
     	this.offset = offset;
     }
     
     
-    public int getOffset(){
+    public int getOffset() {
     	return this.offset;
     }
     
@@ -313,11 +318,21 @@ public class KeywordMatcher implements IOperator {
     @Override
     public void close() throws DataFlowException {
         try {
-            sourceOperator.close();
+        	if (inputOperator != null) {
+                inputOperator.close();
+        	}
         } catch (Exception e) {
             e.printStackTrace();
             throw new DataFlowException(e.getMessage(), e);
         }
     }
+    
+    public IOperator getInputOperator() {
+		return inputOperator;
+	}
+
+	public void setInputOperator(ISourceOperator inputOperator) {
+		this.inputOperator = inputOperator;
+	}
 
 }
