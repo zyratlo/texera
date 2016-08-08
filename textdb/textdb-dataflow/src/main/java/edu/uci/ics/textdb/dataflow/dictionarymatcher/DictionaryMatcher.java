@@ -82,7 +82,10 @@ public class DictionaryMatcher implements IOperator {
                 }
                 
                 IndexBasedSourceOperator indexInputOperator = new IndexBasedSourceOperator(keywordPredicate.generateDataReaderPredicate(predicate.getDataStore()));
-                inputOperator = new KeywordMatcher(keywordPredicate, indexInputOperator);
+                KeywordMatcher keywordMatcher = new KeywordMatcher(keywordPredicate);
+                keywordMatcher.setInputOperator(indexInputOperator);
+                inputOperator = keywordMatcher;
+                
                 inputOperator.open();
             }
             
@@ -156,7 +159,10 @@ public class DictionaryMatcher implements IOperator {
 						keywordMatchingType);
     			
                 IndexBasedSourceOperator indexInputOperator = new IndexBasedSourceOperator(keywordPredicate.generateDataReaderPredicate(predicate.getDataStore()));
-    			inputOperator = new KeywordMatcher(keywordPredicate, indexInputOperator);
+    	        KeywordMatcher keywordMatcher = new KeywordMatcher(keywordPredicate);
+    	        keywordMatcher.setInputOperator(indexInputOperator);
+                inputOperator = keywordMatcher;
+                
     			inputOperator.open();
     		}
         }

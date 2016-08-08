@@ -77,7 +77,10 @@ public class KeywordMatcherTest {
 
         KeywordPredicate keywordPredicate = new KeywordPredicate(query, attributeList, analyzer, DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED);
         IndexBasedSourceOperator indexInputOperator = new IndexBasedSourceOperator(keywordPredicate.generateDataReaderPredicate(dataStore));
-        keywordMatcher = new KeywordMatcher(keywordPredicate, indexInputOperator);
+
+        keywordMatcher = new KeywordMatcher(keywordPredicate);
+        keywordMatcher.setInputOperator(indexInputOperator);
+        
         keywordMatcher.open();
 
         List<ITuple> results = new ArrayList<>();

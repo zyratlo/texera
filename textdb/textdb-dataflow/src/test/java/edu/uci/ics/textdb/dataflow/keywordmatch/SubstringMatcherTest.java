@@ -79,7 +79,8 @@ public class SubstringMatcherTest {
 
         KeywordPredicate keywordPredicate = new KeywordPredicate(query, attributeList, luceneAnalyzer, DataConstants.KeywordMatchingType.SUBSTRING_SCANBASED);
         IndexBasedSourceOperator indexInputOperator = new IndexBasedSourceOperator(keywordPredicate.generateDataReaderPredicate(dataStore));
-        keywordMatcher = new KeywordMatcher(keywordPredicate, indexInputOperator);
+        keywordMatcher = new KeywordMatcher(keywordPredicate);
+        keywordMatcher.setInputOperator(indexInputOperator);
         keywordMatcher.open();
 
         List<ITuple> results = new ArrayList<>();
