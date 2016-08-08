@@ -112,6 +112,7 @@
                       <argument>./textdb-perftest/index/trigram/</argument>
                       <argument>./textdb-perftest/data-files/queries/</argument>
                     </arguments>
+                    <!-- do not skip the execution here -->
                     <skip>false</skip>
                 </configuration>
             </plugin>

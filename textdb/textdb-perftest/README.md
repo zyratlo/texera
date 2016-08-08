@@ -5,7 +5,7 @@ Step 1-Prepare Data Set:
 
 By default, there is a small data set named "abstract_100.txt" in ./data-files/.
 If you want to get results from more data sets, please put the data files into ./data-files/,
-or specify another path to the data sets when run WriteIndex.java in the next step. 
+or specify another path to the data sets when running WriteIndex.java in the next step. 
 
 More data sets can be found at:
 https://github.com/TextDB/textdb/wiki/Data-Sets
@@ -15,7 +15,7 @@ In order to write index, run WriteIndex.java file in edu.uci.ics.textdb.perftest
 
 By default, indices are stored in ./index/standard/ and ./index/trigram/.
 If you want to store the indices to somewhere else, you can specify the 
-standard index path or trigram index path when run WriteIndex.
+standard index path or trigram index path when running WriteIndex.
 
 NOTE: Once index is created, it can be reused (no writing index needed in the future)!!!!
 		However, if you make changes to your data set(s), writing index is still needed.
@@ -28,7 +28,7 @@ The default regex queries are defined in RunPerftests.java.
 If you are satisfied with the default queries, then move onto Step 4.
 
 If you want to use your own queries, please put query files to ./data-files/queries/ or
-specify the query file's path when run RunPerftests in the next step.
+specify the query file's path when running RunPerftests in the next step.
 
 If you want to use your own regex queries, please change the regex queries listed in RunPerftests.java.
 
