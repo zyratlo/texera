@@ -14,7 +14,9 @@ import edu.uci.ics.textdb.api.common.IField;
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.common.Schema;
 import edu.uci.ics.textdb.api.dataflow.IOperator;
+import edu.uci.ics.textdb.api.dataflow.ISourceOperator;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
+import edu.uci.ics.textdb.common.exception.ErrorMessages;
 import edu.uci.ics.textdb.common.field.Span;
 import edu.uci.ics.textdb.common.utils.Utils;
 
@@ -39,8 +41,7 @@ import edu.uci.ics.textdb.common.utils.Utils;
 
 public class NlpExtractor implements IOperator {
 
-
-    private IOperator sourceOperator;
+    private IOperator inputOperator;
     private List<Attribute> searchInAttributes;
     private ITuple sourceTuple;
     private Schema returnSchema;
@@ -87,7 +88,7 @@ public class NlpExtractor implements IOperator {
     public NlpExtractor(IOperator operator, List<Attribute>
             searchInAttributes, NlpTokenType inputNlpTokenType)
             throws DataFlowException {
-        this.sourceOperator = operator;
+        this.inputOperator = operator;
         this.searchInAttributes = searchInAttributes;
         this.inputNlpTokenType = inputNlpTokenType;
         if (NlpTokenType.isPOSTokenType(inputNlpTokenType)) {
@@ -100,8 +101,11 @@ public class NlpExtractor implements IOperator {
 
     @Override
     public void open() throws Exception {
+    	if (this.inputOperator == null) {
+    		throw new DataFlowException(ErrorMessages.INPUT_OPERATOR_NOT_SPECIFIED);
+    	}
         try {
-            sourceOperator.open();
+            inputOperator.open();
             returnSchema = null;
         } catch (Exception e) {
             e.printStackTrace();
@@ -121,7 +125,7 @@ public class NlpExtractor implements IOperator {
      */
     @Override
     public ITuple getNextTuple() throws Exception {
-        sourceTuple = sourceOperator.getNextTuple();
+        sourceTuple = inputOperator.getNextTuple();
         if (sourceTuple == null) {
             return null;
         } else {
@@ -354,10 +358,20 @@ public class NlpExtractor implements IOperator {
             searchInAttributes = null;
             sourceTuple = null;
             returnSchema = null;
-            sourceOperator.close();
+        	if (inputOperator != null) {
+                inputOperator.close();
+        	}
         } catch (Exception e) {
             e.printStackTrace();
             throw new DataFlowException(e.getMessage(), e);
         }
     }
+    
+    public IOperator getInputOperator() {
+		return inputOperator;
+	}
+
+	public void setInputOperator(ISourceOperator inputOperator) {
+		this.inputOperator = inputOperator;
+	}
 }
