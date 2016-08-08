@@ -63,8 +63,9 @@ public class RegexMatcherTestHelper {
 				regex, Arrays.asList(new Attribute[]{attribute}), 
 				luceneAnalyzer);
 		
-		IndexBasedSourceOperator indexSource = new IndexBasedSourceOperator(regexPredicate.generateDataReaderPredicate(dataStore));
-		regexMatcher = new RegexMatcher(regexPredicate, indexSource);
+		IndexBasedSourceOperator indexInputOperator = new IndexBasedSourceOperator(regexPredicate.generateDataReaderPredicate(dataStore));
+		regexMatcher = new RegexMatcher(regexPredicate);
+		regexMatcher.setInputOperator(indexInputOperator);
 		regexMatcher.open();
 		ITuple nextTuple = null;
 		while ((nextTuple = regexMatcher.getNextTuple()) != null) {

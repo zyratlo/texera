@@ -73,12 +73,6 @@ public class RegexMatcher implements IOperator {
 	    	}
 		}		
     }
-    
-    public RegexMatcher(IPredicate predicate, IOperator inputOperator) throws DataFlowException {
-        this(predicate);
-        this.inputOperator = inputOperator;
-    }
-    
 	
 	
     @Override

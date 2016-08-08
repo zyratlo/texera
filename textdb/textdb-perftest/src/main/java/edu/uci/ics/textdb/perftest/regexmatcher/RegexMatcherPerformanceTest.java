@@ -116,9 +116,10 @@ public class RegexMatcherPerformanceTest {
 		// case index.
 		Analyzer luceneAnalyzer = DataConstants.getTrigramAnalyzer();
 		RegexPredicate regexPredicate = new RegexPredicate(regex, Arrays.asList(attributeList), luceneAnalyzer);
-		IndexBasedSourceOperator indexSource = new IndexBasedSourceOperator(regexPredicate.generateDataReaderPredicate(dataStore));
+		IndexBasedSourceOperator indexInputOperator = new IndexBasedSourceOperator(regexPredicate.generateDataReaderPredicate(dataStore));
 
-		RegexMatcher regexMatcher = new RegexMatcher(regexPredicate, indexSource);
+		RegexMatcher regexMatcher = new RegexMatcher(regexPredicate);
+		regexMatcher.setInputOperator(indexInputOperator);
 
 		long startMatchTime = System.currentTimeMillis();
 		regexMatcher.open();
