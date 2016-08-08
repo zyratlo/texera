@@ -58,6 +58,15 @@ public class RegexMatcherTestHelper {
 	}
 
 	public void runTest(String regex, Attribute attribute, boolean useTranslator) throws Exception {
+		runTest(regex, attribute, useTranslator, Integer.MAX_VALUE, 0);
+	}
+	
+	public void runTest(String regex, Attribute attribute, boolean useTranslator, int limit) throws Exception{
+		runTest(regex, attribute, useTranslator, limit, 0);
+	}
+	
+	
+	public void runTest(String regex, Attribute attribute, boolean useTranslator, int limit, int offset) throws Exception {
 		results.clear();
 		RegexPredicate regexPredicate = new RegexPredicate(
 				regex, Arrays.asList(new Attribute[]{attribute}), 
@@ -67,12 +76,16 @@ public class RegexMatcherTestHelper {
 		regexMatcher = new RegexMatcher(regexPredicate);
 		regexMatcher.setInputOperator(indexInputOperator);
 		regexMatcher.open();
+		regexMatcher.setOffset(offset);
+		regexMatcher.setLimit(limit);
 		ITuple nextTuple = null;
 		while ((nextTuple = regexMatcher.getNextTuple()) != null) {
 			results.add(nextTuple);
 		}
 		regexMatcher.close();
 	}
+	
+	
 	
 	public void cleanUp() throws Exception {
 		dataWriter.clearData();

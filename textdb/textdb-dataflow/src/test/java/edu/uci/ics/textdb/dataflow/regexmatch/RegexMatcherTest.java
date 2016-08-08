@@ -318,8 +318,7 @@ public class RegexMatcherTest {
 		String regex = "\\[(.)?\\]";
 		testHelper.runTest(regex, RegexTestConstantsText.CONTENT_ATTR, true);
 
-		List<ITuple> exactResults = testHelper.getResults();
-		
+		List<ITuple> exactResults = testHelper.getResults();		
 		List<ITuple> expectedResults = new ArrayList<ITuple>();
 		
 		//expected to match [a] & [!]
@@ -335,6 +334,34 @@ public class RegexMatcherTest {
 		Assert.assertTrue(TestUtils.containsAllResults(expectedResults, exactResults));
 		
 		testHelper.cleanUp();
+	}
+	
+	@Test
+	public void testRegexWithLimit() throws Exception {
+		List<ITuple> data = RegexTestConstantsText.getSampleTextTuples();
+		RegexMatcherTestHelper testHelper = new RegexMatcherTestHelper(RegexTestConstantsText.SCHEMA_TEXT, data);
+		
+		String regex = "(T|t)he";
+		testHelper.runTest(regex, RegexTestConstantsText.CONTENT_ATTR, true, 3);
+
+		List<ITuple> exactResults = testHelper.getResults();
+		System.out.println(exactResults);
+		
+		Assert.assertEquals(exactResults.size(), 3);
+	}
+	
+	@Test
+	public void testRegexWithLimitOffset() throws Exception {
+		List<ITuple> data = RegexTestConstantsText.getSampleTextTuples();
+		RegexMatcherTestHelper testHelper = new RegexMatcherTestHelper(RegexTestConstantsText.SCHEMA_TEXT, data);
+		
+		String regex = "(T|t)he";
+		testHelper.runTest(regex, RegexTestConstantsText.CONTENT_ATTR, true, 3, 1);
+
+		List<ITuple> exactResults = testHelper.getResults();
+		System.out.println(exactResults);
+		
+		Assert.assertEquals(exactResults.size(), 3);
 	}
 	
 }
