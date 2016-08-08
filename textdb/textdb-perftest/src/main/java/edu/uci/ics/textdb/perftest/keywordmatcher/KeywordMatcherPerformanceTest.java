@@ -25,8 +25,10 @@ import edu.uci.ics.textdb.common.field.ListField;
 import edu.uci.ics.textdb.common.field.Span;
 import edu.uci.ics.textdb.dataflow.common.KeywordPredicate;
 import edu.uci.ics.textdb.dataflow.keywordmatch.KeywordMatcher;
+import edu.uci.ics.textdb.dataflow.source.IndexBasedSourceOperator;
 import edu.uci.ics.textdb.perftest.medline.MedlineIndexWriter;
 import edu.uci.ics.textdb.perftest.utils.PerfTestUtils;
+import edu.uci.ics.textdb.storage.DataReaderPredicate;
 import edu.uci.ics.textdb.storage.DataStore;
 
 /**
@@ -154,8 +156,10 @@ public class KeywordMatcherPerformanceTest {
 		Attribute[] attributeList = new Attribute[] { MedlineIndexWriter.ABSTRACT_ATTR };
 
 		for (String query : queryList) {
-			IPredicate predicate = new KeywordPredicate(query, dataStore, Arrays.asList(attributeList), luceneAnalyzer, opType);
-			KeywordMatcher keywordMatcher = new KeywordMatcher(predicate);
+	        KeywordPredicate keywordPredicate = new KeywordPredicate(query, Arrays.asList(attributeList), luceneAnalyzer, opType);
+            IndexBasedSourceOperator indexInputOperator = new IndexBasedSourceOperator(keywordPredicate.generateDataReaderPredicate(dataStore));
+	        KeywordMatcher keywordMatcher = new KeywordMatcher(keywordPredicate);
+	        keywordMatcher.setInputOperator(indexInputOperator);
 
 			long startMatchTime = System.currentTimeMillis();
 			keywordMatcher.open();
