@@ -16,6 +16,7 @@
         <textdb.version>1.0-SNAPSHOT</textdb.version>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.exec.skip>false</maven.exec.skip>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -38,10 +39,6 @@
                   <groupId>org.codehaus.mojo</groupId>
                   <artifactId>exec-maven-plugin</artifactId>
                   <version>1.5.0</version>
-                  <configuration>
-                      <!--skip the execution here-->
-                      <skip>true</skip>
-                  </configuration>
               </plugin>
           </plugins>
       </pluginManagement>
