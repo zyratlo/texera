@@ -35,7 +35,7 @@ public class DictionaryMatcher implements IOperator {
 
 	private Schema spanSchema;
     
-    private ITuple currentTuple;
+    private ITuple sourceTuple;
     private String currentDictionaryEntry;
 
     private final DictionaryPredicate predicate;
@@ -143,10 +143,10 @@ public class DictionaryMatcher implements IOperator {
     		
     		while (true) {
     			// If there's result from current keywordMatcher, return it.
-    			if ((currentTuple = inputOperator.getNextTuple()) != null) {
+    			if ((sourceTuple = inputOperator.getNextTuple()) != null) {
     				resultCursor++;
     				if (resultCursor >= offset){
-    					return currentTuple;
+    					return sourceTuple;
     				}
     				continue;
     			}
@@ -181,25 +181,23 @@ public class DictionaryMatcher implements IOperator {
     		}
         }
     	else {
-    		if (currentTuple == null) {
-    			if ((currentTuple = inputOperator.getNextTuple()) == null) {
+    		if (sourceTuple == null) {
+    			if ((sourceTuple = inputOperator.getNextTuple()) == null) {
     				return null;
     			}
     		}
-    		ITuple result = null;
-	    	while (currentTuple != null) {
-	    		result = computeNextTuple(currentDictionaryEntry, currentTuple);
-	    		if (result != null) {
-	    			advanceDictionaryCursor();
+    		ITuple resultTuple = null;
+	    	while (sourceTuple != null) {
+	    		resultTuple = computeNextTuple(currentDictionaryEntry, sourceTuple);
+	    		if (resultTuple != null) {
 	    			resultCursor++;
-	    			if (resultCursor >= offset){
-	    				break;
-	    			}
 	    		}
-	    		advanceDictionaryCursor();
+	    		if (resultTuple != null && resultCursor >= offset){
+	    			break;
+	    		}
 	    	}
 
-    		return result;
+    		return resultTuple;
     	}
     }
     
@@ -230,7 +228,7 @@ public class DictionaryMatcher implements IOperator {
     	}
     	predicate.resetDictCursor();
     	currentDictionaryEntry = predicate.getNextDictionaryEntry();
-    	currentTuple = inputOperator.getNextTuple();
+    	sourceTuple = inputOperator.getNextTuple();
     }
     
     /*
@@ -238,7 +236,7 @@ public class DictionaryMatcher implements IOperator {
      * if there's no match, returns the original dataTuple object,
      * if there's a match, return a new dataTuple with span list added
      */
-    private ITuple computeNextTuple(String key, ITuple dataTuple) {
+    private ITuple computeNextTuple(String key, ITuple dataTuple) throws Exception {
     	
     	List<Attribute> attributeList = predicate.getAttributeList();
     	List<Span> spanList = new ArrayList<>();
@@ -267,6 +265,7 @@ public class DictionaryMatcher implements IOperator {
     		}
     	}
     	
+    	advanceDictionaryCursor();
     	if (spanList.size() == 0) {
     		return null;
     	} else {

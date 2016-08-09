@@ -62,24 +62,21 @@ public class FuzzyTokenMatcher implements IOperator{
     @Override
     public ITuple getNextTuple() throws DataFlowException {
 		try {
-			if (cursor >= limit + offset - 1){
+			if (limit == 0 || cursor >= limit + offset - 1){
 				return null;
 			}
-			ITuple result = null;
-			while (true) {
-			    ITuple sourceTuple = inputOperator.getNextTuple();
-			    if (sourceTuple == null) {
-			    	return null;
-			    }
-		    	result = computeNextTuple(sourceTuple);
-		    	if (result != null) {
+			ITuple sourceTuple;
+			ITuple resultTuple = null;
+			while ((sourceTuple = inputOperator.getNextTuple()) != null) {
+		    	resultTuple = computeNextTuple(sourceTuple);
+		    	if (resultTuple != null) {
 		    		cursor++;
 		    	}
 		    	if (cursor >= offset) {
 		    		break;
 		    	}
 			}
-		    return result;
+		    return resultTuple;
 		} catch (Exception e) {
 		    e.printStackTrace();
 		    throw new DataFlowException(e.getMessage(), e);

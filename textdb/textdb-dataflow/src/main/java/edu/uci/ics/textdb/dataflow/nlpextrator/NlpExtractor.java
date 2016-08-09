@@ -131,27 +131,14 @@ public class NlpExtractor implements IOperator {
      */
     @Override
     public ITuple getNextTuple() throws Exception {
-    	if (cursor >= limit + offset - 1){
+    	if (limit == 0 || cursor >= limit + offset - 1){
     		return null;
     	}
+    	ITuple sourceTuple;
     	ITuple returnTuple = null;
-    	while (true){
-	        sourceTuple = inputOperator.getNextTuple();
-	        if (sourceTuple == null) {
-	            return null;
-	        } else {
-	            if (returnSchema == null) {
-	                returnSchema = Utils.createSpanSchema(sourceTuple.getSchema());
-	            }
-	            List<Span> spanList = new ArrayList<>();
-	            for (Attribute attribute : searchInAttributes) {
-	                String fieldName = attribute.getFieldName();
-	                IField field = sourceTuple.getField(fieldName);
-	                spanList.addAll(extractNlpSpans(field, fieldName));
-	            }
-	            returnTuple = Utils.getSpanTuple(sourceTuple.getFields(),
-	                    spanList, returnSchema);
-	        }
+    	while ((sourceTuple = inputOperator.getNextTuple()) != null){
+	        returnTuple = computeNextTuple(sourceTuple);
+	        
 	        if (returnTuple != null){
 	        	cursor++;
 	        }
@@ -162,19 +149,33 @@ public class NlpExtractor implements IOperator {
     	return returnTuple;
     }
     
-    public void setLimit(int limit){
+    private ITuple computeNextTuple(ITuple sourceTuple) {
+    	if (returnSchema == null){
+    		returnSchema = Utils.createSpanSchema(sourceTuple.getSchema());
+    	}
+        List<Span> spanList = new ArrayList<>();
+        for (Attribute attribute : searchInAttributes) {
+            String fieldName = attribute.getFieldName();
+            IField field = sourceTuple.getField(fieldName);
+            spanList.addAll(extractNlpSpans(field, fieldName));
+        }
+        return Utils.getSpanTuple(sourceTuple.getFields(),
+                spanList, returnSchema);
+    }
+    
+    public void setLimit(int limit) {
     	this.limit = limit;
     }
     
-    public int getLimit(){
+    public int getLimit() {
     	return this.limit;
     }
     
-    public void setOffset(int offset){
+    public void setOffset(int offset) {
     	this.offset = offset;
     }
     
-    public int getOffset(){
+    public int getOffset() {
     	return this.offset;
     }
     

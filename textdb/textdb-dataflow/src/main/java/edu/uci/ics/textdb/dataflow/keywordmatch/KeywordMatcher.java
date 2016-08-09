@@ -76,34 +76,29 @@ public class KeywordMatcher implements IOperator {
     @Override
     public ITuple getNextTuple() throws DataFlowException {
         try {
-        	if (cursor >= offset + limit - 1) {
+        	if (limit == 0 || cursor >= offset + limit - 1) {
         		return null;
         	}
-        	ITuple result = null;
-        	while (true) {
-        		ITuple sourceTuple = inputOperator.getNextTuple();
-        		if(sourceTuple == null) {
-        			return null;
-        		}
-
+        	ITuple sourceTuple;
+        	ITuple resultTuple = null;
+        	while ((sourceTuple = inputOperator.getNextTuple()) != null) {
 	            if (this.predicate.getOperatorType() == DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED) {
-	                result = processConjunction(sourceTuple);
+	            	resultTuple = computeNextConjunction(sourceTuple);
 	            }
 	            if (this.predicate.getOperatorType() == DataConstants.KeywordMatchingType.PHRASE_INDEXBASED) {
-	                result = processPhrase(sourceTuple);
+	            	resultTuple = computeNextPhrase(sourceTuple);
 	            }
 	            if (this.predicate.getOperatorType() == DataConstants.KeywordMatchingType.SUBSTRING_SCANBASED) {
-	                result = processSubstring(sourceTuple);
-	            }
-	                
-            	if (result != null) {
+	            	resultTuple = computeNextSubstring(sourceTuple);
+	            }              
+            	if (resultTuple != null) {
             		cursor++;
             	}
             	if (cursor >= offset) {
             		break;
             	}
         	}
-            return result;
+            return resultTuple;
             
         } catch (Exception e) {
             e.printStackTrace();
@@ -133,7 +128,7 @@ public class KeywordMatcher implements IOperator {
     }
     
     
-    private ITuple processConjunction(ITuple currentTuple) throws DataFlowException {
+    private ITuple computeNextConjunction(ITuple currentTuple) throws DataFlowException {
     	List<Span> spanList = (List<Span>) currentTuple.getField(SchemaConstants.SPAN_LIST).getValue(); 
     	
     	for (Attribute attribute : this.predicate.getAttributeList()) {
@@ -174,7 +169,7 @@ public class KeywordMatcher implements IOperator {
     }
     
     
-    private ITuple processPhrase(ITuple currentTuple) throws DataFlowException {
+    private ITuple computeNextPhrase(ITuple currentTuple) throws DataFlowException {
     	List<Span> spanList = (List<Span>) currentTuple.getField(SchemaConstants.SPAN_LIST).getValue(); 
     	
     	for (Attribute attribute : this.predicate.getAttributeList()) {
@@ -262,7 +257,7 @@ public class KeywordMatcher implements IOperator {
     }
     
     
-    private ITuple processSubstring(ITuple currentTuple) throws DataFlowException {
+    private ITuple computeNextSubstring(ITuple currentTuple) throws DataFlowException {
     	List<Span> spanList = (List<Span>) currentTuple.getField(SchemaConstants.SPAN_LIST).getValue(); 
     	
 		// remove all spans retuned by DataReader

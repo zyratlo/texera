@@ -345,7 +345,6 @@ public class RegexMatcherTest {
 		testHelper.runTest(regex, RegexTestConstantsText.CONTENT_ATTR, true, 3);
 
 		List<ITuple> exactResults = testHelper.getResults();
-		System.out.println(exactResults);
 		
 		Assert.assertEquals(exactResults.size(), 3);
 	}
@@ -359,7 +358,6 @@ public class RegexMatcherTest {
 		testHelper.runTest(regex, RegexTestConstantsText.CONTENT_ATTR, true, 3, 1);
 
 		List<ITuple> exactResults = testHelper.getResults();
-		System.out.println(exactResults);
 		
 		Assert.assertEquals(exactResults.size(), 3);
 	}

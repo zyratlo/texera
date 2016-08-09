@@ -56,13 +56,6 @@ public class RegexMatcher implements IOperator {
 	
 	
     public RegexMatcher(IPredicate predicate) throws DataFlowException{
-    	this (predicate, true);
-    	this.cursor = -1;
-    	this.offset = 0;
-    	this.limit = Integer.MAX_VALUE;
-    }
-
-    public RegexMatcher(IPredicate predicate, boolean useTranslator) throws DataFlowException{
     	this.cursor = -1;
     	this.offset = 0;
     	this.limit = Integer.MAX_VALUE;
@@ -90,26 +83,22 @@ public class RegexMatcher implements IOperator {
     @Override
     public ITuple getNextTuple() throws DataFlowException {
 		try {
-			if (cursor >= offset + limit - 1 || limit == 0){
+			if (limit == 0 || cursor >= offset + limit - 1){
 				return null;
 			}
-			ITuple result = null;
-			while (true){
-	            ITuple sourceTuple = inputOperator.getNextTuple();
-	            if(sourceTuple == null){
-	                return null;
-	            }  
+			ITuple sourceTuple;
+			ITuple resultTuple = null;
+			while ((sourceTuple = inputOperator.getNextTuple()) != null) {     
+	            resultTuple = computeNextTuple(sourceTuple);
 	            
-	            result = computeMatches(sourceTuple);
-	            
-	            if (result != null) {
+	            if (resultTuple != null) {
 		            cursor++;
 	            }
 	            if (cursor >= offset){
 	            	break;
 	            }
 			}
-			return result;
+			return resultTuple;
         } catch (Exception e) {
             e.printStackTrace();
             throw new DataFlowException(e.getMessage(), e);
@@ -153,7 +142,7 @@ public class RegexMatcher implements IOperator {
 	 * @return a list of spans describing the occurrence of a matching sequence
 	 *         in the document
 	 */
-	public ITuple computeMatches(ITuple tuple) {
+	public ITuple computeNextTuple(ITuple tuple) {
 		List<Span> spanList = new ArrayList<>();
 		if (tuple == null) {
 			return null;
