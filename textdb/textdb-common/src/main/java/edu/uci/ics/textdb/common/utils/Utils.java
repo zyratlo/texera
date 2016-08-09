@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
@@ -271,6 +272,29 @@ public class Utils {
     	sb.append("token offset: "+span.getTokenOffset()+"\n");
     	
     	return sb.toString();
+    }
+
+    public static List<ITuple> removePayload(List<ITuple> tupleList) {
+        List<ITuple> tupleListWithoutPayload = 
+                tupleList.stream().map(tuple -> removePayload(tuple))
+                .collect(Collectors.toList());
+        return tupleListWithoutPayload;
+    }
+    
+    public static ITuple removePayload(ITuple tuple) {
+        Integer payloadIndex = tuple.getSchema().getIndex(SchemaConstants.PAYLOAD);
+        if (payloadIndex == null) {
+            return tuple;
+        } else {
+            Attribute[] attrWithoutPayload = tuple.getSchema().getAttributes().stream()
+                    .filter(x -> (! x.getFieldName().equals(SchemaConstants.PAYLOAD)))
+                    .toArray(Attribute[]::new);
+            Schema schemaWithoutPayload = new Schema(attrWithoutPayload);
+            List<IField> fieldsWithoutPayload = new ArrayList<IField>(tuple.getFields());
+            fieldsWithoutPayload.remove(payloadIndex.intValue());
+            ITuple tupleWithoutPayload = new DataTuple(schemaWithoutPayload, fieldsWithoutPayload.stream().toArray(IField[]::new));
+            return tupleWithoutPayload;
+        }
     }
     
 }

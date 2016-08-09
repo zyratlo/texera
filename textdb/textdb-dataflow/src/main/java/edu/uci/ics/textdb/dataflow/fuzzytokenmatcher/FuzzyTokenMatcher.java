@@ -21,6 +21,7 @@ import edu.uci.ics.textdb.common.exception.DataFlowException;
 import edu.uci.ics.textdb.common.exception.ErrorMessages;
 import edu.uci.ics.textdb.common.field.Span;
 import edu.uci.ics.textdb.common.field.TextField;
+import edu.uci.ics.textdb.common.utils.Utils;
 import edu.uci.ics.textdb.dataflow.common.FuzzyTokenPredicate;
 import edu.uci.ics.textdb.dataflow.source.IndexBasedSourceOperator;
 import edu.uci.ics.textdb.storage.DataReaderPredicate;
@@ -29,6 +30,7 @@ public class FuzzyTokenMatcher implements IOperator{
     private final FuzzyTokenPredicate predicate;
     private IOperator inputOperator;
     
+    private Schema inputSchema;
     private Schema outputSchema;
 
 	private List<Attribute> attributeList;
@@ -51,7 +53,13 @@ public class FuzzyTokenMatcher implements IOperator{
             attributeList = predicate.getAttributeList();
             threshold = predicate.getThreshold();
             queryTokens = predicate.getQueryTokens();
-            outputSchema = inputOperator.getOutputSchema();
+            inputSchema = inputOperator.getOutputSchema();
+            
+            if (predicate.getIsSpanInformationAdded() && !inputSchema.containsField(SchemaConstants.SPAN_LIST)) {
+                outputSchema = Utils.createSpanSchema(inputSchema);
+            } else {
+                outputSchema = inputSchema;
+            }
     	} catch (Exception e) {
             e.printStackTrace();
             throw new DataFlowException(e.getMessage(), e);
@@ -72,6 +80,10 @@ public class FuzzyTokenMatcher implements IOperator{
 		            return sourceTuple;
 		        }
 		        
+                if (! inputSchema.containsField(SchemaConstants.SPAN_LIST)) {
+                    sourceTuple = Utils.getSpanTuple(sourceTuple.getFields(), new ArrayList<Span>(), outputSchema);
+                }
+		        
 		        result = processTuple(sourceTuple);
 		        
 		    }
@@ -84,7 +96,7 @@ public class FuzzyTokenMatcher implements IOperator{
     }
     
     private ITuple processTuple(ITuple currentTuple) {
-        List<Span> payload = (List<Span>) currentTuple.getField(SchemaConstants.SPAN_LIST).getValue(); 
+        List<Span> payload = (List<Span>) currentTuple.getField(SchemaConstants.PAYLOAD).getValue(); 
         List<Span> relevantSpans = filterRelevantSpans(payload);
         List<Span> matchResults = new ArrayList<>();
         
@@ -117,9 +129,6 @@ public class FuzzyTokenMatcher implements IOperator{
         if (matchResults.isEmpty()) {
             return null;
         }
-        
-        // temporarily delete all spans in payload to pass all test cases
-        payload.clear();  // TODO: delete this line after DataReader's changes
         
         List<Span> spanList = (List<Span>) currentTuple.getField(SchemaConstants.SPAN_LIST).getValue();
         spanList.addAll(matchResults);
