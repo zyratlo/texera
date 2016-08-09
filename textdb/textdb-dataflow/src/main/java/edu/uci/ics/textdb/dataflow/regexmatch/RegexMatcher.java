@@ -210,6 +210,7 @@ public class RegexMatcher implements IOperator {
         
         try {
             inputOperator.open();
+            this.spanSchema = Utils.createSpanSchema(this.inputOperator.getOutputSchema());
         } catch (Exception e) {
             e.printStackTrace();
             throw new DataFlowException(e.getMessage(), e);
