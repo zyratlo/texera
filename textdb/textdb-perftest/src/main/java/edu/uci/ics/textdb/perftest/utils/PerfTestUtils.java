@@ -56,7 +56,7 @@ public class PerfTestUtils {
 		
 	}
 	
-	public static void setTrigramIndexFolder(String indexFolder){
+	public static void setTrigramIndexFolder(String indexFolder) {
 		if(!indexFolder.trim().isEmpty()){
 			trigramIndexFolder = indexFolder;
 		}

@@ -21,8 +21,8 @@ import edu.uci.ics.textdb.perftest.fuzzytokenmatcher.*;
 public class RunPerftests {
 
 	/**
-	 * Run all performance tests. 
-	 * 
+	 *  Run all performance tests. 
+	 *  file folder path (where data set stored)
 	 *  Passed in below arguments:
 	 * 	result folder path (where performance test results stored)
 	 * 	standard index folder path (where standard index stored)
