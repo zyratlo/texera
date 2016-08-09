@@ -88,7 +88,7 @@
 
     </dependencies>
 
-    <!-- plugin for trigerring performance test-->
+    <!-- plugin for triggering performance test-->
     <build>
         <pluginManagement>
         <plugins>
@@ -105,8 +105,9 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <mainClass>edu.uci.ics.textdb.perftest.runme.RunPerftests</mainClass>
+                    <mainClass>edu.uci.ics.textdb.perftest.runme.RunTests</mainClass>
                     <arguments>
+                      <argument>./textdb-perftest/data-files/</argument>
                       <argument>./textdb-perftest/data-files/results/</argument>
                       <argument>./textdb-perftest/index/standard/</argument>
                       <argument>./textdb-perftest/index/trigram/</argument>

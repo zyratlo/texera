@@ -30,7 +30,7 @@
         </dependencies>
     </dependencyManagement>
 
-    <!-- plugin for trigerring performance test-->
+    <!-- plugin for triggering performance test-->
     <build>
       <pluginManagement>
           <plugins>
@@ -47,7 +47,7 @@
                       </execution>
                   </executions>
                   <configuration>
-                      <mainClass>edu.uci.ics.textdb.perftest.runme.RunPerftests</mainClass>
+                      <mainClass>edu.uci.ics.textdb.perftest.runme.RunTests</mainClass>
                       <!--skip the execution here-->
                       <skip>true</skip>
                   </configuration>
