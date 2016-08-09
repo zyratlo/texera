@@ -297,4 +297,10 @@ public class DictionaryMatcher implements IOperator {
 	public void setInputOperator(IOperator inputOperator) {
 		this.inputOperator = inputOperator;
 	}
+
+
+    @Override
+    public Schema getOutputSchema() {
+        return spanSchema;
+    }
 }

@@ -204,5 +204,14 @@ public class DataReader implements IDataReader{
             }
         }
     }
+
+    @Override
+    public Schema getOutputSchema() {
+        if (dataReaderPredicate.getIsSpanInformationAdded()) {
+            return spanSchema;
+        } else {
+            return schema;
+        }
+    }
     
 }

@@ -272,4 +272,10 @@ public class RegexMatcher implements IOperator {
 	public void setInputOperator(ISourceOperator inputOperator) {
 		this.inputOperator = inputOperator;
 	}
+
+
+    @Override
+    public Schema getOutputSchema() {
+        return spanSchema;
+    }
 }
