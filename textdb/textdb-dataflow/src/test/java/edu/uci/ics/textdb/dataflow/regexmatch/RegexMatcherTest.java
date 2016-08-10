@@ -345,7 +345,67 @@ public class RegexMatcherTest {
 		testHelper.runTest(regex, RegexTestConstantsText.CONTENT_ATTR, true, 3);
 
 		List<ITuple> exactResults = testHelper.getResults();
+		List<ITuple> expectedResults = new ArrayList<ITuple>();
 		
+		Schema spanSchema = testHelper.getSpanSchema();
+		List<Span> spans = new ArrayList<Span>();
+		spans.add(new Span(RegexTestConstantsText.CONTENT, 61, 64, regex, "the"));
+		IField spanField = new ListField<Span>(new ArrayList<Span>(spans));
+		List<IField> fields = new ArrayList<IField>(data.get(0).getFields());
+		fields.add(spanField);
+		expectedResults.add(new DataTuple(spanSchema, fields.toArray(new IField[fields.size()])));
+	
+		spans.clear();
+		fields.clear();	
+		spans.add(new Span(RegexTestConstantsText.CONTENT, 0, 3, regex, "The"));
+		spanField = new ListField<Span>(new ArrayList<Span>(spans));
+		fields = new ArrayList<IField>(data.get(4).getFields());
+		fields.add(spanField);
+		expectedResults.add(new DataTuple(spanSchema, fields.toArray(new IField[fields.size()])));
+		
+		spans.clear();
+		fields.clear();	
+		spans.add(new Span(RegexTestConstantsText.CONTENT, 0, 3, regex, "The"));
+		spanField = new ListField<Span>(new ArrayList<Span>(spans));
+		fields = new ArrayList<IField>(data.get(5).getFields());
+		fields.add(spanField);
+		expectedResults.add(new DataTuple(spanSchema, fields.toArray(new IField[fields.size()])));
+		
+		spans.clear();
+		fields.clear();	
+		spans.add(new Span(RegexTestConstantsText.CONTENT, 0, 3, regex, "The"));
+		spanField = new ListField<Span>(new ArrayList<Span>(spans));
+		fields = new ArrayList<IField>(data.get(6).getFields());
+		fields.add(spanField);
+		expectedResults.add(new DataTuple(spanSchema, fields.toArray(new IField[fields.size()])));
+		
+		spans.clear();
+		fields.clear();
+		spans.add(new Span(RegexTestConstantsText.CONTENT, 10, 13, regex, "the"));
+		spanField = new ListField<Span>(new ArrayList<Span>(spans));
+		fields = new ArrayList<IField>(data.get(7).getFields());
+		fields.add(spanField);
+		expectedResults.add(new DataTuple(spanSchema, fields.toArray(new IField[fields.size()])));
+		
+		spans.clear();
+		fields.clear();
+		spans.add(new Span(RegexTestConstantsText.CONTENT, 75, 78, regex, "the"));
+		spans.add(new Span(RegexTestConstantsText.CONTENT, 110, 113, regex, "the"));
+		spans.add(new Span(RegexTestConstantsText.CONTENT, 132, 135, regex, "the"));
+		spanField = new ListField<Span>(new ArrayList<Span>(spans));
+		fields = new ArrayList<IField>(data.get(8).getFields());
+		fields.add(spanField);
+		expectedResults.add(new DataTuple(spanSchema, fields.toArray(new IField[fields.size()])));
+		
+		spans.clear();
+		fields.clear();
+		spans.add(new Span(RegexTestConstantsText.CONTENT, 70, 73, regex, "the"));
+		spanField = new ListField<Span>(new ArrayList<Span>(spans));
+		fields = new ArrayList<IField>(data.get(9).getFields());
+		fields.add(spanField);
+		expectedResults.add(new DataTuple(spanSchema, fields.toArray(new IField[fields.size()])));
+		
+		Assert.assertTrue(expectedResults.containsAll(exactResults));
 		Assert.assertEquals(exactResults.size(), 3);
 	}
 	

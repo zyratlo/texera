@@ -41,6 +41,13 @@ public class TestUtils {
         return contains;
     }
     
+//    public static boolean partOfAllResults(List<ITuple>) expectedResults, List<ITuple> exactRestults) {
+////    	if (expectedResults.size() < exactResults.size()){
+////    		return false;
+////    	}
+//    	if (expectedResults.containsAll)
+//    }
+    
     public static boolean containsAllResults(List<ITuple> expectedResults, List<ITuple> exactResults) {
         if(expectedResults.size() != exactResults.size())
         	return false;
