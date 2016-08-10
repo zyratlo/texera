@@ -188,7 +188,7 @@ public class DictionaryMatcher implements IOperator {
     		}
     		ITuple resultTuple = null;
 	    	while (sourceTuple != null) {
-	    		resultTuple = computeNextTuple(currentDictionaryEntry, sourceTuple);
+	    		resultTuple = computeMatchResult(currentDictionaryEntry, sourceTuple);
 	    		if (resultTuple != null) {
 	    			resultCursor++;
 	    		}
@@ -236,14 +236,14 @@ public class DictionaryMatcher implements IOperator {
      * if there's no match, returns the original dataTuple object,
      * if there's a match, return a new dataTuple with span list added
      */
-    private ITuple computeNextTuple(String key, ITuple dataTuple) throws Exception {
+    private ITuple computeMatchResult(String key, ITuple sourceTuple) throws Exception {
     	
     	List<Attribute> attributeList = predicate.getAttributeList();
     	List<Span> spanList = new ArrayList<>();
     	
     	for (Attribute attr : attributeList) {
     		String fieldName = attr.getFieldName();
-    		String fieldValue = dataTuple.getField(fieldName).getValue().toString();
+    		String fieldValue = sourceTuple.getField(fieldName).getValue().toString();
     		
     		// if attribute type is not TEXT, then key needs to match the fieldValue exactly
     		if (attr.getFieldType() != FieldType.TEXT) {
@@ -269,7 +269,7 @@ public class DictionaryMatcher implements IOperator {
     	if (spanList.size() == 0) {
     		return null;
     	} else {
-    		return Utils.getSpanTuple(dataTuple.getFields(), spanList, this.spanSchema);
+    		return Utils.getSpanTuple(sourceTuple.getFields(), spanList, this.spanSchema);
     	}
     }
 
