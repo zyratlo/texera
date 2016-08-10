@@ -41,7 +41,14 @@ public class KeywordMatcher implements IOperator {
     private Schema inputSchema;
     private Schema outputSchema;
     
+    private int cursor;
+    private int limit;
+    private int offset;
+
     public KeywordMatcher(IPredicate predicate) {
+        this.cursor = -1;
+        this.limit = Integer.MAX_VALUE;
+        this.offset = 0;
         this.predicate = (KeywordPredicate)predicate;
         this.query = this.predicate.getQuery();
     }
@@ -81,32 +88,34 @@ public class KeywordMatcher implements IOperator {
      */
     @Override
     public ITuple getNextTuple() throws DataFlowException {
-
         try {
-        	ITuple result = null;
-        	do {
-                ITuple sourceTuple = inputOperator.getNextTuple();
-                if(sourceTuple == null) {
-                    return null;
-                }
-                
+        	if (limit == 0 || cursor >= offset + limit - 1) {
+        		return null;
+        	}
+        	ITuple sourceTuple;
+        	ITuple resultTuple = null;
+        	while ((sourceTuple = inputOperator.getNextTuple()) != null) {
                 if (! inputSchema.containsField(SchemaConstants.SPAN_LIST)) {
                     sourceTuple = Utils.getSpanTuple(sourceTuple.getFields(), new ArrayList<Span>(), outputSchema);
                 }
-                
-                if (this.predicate.getOperatorType() == DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED) {
-                	result = processConjunction(sourceTuple);
-                }
-                if (this.predicate.getOperatorType() == DataConstants.KeywordMatchingType.PHRASE_INDEXBASED) {
-                	result = processPhrase(sourceTuple);
-                }
-                if (this.predicate.getOperatorType() == DataConstants.KeywordMatchingType.SUBSTRING_SCANBASED) {
-                	result = processSubstring(sourceTuple);
-                }
-                
-        	} while (result == null);
 
-            return result;
+	            if (this.predicate.getOperatorType() == DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED) {
+	            	resultTuple = computeConjunctionMatchResult(sourceTuple);
+	            }
+	            if (this.predicate.getOperatorType() == DataConstants.KeywordMatchingType.PHRASE_INDEXBASED) {
+	            	resultTuple = computePhraseMatchResult(sourceTuple);
+	            }
+	            if (this.predicate.getOperatorType() == DataConstants.KeywordMatchingType.SUBSTRING_SCANBASED) {
+	            	resultTuple = computeSubstringMatchResult(sourceTuple);
+	            }              
+            	if (resultTuple != null) {
+            		cursor++;
+            	}
+            	if (cursor >= offset) {
+            		break;
+            	}
+        	}
+            return resultTuple;
             
         } catch (Exception e) {
             e.printStackTrace();
@@ -116,15 +125,15 @@ public class KeywordMatcher implements IOperator {
     }
     
     
-    private ITuple processConjunction(ITuple currentTuple) throws DataFlowException {    	
-        List<Span> payload = (List<Span>) currentTuple.getField(SchemaConstants.SPAN_LIST).getValue(); 
+    private ITuple computeConjunctionMatchResult(ITuple sourceTuple) throws DataFlowException {    	
+        List<Span> payload = (List<Span>) sourceTuple.getField(SchemaConstants.SPAN_LIST).getValue(); 
         List<Span> relevantSpans = filterRelevantSpans(payload);
         List<Span> matchResults = new ArrayList<>();
     	
     	for (Attribute attribute : this.predicate.getAttributeList()) {
     		String fieldName = attribute.getFieldName();
     		FieldType fieldType = attribute.getFieldType();
-			String fieldValue = currentTuple.getField(fieldName).getValue().toString();
+			String fieldValue = sourceTuple.getField(fieldName).getValue().toString();
 			
     		// types other than TEXT and STRING: throw Exception for now
 			if (fieldType != FieldType.STRING && fieldType != FieldType.TEXT) {
@@ -159,22 +168,22 @@ public class KeywordMatcher implements IOperator {
         // temporarily delete all spans in payload to pass all test cases
         payload.clear();  // TODO: delete this line after DataReader's changes
     	
-        List<Span> spanList = (List<Span>) currentTuple.getField(SchemaConstants.SPAN_LIST).getValue();
+        List<Span> spanList = (List<Span>) sourceTuple.getField(SchemaConstants.SPAN_LIST).getValue();
         spanList.addAll(matchResults);
         
-    	return currentTuple;
+    	return sourceTuple;
     }
     
     
-    private ITuple processPhrase(ITuple currentTuple) throws DataFlowException {
-        List<Span> payload = (List<Span>) currentTuple.getField(SchemaConstants.SPAN_LIST).getValue(); 
+    private ITuple computePhraseMatchResult(ITuple sourceTuple) throws DataFlowException {
+        List<Span> payload = (List<Span>) sourceTuple.getField(SchemaConstants.SPAN_LIST).getValue(); 
         List<Span> relevantSpans = filterRelevantSpans(payload);
         List<Span> matchResults = new ArrayList<>();
-        
+
     	for (Attribute attribute : this.predicate.getAttributeList()) {
     		String fieldName = attribute.getFieldName();
     		FieldType fieldType = attribute.getFieldType();
-    		String fieldValue = currentTuple.getField(fieldName).getValue().toString();
+    		String fieldValue = sourceTuple.getField(fieldName).getValue().toString();
     		
     		// types other than TEXT and STRING: throw Exception for now
 			if (fieldType != FieldType.STRING && fieldType != FieldType.TEXT) {
@@ -255,22 +264,20 @@ public class KeywordMatcher implements IOperator {
         // temporarily delete all spans in payload to pass all test cases
         payload.clear();  // TODO: delete this line after DataReader's changes
     	
-        List<Span> spanList = (List<Span>) currentTuple.getField(SchemaConstants.SPAN_LIST).getValue();
+        List<Span> spanList = (List<Span>) sourceTuple.getField(SchemaConstants.SPAN_LIST).getValue();
         spanList.addAll(matchResults);
     	
-    	return currentTuple;
+    	return sourceTuple;
     }
     
     
-    private ITuple processSubstring(ITuple currentTuple) throws DataFlowException {
-        List<Span> matchResults = new ArrayList<>();
-        
-		// remove all spans retuned by DataReader
+    private ITuple computeSubstringMatchResult(ITuple sourceTuple) throws DataFlowException {
+        List<Span> matchResults = new ArrayList<>();       
     	
     	for (Attribute attribute : this.predicate.getAttributeList()) {
     		String fieldName = attribute.getFieldName();
     		FieldType fieldType = attribute.getFieldType();
-    		String fieldValue = currentTuple.getField(fieldName).getValue().toString();
+    		String fieldValue = sourceTuple.getField(fieldName).getValue().toString();
     		
     		
     		// types other than TEXT and STRING: throw Exception for now
@@ -302,14 +309,14 @@ public class KeywordMatcher implements IOperator {
     		return null;
     	}
     	
-        List<Span> payload = (List<Span>) currentTuple.getField(SchemaConstants.SPAN_LIST).getValue();
+        List<Span> payload = (List<Span>) sourceTuple.getField(SchemaConstants.SPAN_LIST).getValue();
         // temporarily delete all spans in payload to pass all test cases
     	payload.clear();  // TODO: delete this line after DataReader's changes
     	
-        List<Span> spanList = (List<Span>) currentTuple.getField(SchemaConstants.SPAN_LIST).getValue();
+        List<Span> spanList = (List<Span>) sourceTuple.getField(SchemaConstants.SPAN_LIST).getValue();
         spanList.addAll(matchResults);
     	
-    	return currentTuple;
+    	return sourceTuple;
     }
     
     

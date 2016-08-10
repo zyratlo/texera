@@ -21,6 +21,7 @@ import edu.uci.ics.textdb.common.exception.DataFlowException;
 import edu.uci.ics.textdb.common.exception.ErrorMessages;
 import edu.uci.ics.textdb.common.field.Span;
 import edu.uci.ics.textdb.common.field.TextField;
+import edu.uci.ics.textdb.common.utils.Utils;
 import edu.uci.ics.textdb.dataflow.common.FuzzyTokenPredicate;
 import edu.uci.ics.textdb.dataflow.source.IndexBasedSourceOperator;
 import edu.uci.ics.textdb.storage.DataReaderPredicate;
@@ -29,16 +30,23 @@ public class FuzzyTokenMatcher implements IOperator{
     private final FuzzyTokenPredicate predicate;
     private IOperator inputOperator;
     
+    private Schema inputSchema;
     private Schema outputSchema;
 
 	private List<Attribute> attributeList;
     private int threshold;
     private ArrayList<String> queryTokens;
+    private int limit;
+    private int cursor;
+    private int offset;
 
     public FuzzyTokenMatcher(IPredicate predicate) {
-    	this.predicate = (FuzzyTokenPredicate)predicate;
-    	DataReaderPredicate dataReaderPredicate = this.predicate.getDataReaderPredicate();
-    	this.inputOperator = new IndexBasedSourceOperator(dataReaderPredicate);
+        this.cursor = -1;
+        this.limit = Integer.MAX_VALUE;
+        this.offset = 0;
+        this.predicate = (FuzzyTokenPredicate)predicate;
+        DataReaderPredicate dataReaderPredicate = this.predicate.getDataReaderPredicate();
+        this.inputOperator = new IndexBasedSourceOperator(dataReaderPredicate);
     }
     
     @Override
@@ -51,7 +59,13 @@ public class FuzzyTokenMatcher implements IOperator{
             attributeList = predicate.getAttributeList();
             threshold = predicate.getThreshold();
             queryTokens = predicate.getQueryTokens();
-            outputSchema = inputOperator.getOutputSchema();
+            
+            inputSchema = inputOperator.getOutputSchema();
+            if (! inputSchema.containsField(SchemaConstants.SPAN_LIST)) {
+                outputSchema = Utils.createSpanSchema(inputSchema);
+            } else {
+                outputSchema = inputSchema;
+            }
     	} catch (Exception e) {
             e.printStackTrace();
             throw new DataFlowException(e.getMessage(), e);
@@ -61,29 +75,35 @@ public class FuzzyTokenMatcher implements IOperator{
     @Override
     public ITuple getNextTuple() throws DataFlowException {
 		try {
-		    ITuple result = null;
-		    
-		    while (result == null) {
-		        ITuple sourceTuple = inputOperator.getNextTuple();
-		        if (sourceTuple == null) {
-		            return null;
-		        }
-		        if (! this.predicate.getIsSpanInformationAdded()) {
-		            return sourceTuple;
-		        }
-		        
-		        result = processTuple(sourceTuple);
-		        
-		    }
+            if (limit == 0 || cursor >= limit + offset - 1){
+                return null;
+            }
+            ITuple sourceTuple;
+            ITuple resultTuple = null;
+            while ((sourceTuple = inputOperator.getNextTuple()) != null) {
+                if (! this.predicate.getIsSpanInformationAdded()) {
+                    return sourceTuple;
+                }
+                if (! inputSchema.containsField(SchemaConstants.SPAN_LIST)) {
+                    sourceTuple = Utils.getSpanTuple(sourceTuple.getFields(), new ArrayList<Span>(), outputSchema);
+                }
+                resultTuple = computeMatchResult(sourceTuple);
+                if (resultTuple != null) {
+                    cursor++;
+                }
+                if (cursor >= offset) {
+                    break;
+                }
+            }
+            return resultTuple;
 
-		    return result;
 		} catch (Exception e) {
 		    e.printStackTrace();
 		    throw new DataFlowException(e.getMessage(), e);
 		}
     }
     
-    private ITuple processTuple(ITuple currentTuple) {
+    private ITuple computeMatchResult(ITuple currentTuple) {
         List<Span> payload = (List<Span>) currentTuple.getField(SchemaConstants.SPAN_LIST).getValue(); 
         List<Span> relevantSpans = filterRelevantSpans(payload);
         List<Span> matchResults = new ArrayList<>();
@@ -140,6 +160,23 @@ public class FuzzyTokenMatcher implements IOperator{
     }
     
 
+    public void setLimit(int limit){
+    	this.limit = limit;
+    }
+    
+    public int getLimit(){
+    	return this.limit;
+    }
+    
+    public void setOffset(int offset){
+    	this.offset = offset;
+    }
+    
+    public int getOffset(){
+    	return this.offset;
+    }
+
+    
     @Override
     public void close() throws DataFlowException {
 		try {
