@@ -13,6 +13,7 @@ import edu.uci.ics.textdb.common.constants.TestConstants;
 import edu.uci.ics.textdb.common.field.DataTuple;
 import edu.uci.ics.textdb.common.field.ListField;
 import edu.uci.ics.textdb.common.field.Span;
+import edu.uci.ics.textdb.common.utils.Utils;
 import edu.uci.ics.textdb.dataflow.utils.TestUtils;
 
 /**
@@ -318,8 +319,7 @@ public class RegexMatcherTest {
 		String regex = "\\[(.)?\\]";
 		testHelper.runTest(regex, RegexTestConstantsText.CONTENT_ATTR, true);
 
-		List<ITuple> exactResults = testHelper.getResults();
-		
+		List<ITuple> exactResults = testHelper.getResults();		
 		List<ITuple> expectedResults = new ArrayList<ITuple>();
 		
 		//expected to match [a] & [!]
@@ -336,6 +336,165 @@ public class RegexMatcherTest {
 		
 		testHelper.cleanUp();
 	}
+	
+	
+	@Test
+	public void testRegexWithLimit() throws Exception {
+		List<ITuple> data = RegexTestConstantsText.getSampleTextTuples();
+		RegexMatcherTestHelper testHelper = new RegexMatcherTestHelper(RegexTestConstantsText.SCHEMA_TEXT, data);
+		
+		String regex = "patient";
+		testHelper.runTest(regex, RegexTestConstantsText.CONTENT_ATTR, true, 2);
+
+		List<ITuple> exactResults = testHelper.getResults();
+		List<ITuple> expectedResults = new ArrayList<ITuple>();
+		
+		Schema spanSchema = testHelper.getSpanSchema();
+		List<Span> spans = new ArrayList<Span>();
+		spans.add(new Span(RegexTestConstantsText.CONTENT, 4, 11, regex, "patient"));
+		IField spanField = new ListField<Span>(new ArrayList<Span>(spans));
+		List<IField> fields = new ArrayList<IField>(data.get(4).getFields());
+		fields.add(spanField);
+		expectedResults.add(new DataTuple(spanSchema, fields.toArray(new IField[fields.size()])));
+		
+		spans.clear();
+		fields.clear();
+		spans.add(new Span(RegexTestConstantsText.CONTENT, 4, 11, regex, "patient"));
+		spans.add(new Span(RegexTestConstantsText.CONTENT, 65, 72, regex, "patient"));
+		spanField = new ListField<Span>(new ArrayList<Span>(spans));
+		fields = new ArrayList<IField>(data.get(5).getFields());
+		fields.add(spanField);
+		expectedResults.add(new DataTuple(spanSchema, fields.toArray(new IField[fields.size()])));
+		
+		spans.clear();
+		fields.clear();
+		spans.add(new Span(RegexTestConstantsText.CONTENT, 4, 11, regex, "patient"));
+		spanField = new ListField<Span>(new ArrayList<Span>(spans));
+		fields = new ArrayList<IField>(data.get(6).getFields());
+		fields.add(spanField);
+		expectedResults.add(new DataTuple(spanSchema, fields.toArray(new IField[fields.size()])));
+		
+		Assert.assertTrue(expectedResults.containsAll(exactResults));
+		Assert.assertEquals(expectedResults.size(), 3);
+		Assert.assertEquals(exactResults.size(), 2);
+	}
+	
+	
+	@Test
+	public void testRegexWithLimitOffset() throws Exception {
+		List<ITuple> data = RegexTestConstantsText.getSampleTextTuples();
+		RegexMatcherTestHelper testHelper = new RegexMatcherTestHelper(RegexTestConstantsText.SCHEMA_TEXT, data);
+		
+		String regex = "patient";
+		testHelper.runTest(regex, RegexTestConstantsText.CONTENT_ATTR, true, 2, 1);
+
+		List<ITuple> exactResults = testHelper.getResults();
+		List<ITuple> expectedResults = new ArrayList<ITuple> ();
+		
+		Schema spanSchema = testHelper.getSpanSchema();
+		List<Span> spans = new ArrayList<Span>();
+		spans.add(new Span(RegexTestConstantsText.CONTENT, 4, 11, regex, "patient"));
+		IField spanField = new ListField<Span>(new ArrayList<Span>(spans));
+		List<IField> fields = new ArrayList<IField>(data.get(4).getFields());
+		fields.add(spanField);
+		expectedResults.add(new DataTuple(spanSchema, fields.toArray(new IField[fields.size()])));
+		
+		spans.clear();
+		fields.clear();
+		spans.add(new Span(RegexTestConstantsText.CONTENT, 4, 11, regex, "patient"));
+		spans.add(new Span(RegexTestConstantsText.CONTENT, 65, 72, regex, "patient"));
+		spanField = new ListField<Span>(new ArrayList<Span>(spans));
+		fields = new ArrayList<IField>(data.get(5).getFields());
+		fields.add(spanField);
+		expectedResults.add(new DataTuple(spanSchema, fields.toArray(new IField[fields.size()])));
+		
+		spans.clear();
+		fields.clear();
+		spans.add(new Span(RegexTestConstantsText.CONTENT, 4, 11, regex, "patient"));
+		spanField = new ListField<Span>(new ArrayList<Span>(spans));
+		fields = new ArrayList<IField>(data.get(6).getFields());
+		fields.add(spanField);
+		expectedResults.add(new DataTuple(spanSchema, fields.toArray(new IField[fields.size()])));
+		
+		Assert.assertTrue(expectedResults.containsAll(exactResults));
+		Assert.assertEquals(expectedResults.size(), 3);
+		Assert.assertEquals(exactResults.size(), 2);
+	}
+	
+//	@Test
+//	public void testRegexWithLimitProblem() throws Exception {
+//		List<ITuple> data = RegexTestConstantsText.getSampleTextTuples();
+//		RegexMatcherTestHelper testHelper = new RegexMatcherTestHelper(RegexTestConstantsText.SCHEMA_TEXT, data);
+//		
+//		String regex = "(T|t)he";
+//		testHelper.runTest(regex, RegexTestConstantsText.CONTENT_ATTR, true);
+//
+//		List<ITuple> exactResults = testHelper.getResults();
+//		List<ITuple> expectedResults = new ArrayList<ITuple>();
+//		
+//		Schema spanSchema = testHelper.getSpanSchema();
+//		List<Span> spans = new ArrayList<Span>();
+//		spans.add(new Span(RegexTestConstantsText.CONTENT, 61, 64, regex, "the"));
+//		IField spanField = new ListField<Span>(new ArrayList<Span>(spans));
+//		List<IField> fields = new ArrayList<IField>(data.get(0).getFields());
+//		fields.add(spanField);
+//		expectedResults.add(new DataTuple(spanSchema, fields.toArray(new IField[fields.size()])));
+//	
+//		spans.clear();
+//		fields.clear();	
+//		spans.add(new Span(RegexTestConstantsText.CONTENT, 0, 3, regex, "The"));
+//		spanField = new ListField<Span>(new ArrayList<Span>(spans));
+//		fields = new ArrayList<IField>(data.get(4).getFields());
+//		fields.add(spanField);
+//		expectedResults.add(new DataTuple(spanSchema, fields.toArray(new IField[fields.size()])));
+//		
+//		spans.clear();
+//		fields.clear();	
+//		spans.add(new Span(RegexTestConstantsText.CONTENT, 0, 3, regex, "The"));
+//		spanField = new ListField<Span>(new ArrayList<Span>(spans));
+//		fields = new ArrayList<IField>(data.get(5).getFields());
+//		fields.add(spanField);
+//		expectedResults.add(new DataTuple(spanSchema, fields.toArray(new IField[fields.size()])));
+//		
+//		spans.clear();
+//		fields.clear();	
+//		spans.add(new Span(RegexTestConstantsText.CONTENT, 0, 3, regex, "The"));
+//		spanField = new ListField<Span>(new ArrayList<Span>(spans));
+//		fields = new ArrayList<IField>(data.get(6).getFields());
+//		fields.add(spanField);
+//		expectedResults.add(new DataTuple(spanSchema, fields.toArray(new IField[fields.size()])));
+//		
+//		spans.clear();
+//		fields.clear();
+//		spans.add(new Span(RegexTestConstantsText.CONTENT, 10, 13, regex, "the"));
+//		spanField = new ListField<Span>(new ArrayList<Span>(spans));
+//		fields = new ArrayList<IField>(data.get(7).getFields());
+//		fields.add(spanField);
+//		expectedResults.add(new DataTuple(spanSchema, fields.toArray(new IField[fields.size()])));
+//		
+//		spans.clear();
+//		fields.clear();
+//		spans.add(new Span(RegexTestConstantsText.CONTENT, 75, 78, regex, "the"));
+//		spans.add(new Span(RegexTestConstantsText.CONTENT, 110, 113, regex, "the"));
+//		spans.add(new Span(RegexTestConstantsText.CONTENT, 132, 135, regex, "the"));
+//		spanField = new ListField<Span>(new ArrayList<Span>(spans));
+//		fields = new ArrayList<IField>(data.get(8).getFields());
+//		fields.add(spanField);
+//		expectedResults.add(new DataTuple(spanSchema, fields.toArray(new IField[fields.size()])));
+//		
+//		spans.clear();
+//		fields.clear();
+//		spans.add(new Span(RegexTestConstantsText.CONTENT, 70, 73, regex, "the"));
+//		spanField = new ListField<Span>(new ArrayList<Span>(spans));
+//		fields = new ArrayList<IField>(data.get(9).getFields());
+//		fields.add(spanField);
+//		expectedResults.add(new DataTuple(spanSchema, fields.toArray(new IField[fields.size()])));
+//		System.out.println(expectedResults);
+//		System.out.println(Utils.getTupleListString(exactResults));
+//		
+//		Assert.assertTrue(expectedResults.containsAll(exactResults));
+//		Assert.assertEquals(exactResults.size(), 3);
+//	}
 	
 }
 
