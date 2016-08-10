@@ -21,6 +21,7 @@ import edu.uci.ics.textdb.api.storage.IDataStore;
 import edu.uci.ics.textdb.api.storage.IDataWriter;
 import edu.uci.ics.textdb.common.constants.DataConstants;
 import edu.uci.ics.textdb.common.constants.TestConstants;
+import edu.uci.ics.textdb.common.utils.Utils;
 import edu.uci.ics.textdb.storage.reader.DataReader;
 import edu.uci.ics.textdb.storage.writer.DataWriter;
 
@@ -59,16 +60,22 @@ public class DataWriterReaderTest {
             numTuples ++;
         }
         Assert.assertEquals(actualTuples.size(), numTuples);
+        System.out.println(Utils.getTupleListString(actualTuples));
+        System.out.println("==========");
+        System.out.println(Utils.getTupleListString(returnedTuples));
         boolean contains = containsAllResults(actualTuples, returnedTuples);
 		Assert.assertTrue(contains);
         dataReader.close();
     }
 
     public static boolean containsAllResults(List<ITuple> expectedResults, List<ITuple> exactResults) {
+        expectedResults = Utils.removePayload(expectedResults);
+        exactResults = Utils.removePayload(exactResults);
+        
         if(expectedResults.size() != exactResults.size())
-        	return false;
+            return false;
         if(!(expectedResults.containsAll(exactResults)) || !(exactResults.containsAll(expectedResults)))
-        	return false;
+            return false;
         
         return true;
     }
