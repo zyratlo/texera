@@ -61,7 +61,6 @@ public class KeywordMatcher implements IOperator {
     	}
         try {
             inputOperator.open();
-            inputOperator.open();
             inputSchema = inputOperator.getOutputSchema();
             
             if (! inputSchema.containsField(SchemaConstants.SPAN_LIST)) {
@@ -365,6 +364,22 @@ public class KeywordMatcher implements IOperator {
     @Override
     public Schema getOutputSchema() {
         return inputOperator.getOutputSchema();
+    }
+    
+    public void setLimit(int limit) {
+        this.limit = limit;
+    }
+    
+    public int getLimit() {
+        return limit;
+    }
+    
+    public void setOffset(int offset) {
+        this.offset = offset;
+    }
+    
+    public int getOffset() {
+        return offset;
     }
 
 }
