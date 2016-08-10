@@ -87,7 +87,7 @@ public class FuzzyTokenMatcher implements IOperator{
                 if (! inputSchema.containsField(SchemaConstants.SPAN_LIST)) {
                     sourceTuple = Utils.getSpanTuple(sourceTuple.getFields(), new ArrayList<Span>(), outputSchema);
                 }
-                resultTuple = computeMatchResult(sourceTuple);
+                resultTuple = computeMatchingResult(sourceTuple);
                 if (resultTuple != null) {
                     cursor++;
                 }
@@ -103,7 +103,7 @@ public class FuzzyTokenMatcher implements IOperator{
 		}
     }
     
-    private ITuple computeMatchResult(ITuple currentTuple) {
+    private ITuple computeMatchingResult(ITuple currentTuple) {
         List<Span> payload = (List<Span>) currentTuple.getField(SchemaConstants.SPAN_LIST).getValue(); 
         List<Span> relevantSpans = filterRelevantSpans(payload);
         List<Span> matchResults = new ArrayList<>();
@@ -159,23 +159,6 @@ public class FuzzyTokenMatcher implements IOperator{
         return relevantSpans;
     }
     
-
-    public void setLimit(int limit){
-    	this.limit = limit;
-    }
-    
-    public int getLimit(){
-    	return this.limit;
-    }
-    
-    public void setOffset(int offset){
-    	this.offset = offset;
-    }
-    
-    public int getOffset(){
-    	return this.offset;
-    }
-
     
     @Override
     public void close() throws DataFlowException {
@@ -200,5 +183,21 @@ public class FuzzyTokenMatcher implements IOperator{
     @Override
     public Schema getOutputSchema() {
         return outputSchema;
+    }
+    
+    public void setLimit(int limit){
+        this.limit = limit;
+    }
+    
+    public int getLimit(){
+        return this.limit;
+    }
+    
+    public void setOffset(int offset){
+        this.offset = offset;
+    }
+    
+    public int getOffset(){
+        return this.offset;
     }
 }

@@ -91,7 +91,7 @@ public class RegexMatcher implements IOperator {
 			ITuple sourceTuple;
 			ITuple resultTuple = null;
 			while ((sourceTuple = inputOperator.getNextTuple()) != null) {     
-	            resultTuple = computeMatchResult(sourceTuple);
+	            resultTuple = computeMatchingResult(sourceTuple);
 	            
 	            if (resultTuple != null) {
 		            cursor++;
@@ -144,7 +144,7 @@ public class RegexMatcher implements IOperator {
 	 * @return a list of spans describing the occurrence of a matching sequence
 	 *         in the document
 	 */
-	public ITuple computeMatchResult(ITuple sourceTuple) {
+	public ITuple computeMatchingResult(ITuple sourceTuple) {
 		List<Span> spanList = new ArrayList<>();
 		if (sourceTuple == null) {
 			return null;
