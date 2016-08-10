@@ -84,13 +84,13 @@ public class KeywordMatcher implements IOperator {
         	ITuple resultTuple = null;
         	while ((sourceTuple = inputOperator.getNextTuple()) != null) {
 	            if (this.predicate.getOperatorType() == DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED) {
-	            	resultTuple = computeConjunctionMatchResult(sourceTuple);
+	            	resultTuple = computeConjunctionMatchingResult(sourceTuple);
 	            }
 	            if (this.predicate.getOperatorType() == DataConstants.KeywordMatchingType.PHRASE_INDEXBASED) {
-	            	resultTuple = computePhraseMatchResult(sourceTuple);
+	            	resultTuple = computePhraseMatchingResult(sourceTuple);
 	            }
 	            if (this.predicate.getOperatorType() == DataConstants.KeywordMatchingType.SUBSTRING_SCANBASED) {
-	            	resultTuple = computeSubstringMatchResult(sourceTuple);
+	            	resultTuple = computeSubstringMatchingResult(sourceTuple);
 	            }              
             	if (resultTuple != null) {
             		cursor++;
@@ -129,7 +129,7 @@ public class KeywordMatcher implements IOperator {
     }
     
     
-    private ITuple computeConjunctionMatchResult(ITuple sourceTuple) throws DataFlowException {
+    private ITuple computeConjunctionMatchingResult(ITuple sourceTuple) throws DataFlowException {
     	List<Span> spanList = (List<Span>) sourceTuple.getField(SchemaConstants.SPAN_LIST).getValue(); 
     	
     	for (Attribute attribute : this.predicate.getAttributeList()) {
@@ -170,7 +170,7 @@ public class KeywordMatcher implements IOperator {
     }
     
     
-    private ITuple computePhraseMatchResult(ITuple sourceTuple) throws DataFlowException {
+    private ITuple computePhraseMatchingResult(ITuple sourceTuple) throws DataFlowException {
     	List<Span> spanList = (List<Span>) sourceTuple.getField(SchemaConstants.SPAN_LIST).getValue(); 
     	
     	for (Attribute attribute : this.predicate.getAttributeList()) {
@@ -258,7 +258,7 @@ public class KeywordMatcher implements IOperator {
     }
     
     
-    private ITuple computeSubstringMatchResult(ITuple sourceTuple) throws DataFlowException {
+    private ITuple computeSubstringMatchingResult(ITuple sourceTuple) throws DataFlowException {
     	List<Span> spanList = (List<Span>) sourceTuple.getField(SchemaConstants.SPAN_LIST).getValue(); 
     	
 		// remove all spans retuned by DataReader

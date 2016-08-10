@@ -137,7 +137,7 @@ public class NlpExtractor implements IOperator {
     	ITuple sourceTuple;
     	ITuple returnTuple = null;
     	while ((sourceTuple = inputOperator.getNextTuple()) != null){
-	        returnTuple = computeMatchResult(sourceTuple);
+	        returnTuple = computeMatchingResult(sourceTuple);
 	        
 	        if (returnTuple != null){
 	        	cursor++;
@@ -149,7 +149,7 @@ public class NlpExtractor implements IOperator {
     	return returnTuple;
     }
     
-    private ITuple computeMatchResult(ITuple sourceTuple) {
+    private ITuple computeMatchingResult(ITuple sourceTuple) {
     	if (returnSchema == null){
     		returnSchema = Utils.createSpanSchema(sourceTuple.getSchema());
     	}
