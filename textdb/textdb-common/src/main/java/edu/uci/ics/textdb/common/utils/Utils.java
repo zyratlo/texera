@@ -117,24 +117,32 @@ public class Utils {
         IField[] fieldsDuplicate = fieldListDuplicate.toArray(new IField[fieldListDuplicate.size()]);
         return new DataTuple(spanSchema, fieldsDuplicate);
     }
-
+    
     /**
-     *
-     * @param schema
-     * @about Creating a new schema object, and adding SPAN_LIST_ATTRIBUTE to
-     *        the schema. SPAN_LIST_ATTRIBUTE is of type List
-     */
-    public static Schema createSpanSchema(Schema schema) {
-        List<Attribute> dataTupleAttributes = schema.getAttributes();
-        //spanAttributes contains all attributes of dataTupleAttributes and an additional SPAN_LIST_ATTRIBUTE
-        Attribute[] spanAttributes = new Attribute[dataTupleAttributes.size() + 1];
-        for (int count = 0; count < dataTupleAttributes.size(); count++) {
-            spanAttributes[count] = dataTupleAttributes.get(count);
-        }
-        spanAttributes[spanAttributes.length - 1] = SchemaConstants.SPAN_LIST_ATTRIBUTE;
-        Schema spanSchema = new Schema(spanAttributes);
-        return spanSchema;
-    }
+    *
+    * @param schema
+    * @about Creating a new schema object, and adding SPAN_LIST_ATTRIBUTE to
+    *        the schema. SPAN_LIST_ATTRIBUTE is of type List
+    */
+   public static Schema createSpanSchema(Schema schema) {
+       return addAttributeToSchema(schema, SchemaConstants.SPAN_LIST_ATTRIBUTE);
+   }
+   
+   /**
+    * Add an attribute to an existing schema (if the attribute doesn't exist).
+    * @param schema
+    * @param attribute
+    * @return new schema
+    */
+   public static Schema addAttributeToSchema(Schema schema, Attribute attribute) {
+       if (schema.containsField(attribute.getFieldName())) {
+           return schema;
+       }
+       List<Attribute> attributes = new ArrayList<>(schema.getAttributes());
+       attributes.add(attribute);
+       Schema newSchema = new Schema(attributes.toArray(new Attribute[attributes.size()]));
+       return newSchema;   
+   }
 
     /**
      * Tokenizes the query string using the given analyser

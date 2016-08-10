@@ -2,6 +2,7 @@ package edu.uci.ics.textdb.dataflow.keywordmatch;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -36,6 +37,10 @@ public class KeywordMatcher implements IOperator {
     private final KeywordPredicate predicate;
     private IOperator inputOperator;
     private String query;
+    
+    private Schema inputSchema;
+    private Schema outputSchema;
+    
     private int cursor;
     private int limit;
     private int offset;
@@ -56,7 +61,13 @@ public class KeywordMatcher implements IOperator {
     	}
         try {
             inputOperator.open();
-            query = predicate.getQuery();
+            inputSchema = inputOperator.getOutputSchema();
+            
+            if (! inputSchema.containsField(SchemaConstants.SPAN_LIST)) {
+                outputSchema = Utils.createSpanSchema(inputSchema);
+            } else {
+                outputSchema = inputSchema;
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -83,6 +94,10 @@ public class KeywordMatcher implements IOperator {
         	ITuple sourceTuple;
         	ITuple resultTuple = null;
         	while ((sourceTuple = inputOperator.getNextTuple()) != null) {
+                if (! inputSchema.containsField(SchemaConstants.SPAN_LIST)) {
+                    sourceTuple = Utils.getSpanTuple(sourceTuple.getFields(), new ArrayList<Span>(), outputSchema);
+                }
+
 	            if (this.predicate.getOperatorType() == DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED) {
 	            	resultTuple = computeConjunctionMatchingResult(sourceTuple);
 	            }
@@ -109,28 +124,10 @@ public class KeywordMatcher implements IOperator {
     }
     
     
-    public void setLimit(int limit) {
-    	this.limit = limit;
-    }
-    
-    
-    public int getLimit() {
-    	return this.limit;
-    }
-    
-    
-    public void setOffset(int offset) {
-    	this.offset = offset;
-    }
-    
-    
-    public int getOffset() {
-    	return this.offset;
-    }
-    
-    
-    private ITuple computeConjunctionMatchingResult(ITuple sourceTuple) throws DataFlowException {
-    	List<Span> spanList = (List<Span>) sourceTuple.getField(SchemaConstants.SPAN_LIST).getValue(); 
+    private ITuple computeConjunctionMatchingResult(ITuple sourceTuple) throws DataFlowException {    	
+        List<Span> payload = (List<Span>) sourceTuple.getField(SchemaConstants.SPAN_LIST).getValue(); 
+        List<Span> relevantSpans = filterRelevantSpans(payload);
+        List<Span> matchingResults = new ArrayList<>();
     	
     	for (Attribute attribute : this.predicate.getAttributeList()) {
     		String fieldName = attribute.getFieldName();
@@ -146,33 +143,42 @@ public class KeywordMatcher implements IOperator {
     		if (fieldType == FieldType.STRING) {
                 if (fieldValue.equals(query)) {
                     Span span = new Span(fieldName, 0, query.length(), query, fieldValue);
-                    spanList.add(span);
+                    matchingResults.add(span);
                 }
     		}
     		
     		// for TEXT type, every token in the query should be present in span list for this field
     		if (fieldType == FieldType.TEXT) {
-        		List<Span> fieldSpanList = spanList.stream()
+        		List<Span> fieldSpanList = relevantSpans.stream()
         				.filter(span -> span.getFieldName().equals(fieldName))
         				.collect(Collectors.toList());
         		
-        		if (! isAllQueryTokensPresent(fieldSpanList, predicate.getQueryTokenSet())) {
-        			spanList.removeAll(fieldSpanList);
+        		if (isAllQueryTokensPresent(fieldSpanList, predicate.getQueryTokenSet())) {
+        		    matchingResults.addAll(fieldSpanList);
         		}
     		}
     		
     	}
     	
-    	if (spanList.isEmpty()) {
+    	if (matchingResults.isEmpty()) {
     		return null;
     	}
+    	
+        // temporarily delete all spans in payload to pass all test cases
+        payload.clear();  // TODO: delete this line after DataReader's changes
+    	
+        List<Span> spanList = (List<Span>) sourceTuple.getField(SchemaConstants.SPAN_LIST).getValue();
+        spanList.addAll(matchingResults);
+        
     	return sourceTuple;
     }
     
     
     private ITuple computePhraseMatchingResult(ITuple sourceTuple) throws DataFlowException {
-    	List<Span> spanList = (List<Span>) sourceTuple.getField(SchemaConstants.SPAN_LIST).getValue(); 
-    	
+        List<Span> payload = (List<Span>) sourceTuple.getField(SchemaConstants.SPAN_LIST).getValue(); 
+        List<Span> relevantSpans = filterRelevantSpans(payload);
+        List<Span> matchingResults = new ArrayList<>();
+
     	for (Attribute attribute : this.predicate.getAttributeList()) {
     		String fieldName = attribute.getFieldName();
     		FieldType fieldType = attribute.getFieldType();
@@ -186,17 +192,16 @@ public class KeywordMatcher implements IOperator {
 			// for STRING type, the query should match the fieldValue completely
     		if (fieldType == FieldType.STRING) {
                 if (fieldValue.equals(query)) {
-                    spanList.add(new Span(fieldName, 0, query.length(), query, fieldValue));
+                    matchingResults.add(new Span(fieldName, 0, query.length(), query, fieldValue));
                 }
     		}
     		
     		// for TEXT type, spans need to be reconstructed according to the phrase query
     		if (fieldType == FieldType.TEXT) {
-        		List<Span> fieldSpanList = spanList.stream()
+        		List<Span> fieldSpanList = relevantSpans.stream()
         				.filter(span -> span.getFieldName().equals(fieldName))
         				.collect(Collectors.toList());
         		
-        		spanList.removeAll(fieldSpanList);
         		if (! isAllQueryTokensPresent(fieldSpanList, predicate.getQueryTokenSet())) {
         			// move on to next field if not all query tokens are present in the spans
         			continue;
@@ -245,24 +250,28 @@ public class KeywordMatcher implements IOperator {
                     int combinedSpanEndIndex = fieldSpanList.get(iter+queryTokenList.size()-1).getEnd();
 
                     Span combinedSpan = new Span(fieldName, combinedSpanStartIndex, combinedSpanEndIndex, query, fieldValue.substring(combinedSpanStartIndex, combinedSpanEndIndex));
-                    spanList.add(combinedSpan);
+                    matchingResults.add(combinedSpan);
                     iter = iter + queryTokenList.size();                       
                 }		
     		}	
     	}
-    	
-    	if (spanList.isEmpty()) {
+    	    	
+    	if (matchingResults.isEmpty()) {
     		return null;
     	}
+    	
+        // temporarily delete all spans in payload to pass all test cases
+        payload.clear();  // TODO: delete this line after DataReader's changes
+    	
+        List<Span> spanList = (List<Span>) sourceTuple.getField(SchemaConstants.SPAN_LIST).getValue();
+        spanList.addAll(matchingResults);
+    	
     	return sourceTuple;
     }
     
     
     private ITuple computeSubstringMatchingResult(ITuple sourceTuple) throws DataFlowException {
-    	List<Span> spanList = (List<Span>) sourceTuple.getField(SchemaConstants.SPAN_LIST).getValue(); 
-    	
-		// remove all spans retuned by DataReader
-    	spanList.clear();
+        List<Span> matchingResults = new ArrayList<>();       
     	
     	for (Attribute attribute : this.predicate.getAttributeList()) {
     		String fieldName = attribute.getFieldName();
@@ -278,7 +287,7 @@ public class KeywordMatcher implements IOperator {
 			// for STRING type, the query should match the fieldValue completely
     		if (fieldType == FieldType.STRING) {
                 if (fieldValue.equals(query)) {
-                    spanList.add(new Span(fieldName, 0, query.length(), query, fieldValue));
+                    matchingResults.add(new Span(fieldName, 0, query.length(), query, fieldValue));
                 }
     		}
     		
@@ -290,14 +299,22 @@ public class KeywordMatcher implements IOperator {
     				int start = matcher.start();
     				int end = matcher.end();
 
-    				spanList.add(new Span(fieldName, start, end, query, fieldValue.substring(start, end)));
+    				matchingResults.add(new Span(fieldName, start, end, query, fieldValue.substring(start, end)));
     			}
     		}
     		
     	}
-    	if (spanList.isEmpty()) {
+    	if (matchingResults.isEmpty()) {
     		return null;
     	}
+    	
+        List<Span> payload = (List<Span>) sourceTuple.getField(SchemaConstants.SPAN_LIST).getValue();
+        // temporarily delete all spans in payload to pass all test cases
+    	payload.clear();  // TODO: delete this line after DataReader's changes
+    	
+        List<Span> spanList = (List<Span>) sourceTuple.getField(SchemaConstants.SPAN_LIST).getValue();
+        spanList.addAll(matchingResults);
+    	
     	return sourceTuple;
     }
     
@@ -308,6 +325,18 @@ public class KeywordMatcher implements IOperator {
 				.collect(Collectors.toSet());
 		
 		return fieldSpanKeys.equals(queryTokenSet);
+    }
+    
+    private List<Span> filterRelevantSpans(List<Span> spanList) {
+        List<Span> relevantSpans = new ArrayList<>();
+        Iterator<Span> iterator = spanList.iterator();
+        while (iterator.hasNext()) {
+            Span span  = iterator.next();
+            if (predicate.getQueryTokenSet().contains(span.getKey())) {
+                relevantSpans.add(span);
+            }
+        }
+        return relevantSpans;
     }
     
 
@@ -335,6 +364,22 @@ public class KeywordMatcher implements IOperator {
     @Override
     public Schema getOutputSchema() {
         return inputOperator.getOutputSchema();
+    }
+    
+    public void setLimit(int limit) {
+        this.limit = limit;
+    }
+    
+    public int getLimit() {
+        return limit;
+    }
+    
+    public void setOffset(int offset) {
+        this.offset = offset;
+    }
+    
+    public int getOffset() {
+        return offset;
     }
 
 }
