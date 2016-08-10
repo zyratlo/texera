@@ -62,6 +62,7 @@ public class RunPerftests {
 			e.printStackTrace();
 		} catch (Exception e) {
 			e.printStackTrace();
+			
 		}
 	}
 }
