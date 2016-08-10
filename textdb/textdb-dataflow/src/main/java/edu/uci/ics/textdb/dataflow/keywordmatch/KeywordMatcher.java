@@ -36,8 +36,14 @@ public class KeywordMatcher implements IOperator {
     private final KeywordPredicate predicate;
     private IOperator inputOperator;
     private String query;
-    
+    private int cursor;
+    private int limit;
+    private int offset;
+
     public KeywordMatcher(IPredicate predicate) {
+        this.cursor = -1;
+        this.limit = Integer.MAX_VALUE;
+        this.offset = 0;
         this.predicate = (KeywordPredicate)predicate;
         this.query = this.predicate.getQuery();
     }
@@ -70,28 +76,30 @@ public class KeywordMatcher implements IOperator {
      */
     @Override
     public ITuple getNextTuple() throws DataFlowException {
-
         try {
-        	ITuple result = null;
-        	do {
-                ITuple sourceTuple = inputOperator.getNextTuple();
-                if(sourceTuple == null) {
-                    return null;
-                }
-                
-                if (this.predicate.getOperatorType() == DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED) {
-                	result = processConjunction(sourceTuple);
-                }
-                if (this.predicate.getOperatorType() == DataConstants.KeywordMatchingType.PHRASE_INDEXBASED) {
-                	result = processPhrase(sourceTuple);
-                }
-                if (this.predicate.getOperatorType() == DataConstants.KeywordMatchingType.SUBSTRING_SCANBASED) {
-                	result = processSubstring(sourceTuple);
-                }
-                
-        	} while (result == null);
-
-            return result;
+        	if (limit == 0 || cursor >= offset + limit - 1) {
+        		return null;
+        	}
+        	ITuple sourceTuple;
+        	ITuple resultTuple = null;
+        	while ((sourceTuple = inputOperator.getNextTuple()) != null) {
+	            if (this.predicate.getOperatorType() == DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED) {
+	            	resultTuple = computeConjunctionMatchingResult(sourceTuple);
+	            }
+	            if (this.predicate.getOperatorType() == DataConstants.KeywordMatchingType.PHRASE_INDEXBASED) {
+	            	resultTuple = computePhraseMatchingResult(sourceTuple);
+	            }
+	            if (this.predicate.getOperatorType() == DataConstants.KeywordMatchingType.SUBSTRING_SCANBASED) {
+	            	resultTuple = computeSubstringMatchingResult(sourceTuple);
+	            }              
+            	if (resultTuple != null) {
+            		cursor++;
+            	}
+            	if (cursor >= offset) {
+            		break;
+            	}
+        	}
+            return resultTuple;
             
         } catch (Exception e) {
             e.printStackTrace();
@@ -101,13 +109,33 @@ public class KeywordMatcher implements IOperator {
     }
     
     
-    private ITuple processConjunction(ITuple currentTuple) throws DataFlowException {
-    	List<Span> spanList = (List<Span>) currentTuple.getField(SchemaConstants.SPAN_LIST).getValue(); 
+    public void setLimit(int limit) {
+    	this.limit = limit;
+    }
+    
+    
+    public int getLimit() {
+    	return this.limit;
+    }
+    
+    
+    public void setOffset(int offset) {
+    	this.offset = offset;
+    }
+    
+    
+    public int getOffset() {
+    	return this.offset;
+    }
+    
+    
+    private ITuple computeConjunctionMatchingResult(ITuple sourceTuple) throws DataFlowException {
+    	List<Span> spanList = (List<Span>) sourceTuple.getField(SchemaConstants.SPAN_LIST).getValue(); 
     	
     	for (Attribute attribute : this.predicate.getAttributeList()) {
     		String fieldName = attribute.getFieldName();
     		FieldType fieldType = attribute.getFieldType();
-			String fieldValue = currentTuple.getField(fieldName).getValue().toString();
+			String fieldValue = sourceTuple.getField(fieldName).getValue().toString();
 			
     		// types other than TEXT and STRING: throw Exception for now
 			if (fieldType != FieldType.STRING && fieldType != FieldType.TEXT) {
@@ -138,17 +166,17 @@ public class KeywordMatcher implements IOperator {
     	if (spanList.isEmpty()) {
     		return null;
     	}
-    	return currentTuple;
+    	return sourceTuple;
     }
     
     
-    private ITuple processPhrase(ITuple currentTuple) throws DataFlowException {
-    	List<Span> spanList = (List<Span>) currentTuple.getField(SchemaConstants.SPAN_LIST).getValue(); 
+    private ITuple computePhraseMatchingResult(ITuple sourceTuple) throws DataFlowException {
+    	List<Span> spanList = (List<Span>) sourceTuple.getField(SchemaConstants.SPAN_LIST).getValue(); 
     	
     	for (Attribute attribute : this.predicate.getAttributeList()) {
     		String fieldName = attribute.getFieldName();
     		FieldType fieldType = attribute.getFieldType();
-    		String fieldValue = currentTuple.getField(fieldName).getValue().toString();
+    		String fieldValue = sourceTuple.getField(fieldName).getValue().toString();
     		
     		// types other than TEXT and STRING: throw Exception for now
 			if (fieldType != FieldType.STRING && fieldType != FieldType.TEXT) {
@@ -226,12 +254,12 @@ public class KeywordMatcher implements IOperator {
     	if (spanList.isEmpty()) {
     		return null;
     	}
-    	return currentTuple;
+    	return sourceTuple;
     }
     
     
-    private ITuple processSubstring(ITuple currentTuple) throws DataFlowException {
-    	List<Span> spanList = (List<Span>) currentTuple.getField(SchemaConstants.SPAN_LIST).getValue(); 
+    private ITuple computeSubstringMatchingResult(ITuple sourceTuple) throws DataFlowException {
+    	List<Span> spanList = (List<Span>) sourceTuple.getField(SchemaConstants.SPAN_LIST).getValue(); 
     	
 		// remove all spans retuned by DataReader
     	spanList.clear();
@@ -239,7 +267,7 @@ public class KeywordMatcher implements IOperator {
     	for (Attribute attribute : this.predicate.getAttributeList()) {
     		String fieldName = attribute.getFieldName();
     		FieldType fieldType = attribute.getFieldType();
-    		String fieldValue = currentTuple.getField(fieldName).getValue().toString();
+    		String fieldValue = sourceTuple.getField(fieldName).getValue().toString();
     		
     		
     		// types other than TEXT and STRING: throw Exception for now
@@ -270,7 +298,7 @@ public class KeywordMatcher implements IOperator {
     	if (spanList.isEmpty()) {
     		return null;
     	}
-    	return currentTuple;
+    	return sourceTuple;
     }
     
     
