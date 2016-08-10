@@ -72,7 +72,7 @@ public class FuzzyTokenMatcher implements IOperator{
 			ITuple sourceTuple;
 			ITuple resultTuple = null;
 			while ((sourceTuple = inputOperator.getNextTuple()) != null) {
-		    	resultTuple = computeNextTuple(sourceTuple);
+		    	resultTuple = computeMatchingResult(sourceTuple);
 		    	if (resultTuple != null) {
 		    		cursor++;
 		    	}
@@ -103,16 +103,16 @@ public class FuzzyTokenMatcher implements IOperator{
     	return this.offset;
     }
 
-    private ITuple computeNextTuple(ITuple currentTuple){
-    	if (currentTuple == null) {
+    private ITuple computeMatchingResult(ITuple sourceTuple){
+    	if (sourceTuple == null) {
     		return null;
     	}
     	if (! this.predicate.getIsSpanInformationAdded()) {
-    		return currentTuple;
+    		return sourceTuple;
     	}
-	    int schemaIndex = currentTuple.getSchema().getIndex(SchemaConstants.SPAN_LIST_ATTRIBUTE.getFieldName());
+	    int schemaIndex = sourceTuple.getSchema().getIndex(SchemaConstants.SPAN_LIST_ATTRIBUTE.getFieldName());
 	    List<Span> resultSpans =
-                (List<Span>)currentTuple.getField(schemaIndex).getValue();
+                (List<Span>)sourceTuple.getField(schemaIndex).getValue();
         
 	    /*The source operator returns spans even for those fields which did not satisfy the threshold criterion.
 	     *  So if two attributes A,B have 10 and 5 matching tokens, and we set threshold to 10,
@@ -120,7 +120,7 @@ public class FuzzyTokenMatcher implements IOperator{
 	    */
 	    for(int attributeIndex = 0; attributeIndex < attributeList.size(); attributeIndex++) {
 	        String fieldName = attributeList.get(attributeIndex).getFieldName();
-	        IField field = currentTuple.getField(fieldName);
+	        IField field = sourceTuple.getField(fieldName);
             
 	        if (field instanceof TextField) {         //Lucene defines Fuzzy Token Matching only for text fields.
 	            int tokensMatched = 0;
@@ -137,7 +137,7 @@ public class FuzzyTokenMatcher implements IOperator{
 	            }
 	        }
 	    }
-	    return currentTuple;
+	    return sourceTuple;
     }
     
     @Override

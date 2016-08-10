@@ -100,13 +100,13 @@ public class KeywordMatcher implements IOperator {
                 }
 
 	            if (this.predicate.getOperatorType() == DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED) {
-	            	resultTuple = computeConjunctionMatchResult(sourceTuple);
+	            	resultTuple = computeConjunctionMatchingResult(sourceTuple);
 	            }
 	            if (this.predicate.getOperatorType() == DataConstants.KeywordMatchingType.PHRASE_INDEXBASED) {
-	            	resultTuple = computePhraseMatchResult(sourceTuple);
+	            	resultTuple = computePhraseMatchingResult(sourceTuple);
 	            }
 	            if (this.predicate.getOperatorType() == DataConstants.KeywordMatchingType.SUBSTRING_SCANBASED) {
-	            	resultTuple = computeSubstringMatchResult(sourceTuple);
+	            	resultTuple = computeSubstringMatchingResult(sourceTuple);
 	            }              
             	if (resultTuple != null) {
             		cursor++;
@@ -125,7 +125,7 @@ public class KeywordMatcher implements IOperator {
     }
     
     
-    private ITuple computeConjunctionMatchResult(ITuple sourceTuple) throws DataFlowException {    	
+    private ITuple computeConjunctionMatchingResult(ITuple sourceTuple) throws DataFlowException {    	
         List<Span> payload = (List<Span>) sourceTuple.getField(SchemaConstants.SPAN_LIST).getValue(); 
         List<Span> relevantSpans = filterRelevantSpans(payload);
         List<Span> matchResults = new ArrayList<>();
@@ -175,7 +175,7 @@ public class KeywordMatcher implements IOperator {
     }
     
     
-    private ITuple computePhraseMatchResult(ITuple sourceTuple) throws DataFlowException {
+    private ITuple computePhraseMatchingResult(ITuple sourceTuple) throws DataFlowException {
         List<Span> payload = (List<Span>) sourceTuple.getField(SchemaConstants.SPAN_LIST).getValue(); 
         List<Span> relevantSpans = filterRelevantSpans(payload);
         List<Span> matchResults = new ArrayList<>();
@@ -271,7 +271,7 @@ public class KeywordMatcher implements IOperator {
     }
     
     
-    private ITuple computeSubstringMatchResult(ITuple sourceTuple) throws DataFlowException {
+    private ITuple computeSubstringMatchingResult(ITuple sourceTuple) throws DataFlowException {
         List<Span> matchResults = new ArrayList<>();       
     	
     	for (Attribute attribute : this.predicate.getAttributeList()) {
