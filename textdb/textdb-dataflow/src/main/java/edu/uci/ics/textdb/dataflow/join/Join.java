@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import edu.uci.ics.textdb.api.common.Attribute;
 import edu.uci.ics.textdb.api.common.FieldType;
 import edu.uci.ics.textdb.api.common.IField;
 import edu.uci.ics.textdb.api.common.IPredicate;
@@ -62,7 +63,8 @@ public class Join implements IOperator {
 	 * @param joinPredicate
 	 *            is the predicate over which the join is made
 	 */
-	public Join(IOperator outerOperator, IOperator innerOperator, IPredicate joinPredicate) {
+	public Join(IOperator outerOperator, IOperator innerOperator,
+			IPredicate joinPredicate) {
 		this.outerOperator = outerOperator;
 		this.innerOperator = innerOperator;
 		this.joinPredicate = (JoinPredicate) joinPredicate;
@@ -70,9 +72,12 @@ public class Join implements IOperator {
 
 	@Override
 	public void open() throws Exception, DataFlowException {
-		if (!(joinPredicate.getjoinAttribute().getFieldType().equals(FieldType.STRING)
-				|| joinPredicate.getjoinAttribute().getFieldType().equals(FieldType.TEXT))) {
-			throw new Exception("Fields other than \"STRING\" and \"TEXT\" are not supported by Join yet.");
+		if (!(joinPredicate.getjoinAttribute().getFieldType()
+				.equals(FieldType.STRING)
+				|| joinPredicate.getjoinAttribute().getFieldType()
+				.equals(FieldType.TEXT))) {
+			throw new Exception(
+					"Fields other than \"STRING\" and \"TEXT\" are not supported by Join yet.");
 		}
 
 		try {
@@ -166,9 +171,12 @@ public class Join implements IOperator {
 		// called ID))
 		String fieldName = joinPredicate.getidAttribute().getFieldName();
 		try {
-			if (outerTuple.getField(fieldName).getClass().equals(IntegerField.class)
-					&& innerTuple.getField(fieldName).getClass().equals(IntegerField.class)) {
-				if (outerTuple.getField(fieldName).getValue().equals(innerTuple.getField(fieldName).getValue())) {
+			if (outerTuple.getField(fieldName).getClass()
+					.equals(IntegerField.class)
+					&& innerTuple.getField(fieldName).getClass()
+					.equals(IntegerField.class)) {
+				if (outerTuple.getField(fieldName).getValue()
+						.equals(innerTuple.getField(fieldName).getValue())) {
 					return true;
 				}
 			}
@@ -180,7 +188,8 @@ public class Join implements IOperator {
 
 	// Process the tuples to get a tuple with join result if predicate is
 	// satisfied.
-	private ITuple joinTuples(ITuple outerTuple, ITuple innerTuple, JoinPredicate joinPredicate) throws Exception {
+	private ITuple joinTuples(ITuple outerTuple, ITuple innerTuple,
+			JoinPredicate joinPredicate) throws Exception {
 		ITuple nextTuple = null;
 		List<Span> newJoinSpanList = new ArrayList<>();
 
@@ -195,8 +204,10 @@ public class Join implements IOperator {
 		IField spanFieldOfInnerTuple = null;
 		IField spanFieldOfOuterTuple = null;
 		try {
-			spanFieldOfInnerTuple = innerTuple.getField(SchemaConstants.SPAN_LIST);
-			spanFieldOfOuterTuple = outerTuple.getField(SchemaConstants.SPAN_LIST);
+			spanFieldOfInnerTuple = innerTuple
+					.getField(SchemaConstants.SPAN_LIST);
+			spanFieldOfOuterTuple = outerTuple
+					.getField(SchemaConstants.SPAN_LIST);
 		} catch (Exception e) {
 			return null;
 		}
@@ -223,30 +234,38 @@ public class Join implements IOperator {
 			Span outerSpan = outerSpanIter.next();
 			// Check if the field matches the filed over which we want to join.
 			// If not return null.
-			if (!outerSpan.getFieldName().equals(joinPredicate.getjoinAttribute().getFieldName())) {
+			if (!outerSpan.getFieldName()
+					.equals(joinPredicate.getjoinAttribute().getFieldName())) {
 				continue;
 			}
 			Iterator<Span> innerSpanIter = innerSpanList.iterator();
 			while (innerSpanIter.hasNext()) {
 				Span innerSpan = innerSpanIter.next();
-				if (!innerSpan.getFieldName().equals(joinPredicate.getjoinAttribute().getFieldName())) {
+				if (!innerSpan.getFieldName().equals(
+						joinPredicate.getjoinAttribute().getFieldName())) {
 					continue;
 				}
 				Integer threshold = joinPredicate.getThreshold();
-				if (Math.abs(outerSpan.getStart() - innerSpan.getStart()) <= threshold
-						&& Math.abs(outerSpan.getEnd() - innerSpan.getEnd()) <= threshold) {
-					Integer newSpanStartIndex = Math.min(outerSpan.getStart(), innerSpan.getStart());
-					Integer newSpanEndIndex = Math.max(outerSpan.getEnd(), innerSpan.getEnd());
+				if (Math.abs(outerSpan.getStart()
+						- innerSpan.getStart()) <= threshold
+						&& Math.abs(outerSpan.getEnd()
+								- innerSpan.getEnd()) <= threshold) {
+					Integer newSpanStartIndex = Math.min(outerSpan.getStart(),
+							innerSpan.getStart());
+					Integer newSpanEndIndex = Math.max(outerSpan.getEnd(),
+							innerSpan.getEnd());
 
 					// spanKey++;
-					String fieldName = joinPredicate.getjoinAttribute().getFieldName();
-					String fieldValue = (String) innerTuple.getField(fieldName).getValue();
-					String newFieldValue = fieldValue.substring(newSpanStartIndex, newSpanEndIndex);
-					Span newSpan = new Span(fieldName, newSpanStartIndex, newSpanEndIndex,
-							// TODO: Check the right values for key and value
-							// spanKey.toString(), // changed the value to foo
-							// to match test cases.
-							"foo", newFieldValue);
+					String fieldName = joinPredicate.getjoinAttribute()
+							.getFieldName();
+					String fieldValue = (String) innerTuple.getField(fieldName)
+							.getValue();
+					String newFieldValue = fieldValue
+							.substring(newSpanStartIndex, newSpanEndIndex);
+					String spanKey = outerSpan.getKey() + "_"
+							+ innerSpan.getKey();
+					Span newSpan = new Span(fieldName, newSpanStartIndex,
+							newSpanEndIndex, spanKey, newFieldValue);
 					newJoinSpanList.add(newSpan);
 				}
 			}
@@ -256,24 +275,75 @@ public class Join implements IOperator {
 			return null;
 		}
 
-		// TODO Discuss and implement as to what Schema has to be.
-		// It shouldn't just be inner tuple or outer tuple schema.
-		Schema schema = innerTuple.getSchema();
-		List<IField> fieldList = innerTuple.getFields();
-		IField[] nextTupleField = new IField[fieldList.size()];
+		ArrayList<IField> innerFieldList = new ArrayList<>();
+		innerFieldList.addAll(innerTuple.getFields());
+		ArrayList<IField> outerFieldList = new ArrayList<>();
+		outerFieldList.addAll(outerTuple.getFields());
 
-		for (int index = 0; index < nextTupleField.length - 1; index++) {
-			nextTupleField[index] = fieldList.get(index);
+		spanFieldOfInnerTuple = innerTuple.getField(SchemaConstants.SPAN_LIST);
+		spanFieldOfOuterTuple = outerTuple.getField(SchemaConstants.SPAN_LIST);
+
+		innerFieldList.remove(spanFieldOfInnerTuple);
+		outerFieldList.remove(spanFieldOfOuterTuple);
+
+		List<IField> newFieldList = new ArrayList<>();
+		Iterator<IField> innerFieldListIter = innerFieldList.iterator();
+
+		while (innerFieldListIter.hasNext()) {
+			IField nextField = innerFieldListIter.next();
+			if (outerFieldList.contains(nextField)) {
+				newFieldList.add(nextField);
+			}
 		}
 
-		nextTupleField[nextTupleField.length - 1] = new ListField<>(newJoinSpanList);
-		nextTuple = new DataTuple(schema, nextTupleField);
+		newFieldList.add(new ListField<>(newJoinSpanList));
+
+		ArrayList<Attribute> innerAttrList = new ArrayList<>();
+		innerAttrList.addAll(innerTuple.getSchema().getAttributes());
+		ArrayList<Attribute> outerAttrList = new ArrayList<>();
+		outerAttrList.addAll(outerTuple.getSchema().getAttributes());
+
+		List<Attribute> newAttrList = new ArrayList<>();
+		Iterator<Attribute> innerAttrListIter = innerAttrList.iterator();
+
+		while (innerAttrListIter.hasNext()) {
+			Attribute nextAttr = innerAttrListIter.next();
+			if (outerAttrList.contains(nextAttr)) {
+				newAttrList.add(nextAttr);
+			}
+		}
+
+		if (newAttrList.size() != newFieldList.size()) {
+			// TODO Discuss and implement as to what Schema has to be.
+			// It shouldn't just be inner tuple or outer tuple schema.
+//			Schema schema = innerTuple.getSchema();
+//			List<IField> fieldList = innerTuple.getFields();
+//			IField[] nextTupleField = new IField[fieldList.size()];
+//
+//			for (int index = 0; index < nextTupleField.length - 1; index++) {
+//				nextTupleField[index] = fieldList.get(index);
+//			}
+//
+//			nextTupleField[nextTupleField.length - 1] = new ListField<>(
+//					newJoinSpanList);
+//			nextTuple = new DataTuple(schema, nextTupleField);
+//
+//			return nextTuple;
+			throw new IndexOutOfBoundsException();
+		}
+
+		Attribute[] tempAttrArr = new Attribute[newAttrList.size()];
+		Schema newSchema = new Schema(newAttrList.toArray(tempAttrArr));
+
+		IField[] tempFieldArr = new IField[newFieldList.size()];
+		nextTuple = new DataTuple(newSchema,
+				newFieldList.toArray(tempFieldArr));
 
 		return nextTuple;
 	}
 
-    @Override
-    public Schema getOutputSchema() {
-        return innerOperator.getOutputSchema();
-    }
+	@Override
+	public Schema getOutputSchema() {
+		return innerOperator.getOutputSchema();
+	}
 }

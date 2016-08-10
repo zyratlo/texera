@@ -162,22 +162,22 @@ public class JoinTest {
 		switch (type) {
 		case "index":
 			if (whichOperator == "outer") {
-			    dataStore = dataStoreForOuter;
+				dataStore = dataStoreForOuter;
 				keywordPredicate = new KeywordPredicate(query, modifiedAttributeList,
 						analyzer, DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED);
 			} else if (whichOperator == "inner") {
-	             dataStore = dataStoreForInner;
+				dataStore = dataStoreForInner;
 				keywordPredicate = new KeywordPredicate(query, modifiedAttributeList,
 						analyzer, DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED);
 			}
 			break;
 		case "phrase":
 			if (whichOperator == "outer") {
-	             dataStore = dataStoreForOuter;
+				dataStore = dataStoreForOuter;
 				keywordPredicate = new KeywordPredicate(query, modifiedAttributeList,
 						analyzer, DataConstants.KeywordMatchingType.PHRASE_INDEXBASED);
 			} else if (whichOperator == "inner") {
-	              dataStore = dataStoreForInner;
+				dataStore = dataStoreForInner;
 				keywordPredicate = new KeywordPredicate(query, modifiedAttributeList,
 						analyzer, DataConstants.KeywordMatchingType.PHRASE_INDEXBASED);
 			}
@@ -186,11 +186,11 @@ public class JoinTest {
 		default:
 			break;
 		}
-		
-        IndexBasedSourceOperator indexInputOperator = new IndexBasedSourceOperator(keywordPredicate.generateDataReaderPredicate(dataStore));
-        KeywordMatcher keywordMatcher = new KeywordMatcher(keywordPredicate);
-        keywordMatcher.setInputOperator(indexInputOperator);
-        
+
+		IndexBasedSourceOperator indexInputOperator = new IndexBasedSourceOperator(keywordPredicate.generateDataReaderPredicate(dataStore));
+		KeywordMatcher keywordMatcher = new KeywordMatcher(keywordPredicate);
+		keywordMatcher.setInputOperator(indexInputOperator);
+
 		return keywordMatcher;
 	}
 
@@ -442,7 +442,7 @@ public class JoinTest {
 		String reviewField = attributeList.get(4).getFieldName();
 		// The "foo" (key) is a tentative key; will be replaced by an actual
 		// key once implementation is fixed.
-		Span span1 = new Span(reviewField, 11, 33, "foo",
+		Span span1 = new Span(reviewField, 11, 33, "special_writer",
 				"special kind of " + "writer");
 		spanList.add(span1);
 
@@ -585,8 +585,8 @@ public class JoinTest {
 		String reviewField = attributeList.get(4).getFieldName();
 		// The "foo" (key) is a tentative key; will be replaced by an actual
 		// key once implementation is fixed.
-		Span span1 = new Span(reviewField, 3, 33, "foo",
-				"takes a special " + "kind of writer");
+		Span span1 = new Span(reviewField, 3, 33, "special_takes a special "
+				+ "kind of writer", "takes a special " + "kind of writer");
 		spanList.add(span1);
 
 		IField[] book1 = { new IntegerField(52), new StringField("Mary Roach"),
@@ -686,8 +686,9 @@ public class JoinTest {
 		String reviewField = attributeList.get(4).getFieldName();
 		// The "foo" (key) is a tentative key; will be replaced by an actual
 		// key once implementation is fixed.
-		Span span1 = new Span(reviewField, 75, 109, "foo",
-				"gastrointestinal " + "tract interesting");
+		Span span1 = new Span(reviewField, 75, 109, "gastrointestinal tract_"
+				+ "tract interesting", "gastrointestinal " 
+						+ "tract interesting");
 		spanList.add(span1);
 
 		IField[] book1 = { new IntegerField(52), new StringField("Mary Roach"),
@@ -780,7 +781,8 @@ public class JoinTest {
 		String reviewField = attributeList.get(4).getFieldName();
 		// The "foo" (key) is a tentative key; will be replaced by an actual
 		// key once implementation is fixed.
-		Span span1 = new Span(reviewField, 11, 18, "foo", "special");
+		Span span1 = new Span(reviewField, 11, 18, "special_special", 
+				"special");
 		spanList.add(span1);
 
 		IField[] book1 = { new IntegerField(52), new StringField("Mary Roach"),
@@ -846,13 +848,14 @@ public class JoinTest {
 		query = "kind";
 		KeywordPredicate keywordPredicate = new KeywordPredicate(query,
 				modifiedAttributeList, analyzer,
-				DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED
-				);
-		
-        IndexBasedSourceOperator indexInputOperator = new IndexBasedSourceOperator(keywordPredicate.generateDataReaderPredicate(dataStore));
-        keywordMatcherInner = new KeywordMatcher(keywordPredicate);
-        keywordMatcherInner.setInputOperator(indexInputOperator);
-        
+				DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED);
+
+		IndexBasedSourceOperator indexInputOperator = 
+				new IndexBasedSourceOperator(keywordPredicate
+						.generateDataReaderPredicate(dataStore));
+		keywordMatcherInner = new KeywordMatcher(keywordPredicate);
+		keywordMatcherInner.setInputOperator(indexInputOperator);
+
 		Attribute idAttr = attributeList.get(0);
 		Attribute reviewAttr = attributeList.get(4);
 		List<ITuple> resultList = getJoinResults(keywordMatcherOuter,
@@ -935,12 +938,14 @@ public class JoinTest {
 		String reviewField = attributeList.get(4).getFieldName();
 		// The "foo" (key) is a tentative key; will be replaced by an actual
 		// key once implementation is fixed.
-		Span span1 = new Span(reviewField, 0, 16, "foo",
+		Span span1 = new Span(reviewField, 0, 16, "review_book",
 				"Review of a " + "Book");
 		spanList.add(span1);
-		Span span2 = new Span(reviewField, 62, 73, "foo", "book review");
+		Span span2 = new Span(reviewField, 62, 73, "review_book", 
+				"book review");
 		spanList.add(span2);
-		Span span3 = new Span(reviewField, 235, 246, "foo", "book review");
+		Span span3 = new Span(reviewField, 235, 246, "review_book", 
+				"book review");
 		spanList.add(span3);
 
 		IField[] book1 = { new IntegerField(55),
@@ -1058,12 +1063,14 @@ public class JoinTest {
 		String reviewField = attributeList.get(4).getFieldName();
 		// The "foo" (key) is a tentative key; will be replaced by an actual
 		// key once implementation is fixed.
-		Span span1 = new Span(reviewField, 0, 16, "foo",
+		Span span1 = new Span(reviewField, 0, 16, "review_book",
 				"Review of a " + "Book");
 		spanList.add(span1);
-		Span span2 = new Span(reviewField, 62, 73, "foo", "book review");
+		Span span2 = new Span(reviewField, 62, 73, "review_book", 
+				"book review");
 		spanList.add(span2);
-		Span span3 = new Span(reviewField, 235, 246, "foo", "book review");
+		Span span3 = new Span(reviewField, 235, 246, "review_book", 
+				"book review");
 		spanList.add(span3);
 
 		IField[] book1 = { new IntegerField(52), new StringField("Mary Roach"),
@@ -1215,11 +1222,11 @@ public class JoinTest {
 		String reviewField = attributeList.get(4).getFieldName();
 		// The "foo" (key) is a tentative key; will be replaced by an actual
 		// key once implementation is fixed.
-		Span span1 = new Span(reviewField, 28, 119, "foo",
+		Span span1 = new Span(reviewField, 28, 119, "typical_actually",
 				"typical review. " + "This is a test. A book review test. "
 						+ "A test to test queries without actually");
 		spanList.add(span1);
-		Span span2 = new Span(reviewField, 186, 234, "foo",
+		Span span2 = new Span(reviewField, 186, 234, "typical_actually",
 				"actually a review " + "even if it is not your typical");
 		spanList.add(span2);
 
