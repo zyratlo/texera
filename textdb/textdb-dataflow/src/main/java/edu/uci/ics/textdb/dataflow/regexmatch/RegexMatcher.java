@@ -57,6 +57,8 @@ public class RegexMatcher implements IOperator {
     	this.regexPredicate = (RegexPredicate) predicate;
     	this.regex = regexPredicate.getRegex();
     	this.fieldNameList = regexPredicate.getFieldNameList();
+    	
+    	
     			
 		// try Java Regex first
 		try {
@@ -84,7 +86,6 @@ public class RegexMatcher implements IOperator {
             }  
             
             this.spanList = computeMatches(sourceTuple);
-            
             if (spanList != null && spanList.size() != 0) { // a list of matches found
             	List<IField> fields = sourceTuple.getFields();
             	return constructSpanTuple(fields, this.spanList);
@@ -207,6 +208,7 @@ public class RegexMatcher implements IOperator {
         if (this.inputOperator == null) {
             throw new DataFlowException(ErrorMessages.INPUT_OPERATOR_NOT_SPECIFIED);
         }
+        
         
         try {
             inputOperator.open();
