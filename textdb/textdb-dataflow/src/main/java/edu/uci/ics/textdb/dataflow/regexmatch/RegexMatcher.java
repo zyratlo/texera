@@ -87,8 +87,6 @@ public class RegexMatcher implements IOperator {
             
             this.spanList = computeMatches(sourceTuple);
             if (spanList != null && spanList.size() != 0) { // a list of matches found
-                System.out.println(spanList.size());
-
             	List<IField> fields = sourceTuple.getFields();
             	return constructSpanTuple(fields, this.spanList);
             } else { // no match found
