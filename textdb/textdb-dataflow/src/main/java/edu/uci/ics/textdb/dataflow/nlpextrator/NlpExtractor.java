@@ -47,6 +47,9 @@ public class NlpExtractor implements IOperator {
     private Schema returnSchema;
     private NlpTokenType inputNlpTokenType = null;
     private String nlpTypeIndicator = null;
+    private int limit;
+    private int cursor;
+    private int offset;
 
 
     /**
@@ -88,6 +91,9 @@ public class NlpExtractor implements IOperator {
     public NlpExtractor(IOperator operator, List<Attribute>
             searchInAttributes, NlpTokenType inputNlpTokenType)
             throws DataFlowException {
+        this.cursor = -1;
+        this.limit = Integer.MAX_VALUE;
+        this.offset = 0;
         this.inputOperator = operator;
         this.searchInAttributes = searchInAttributes;
         this.inputNlpTokenType = inputNlpTokenType;
@@ -125,24 +131,54 @@ public class NlpExtractor implements IOperator {
      */
     @Override
     public ITuple getNextTuple() throws Exception {
-        sourceTuple = inputOperator.getNextTuple();
-        if (sourceTuple == null) {
-            return null;
-        } else {
-            if (returnSchema == null) {
-                returnSchema = Utils.createSpanSchema(sourceTuple.getSchema());
-            }
-            List<Span> spanList = new ArrayList<>();
-            for (Attribute attribute : searchInAttributes) {
-                String fieldName = attribute.getFieldName();
-                IField field = sourceTuple.getField(fieldName);
-                spanList.addAll(extractNlpSpans(field, fieldName));
-            }
-            ITuple returnTuple = Utils.getSpanTuple(sourceTuple.getFields(),
-                    spanList, returnSchema);
-            return returnTuple;
-        }
+    	if (limit == 0 || cursor >= limit + offset - 1){
+    		return null;
+    	}
+    	ITuple sourceTuple;
+    	ITuple returnTuple = null;
+    	while ((sourceTuple = inputOperator.getNextTuple()) != null){
+	        returnTuple = computeMatchResult(sourceTuple);
+	        
+	        if (returnTuple != null){
+	        	cursor++;
+	        }
+	        if (cursor >= offset){
+	        	break;
+	        }
+    	}
+    	return returnTuple;
     }
+    
+    private ITuple computeMatchResult(ITuple sourceTuple) {
+    	if (returnSchema == null){
+    		returnSchema = Utils.createSpanSchema(sourceTuple.getSchema());
+    	}
+        List<Span> spanList = new ArrayList<>();
+        for (Attribute attribute : searchInAttributes) {
+            String fieldName = attribute.getFieldName();
+            IField field = sourceTuple.getField(fieldName);
+            spanList.addAll(extractNlpSpans(field, fieldName));
+        }
+        return Utils.getSpanTuple(sourceTuple.getFields(),
+                spanList, returnSchema);
+    }
+    
+    public void setLimit(int limit) {
+    	this.limit = limit;
+    }
+    
+    public int getLimit() {
+    	return this.limit;
+    }
+    
+    public void setOffset(int offset) {
+    	this.offset = offset;
+    }
+    
+    public int getOffset() {
+    	return this.offset;
+    }
+    
 
     /**
      * @param iField
