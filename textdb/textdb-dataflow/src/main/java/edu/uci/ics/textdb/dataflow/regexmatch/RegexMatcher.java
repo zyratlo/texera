@@ -62,6 +62,8 @@ public class RegexMatcher implements IOperator {
     	this.regexPredicate = (RegexPredicate) predicate;
     	this.regex = regexPredicate.getRegex();
     	this.fieldNameList = regexPredicate.getFieldNameList();
+    	
+    	
     			
 		// try Java Regex first
 		try {
@@ -236,8 +238,10 @@ public class RegexMatcher implements IOperator {
             throw new DataFlowException(ErrorMessages.INPUT_OPERATOR_NOT_SPECIFIED);
         }
         
+        
         try {
             inputOperator.open();
+            this.spanSchema = Utils.createSpanSchema(this.inputOperator.getOutputSchema());
         } catch (Exception e) {
             e.printStackTrace();
             throw new DataFlowException(e.getMessage(), e);
