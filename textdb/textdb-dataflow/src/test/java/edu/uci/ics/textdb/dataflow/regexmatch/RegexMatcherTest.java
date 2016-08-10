@@ -346,7 +346,7 @@ public class RegexMatcherTest {
 		String regex = "patient";
 		testHelper.runTest(regex, RegexTestConstantsText.CONTENT_ATTR, true, 2);
 
-		List<ITuple> exactResults = testHelper.getResults();
+		List<ITuple> exactResultsWithLimit = testHelper.getResults();
 		List<ITuple> expectedResults = new ArrayList<ITuple>();
 		
 		Schema spanSchema = testHelper.getSpanSchema();
@@ -374,9 +374,9 @@ public class RegexMatcherTest {
 		fields.add(spanField);
 		expectedResults.add(new DataTuple(spanSchema, fields.toArray(new IField[fields.size()])));
 		
-		Assert.assertTrue(expectedResults.containsAll(exactResults));
+		Assert.assertTrue(expectedResults.containsAll(exactResultsWithLimit));
 		Assert.assertEquals(expectedResults.size(), 3);
-		Assert.assertEquals(exactResults.size(), 2);
+		Assert.assertEquals(exactResultsWithLimit.size(), 2);
 	}
 	
 	
@@ -388,7 +388,7 @@ public class RegexMatcherTest {
 		String regex = "patient";
 		testHelper.runTest(regex, RegexTestConstantsText.CONTENT_ATTR, true, 2, 1);
 
-		List<ITuple> exactResults = testHelper.getResults();
+		List<ITuple> exactResultsWithLimitOffset = testHelper.getResults();
 		List<ITuple> expectedResults = new ArrayList<ITuple> ();
 		
 		Schema spanSchema = testHelper.getSpanSchema();
@@ -416,9 +416,9 @@ public class RegexMatcherTest {
 		fields.add(spanField);
 		expectedResults.add(new DataTuple(spanSchema, fields.toArray(new IField[fields.size()])));
 		
-		Assert.assertTrue(expectedResults.containsAll(exactResults));
+		Assert.assertTrue(expectedResults.containsAll(exactResultsWithLimitOffset));
 		Assert.assertEquals(expectedResults.size(), 3);
-		Assert.assertEquals(exactResults.size(), 2);
+		Assert.assertEquals(exactResultsWithLimitOffset.size(), 2);
 	}
 	
 //	@Test
