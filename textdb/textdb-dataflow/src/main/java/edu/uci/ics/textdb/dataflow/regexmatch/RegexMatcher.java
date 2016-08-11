@@ -58,11 +58,11 @@ public class RegexMatcher implements IOperator {
 	private java.util.regex.Pattern javaPattern;
 	
 	
-    public RegexMatcher(IPredicate predicate) throws DataFlowException{
+    public RegexMatcher(RegexPredicate predicate) throws DataFlowException{
     	this.cursor = -1;
     	this.offset = 0;
     	this.limit = Integer.MAX_VALUE;
-    	this.regexPredicate = (RegexPredicate) predicate;
+    	this.regexPredicate = predicate;
     	this.regex = regexPredicate.getRegex();
     	this.attributeList = regexPredicate.getAttributeList();  	
     			

@@ -29,7 +29,7 @@ public class DataWriterReaderTest {
     private IDataWriter dataWriter;
     private IDataReader dataReader;
     private IDataStore dataStore;
-    private IPredicate dataReaderPredicate;
+    private DataReaderPredicate dataReaderPredicate;
     private Analyzer luceneAnalyzer;
     private Query query;
     

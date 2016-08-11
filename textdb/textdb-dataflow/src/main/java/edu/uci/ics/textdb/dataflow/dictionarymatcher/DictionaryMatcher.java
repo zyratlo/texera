@@ -50,7 +50,7 @@ public class DictionaryMatcher implements IOperator {
      * @param predicate
      * 
      */
-    public DictionaryMatcher(IPredicate predicate) {
+    public DictionaryMatcher(DictionaryPredicate predicate) {
         this.resultCursor = -1;
         this.limit = Integer.MAX_VALUE;
         this.offset = 0;

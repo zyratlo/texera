@@ -63,7 +63,7 @@ public class FuzzyTokenMatcherTest {
     
     public List<ITuple> getQueryResults(String query,double threshold, ArrayList<Attribute> attributeList, boolean isSpanInformationAdded) throws DataFlowException, ParseException {
 
-        IPredicate predicate = new FuzzyTokenPredicate(query, dataStore, attributeList, analyzer, threshold, isSpanInformationAdded);
+        FuzzyTokenPredicate predicate = new FuzzyTokenPredicate(query, dataStore, attributeList, analyzer, threshold, isSpanInformationAdded);
         fuzzyTokenMatcher = new FuzzyTokenMatcher(predicate);
         fuzzyTokenMatcher.open();
 
