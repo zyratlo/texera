@@ -14,6 +14,7 @@ import edu.uci.ics.textdb.api.common.Schema;
 import edu.uci.ics.textdb.api.dataflow.IOperator;
 import edu.uci.ics.textdb.common.constants.DataConstants;
 import edu.uci.ics.textdb.common.constants.DataConstants.KeywordMatchingType;
+import edu.uci.ics.textdb.common.constants.SchemaConstants;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
 import edu.uci.ics.textdb.common.exception.ErrorMessages;
 import edu.uci.ics.textdb.common.field.Span;
@@ -35,17 +36,24 @@ public class DictionaryMatcher implements IOperator {
 
 	private Schema spanSchema;
     
-    private ITuple currentTuple;
+    private ITuple sourceTuple;
     private String currentDictionaryEntry;
 
     private final DictionaryPredicate predicate;
+    
+    private int resultCursor;
+    private int limit;
+    private int offset;
 
     /**
      * Constructs a DictionaryMatcher with a dictionary predicate
      * @param predicate
      * 
      */
-    public DictionaryMatcher(IPredicate predicate) {
+    public DictionaryMatcher(DictionaryPredicate predicate) {
+        this.resultCursor = -1;
+        this.limit = Integer.MAX_VALUE;
+        this.offset = 0;
         this.predicate = (DictionaryPredicate) predicate;
         this.spanSchema = Utils.createSpanSchema(this.predicate.getDataStore().getSchema());
     }
@@ -126,6 +134,9 @@ public class DictionaryMatcher implements IOperator {
      */
     @Override
     public ITuple getNextTuple() throws Exception {
+    	if (resultCursor >= limit + offset - 1){
+    		return null;
+    	}
     	if (predicate.getSourceOperatorType() == DataConstants.KeywordMatchingType.PHRASE_INDEXBASED
     	||  predicate.getSourceOperatorType() == DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED) {
     		// For each dictionary entry, 
@@ -133,8 +144,12 @@ public class DictionaryMatcher implements IOperator {
     		
     		while (true) {
     			// If there's result from current keywordMatcher, return it.
-    			if ((currentTuple = inputOperator.getNextTuple()) != null) {
-    				return currentTuple;
+    			if ((sourceTuple = inputOperator.getNextTuple()) != null) {
+    				resultCursor++;
+    				if (resultCursor >= offset){
+    					return sourceTuple;
+    				}
+    				continue;
     			}
     			// If all results from current keywordMatcher are consumed, 
     			// advance to next dictionary entry, and
@@ -167,38 +182,56 @@ public class DictionaryMatcher implements IOperator {
     		}
         }
     	else {
-    		if (currentTuple == null) {
-    			if ((currentTuple = inputOperator.getNextTuple()) == null) {
+    		if (sourceTuple == null) {
+    			if ((sourceTuple = inputOperator.getNextTuple()) == null) {
     				return null;
     			}
     		}
-    		
-    		ITuple result = currentTuple;
-    		while (currentTuple != null) {
-    			result = matchTuple(currentDictionaryEntry, currentTuple);
-    			if (result != null) {
-    				advanceCursor();
-
-    				return result;
-    			}
-    			advanceCursor();
-    		}
-
-    		return null;
+    		ITuple resultTuple = null;
+	    	while (sourceTuple != null) {
+	    	    if (! predicate.getDataStore().getSchema().containsField(SchemaConstants.SPAN_LIST)) {
+	    	        sourceTuple = Utils.getSpanTuple(sourceTuple.getFields(), new ArrayList<Span>(), Utils.createSpanSchema(sourceTuple.getSchema()));
+	    	    }
+	    		resultTuple = computeMatchingResult(currentDictionaryEntry, sourceTuple);
+	    		if (resultTuple != null) {
+	    			resultCursor++;
+	    		}
+	    		if (resultTuple != null && resultCursor >= offset){
+	    			break;
+	    		}
+	    	}
+    		return resultTuple;
     	}
     }
+    
+    public void setLimit(int limit){
+    	this.limit = limit;
+    }
+    
+    public int getLimit(){
+    	return this.limit;
+    }
+    
+    public void setOffset(int offset){
+    	this.offset = offset;
+    }
+    
+    public int getOffset(){
+    	return this.offset;
+    }
+    
     
     /*
      * Advance the cursor of dictionary. if reach the end of the dictionary,
      * advance the cursor of tuples and reset dictionary
      */
-    private void advanceCursor() throws Exception {
+    private void advanceDictionaryCursor() throws Exception {
     	if ((currentDictionaryEntry = predicate.getNextDictionaryEntry()) != null) {
     		return;
     	}
     	predicate.resetDictCursor();
     	currentDictionaryEntry = predicate.getNextDictionaryEntry();
-    	currentTuple = inputOperator.getNextTuple();
+    	sourceTuple = inputOperator.getNextTuple();
     }
     
     /*
@@ -206,19 +239,19 @@ public class DictionaryMatcher implements IOperator {
      * if there's no match, returns the original dataTuple object,
      * if there's a match, return a new dataTuple with span list added
      */
-    private ITuple matchTuple(String key, ITuple dataTuple) {
+    private ITuple computeMatchingResult(String key, ITuple sourceTuple) throws Exception {
     	
     	List<Attribute> attributeList = predicate.getAttributeList();
-    	List<Span> spanList = new ArrayList<>();
+    	List<Span> matchingResults = new ArrayList<>();
     	
     	for (Attribute attr : attributeList) {
     		String fieldName = attr.getFieldName();
-    		String fieldValue = dataTuple.getField(fieldName).getValue().toString();
+    		String fieldValue = sourceTuple.getField(fieldName).getValue().toString();
     		
     		// if attribute type is not TEXT, then key needs to match the fieldValue exactly
     		if (attr.getFieldType() != FieldType.TEXT) {
     			if (fieldValue.equals(key)) {
-    				spanList.add(new Span(fieldName, 0, fieldValue.length(), key, fieldValue));
+    			    matchingResults.add(new Span(fieldName, 0, fieldValue.length(), key, fieldValue));
     			}
     		}
     		// if attribute type is TEXT, then key can match a substring of fieldValue
@@ -230,16 +263,22 @@ public class DictionaryMatcher implements IOperator {
     				int start = matcher.start();
     				int end = matcher.end();
 
-    				spanList.add(new Span(fieldName, start, end, key, fieldValue.substring(start, end)));
+    				matchingResults.add(new Span(fieldName, start, end, key, fieldValue.substring(start, end)));
     			}
     		}
     	}
     	
-    	if (spanList.size() == 0) {
+    	advanceDictionaryCursor();
+    	
+    	
+    	if (matchingResults.size() == 0) {
     		return null;
-    	} else {
-    		return Utils.getSpanTuple(dataTuple.getFields(), spanList, this.spanSchema);
-    	}
+    	} 
+    	
+        List<Span> spanList = (List<Span>) sourceTuple.getField(SchemaConstants.SPAN_LIST).getValue();
+        spanList.addAll(matchingResults);
+        
+        return sourceTuple;
     }
 
 
@@ -268,8 +307,9 @@ public class DictionaryMatcher implements IOperator {
 	}
 
 
-    @Override
-    public Schema getOutputSchema() {
-        return spanSchema;
-    }
+	@Override
+	public Schema getOutputSchema() {
+		return spanSchema;
+	}
+
 }

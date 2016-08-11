@@ -1,6 +1,7 @@
 package edu.uci.ics.textdb.dataflow.fuzzytokenmatcher;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import edu.uci.ics.textdb.api.common.Attribute;
@@ -20,6 +21,7 @@ import edu.uci.ics.textdb.common.exception.DataFlowException;
 import edu.uci.ics.textdb.common.exception.ErrorMessages;
 import edu.uci.ics.textdb.common.field.Span;
 import edu.uci.ics.textdb.common.field.TextField;
+import edu.uci.ics.textdb.common.utils.Utils;
 import edu.uci.ics.textdb.dataflow.common.FuzzyTokenPredicate;
 import edu.uci.ics.textdb.dataflow.source.IndexBasedSourceOperator;
 import edu.uci.ics.textdb.storage.DataReaderPredicate;
@@ -28,16 +30,23 @@ public class FuzzyTokenMatcher implements IOperator{
     private final FuzzyTokenPredicate predicate;
     private IOperator inputOperator;
     
+    private Schema inputSchema;
     private Schema outputSchema;
 
 	private List<Attribute> attributeList;
     private int threshold;
     private ArrayList<String> queryTokens;
+    private int limit;
+    private int cursor;
+    private int offset;
 
-    public FuzzyTokenMatcher(IPredicate predicate) {
-    	this.predicate = (FuzzyTokenPredicate)predicate;
-    	DataReaderPredicate dataReaderPredicate = this.predicate.getDataReaderPredicate();
-    	this.inputOperator = new IndexBasedSourceOperator(dataReaderPredicate);
+    public FuzzyTokenMatcher(FuzzyTokenPredicate predicate) {
+        this.cursor = -1;
+        this.limit = Integer.MAX_VALUE;
+        this.offset = 0;
+        this.predicate = predicate;
+        DataReaderPredicate dataReaderPredicate = this.predicate.getDataReaderPredicate();
+        this.inputOperator = new IndexBasedSourceOperator(dataReaderPredicate);
     }
     
     @Override
@@ -50,7 +59,13 @@ public class FuzzyTokenMatcher implements IOperator{
             attributeList = predicate.getAttributeList();
             threshold = predicate.getThreshold();
             queryTokens = predicate.getQueryTokens();
-            outputSchema = inputOperator.getOutputSchema();
+
+            inputSchema = inputOperator.getOutputSchema();
+            if (predicate.getIsSpanInformationAdded() && ! inputSchema.containsField(SchemaConstants.SPAN_LIST)) {
+                outputSchema = Utils.createSpanSchema(inputSchema);
+            } else {
+                outputSchema = inputSchema;
+            }
     	} catch (Exception e) {
             e.printStackTrace();
             throw new DataFlowException(e.getMessage(), e);
@@ -60,44 +75,89 @@ public class FuzzyTokenMatcher implements IOperator{
     @Override
     public ITuple getNextTuple() throws DataFlowException {
 		try {
-		    ITuple sourceTuple = inputOperator.getNextTuple();
-		    if (sourceTuple == null || !this.predicate.getIsSpanInformationAdded())
-		        return sourceTuple;
-            
-		    int schemaIndex = sourceTuple.getSchema().getIndex(SchemaConstants.SPAN_LIST_ATTRIBUTE.getFieldName());
-		    List<Span> resultSpans =
-                    (List<Span>)sourceTuple.getField(schemaIndex).getValue();
-            
-		    /*The source operator returns spans even for those fields which did not satisfy the threshold criterion.
-		     *  So if two attributes A,B have 10 and 5 matching tokens, and we set threshold to 10,
-		     *  the number of spans returned is 15. So we need to filter those 5 spans for attribute B.
-		    */
-		    for(int attributeIndex = 0; attributeIndex < attributeList.size(); attributeIndex++) {
-		        String fieldName = attributeList.get(attributeIndex).getFieldName();
-		        IField field = sourceTuple.getField(fieldName);
-                
-		        if (field instanceof TextField) {         //Lucene defines Fuzzy Token Matching only for text fields.
-		            int tokensMatched = 0;
-		            List<Span> attributeSpans = new ArrayList<>();
-		            for (Span span : resultSpans) {
-		                if (span.getFieldName().equals(fieldName)) {
-		                    attributeSpans.add(span);
-		                    if (queryTokens.contains(span.getKey()))
-		                        tokensMatched++;
-		                }
-		            }
-		            if (tokensMatched < threshold) {
-		                resultSpans.removeAll(attributeSpans);
-		            }
-		        }
-		    }
-		    return sourceTuple;
+            if (limit == 0 || cursor >= limit + offset - 1){
+                return null;
+            }
+            ITuple sourceTuple;
+            ITuple resultTuple = null;
+            while ((sourceTuple = inputOperator.getNextTuple()) != null) {
+                if (! this.predicate.getIsSpanInformationAdded()) {
+                    return sourceTuple;
+                }
+                if (! inputSchema.containsField(SchemaConstants.SPAN_LIST)) {
+                    sourceTuple = Utils.getSpanTuple(sourceTuple.getFields(), new ArrayList<Span>(), outputSchema);
+                }
+                resultTuple = computeMatchingResult(sourceTuple);
+                if (resultTuple != null) {
+                    cursor++;
+                }
+                if (cursor >= offset) {
+                    break;
+                }
+            }
+            return resultTuple;
+
 		} catch (Exception e) {
 		    e.printStackTrace();
 		    throw new DataFlowException(e.getMessage(), e);
 		}
     }
+    
 
+    private ITuple computeMatchingResult(ITuple currentTuple) {
+        List<Span> payload = (List<Span>) currentTuple.getField(SchemaConstants.PAYLOAD).getValue(); 
+        List<Span> relevantSpans = filterRelevantSpans(payload);
+        List<Span> matchResults = new ArrayList<>();
+        
+        /*The source operator returns spans even for those fields which did not satisfy the threshold criterion.
+         *  So if two attributes A,B have 10 and 5 matching tokens, and we set threshold to 10,
+         *  the number of spans returned is 15. So we need to filter those 5 spans for attribute B.
+        */
+        for(int attributeIndex = 0; attributeIndex < attributeList.size(); attributeIndex++) {
+            String fieldName = attributeList.get(attributeIndex).getFieldName();
+            IField field = currentTuple.getField(fieldName);
+            
+            List<Span> fieldSpans = new ArrayList<>();
+            
+            if (field instanceof TextField) {         //Lucene defines Fuzzy Token Matching only for text fields.
+                for (Span span : relevantSpans) {
+                    if (span.getFieldName().equals(fieldName)) {
+                        if (queryTokens.contains(span.getKey())) {
+                            fieldSpans.add(span);  
+                        }
+                    }
+                }
+            }
+            
+            if (fieldSpans.size() >= threshold) {
+                matchResults.addAll(fieldSpans);
+            }
+
+        }
+        
+        if (matchResults.isEmpty()) {
+            return null;
+        }
+        
+        List<Span> spanList = (List<Span>) currentTuple.getField(SchemaConstants.SPAN_LIST).getValue();
+        spanList.addAll(matchResults);
+        
+        return currentTuple;
+    }
+    
+    private List<Span> filterRelevantSpans(List<Span> spanList) {
+        List<Span> relevantSpans = new ArrayList<>();
+        Iterator<Span> iterator = spanList.iterator();
+        while (iterator.hasNext()) {
+            Span span  = iterator.next();
+            if (predicate.getQueryTokens().contains(span.getKey())) {
+                relevantSpans.add(span);
+            }
+        }
+        return relevantSpans;
+    }
+    
+    
     @Override
     public void close() throws DataFlowException {
 		try {
@@ -121,5 +181,21 @@ public class FuzzyTokenMatcher implements IOperator{
     @Override
     public Schema getOutputSchema() {
         return outputSchema;
+    }
+    
+    public void setLimit(int limit){
+        this.limit = limit;
+    }
+    
+    public int getLimit(){
+        return this.limit;
+    }
+    
+    public void setOffset(int offset){
+        this.offset = offset;
+    }
+    
+    public int getOffset(){
+        return this.offset;
     }
 }
