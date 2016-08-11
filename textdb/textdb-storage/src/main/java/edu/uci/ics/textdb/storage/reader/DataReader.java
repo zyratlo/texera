@@ -29,6 +29,7 @@ import edu.uci.ics.textdb.api.common.IPredicate;
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.common.Schema;
 import edu.uci.ics.textdb.api.storage.IDataReader;
+import edu.uci.ics.textdb.common.constants.SchemaConstants;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
 import edu.uci.ics.textdb.common.exception.ErrorMessages;
 import edu.uci.ics.textdb.common.field.DataTuple;
@@ -53,7 +54,7 @@ public class DataReader implements IDataReader{
     // The schema of the data tuple
     private Schema schema;
     //The schema of the data tuple along with the span information.
-    private Schema spanSchema;
+    private Schema outputSchema;
 
     public DataReader(IPredicate dataReaderPredicate) {
         this.dataReaderPredicate = (DataReaderPredicate)dataReaderPredicate;
@@ -92,7 +93,7 @@ public class DataReader implements IDataReader{
                 }
 
                 this.attributeList = dataReaderPredicate.getAttributeList();
-                this.spanSchema = Utils.createSpanSchema(schema);
+                this.outputSchema = Utils.addAttributeToSchema(schema, SchemaConstants.PAYLOAD_ATTRIBUTE);
             }
 
         } catch (IOException e) {
@@ -111,7 +112,7 @@ public class DataReader implements IDataReader{
                 return null;
             }
             Document document = luceneIndexSearcher.doc(scoreDocs[cursor].doc);
-            List<Span> spanList = new ArrayList<>();
+            List<Span> payload = new ArrayList<>();
             List<IField> fields = new ArrayList<IField>();
 
             for (Attribute  attr : schema.getAttributes()) {
@@ -157,7 +158,7 @@ public class DataReader implements IDataReader{
                                     String key = queryTokens.get(queryTokenIndex);
                                     String value = document.get(fieldName).substring(start,end);
                                     Span span = new Span(fieldName, start, end, key, value, tokenOffset);
-                                    spanList.add(span);
+                                    payload.add(span);
                                 }
 
                             }
@@ -178,7 +179,7 @@ public class DataReader implements IDataReader{
 
 
 
-            ITuple dataTuple  = Utils.getSpanTuple(fields, spanList, spanSchema);
+            ITuple dataTuple  = Utils.getSpanTuple(fields, payload, outputSchema);
             return dataTuple;
 
         } catch (IOException e) {
@@ -208,7 +209,7 @@ public class DataReader implements IDataReader{
     @Override
     public Schema getOutputSchema() {
         if (dataReaderPredicate.getIsSpanInformationAdded()) {
-            return spanSchema;
+            return outputSchema;
         } else {
             return schema;
         }

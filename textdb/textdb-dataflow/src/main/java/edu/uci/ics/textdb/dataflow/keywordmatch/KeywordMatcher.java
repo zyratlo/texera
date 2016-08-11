@@ -123,9 +123,9 @@ public class KeywordMatcher implements IOperator {
 
     }
     
-    
+
     private ITuple computeConjunctionMatchingResult(ITuple sourceTuple) throws DataFlowException {    	
-        List<Span> payload = (List<Span>) sourceTuple.getField(SchemaConstants.SPAN_LIST).getValue(); 
+        List<Span> payload = (List<Span>) sourceTuple.getField(SchemaConstants.PAYLOAD).getValue(); 
         List<Span> relevantSpans = filterRelevantSpans(payload);
         List<Span> matchingResults = new ArrayList<>();
     	
@@ -164,9 +164,6 @@ public class KeywordMatcher implements IOperator {
     		return null;
     	}
     	
-        // temporarily delete all spans in payload to pass all test cases
-        payload.clear();  // TODO: delete this line after DataReader's changes
-    	
         List<Span> spanList = (List<Span>) sourceTuple.getField(SchemaConstants.SPAN_LIST).getValue();
         spanList.addAll(matchingResults);
         
@@ -175,7 +172,7 @@ public class KeywordMatcher implements IOperator {
     
     
     private ITuple computePhraseMatchingResult(ITuple sourceTuple) throws DataFlowException {
-        List<Span> payload = (List<Span>) sourceTuple.getField(SchemaConstants.SPAN_LIST).getValue(); 
+        List<Span> payload = (List<Span>) sourceTuple.getField(SchemaConstants.PAYLOAD).getValue(); 
         List<Span> relevantSpans = filterRelevantSpans(payload);
         List<Span> matchingResults = new ArrayList<>();
 
@@ -259,10 +256,7 @@ public class KeywordMatcher implements IOperator {
     	if (matchingResults.isEmpty()) {
     		return null;
     	}
-    	
-        // temporarily delete all spans in payload to pass all test cases
-        payload.clear();  // TODO: delete this line after DataReader's changes
-    	
+
         List<Span> spanList = (List<Span>) sourceTuple.getField(SchemaConstants.SPAN_LIST).getValue();
         spanList.addAll(matchingResults);
     	
@@ -307,11 +301,7 @@ public class KeywordMatcher implements IOperator {
     	if (matchingResults.isEmpty()) {
     		return null;
     	}
-    	
-        List<Span> payload = (List<Span>) sourceTuple.getField(SchemaConstants.SPAN_LIST).getValue();
-        // temporarily delete all spans in payload to pass all test cases
-    	payload.clear();  // TODO: delete this line after DataReader's changes
-    	
+	
         List<Span> spanList = (List<Span>) sourceTuple.getField(SchemaConstants.SPAN_LIST).getValue();
         spanList.addAll(matchingResults);
     	

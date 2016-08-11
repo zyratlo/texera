@@ -59,9 +59,9 @@ public class FuzzyTokenMatcher implements IOperator{
             attributeList = predicate.getAttributeList();
             threshold = predicate.getThreshold();
             queryTokens = predicate.getQueryTokens();
-            
+
             inputSchema = inputOperator.getOutputSchema();
-            if (! inputSchema.containsField(SchemaConstants.SPAN_LIST)) {
+            if (predicate.getIsSpanInformationAdded() && ! inputSchema.containsField(SchemaConstants.SPAN_LIST)) {
                 outputSchema = Utils.createSpanSchema(inputSchema);
             } else {
                 outputSchema = inputSchema;
@@ -103,8 +103,9 @@ public class FuzzyTokenMatcher implements IOperator{
 		}
     }
     
+
     private ITuple computeMatchingResult(ITuple currentTuple) {
-        List<Span> payload = (List<Span>) currentTuple.getField(SchemaConstants.SPAN_LIST).getValue(); 
+        List<Span> payload = (List<Span>) currentTuple.getField(SchemaConstants.PAYLOAD).getValue(); 
         List<Span> relevantSpans = filterRelevantSpans(payload);
         List<Span> matchResults = new ArrayList<>();
         
@@ -137,9 +138,6 @@ public class FuzzyTokenMatcher implements IOperator{
         if (matchResults.isEmpty()) {
             return null;
         }
-        
-        // temporarily delete all spans in payload to pass all test cases
-        payload.clear();  // TODO: delete this line after DataReader's changes
         
         List<Span> spanList = (List<Span>) currentTuple.getField(SchemaConstants.SPAN_LIST).getValue();
         spanList.addAll(matchResults);
