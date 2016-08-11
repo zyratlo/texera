@@ -188,7 +188,7 @@ public class DictionaryMatcher implements IOperator {
     		}
     		ITuple resultTuple = null;
 	    	while (sourceTuple != null) {
-	    		resultTuple = computeMatchResult(currentDictionaryEntry, sourceTuple);
+	    		resultTuple = computeMatchingResult(currentDictionaryEntry, sourceTuple);
 	    		if (resultTuple != null) {
 	    			resultCursor++;
 	    		}
@@ -236,7 +236,7 @@ public class DictionaryMatcher implements IOperator {
      * if there's no match, returns the original dataTuple object,
      * if there's a match, return a new dataTuple with span list added
      */
-    private ITuple computeMatchResult(String key, ITuple sourceTuple) throws Exception {
+    private ITuple computeMatchingResult(String key, ITuple sourceTuple) throws Exception {
     	
     	List<Attribute> attributeList = predicate.getAttributeList();
     	List<Span> spanList = new ArrayList<>();
