@@ -133,7 +133,7 @@ public class DictionaryMatcherTest {
                 TestConstants.DESCRIPTION_ATTR);
 
         List<ITuple> returnedResults = getQueryResults(dictionary, KeywordMatchingType.SUBSTRING_SCANBASED, attributes);
-        boolean contains = TestUtils.containsAllResults(expectedResults, returnedResults);
+        boolean contains = TestUtils.containsAllResults(expectedResults, returnedResults);        
         Assert.assertTrue(contains);
     }
     
