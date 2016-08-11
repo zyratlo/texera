@@ -50,7 +50,7 @@ public class RegexMatcherTest {
 		List<ITuple> expectedResults = new ArrayList<ITuple>();
 		
 		//expected to match "brad lie angelina"
-		Schema spanSchema = testHelper.getOutputSchema();
+		Schema spanSchema = testHelper.getSpanSchema();
 		List<Span> spans = new ArrayList<Span>();
 		spans.add(new Span(TestConstants.FIRST_NAME, 11, 17, "g[^\\s]*", "gelina"));
 		IField spanField = new ListField<Span>(new ArrayList<Span>(spans));
@@ -83,7 +83,7 @@ public class RegexMatcherTest {
 		List<ITuple> expectedResults = new ArrayList<ITuple>();
 
 		//expected to match "http://weibo.com"
-		Schema spanSchema = testHelper.getOutputSchema();
+		Schema spanSchema = testHelper.getSpanSchema();
 		List<Span> spans = new ArrayList<Span>();
 		spans.add(new Span(RegexTestConstantsCorp.URL, 0, 16, query, "http://weibo.com"));
 		IField spanField = new ListField<Span>(new ArrayList<Span>(spans));
@@ -116,7 +116,7 @@ public class RegexMatcherTest {
 		List<ITuple> expectedResults = new ArrayList<ITuple>();
 		
 		//expected to match "66.220.144.0"
-		Schema spanSchema = testHelper.getOutputSchema();
+		Schema spanSchema = testHelper.getSpanSchema();
 		List<Span> spans = new ArrayList<Span>();
 		spans.add(new Span(RegexTestConstantsCorp.IP_ADDRESS, 0, 12, query, "66.220.144.0"));
 		IField spanField = new ListField<Span>(new ArrayList<Span>(spans));
@@ -157,7 +157,7 @@ public class RegexMatcherTest {
 		List<ITuple> expectedResults = new ArrayList<ITuple>();
 		
 		//expected to match "k.bocanegra@uci.edu"
-		Schema spanSchema = testHelper.getOutputSchema();
+		Schema spanSchema = testHelper.getSpanSchema();
 		List<Span> spans = new ArrayList<Span>();
 		spans.add(new Span(RegexTestConstantStaff.EMAIL, 0, 19, query, "m.bocanegra@164.com"));
 		IField spanField = new ListField<Span>(new ArrayList<Span>(spans));
@@ -192,7 +192,7 @@ public class RegexMatcherTest {
 		
 		
 		//expected to match "test" & testing"
-		Schema spanSchema = testHelper.getOutputSchema();
+		Schema spanSchema = testHelper.getSpanSchema();
 		List<Span> spans = new ArrayList<Span>();
 		spans.add(new Span(RegexTestConstantsText.CONTENT, 5, 9, regex, "test"));
 		spans.add(new Span(RegexTestConstantsText.CONTENT, 21, 28, regex, "testing"));
@@ -235,7 +235,7 @@ public class RegexMatcherTest {
 		List<ITuple> expectedResults = new ArrayList<ITuple>();
 		
 		//expected to match "followup"
-		Schema spanSchema = testHelper.getOutputSchema();
+		Schema spanSchema = testHelper.getSpanSchema();
 		List<Span> spans = new ArrayList<Span>();
 		spans.add(new Span(RegexTestConstantsText.CONTENT, 28, 36, regex, "followup"));
 		spans.add(new Span(RegexTestConstantsText.CONTENT, 54, 62, regex, "followup"));
@@ -281,7 +281,7 @@ public class RegexMatcherTest {
 		List<ITuple> expectedResults = new ArrayList<ITuple>();
 		
 		//expected to match "Tomato" & "tomato"
-		Schema spanSchema = testHelper.getOutputSchema();
+		Schema spanSchema = testHelper.getSpanSchema();
 		List<Span> spans = new ArrayList<Span>();
 		spans.add(new Span(RegexTestConstantsText.CONTENT, 0, 6, regex, "Tomato"));
 		spans.add(new Span(RegexTestConstantsText.CONTENT, 94, 100, regex, "tomato"));
@@ -323,7 +323,7 @@ public class RegexMatcherTest {
 		List<ITuple> expectedResults = new ArrayList<ITuple>();
 		
 		//expected to match [a] & [!]
-		Schema spanSchema = testHelper.getOutputSchema();
+		Schema spanSchema = testHelper.getSpanSchema();
 		List<Span> spans = new ArrayList<Span>();
 		spans.add(new Span(RegexTestConstantsText.CONTENT, 110, 113, regex, "[a]"));
 		spans.add(new Span(RegexTestConstantsText.CONTENT, 120, 123, regex, "[!]"));
@@ -349,7 +349,7 @@ public class RegexMatcherTest {
 		List<ITuple> exactResultsWithLimit = testHelper.getResults();
 		List<ITuple> expectedResults = new ArrayList<ITuple>();
 		
-		Schema spanSchema = testHelper.getOutputSchema();
+		Schema spanSchema = testHelper.getSpanSchema();
 		List<Span> spans = new ArrayList<Span>();
 		spans.add(new Span(RegexTestConstantsText.CONTENT, 4, 11, regex, "patient"));
 		IField spanField = new ListField<Span>(new ArrayList<Span>(spans));
@@ -391,7 +391,7 @@ public class RegexMatcherTest {
 		List<ITuple> exactResultsWithLimitOffset = testHelper.getResults();
 		List<ITuple> expectedResults = new ArrayList<ITuple> ();
 		
-		Schema spanSchema = testHelper.getOutputSchema();
+		Schema spanSchema = testHelper.getSpanSchema();
 		List<Span> spans = new ArrayList<Span>();
 		spans.add(new Span(RegexTestConstantsText.CONTENT, 4, 11, regex, "patient"));
 		IField spanField = new ListField<Span>(new ArrayList<Span>(spans));
@@ -432,7 +432,7 @@ public class RegexMatcherTest {
 //		List<ITuple> exactResults = testHelper.getResults();
 //		List<ITuple> expectedResults = new ArrayList<ITuple>();
 //		
-//		Schema spanSchema = testHelper.getOutputSchema();
+//		Schema spanSchema = testHelper.getSpanSchema();
 //		List<Span> spans = new ArrayList<Span>();
 //		spans.add(new Span(RegexTestConstantsText.CONTENT, 61, 64, regex, "the"));
 //		IField spanField = new ListField<Span>(new ArrayList<Span>(spans));
