@@ -60,9 +60,6 @@ public class DataWriterReaderTest {
             numTuples ++;
         }
         Assert.assertEquals(actualTuples.size(), numTuples);
-        System.out.println(Utils.getTupleListString(actualTuples));
-        System.out.println("==========");
-        System.out.println(Utils.getTupleListString(returnedTuples));
         boolean contains = containsAllResults(actualTuples, returnedTuples);
 		Assert.assertTrue(contains);
         dataReader.close();
