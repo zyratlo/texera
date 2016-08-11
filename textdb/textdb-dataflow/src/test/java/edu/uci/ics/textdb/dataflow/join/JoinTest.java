@@ -440,8 +440,8 @@ public class JoinTest {
 
 		List<Span> spanList = new ArrayList<>();
 		String reviewField = attributeList.get(4).getFieldName();
-		// The "foo" (key) is a tentative key; will be replaced by an actual
-		// key once implementation is fixed.
+		
+		
 		Span span1 = new Span(reviewField, 11, 33, "special_writer",
 				"special kind of " + "writer");
 		spanList.add(span1);
@@ -583,8 +583,8 @@ public class JoinTest {
 
 		List<Span> spanList = new ArrayList<>();
 		String reviewField = attributeList.get(4).getFieldName();
-		// The "foo" (key) is a tentative key; will be replaced by an actual
-		// key once implementation is fixed.
+		
+		
 		Span span1 = new Span(reviewField, 3, 33, "special_takes a special "
 				+ "kind of writer", "takes a special " + "kind of writer");
 		spanList.add(span1);
@@ -684,8 +684,8 @@ public class JoinTest {
 
 		List<Span> spanList = new ArrayList<>();
 		String reviewField = attributeList.get(4).getFieldName();
-		// The "foo" (key) is a tentative key; will be replaced by an actual
-		// key once implementation is fixed.
+		
+		
 		Span span1 = new Span(reviewField, 75, 109, "gastrointestinal tract_"
 				+ "tract interesting", "gastrointestinal " 
 						+ "tract interesting");
@@ -779,8 +779,8 @@ public class JoinTest {
 
 		List<Span> spanList = new ArrayList<>();
 		String reviewField = attributeList.get(4).getFieldName();
-		// The "foo" (key) is a tentative key; will be replaced by an actual
-		// key once implementation is fixed.
+		
+		
 		Span span1 = new Span(reviewField, 11, 18, "special_special", 
 				"special");
 		spanList.add(span1);
@@ -954,8 +954,8 @@ public class JoinTest {
 
 		List<Span> spanList = new ArrayList<>();
 		String reviewField = reviewAttr.getFieldName();
-		// The "foo" (key) is a tentative key; will be replaced by an actual
-		// key once implementation is fixed.
+		
+		
 		Span span1 = new Span(reviewField, 11, 33, "special_writer",
 				"special kind of " + "writer");
 		spanList.add(span1);
@@ -1065,8 +1065,8 @@ public class JoinTest {
 
 		List<Span> spanList = new ArrayList<>();
 		String reviewField = reviewAttr.getFieldName();
-		// The "foo" (key) is a tentative key; will be replaced by an actual
-		// key once implementation is fixed.
+		
+		
 		Span span1 = new Span(reviewField, 11, 33, "special_writer",
 				"special kind of " + "writer");
 		spanList.add(span1);
@@ -1264,8 +1264,8 @@ public class JoinTest {
 
 		List<Span> spanList = new ArrayList<>();
 		String reviewField = reviewAttr.getFieldName();
-		// The "foo" (key) is a tentative key; will be replaced by an actual
-		// key once implementation is fixed.
+		
+		
 		Span span1 = new Span(reviewField, 11, 33, "special_writer",
 				"special kind of " + "writer");
 		spanList.add(span1);
@@ -1453,8 +1453,8 @@ public class JoinTest {
 
 		List<Span> spanList = new ArrayList<>();
 		String reviewField = attributeList.get(4).getFieldName();
-		// The "foo" (key) is a tentative key; will be replaced by an actual
-		// key once implementation is fixed.
+		
+		
 		Span span1 = new Span(reviewField, 0, 16, "review_book",
 				"Review of a " + "Book");
 		spanList.add(span1);
@@ -1578,8 +1578,8 @@ public class JoinTest {
 
 		List<Span> spanList = new ArrayList<>();
 		String reviewField = attributeList.get(4).getFieldName();
-		// The "foo" (key) is a tentative key; will be replaced by an actual
-		// key once implementation is fixed.
+		
+		
 		Span span1 = new Span(reviewField, 0, 16, "review_book",
 				"Review of a " + "Book");
 		spanList.add(span1);
@@ -1737,8 +1737,8 @@ public class JoinTest {
 
 		List<Span> spanList = new ArrayList<>();
 		String reviewField = attributeList.get(4).getFieldName();
-		// The "foo" (key) is a tentative key; will be replaced by an actual
-		// key once implementation is fixed.
+		
+		
 		Span span1 = new Span(reviewField, 28, 119, "typical_actually",
 				"typical review. " + "This is a test. A book review test. "
 						+ "A test to test queries without actually");
