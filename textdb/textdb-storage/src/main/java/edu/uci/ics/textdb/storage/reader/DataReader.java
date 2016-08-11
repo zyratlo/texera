@@ -57,8 +57,8 @@ public class DataReader implements IDataReader {
 	private int offset;
 	private boolean payloadAdded = true;
 	
-	public DataReader(IPredicate dataReaderPredicate) {
-		predicate = (DataReaderPredicate)dataReaderPredicate;
+	public DataReader(DataReaderPredicate dataReaderPredicate) {
+		predicate = dataReaderPredicate;
 	}
 	
 	
