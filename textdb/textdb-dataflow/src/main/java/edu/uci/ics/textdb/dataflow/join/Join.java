@@ -275,28 +275,7 @@ public class Join implements IOperator {
 			return null;
 		}
 
-		ArrayList<IField> innerFieldList = new ArrayList<>();
-		innerFieldList.addAll(innerTuple.getFields());
-		ArrayList<IField> outerFieldList = new ArrayList<>();
-		outerFieldList.addAll(outerTuple.getFields());
-
-		spanFieldOfInnerTuple = innerTuple.getField(SchemaConstants.SPAN_LIST);
-		spanFieldOfOuterTuple = outerTuple.getField(SchemaConstants.SPAN_LIST);
-
-		innerFieldList.remove(spanFieldOfInnerTuple);
-		outerFieldList.remove(spanFieldOfOuterTuple);
-
 		List<IField> newFieldList = new ArrayList<>();
-		Iterator<IField> innerFieldListIter = innerFieldList.iterator();
-
-		while (innerFieldListIter.hasNext()) {
-			IField nextField = innerFieldListIter.next();
-			if (outerFieldList.contains(nextField)) {
-				newFieldList.add(nextField);
-			}
-		}
-
-		newFieldList.add(new ListField<>(newJoinSpanList));
 
 		ArrayList<Attribute> innerAttrList = new ArrayList<>();
 		innerAttrList.addAll(innerTuple.getSchema().getAttributes());
@@ -308,28 +287,17 @@ public class Join implements IOperator {
 
 		while (innerAttrListIter.hasNext()) {
 			Attribute nextAttr = innerAttrListIter.next();
-			if (outerAttrList.contains(nextAttr)) {
+			if (!nextAttr.equals(SchemaConstants.SPAN_LIST_ATTRIBUTE) 
+					&& outerAttrList.contains(nextAttr)) {
 				newAttrList.add(nextAttr);
+				IField nextField = outerTuple.getField(nextAttr
+						.getFieldName());
+				newFieldList.add(nextField);
 			}
-		}
-
-		if (newAttrList.size() != newFieldList.size()) {
-			// TODO Discuss and implement as to what Schema has to be.
-			// It shouldn't just be inner tuple or outer tuple schema.
-//			Schema schema = innerTuple.getSchema();
-//			List<IField> fieldList = innerTuple.getFields();
-//			IField[] nextTupleField = new IField[fieldList.size()];
-//
-//			for (int index = 0; index < nextTupleField.length - 1; index++) {
-//				nextTupleField[index] = fieldList.get(index);
-//			}
-//
-//			nextTupleField[nextTupleField.length - 1] = new ListField<>(
-//					newJoinSpanList);
-//			nextTuple = new DataTuple(schema, nextTupleField);
-//
-//			return nextTuple;
-			throw new IndexOutOfBoundsException();
+			else if(nextAttr.equals(SchemaConstants.SPAN_LIST_ATTRIBUTE)) {
+				newAttrList.add(SchemaConstants.SPAN_LIST_ATTRIBUTE);
+				newFieldList.add(new ListField<>(newJoinSpanList));
+			}
 		}
 
 		Attribute[] tempAttrArr = new Attribute[newAttrList.size()];
