@@ -47,15 +47,15 @@ public class DataReader implements IDataReader {
 	private Schema inputSchema;
 	private Schema outputSchema;
 
-	private IndexReader indexReader;
-	private IndexSearcher indexSearcher;
+	private IndexReader luceneIndexReader;
+	private IndexSearcher luceneIndexSearcher;
 	private ScoreDoc[] scoreDocs;
 	
 	private int cursor = CLOSED;
 
 	private int limit;
 	private int offset;
-	private boolean termVecAdded = true;
+	private boolean payloadAdded = true;
 	
 	public DataReader(IPredicate dataReaderPredicate) {
 		predicate = (DataReaderPredicate)dataReaderPredicate;
@@ -64,20 +64,23 @@ public class DataReader implements IDataReader {
 	
 	@Override
 	public void open() throws DataFlowException {
+	    if (cursor != CLOSED) {
+	        return;
+	    }
 		try {
 			String indexDirectoryStr = predicate.getDataStore().getDataDirectory();
 			Directory indexDirectory = FSDirectory.open(Paths.get(indexDirectoryStr));
-			indexReader = DirectoryReader.open(indexDirectory);
-			indexSearcher = new IndexSearcher(indexReader);
+			luceneIndexReader = DirectoryReader.open(indexDirectory);
+			luceneIndexSearcher = new IndexSearcher(luceneIndexReader);
 			
-			TopDocs topDocs = indexSearcher.search(predicate.getLuceneQuery(), Integer.MAX_VALUE);
+			TopDocs topDocs = luceneIndexSearcher.search(predicate.getLuceneQuery(), Integer.MAX_VALUE);
 			scoreDocs = topDocs.scoreDocs;
 			
 			inputSchema = predicate.getDataStore().getSchema();
-			if (termVecAdded) {
+			if (payloadAdded) {
 				outputSchema = Utils.addAttributeToSchema(inputSchema, SchemaConstants.PAYLOAD_ATTRIBUTE);
 			} else {
-				outputSchema = predicate.getDataStore().getSchema();
+				outputSchema = inputSchema;
 			}
 			
 		} catch (IOException e) {
@@ -116,10 +119,10 @@ public class DataReader implements IDataReader {
 	@Override
 	public void close() throws DataFlowException {
 		cursor = CLOSED;
-		if (indexReader != null) {
+		if (luceneIndexReader != null) {
 			try {
-				indexReader.close();
-				indexReader = null;
+				luceneIndexReader.close();
+				luceneIndexReader = null;
 			} catch (IOException e) {
 				throw new DataFlowException(e.getMessage(), e);
 			}
@@ -128,10 +131,10 @@ public class DataReader implements IDataReader {
 	
 	
 	private ITuple constructTuple(int docID) throws IOException, ParseException {
-		Document document = indexSearcher.doc(docID);
-		ArrayList<IField> docFields = documentToFields(document);
+		Document luceneDocument = luceneIndexSearcher.doc(docID);
+		ArrayList<IField> docFields = documentToFields(luceneDocument);
 		
-		if (termVecAdded) {
+		if (payloadAdded) {
 			ArrayList<Span> payloadSpanList = buildPayloadFromTermVector(docFields, docID);
 			ListField<Span> payloadField = new ListField<Span>(payloadSpanList);
 			docFields.add(payloadField);
@@ -142,11 +145,11 @@ public class DataReader implements IDataReader {
 	}
 	
 	
-	private ArrayList<IField> documentToFields(Document document) throws ParseException {
+	private ArrayList<IField> documentToFields(Document luceneDocument) throws ParseException {
 		ArrayList<IField> fields = new ArrayList<>();
         for (Attribute attr : inputSchema.getAttributes()) {
             FieldType fieldType = attr.getFieldType();
-            String fieldValue = document.get(attr.getFieldName());
+            String fieldValue = luceneDocument.get(attr.getFieldName());
             fields.add(Utils.getField(fieldType, fieldValue));
         }
         return fields;
@@ -159,35 +162,37 @@ public class DataReader implements IDataReader {
 		for (Attribute attr : inputSchema.getAttributes()) {
 			String fieldName = attr.getFieldName();
 			FieldType fieldType = attr.getFieldType();
-					
+			
+			// We only store positional information for TEXT fields into payload.
 			if (fieldType != FieldType.TEXT) {
 				continue;
 			}
 			
 			String fieldValue = fields.get(inputSchema.getIndex(fieldName)).getValue().toString();
 			
-			Terms termVector = indexReader.getTermVector(docID, fieldName);			
+			Terms termVector = luceneIndexReader.getTermVector(docID, fieldName);			
 			if (termVector == null) {
 				continue;
 			}
 
 			TermsEnum termsEnum = termVector.iterator();
 			PostingsEnum termPostings = null;
-	
+			// go through document terms
 			while ((termsEnum.next()) != null) {
 				termPostings = termsEnum.postings(termPostings, PostingsEnum.ALL);
 				if (termPostings.nextDoc() == DocIdSetIterator.NO_MORE_DOCS) {
 					continue;
 				}
+				// for each term, go through its postings
 				for (int i = 0; i < termPostings.freq(); i++) {
-		        	int position = termPostings.nextPosition(); // nextPosition needs to be called first
+		        	int tokenPosition = termPostings.nextPosition(); // nextPosition needs to be called first
 		        	
-		        	int start = termPostings.startOffset();
-		        	int end = termPostings.endOffset();
-		        	String termStr = termsEnum.term().utf8ToString();
-		        	String actualStr = fieldValue.substring(start, end);
+		        	int charStart = termPostings.startOffset();
+		        	int charEnd = termPostings.endOffset();
+		        	String analyzedTermStr = termsEnum.term().utf8ToString();
+		        	String originalTermStr = fieldValue.substring(charStart, charEnd);
 
-					Span span = new Span(fieldName, start, end, termStr, actualStr, position);
+					Span span = new Span(fieldName, charStart, charEnd, analyzedTermStr, originalTermStr, tokenPosition);
 					payloadSpanList.add(span);
 				}
 			}
@@ -214,11 +219,11 @@ public class DataReader implements IDataReader {
 	}
 
 	public boolean isTermVecAdded() {
-		return termVecAdded;
+		return payloadAdded;
 	}
 
 	public void setTermVecAdded(boolean termVecAdded) {
-		this.termVecAdded = termVecAdded;
+		this.payloadAdded = termVecAdded;
 	}
 	
 	public Schema getOutputSchema() {
