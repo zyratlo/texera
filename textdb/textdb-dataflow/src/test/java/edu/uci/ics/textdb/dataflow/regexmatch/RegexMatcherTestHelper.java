@@ -49,8 +49,8 @@ public class RegexMatcherTestHelper {
 		return results;
 	}
 	
-	public Schema getSpanSchema() {
-		return regexMatcher.getSpanSchema();
+	public Schema getOutputSchema() {
+		return regexMatcher.getOutputSchema();
 	}
 	
 	public void runTest(String regex, Attribute attribute) throws Exception {
