@@ -287,18 +287,25 @@ public class Join implements IOperator {
 
 		while (innerAttrListIter.hasNext()) {
 			Attribute nextAttr = innerAttrListIter.next();
-			if (!nextAttr.equals(SchemaConstants.SPAN_LIST_ATTRIBUTE) 
+			if (!nextAttr.equals(SchemaConstants.SPAN_LIST_ATTRIBUTE)
 					&& outerAttrList.contains(nextAttr)) {
-				newAttrList.add(nextAttr);
-				IField nextField = outerTuple.getField(nextAttr
-						.getFieldName());
-				newFieldList.add(nextField);
-			}
-			else if(nextAttr.equals(SchemaConstants.SPAN_LIST_ATTRIBUTE)) {
-				newAttrList.add(SchemaConstants.SPAN_LIST_ATTRIBUTE);
-				newFieldList.add(new ListField<>(newJoinSpanList));
+				String fieldName = nextAttr.getFieldName();
+				if (outerTuple.getField(fieldName)
+						.equals(innerTuple.getField(fieldName))) {
+					newAttrList.add(nextAttr);
+					IField nextField = outerTuple.getField(fieldName);
+					newFieldList.add(nextField);
+				}
 			}
 		}
+
+		if (newAttrList.isEmpty() || 
+				!newAttrList.contains(joinPredicate.getjoinAttribute())) {
+			return null;
+		}
+
+		newAttrList.add(SchemaConstants.SPAN_LIST_ATTRIBUTE);
+		newFieldList.add(new ListField<>(newJoinSpanList));
 
 		Attribute[] tempAttrArr = new Attribute[newAttrList.size()];
 		Schema newSchema = new Schema(newAttrList.toArray(tempAttrArr));
