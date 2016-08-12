@@ -35,6 +35,7 @@ import edu.uci.ics.textdb.common.field.TextField;
 import edu.uci.ics.textdb.common.utils.Utils;
 import edu.uci.ics.textdb.dataflow.common.Dictionary;
 import edu.uci.ics.textdb.dataflow.common.DictionaryPredicate;
+import edu.uci.ics.textdb.dataflow.source.ScanBasedSourceOperator;
 import edu.uci.ics.textdb.dataflow.utils.TestUtils;
 import edu.uci.ics.textdb.storage.DataStore;
 import edu.uci.ics.textdb.storage.writer.DataWriter;
@@ -45,7 +46,6 @@ import edu.uci.ics.textdb.storage.writer.DataWriter;
  */
 public class DictionaryMatcherTest {
 
-    private DictionaryMatcherSourceOperator dictionaryMatcher;
     private DataStore dataStore;
     private IDataWriter dataWriter;
     private Analyzer luceneAnalyzer;
@@ -71,7 +71,12 @@ public class DictionaryMatcherTest {
             List<Attribute> attributes) throws Exception {
 
     	DictionaryPredicate dictionaryPredicate = new DictionaryPredicate(dictionary, attributes, luceneAnalyzer, srcOpType);
-    	dictionaryMatcher = new DictionaryMatcherSourceOperator(dictionaryPredicate, dataStore);
+//    	DictionaryMatcherSourceOperator dictionaryMatcher = new DictionaryMatcherSourceOperator(dictionaryPredicate, dataStore);	
+    	
+    	DictionaryMatcher dictionaryMatcher = new DictionaryMatcher(dictionaryPredicate);
+    	ScanBasedSourceOperator indexSource = dictionaryPredicate.getScanSourceOperator(dataStore);
+    	dictionaryMatcher.setInputOperator(indexSource);
+    	
     	dictionaryMatcher.open();
         ITuple nextTuple = null;
         List<ITuple> results = new ArrayList<ITuple>();
