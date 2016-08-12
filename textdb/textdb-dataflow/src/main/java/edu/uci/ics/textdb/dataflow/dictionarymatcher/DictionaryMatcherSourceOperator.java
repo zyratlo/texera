@@ -8,24 +8,20 @@ import java.util.regex.Pattern;
 
 import edu.uci.ics.textdb.api.common.Attribute;
 import edu.uci.ics.textdb.api.common.FieldType;
-import edu.uci.ics.textdb.api.common.IPredicate;
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.common.Schema;
-import edu.uci.ics.textdb.api.dataflow.IOperator;
 import edu.uci.ics.textdb.api.dataflow.ISourceOperator;
 import edu.uci.ics.textdb.api.storage.IDataStore;
 import edu.uci.ics.textdb.common.constants.DataConstants;
 import edu.uci.ics.textdb.common.constants.DataConstants.KeywordMatchingType;
 import edu.uci.ics.textdb.common.constants.SchemaConstants;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
-import edu.uci.ics.textdb.common.exception.ErrorMessages;
 import edu.uci.ics.textdb.common.field.Span;
 import edu.uci.ics.textdb.common.utils.Utils;
 import edu.uci.ics.textdb.dataflow.common.DictionaryPredicate;
 import edu.uci.ics.textdb.dataflow.common.KeywordPredicate;
 import edu.uci.ics.textdb.dataflow.keywordmatch.KeywordMatcher;
 import edu.uci.ics.textdb.dataflow.source.IndexBasedSourceOperator;
-import edu.uci.ics.textdb.storage.DataReaderPredicate;
 
 /**
  * @author Sudeep (inkudo)
@@ -291,7 +287,7 @@ public class DictionaryMatcherSourceOperator implements ISourceOperator {
             if (keywordMatcher != null) {
                 keywordMatcher.close();
             }
-        	if (indexSource != null) {
+            if (indexSource != null) {
                 indexSource.close();
             }
         } catch (Exception e) {
