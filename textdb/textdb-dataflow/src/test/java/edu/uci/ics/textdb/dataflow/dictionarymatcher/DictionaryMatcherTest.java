@@ -24,6 +24,7 @@ import edu.uci.ics.textdb.common.constants.DataConstants;
 import edu.uci.ics.textdb.common.constants.DataConstants.KeywordMatchingType;
 import edu.uci.ics.textdb.common.constants.SchemaConstants;
 import edu.uci.ics.textdb.common.constants.TestConstants;
+import edu.uci.ics.textdb.common.exception.DataFlowException;
 import edu.uci.ics.textdb.common.field.DataTuple;
 import edu.uci.ics.textdb.common.field.DateField;
 import edu.uci.ics.textdb.common.field.DoubleField;
@@ -69,15 +70,40 @@ public class DictionaryMatcherTest {
 
     public List<ITuple> getQueryResults(IDictionary dictionary, KeywordMatchingType srcOpType,
             List<Attribute> attributes) throws Exception {
+        List<ITuple> dictionaryMatcherSourceOperatorResults = 
+                getDictionaryMatcherSourceOperatorResults(dictionary, srcOpType, attributes);
+        List<ITuple> dictionaryMatcherResults = 
+                getDictionaryMatcherResults(dictionary, srcOpType, attributes);
+        
+        Assert.assertTrue(TestUtils.containsAllResults(dictionaryMatcherSourceOperatorResults, dictionaryMatcherResults));
 
-    	DictionaryPredicate dictionaryPredicate = new DictionaryPredicate(dictionary, attributes, luceneAnalyzer, srcOpType);
-//    	DictionaryMatcherSourceOperator dictionaryMatcher = new DictionaryMatcherSourceOperator(dictionaryPredicate, dataStore);	
-    	
-    	DictionaryMatcher dictionaryMatcher = new DictionaryMatcher(dictionaryPredicate);
-    	ScanBasedSourceOperator indexSource = dictionaryPredicate.getScanSourceOperator(dataStore);
-    	dictionaryMatcher.setInputOperator(indexSource);
-    	
-    	dictionaryMatcher.open();
+        return dictionaryMatcherResults;
+    }
+    
+    private List<ITuple> getDictionaryMatcherSourceOperatorResults(IDictionary dictionary, KeywordMatchingType srcOpType,
+            List<Attribute> attributes) throws Exception {
+        DictionaryPredicate dictionaryPredicate = new DictionaryPredicate(dictionary, attributes, luceneAnalyzer, srcOpType);
+        DictionaryMatcherSourceOperator dictionaryMatcher = new DictionaryMatcherSourceOperator(dictionaryPredicate, dataStore);    
+
+        dictionaryMatcher.open();
+        ITuple nextTuple = null;
+        List<ITuple> results = new ArrayList<ITuple>();
+        while ((nextTuple = dictionaryMatcher.getNextTuple()) != null) {
+            results.add(nextTuple);
+        }
+        dictionaryMatcher.close();
+        return results;
+    }
+    
+    private List<ITuple> getDictionaryMatcherResults(IDictionary dictionary, KeywordMatchingType srcOpType,
+            List<Attribute> attributes) throws Exception {
+        DictionaryPredicate dictionaryPredicate = new DictionaryPredicate(dictionary, attributes, luceneAnalyzer, srcOpType);
+        
+        DictionaryMatcher dictionaryMatcher = new DictionaryMatcher(dictionaryPredicate);
+        ScanBasedSourceOperator indexSource = dictionaryPredicate.getScanSourceOperator(dataStore);
+        dictionaryMatcher.setInputOperator(indexSource);
+        
+        dictionaryMatcher.open();
         ITuple nextTuple = null;
         List<ITuple> results = new ArrayList<ITuple>();
         while ((nextTuple = dictionaryMatcher.getNextTuple()) != null) {
