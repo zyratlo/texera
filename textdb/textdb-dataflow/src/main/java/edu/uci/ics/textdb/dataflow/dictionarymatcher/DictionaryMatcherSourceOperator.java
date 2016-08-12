@@ -38,7 +38,7 @@ public class DictionaryMatcherSourceOperator implements ISourceOperator {
     private KeywordMatcher keywordMatcher;
 
     private Schema inputSchema;
-	private Schema outputSchema;
+    private Schema outputSchema;
     
     private ITuple sourceTuple;
     private String currentDictionaryEntry;
@@ -288,10 +288,10 @@ public class DictionaryMatcherSourceOperator implements ISourceOperator {
     @Override
     public void close() throws DataFlowException {
         try {
-        	if (keywordMatcher != null) {
-        	    keywordMatcher.close();
-        	}
-            if (indexSource != null) {
+            if (keywordMatcher != null) {
+                keywordMatcher.close();
+            }
+        	if (indexSource != null) {
                 indexSource.close();
             }
         } catch (Exception e) {
