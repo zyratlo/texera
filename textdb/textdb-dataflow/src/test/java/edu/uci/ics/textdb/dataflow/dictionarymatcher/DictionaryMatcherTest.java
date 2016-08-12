@@ -45,7 +45,7 @@ import edu.uci.ics.textdb.storage.writer.DataWriter;
  */
 public class DictionaryMatcherTest {
 
-    private DictionaryMatcher dictionaryMatcher;
+    private DictionaryMatcherSourceOperator dictionaryMatcher;
     private DataStore dataStore;
     private IDataWriter dataWriter;
     private Analyzer luceneAnalyzer;
@@ -70,8 +70,8 @@ public class DictionaryMatcherTest {
     public List<ITuple> getQueryResults(IDictionary dictionary, KeywordMatchingType srcOpType,
             List<Attribute> attributes) throws Exception {
 
-    	DictionaryPredicate dictionaryPredicate = new DictionaryPredicate(dictionary, dataStore, attributes, luceneAnalyzer, srcOpType);
-    	dictionaryMatcher = new DictionaryMatcher(dictionaryPredicate);
+    	DictionaryPredicate dictionaryPredicate = new DictionaryPredicate(dictionary, attributes, luceneAnalyzer, srcOpType);
+    	dictionaryMatcher = new DictionaryMatcherSourceOperator(dictionaryPredicate, dataStore);
     	dictionaryMatcher.open();
         ITuple nextTuple = null;
         List<ITuple> results = new ArrayList<ITuple>();
