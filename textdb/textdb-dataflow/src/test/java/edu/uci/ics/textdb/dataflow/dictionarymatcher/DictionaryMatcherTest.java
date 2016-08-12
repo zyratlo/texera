@@ -1,6 +1,7 @@
 
 package edu.uci.ics.textdb.dataflow.dictionarymatcher;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,6 +23,7 @@ import edu.uci.ics.textdb.api.common.Schema;
 import edu.uci.ics.textdb.api.storage.IDataWriter;
 import edu.uci.ics.textdb.common.constants.DataConstants;
 import edu.uci.ics.textdb.common.constants.DataConstants.KeywordMatchingType;
+import edu.uci.ics.textdb.common.exception.DataFlowException;
 import edu.uci.ics.textdb.common.constants.SchemaConstants;
 import edu.uci.ics.textdb.common.constants.TestConstants;
 import edu.uci.ics.textdb.common.field.DataTuple;
@@ -70,9 +72,23 @@ public class DictionaryMatcherTest {
     public List<ITuple> getQueryResults(IDictionary dictionary, KeywordMatchingType srcOpType,
             List<Attribute> attributes) throws Exception {
 
+    	return getQueryResults(dictionary, srcOpType, attributes, Integer.MAX_VALUE, 0);
+    }
+    
+    public List<ITuple> getQueryResults(IDictionary dictionary, KeywordMatchingType srcOpType,
+            List<Attribute> attributes, int limit) throws Exception {
+
+    	return getQueryResults(dictionary, srcOpType, attributes, limit, 0);
+    }
+    
+    public List<ITuple> getQueryResults(IDictionary dictionary, KeywordMatchingType srcOpType,
+            List<Attribute> attributes, int limit, int offset) throws Exception {
+
     	IPredicate dictionaryPredicate = new DictionaryPredicate(dictionary, dataStore, attributes, luceneAnalyzer, srcOpType);
     	dictionaryMatcher = new DictionaryMatcher(dictionaryPredicate);
     	dictionaryMatcher.open();
+    	dictionaryMatcher.setLimit(limit);
+    	dictionaryMatcher.setOffset(offset);
         ITuple nextTuple = null;
         List<ITuple> results = new ArrayList<ITuple>();
         while ((nextTuple = dictionaryMatcher.getNextTuple()) != null) {
@@ -608,5 +624,124 @@ public class DictionaryMatcherTest {
         List<ITuple> returnedResults = getQueryResults(dictionary, KeywordMatchingType.PHRASE_INDEXBASED, attributes);
         boolean contains = TestUtils.containsAllResults(expectedResults, returnedResults);
         Assert.assertTrue(contains);
+    }
+    
+    public void testMatchingWithLimit() throws Exception {
+    	ArrayList<String> word = new ArrayList<String>(Arrays.asList("angry"));
+    	IDictionary dictionary = new Dictionary(word);
+    	
+    	Attribute[] schemaAttributes = new Attribute[TestConstants.ATTRIBUTES_PEOPLE.length + 1];
+        for (int count = 0; count < schemaAttributes.length - 1; count++) {
+            schemaAttributes[count] = TestConstants.ATTRIBUTES_PEOPLE[count];
+        }
+        schemaAttributes[schemaAttributes.length - 1] = SchemaConstants.SPAN_LIST_ATTRIBUTE;
+    	
+    	Span span1 = new Span("description", 5, 10, "angry", "Angry", 1);
+    	Span span2 = new Span("description", 6, 11, "angry", "Angry", 1);
+    	Span span3 = new Span("description", 40, 45, "angry", "Angry", 8);
+    	Span span4 = new Span("description", 6, 11, "angry", "angry", 1);
+    	
+    	List<Span> list1 = new ArrayList<>();
+    	list1.add(span1);
+        IField[] fields1 = { new StringField("bruce"), new StringField("john Lee"), new IntegerField(46),
+                new DoubleField(5.50), new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-14-1970")),
+                new TextField("Tall Angry"), new ListField<>(list1) };
+        List<Span> list2 = new ArrayList<>();
+        list2.add(span2);
+        IField[] fields2 = { new StringField("brad lie angelina"), new StringField("pitt"), new IntegerField(44),
+                new DoubleField(6.10), new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-12-1972")),
+                new TextField("White Angry"), new ListField<>(list2) };
+        
+        
+        List<Span> list3 = new ArrayList<>();
+        list3.add(span3);
+        IField[] fields3 = { new StringField("george lin lin"), new StringField("lin clooney"), new IntegerField(43),
+                new DoubleField(6.06), new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-13-1973")),
+                new TextField("Lin Clooney is Short and lin clooney is Angry"), new ListField<>(list3) };
+        
+        List<Span> list4 = new ArrayList<>();
+        list4.add(span4);
+        IField[] fields4 = { new StringField("Mary brown"), new StringField("Lake Forest"),
+                new IntegerField(42), new DoubleField(5.99),
+                new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-13-1974")), new TextField("Short angry"), new ListField<>(list4) };
+
+        ITuple tuple1 = new DataTuple(new Schema(schemaAttributes), fields1);
+        ITuple tuple2 = new DataTuple(new Schema(schemaAttributes), fields2);
+        ITuple tuple3 = new DataTuple(new Schema(schemaAttributes), fields3);
+        ITuple tuple4 = new DataTuple(new Schema(schemaAttributes), fields4);
+        
+        List<Attribute> attributes = Arrays.asList(TestConstants.FIRST_NAME_ATTR, TestConstants.LAST_NAME_ATTR,
+                TestConstants.DESCRIPTION_ATTR);
+        List<ITuple> expectedList = new ArrayList<> ();
+        List<ITuple> resultList = getQueryResults(dictionary, KeywordMatchingType.PHRASE_INDEXBASED, attributes, 3);
+        
+        expectedList.add(tuple1);
+        expectedList.add(tuple2);
+        expectedList.add(tuple3);
+        expectedList.add(tuple4);
+        
+        Assert.assertEquals(expectedList.size(), 4);
+        Assert.assertEquals(resultList.size(), 3);
+        Assert.assertTrue(expectedList.containsAll(resultList));
+    }
+    
+    @Test
+    public void testMatchingWithLimitOffset() throws Exception {
+    	ArrayList<String> word = new ArrayList<String>(Arrays.asList("angry"));
+    	IDictionary dictionary = new Dictionary(word);
+    	
+        Attribute[] schemaAttributes = new Attribute[TestConstants.ATTRIBUTES_PEOPLE.length + 1];
+        for(int count = 0; count < schemaAttributes.length - 1; count++) {
+            schemaAttributes[count] = TestConstants.ATTRIBUTES_PEOPLE[count];
+        }
+        schemaAttributes[schemaAttributes.length - 1] = SchemaConstants.SPAN_LIST_ATTRIBUTE;
+    	
+    	Span span1 = new Span("description", 5, 10, "angry", "Angry");
+    	Span span2 = new Span("description", 6, 11, "angry", "Angry");
+    	Span span3 = new Span("description", 40, 45, "angry", "Angry");
+    	Span span4 = new Span("description", 6, 11, "angry", "angry");
+    	
+    	List<Span> list1 = new ArrayList<>();
+    	list1.add(span1);
+        IField[] fields1 = { new StringField("bruce"), new StringField("john Lee"), new IntegerField(46),
+                new DoubleField(5.50), new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-14-1970")),
+                new TextField("Tall Angry"), new ListField<>(list1) };
+        List<Span> list2 = new ArrayList<>();
+        list2.add(span2);
+        IField[] fields2 = { new StringField("brad lie angelina"), new StringField("pitt"), new IntegerField(44),
+                new DoubleField(6.10), new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-12-1972")),
+                new TextField("White Angry"), new ListField<>(list2) };
+        
+        
+        List<Span> list3 = new ArrayList<>();
+        list3.add(span3);
+        IField[] fields3 = { new StringField("george lin lin"), new StringField("lin clooney"), new IntegerField(43),
+                new DoubleField(6.06), new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-13-1973")),
+                new TextField("Lin Clooney is Short and lin clooney is Angry"), new ListField<>(list3) };
+        
+        List<Span> list4 = new ArrayList<>();
+        list4.add(span4);
+        IField[] fields4 = { new StringField("Mary brown"), new StringField("Lake Forest"),
+                new IntegerField(42), new DoubleField(5.99),
+                new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-13-1974")), new TextField("Short angry"), new ListField<>(list4) };
+
+        ITuple tuple1 = new DataTuple(new Schema(schemaAttributes), fields1);
+        ITuple tuple2 = new DataTuple(new Schema(schemaAttributes), fields2);
+        ITuple tuple3 = new DataTuple(new Schema(schemaAttributes), fields3);
+        ITuple tuple4 = new DataTuple(new Schema(schemaAttributes), fields4);
+        
+        List<Attribute> attributes = Arrays.asList(TestConstants.FIRST_NAME_ATTR, TestConstants.LAST_NAME_ATTR,
+                TestConstants.DESCRIPTION_ATTR);
+        List<ITuple> resultList = getQueryResults(dictionary, KeywordMatchingType.PHRASE_INDEXBASED, attributes, 3, 2);
+        List<ITuple> expectedList = new ArrayList<>();
+        
+        expectedList.add(tuple1);
+        expectedList.add(tuple2);
+        expectedList.add(tuple3);
+        expectedList.add(tuple4);
+    	
+        Assert.assertEquals(expectedList.size(), 4);
+    	Assert.assertEquals(resultList.size(), 2);
+    	Assert.assertTrue(expectedList.containsAll(resultList));
     }
 }
