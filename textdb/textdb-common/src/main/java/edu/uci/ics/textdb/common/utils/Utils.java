@@ -1,5 +1,6 @@
 package edu.uci.ics.textdb.common.utils;
 
+import java.io.IOException;
 import java.io.StringReader;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -7,10 +8,12 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
+import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
 import org.apache.lucene.analysis.util.CharArraySet;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.DateTools;
@@ -117,24 +120,32 @@ public class Utils {
         IField[] fieldsDuplicate = fieldListDuplicate.toArray(new IField[fieldListDuplicate.size()]);
         return new DataTuple(spanSchema, fieldsDuplicate);
     }
-
+    
     /**
-     *
-     * @param schema
-     * @about Creating a new schema object, and adding SPAN_LIST_ATTRIBUTE to
-     *        the schema. SPAN_LIST_ATTRIBUTE is of type List
-     */
-    public static Schema createSpanSchema(Schema schema) {
-        List<Attribute> dataTupleAttributes = schema.getAttributes();
-        //spanAttributes contains all attributes of dataTupleAttributes and an additional SPAN_LIST_ATTRIBUTE
-        Attribute[] spanAttributes = new Attribute[dataTupleAttributes.size() + 1];
-        for (int count = 0; count < dataTupleAttributes.size(); count++) {
-            spanAttributes[count] = dataTupleAttributes.get(count);
-        }
-        spanAttributes[spanAttributes.length - 1] = SchemaConstants.SPAN_LIST_ATTRIBUTE;
-        Schema spanSchema = new Schema(spanAttributes);
-        return spanSchema;
-    }
+    *
+    * @param schema
+    * @about Creating a new schema object, and adding SPAN_LIST_ATTRIBUTE to
+    *        the schema. SPAN_LIST_ATTRIBUTE is of type List
+    */
+   public static Schema createSpanSchema(Schema schema) {
+       return addAttributeToSchema(schema, SchemaConstants.SPAN_LIST_ATTRIBUTE);
+   }
+   
+   /**
+    * Add an attribute to an existing schema (if the attribute doesn't exist).
+    * @param schema
+    * @param attribute
+    * @return new schema
+    */
+   public static Schema addAttributeToSchema(Schema schema, Attribute attribute) {
+       if (schema.containsField(attribute.getFieldName())) {
+           return schema;
+       }
+       List<Attribute> attributes = new ArrayList<>(schema.getAttributes());
+       attributes.add(attribute);
+       Schema newSchema = new Schema(attributes.toArray(new Attribute[attributes.size()]));
+       return newSchema;   
+   }
 
     /**
      * Tokenizes the query string using the given analyser
@@ -150,12 +161,7 @@ public class Utils {
         try{
             tokenStream.reset();
             while (tokenStream.incrementToken()) {
-                String token = term.toString();
-                int tokenIndex = query.toLowerCase().indexOf(token);
-                // Since tokens are converted to lower case,
-                // get the exact token from the query string.
-                String actualQueryToken = query.substring(tokenIndex, tokenIndex+token.length());
-                result.add(actualQueryToken);
+                result.add(term.toString());
             }
             tokenStream.close();
         } catch (Exception e) {
@@ -263,6 +269,70 @@ public class Utils {
     	sb.append("token offset: "+span.getTokenOffset()+"\n");
     	
     	return sb.toString();
+    }
+
+    public static List<ITuple> removePayload(List<ITuple> tupleList) {
+        List<ITuple> tupleListWithoutPayload = 
+                tupleList.stream().map(tuple -> removePayload(tuple))
+                .collect(Collectors.toList());
+        return tupleListWithoutPayload;
+    }
+    
+    public static ITuple removePayload(ITuple tuple) {
+        Integer payloadIndex = tuple.getSchema().getIndex(SchemaConstants.PAYLOAD);
+        if (payloadIndex == null) {
+            return tuple;
+        } else {
+            Attribute[] attrWithoutPayload = tuple.getSchema().getAttributes().stream()
+                    .filter(x -> (! x.getFieldName().equals(SchemaConstants.PAYLOAD)))
+                    .toArray(Attribute[]::new);
+            Schema schemaWithoutPayload = new Schema(attrWithoutPayload);
+            List<IField> fieldsWithoutPayload = new ArrayList<IField>(tuple.getFields());
+            fieldsWithoutPayload.remove(payloadIndex.intValue());
+            ITuple tupleWithoutPayload = new DataTuple(schemaWithoutPayload, fieldsWithoutPayload.stream().toArray(IField[]::new));
+            return tupleWithoutPayload;
+        }
+    }
+    
+    
+    public static List<Span> generatePayloadFromTuple(ITuple tuple, Analyzer luceneAnalyzer) {
+        List<Span> tuplePayload = 
+            tuple.getSchema().getAttributes()
+            .stream()
+            .filter(attr -> (attr.getFieldType() == FieldType.TEXT)) // generate payload only for TEXT field
+            .map(attr -> attr.getFieldName())
+            .map(fieldName -> generatePayload(fieldName, tuple.getField(fieldName).getValue().toString(), luceneAnalyzer))
+            .flatMap(payload -> payload.stream())  // flatten a list of lists to a list
+            .collect(Collectors.toList());
+        
+        return tuplePayload;
+    }
+    
+    public static List<Span> generatePayload(String fieldName, String fieldValue, Analyzer luceneAnalyzer) {
+        List<Span> payload = new ArrayList<>();
+        
+        try {
+            TokenStream tokenStream = luceneAnalyzer.tokenStream(null, new StringReader(fieldValue));
+            OffsetAttribute offsetAttribute = tokenStream.addAttribute(OffsetAttribute.class);
+            CharTermAttribute charTermAttribute = tokenStream.addAttribute(CharTermAttribute.class);       
+
+            int tokenCounter = 0;
+            tokenStream.reset();        
+            while (tokenStream.incrementToken()) {
+                int tokenPosition = tokenCounter;
+                int charStart = offsetAttribute.startOffset();
+                int charEnd = offsetAttribute.endOffset();
+                String analyzedTermStr = charTermAttribute.toString();
+                String originalTermStr = fieldValue.substring(charStart, charEnd);
+                
+                payload.add(new Span(fieldName, charStart, charEnd, analyzedTermStr, originalTermStr, tokenPosition));            
+                tokenCounter++;
+            }
+        } catch (IOException e) {
+            payload.clear(); // return empty payload
+        }
+         
+        return payload;
     }
     
 }

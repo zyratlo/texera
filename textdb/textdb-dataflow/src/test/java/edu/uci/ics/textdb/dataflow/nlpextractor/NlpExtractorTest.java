@@ -43,7 +43,7 @@ public class NlpExtractorTest {
     private Query query;
     private Analyzer analyzer;
 
-    private IPredicate dataReaderPredicate;
+    private DataReaderPredicate dataReaderPredicate;
 
 
     @After

@@ -30,9 +30,14 @@ public class Schema {
         return attributes;
     }
     
-    public int getIndex(String fieldName){
+    public Integer getIndex(String fieldName){
         return fieldNameVsIndex.get(fieldName.toLowerCase());
     }
+    
+    public boolean containsField(String fieldName) {
+        return fieldNameVsIndex.keySet().contains(fieldName.toLowerCase());
+    }
+    
     
     @Override
     public int hashCode() {
