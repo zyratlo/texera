@@ -21,6 +21,7 @@ import edu.uci.ics.textdb.api.storage.IDataReader;
 import edu.uci.ics.textdb.api.storage.IDataStore;
 import edu.uci.ics.textdb.api.storage.IDataWriter;
 import edu.uci.ics.textdb.common.constants.DataConstants;
+import edu.uci.ics.textdb.common.utils.Utils;
 import edu.uci.ics.textdb.dataflow.nlpextrator.NlpExtractor;
 import edu.uci.ics.textdb.dataflow.source.ScanBasedSourceOperator;
 import edu.uci.ics.textdb.dataflow.utils.TestUtils;
@@ -252,6 +253,23 @@ public class NlpExtractorTest {
         boolean contains = TestUtils.containsAllResults(expectedResults, returnedResults);
 
         Assert.assertTrue(contains);
+    }
+    
+    @Test
+    public void getNextTupleTest8() throws Exception {
+    	List<ITuple> data = NlpExtractorTestConstants.getTest8Tuple();
+    	ISourceOperator sourceOperator = getSourceOperator(data.get(0).getSchema(), data);
+    	
+    	Attribute attribute1 = NlpExtractorTestConstants.SENTENCE_ONE_ATTR;
+    	
+    	List<Attribute> attributes = new ArrayList<>();
+    	attributes.add(attribute1);
+    	
+    	List<ITuple> returnedResults = getQueryResults(sourceOperator, attributes, NlpExtractor.NlpTokenType.Money);
+    	List<ITuple> expectedResults = NlpExtractorTestConstants.getTest8ResultTuples();
+    	
+    	boolean contains = TestUtils.containsAllResults(expectedResults, returnedResults);
+    	Assert.assertTrue(contains);
     }
 
 

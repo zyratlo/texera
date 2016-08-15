@@ -76,6 +76,12 @@ public class NlpExtractorTestConstants {
         ITuple tuple1 = new DataTuple(SCHEMA_ONE_SENTENCE, fields1);
         return Arrays.asList(tuple1);
     }
+    
+    public static List<ITuple> getTest8Tuple() {
+    	IField[] fields1 = {new TextField("This backpack costs me 300 dollars.")};
+    	ITuple tuple1 = new DataTuple(SCHEMA_ONE_SENTENCE, fields1);
+    	return Arrays.asList(tuple1);
+    }
 
 
     public static List<ITuple> getTest1ResultTuples() {
@@ -229,6 +235,24 @@ public class NlpExtractorTestConstants {
 
         IField[] fields1 = {new TextField("Feeling the warm sun rays beaming steadily down, the girl decided there was no need to wear a coat.")};
         ITuple tuple1 = new DataTuple(SCHEMA_ONE_SENTENCE, fields1);
+
+        Schema returnSchema = Utils.createSpanSchema(tuple1.getSchema());
+
+        ITuple returnTuple = Utils.getSpanTuple(tuple1.getFields(), spanList, returnSchema);
+        resultList.add(returnTuple);
+
+        return resultList;
+    }
+    
+    public static List<ITuple> getTest8ResultTuples() {
+    	List<ITuple> resultList = new ArrayList<>();
+    	List<Span> spanList = new ArrayList<Span>();
+    	
+    	Span span1 = new Span("sentence_one", 23, 34, NlpExtractor.NlpTokenType.Money.toString(), "300 dollars");
+    	spanList.add(span1);
+    			
+        IField[] fields1 = {new TextField("This backpack costs me 300 dollars.")};
+    	ITuple tuple1 = new DataTuple(SCHEMA_ONE_SENTENCE, fields1);
 
         Schema returnSchema = Utils.createSpanSchema(tuple1.getSchema());
 
