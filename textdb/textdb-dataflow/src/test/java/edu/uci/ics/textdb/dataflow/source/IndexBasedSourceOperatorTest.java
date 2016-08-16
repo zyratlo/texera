@@ -107,7 +107,7 @@ public class IndexBasedSourceOperatorTest {
 		int numTuples = results.size();
 		boolean check = TestUtils.checkResults(results,"angry" , this.luceneAnalyzer,TestConstants.DESCRIPTION);
 		Assert.assertTrue(check);
-		Assert.assertEquals(3, numTuples);
+		Assert.assertEquals(4, numTuples);
 	}
 
 	/**
