@@ -82,6 +82,12 @@ public class NlpExtractorTestConstants {
     	ITuple tuple1 = new DataTuple(SCHEMA_ONE_SENTENCE, fields1);
     	return Arrays.asList(tuple1);
     }
+    
+    public static List<ITuple> getTest9Tuple() {
+    	IField[] fields1 = {new TextField("I made an appointment at 8 am."), new TextField("Aug 16, 2016 is a really important date.")};
+    	ITuple tuple1 = new DataTuple(SCHEMA_TWO_SENTENCE, fields1);
+    	return Arrays.asList(tuple1);
+    }
 
 
     public static List<ITuple> getTest1ResultTuples() {
@@ -260,5 +266,25 @@ public class NlpExtractorTestConstants {
         resultList.add(returnTuple);
 
         return resultList;
+    }
+    
+    public static List<ITuple> getTest9ResultTuples() {
+    	List<ITuple> resultList = new ArrayList<>();
+    	List<Span> spanList = new ArrayList<Span>();
+    	
+    	Span span1 = new Span("sentence_one", 25, 29, NlpExtractor.NlpTokenType.Time.toString(), "8 am");
+    	Span span2 = new Span("sentence_two", 0, 12, NlpExtractor.NlpTokenType.Date.toString(), "Aug 16 , 2016");
+    	
+    	spanList.add(span1);
+    	spanList.add(span2);
+    	IField[] fields1 = {new TextField("I made an appointment at 8 am."), new TextField("Aug 16, 2016 is a really important date.")};
+    	ITuple tuple1 = new DataTuple(SCHEMA_TWO_SENTENCE, fields1);
+    	
+    	Schema returnSchema = Utils.createSpanSchema(tuple1.getSchema());
+    	
+    	ITuple returnTuple = Utils.getSpanTuple(tuple1.getFields(), spanList, returnSchema);
+    	resultList.add(returnTuple);
+    	
+    	return resultList;
     }
 }
