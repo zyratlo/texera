@@ -720,11 +720,11 @@ public class DictionaryMatcherTest {
     
     @Test
     public void testMatchingWithLimitOffset() throws Exception {
-    	ArrayList<String> word = new ArrayList<String>(Arrays.asList("angry"));
+       	ArrayList<String> word = new ArrayList<String>(Arrays.asList("angry"));
     	IDictionary dictionary = new Dictionary(word);
     	
-        Attribute[] schemaAttributes = new Attribute[TestConstants.ATTRIBUTES_PEOPLE.length + 1];
-        for(int count = 0; count < schemaAttributes.length - 1; count++) {
+    	Attribute[] schemaAttributes = new Attribute[TestConstants.ATTRIBUTES_PEOPLE.length + 1];
+        for (int count = 0; count < schemaAttributes.length - 1; count++) {
             schemaAttributes[count] = TestConstants.ATTRIBUTES_PEOPLE[count];
         }
         schemaAttributes[schemaAttributes.length - 1] = SchemaConstants.SPAN_LIST_ATTRIBUTE;
@@ -765,16 +765,18 @@ public class DictionaryMatcherTest {
         
         List<Attribute> attributes = Arrays.asList(TestConstants.FIRST_NAME_ATTR, TestConstants.LAST_NAME_ATTR,
                 TestConstants.DESCRIPTION_ATTR);
-        List<ITuple> resultList = getQueryResults(dictionary, KeywordMatchingType.PHRASE_INDEXBASED, attributes, 3, 2);
-        List<ITuple> expectedList = new ArrayList<>();
+        List<ITuple> expectedList = new ArrayList<> ();
+        List<ITuple> resultList = getQueryResults(dictionary, KeywordMatchingType.PHRASE_INDEXBASED, attributes, 2);
         
         expectedList.add(tuple1);
         expectedList.add(tuple2);
         expectedList.add(tuple3);
         expectedList.add(tuple4);
-    	
+        
+        resultList = Utils.removePayload(resultList);
+        
         Assert.assertEquals(expectedList.size(), 4);
-    	Assert.assertEquals(resultList.size(), 2);
-    	//Assert.assertTrue(expectedList.containsAll(resultList));
+        Assert.assertEquals(resultList.size(), 2);
+        Assert.assertTrue(expectedList.containsAll(resultList));
     }
 }
