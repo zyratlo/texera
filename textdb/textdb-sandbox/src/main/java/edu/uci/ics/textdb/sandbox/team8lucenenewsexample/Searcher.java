@@ -16,11 +16,9 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.FSDirectory;
 
-
 /**
  * Created by Sam on 16/4/10.
  */
-
 
 public class Searcher {
 
@@ -31,13 +29,11 @@ public class Searcher {
      * Creates a new instance of SearchEngine
      */
     public Searcher() throws IOException {
-        searcher = new IndexSearcher(DirectoryReader.open(FSDirectory
-                .open(Paths.get(INDEX_DIR))));
+        searcher = new IndexSearcher(DirectoryReader.open(FSDirectory.open(Paths.get(INDEX_DIR))));
         parser = new QueryParser(CONTENT_FIELD, new StandardAnalyzer());
     }
 
-    public TopDocs performSearch(String queryString, int n) throws IOException,
-            ParseException {
+    public TopDocs performSearch(String queryString, int n) throws IOException, ParseException {
         Query query = parser.parse(queryString);
         return searcher.search(query, n);
     }
@@ -46,4 +42,3 @@ public class Searcher {
         return searcher.doc(docId);
     }
 }
-

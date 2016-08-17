@@ -24,7 +24,7 @@ public class LuceneExampleTest {
     private static String termSearchQuery = "grass";
 
     @BeforeClass
-    public static void buildIndex() throws IOException{
+    public static void buildIndex() throws IOException {
         pokedexer = new Pokedexer(LuceneConstants.INDEX, numberOfPokemon);
         pokedexer.buildIndexes(true);
     }
@@ -35,15 +35,14 @@ public class LuceneExampleTest {
     }
 
     @Test
-    public void testAllSearch() throws IOException, ParseException{
+    public void testAllSearch() throws IOException, ParseException {
         PokemonSearcher pokemonSearcher = new PokemonSearcher(searchFieldName);
         Document[] documents = pokemonSearcher.performSearch(allResultsSearchQuery, maxResults);
         assertEquals(documents.length, maxResults);
     }
 
     @Test
-    public void testMultiTerm() throws IOException, ParseException
-    {
+    public void testMultiTerm() throws IOException, ParseException {
         PokemonSearcher pokemonSearcher = new PokemonSearcher(searchFieldName);
         Document[] documents = pokemonSearcher.performSearch(termSearchQuery, maxResults);
         assertEquals(documents.length, 1);

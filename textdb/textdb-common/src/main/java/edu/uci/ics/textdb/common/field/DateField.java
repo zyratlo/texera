@@ -4,14 +4,14 @@ import java.util.Date;
 
 import edu.uci.ics.textdb.api.common.IField;
 
-public class DateField implements IField{
+public class DateField implements IField {
 
     private Date value;
-    
-    public DateField(Date value){
+
+    public DateField(Date value) {
         this.value = value;
     }
-    
+
     @Override
     public Date getValue() {
         return value;
@@ -46,5 +46,5 @@ public class DateField implements IField{
     public String toString() {
         return "DateField [value=" + value + "]";
     }
-    
+
 }

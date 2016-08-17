@@ -13,11 +13,10 @@ public class Engine {
     private Engine() {
     }
 
-
     public static Engine getEngine() {
         if (singletonEngine == null) {
-            synchronized(Engine.class) {
-                if(singletonEngine == null){
+            synchronized (Engine.class) {
+                if (singletonEngine == null) {
                     singletonEngine = new Engine();
                 }
             }
