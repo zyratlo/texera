@@ -20,7 +20,7 @@ import edu.uci.ics.textdb.common.constants.SchemaConstants;
 import edu.uci.ics.textdb.common.field.ListField;
 import edu.uci.ics.textdb.common.field.Span;
 import edu.uci.ics.textdb.dataflow.nlpextrator.NlpExtractor;
-import edu.uci.ics.textdb.dataflow.nlpextrator.NlpExtractor.NlpTokenType;
+import edu.uci.ics.textdb.dataflow.nlpextrator.NlpPredicate;
 import edu.uci.ics.textdb.dataflow.source.ScanBasedSourceOperator;
 import edu.uci.ics.textdb.perftest.medline.MedlineIndexWriter;
 import edu.uci.ics.textdb.perftest.utils.*;
@@ -85,23 +85,23 @@ public class NlpExtractorPerformanceTest {
 
                 fileWriter.append(file.getName().replace(".txt", "") + ",");
                 fileWriter.append("NE_ALL,");
-                matchNLP(dataStore, NlpExtractor.NlpTokenType.NE_ALL, new StandardAnalyzer());
+                matchNLP(dataStore, NlpPredicate.NlpTokenType.NE_ALL, new StandardAnalyzer());
 
                 fileWriter.append(file.getName().replace(".txt", "") + ",");
                 fileWriter.append("Adjective,");
-                matchNLP(dataStore, NlpExtractor.NlpTokenType.Adjective, new StandardAnalyzer());
+                matchNLP(dataStore, NlpPredicate.NlpTokenType.Adjective, new StandardAnalyzer());
 
                 fileWriter.append(file.getName().replace(".txt", "") + ",");
                 fileWriter.append("Adverb,");
-                matchNLP(dataStore, NlpExtractor.NlpTokenType.Adverb, new StandardAnalyzer());
+                matchNLP(dataStore, NlpPredicate.NlpTokenType.Adverb, new StandardAnalyzer());
 
                 fileWriter.append(file.getName().replace(".txt", "") + ",");
                 fileWriter.append("Noun,");
-                matchNLP(dataStore, NlpExtractor.NlpTokenType.Noun, new StandardAnalyzer());
+                matchNLP(dataStore, NlpPredicate.NlpTokenType.Noun, new StandardAnalyzer());
 
                 fileWriter.append(file.getName().replace(".txt", "") + ",");
                 fileWriter.append("Verb,");
-                matchNLP(dataStore, NlpExtractor.NlpTokenType.Verb, new StandardAnalyzer());
+                matchNLP(dataStore, NlpPredicate.NlpTokenType.Verb, new StandardAnalyzer());
 
             }
         }
@@ -117,7 +117,7 @@ public class NlpExtractorPerformanceTest {
      * 
      *         This function does match based on tokenType
      */
-    public static void matchNLP(IDataStore dataStore, NlpTokenType tokenType, Analyzer analyzer) throws Exception {
+    public static void matchNLP(IDataStore dataStore, NlpPredicate.NlpTokenType tokenType, Analyzer analyzer) throws Exception {
 
         List<Attribute> attributeList = Arrays.asList(MedlineIndexWriter.ABSTRACT_ATTR);
 
@@ -129,7 +129,9 @@ public class NlpExtractorPerformanceTest {
         IDataReader dataReader = new DataReader(dataReaderPredicate);
         ISourceOperator sourceOperator = new ScanBasedSourceOperator(dataReader);
 
-        NlpExtractor nlpExtractor = new NlpExtractor(sourceOperator, attributeList, tokenType);
+        NlpPredicate nlpPredicate = new NlpPredicate(tokenType, attributeList);
+        NlpExtractor nlpExtractor = new NlpExtractor(nlpPredicate);
+        nlpExtractor.setInputOperator(sourceOperator);
 
         long startMatchTime = System.currentTimeMillis();
         nlpExtractor.open();

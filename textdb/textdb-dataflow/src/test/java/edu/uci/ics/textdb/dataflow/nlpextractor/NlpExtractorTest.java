@@ -22,6 +22,7 @@ import edu.uci.ics.textdb.api.storage.IDataStore;
 import edu.uci.ics.textdb.api.storage.IDataWriter;
 import edu.uci.ics.textdb.common.constants.DataConstants;
 import edu.uci.ics.textdb.dataflow.nlpextrator.NlpExtractor;
+import edu.uci.ics.textdb.dataflow.nlpextrator.NlpPredicate;
 import edu.uci.ics.textdb.dataflow.source.ScanBasedSourceOperator;
 import edu.uci.ics.textdb.dataflow.utils.TestUtils;
 import edu.uci.ics.textdb.storage.DataReaderPredicate;
@@ -59,9 +60,11 @@ public class NlpExtractorTest {
      *        sourceOperator, return as a list of tuples
      */
     public List<ITuple> getQueryResults(ISourceOperator sourceOperator, List<Attribute> attributes,
-            NlpExtractor.NlpTokenType nlpTokenType) throws Exception {
+            NlpPredicate.NlpTokenType nlpTokenType) throws Exception {
 
-        nlpExtractor = new NlpExtractor(sourceOperator, attributes, nlpTokenType);
+        NlpPredicate nlpPredicate = new NlpPredicate(nlpTokenType, attributes);
+        nlpExtractor = new NlpExtractor(nlpPredicate);
+        nlpExtractor.setInputOperator(sourceOperator);
         nlpExtractor.open();
         ITuple nextTuple = null;
         List<ITuple> results = new ArrayList<ITuple>();
@@ -87,10 +90,11 @@ public class NlpExtractorTest {
         List<Attribute> attributes = new ArrayList<>();
         attributes.add(attribute1);
 
-        List<ITuple> returnedResults = getQueryResults(sourceOperator, attributes, NlpExtractor.NlpTokenType.NE_ALL);
+        List<ITuple> returnedResults = getQueryResults(sourceOperator, attributes, NlpPredicate.NlpTokenType.NE_ALL);
 
         List<ITuple> expectedResults = NlpExtractorTestConstants.getTest1ResultTuples();
-
+        System.out.println("expected: "+expectedResults);
+        System.out.println("result: "+returnedResults);
         boolean contains = TestUtils.containsAllResults(expectedResults, returnedResults);
         Assert.assertTrue(contains);
     }
@@ -109,7 +113,7 @@ public class NlpExtractorTest {
         List<Attribute> attributes = new ArrayList<>();
         attributes.add(attribute1);
 
-        List<ITuple> returnedResults = getQueryResults(sourceOperator, attributes, NlpExtractor.NlpTokenType.NE_ALL);
+        List<ITuple> returnedResults = getQueryResults(sourceOperator, attributes, NlpPredicate.NlpTokenType.NE_ALL);
         List<ITuple> expectedResults = NlpExtractorTestConstants.getTest2ResultTuples();
 
         boolean contains = TestUtils.containsAllResults(expectedResults, returnedResults);
@@ -132,7 +136,7 @@ public class NlpExtractorTest {
         List<Attribute> attributes = new ArrayList<>();
         attributes.add(attribute1);
 
-        List<ITuple> returnedResults = getQueryResults(sourceOperator, attributes, NlpExtractor.NlpTokenType.NE_ALL);
+        List<ITuple> returnedResults = getQueryResults(sourceOperator, attributes, NlpPredicate.NlpTokenType.NE_ALL);
         List<ITuple> expectedResults = NlpExtractorTestConstants.getTest3ResultTuples();
 
         boolean contains = TestUtils.containsAllResults(expectedResults, returnedResults);
@@ -161,7 +165,7 @@ public class NlpExtractorTest {
         attributes.add(attribute1);
         attributes.add(attribute2);
 
-        List<ITuple> returnedResults = getQueryResults(sourceOperator, attributes, NlpExtractor.NlpTokenType.NE_ALL);
+        List<ITuple> returnedResults = getQueryResults(sourceOperator, attributes, NlpPredicate.NlpTokenType.NE_ALL);
         List<ITuple> expectedResults = NlpExtractorTestConstants.getTest4ResultTuples();
 
         boolean contains = TestUtils.containsAllResults(expectedResults, returnedResults);
@@ -186,7 +190,7 @@ public class NlpExtractorTest {
         List<Attribute> attributes = new ArrayList<>();
         attributes.add(attribute);
 
-        List<ITuple> returnedResults = getQueryResults(sourceOperator, attributes, NlpExtractor.NlpTokenType.NE_ALL);
+        List<ITuple> returnedResults = getQueryResults(sourceOperator, attributes, NlpPredicate.NlpTokenType.NE_ALL);
 
         List<ITuple> expectedResults = NlpExtractorTestConstants.getTest5ResultTuples();
 
@@ -216,7 +220,7 @@ public class NlpExtractorTest {
         attributes.add(attribute2);
 
         List<ITuple> returnedResults = getQueryResults(sourceOperator, attributes,
-                NlpExtractor.NlpTokenType.Organization);
+                NlpPredicate.NlpTokenType.Organization);
 
         List<ITuple> expectedResults = NlpExtractorTestConstants.getTest6ResultTuples();
 
@@ -240,7 +244,7 @@ public class NlpExtractorTest {
         List<Attribute> attributes = new ArrayList<>();
         attributes.add(attribute1);
 
-        List<ITuple> returnedResults = getQueryResults(sourceOperator, attributes, NlpExtractor.NlpTokenType.Adjective);
+        List<ITuple> returnedResults = getQueryResults(sourceOperator, attributes, NlpPredicate.NlpTokenType.Adjective);
 
         List<ITuple> expectedResults = NlpExtractorTestConstants.getTest7ResultTuples();
 

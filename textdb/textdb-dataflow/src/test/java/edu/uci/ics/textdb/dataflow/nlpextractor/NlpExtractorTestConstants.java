@@ -15,6 +15,7 @@ import edu.uci.ics.textdb.common.field.Span;
 import edu.uci.ics.textdb.common.field.TextField;
 import edu.uci.ics.textdb.common.utils.Utils;
 import edu.uci.ics.textdb.dataflow.nlpextrator.NlpExtractor;
+import edu.uci.ics.textdb.dataflow.nlpextrator.NlpPredicate;
 
 /**
  * Created by Sam on 16/4/27.
@@ -74,7 +75,7 @@ public class NlpExtractorTestConstants {
     public static List<ITuple> getTest1ResultTuples() {
         List<ITuple> resultList = new ArrayList<>();
         List<Span> spanList = new ArrayList<Span>();
-        Span span1 = new Span("sentence_one", 0, 9, NlpExtractor.NlpTokenType.Organization.toString(), "Microsoft");
+        Span span1 = new Span("sentence_one", 0, 9, NlpPredicate.NlpTokenType.Organization.toString(), "Microsoft");
         spanList.add(span1);
 
         IField[] fields1 = { new TextField("Microsoft is an organization.") };
@@ -91,9 +92,9 @@ public class NlpExtractorTestConstants {
     public static List<ITuple> getTest2ResultTuples() {
         List<ITuple> resultList = new ArrayList<>();
         List<Span> spanList = new ArrayList<Span>();
-        Span span1 = new Span("sentence_one", 0, 9, NlpExtractor.NlpTokenType.Organization.toString(), "Microsoft");
-        Span span2 = new Span("sentence_one", 11, 17, NlpExtractor.NlpTokenType.Organization.toString(), "Google");
-        Span span3 = new Span("sentence_one", 22, 30, NlpExtractor.NlpTokenType.Organization.toString(), "Facebook");
+        Span span1 = new Span("sentence_one", 0, 9, NlpPredicate.NlpTokenType.Organization.toString(), "Microsoft");
+        Span span2 = new Span("sentence_one", 11, 17, NlpPredicate.NlpTokenType.Organization.toString(), "Google");
+        Span span3 = new Span("sentence_one", 22, 30, NlpPredicate.NlpTokenType.Organization.toString(), "Facebook");
         spanList.add(span1);
         spanList.add(span2);
         spanList.add(span3);
@@ -112,11 +113,11 @@ public class NlpExtractorTestConstants {
         List<ITuple> resultList = new ArrayList<>();
 
         List<Span> spanList = new ArrayList<Span>();
-        Span span1 = new Span("sentence_one", 0, 9, NlpExtractor.NlpTokenType.Organization.toString(), "Microsoft");
-        Span span2 = new Span("sentence_one", 11, 17, NlpExtractor.NlpTokenType.Organization.toString(), "Google");
-        Span span3 = new Span("sentence_one", 22, 30, NlpExtractor.NlpTokenType.Organization.toString(), "Facebook");
-        Span span4 = new Span("sentence_one", 53, 65, NlpExtractor.NlpTokenType.Person.toString(), "Donald Trump");
-        Span span5 = new Span("sentence_one", 70, 82, NlpExtractor.NlpTokenType.Person.toString(), "Barack Obama");
+        Span span1 = new Span("sentence_one", 0, 9, NlpPredicate.NlpTokenType.Organization.toString(), "Microsoft");
+        Span span2 = new Span("sentence_one", 11, 17, NlpPredicate.NlpTokenType.Organization.toString(), "Google");
+        Span span3 = new Span("sentence_one", 22, 30, NlpPredicate.NlpTokenType.Organization.toString(), "Facebook");
+        Span span4 = new Span("sentence_one", 53, 65, NlpPredicate.NlpTokenType.Person.toString(), "Donald Trump");
+        Span span5 = new Span("sentence_one", 70, 82, NlpPredicate.NlpTokenType.Person.toString(), "Barack Obama");
 
         spanList.add(span1);
         spanList.add(span2);
@@ -140,11 +141,11 @@ public class NlpExtractorTestConstants {
         List<ITuple> resultList = new ArrayList<>();
 
         List<Span> spanList = new ArrayList<Span>();
-        Span span1 = new Span("sentence_one", 0, 9, NlpExtractor.NlpTokenType.Organization.toString(), "Microsoft");
-        Span span2 = new Span("sentence_one", 11, 17, NlpExtractor.NlpTokenType.Organization.toString(), "Google");
-        Span span3 = new Span("sentence_one", 22, 30, NlpExtractor.NlpTokenType.Organization.toString(), "Facebook");
-        Span span4 = new Span("sentence_two", 0, 12, NlpExtractor.NlpTokenType.Person.toString(), "Donald Trump");
-        Span span5 = new Span("sentence_two", 17, 29, NlpExtractor.NlpTokenType.Person.toString(), "Barack Obama");
+        Span span1 = new Span("sentence_one", 0, 9, NlpPredicate.NlpTokenType.Organization.toString(), "Microsoft");
+        Span span2 = new Span("sentence_one", 11, 17, NlpPredicate.NlpTokenType.Organization.toString(), "Google");
+        Span span3 = new Span("sentence_one", 22, 30, NlpPredicate.NlpTokenType.Organization.toString(), "Facebook");
+        Span span4 = new Span("sentence_two", 0, 12, NlpPredicate.NlpTokenType.Person.toString(), "Donald Trump");
+        Span span5 = new Span("sentence_two", 17, 29, NlpPredicate.NlpTokenType.Person.toString(), "Barack Obama");
 
         spanList.add(span1);
         spanList.add(span2);
@@ -169,8 +170,8 @@ public class NlpExtractorTestConstants {
 
         List<Span> spanList = new ArrayList<Span>();
 
-        Span span1 = new Span("sentence_two", 0, 12, NlpExtractor.NlpTokenType.Person.toString(), "Donald Trump");
-        Span span2 = new Span("sentence_two", 17, 29, NlpExtractor.NlpTokenType.Person.toString(), "Barack Obama");
+        Span span1 = new Span("sentence_two", 0, 12, NlpPredicate.NlpTokenType.Person.toString(), "Donald Trump");
+        Span span2 = new Span("sentence_two", 17, 29, NlpPredicate.NlpTokenType.Person.toString(), "Barack Obama");
 
         spanList.add(span1);
         spanList.add(span2);
@@ -191,9 +192,9 @@ public class NlpExtractorTestConstants {
 
         List<Span> spanList = new ArrayList<Span>();
 
-        Span span1 = new Span("sentence_one", 0, 9, NlpExtractor.NlpTokenType.Organization.toString(), "Microsoft");
-        Span span2 = new Span("sentence_one", 11, 17, NlpExtractor.NlpTokenType.Organization.toString(), "Google");
-        Span span3 = new Span("sentence_one", 22, 30, NlpExtractor.NlpTokenType.Organization.toString(), "Facebook");
+        Span span1 = new Span("sentence_one", 0, 9, NlpPredicate.NlpTokenType.Organization.toString(), "Microsoft");
+        Span span2 = new Span("sentence_one", 11, 17, NlpPredicate.NlpTokenType.Organization.toString(), "Google");
+        Span span3 = new Span("sentence_one", 22, 30, NlpPredicate.NlpTokenType.Organization.toString(), "Facebook");
 
         spanList.add(span1);
         spanList.add(span2);
@@ -215,7 +216,7 @@ public class NlpExtractorTestConstants {
         List<ITuple> resultList = new ArrayList<>();
         List<Span> spanList = new ArrayList<Span>();
 
-        Span span1 = new Span("sentence_one", 12, 16, NlpExtractor.NlpTokenType.Adjective.toString(), "warm");
+        Span span1 = new Span("sentence_one", 12, 16, NlpPredicate.NlpTokenType.Adjective.toString(), "warm");
         spanList.add(span1);
 
         IField[] fields1 = { new TextField(
