@@ -2,14 +2,14 @@ package edu.uci.ics.textdb.common.field;
 
 import edu.uci.ics.textdb.api.common.IField;
 
-public class DoubleField implements IField{
-    
+public class DoubleField implements IField {
+
     private Double value;
 
-    public DoubleField(Double value){
+    public DoubleField(Double value) {
         this.value = value;
     }
-    
+
     @Override
     public Double getValue() {
         return value;

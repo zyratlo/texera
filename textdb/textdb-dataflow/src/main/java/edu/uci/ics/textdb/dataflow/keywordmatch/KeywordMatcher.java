@@ -22,12 +22,12 @@ import edu.uci.ics.textdb.dataflow.common.AbstractSingleInputOperator;
 import edu.uci.ics.textdb.dataflow.common.KeywordPredicate;
 
 public class KeywordMatcher extends AbstractSingleInputOperator {
-    
+
     private KeywordPredicate predicate;
     private String query;
-    
+
     private Schema inputSchema;
-    
+
     public KeywordMatcher(KeywordPredicate predicate) {
         this.predicate = predicate;
         this.query = predicate.getQuery();
@@ -37,10 +37,10 @@ public class KeywordMatcher extends AbstractSingleInputOperator {
     protected void setUp() {
         inputSchema = inputOperator.getOutputSchema();
         outputSchema = inputSchema;
-        if (! inputSchema.containsField(SchemaConstants.PAYLOAD)) {
+        if (!inputSchema.containsField(SchemaConstants.PAYLOAD)) {
             outputSchema = Utils.addAttributeToSchema(outputSchema, SchemaConstants.PAYLOAD_ATTRIBUTE);
         }
-        if (! inputSchema.containsField(SchemaConstants.SPAN_LIST)) {
+        if (!inputSchema.containsField(SchemaConstants.SPAN_LIST)) {
             outputSchema = Utils.addAttributeToSchema(outputSchema, SchemaConstants.SPAN_LIST_ATTRIBUTE);
         }
     }
@@ -48,14 +48,14 @@ public class KeywordMatcher extends AbstractSingleInputOperator {
     @Override
     protected ITuple computeMatchingResults(ITuple inputTuple) throws DataFlowException {
         ITuple resultTuple = null;
-        // There's an implicit assumption that, in open() method, PAYLOAD is checked before SPAN_LIST.
+        // There's an implicit assumption that, in open() method, PAYLOAD is
+        // checked before SPAN_LIST.
         // Therefore, PAYLOAD needs to be checked and added first
-        if (! inputSchema.containsField(SchemaConstants.PAYLOAD)) {
-            inputTuple = Utils.getSpanTuple(inputTuple.getFields(), 
-                    Utils.generatePayloadFromTuple(inputTuple, predicate.getLuceneAnalyzer()), 
-                    outputSchema);
+        if (!inputSchema.containsField(SchemaConstants.PAYLOAD)) {
+            inputTuple = Utils.getSpanTuple(inputTuple.getFields(),
+                    Utils.generatePayloadFromTuple(inputTuple, predicate.getLuceneAnalyzer()), outputSchema);
         }
-        if (! inputSchema.containsField(SchemaConstants.SPAN_LIST)) {
+        if (!inputSchema.containsField(SchemaConstants.SPAN_LIST)) {
             inputTuple = Utils.getSpanTuple(inputTuple.getFields(), new ArrayList<Span>(), outputSchema);
         }
 
@@ -67,29 +67,29 @@ public class KeywordMatcher extends AbstractSingleInputOperator {
         }
         if (this.predicate.getOperatorType() == DataConstants.KeywordMatchingType.SUBSTRING_SCANBASED) {
             resultTuple = computeSubstringMatchingResult(inputTuple);
-        } 
+        }
         return resultTuple;
     }
 
     @Override
-    protected void cleanUp() {        
+    protected void cleanUp() {
     }
-    
-    private ITuple computeConjunctionMatchingResult(ITuple sourceTuple) throws DataFlowException {      
-        List<Span> payload = (List<Span>) sourceTuple.getField(SchemaConstants.PAYLOAD).getValue(); 
+
+    private ITuple computeConjunctionMatchingResult(ITuple sourceTuple) throws DataFlowException {
+        List<Span> payload = (List<Span>) sourceTuple.getField(SchemaConstants.PAYLOAD).getValue();
         List<Span> relevantSpans = filterRelevantSpans(payload);
         List<Span> matchingResults = new ArrayList<>();
-        
+
         for (Attribute attribute : this.predicate.getAttributeList()) {
             String fieldName = attribute.getFieldName();
             FieldType fieldType = attribute.getFieldType();
             String fieldValue = sourceTuple.getField(fieldName).getValue().toString();
-            
+
             // types other than TEXT and STRING: throw Exception for now
             if (fieldType != FieldType.STRING && fieldType != FieldType.TEXT) {
                 throw new DataFlowException("KeywordMatcher: Fields other than STRING and TEXT are not supported yet");
             }
-            
+
             // for STRING type, the query should match the fieldValue completely
             if (fieldType == FieldType.STRING) {
                 if (fieldValue.equals(query)) {
@@ -97,33 +97,32 @@ public class KeywordMatcher extends AbstractSingleInputOperator {
                     matchingResults.add(span);
                 }
             }
-            
-            // for TEXT type, every token in the query should be present in span list for this field
+
+            // for TEXT type, every token in the query should be present in span
+            // list for this field
             if (fieldType == FieldType.TEXT) {
-                List<Span> fieldSpanList = relevantSpans.stream()
-                        .filter(span -> span.getFieldName().equals(fieldName))
+                List<Span> fieldSpanList = relevantSpans.stream().filter(span -> span.getFieldName().equals(fieldName))
                         .collect(Collectors.toList());
-                
+
                 if (isAllQueryTokensPresent(fieldSpanList, predicate.getQueryTokenSet())) {
                     matchingResults.addAll(fieldSpanList);
                 }
             }
-            
+
         }
-        
+
         if (matchingResults.isEmpty()) {
             return null;
         }
-        
+
         List<Span> spanList = (List<Span>) sourceTuple.getField(SchemaConstants.SPAN_LIST).getValue();
         spanList.addAll(matchingResults);
-        
+
         return sourceTuple;
     }
-    
-    
+
     private ITuple computePhraseMatchingResult(ITuple sourceTuple) throws DataFlowException {
-        List<Span> payload = (List<Span>) sourceTuple.getField(SchemaConstants.PAYLOAD).getValue(); 
+        List<Span> payload = (List<Span>) sourceTuple.getField(SchemaConstants.PAYLOAD).getValue();
         List<Span> relevantSpans = filterRelevantSpans(payload);
         List<Span> matchingResults = new ArrayList<>();
 
@@ -131,114 +130,119 @@ public class KeywordMatcher extends AbstractSingleInputOperator {
             String fieldName = attribute.getFieldName();
             FieldType fieldType = attribute.getFieldType();
             String fieldValue = sourceTuple.getField(fieldName).getValue().toString();
-            
+
             // types other than TEXT and STRING: throw Exception for now
             if (fieldType != FieldType.STRING && fieldType != FieldType.TEXT) {
                 throw new DataFlowException("KeywordMatcher: Fields other than STRING and TEXT are not supported yet");
             }
-            
+
             // for STRING type, the query should match the fieldValue completely
             if (fieldType == FieldType.STRING) {
                 if (fieldValue.equals(query)) {
                     matchingResults.add(new Span(fieldName, 0, query.length(), query, fieldValue));
                 }
             }
-            
-            // for TEXT type, spans need to be reconstructed according to the phrase query
+
+            // for TEXT type, spans need to be reconstructed according to the
+            // phrase query
             if (fieldType == FieldType.TEXT) {
-                List<Span> fieldSpanList = relevantSpans.stream()
-                        .filter(span -> span.getFieldName().equals(fieldName))
+                List<Span> fieldSpanList = relevantSpans.stream().filter(span -> span.getFieldName().equals(fieldName))
                         .collect(Collectors.toList());
-                
-                if (! isAllQueryTokensPresent(fieldSpanList, predicate.getQueryTokenSet())) {
-                    // move on to next field if not all query tokens are present in the spans
+
+                if (!isAllQueryTokensPresent(fieldSpanList, predicate.getQueryTokenSet())) {
+                    // move on to next field if not all query tokens are present
+                    // in the spans
                     continue;
                 }
-                
+
                 // Sort current field's span list by token offset for later use
-                Collections.sort(fieldSpanList, (span1, span2) -> span1.getTokenOffset()-span2.getTokenOffset());
-                
+                Collections.sort(fieldSpanList, (span1, span2) -> span1.getTokenOffset() - span2.getTokenOffset());
+
                 List<String> queryTokenList = predicate.getQueryTokenList();
                 List<Integer> queryTokenOffset = new ArrayList<>();
                 List<String> queryTokensWithStopwords = predicate.getQueryTokensWithStopwords();
-                
-                for(int i = 0; i < queryTokensWithStopwords.size(); i++){
+
+                for (int i = 0; i < queryTokensWithStopwords.size(); i++) {
                     if (queryTokenList.contains(queryTokensWithStopwords.get(i))) {
                         queryTokenOffset.add(i);
                     }
                 }
 
-                int iter = 0; // maintains position of term being checked in spanForThisField list
-                while(iter < fieldSpanList.size()){
-                    if (iter > fieldSpanList.size()-queryTokenList.size()) {
+                int iter = 0; // maintains position of term being checked in
+                              // spanForThisField list
+                while (iter < fieldSpanList.size()) {
+                    if (iter > fieldSpanList.size() - queryTokenList.size()) {
                         break;
                     }
-                    
-                    // Verify if span in the spanForThisField correspond to our phrase query, ie relative position offsets should be similar
+
+                    // Verify if span in the spanForThisField correspond to our
+                    // phrase query, ie relative position offsets should be
+                    // similar
                     // and the value should be same.
-                    boolean isMismatchInSpan=false;// flag to check if a mismatch in spans occurs
-                    
-                     // To check all the terms in query are verified
-                    for(int i=0; i < queryTokenList.size()-1; i++) {
-                        Span first = fieldSpanList.get(iter+i);
-                        Span second = fieldSpanList.get(iter +i+ 1);
-                        if (!(second.getTokenOffset() - first.getTokenOffset() == queryTokenOffset.get(i+1) - queryTokenOffset.get(i) &&
-                                first.getValue().equalsIgnoreCase(queryTokenList.get(i)) && second.getValue().equalsIgnoreCase(queryTokenList.get(i+1)))) {
+                    boolean isMismatchInSpan = false;// flag to check if a
+                                                     // mismatch in spans occurs
+
+                    // To check all the terms in query are verified
+                    for (int i = 0; i < queryTokenList.size() - 1; i++) {
+                        Span first = fieldSpanList.get(iter + i);
+                        Span second = fieldSpanList.get(iter + i + 1);
+                        if (!(second.getTokenOffset() - first.getTokenOffset() == queryTokenOffset.get(i + 1)
+                                - queryTokenOffset.get(i) && first.getValue().equalsIgnoreCase(queryTokenList.get(i))
+                                && second.getValue().equalsIgnoreCase(queryTokenList.get(i + 1)))) {
                             iter++;
-                            isMismatchInSpan=true;
+                            isMismatchInSpan = true;
                             break;
                         }
                     }
-                    
-                    if(isMismatchInSpan) {
+
+                    if (isMismatchInSpan) {
                         continue;
                     }
 
                     int combinedSpanStartIndex = fieldSpanList.get(iter).getStart();
-                    int combinedSpanEndIndex = fieldSpanList.get(iter+queryTokenList.size()-1).getEnd();
+                    int combinedSpanEndIndex = fieldSpanList.get(iter + queryTokenList.size() - 1).getEnd();
 
-                    Span combinedSpan = new Span(fieldName, combinedSpanStartIndex, combinedSpanEndIndex, query, fieldValue.substring(combinedSpanStartIndex, combinedSpanEndIndex));
+                    Span combinedSpan = new Span(fieldName, combinedSpanStartIndex, combinedSpanEndIndex, query,
+                            fieldValue.substring(combinedSpanStartIndex, combinedSpanEndIndex));
                     matchingResults.add(combinedSpan);
-                    iter = iter + queryTokenList.size();                       
-                }       
-            }   
+                    iter = iter + queryTokenList.size();
+                }
+            }
         }
-                
+
         if (matchingResults.isEmpty()) {
             return null;
         }
 
         List<Span> spanList = (List<Span>) sourceTuple.getField(SchemaConstants.SPAN_LIST).getValue();
         spanList.addAll(matchingResults);
-        
+
         return sourceTuple;
     }
-    
-    
+
     private ITuple computeSubstringMatchingResult(ITuple sourceTuple) throws DataFlowException {
-        List<Span> matchingResults = new ArrayList<>();       
-        
+        List<Span> matchingResults = new ArrayList<>();
+
         for (Attribute attribute : this.predicate.getAttributeList()) {
             String fieldName = attribute.getFieldName();
             FieldType fieldType = attribute.getFieldType();
             String fieldValue = sourceTuple.getField(fieldName).getValue().toString();
-            
-            
+
             // types other than TEXT and STRING: throw Exception for now
             if (fieldType != FieldType.STRING && fieldType != FieldType.TEXT) {
                 throw new DataFlowException("KeywordMatcher: Fields other than STRING and TEXT are not supported yet");
             }
-            
+
             // for STRING type, the query should match the fieldValue completely
             if (fieldType == FieldType.STRING) {
                 if (fieldValue.equals(query)) {
                     matchingResults.add(new Span(fieldName, 0, query.length(), query, fieldValue));
                 }
             }
-            
+
             if (fieldType == FieldType.TEXT) {
                 String regex = query.toLowerCase();
-                Pattern pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE); 
+                Pattern pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
                 Matcher matcher = pattern.matcher(fieldValue.toLowerCase());
                 while (matcher.find()) {
                     int start = matcher.start();
@@ -247,23 +251,21 @@ public class KeywordMatcher extends AbstractSingleInputOperator {
                     matchingResults.add(new Span(fieldName, start, end, query, fieldValue.substring(start, end)));
                 }
             }
-            
+
         }
         if (matchingResults.isEmpty()) {
             return null;
         }
-    
+
         List<Span> spanList = (List<Span>) sourceTuple.getField(SchemaConstants.SPAN_LIST).getValue();
         spanList.addAll(matchingResults);
-        
+
         return sourceTuple;
     }
-    
+
     private boolean isAllQueryTokensPresent(List<Span> fieldSpanList, Set<String> queryTokenSet) {
-        Set<String> fieldSpanKeys = fieldSpanList.stream()
-                .map(span -> span.getKey())
-                .collect(Collectors.toSet());
-        
+        Set<String> fieldSpanKeys = fieldSpanList.stream().map(span -> span.getKey()).collect(Collectors.toSet());
+
         return fieldSpanKeys.equals(queryTokenSet);
     }
 
@@ -271,7 +273,7 @@ public class KeywordMatcher extends AbstractSingleInputOperator {
         List<Span> relevantSpans = new ArrayList<>();
         Iterator<Span> iterator = spanList.iterator();
         while (iterator.hasNext()) {
-            Span span  = iterator.next();
+            Span span = iterator.next();
             if (predicate.getQueryTokenSet().contains(span.getKey())) {
                 relevantSpans.add(span);
             }

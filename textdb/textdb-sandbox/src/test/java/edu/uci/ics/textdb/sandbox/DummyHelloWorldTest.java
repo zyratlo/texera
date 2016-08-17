@@ -5,9 +5,8 @@ import org.junit.Test;
 /**
  * Unit test for simple App.
  */
-public class DummyHelloWorldTest
-{
+public class DummyHelloWorldTest {
     @Test
-    public void testApp() {}
+    public void testApp() {
+    }
 }
-

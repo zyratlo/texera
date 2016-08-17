@@ -7,7 +7,7 @@ public class KishoreHelloWorld {
 
     public static void main(String args[]) {
 
-        //A simple Hello World program
+        // A simple Hello World program
         System.out.println("Hello, World!");
     }
 }

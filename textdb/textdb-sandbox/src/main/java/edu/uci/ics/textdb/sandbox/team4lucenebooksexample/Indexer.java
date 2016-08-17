@@ -56,8 +56,7 @@ public class Indexer {
         doc.add(new StringField(ID_FIELD, book.getId(), Field.Store.YES));
         doc.add(new StringField(NAME_FIELD, book.getName(), Field.Store.YES));
         doc.add(new StringField(AUTHOR_FIELD, book.getAuthor(), Field.Store.YES));
-        String fullSearchableText = book.getName() + " " + book.getAuthor()
-                + " " + book.getDescription();
+        String fullSearchableText = book.getName() + " " + book.getAuthor() + " " + book.getDescription();
         doc.add(new TextField(CONTENT_FIELD, fullSearchableText, Field.Store.NO));
         writer.addDocument(doc);
     }
