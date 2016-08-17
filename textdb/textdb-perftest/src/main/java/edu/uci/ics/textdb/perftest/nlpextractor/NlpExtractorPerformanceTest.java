@@ -41,7 +41,6 @@ public class NlpExtractorPerformanceTest {
     private static String newLine = "\n";
     private static FileWriter fileWriter = null;
 
-
     /**
      * @param iterationNumber:
      *            the number of times the test expected to be ran
@@ -109,7 +108,6 @@ public class NlpExtractorPerformanceTest {
         fileWriter.flush();
         fileWriter.close();
     }
-
 
     /**
      * @param DataStore

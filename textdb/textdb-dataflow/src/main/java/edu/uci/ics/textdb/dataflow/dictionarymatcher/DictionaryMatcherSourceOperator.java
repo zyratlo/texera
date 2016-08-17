@@ -46,7 +46,6 @@ public class DictionaryMatcherSourceOperator implements ISourceOperator {
     private int limit;
     private int offset;
 
-
     /**
      * Constructs a DictionaryMatcher with a dictionary predicate
      * 
@@ -60,7 +59,6 @@ public class DictionaryMatcherSourceOperator implements ISourceOperator {
         this.predicate = predicate;
         this.dataStore = dataStore;
     }
-
 
     /**
      * @about Opens dictionary matcher. Must call open() before calling
@@ -109,7 +107,6 @@ public class DictionaryMatcherSourceOperator implements ISourceOperator {
             throw new DataFlowException(e.getMessage(), e);
         }
     }
-
 
     /**
      * @about Gets the next matched tuple. <br>
@@ -205,26 +202,21 @@ public class DictionaryMatcherSourceOperator implements ISourceOperator {
         }
     }
 
-
     public void setLimit(int limit) {
         this.limit = limit;
     }
-
 
     public int getLimit() {
         return this.limit;
     }
 
-
     public void setOffset(int offset) {
         this.offset = offset;
     }
 
-
     public int getOffset() {
         return this.offset;
     }
-
 
     /*
      * Advance the cursor of dictionary. if reach the end of the dictionary,
@@ -237,7 +229,6 @@ public class DictionaryMatcherSourceOperator implements ISourceOperator {
         predicate.resetDictCursor();
         currentDictionaryEntry = predicate.getNextDictionaryEntry();
     }
-
 
     /*
      * Match the key against the dataTuple. if there's no match, returns the
@@ -287,7 +278,6 @@ public class DictionaryMatcherSourceOperator implements ISourceOperator {
         return sourceTuple;
     }
 
-
     /**
      * @about Closes the operator
      */
@@ -305,7 +295,6 @@ public class DictionaryMatcherSourceOperator implements ISourceOperator {
             throw new DataFlowException(e.getMessage(), e);
         }
     }
-
 
     @Override
     public Schema getOutputSchema() {

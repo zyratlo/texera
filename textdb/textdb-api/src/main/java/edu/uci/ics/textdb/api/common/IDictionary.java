@@ -10,6 +10,5 @@ package edu.uci.ics.textdb.api.common;
 public interface IDictionary {
     String getNextValue();
 
-
     void resetCursor();
 }

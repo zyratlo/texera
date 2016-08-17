@@ -36,7 +36,6 @@ public class RegexPredicate implements IPredicate {
     private Query luceneQuery;
     private String queryString;
 
-
     public RegexPredicate(String regex, List<Attribute> attributeList, Analyzer analyzer) throws DataFlowException {
         this.regex = regex;
         this.luceneAnalyzer = analyzer;
@@ -61,13 +60,11 @@ public class RegexPredicate implements IPredicate {
 
     }
 
-
     private Query generateLuceneQuery(List<String> fields, String queryStr) throws ParseException {
         String[] fieldsArray = new String[fields.size()];
         QueryParser parser = new MultiFieldQueryParser(fields.toArray(fieldsArray), luceneAnalyzer);
         return parser.parse(queryStr);
     }
-
 
     public DataReaderPredicate generateDataReaderPredicate(IDataStore dataStore) {
         DataReaderPredicate predicate = new DataReaderPredicate(luceneQuery, queryString, dataStore, attributeList,
@@ -76,16 +73,13 @@ public class RegexPredicate implements IPredicate {
         return predicate;
     }
 
-
     public String getRegex() {
         return regex;
     }
 
-
     public Analyzer getLuceneAnalyzer() {
         return this.luceneAnalyzer;
     }
-
 
     public List<Attribute> getAttributeList() {
         return attributeList;

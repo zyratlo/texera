@@ -35,13 +35,11 @@ public class NlpExtractorTestConstants {
     public static final Schema SCHEMA_ONE_SENTENCE = new Schema(SENTENCE_ONE_ATTR);
     public static final Schema SCHEMA_TWO_SENTENCE = new Schema(SENTENCE_ONE_ATTR, SENTENCE_TWO_ATTR);
 
-
     public static List<ITuple> getTest1Tuple() throws ParseException {
         IField[] fields1 = { new TextField("Microsoft is an organization.") };
         ITuple tuple1 = new DataTuple(SCHEMA_ONE_SENTENCE, fields1);
         return Arrays.asList(tuple1);
     }
-
 
     public static List<ITuple> getTest2Tuple() throws ParseException {
 
@@ -49,7 +47,6 @@ public class NlpExtractorTestConstants {
         ITuple tuple1 = new DataTuple(SCHEMA_ONE_SENTENCE, fields1);
         return Arrays.asList(tuple1);
     }
-
 
     public static List<ITuple> getTest3Tuple() throws ParseException {
 
@@ -59,7 +56,6 @@ public class NlpExtractorTestConstants {
         return Arrays.asList(tuple1);
     }
 
-
     public static List<ITuple> getTest4Tuple() throws ParseException {
 
         IField[] fields1 = { new TextField("Microsoft, Google and Facebook are organizations."),
@@ -68,14 +64,12 @@ public class NlpExtractorTestConstants {
         return Arrays.asList(tuple1);
     }
 
-
     public static List<ITuple> getTest7Tuple() throws ParseException {
         IField[] fields1 = { new TextField(
                 "Feeling the warm sun rays beaming steadily down, the girl decided there was no need to wear a coat.") };
         ITuple tuple1 = new DataTuple(SCHEMA_ONE_SENTENCE, fields1);
         return Arrays.asList(tuple1);
     }
-
 
     public static List<ITuple> getTest1ResultTuples() {
         List<ITuple> resultList = new ArrayList<>();
@@ -93,7 +87,6 @@ public class NlpExtractorTestConstants {
 
         return resultList;
     }
-
 
     public static List<ITuple> getTest2ResultTuples() {
         List<ITuple> resultList = new ArrayList<>();
@@ -114,7 +107,6 @@ public class NlpExtractorTestConstants {
         resultList.add(returnTuple);
         return resultList;
     }
-
 
     public static List<ITuple> getTest3ResultTuples() {
         List<ITuple> resultList = new ArrayList<>();
@@ -144,7 +136,6 @@ public class NlpExtractorTestConstants {
         return resultList;
     }
 
-
     public static List<ITuple> getTest4ResultTuples() {
         List<ITuple> resultList = new ArrayList<>();
 
@@ -173,7 +164,6 @@ public class NlpExtractorTestConstants {
         return resultList;
     }
 
-
     public static List<ITuple> getTest5ResultTuples() {
         List<ITuple> resultList = new ArrayList<>();
 
@@ -195,7 +185,6 @@ public class NlpExtractorTestConstants {
 
         return resultList;
     }
-
 
     public static List<ITuple> getTest6ResultTuples() {
         List<ITuple> resultList = new ArrayList<>();
@@ -221,7 +210,6 @@ public class NlpExtractorTestConstants {
 
         return resultList;
     }
-
 
     public static List<ITuple> getTest7ResultTuples() {
         List<ITuple> resultList = new ArrayList<>();

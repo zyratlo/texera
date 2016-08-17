@@ -12,7 +12,6 @@ public class AbstractSinkTest {
     private AbstractSink sink;
     private IOperator childOperator;
 
-
     @Before
     public void setUp() {
         childOperator = Mockito.mock(IOperator.class);
@@ -24,7 +23,6 @@ public class AbstractSinkTest {
         };
     }
 
-
     @Test
     public void testOpen() throws Exception {
         sink.open();
@@ -32,14 +30,12 @@ public class AbstractSinkTest {
         Mockito.verify(childOperator).open();
     }
 
-
     @Test
     public void testClose() throws Exception {
         sink.close();
         // verify that childOperator called close() method
         Mockito.verify(childOperator).close();
     }
-
 
     @Test
     public void testProcessTuples() throws Exception {

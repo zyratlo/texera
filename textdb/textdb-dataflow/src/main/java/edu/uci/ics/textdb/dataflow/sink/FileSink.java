@@ -17,19 +17,16 @@ public class FileSink extends AbstractSink {
     private PrintWriter printWriter;
     private final File file;
 
-
     public FileSink(IOperator childOperator, File file) throws FileNotFoundException {
         super(childOperator);
         this.file = file;
     }
-
 
     @Override
     public void open() throws Exception {
         super.open();
         this.printWriter = new PrintWriter(file);
     }
-
 
     @Override
     public void close() throws Exception {
@@ -38,7 +35,6 @@ public class FileSink extends AbstractSink {
         }
         super.close();
     }
-
 
     @Override
     protected void processOneTuple(ITuple nextTuple) {

@@ -6,17 +6,14 @@ public class DoubleField implements IField {
 
     private Double value;
 
-
     public DoubleField(Double value) {
         this.value = value;
     }
-
 
     @Override
     public Double getValue() {
         return value;
     }
-
 
     @Override
     public int hashCode() {
@@ -25,7 +22,6 @@ public class DoubleField implements IField {
         result = prime * result + ((value == null) ? 0 : value.hashCode());
         return result;
     }
-
 
     @Override
     public boolean equals(Object obj) {
@@ -43,7 +39,6 @@ public class DoubleField implements IField {
             return false;
         return true;
     }
-
 
     @Override
     public String toString() {

@@ -14,14 +14,12 @@ public class GramBooleanQueryTest {
         Assert.assertTrue(query1.equals(query2));
     }
 
-
     @Test
     public void testEmptyDifferentOp() {
         GramBooleanQuery query1 = new GramBooleanQuery(GramBooleanQuery.QueryOp.AND);
         GramBooleanQuery query2 = new GramBooleanQuery(GramBooleanQuery.QueryOp.OR);
         Assert.assertFalse(query1.equals(query2));
     }
-
 
     @Test
     public void testSameAnd() {
@@ -34,7 +32,6 @@ public class GramBooleanQueryTest {
         Assert.assertEquals(query2, query1);
     }
 
-
     @Test
     public void testSameOr() {
         GramBooleanQuery query1 = new GramBooleanQuery(GramBooleanQuery.QueryOp.OR);
@@ -46,7 +43,6 @@ public class GramBooleanQueryTest {
         Assert.assertEquals(query2, query1);
     }
 
-
     @Test
     public void testDifferentAnd() {
         GramBooleanQuery query1 = new GramBooleanQuery(GramBooleanQuery.QueryOp.AND);
@@ -57,7 +53,6 @@ public class GramBooleanQueryTest {
         Assert.assertFalse(query1.equals(query2));
         Assert.assertFalse(query2.equals(query1));
     }
-
 
     @Test
     public void testSameMultiple() {
@@ -72,7 +67,6 @@ public class GramBooleanQueryTest {
         Assert.assertEquals(query2, query1);
     }
 
-
     @Test
     public void testDifferentMultiple() {
         GramBooleanQuery query1 = new GramBooleanQuery(GramBooleanQuery.QueryOp.OR);
@@ -86,7 +80,6 @@ public class GramBooleanQueryTest {
         Assert.assertFalse(query2.equals(query1));
     }
 
-
     @Test
     public void testSameDifferentOrder() {
         GramBooleanQuery query1 = new GramBooleanQuery(GramBooleanQuery.QueryOp.OR);
@@ -97,7 +90,6 @@ public class GramBooleanQueryTest {
         Assert.assertEquals(query1, query2);
         Assert.assertEquals(query2, query1);
     }
-
 
     @Test
     public void testSameDifferentOrder2() {
@@ -110,7 +102,6 @@ public class GramBooleanQueryTest {
         Assert.assertEquals(query2, query1);
     }
 
-
     @Test
     public void testSameDifferentOrder3() {
         GramBooleanQuery query1 = new GramBooleanQuery(GramBooleanQuery.QueryOp.OR);
@@ -121,7 +112,6 @@ public class GramBooleanQueryTest {
         Assert.assertEquals(query1, query2);
         Assert.assertEquals(query2, query1);
     }
-
 
     @Test
     public void testDifferentDifferentOrder() {

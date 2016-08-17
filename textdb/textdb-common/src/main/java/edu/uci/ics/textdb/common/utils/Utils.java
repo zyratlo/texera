@@ -65,7 +65,6 @@ public class Utils {
         return field;
     }
 
-
     public static IndexableField getLuceneField(FieldType fieldType, String fieldName, Object fieldValue) {
         IndexableField luceneField = null;
         switch (fieldType) {
@@ -107,7 +106,6 @@ public class Utils {
         return luceneField;
     }
 
-
     /**
      * @about Creating a new span tuple from span schema, field list
      */
@@ -120,7 +118,6 @@ public class Utils {
         return new DataTuple(spanSchema, fieldsDuplicate);
     }
 
-
     /**
      *
      * @param schema
@@ -130,7 +127,6 @@ public class Utils {
     public static Schema createSpanSchema(Schema schema) {
         return addAttributeToSchema(schema, SchemaConstants.SPAN_LIST_ATTRIBUTE);
     }
-
 
     /**
      * Add an attribute to an existing schema (if the attribute doesn't exist).
@@ -148,7 +144,6 @@ public class Utils {
         Schema newSchema = new Schema(attributes.toArray(new Attribute[attributes.size()]));
         return newSchema;
     }
-
 
     /**
      * Tokenizes the query string using the given analyser
@@ -174,7 +169,6 @@ public class Utils {
 
         return result;
     }
-
 
     public static ArrayList<String> tokenizeQueryWithStopwords(String query) {
         ArrayList<String> result = new ArrayList<String>();
@@ -203,7 +197,6 @@ public class Utils {
         return result;
     }
 
-
     public static String getTupleListString(List<ITuple> tupleList) {
         StringBuilder sb = new StringBuilder();
         for (ITuple tuple : tupleList) {
@@ -212,7 +205,6 @@ public class Utils {
         }
         return sb.toString();
     }
-
 
     /**
      * Transform a tuple into string
@@ -243,7 +235,6 @@ public class Utils {
         return sb.toString();
     }
 
-
     /**
      * Transform a list of spans into string
      * 
@@ -261,7 +252,6 @@ public class Utils {
 
         return sb.toString();
     }
-
 
     /**
      * Transform a span into string
@@ -282,13 +272,11 @@ public class Utils {
         return sb.toString();
     }
 
-
     public static List<ITuple> removePayload(List<ITuple> tupleList) {
         List<ITuple> tupleListWithoutPayload = tupleList.stream().map(tuple -> removePayload(tuple))
                 .collect(Collectors.toList());
         return tupleListWithoutPayload;
     }
-
 
     public static ITuple removePayload(ITuple tuple) {
         Integer payloadIndex = tuple.getSchema().getIndex(SchemaConstants.PAYLOAD);
@@ -305,7 +293,6 @@ public class Utils {
             return tupleWithoutPayload;
         }
     }
-
 
     public static List<Span> generatePayloadFromTuple(ITuple tuple, Analyzer luceneAnalyzer) {
         List<Span> tuplePayload = tuple.getSchema().getAttributes().stream()
@@ -324,7 +311,6 @@ public class Utils {
 
         return tuplePayload;
     }
-
 
     public static List<Span> generatePayload(String fieldName, String fieldValue, Analyzer luceneAnalyzer) {
         List<Span> payload = new ArrayList<>();

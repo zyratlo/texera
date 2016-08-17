@@ -26,13 +26,11 @@ public class RegexTestConstantsText {
     public static final Attribute[] ATTRIBUTES_TEXT = { CONTENT_ATTR };
     public static final Schema SCHEMA_TEXT = new Schema(ATTRIBUTES_TEXT);
 
-
     private static ITuple getTextTuple(String content) {
         IField field = new TextField(content);
         ITuple tuple = new DataTuple(SCHEMA_TEXT, field);
         return tuple;
     }
-
 
     public static List<ITuple> getSampleTextTuples() throws ParseException {
         List<ITuple> textTuples = new ArrayList<>();

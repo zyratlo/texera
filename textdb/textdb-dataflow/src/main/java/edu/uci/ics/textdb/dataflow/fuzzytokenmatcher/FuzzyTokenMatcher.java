@@ -40,7 +40,6 @@ public class FuzzyTokenMatcher implements IOperator {
     private int cursor;
     private int offset;
 
-
     public FuzzyTokenMatcher(FuzzyTokenPredicate predicate) {
         this.cursor = -1;
         this.limit = Integer.MAX_VALUE;
@@ -49,7 +48,6 @@ public class FuzzyTokenMatcher implements IOperator {
         DataReaderPredicate dataReaderPredicate = this.predicate.getDataReaderPredicate();
         this.inputOperator = new IndexBasedSourceOperator(dataReaderPredicate);
     }
-
 
     @Override
     public void open() throws DataFlowException {
@@ -75,7 +73,6 @@ public class FuzzyTokenMatcher implements IOperator {
             throw new DataFlowException(e.getMessage(), e);
         }
     }
-
 
     @Override
     public ITuple getNextTuple() throws DataFlowException {
@@ -116,7 +113,6 @@ public class FuzzyTokenMatcher implements IOperator {
             throw new DataFlowException(e.getMessage(), e);
         }
     }
-
 
     private ITuple computeMatchingResult(ITuple currentTuple) {
         List<Span> payload = (List<Span>) currentTuple.getField(SchemaConstants.PAYLOAD).getValue();
@@ -162,7 +158,6 @@ public class FuzzyTokenMatcher implements IOperator {
         return currentTuple;
     }
 
-
     private List<Span> filterRelevantSpans(List<Span> spanList) {
         List<Span> relevantSpans = new ArrayList<>();
         Iterator<Span> iterator = spanList.iterator();
@@ -174,7 +169,6 @@ public class FuzzyTokenMatcher implements IOperator {
         }
         return relevantSpans;
     }
-
 
     @Override
     public void close() throws DataFlowException {
@@ -188,37 +182,30 @@ public class FuzzyTokenMatcher implements IOperator {
         }
     }
 
-
     public IOperator getInputOperator() {
         return inputOperator;
     }
 
-
     public void setInputOperator(ISourceOperator inputOperator) {
         this.inputOperator = inputOperator;
     }
-
 
     @Override
     public Schema getOutputSchema() {
         return outputSchema;
     }
 
-
     public void setLimit(int limit) {
         this.limit = limit;
     }
-
 
     public int getLimit() {
         return this.limit;
     }
 
-
     public void setOffset(int offset) {
         this.offset = offset;
     }
-
 
     public int getOffset() {
         return this.offset;

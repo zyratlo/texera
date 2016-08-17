@@ -11,15 +11,11 @@ public interface IOperator {
     static final int CLOSED = -1;
     static final int OPENED = 0;
 
-
     void open() throws Exception;
-
 
     ITuple getNextTuple() throws Exception;
 
-
     void close() throws Exception;
-
 
     Schema getOutputSchema();
 }

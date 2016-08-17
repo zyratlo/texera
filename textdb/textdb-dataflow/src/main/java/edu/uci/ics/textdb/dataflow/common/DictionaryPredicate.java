@@ -26,7 +26,6 @@ public class DictionaryPredicate implements IPredicate {
     private List<Attribute> attributeList;
     private KeywordMatchingType keywordMatchingType;
 
-
     /*
      * dictionary refers to list of phrases to search for. For Ex. New York if
      * searched in TextField, we would consider both tokens New and York; if
@@ -42,11 +41,9 @@ public class DictionaryPredicate implements IPredicate {
         this.keywordMatchingType = keywordMatchingType;
     }
 
-
     public KeywordMatchingType getKeywordMatchingType() {
         return keywordMatchingType;
     }
-
 
     /**
      * Reset the Dictionary Cursor to the beginning.
@@ -55,21 +52,17 @@ public class DictionaryPredicate implements IPredicate {
         dictionary.resetCursor();
     }
 
-
     public String getNextDictionaryEntry() {
         return dictionary.getNextValue();
     }
-
 
     public List<Attribute> getAttributeList() {
         return attributeList;
     }
 
-
     public Analyzer getAnalyzer() {
         return luceneAnalyzer;
     }
-
 
     /*
      * For the given fields , parse the query using query parser and generate

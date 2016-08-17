@@ -35,7 +35,6 @@ public class RegexMatcherPerformanceTest {
     private static int regexResultCount = 0;
     private static String csvFileFolder = "regex/";
 
-
     /**
      * @param regexQueries:
      *            a list of regex queries.
@@ -104,7 +103,6 @@ public class RegexMatcherPerformanceTest {
         fileWriter.flush();
         fileWriter.close();
     }
-
 
     /**
      * @param regex

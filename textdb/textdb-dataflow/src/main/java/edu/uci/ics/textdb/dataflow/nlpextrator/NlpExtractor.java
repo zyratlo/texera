@@ -67,7 +67,6 @@ public class NlpExtractor implements IOperator {
 
     ;
 
-
     /**
      * @param operator
      * @param searchInAttributes
@@ -95,7 +94,6 @@ public class NlpExtractor implements IOperator {
         }
     }
 
-
     @Override
     public void open() throws Exception {
         if (this.inputOperator == null) {
@@ -109,7 +107,6 @@ public class NlpExtractor implements IOperator {
             throw new DataFlowException(e.getMessage(), e);
         }
     }
-
 
     /**
      * @about Extract a list of spans based on the input token type. Append the
@@ -140,7 +137,6 @@ public class NlpExtractor implements IOperator {
         return returnTuple;
     }
 
-
     private ITuple computeMatchingResult(ITuple sourceTuple) {
         if (returnSchema == null) {
             returnSchema = Utils.createSpanSchema(sourceTuple.getSchema());
@@ -154,26 +150,21 @@ public class NlpExtractor implements IOperator {
         return Utils.getSpanTuple(sourceTuple.getFields(), spanList, returnSchema);
     }
 
-
     public void setLimit(int limit) {
         this.limit = limit;
     }
-
 
     public int getLimit() {
         return this.limit;
     }
 
-
     public void setOffset(int offset) {
         this.offset = offset;
     }
 
-
     public int getOffset() {
         return this.offset;
     }
-
 
     /**
      * @param iField
@@ -280,7 +271,6 @@ public class NlpExtractor implements IOperator {
         return spanList;
     }
 
-
     /**
      * @param previousSpan
      * @param currentSpan
@@ -304,7 +294,6 @@ public class NlpExtractor implements IOperator {
         return new Span(previousSpan.getFieldName(), previousSpan.getStart(), currentSpan.getEnd(),
                 previousSpan.getKey(), newWord);
     }
-
 
     /**
      * @param stanfordConstant
@@ -371,7 +360,6 @@ public class NlpExtractor implements IOperator {
         }
     }
 
-
     @Override
     public void close() throws DataFlowException {
         try {
@@ -388,16 +376,13 @@ public class NlpExtractor implements IOperator {
         }
     }
 
-
     public IOperator getInputOperator() {
         return inputOperator;
     }
 
-
     public void setInputOperator(ISourceOperator inputOperator) {
         this.inputOperator = inputOperator;
     }
-
 
     @Override
     public Schema getOutputSchema() {

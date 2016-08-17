@@ -28,7 +28,6 @@ public class Pokedexer {
     private int numberOfPokemon;
     private String indexDirectoryPath;
 
-
     /**
      * Parametrized constructor for the indexer class
      * 
@@ -48,7 +47,6 @@ public class Pokedexer {
         this.indexDirectoryPath = indexDirectoryPath;
     }
 
-
     /**
      * Getter function that returns the value of a the numberOfPokemon variable
      * 
@@ -57,7 +55,6 @@ public class Pokedexer {
     public int getNumberOfPokemon() {
         return numberOfPokemon;
     }
-
 
     /**
      * Function that makes and returns a Document on accepting a Pokemon object.
@@ -103,7 +100,6 @@ public class Pokedexer {
         return doc;
     }
 
-
     /**
      * Adds a pokemon object to the index after creating a document out of it
      * 
@@ -115,7 +111,6 @@ public class Pokedexer {
         Document doc = makeDocument(pokemon);
         indexWriter.addDocument(doc);
     }
-
 
     /**
      * Adds all pokemon as described by the number of pokemon data member Makes
@@ -131,7 +126,6 @@ public class Pokedexer {
         }
     }
 
-
     /**
      * Closes the IndexWriter object
      * 
@@ -143,7 +137,6 @@ public class Pokedexer {
         }
     }
 
-
     /**
      * Clears the index of all documents
      * 
@@ -154,7 +147,6 @@ public class Pokedexer {
             indexWriter.deleteAll();
         }
     }
-
 
     /**
      * Build Index function
@@ -171,7 +163,6 @@ public class Pokedexer {
         this.addPokemon();
         this.closeIndexWriter();
     }
-
 
     public void deleteIndexes() throws IOException {
         File indexDirectory = new File(indexDirectoryPath);

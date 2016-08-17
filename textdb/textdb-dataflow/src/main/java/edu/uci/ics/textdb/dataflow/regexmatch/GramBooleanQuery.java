@@ -26,20 +26,17 @@ public class GramBooleanQuery {
     // subQuerySet is useful only when (operator == AND || operator == OR)
     Set<GramBooleanQuery> subQuerySet;
 
-
     GramBooleanQuery(QueryOp operator) {
         this.operator = operator;
         leaf = "";
         subQuerySet = new HashSet<GramBooleanQuery>();
     }
 
-
     static GramBooleanQuery newLeafNode(String literal) {
         GramBooleanQuery leafNode = new GramBooleanQuery(QueryOp.LEAF);
         leafNode.leaf = literal;
         return leafNode;
     }
-
 
     /*
      * logic for adding a list of strings to the query tree
@@ -58,7 +55,6 @@ public class GramBooleanQuery {
     static GramBooleanQuery combine(GramBooleanQuery query, List<String> list) {
         return computeConjunction(query, listNode(list));
     }
-
 
     /*
      * This method transforms a list of strings to a query tree <br> For
@@ -80,7 +76,6 @@ public class GramBooleanQuery {
         return listNode;
     }
 
-
     /*
      * This method takes a single string and adds it to the query tree. <br> The
      * string is converted to multiple n-grams with an AND operator. <br> For
@@ -96,7 +91,6 @@ public class GramBooleanQuery {
         }
         return literalNode;
     }
-
 
     /*
      * This function builds a list of N-Grams that a given literal contains.
@@ -114,7 +108,6 @@ public class GramBooleanQuery {
         }
         return nGrams;
     }
-
 
     /*
      * basic boolean logic (conjunction, disjunction)
@@ -156,7 +149,6 @@ public class GramBooleanQuery {
         }
     }
 
-
     /**
      * This function "OR"s two query trees together. <br>
      * and returns the result as a new tree. <br>
@@ -190,7 +182,6 @@ public class GramBooleanQuery {
         }
     }
 
-
     /*
      * Helper function to merge subQuerySet from src query tree to dest query
      * tree. If src is a LEAF, it will be added to dest. If src is not a LEAF,
@@ -203,7 +194,6 @@ public class GramBooleanQuery {
             dest.subQuerySet.addAll(src.subQuerySet);
         }
     }
-
 
     /*
      * transform tree to Disjunctive Normal Form (DNF)
@@ -256,7 +246,6 @@ public class GramBooleanQuery {
         return result;
     }
 
-
     /*
      * "AND" two DNF trees (trees are assumed to be in DNF form) Apply
      * distributive laws: a AND (b OR c) = (a AND b) OR (a AND c) (a OR b) AND
@@ -282,7 +271,6 @@ public class GramBooleanQuery {
         return resultQuery;
     }
 
-
     /**
      * Simplify a tree, which is assumed to be already in DNF form. <br>
      * Apply Absorption laws: a OR (a AND b) -> a <br>
@@ -306,7 +294,6 @@ public class GramBooleanQuery {
         return result;
     }
 
-
     // Replace node with its child if it only has one child: (a) -> a <br>
     // OR -> AND -> a ---> a
     private static GramBooleanQuery replaceWithChild(GramBooleanQuery query) {
@@ -326,7 +313,6 @@ public class GramBooleanQuery {
         return result;
     }
 
-
     // Apply Absorption laws: a OR (a AND b) -> a <br>
     private static GramBooleanQuery applyAbsorption(GramBooleanQuery query) {
         GramBooleanQuery result = new GramBooleanQuery(QueryOp.OR);
@@ -339,7 +325,6 @@ public class GramBooleanQuery {
 
         return result;
     }
-
 
     // Check if the query is redundant (can be absorbed by another query) in the
     // query set.
@@ -371,7 +356,6 @@ public class GramBooleanQuery {
      * ---------------------------------------------------------
      */
 
-
     /*
      * The tree is deepCopyed in many places because during tree transformations
      * (conjunction, disjunction, toDNF), not copying the tree will mess up the
@@ -397,7 +381,6 @@ public class GramBooleanQuery {
         }
     }
 
-
     /**
      * This returns a GramBooleanQuery's hash code. <br>
      * It won't traverse the whole tree, instead, it only calculates the
@@ -420,7 +403,6 @@ public class GramBooleanQuery {
 
         return hashCode;
     }
-
 
     /**
      * This overrides "equals" function. Whenever a GramBooleanQuery object is
@@ -452,7 +434,6 @@ public class GramBooleanQuery {
         return true;
     }
 
-
     public boolean isEmpty() {
         if (this.operator == QueryOp.LEAF) {
             return this.leaf.isEmpty();
@@ -464,7 +445,6 @@ public class GramBooleanQuery {
         }
         return true;
     }
-
 
     /*
      * string representations of the query tree
@@ -483,7 +463,6 @@ public class GramBooleanQuery {
         return this.getLuceneQueryString();
     }
 
-
     /**
      * This function generates a string representing the query that can be
      * directly parsed by Lucene.
@@ -498,7 +477,6 @@ public class GramBooleanQuery {
             return luceneQueryString;
         }
     }
-
 
     private static String toLuceneQueryString(GramBooleanQuery query) {
         if (query.operator == QueryOp.ANY) {
@@ -525,14 +503,12 @@ public class GramBooleanQuery {
         return "(" + joiner.toString() + ")";
     }
 
-
     /**
      * This function returns a String that visualizes the query tree.
      */
     String printQueryTree() {
         return queryTreeToString(this, 0, "  ");
     }
-
 
     private static String queryTreeToString(GramBooleanQuery query, int indentation, String indentStr) {
         String s = "";

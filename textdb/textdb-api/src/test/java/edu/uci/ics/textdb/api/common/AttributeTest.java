@@ -11,12 +11,10 @@ public class AttributeTest {
     private String fieldName = "sampleFieldName";
     private FieldType type = FieldType.STRING;
 
-
     @Before
     public void setUp() {
         attribute = new Attribute(fieldName, type);
     }
-
 
     @Test
     public void testGetterMethods() {

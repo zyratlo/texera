@@ -35,7 +35,6 @@ public class QueryRewriter implements IOperator {
 
     private ITuple sourceTuple;
 
-
     /**
      * Parameterized constructor that requires a Search Query String that is to
      * be rewritten
@@ -45,7 +44,6 @@ public class QueryRewriter implements IOperator {
     public QueryRewriter(String searchQuery) {
         this.searchQuery = searchQuery;
     }
-
 
     /**
      * Parameterized constructor that requires a Search Query String that is to
@@ -61,7 +59,6 @@ public class QueryRewriter implements IOperator {
         this.allSegmentations = allSegmentations;
     }
 
-
     /**
      * Overridden Open method of the IOperator interface Query parser object
      * will be created here
@@ -73,7 +70,6 @@ public class QueryRewriter implements IOperator {
         this.isOpen = true;
         this.sourceTuple = null;
     }
-
 
     /**
      * Calls appropriate implementation methods to populate the list of
@@ -107,7 +103,6 @@ public class QueryRewriter implements IOperator {
         }
     }
 
-
     /**
      * Closing the query Parser object
      * 
@@ -119,7 +114,6 @@ public class QueryRewriter implements IOperator {
         this.searchQuery = null;
         this.sourceTuple = null;
     }
-
 
     @Override
     public Schema getOutputSchema() {

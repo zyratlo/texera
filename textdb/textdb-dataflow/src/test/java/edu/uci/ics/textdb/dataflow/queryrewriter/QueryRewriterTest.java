@@ -37,7 +37,6 @@ public class QueryRewriterTest {
         Assert.assertTrue(isSame);
     }
 
-
     /**
      * Tests the QueryRewriter operator with the string "horse shoe"
      * 
@@ -54,7 +53,6 @@ public class QueryRewriterTest {
 
         Assert.assertTrue(isSame);
     }
-
 
     /**
      * Tests the QueryRewriter operator with the string "newyork city"
@@ -73,7 +71,6 @@ public class QueryRewriterTest {
         Assert.assertTrue(isSame);
     }
 
-
     /**
      * Tests the QueryRewriter operator with empty string ""
      * 
@@ -90,7 +87,6 @@ public class QueryRewriterTest {
 
         Assert.assertTrue(isSame);
     }
-
 
     public static boolean queryRewriterTestBoilerplate(String query, List<String> expectedRewrittenStrings,
             List<String> expectedAllRewrittenStrings) throws Exception {
@@ -117,7 +113,6 @@ public class QueryRewriterTest {
         return (mostLikelyRewriteTest && allRewriteTest);
     }
 
-
     /**
      * Tests the necessity for method QueryRewriter.open()
      * 
@@ -136,7 +131,6 @@ public class QueryRewriterTest {
         resultItuple = allQueryRewriter.getNextTuple();
         Assert.assertNull(resultItuple);
     }
-
 
     /**
      * Tests that QueryRewriter can be used to return a one-time tuple
@@ -163,7 +157,6 @@ public class QueryRewriterTest {
 
         Assert.assertNull(resultITuple);
     }
-
 
     /**
      * Tests that QueryRewriter.close() is effective in closing the operator

@@ -10,9 +10,7 @@ package edu.uci.ics.textdb.api.dataflow;
 public interface ISink {
     void open() throws Exception;
 
-
     void processTuples() throws Exception;
-
 
     void close() throws Exception;
 }

@@ -33,7 +33,6 @@ public class Indexer {
     /** Index all text files under a directory. */
     private IndexWriter indexWriter = null;
 
-
     public IndexWriter getIndexWriter() throws IOException {
         if (indexWriter == null) {
             FSDirectory indexDir = FSDirectory.open(Paths.get(INDEX_DIR));
@@ -44,13 +43,11 @@ public class Indexer {
         return indexWriter;
     }
 
-
     public void closeIndexWriter() throws IOException {
         if (indexWriter != null) {
             indexWriter.close();
         }
     }
-
 
     public void indexTweet(Tweet tweet) throws IOException {
 
@@ -65,7 +62,6 @@ public class Indexer {
         doc.add(new TextField(CONTENT_FIELD, fullSearchableText, Field.Store.NO));
         writer.addDocument(doc);
     }
-
 
     public void rebuildIndexes() throws IOException {
         getIndexWriter();

@@ -53,7 +53,6 @@ public class TranslatorUtils {
         boolean containFunc(String str, String affix);
     }
 
-
     /**
      * This function returns the length of the shortest string in
      * {@code strList}.
@@ -71,13 +70,11 @@ public class TranslatorUtils {
         return minLen;
     }
 
-
     private static int compareSuffix(String str1, String str2) {
         String str1Reverse = new StringBuilder(str1).reverse().toString();
         String str2Reverse = new StringBuilder(str2).reverse().toString();
         return str1Reverse.compareTo(str2Reverse);
     }
-
 
     /**
      * This function removes duplicates in prefix/suffix list.
@@ -95,7 +92,6 @@ public class TranslatorUtils {
             Collections.sort(strList, (str1, str2) -> str1.compareTo(str2));
         }
     }
-
 
     /**
      * This function ensures that prefix/suffix sets aren't redundant. For
@@ -119,7 +115,6 @@ public class TranslatorUtils {
         strList = strList.subList(0, w);
     }
 
-
     /**
      * This function calculates the cartesian product of two string lists
      * (treated as set), and removes the duplicates in the results. For example,
@@ -142,7 +137,6 @@ public class TranslatorUtils {
         removeDuplicateAffix(product, isSuffix);
         return product;
     }
-
 
     /**
      * This function calculates the union of two string lists (treated as set)
@@ -183,7 +177,6 @@ public class TranslatorUtils {
             "+", "-", "&&", "||", "!", "(", ")", "{", "}", "[", "]", "^", "\"", "~", "*", "?", ":", " ", "AND", "OR",
             "NOT" });
 
-
     /**
      * This function escapes special characters in Lucene. <br>
      * For example, if an operand is "a)b", Lucene will treat ")" as a special
@@ -203,7 +196,6 @@ public class TranslatorUtils {
         }
 
     }
-
 
     static void toLowerCase(GramBooleanQuery query) {
         if (query.operator == QueryOp.LEAF) {

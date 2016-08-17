@@ -51,7 +51,6 @@ public class DictionaryMatcherTest {
     private IDataWriter dataWriter;
     private Analyzer luceneAnalyzer;
 
-
     @Before
     public void setUp() throws Exception {
 
@@ -63,12 +62,10 @@ public class DictionaryMatcherTest {
 
     }
 
-
     @After
     public void cleanUp() throws Exception {
         dataWriter.clearData();
     }
-
 
     public List<ITuple> getQueryResults(IDictionary dictionary, KeywordMatchingType srcOpType,
             List<Attribute> attributes) throws Exception {
@@ -81,7 +78,6 @@ public class DictionaryMatcherTest {
 
         return dictionaryMatcherResults;
     }
-
 
     private List<ITuple> getDictionaryMatcherSourceOperatorResults(IDictionary dictionary,
             KeywordMatchingType srcOpType, List<Attribute> attributes) throws Exception {
@@ -99,7 +95,6 @@ public class DictionaryMatcherTest {
         dictionaryMatcher.close();
         return results;
     }
-
 
     private List<ITuple> getDictionaryMatcherResults(IDictionary dictionary, KeywordMatchingType srcOpType,
             List<Attribute> attributes) throws Exception {
@@ -120,7 +115,6 @@ public class DictionaryMatcherTest {
         return results;
     }
 
-
     /**
      * Scenario S1:verifies GetNextTuple of Dictionary
      * 
@@ -140,7 +134,6 @@ public class DictionaryMatcherTest {
         boolean contains = TestUtils.containsAllResults(expectedStrings, returnedStrings);
         Assert.assertTrue(contains);
     }
-
 
     /**
      * Scenario S-2:verifies GetNextTuple of DictionaryMatcher and single word
@@ -176,7 +169,6 @@ public class DictionaryMatcherTest {
         boolean contains = TestUtils.containsAllResults(expectedResults, returnedResults);
         Assert.assertTrue(contains);
     }
-
 
     /**
      * Scenario S-3:verifies GetNextTuple of DictionaryMatcher and multiple word
@@ -222,7 +214,6 @@ public class DictionaryMatcherTest {
         Assert.assertTrue(contains);
     }
 
-
     /**
      * Scenario S-4:verifies GetNextTuple of DictionaryMatcher and multiple word
      * queries in String Field using PHRASEOPERATOR
@@ -266,7 +257,6 @@ public class DictionaryMatcherTest {
         Assert.assertTrue(contains);
     }
 
-
     /**
      * Scenario S-5:verifies GetNextTuple of DictionaryMatcher and single word
      * queries in Text Field using SCANOPERATOR
@@ -307,7 +297,6 @@ public class DictionaryMatcherTest {
         boolean contains = TestUtils.containsAllResults(expectedResults, returnedResults);
         Assert.assertTrue(contains);
     }
-
 
     /**
      * Scenario S-6:verifies GetNextTuple of DictionaryMatcher and single word
@@ -351,7 +340,6 @@ public class DictionaryMatcherTest {
         Assert.assertTrue(contains);
     }
 
-
     /**
      * Scenario S-7:verifies GetNextTuple of DictionaryMatcher and single word
      * queries in Text Field using PHRASE OPERATOR
@@ -393,7 +381,6 @@ public class DictionaryMatcherTest {
         Assert.assertTrue(contains);
     }
 
-
     /**
      * Scenario S-8:verifies ITuple returned by DictionaryMatcher and multiple
      * word queries using SCAN OPERATOR
@@ -428,7 +415,6 @@ public class DictionaryMatcherTest {
         boolean contains = TestUtils.containsAllResults(expectedResults, returnedResults);
         Assert.assertTrue(contains);
     }
-
 
     /**
      * Scenario S-9:verifies ITuple returned by DictionaryMatcher and multiple
@@ -466,7 +452,6 @@ public class DictionaryMatcherTest {
         Assert.assertTrue(contains);
     }
 
-
     /**
      * Scenario S-10:verifies ITuple returned by DictionaryMatcher and multiple
      * word queries using PHRASE OPERATOR
@@ -501,7 +486,6 @@ public class DictionaryMatcherTest {
         boolean contains = TestUtils.containsAllResults(expectedResults, returnedResults);
         Assert.assertTrue(contains);
     }
-
 
     /**
      * Scenario S-11:verifies: data source has multiple attributes, and an
@@ -541,7 +525,6 @@ public class DictionaryMatcherTest {
         boolean contains = TestUtils.containsAllResults(expectedResults, returnedResults);
         Assert.assertTrue(contains);
     }
-
 
     /**
      * Scenario S-12:verifies: data source has multiple attributes, and an
@@ -591,7 +574,6 @@ public class DictionaryMatcherTest {
         Assert.assertTrue(contains);
     }
 
-
     /**
      * Scenario S-13:verifies: data source has multiple attributes, and an
      * entity can appear in all the fields and multiple times using PHRASE
@@ -630,7 +612,6 @@ public class DictionaryMatcherTest {
         boolean contains = TestUtils.containsAllResults(expectedResults, returnedResults);
         Assert.assertTrue(contains);
     }
-
 
     /**
      * Scenario S-14:verifies: Query with Stop Words match corresponding phrases

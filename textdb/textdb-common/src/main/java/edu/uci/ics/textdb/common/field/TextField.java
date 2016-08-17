@@ -11,16 +11,13 @@ public class TextField implements IField {
 
     private final String value;
 
-
     public TextField(String value) {
         this.value = value;
     }
 
-
     public String getValue() {
         return value;
     }
-
 
     @Override
     public boolean equals(Object o) {
@@ -35,12 +32,10 @@ public class TextField implements IField {
 
     }
 
-
     @Override
     public int hashCode() {
         return value != null ? value.hashCode() : 0;
     }
-
 
     @Override
     public String toString() {

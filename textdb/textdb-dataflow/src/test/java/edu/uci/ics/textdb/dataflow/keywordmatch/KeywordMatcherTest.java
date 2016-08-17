@@ -48,7 +48,6 @@ public class KeywordMatcherTest {
     private DataStore dataStore;
     private Analyzer analyzer;
 
-
     @Before
     public void setUp() throws Exception {
         dataStore = new DataStore(DataConstants.INDEX_DIR, TestConstants.SCHEMA_PEOPLE);
@@ -58,12 +57,10 @@ public class KeywordMatcherTest {
         dataWriter.writeData(TestConstants.getSamplePeopleTuples());
     }
 
-
     @After
     public void cleanUp() throws Exception {
         dataWriter.clearData();
     }
-
 
     /**
      * For a given string query & list of attributes it gets a list of results
@@ -100,7 +97,6 @@ public class KeywordMatcherTest {
         return results;
     }
 
-
     /**
      * Verifies Keyword Matcher on multiword string. Since both tokens in Query
      * "short tall" don't exist in any single document, it should not return any
@@ -123,7 +119,6 @@ public class KeywordMatcherTest {
         // Perform Check
         Assert.assertEquals(0, results.size());
     }
-
 
     /**
      * Verifies GetNextTuple of Keyword Matcher and single word queries in
@@ -164,7 +159,6 @@ public class KeywordMatcherTest {
         boolean contains = TestUtils.containsAllResults(expectedResultList, resultList);
         Assert.assertTrue(contains);
     }
-
 
     /**
      * Verifies GetNextTuple of Keyword Matcher and single word queries in Text
@@ -216,7 +210,6 @@ public class KeywordMatcherTest {
         Assert.assertTrue(contains);
     }
 
-
     /**
      * Verifies List<ITuple> returned by Keyword Matcher on multiple word
      * queries
@@ -258,7 +251,6 @@ public class KeywordMatcherTest {
         boolean contains = TestUtils.containsAllResults(expectedResultList, resultList);
         Assert.assertTrue(contains);
     }
-
 
     /**
      * Verifies: data source has multiple attributes, and an entity can appear
@@ -309,7 +301,6 @@ public class KeywordMatcherTest {
         boolean contains = TestUtils.containsAllResults(expectedResultList, resultList);
         Assert.assertTrue(contains);
     }
-
 
     /**
      * Verifies: All tokens of Query should appear in a Single Field of each

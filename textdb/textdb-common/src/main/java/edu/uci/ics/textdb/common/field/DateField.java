@@ -8,17 +8,14 @@ public class DateField implements IField {
 
     private Date value;
 
-
     public DateField(Date value) {
         this.value = value;
     }
-
 
     @Override
     public Date getValue() {
         return value;
     }
-
 
     @Override
     public int hashCode() {
@@ -27,7 +24,6 @@ public class DateField implements IField {
         result = prime * result + ((value == null) ? 0 : value.hashCode());
         return result;
     }
-
 
     @Override
     public boolean equals(Object obj) {
@@ -45,7 +41,6 @@ public class DateField implements IField {
             return false;
         return true;
     }
-
 
     @Override
     public String toString() {

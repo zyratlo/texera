@@ -12,11 +12,9 @@ public class Plan {
 
     private final ISink root;
 
-
     public Plan(ISink root) {
         this.root = root;
     }
-
 
     public ISink getRoot() {
         return root;

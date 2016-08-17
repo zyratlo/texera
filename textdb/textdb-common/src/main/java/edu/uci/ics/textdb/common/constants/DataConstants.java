@@ -74,7 +74,6 @@ public class DataConstants {
         PHRASE_INDEXBASED
     };
 
-
     /**
      * @return a trigram analyzer that is used by RegexMatcher
      * @throws IOException

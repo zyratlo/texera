@@ -26,19 +26,16 @@ public class FileSourceOperator implements ISourceOperator {
     private ToTuple toTupleFunc;
     private Schema outputSchema;
 
-
     public FileSourceOperator(String filePath, ToTuple toTupleFunc, Schema schema) {
         this.file = new File(filePath);
         this.toTupleFunc = toTupleFunc;
         this.outputSchema = schema;
     }
 
-
     @Override
     public void open() throws Exception {
         this.scanner = new Scanner(file);
     }
-
 
     @Override
     public ITuple getNextTuple() throws Exception {
@@ -53,14 +50,12 @@ public class FileSourceOperator implements ISourceOperator {
         return null;
     }
 
-
     @Override
     public void close() throws Exception {
         if (this.scanner != null) {
             this.scanner.close();
         }
     }
-
 
     @Override
     public Schema getOutputSchema() {

@@ -59,7 +59,6 @@ public class JoinTest {
     List<Attribute> attributeList;
     List<Attribute> modifiedAttributeList;
 
-
     // This method sets up some stuff before beginning each test.
     @Before
     public void setup() throws Exception {
@@ -105,7 +104,6 @@ public class JoinTest {
         dataWriterForInner.clearData();
     }
 
-
     // A helper method to get join result. Called from each test case
     public List<ITuple> getJoinResults(IOperator outer, IOperator inner, Attribute idAttribute, Attribute joinAttribute,
             Integer threshold) throws Exception {
@@ -124,7 +122,6 @@ public class JoinTest {
         return results;
     }
 
-
     // A helper method to write tuples. Called from each test case
     public void writeTuples(List<ITuple> outerTuple, List<ITuple> innerTuple) throws Exception {
         if (outerTuple == null) {
@@ -137,7 +134,6 @@ public class JoinTest {
         }
         dataWriterForInner.writeData(innerTuple);
     }
-
 
     // A helper method to setup the test cases.
     // Types allowed (as of now) are:
@@ -183,7 +179,6 @@ public class JoinTest {
 
         return keywordMatcher;
     }
-
 
     // A helper method to populate tuples' list to query upon. Currently
     // consists of two sets/lists of tuples with five tuples in each.
@@ -309,14 +304,12 @@ public class JoinTest {
         return Arrays.asList(tupleArray);
     }
 
-
     // This method cleans up after each test.
     @After
     public void cleanUp() throws Exception {
         dataWriterForOuter.clearData();
         dataWriterForInner.clearData();
     }
-
 
     // This case tests for scenario when the IDs of the documents don't match.
     // Test result: The list of result returned is empty.
@@ -334,7 +327,6 @@ public class JoinTest {
         List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 10);
         Assert.assertEquals(0, resultList.size());
     }
-
 
     // This case tests for the scenario when the IDs of the documents match,
     // fields to join match and the difference of keyword spans is within
@@ -396,7 +388,6 @@ public class JoinTest {
         Assert.assertTrue(contains);
     }
 
-
     // This case tests for the scenario when the IDs match, fields to join match
     // but the difference of keyword spans to be joined is greater than the
     // threshold.
@@ -423,7 +414,6 @@ public class JoinTest {
         Assert.assertEquals(0, resultList.size());
     }
 
-
     // This case tests for the scenario when either/both of the operators'
     // result lists are empty (i.e. when one/both of the operators' are
     // not able to find any suitable matches)
@@ -442,7 +432,6 @@ public class JoinTest {
         List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 20);
         Assert.assertEquals(0, resultList.size());
     }
-
 
     // This case tests for the scenario when the IDs match, fields to be joined
     // match, but one of the operators result lists has no span. This can happen
@@ -467,7 +456,6 @@ public class JoinTest {
         List<ITuple> resultList = getJoinResults(keywordMatcherOuter, fuzzyMatcherInner, idAttr, reviewAttr, 20);
         Assert.assertEquals(0, resultList.size());
     }
-
 
     // This case tests for the scenario when the IDs match, fields to be joined
     // match, but one of the spans to be joined encompasses the other span
@@ -524,7 +512,6 @@ public class JoinTest {
         Assert.assertTrue(contains);
     }
 
-
     // This case tests for the scenario when the IDs match, fields to be joined
     // match, but one of the spans to be joined encompasses the other span
     // and |(span 1 spanStartIndex) - (span 2 spanStartIndex)|
@@ -551,7 +538,6 @@ public class JoinTest {
         List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 10);
         Assert.assertEquals(0, resultList.size());
     }
-
 
     // This case tests for the scenario when the IDs match, fields to be joined
     // match, but the spans to be joined have some overlap and both
@@ -613,7 +599,6 @@ public class JoinTest {
         Assert.assertTrue(contains);
     }
 
-
     // This case tests for the scenario when the IDs match, fields to be joined
     // match, but the spans to be joined have some overlap and
     // |(span 1 spanStartIndex) - (span 2 spanStartIndex)| and/or
@@ -640,7 +625,6 @@ public class JoinTest {
         List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 10);
         Assert.assertEquals(0, resultList.size());
     }
-
 
     // This case tests for the scenario when the IDs match, fields to be joined
     // match, but the spans to be joined are the same, i.e. both the keywords
@@ -696,7 +680,6 @@ public class JoinTest {
         Assert.assertTrue(contains);
     }
 
-
     // This case tests for the scenario when the specified ID field of either/
     // both of the operators' does not exist.
     // Test result: Join should return an empty list.
@@ -747,7 +730,6 @@ public class JoinTest {
 
     // --------------------<END of single tuple test cases>--------------------
 
-
     // This case tests for the scenario when both the operators' have multiple
     // tuples and none of the tuples have same ID (multi-tuple version of the
     // case when IDs don't match).
@@ -769,7 +751,6 @@ public class JoinTest {
         List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 12);
         Assert.assertEquals(0, resultList.size());
     }
-
 
     // This case tests for the scenario when one of the operators' has multiple
     // tuples and the other has a single tuple (ID of one of the tuple's in the
@@ -838,7 +819,6 @@ public class JoinTest {
         Assert.assertTrue(contains);
     }
 
-
     // This case tests for the scenario when one of the operators' has multiple
     // tuples and the other has a single tuple (ID of one of the tuple's in the
     // list of multiple tuples should match with the ID of the single tuple) and
@@ -871,7 +851,6 @@ public class JoinTest {
         List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 4);
         Assert.assertEquals(0, resultList.size());
     }
-
 
     // This case tests for the scenario when both the operators' have multiple
     // tuples and some of tuples IDs match and spans are within threshold.
@@ -977,7 +956,6 @@ public class JoinTest {
         Assert.assertTrue(contains);
     }
 
-
     // This case tests for the scenario when both the operators' have multiple
     // tuples and some of tuples IDs match, but none of spans are within
     // threshold.
@@ -1016,7 +994,6 @@ public class JoinTest {
         List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 4);
         Assert.assertEquals(0, resultList.size());
     }
-
 
     // This case tests for the scenario when the query has results over multiple
     // fields and join has to be performed only on the field mentioned in the

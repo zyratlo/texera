@@ -50,7 +50,6 @@ public class Join implements IOperator {
     // Value to be used as key in Span.
     // private Integer spanKey = 0;
 
-
     /**
      * This constructor is used to set the operators whose output is to be
      * compared and joined and the predicate which specifies the fields and
@@ -68,7 +67,6 @@ public class Join implements IOperator {
         this.innerOperator = innerOperator;
         this.joinPredicate = joinPredicate;
     }
-
 
     @Override
     public void open() throws Exception, DataFlowException {
@@ -101,7 +99,6 @@ public class Join implements IOperator {
             throw new DataFlowException(e.getMessage(), e);
         }
     }
-
 
     /**
      * Gets the next tuple which is a joint of two tuples which passed the
@@ -141,7 +138,6 @@ public class Join implements IOperator {
         return nextTuple;
     }
 
-
     @Override
     public void close() throws Exception {
         try {
@@ -155,7 +151,6 @@ public class Join implements IOperator {
         // Clear the inner tuple list from memory on close.
         innerTupleList.clear();
     }
-
 
     // Used to compare IDs of the tuples.
     private boolean compareId(ITuple outerTuple, ITuple innerTuple) {
@@ -182,7 +177,6 @@ public class Join implements IOperator {
         }
         return false;
     }
-
 
     // Process the tuples to get a tuple with join result if predicate is
     // satisfied.
@@ -277,7 +271,6 @@ public class Join implements IOperator {
 
         return nextTuple;
     }
-
 
     @Override
     public Schema getOutputSchema() {

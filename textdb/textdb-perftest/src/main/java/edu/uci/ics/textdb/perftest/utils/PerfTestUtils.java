@@ -33,7 +33,6 @@ public class PerfTestUtils {
     public static String resultFolder = "./data-files/results/";
     public static String queryFolder = "./data-files/queries/";
 
-
     /**
      * The purpose for below setters:
      * 
@@ -51,14 +50,12 @@ public class PerfTestUtils {
         }
     }
 
-
     public static void setStandardIndexFolder(String indexFolder) {
         if (!indexFolder.trim().isEmpty()) {
             standardIndexFolder = indexFolder;
         }
 
     }
-
 
     public static void setTrigramIndexFolder(String indexFolder) {
         if (!indexFolder.trim().isEmpty()) {
@@ -67,20 +64,17 @@ public class PerfTestUtils {
 
     }
 
-
     public static void setQueryFolder(String queryfolder) {
         if (!queryfolder.trim().isEmpty()) {
             queryFolder = queryfolder;
         }
     }
 
-
     public static void setResultFolder(String resultfolder) {
         if (!resultfolder.trim().isEmpty()) {
             resultFolder = resultfolder;
         }
     }
-
 
     /**
      * 
@@ -97,7 +91,6 @@ public class PerfTestUtils {
         return Double.parseDouble(String.format("%.4f", totalTime / testResults.size()));
     }
 
-
     /**
      * @param testResults,
      *            a list of doubles
@@ -113,7 +106,6 @@ public class PerfTestUtils {
 
         return Double.parseDouble(String.format("%.4f", Math.sqrt(numerator / testResults.size())));
     }
-
 
     /**
      * Writes all files in ./data-files/ into indices
@@ -134,7 +126,6 @@ public class PerfTestUtils {
 
     }
 
-
     /**
      * Writes all files in ./data-files/ into trigram indices
      * 
@@ -153,7 +144,6 @@ public class PerfTestUtils {
         }
 
     }
-
 
     /**
      * Writes a data file into an index
@@ -183,7 +173,6 @@ public class PerfTestUtils {
 
     }
 
-
     /**
      * Reads lines in a file into a list
      * 
@@ -201,7 +190,6 @@ public class PerfTestUtils {
         return queries;
     }
 
-
     /**
      * 
      * @param indexName
@@ -210,7 +198,6 @@ public class PerfTestUtils {
     public static String getIndexPath(String indexName) {
         return standardIndexFolder + indexName;
     }
-
 
     /**
      * 
@@ -221,7 +208,6 @@ public class PerfTestUtils {
         return trigramIndexFolder + indexName;
     }
 
-
     /**
      * 
      * @param resultFileName
@@ -230,7 +216,6 @@ public class PerfTestUtils {
     public static String getResultPath(String resultFileName) {
         return resultFolder + resultFileName;
     }
-
 
     /**
      * 
@@ -241,7 +226,6 @@ public class PerfTestUtils {
         return queryFolder + queryFileName;
 
     }
-
 
     /**
      * Formats a time to string

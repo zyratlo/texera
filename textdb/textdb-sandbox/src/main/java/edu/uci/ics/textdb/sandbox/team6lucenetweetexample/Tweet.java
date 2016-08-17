@@ -10,11 +10,9 @@ public class Tweet {
     private String user;
     private String text;
 
-
     /** Creates a new instance of Tweet using null values */
     public Tweet() {
     }
-
 
     /**
      * Creates a new instance of Tweet
@@ -35,7 +33,6 @@ public class Tweet {
         this.text = text;
     }
 
-
     /**
      * Getter for property id.
      * 
@@ -44,7 +41,6 @@ public class Tweet {
     public String getId() {
         return this.id;
     }
-
 
     /**
      * Setter for property date.
@@ -56,7 +52,6 @@ public class Tweet {
         this.id = id;
     }
 
-
     /**
      * Getter for property date.
      * 
@@ -65,7 +60,6 @@ public class Tweet {
     public String getDate() {
         return this.date;
     }
-
 
     /**
      * Setter for property date.
@@ -77,7 +71,6 @@ public class Tweet {
         this.date = date;
     }
 
-
     /**
      * Getter for property user.
      * 
@@ -86,7 +79,6 @@ public class Tweet {
     public String getUser() {
         return this.user;
     }
-
 
     /**
      * Setter for property user.
@@ -98,7 +90,6 @@ public class Tweet {
         this.user = user;
     }
 
-
     /**
      * Getter for property text.
      * 
@@ -107,7 +98,6 @@ public class Tweet {
     public String getText() {
         return this.text;
     }
-
 
     /**
      * Setter for property text.
@@ -118,7 +108,6 @@ public class Tweet {
     public void setText(String text) {
         this.text = text;
     }
-
 
     @Override
     public String toString() {

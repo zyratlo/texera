@@ -9,7 +9,6 @@ public class Schema {
     private List<Attribute> attributes;
     private Map<String, Integer> fieldNameVsIndex;
 
-
     public Schema(Attribute... attributes) {
         // Converting to java.util.Arrays.ArrayList
         // so that the collection remains static and cannot be extended/shrunk
@@ -19,7 +18,6 @@ public class Schema {
         populateFieldNameVsIndexMap();
     }
 
-
     private void populateFieldNameVsIndexMap() {
         fieldNameVsIndex = new HashMap<String, Integer>();
         for (int count = 0; count < attributes.size(); count++) {
@@ -28,21 +26,17 @@ public class Schema {
         }
     }
 
-
     public List<Attribute> getAttributes() {
         return attributes;
     }
-
 
     public Integer getIndex(String fieldName) {
         return fieldNameVsIndex.get(fieldName.toLowerCase());
     }
 
-
     public boolean containsField(String fieldName) {
         return fieldNameVsIndex.keySet().contains(fieldName.toLowerCase());
     }
-
 
     @Override
     public int hashCode() {
@@ -52,7 +46,6 @@ public class Schema {
         result = prime * result + ((fieldNameVsIndex == null) ? 0 : fieldNameVsIndex.hashCode());
         return result;
     }
-
 
     @Override
     public boolean equals(Object obj) {

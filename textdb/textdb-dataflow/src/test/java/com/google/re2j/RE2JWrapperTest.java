@@ -29,7 +29,6 @@ public class RE2JWrapperTest {
         }
     }
 
-
     // if an PublicRegexp object is equivalent to the original Regexp object
     private boolean isEquivalent(Regexp original, PublicRegexp compare) {
         boolean equivalent = (original.cap == compare.cap) && (original.flags == compare.flags)
@@ -39,7 +38,6 @@ public class RE2JWrapperTest {
 
         return equivalent;
     }
-
 
     private void testRE2Wrapper(String regex) {
         // test parse
@@ -53,43 +51,36 @@ public class RE2JWrapperTest {
 
     }
 
-
     @Test
     public void testLiteral() {
         testRE2Wrapper("cat");
         testRE2Wrapper("dog");
     }
 
-
     @Test
     public void testAlternate() {
         testRE2Wrapper("a|b|c");
     }
-
 
     @Test
     public void testStar() {
         testRE2Wrapper("a*");
     }
 
-
     @Test
     public void testPlus() {
         testRE2Wrapper("a+");
     }
-
 
     @Test
     public void testCharClass() {
         testRE2Wrapper("[a-z]");
     }
 
-
     @Test
     public void testComplex1() {
         testRE2Wrapper("data*[bcd|pqr]");
     }
-
 
     @Test
     public void testComplex2() {
@@ -97,13 +88,11 @@ public class RE2JWrapperTest {
         testRE2Wrapper("^([a-z0-9_\\.-]+)@([\\da-z\\.-]+)\\.([a-z\\.]{2,6})$");
     }
 
-
     @Test
     public void testComplex3() {
         // simple phone number
         testRE2Wrapper("[0-9]{3}-?[0-9]{3}-?[0-9]{4}");
     }
-
 
     @Test
     public void testComplex4() {

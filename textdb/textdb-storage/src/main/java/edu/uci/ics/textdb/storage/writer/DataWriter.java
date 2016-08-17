@@ -28,12 +28,10 @@ public class DataWriter implements IDataWriter {
 
     private IndexWriter luceneIndexWriter;
 
-
     public DataWriter(IDataStore dataStore, Analyzer analyzer) {
         this.dataStore = dataStore;
         this.analyzer = analyzer;
     }
-
 
     @Override
     public void clearData() throws StorageException {
@@ -66,7 +64,6 @@ public class DataWriter implements IDataWriter {
 
     }
 
-
     @Override
     public void writeData(List<ITuple> tuples) throws StorageException {
         IndexWriter luceneIndexWriter = null;
@@ -97,7 +94,6 @@ public class DataWriter implements IDataWriter {
         }
     }
 
-
     public void open() throws StorageException {
         if (this.luceneIndexWriter == null) {
             try {
@@ -111,7 +107,6 @@ public class DataWriter implements IDataWriter {
         }
     }
 
-
     public void close() throws StorageException {
         if (this.luceneIndexWriter != null) {
             try {
@@ -122,7 +117,6 @@ public class DataWriter implements IDataWriter {
             }
         }
     }
-
 
     public void writeTuple(ITuple tuple) throws StorageException {
         if (this.luceneIndexWriter == null) {
@@ -136,7 +130,6 @@ public class DataWriter implements IDataWriter {
             throw new StorageException(e.getMessage(), e);
         }
     }
-
 
     private Document getDocument(Schema schema, ITuple tuple) {
         List<IField> fields = tuple.getFields();

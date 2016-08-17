@@ -14,7 +14,6 @@ public class JoinPredicate implements IPredicate {
     private Attribute joinAttribute;
     private Integer threshold;
 
-
     /**
      * <p>
      * This constructor is used to set the parameters required for the Join
@@ -86,16 +85,13 @@ public class JoinPredicate implements IPredicate {
         this.threshold = threshold;
     }
 
-
     public Attribute getidAttribute() {
         return this.idAttribute;
     }
 
-
     public Attribute getjoinAttribute() {
         return this.joinAttribute;
     }
-
 
     public Integer getThreshold() {
         return this.threshold;

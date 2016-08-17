@@ -48,7 +48,6 @@ public class KeywordMatcherPerformanceTest {
     private static int totalResultCount = 0;
     private static String csvFileFolder = "keyword/";
 
-
     /**
      * @param queryFileName:
      *            this file contains line(s) of queries; the file must be placed
@@ -132,7 +131,6 @@ public class KeywordMatcherPerformanceTest {
 
     }
 
-
     /**
      * reset timeResults and totalResultCount
      */
@@ -140,7 +138,6 @@ public class KeywordMatcherPerformanceTest {
         timeResults = new ArrayList<Double>();
         totalResultCount = 0;
     }
-
 
     /**
      * @param queryList:

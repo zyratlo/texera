@@ -26,7 +26,6 @@ public class DictionaryMatcher implements IOperator {
 
     private int cursor = CLOSED;
 
-
     public DictionaryMatcher(DictionaryPredicate predicate) {
         this.predicate = predicate;
 
@@ -34,7 +33,6 @@ public class DictionaryMatcher implements IOperator {
         this.limit = Integer.MAX_VALUE;
         this.offset = 0;
     }
-
 
     @Override
     public void open() throws DataFlowException {
@@ -66,7 +64,6 @@ public class DictionaryMatcher implements IOperator {
         }
         cursor = OPENED;
     }
-
 
     @Override
     public ITuple getNextTuple() throws Exception {
@@ -108,7 +105,6 @@ public class DictionaryMatcher implements IOperator {
         }
     }
 
-
     @Override
     public void close() throws DataFlowException {
         if (cursor == CLOSED) {
@@ -127,37 +123,30 @@ public class DictionaryMatcher implements IOperator {
         cursor = CLOSED;
     }
 
-
     @Override
     public Schema getOutputSchema() {
         return outputSchema;
     }
 
-
     public void setLimit(int limit) {
         this.limit = limit;
     }
-
 
     public int getLimit() {
         return this.limit;
     }
 
-
     public void setOffset(int offset) {
         this.offset = offset;
     }
-
 
     public int getOffset() {
         return this.offset;
     }
 
-
     public void setInputOperator(IOperator inputOperator) {
         this.inputOperator = inputOperator;
     }
-
 
     public IOperator getInputOperator() {
         return inputOperator;

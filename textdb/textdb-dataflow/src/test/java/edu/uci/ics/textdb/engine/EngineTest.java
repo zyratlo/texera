@@ -15,7 +15,6 @@ public class EngineTest {
     private Plan plan;
     private ISink sink;
 
-
     @Before
     public void setUp() {
         engine = Engine.getEngine();
@@ -24,7 +23,6 @@ public class EngineTest {
         // mock Sink object
         sink = Mockito.mock(ISink.class);
     }
-
 
     @Test
     public void testEvaluate() throws Exception {
@@ -37,7 +35,6 @@ public class EngineTest {
         Mockito.verify(sink).processTuples();
         Mockito.verify(sink).close();
     }
-
 
     @Test
     public void testSingleton() {

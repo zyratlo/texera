@@ -39,7 +39,6 @@ public class TestUtils {
         return contains;
     }
 
-
     public static boolean containsAllResults(List<ITuple> expectedResults, List<ITuple> exactResults) {
         expectedResults = Utils.removePayload(expectedResults);
         exactResults = Utils.removePayload(exactResults);
@@ -52,7 +51,6 @@ public class TestUtils {
         return true;
     }
 
-
     public static boolean containsAllResults(ArrayList<String> expectedStrings, ArrayList<String> exactStrings) {
         if (expectedStrings.size() != exactStrings.size())
             return false;
@@ -61,7 +59,6 @@ public class TestUtils {
 
         return true;
     }
-
 
     public static boolean checkResults(List<ITuple> results, String queryString, Analyzer queryAnalyzer,
             String searchField) throws ParseException {
@@ -84,7 +81,6 @@ public class TestUtils {
         return contains;
     }
 
-
     public static boolean contains(ArrayList<String> Dictionary, String returnedString) {
         boolean contains = false;
 
@@ -98,7 +94,6 @@ public class TestUtils {
         return contains;
     }
 
-
     public static boolean equalTo(List<ITuple> tuples1, List<ITuple> tuples2) {
         if (tuples1.size() != tuples2.size()) {
             return false;
@@ -110,7 +105,6 @@ public class TestUtils {
         }
         return true;
     }
-
 
     public static boolean equalTo(ITuple tuple1, ITuple tuple2) {
         List<IField> fields1 = tuple1.getFields();
@@ -126,7 +120,6 @@ public class TestUtils {
         return true;
     }
 
-
     public static List<String> tokenizeString(Analyzer analyzer, String string) {
         List<String> result = new ArrayList<String>();
         try {
@@ -141,7 +134,6 @@ public class TestUtils {
         }
         return result;
     }
-
 
     public static boolean equalTo(IField field1, IField field2) {
         return field1.getValue().equals(field2.getValue());

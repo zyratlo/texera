@@ -21,12 +21,10 @@ public class PokemonSearcher {
     private IndexSearcher indexSearcher;
     private QueryParser queryParser;
 
-
     public PokemonSearcher(String fieldName) throws IOException {
         indexSearcher = new IndexSearcher(DirectoryReader.open(FSDirectory.open(Paths.get(LuceneConstants.INDEX))));
         queryParser = new QueryParser(fieldName, new StandardAnalyzer());
     }
-
 
     public Document[] performSearch(String queryString, int n) throws IOException, ParseException {
         Query query = queryParser.parse(queryString);
@@ -38,7 +36,6 @@ public class PokemonSearcher {
         }
         return documents;
     }
-
 
     public Document getDocument(int docId) throws IOException {
         return indexSearcher.doc(docId);

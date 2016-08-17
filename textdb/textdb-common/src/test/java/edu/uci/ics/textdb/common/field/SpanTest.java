@@ -9,12 +9,10 @@ public class SpanTest {
 
     private Span span;
 
-
     @Before
     public void setUp() {
 
     }
-
 
     @Test
     public void testGetters() {

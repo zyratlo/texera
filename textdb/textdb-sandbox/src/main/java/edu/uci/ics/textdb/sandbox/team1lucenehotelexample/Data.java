@@ -86,11 +86,9 @@ public class Data {
 
     };
 
-
     public static Hotel[] getHotels() {
         return HOTELS;
     }
-
 
     public static Hotel getHotel(String id) {
         for (Hotel hotel : HOTELS) {

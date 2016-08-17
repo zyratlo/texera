@@ -33,7 +33,6 @@ public class RegexTestConstantStaff {
     public static final Attribute[] ATTRIBUTES_STAFF = { FIRST_NAME_ATTR, LAST_NAME_ATTR, EMAIL_ATTR, PHONE_ATTR };
     public static final Schema SCHEMA_STAFF = new Schema(ATTRIBUTES_STAFF);
 
-
     public static List<ITuple> getSampleStaffTuples() throws ParseException {
         IField[] fields1 = { new StringField("Melody"), new StringField("Bocanegra"),
                 new StringField("m.bocanegra@164.com"), new StringField("(945) 734-5156") };

@@ -16,12 +16,10 @@ public class SchemaTest {
 
     private Attribute[] attributes = { new Attribute(fieldName1, type1), new Attribute(fieldName2, type2) };;
 
-
     @Before
     public void setUp() {
         schema = new Schema(attributes);
     }
-
 
     @Test
     public void testGetAttributes() {
@@ -31,7 +29,6 @@ public class SchemaTest {
             Assert.assertTrue(attributes.contains(attribute));
         }
     }
-
 
     @Test
     public void testGetIndex() {
@@ -45,20 +42,17 @@ public class SchemaTest {
 
     }
 
-
     @Test(expected = UnsupportedOperationException.class)
     public void testAddingNewAttribute() { // Should fail due to immutability
         List<Attribute> attributes = schema.getAttributes();
         attributes.add(new Attribute("sampleField_3", FieldType.STRING));
     }
 
-
     @Test(expected = UnsupportedOperationException.class)
     public void testRemovingAttribute() { // Should fail due to immutability
         List<Attribute> attributes = schema.getAttributes();
         attributes.remove(0);
     }
-
 
     @Test(expected = UnsupportedOperationException.class)
     public void testAddingInBetween() { // Should fail due to immutability

@@ -44,7 +44,6 @@ public class keywordTestConstants {
 
     public static final Schema SCHEMA_MEDLINE = new Schema(ATTRIBUTES_MEDLINE);
 
-
     public static List<ITuple> getSampleMedlineRecord() throws ParseException {
         // IField [] fields1 = {
         // new TextField("This report describes four cases of chronic

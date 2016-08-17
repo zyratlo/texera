@@ -44,12 +44,10 @@ public class NlpExtractorTest {
 
     private DataReaderPredicate dataReaderPredicate;
 
-
     @After
     public void cleanUp() throws Exception {
         dataWriter.clearData();
     }
-
 
     /**
      * @param sourceOperator
@@ -74,7 +72,6 @@ public class NlpExtractorTest {
         return results;
     }
 
-
     /**
      * Scenario 1: Test getNextTuple with only one span in the return list Text
      * : Microsoft is a organization. Search for all NE_ALL token types
@@ -98,7 +95,6 @@ public class NlpExtractorTest {
         Assert.assertTrue(contains);
     }
 
-
     /**
      * Scenario 2: Test getNextTuple with more than one span in the return list
      * Text: Microsoft, Google and Facebook are organizations Search for all
@@ -120,7 +116,6 @@ public class NlpExtractorTest {
         Assert.assertTrue(contains);
 
     }
-
 
     /**
      * Scenario 3: Test getNextTuple with more than one span in the return list
@@ -144,7 +139,6 @@ public class NlpExtractorTest {
 
         Assert.assertTrue(contains);
     }
-
 
     /**
      * Scenario 4:Test getNextTuple with more than one span in the return list
@@ -175,7 +169,6 @@ public class NlpExtractorTest {
         Assert.assertTrue(contains);
     }
 
-
     /**
      * Scenario 5:Test getNextTuple using two fields:
      * <p>
@@ -201,7 +194,6 @@ public class NlpExtractorTest {
 
         Assert.assertTrue(contains);
     }
-
 
     /**
      * Scenario 6:Test getNextTuple using two fields:
@@ -233,7 +225,6 @@ public class NlpExtractorTest {
         Assert.assertTrue(contains);
     }
 
-
     /**
      * Scenario 7:Test getNextTuple using sentence: Sentence1: Feeling the warm
      * sun rays beaming steadily down, the girl decided there was no need to
@@ -257,7 +248,6 @@ public class NlpExtractorTest {
 
         Assert.assertTrue(contains);
     }
-
 
     /**
      * @param schema

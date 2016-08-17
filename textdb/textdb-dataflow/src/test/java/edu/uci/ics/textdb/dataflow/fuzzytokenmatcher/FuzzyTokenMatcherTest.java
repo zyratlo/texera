@@ -47,7 +47,6 @@ public class FuzzyTokenMatcherTest {
     private DataStore dataStore;
     private Analyzer analyzer;
 
-
     @Before
     public void setUp() throws Exception {
         dataStore = new DataStore(DataConstants.INDEX_DIR, TestConstants.SCHEMA_PEOPLE);
@@ -57,12 +56,10 @@ public class FuzzyTokenMatcherTest {
         dataWriter.writeData(TestConstants.getSamplePeopleTuples());
     }
 
-
     @After
     public void cleanUp() throws Exception {
         dataWriter.clearData();
     }
-
 
     public List<ITuple> getQueryResults(String query, double threshold, ArrayList<Attribute> attributeList,
             boolean isSpanInformationAdded) throws DataFlowException, ParseException {
@@ -81,7 +78,6 @@ public class FuzzyTokenMatcherTest {
         return results;
     }
 
-
     @Test
     public void TestFuzzyTokenMatcherWithNoResults() throws Exception {
         String query = "Twelve Angry Men Cafe";
@@ -92,7 +88,6 @@ public class FuzzyTokenMatcherTest {
         List<ITuple> results = getQueryResults(query, threshold, attributeList, isSpanInformationAdded);
         Assert.assertEquals(0, results.size());
     }
-
 
     @Test
     public void TestFuzzyTokenMatcherWithThresholdVariation() throws Exception {
@@ -127,7 +122,6 @@ public class FuzzyTokenMatcherTest {
         Assert.assertTrue(contains);
     }
 
-
     @Test
     public void TestFuzzyTokenMatcherWithLargeTokens() throws Exception {
         String query = "Twelve Angry Men Came Cafe Have Coffee Eat Chocolate Burger Fries SandWidch Cool Food Drinks American drama film elements film noir adapted teleplay same name Reginald Rose Written Rose directed  Sidney Lumet trial film tells story jury made deliberate guilt acquittal defendant basis reasonable doubt United States verdict most criminal ";
@@ -161,7 +155,6 @@ public class FuzzyTokenMatcherTest {
         Assert.assertTrue(contains);
     }
 
-
     @Test
     public void TestFuzzyTokenMatcherForStringField() throws Exception {
         String query = "tom hanks";
@@ -175,7 +168,6 @@ public class FuzzyTokenMatcherTest {
         Assert.assertTrue(contains);
         Assert.assertEquals(0, results.size());
     }
-
 
     @Test
     public void TestFuzzyTokenMatcherWithoutSpan() throws Exception {
@@ -209,7 +201,6 @@ public class FuzzyTokenMatcherTest {
         boolean contains = TestUtils.containsAllResults(expectedResultList, results);
         Assert.assertTrue(contains);
     }
-
 
     @Test
     public void TestFuzzyTokenMatcherWithSpan() throws Exception {

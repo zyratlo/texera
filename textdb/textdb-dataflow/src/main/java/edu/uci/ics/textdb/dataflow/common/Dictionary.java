@@ -21,7 +21,6 @@ public class Dictionary implements IDictionary {
     private Iterator<String> iterator;
     private HashMap<String, Double> wordFrequencyMap;
 
-
     public Dictionary(Collection<String> dictionaryWords) {
         // Using LinkedHashMap so that getNextValue() returns the words in
         // order.
@@ -30,7 +29,6 @@ public class Dictionary implements IDictionary {
             wordFrequencyMap.put(word, 0.0);
         }
     }
-
 
     public Dictionary(String wordBaseSourceFilePath) throws IOException {
 
@@ -67,7 +65,6 @@ public class Dictionary implements IDictionary {
         }
     }
 
-
     /**
      * Gets next dictionary entry from the dictionary
      */
@@ -82,11 +79,9 @@ public class Dictionary implements IDictionary {
         return null;
     }
 
-
     public boolean contains(String word) {
         return wordFrequencyMap.containsKey(word);
     }
-
 
     public double getFrequency(String word) {
         if (wordFrequencyMap.containsKey(word)) {
@@ -95,7 +90,6 @@ public class Dictionary implements IDictionary {
             return -1;
         }
     }
-
 
     /**
      * Reset the cursor to the start of the dictionary.

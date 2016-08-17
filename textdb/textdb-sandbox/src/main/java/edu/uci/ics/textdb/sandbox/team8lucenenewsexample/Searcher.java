@@ -25,7 +25,6 @@ public class Searcher {
     private IndexSearcher searcher = null;
     private QueryParser parser = null;
 
-
     /**
      * Creates a new instance of SearchEngine
      */
@@ -34,12 +33,10 @@ public class Searcher {
         parser = new QueryParser(CONTENT_FIELD, new StandardAnalyzer());
     }
 
-
     public TopDocs performSearch(String queryString, int n) throws IOException, ParseException {
         Query query = parser.parse(queryString);
         return searcher.search(query, n);
     }
-
 
     public Document getDocument(int docId) throws IOException {
         return searcher.doc(docId);

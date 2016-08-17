@@ -34,7 +34,6 @@ public class LuceneNgramQueryExample {
     private IndexSearcher searcher;
     private IndexWriter indexWriter;
 
-
     public LuceneNgramQueryExample(String dfn, int minNgramSsize, int maxNgramSize) throws Exception {
         dataFileName = dfn;
 
@@ -49,7 +48,6 @@ public class LuceneNgramQueryExample {
         IndexWriterConfig config = new IndexWriterConfig(analyzer);
         indexWriter = new IndexWriter(indexDir, config);
     }
-
 
     public void buildNGramIndex() throws Exception {
         indexWriter.deleteAll();
@@ -70,7 +68,6 @@ public class LuceneNgramQueryExample {
         indexWriter.close();
     }
 
-
     private FieldType getFieldType() {
         FieldType type = new FieldType();
         type.setIndexOptions(IndexOptions.DOCS);
@@ -78,7 +75,6 @@ public class LuceneNgramQueryExample {
         type.setStoreTermVectors(true);
         return type;
     }
-
 
     public TopDocs search(String queryText, int numOfTopHit) throws Exception {
         searcher = new IndexSearcher(DirectoryReader.open(FSDirectory.open(Paths.get(DataConstants.INDEX_DIR))));
@@ -90,7 +86,6 @@ public class LuceneNgramQueryExample {
         return res;
 
     }
-
 
     public IndexSearcher getSearcher() {
         return searcher;

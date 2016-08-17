@@ -57,11 +57,9 @@ public class DataReader implements IDataReader {
     private int offset;
     private boolean payloadAdded = true;
 
-
     public DataReader(DataReaderPredicate dataReaderPredicate) {
         predicate = dataReaderPredicate;
     }
-
 
     @Override
     public void open() throws DataFlowException {
@@ -92,7 +90,6 @@ public class DataReader implements IDataReader {
         cursor = OPENED;
     }
 
-
     @Override
     public ITuple getNextTuple() throws DataFlowException {
         if (cursor == CLOSED) {
@@ -116,7 +113,6 @@ public class DataReader implements IDataReader {
         return resultTuple;
     }
 
-
     @Override
     public void close() throws DataFlowException {
         cursor = CLOSED;
@@ -129,7 +125,6 @@ public class DataReader implements IDataReader {
             }
         }
     }
-
 
     private ITuple constructTuple(int docID) throws IOException, ParseException {
         Document luceneDocument = luceneIndexSearcher.doc(docID);
@@ -145,7 +140,6 @@ public class DataReader implements IDataReader {
         return resultTuple;
     }
 
-
     private ArrayList<IField> documentToFields(Document luceneDocument) throws ParseException {
         ArrayList<IField> fields = new ArrayList<>();
         for (Attribute attr : inputSchema.getAttributes()) {
@@ -155,7 +149,6 @@ public class DataReader implements IDataReader {
         }
         return fields;
     }
-
 
     private ArrayList<Span> buildPayloadFromTermVector(List<IField> fields, int docID) throws IOException {
         ArrayList<Span> payloadSpanList = new ArrayList<>();
@@ -208,36 +201,29 @@ public class DataReader implements IDataReader {
         return payloadSpanList;
     }
 
-
     public int getLimit() {
         return limit;
     }
-
 
     public void setLimit(int limit) {
         this.limit = limit;
     }
 
-
     public int getOffset() {
         return offset;
     }
-
 
     public void setOffset(int offset) {
         this.offset = offset;
     }
 
-
     public boolean isTermVecAdded() {
         return payloadAdded;
     }
 
-
     public void setTermVecAdded(boolean termVecAdded) {
         this.payloadAdded = termVecAdded;
     }
-
 
     public Schema getOutputSchema() {
         return outputSchema;

@@ -32,7 +32,6 @@ public class RegexToGramQueryTranslator {
         return translate(regex, TranslatorUtils.DEFAULT_GRAM_LENGTH);
     }
 
-
     /**
      * This method translates a regular expression to a boolean expression of a
      * custom gram length. <br>
@@ -57,7 +56,6 @@ public class RegexToGramQueryTranslator {
         return simplifiedDNF;
     }
 
-
     /*
      * This returns the query tree before simplification. It's used internally
      * for debugging purposes.
@@ -78,7 +76,6 @@ public class RegexToGramQueryTranslator {
 
         return regexInfo.match;
     }
-
 
     /**
      * This is the main function of analyzing a regular expression. <br>
@@ -218,7 +215,6 @@ public class RegexToGramQueryTranslator {
         }
     }
 
-
     /**
      * This function calculates the {@code RegexInfo} of alternation of two
      * given {@code RegexInfo}
@@ -252,7 +248,6 @@ public class RegexToGramQueryTranslator {
         xyInfo.simplify(false);
         return xyInfo;
     }
-
 
     /**
      * This function calculates the {@code RegexInfo} of concatenation of two
@@ -301,7 +296,6 @@ public class RegexToGramQueryTranslator {
 
         return xyInfo;
     }
-
 
     /**
      * This function takes an array of regex, analyzes each one, and folds them

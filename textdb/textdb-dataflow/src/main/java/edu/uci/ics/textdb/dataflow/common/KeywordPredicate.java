@@ -45,7 +45,6 @@ public class KeywordPredicate implements IPredicate {
     private Analyzer luceneAnalyzer;
     private KeywordMatchingType operatorType;
 
-
     /*
      * query refers to string of keywords to search for. For Ex. New york if
      * searched in TextField, we would consider both tokens New and York; if
@@ -71,7 +70,6 @@ public class KeywordPredicate implements IPredicate {
         }
     }
 
-
     /**
      * Creates a Query object as a boolean Query on all attributes Example: For
      * creating a query like (TestConstants.DESCRIPTION + ":lin" + " AND " +
@@ -96,7 +94,6 @@ public class KeywordPredicate implements IPredicate {
 
         return query;
     }
-
 
     private Query buildConjunctionQuery() throws DataFlowException {
         BooleanQuery.Builder booleanQueryBuilder = new BooleanQuery.Builder();
@@ -128,7 +125,6 @@ public class KeywordPredicate implements IPredicate {
 
         return booleanQueryBuilder.build();
     }
-
 
     private Query buildPhraseQuery() throws DataFlowException {
         BooleanQuery.Builder booleanQueryBuilder = new BooleanQuery.Builder();
@@ -169,7 +165,6 @@ public class KeywordPredicate implements IPredicate {
         return booleanQueryBuilder.build();
     }
 
-
     private Query buildScanQuery() throws DataFlowException {
         for (Attribute attribute : this.attributeList) {
             FieldType fieldType = attribute.getFieldType();
@@ -184,7 +179,6 @@ public class KeywordPredicate implements IPredicate {
         return new MatchAllDocsQuery();
     }
 
-
     public DataReaderPredicate generateDataReaderPredicate(IDataStore dataStore) {
         DataReaderPredicate predicate = new DataReaderPredicate(this.luceneQuery, this.query, dataStore,
                 this.attributeList, this.luceneAnalyzer);
@@ -192,41 +186,33 @@ public class KeywordPredicate implements IPredicate {
         return predicate;
     }
 
-
     public KeywordMatchingType getOperatorType() {
         return operatorType;
     }
-
 
     public String getQuery() {
         return query;
     }
 
-
     public List<Attribute> getAttributeList() {
         return attributeList;
     }
-
 
     public Query getQueryObject() {
         return this.luceneQuery;
     }
 
-
     public ArrayList<String> getQueryTokenList() {
         return this.queryTokenList;
     }
-
 
     public HashSet<String> getQueryTokenSet() {
         return this.queryTokenSet;
     }
 
-
     public ArrayList<String> getQueryTokensWithStopwords() {
         return this.queryTokensWithStopwords;
     }
-
 
     public Analyzer getLuceneAnalyzer() {
         return luceneAnalyzer;

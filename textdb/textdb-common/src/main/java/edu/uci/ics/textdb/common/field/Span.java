@@ -25,7 +25,6 @@ public class Span {
 
     public static int INVALID_TOKEN_OFFSET = -1;
 
-
     public Span(String fieldName, int start, int end, String key, String value) {
         this.fieldName = fieldName;
         this.start = start;
@@ -35,42 +34,34 @@ public class Span {
         this.tokenOffset = INVALID_TOKEN_OFFSET;
     }
 
-
     public Span(String fieldName, int start, int end, String key, String value, int tokenOffset) {
         this(fieldName, start, end, key, value);
         this.tokenOffset = tokenOffset;
     }
 
-
     public String getFieldName() {
         return fieldName;
     }
-
 
     public String getKey() {
         return key;
     }
 
-
     public String getValue() {
         return value;
     }
-
 
     public int getStart() {
         return start;
     }
 
-
     public int getEnd() {
         return end;
     }
 
-
     public int getTokenOffset() {
         return tokenOffset;
     }
-
 
     @Override
     public int hashCode() {
@@ -84,7 +75,6 @@ public class Span {
         result = prime * result + tokenOffset;
         return result;
     }
-
 
     @Override
     public boolean equals(Object obj) {

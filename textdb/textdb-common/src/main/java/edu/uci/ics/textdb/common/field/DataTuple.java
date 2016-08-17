@@ -15,7 +15,6 @@ public class DataTuple implements ITuple {
     private final Schema schema;
     private final List<IField> fields;
 
-
     public DataTuple(Schema schema, IField... fields) {
         this.schema = schema;
         // Converting to java.util.Arrays.ArrayList
@@ -25,19 +24,16 @@ public class DataTuple implements ITuple {
         this.fields = Arrays.asList(fields);
     }
 
-
     @Override
     public IField getField(int index) {
         return fields.get(index);
     }
-
 
     @Override
     public IField getField(String fieldName) {
         int index = schema.getIndex(fieldName);
         return getField(index);
     }
-
 
     @Override
     public int hashCode() {
@@ -47,7 +43,6 @@ public class DataTuple implements ITuple {
         result = prime * result + ((schema == null) ? 0 : schema.hashCode());
         return result;
     }
-
 
     @Override
     public boolean equals(Object obj) {
@@ -71,18 +66,15 @@ public class DataTuple implements ITuple {
         return true;
     }
 
-
     @Override
     public String toString() {
         return "DataTuple [schema=" + schema + ", fields=" + fields + "]";
     }
 
-
     @Override
     public List<IField> getFields() {
         return fields;
     }
-
 
     @Override
     public Schema getSchema() {

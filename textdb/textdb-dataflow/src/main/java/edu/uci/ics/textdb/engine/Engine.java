@@ -10,10 +10,8 @@ public class Engine {
 
     private static volatile Engine singletonEngine = null;
 
-
     private Engine() {
     }
-
 
     public static Engine getEngine() {
         if (singletonEngine == null) {
@@ -25,7 +23,6 @@ public class Engine {
         }
         return singletonEngine;
     }
-
 
     public void evaluate(Plan plan) throws Exception {
         ISink root = plan.getRoot();

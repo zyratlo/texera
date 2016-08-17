@@ -43,7 +43,6 @@ public class DictionaryMatcherPerformanceTest {
     private static FileWriter fileWriter = null;
     private static String csvFileFolder = "dictionary/";
 
-
     /**
      * @param queryFileName:
      *            this file contains line(s) of phrases/words which are used to
@@ -120,7 +119,6 @@ public class DictionaryMatcherPerformanceTest {
         fileWriter.flush();
         fileWriter.close();
     }
-
 
     /**
      * @param queryList:

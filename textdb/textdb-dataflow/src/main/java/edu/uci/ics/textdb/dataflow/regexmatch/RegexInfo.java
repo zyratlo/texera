@@ -19,7 +19,6 @@ class RegexInfo {
     List<String> suffix = null;
     GramBooleanQuery match = null;
 
-
     /**
      * This initializes RegexInfo: <br>
      * emptyable to false <br>
@@ -30,7 +29,6 @@ class RegexInfo {
         this(GramBooleanQuery.QueryOp.ANY);
     }
 
-
     RegexInfo(GramBooleanQuery.QueryOp operator) {
         emptyable = false;
         exact = new ArrayList<String>();
@@ -38,7 +36,6 @@ class RegexInfo {
         suffix = new ArrayList<String>();
         match = new GramBooleanQuery(operator);
     }
-
 
     /**
      * @return RegexInfo describing a regex that matches NO string This function
@@ -49,7 +46,6 @@ class RegexInfo {
         RegexInfo regexInfo = new RegexInfo(GramBooleanQuery.QueryOp.NONE);
         return regexInfo;
     }
-
 
     /**
      * 
@@ -63,7 +59,6 @@ class RegexInfo {
         return regexInfo;
     }
 
-
     /**
      * 
      * @return RegexInfo describing a regex that matches an EMPTY string
@@ -75,7 +70,6 @@ class RegexInfo {
         return regexInfo;
     }
 
-
     /**
      * @return RegexInfo describing a regex that matches ANY SINGLE character
      *         For anyChar, prefix, suffix, and exact are null (unknown),
@@ -86,7 +80,6 @@ class RegexInfo {
         regexInfo.emptyable = false;
         return regexInfo;
     }
-
 
     /**
      * This function simplifies the regexInfo. <br>
@@ -140,7 +133,6 @@ class RegexInfo {
 
         return this;
     }
-
 
     /**
      * simplifyAffix reduces the size of the given set (either prefix or

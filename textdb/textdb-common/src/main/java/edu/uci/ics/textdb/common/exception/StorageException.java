@@ -4,7 +4,6 @@ public class StorageException extends Exception {
 
     private static final long serialVersionUID = -7393624288798221759L;
 
-
     public StorageException(String errorMessage, Throwable throwable) {
         super(errorMessage, throwable);
     }

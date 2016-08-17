@@ -28,11 +28,9 @@ public class Data {
 
     };
 
-
     public static City[] getCities() {
         return CITIES;
     }
-
 
     public static City getCity(String id) {
         for (City City : CITIES) {

@@ -10,7 +10,6 @@ public class Movie {
     public Movie() {
     }
 
-
     /** Creates a new instance of Accommodation */
     public Movie(String id, String name, String description) {
         this.id = id;
@@ -23,7 +22,6 @@ public class Movie {
      */
     private String name;
 
-
     /**
      * Getter for property title.
      * 
@@ -32,7 +30,6 @@ public class Movie {
     public String getName() {
         return this.name;
     }
-
 
     /**
      * Setter for property title.
@@ -49,7 +46,6 @@ public class Movie {
      */
     private String id;
 
-
     /**
      * Getter for property id.
      * 
@@ -58,7 +54,6 @@ public class Movie {
     public String getId() {
         return this.id;
     }
-
 
     /**
      * Setter for property id.
@@ -75,7 +70,6 @@ public class Movie {
      */
     private String description;
 
-
     /**
      * Getter for property details.
      * 
@@ -84,7 +78,6 @@ public class Movie {
     public String getDescription() {
         return this.description;
     }
-
 
     /**
      * Setter for property details.
@@ -95,7 +88,6 @@ public class Movie {
     public void setDescription(String description) {
         this.description = description;
     }
-
 
     @Override
     public String toString() {

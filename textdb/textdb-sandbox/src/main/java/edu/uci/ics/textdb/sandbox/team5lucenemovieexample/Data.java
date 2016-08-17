@@ -31,11 +31,9 @@ public class Data {
             new Movie("2979390", "Mandy 2001",
                     "Mandy is a story about a young girl... The script is written by and stars thirteen year-old Phoebe Gilpin and offers a truthful perspective on growing up in today'") };
 
-
     public static Movie[] getMovies() {
         return MOVIES;
     }
-
 
     public static Movie getMovie(String id) {
         for (Movie movie : MOVIES) {

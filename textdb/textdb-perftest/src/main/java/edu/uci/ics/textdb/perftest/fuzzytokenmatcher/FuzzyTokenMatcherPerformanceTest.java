@@ -43,7 +43,6 @@ public class FuzzyTokenMatcherPerformanceTest {
     private static boolean bool = true;
     private static String csvFileFolder = "fuzzytoken/";
 
-
     /**
      * @param queryFileName:
      *            this file contains line(s) of queries; the file must be placed
@@ -119,7 +118,6 @@ public class FuzzyTokenMatcherPerformanceTest {
         fileWriter.close();
     }
 
-
     /**
      * reset timeResults and totalReusltCount
      */
@@ -127,7 +125,6 @@ public class FuzzyTokenMatcherPerformanceTest {
         timeResults = new ArrayList<Double>();
         totalResultCount = 0;
     }
-
 
     /**
      * @param queryList:

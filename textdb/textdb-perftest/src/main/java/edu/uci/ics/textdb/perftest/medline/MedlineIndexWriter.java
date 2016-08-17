@@ -60,7 +60,6 @@ public class MedlineIndexWriter {
 
     public static final Schema SCHEMA_MEDLINE = new Schema(ATTRIBUTES_MEDLINE);
 
-
     private static ITuple recordToTuple(String record) throws JSONException, ParseException {
         JSONObject json = new JSONObject(record);
         ArrayList<IField> fieldList = new ArrayList<IField>();
@@ -71,7 +70,6 @@ public class MedlineIndexWriter {
         ITuple tuple = new DataTuple(SCHEMA_MEDLINE, fieldList.toArray(fieldArray));
         return tuple;
     }
-
 
     /**
      * This function generates a plan that reads a file using

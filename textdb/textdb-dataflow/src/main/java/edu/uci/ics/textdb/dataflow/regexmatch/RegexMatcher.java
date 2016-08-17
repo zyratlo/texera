@@ -58,7 +58,6 @@ public class RegexMatcher implements IOperator {
     private com.google.re2j.Pattern re2jPattern;
     private java.util.regex.Pattern javaPattern;
 
-
     public RegexMatcher(RegexPredicate predicate) throws DataFlowException {
         this.cursor = -1;
         this.offset = 0;
@@ -83,7 +82,6 @@ public class RegexMatcher implements IOperator {
         }
     }
 
-
     @Override
     public void open() throws DataFlowException {
         if (this.inputOperator == null) {
@@ -104,7 +102,6 @@ public class RegexMatcher implements IOperator {
             throw new DataFlowException(e.getMessage(), e);
         }
     }
-
 
     @Override
     public ITuple getNextTuple() throws DataFlowException {
@@ -133,7 +130,6 @@ public class RegexMatcher implements IOperator {
             throw new DataFlowException(e.getMessage(), e);
         }
     }
-
 
     /**
      * This function returns a list of spans in the given tuple that match the
@@ -185,7 +181,6 @@ public class RegexMatcher implements IOperator {
         return sourceTuple;
     }
 
-
     private List<Span> javaRegexMatch(String fieldValue, String fieldName) {
         List<Span> matchingResults = new ArrayList<>();
         java.util.regex.Matcher javaMatcher = this.javaPattern.matcher(fieldValue);
@@ -198,7 +193,6 @@ public class RegexMatcher implements IOperator {
         return matchingResults;
     }
 
-
     private List<Span> re2jRegexMatch(String fieldValue, String fieldName) {
         List<Span> matchingResults = new ArrayList<>();
         com.google.re2j.Matcher re2jMatcher = this.re2jPattern.matcher(fieldValue);
@@ -210,7 +204,6 @@ public class RegexMatcher implements IOperator {
         }
         return matchingResults;
     }
-
 
     /**
      * Use Java's built-in Regex Engine. <br>
@@ -226,7 +219,6 @@ public class RegexMatcher implements IOperator {
             this.regexEngine = RegexEngine.JavaRegex;
         }
     }
-
 
     /**
      * Use RE2J Regex Engine. <br>
@@ -248,11 +240,9 @@ public class RegexMatcher implements IOperator {
         }
     }
 
-
     public String getRegexEngineString() {
         return this.regexEngine.toString();
     }
-
 
     @Override
     public void close() throws DataFlowException {
@@ -266,42 +256,34 @@ public class RegexMatcher implements IOperator {
         }
     }
 
-
     public String getRegex() {
         return this.regex;
     }
-
 
     public IOperator getInputOperator() {
         return inputOperator;
     }
 
-
     public void setInputOperator(ISourceOperator inputOperator) {
         this.inputOperator = inputOperator;
     }
-
 
     @Override
     public Schema getOutputSchema() {
         return outputSchema;
     }
 
-
     public void setLimit(int limit) {
         this.limit = limit;
     }
-
 
     public int getLimit() {
         return this.limit;
     }
 
-
     public void setOffset(int offset) {
         this.offset = offset;
     }
-
 
     public int getOffset() {
         return this.offset;

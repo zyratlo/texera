@@ -6,17 +6,14 @@ public class IntegerField implements IField {
 
     private Integer value;
 
-
     public IntegerField(Integer value) {
         this.value = value;
     }
-
 
     @Override
     public Integer getValue() {
         return value;
     }
-
 
     @Override
     public int hashCode() {
@@ -25,7 +22,6 @@ public class IntegerField implements IField {
         result = prime * result + ((value == null) ? 0 : value.hashCode());
         return result;
     }
-
 
     @Override
     public boolean equals(Object obj) {
@@ -43,7 +39,6 @@ public class IntegerField implements IField {
             return false;
         return true;
     }
-
 
     @Override
     public String toString() {

@@ -41,7 +41,6 @@ public class IndexBasedSourceOperatorTest {
     private Analyzer luceneAnalyzer;
     private DataReaderPredicate dataReaderPredicate;
 
-
     @Before
     public void setUp() throws Exception {
         dataStore = new DataStore(DataConstants.INDEX_DIR, TestConstants.SCHEMA_PEOPLE);
@@ -52,12 +51,10 @@ public class IndexBasedSourceOperatorTest {
 
     }
 
-
     @After
     public void cleanUp() throws Exception {
         dataWriter.clearData();
     }
-
 
     public void constructIndexBasedSourceOperator(String query) throws ParseException {
         String defaultField = TestConstants.ATTRIBUTES_PEOPLE[0].getFieldName();
@@ -68,7 +65,6 @@ public class IndexBasedSourceOperatorTest {
 
         indexBasedSourceOperator = new IndexBasedSourceOperator(dataReaderPredicate);
     }
-
 
     public List<ITuple> getQueryResults(String query) throws DataFlowException, ParseException {
         constructIndexBasedSourceOperator(query);
@@ -82,7 +78,6 @@ public class IndexBasedSourceOperatorTest {
         indexBasedSourceOperator.close();
         return results;
     }
-
 
     /**
      * Search in a text field with multiple tokens.
@@ -100,7 +95,6 @@ public class IndexBasedSourceOperatorTest {
         Assert.assertTrue(check);
     }
 
-
     /**
      * Search in a text field with a single token
      * 
@@ -116,7 +110,6 @@ public class IndexBasedSourceOperatorTest {
         Assert.assertEquals(3, numTuples);
     }
 
-
     /**
      * Test a query on the string field, with a substring as the query Should
      * return no result
@@ -130,7 +123,6 @@ public class IndexBasedSourceOperatorTest {
         int numTuples = results.size();
         Assert.assertEquals(0, numTuples);
     }
-
 
     /**
      * 
@@ -154,7 +146,6 @@ public class IndexBasedSourceOperatorTest {
             Assert.assertTrue(lastNameValue.toLowerCase().contains("cruise"));
         }
     }
-
 
     /**
      * Tests the scenario where the predicate is reset and the getNextTupkle()

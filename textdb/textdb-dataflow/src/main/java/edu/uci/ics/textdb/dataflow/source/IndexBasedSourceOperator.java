@@ -19,11 +19,9 @@ public class IndexBasedSourceOperator implements ISourceOperator {
     private DataReaderPredicate predicate;
     private int cursor = CLOSED;
 
-
     public IndexBasedSourceOperator(DataReaderPredicate predicate) {
         this.predicate = predicate;
     }
-
 
     @Override
     public void open() throws DataFlowException {
@@ -36,7 +34,6 @@ public class IndexBasedSourceOperator implements ISourceOperator {
             throw new DataFlowException(e.getMessage(), e);
         }
     }
-
 
     @Override
     public ITuple getNextTuple() throws DataFlowException {
@@ -51,7 +48,6 @@ public class IndexBasedSourceOperator implements ISourceOperator {
         }
     }
 
-
     @Override
     public void close() throws DataFlowException {
         try {
@@ -63,7 +59,6 @@ public class IndexBasedSourceOperator implements ISourceOperator {
         }
     }
 
-
     /**
      * Resets the predicate and resets the cursor. The caller needs to reopen
      * the operator once the predicate is reset.
@@ -74,7 +69,6 @@ public class IndexBasedSourceOperator implements ISourceOperator {
         this.predicate = (DataReaderPredicate) predicate;
         cursor = CLOSED;
     }
-
 
     @Override
     public Schema getOutputSchema() {

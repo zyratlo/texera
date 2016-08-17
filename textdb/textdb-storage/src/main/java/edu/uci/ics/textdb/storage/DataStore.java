@@ -8,30 +8,25 @@ public class DataStore implements IDataStore {
     private int numDocuments;
     private Schema schema;
 
-
     public DataStore(String dataDirectory, Schema schema) {
         this.dataDirectory = dataDirectory;
         this.schema = schema;
     }
-
 
     @Override
     public void incrementNumDocuments(int incrementBy) {
         numDocuments += incrementBy;
     }
 
-
     @Override
     public int getNumDocuments() {
         return numDocuments;
     }
 
-
     @Override
     public String getDataDirectory() {
         return dataDirectory;
     }
-
 
     @Override
     public Schema getSchema() {

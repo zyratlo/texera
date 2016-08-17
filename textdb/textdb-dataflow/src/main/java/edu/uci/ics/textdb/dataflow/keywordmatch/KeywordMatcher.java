@@ -46,7 +46,6 @@ public class KeywordMatcher implements IOperator {
     private int limit;
     private int offset;
 
-
     public KeywordMatcher(KeywordPredicate predicate) {
         this.cursor = -1;
         this.limit = Integer.MAX_VALUE;
@@ -54,7 +53,6 @@ public class KeywordMatcher implements IOperator {
         this.predicate = predicate;
         this.query = this.predicate.getQuery();
     }
-
 
     @Override
     public void open() throws DataFlowException {
@@ -78,7 +76,6 @@ public class KeywordMatcher implements IOperator {
             throw new DataFlowException(e.getMessage(), e);
         }
     }
-
 
     /**
      * @about Gets next matched tuple. Returns a new span tuple including the
@@ -137,7 +134,6 @@ public class KeywordMatcher implements IOperator {
 
     }
 
-
     private ITuple computeConjunctionMatchingResult(ITuple sourceTuple) throws DataFlowException {
         List<Span> payload = (List<Span>) sourceTuple.getField(SchemaConstants.PAYLOAD).getValue();
         List<Span> relevantSpans = filterRelevantSpans(payload);
@@ -183,7 +179,6 @@ public class KeywordMatcher implements IOperator {
 
         return sourceTuple;
     }
-
 
     private ITuple computePhraseMatchingResult(ITuple sourceTuple) throws DataFlowException {
         List<Span> payload = (List<Span>) sourceTuple.getField(SchemaConstants.PAYLOAD).getValue();
@@ -284,7 +279,6 @@ public class KeywordMatcher implements IOperator {
         return sourceTuple;
     }
 
-
     private ITuple computeSubstringMatchingResult(ITuple sourceTuple) throws DataFlowException {
         List<Span> matchingResults = new ArrayList<>();
 
@@ -328,13 +322,11 @@ public class KeywordMatcher implements IOperator {
         return sourceTuple;
     }
 
-
     private boolean isAllQueryTokensPresent(List<Span> fieldSpanList, Set<String> queryTokenSet) {
         Set<String> fieldSpanKeys = fieldSpanList.stream().map(span -> span.getKey()).collect(Collectors.toSet());
 
         return fieldSpanKeys.equals(queryTokenSet);
     }
-
 
     private List<Span> filterRelevantSpans(List<Span> spanList) {
         List<Span> relevantSpans = new ArrayList<>();
@@ -348,7 +340,6 @@ public class KeywordMatcher implements IOperator {
         return relevantSpans;
     }
 
-
     @Override
     public void close() throws DataFlowException {
         try {
@@ -361,37 +352,30 @@ public class KeywordMatcher implements IOperator {
         }
     }
 
-
     public IOperator getInputOperator() {
         return inputOperator;
     }
 
-
     public void setInputOperator(IOperator inputOperator) {
         this.inputOperator = inputOperator;
     }
-
 
     @Override
     public Schema getOutputSchema() {
         return inputOperator.getOutputSchema();
     }
 
-
     public void setLimit(int limit) {
         this.limit = limit;
     }
-
 
     public int getLimit() {
         return limit;
     }
 
-
     public void setOffset(int offset) {
         this.offset = offset;
     }
-
 
     public int getOffset() {
         return offset;

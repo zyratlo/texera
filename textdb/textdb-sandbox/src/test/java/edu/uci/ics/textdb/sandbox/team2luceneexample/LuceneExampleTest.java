@@ -23,19 +23,16 @@ public class LuceneExampleTest {
     private static String allResultsSearchQuery = "*:*";
     private static String termSearchQuery = "grass";
 
-
     @BeforeClass
     public static void buildIndex() throws IOException {
         pokedexer = new Pokedexer(LuceneConstants.INDEX, numberOfPokemon);
         pokedexer.buildIndexes(true);
     }
 
-
     @Test
     public void testIndex() {
         assertNotNull(pokedexer);
     }
-
 
     @Test
     public void testAllSearch() throws IOException, ParseException {
@@ -44,14 +41,12 @@ public class LuceneExampleTest {
         assertEquals(documents.length, maxResults);
     }
 
-
     @Test
     public void testMultiTerm() throws IOException, ParseException {
         PokemonSearcher pokemonSearcher = new PokemonSearcher(searchFieldName);
         Document[] documents = pokemonSearcher.performSearch(termSearchQuery, maxResults);
         assertEquals(documents.length, 1);
     }
-
 
     @AfterClass
     public static void deleteIndex() throws IOException {

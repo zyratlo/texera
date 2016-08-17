@@ -77,11 +77,9 @@ public class Data {
 
     };
 
-
     public static News[] getNewes() {
         return newses;
     }
-
 
     public static News getNews(String id) {
         for (News news : newses) {

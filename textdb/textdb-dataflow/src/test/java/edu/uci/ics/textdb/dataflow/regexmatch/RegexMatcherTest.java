@@ -37,7 +37,6 @@ public class RegexMatcherTest {
         System.out.println();
     }
 
-
     @Test
     public void testGetNextTuplePeopleFirstName() throws Exception {
         List<ITuple> data = TestConstants.getSamplePeopleTuples();
@@ -69,7 +68,6 @@ public class RegexMatcherTest {
 
         testHelper.cleanUp();
     }
-
 
     @Test
     public void testGetNextTupleCorpURL() throws Exception {
@@ -103,7 +101,6 @@ public class RegexMatcherTest {
 
         testHelper.cleanUp();
     }
-
 
     @Test
     public void testGetNextTupleCorpIP() throws Exception {
@@ -146,7 +143,6 @@ public class RegexMatcherTest {
         testHelper.cleanUp();
     }
 
-
     @Test
     public void testGetNextTupleStaffEmail() throws Exception {
         List<ITuple> data = RegexTestConstantStaff.getSampleStaffTuples();
@@ -179,7 +175,6 @@ public class RegexMatcherTest {
 
         testHelper.cleanUp();
     }
-
 
     @Test
     public void testRegexText1() throws Exception {
@@ -223,7 +218,6 @@ public class RegexMatcherTest {
 
         testHelper.cleanUp();
     }
-
 
     @Test
     public void testRegexText2() throws Exception {
@@ -270,7 +264,6 @@ public class RegexMatcherTest {
         testHelper.cleanUp();
     }
 
-
     @Test
     public void testRegexText3() throws Exception {
         List<ITuple> data = RegexTestConstantsText.getSampleTextTuples();
@@ -314,7 +307,6 @@ public class RegexMatcherTest {
         testHelper.cleanUp();
     }
 
-
     @Test
     public void testRegexText4() throws Exception {
         List<ITuple> data = RegexTestConstantsText.getSampleTextTuples();
@@ -340,7 +332,6 @@ public class RegexMatcherTest {
 
         testHelper.cleanUp();
     }
-
 
     @Test
     public void testRegexWithLimit() throws Exception {
@@ -383,7 +374,6 @@ public class RegexMatcherTest {
         Assert.assertEquals(expectedResults.size(), 3);
         Assert.assertEquals(exactResultsWithLimit.size(), 2);
     }
-
 
     @Test
     public void testRegexWithLimitOffset() throws Exception {

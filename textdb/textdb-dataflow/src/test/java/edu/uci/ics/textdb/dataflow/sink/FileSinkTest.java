@@ -17,14 +17,12 @@ public class FileSinkTest {
     private IOperator childOperator;
     private File file;
 
-
     @Before
     public void setUp() throws FileNotFoundException {
         childOperator = Mockito.mock(IOperator.class);
         file = new File("sample.txt");
         fileSink = new FileSink(childOperator, file);
     }
-
 
     @After
     public void cleanUp() {
@@ -33,7 +31,6 @@ public class FileSinkTest {
         }
     }
 
-
     @Test
     public void testOpen() throws Exception {
         fileSink.open();
@@ -41,14 +38,12 @@ public class FileSinkTest {
         Mockito.verify(childOperator).open();
     }
 
-
     @Test
     public void testClose() throws Exception {
         fileSink.close();
         // verify that childOperator called close() method
         Mockito.verify(childOperator).close();
     }
-
 
     @Test
     public void testProcessTuples() throws Exception {

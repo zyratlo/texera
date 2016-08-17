@@ -16,7 +16,6 @@ import org.junit.Test;
 public class LuceneQueryExampleTest {
     LuceneNgramQueryExample queryExample;
 
-
     @Before
     public void setUp() throws Exception {
         URL fileURL = LuceneQueryExampleTest.class.getResource("/team3/team3datafile.txt");
@@ -24,11 +23,9 @@ public class LuceneQueryExampleTest {
         queryExample.buildNGramIndex();
     }
 
-
     @After
     public void tearDown() throws Exception {
     }
-
 
     @Test
     public void queryNetworkShouldReturnTwoDocuments() throws Exception {

@@ -35,7 +35,6 @@ public class RegexMatcherTestHelper {
 
     Schema inputSchema;
 
-
     public RegexMatcherTestHelper(Schema schema, List<ITuple> data) throws Exception {
         inputSchema = schema;
         dataStore = new DataStore(DataConstants.INDEX_DIR, schema);
@@ -48,31 +47,25 @@ public class RegexMatcherTestHelper {
         results = new ArrayList<ITuple>();
     }
 
-
     public List<ITuple> getResults() {
         return results;
     }
-
 
     public Schema getSpanSchema() {
         return Utils.createSpanSchema(inputSchema);
     }
 
-
     public void runTest(String regex, Attribute attribute) throws Exception {
         runTest(regex, attribute, true);
     }
-
 
     public void runTest(String regex, Attribute attribute, boolean useTranslator) throws Exception {
         runTest(regex, attribute, useTranslator, Integer.MAX_VALUE, 0);
     }
 
-
     public void runTest(String regex, Attribute attribute, boolean useTranslator, int limit) throws Exception {
         runTest(regex, attribute, useTranslator, limit, 0);
     }
-
 
     public void runTest(String regex, Attribute attribute, boolean useTranslator, int limit, int offset)
             throws Exception {
@@ -93,7 +86,6 @@ public class RegexMatcherTestHelper {
         }
         regexMatcher.close();
     }
-
 
     public void cleanUp() throws Exception {
         dataWriter.clearData();

@@ -10,10 +10,8 @@ public class News {
     private String category;
     private String text;
 
-
     public News() {
     }
-
 
     public News(String id, String title, String category, String text) {
         this.id = id;
@@ -22,21 +20,17 @@ public class News {
         this.text = text;
     }
 
-
     public String getId() {
         return this.id;
     }
-
 
     public String getTitle() {
         return this.title;
     }
 
-
     public String getCategory() {
         return this.category;
     }
-
 
     public String getText() {
         return this.text;

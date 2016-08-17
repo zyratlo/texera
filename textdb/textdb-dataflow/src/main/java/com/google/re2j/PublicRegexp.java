@@ -54,7 +54,6 @@ public class PublicRegexp extends Regexp {
     // publicSubs are an array of subexpressions with type PublicRegexp
     PublicRegexp[] publicSubs;
 
-
     /**
      * This calls the shallow copy constructor in Regexp superclass, which only
      * copies reference to subexpressions array. <br>
@@ -62,7 +61,6 @@ public class PublicRegexp extends Regexp {
     private PublicRegexp(Regexp that) {
         super(that);
     }
-
 
     /**
      * This performs a deep copy of a Regexp object. Every Regexp Object in
@@ -125,7 +123,6 @@ public class PublicRegexp extends Regexp {
         LEFT_PAREN, VERTICAL_BAR;
     }
 
-
     /**
      * This returns the op's type, {@link PublicOp}, which is equivalent to
      * Regexp.Op. <br>
@@ -141,7 +138,6 @@ public class PublicRegexp extends Regexp {
 
     }
 
-
     /**
      * This returns a bitmap of parse flags. <br>
      * 
@@ -152,7 +148,6 @@ public class PublicRegexp extends Regexp {
         return this.flags;
     }
 
-
     /**
      * This returns an array of sub-expressions with type PublicRegexp. <br>
      * 
@@ -161,7 +156,6 @@ public class PublicRegexp extends Regexp {
     public PublicRegexp[] getSubs() {
         return this.publicSubs;
     }
-
 
     /**
      * Runes are a sequence of characters. It stores information related to
@@ -183,7 +177,6 @@ public class PublicRegexp extends Regexp {
         return this.runes;
     }
 
-
     /**
      * Min and Max are used for repetitions numbers. <br>
      * <p>
@@ -197,7 +190,6 @@ public class PublicRegexp extends Regexp {
         return this.min;
     }
 
-
     /**
      * @see getMin
      * @return an int indicating maxinum number of repetitions
@@ -205,7 +197,6 @@ public class PublicRegexp extends Regexp {
     public int getMax() {
         return this.max;
     }
-
 
     /**
      * Cap is the capturing index. Expressions in () become a capture group. The
@@ -222,7 +213,6 @@ public class PublicRegexp extends Regexp {
     public int getCap() {
         return this.cap;
     }
-
 
     /**
      * Name is capturing group's name (if any). <br>

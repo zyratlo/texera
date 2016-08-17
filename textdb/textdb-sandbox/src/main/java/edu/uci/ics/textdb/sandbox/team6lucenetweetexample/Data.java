@@ -21,11 +21,9 @@ public class Data {
             new Tweet("1467812416", "Mon Apr 06 22:20:16 PDT 2009", "erinx3leannexo",
                     "spring break in plain city... it's snowing "), };
 
-
     public static Tweet[] getTweets() {
         return TWEETS;
     }
-
 
     public static Tweet getTweet(String id) {
         for (Tweet tweet : TWEETS) {

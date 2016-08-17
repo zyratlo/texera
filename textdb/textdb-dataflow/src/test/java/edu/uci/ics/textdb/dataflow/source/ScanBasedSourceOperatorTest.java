@@ -45,7 +45,6 @@ public class ScanBasedSourceOperatorTest {
     private Query query;
     private DataReaderPredicate dataReaderPredicate;
 
-
     @Before
     public void setUp() throws Exception {
         dataStore = new DataStore(DataConstants.INDEX_DIR, TestConstants.SCHEMA_PEOPLE);
@@ -62,12 +61,10 @@ public class ScanBasedSourceOperatorTest {
         scanBasedSourceOperator = new ScanBasedSourceOperator(dataReader);
     }
 
-
     @After
     public void cleanUp() throws Exception {
         dataWriter.clearData();
     }
-
 
     @Test
     public void testFlow() throws DataFlowException, ParseException {

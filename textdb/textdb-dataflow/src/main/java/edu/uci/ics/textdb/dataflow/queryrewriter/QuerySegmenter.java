@@ -43,7 +43,6 @@ public class QuerySegmenter {
         }
     }
 
-
     /**
      * When called returns a single-member list containing most-likely
      * tokenization of query string Splits query string into terms by whitespace
@@ -68,7 +67,6 @@ public class QuerySegmenter {
         rewrittenQuery = rewrittenQuery.substring(1);
         return Arrays.asList(rewrittenQuery);
     }
-
 
     /**
      * Performs most likely tokenization of a single term Uses Dynamic
@@ -121,7 +119,6 @@ public class QuerySegmenter {
         return tokenizedQuery.substring(1);
     }
 
-
     /**
      * When called returns array of rewritten query strings Splits query string
      * into delimited (by default, it is delimited using a space) terms For each
@@ -140,7 +137,6 @@ public class QuerySegmenter {
             allTermsList.add(rewriteTermBruteForce(term));
         return crossCatenate(allTermsList);
     }
-
 
     /**
      * Wrapper over main recursive method, rewriteBrute which performs the fuzzy
@@ -163,7 +159,6 @@ public class QuerySegmenter {
             termsList.add(term);
         return termsList;
     }
-
 
     /**
      * Main recursive algorithm to find possible query strings that original
@@ -199,7 +194,6 @@ public class QuerySegmenter {
         return queryList;
     }
 
-
     /**
      * Function to perform a cross product concatenation of separate rewritten
      * term lists For example if there are K lists: <l1>,<l2>,<l3>,...,<lK>
@@ -227,7 +221,6 @@ public class QuerySegmenter {
 
         return crossList;
     }
-
 
     /**
      * Function that takes in a list and a number n and returns a list that is

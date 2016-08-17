@@ -49,7 +49,6 @@ public class SubstringMatcherTest {
     private DataStore dataStore;
     private Analyzer luceneAnalyzer;
 
-
     @Before
     public void setUp() throws Exception {
         dataStore = new DataStore(DataConstants.INDEX_DIR, TestConstants.SCHEMA_PEOPLE);
@@ -59,12 +58,10 @@ public class SubstringMatcherTest {
         dataWriter.writeData(TestConstants.getSamplePeopleTuples());
     }
 
-
     @After
     public void cleanUp() throws Exception {
         dataWriter.clearData();
     }
-
 
     /**
      * For a given string query & list of attributes it gets a list of results
@@ -99,7 +96,6 @@ public class SubstringMatcherTest {
         return results;
     }
 
-
     /**
      * Verifies Substring Matcher where Query phrase does not exist in any
      * document.
@@ -121,7 +117,6 @@ public class SubstringMatcherTest {
         // Perform Check
         Assert.assertEquals(0, results.size());
     }
-
 
     /**
      * Verifies List<ITuple> returned by Substring Matcher on query with
@@ -165,7 +160,6 @@ public class SubstringMatcherTest {
         Assert.assertTrue(contains);
     }
 
-
     /**
      * Verifies: Verifies List<ITuple> returned multiple results by Substring
      * Matcher on query with spaces on both left side and right side.
@@ -208,7 +202,6 @@ public class SubstringMatcherTest {
         boolean contains = TestUtils.containsAllResults(expectedResultList, resultList);
         Assert.assertTrue(contains);
     }
-
 
     /**
      * Verifies: Verifies List<ITuple> returned multiple results by Substring

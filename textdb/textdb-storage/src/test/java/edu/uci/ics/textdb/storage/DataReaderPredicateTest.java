@@ -20,7 +20,6 @@ public class DataReaderPredicateTest {
     private IDataStore dataStore;
     private Query luceneQuery;
 
-
     @Before
     public void setUp() throws ParseException {
         dataStore = new DataStore(DataConstants.INDEX_DIR, TestConstants.SCHEMA_PEOPLE);
@@ -30,7 +29,6 @@ public class DataReaderPredicateTest {
         dataReaderPredicate = new DataReaderPredicate(luceneQuery, DataConstants.SCAN_QUERY, dataStore,
                 Arrays.asList(TestConstants.ATTRIBUTES_PEOPLE), new StandardAnalyzer());
     }
-
 
     @Test
     public void testGetters() {

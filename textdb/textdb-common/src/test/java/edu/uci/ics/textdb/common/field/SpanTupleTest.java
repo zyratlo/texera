@@ -22,12 +22,10 @@ public class SpanTupleTest {
 
     private ITuple spanTuple;
 
-
     @Before
     public void setUp() {
 
     }
-
 
     @Test
     public void testGetters() throws ParseException {
@@ -53,7 +51,6 @@ public class SpanTupleTest {
         Assert.assertSame(spanField, spanFieldRetrieved);
 
     }
-
 
     private IField createSpanListField() {
         List<Span> list = new ArrayList<Span>();

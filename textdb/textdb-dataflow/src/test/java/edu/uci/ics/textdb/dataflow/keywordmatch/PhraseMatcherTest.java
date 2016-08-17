@@ -49,7 +49,6 @@ public class PhraseMatcherTest {
     private DataStore dataStore;
     private Analyzer luceneAnalyzer;
 
-
     @Before
     public void setUp() throws Exception {
         dataStore = new DataStore(DataConstants.INDEX_DIR, TestConstants.SCHEMA_PEOPLE);
@@ -59,12 +58,10 @@ public class PhraseMatcherTest {
         dataWriter.writeData(TestConstants.getSamplePeopleTuples());
     }
 
-
     @After
     public void cleanUp() throws Exception {
         dataWriter.clearData();
     }
-
 
     /**
      * For a given string query & list of attributes it gets a list of results
@@ -101,7 +98,6 @@ public class PhraseMatcherTest {
         return results;
     }
 
-
     /**
      * Verifies Phrase Matcher where Query phrase doesn't exist in any document.
      * 
@@ -122,7 +118,6 @@ public class PhraseMatcherTest {
         // Perform Check
         Assert.assertEquals(0, results.size());
     }
-
 
     /**
      * Verifies List<ITuple> returned by Phrase Matcher on multiple word query
@@ -165,7 +160,6 @@ public class PhraseMatcherTest {
         boolean contains = TestUtils.containsAllResults(expectedResultList, resultList);
         Assert.assertTrue(contains);
     }
-
 
     /**
      * Verifies: getNextTuple should return Combined Span info for the phrase
@@ -213,7 +207,6 @@ public class PhraseMatcherTest {
         Assert.assertTrue(contains);
     }
 
-
     /**
      * Verifies: Query with Stop Words match corresponding phrases in the
      * document
@@ -257,7 +250,6 @@ public class PhraseMatcherTest {
         Assert.assertTrue(contains);
     }
 
-
     /**
      * Verifies: Query with Stop Words match corresponding phrases in the
      * document
@@ -300,7 +292,6 @@ public class PhraseMatcherTest {
         boolean contains = TestUtils.containsAllResults(expectedResultList, resultList);
         Assert.assertTrue(contains);
     }
-
 
     /**
      * Verifies: Query with Stop Words match corresponding phrases with Medline
@@ -372,7 +363,6 @@ public class PhraseMatcherTest {
         Assert.assertTrue(contains);
     }
 
-
     /**
      * Verifies: Query with Stop Words match corresponding phrases in the
      * document Used to cause exception if there is a special symbol with the
@@ -438,7 +428,6 @@ public class PhraseMatcherTest {
         boolean contains = TestUtils.containsAllResults(expectedResultList, results);
         Assert.assertTrue(contains);
     }
-
 
     /**
      * Verifies: Query with Stop Words match corresponding phrases in the

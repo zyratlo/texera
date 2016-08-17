@@ -16,11 +16,9 @@ public class Data {
 
     };
 
-
     public static Book[] getBooks() {
         return BOOKS;
     }
-
 
     public static Book getBook(String id) {
         for (Book book : BOOKS) {

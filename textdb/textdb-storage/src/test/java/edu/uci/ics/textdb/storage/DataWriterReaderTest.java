@@ -33,7 +33,6 @@ public class DataWriterReaderTest {
     private Analyzer luceneAnalyzer;
     private Query query;
 
-
     @Before
     public void setUp() throws ParseException {
         dataStore = new DataStore(DataConstants.INDEX_DIR, TestConstants.SCHEMA_PEOPLE);
@@ -45,7 +44,6 @@ public class DataWriterReaderTest {
                 Arrays.asList(TestConstants.ATTRIBUTES_PEOPLE), luceneAnalyzer);
         dataReader = new DataReader(dataReaderPredicate);
     }
-
 
     @Test
     public void testReadWriteData() throws Exception {
@@ -66,7 +64,6 @@ public class DataWriterReaderTest {
         Assert.assertTrue(contains);
         dataReader.close();
     }
-
 
     public static boolean containsAllResults(List<ITuple> expectedResults, List<ITuple> exactResults) {
         expectedResults = Utils.removePayload(expectedResults);

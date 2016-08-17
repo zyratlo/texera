@@ -18,12 +18,10 @@ public class LuceneDemoTest {
     private Indexer indexer;
     private Searcher searcher;
 
-
     @Before
     public void setUp() throws IOException {
         indexer = new Indexer();
     }
-
 
     @Test
     public void testIndexing() throws IOException {
@@ -31,7 +29,6 @@ public class LuceneDemoTest {
         indexer.rebuildIndexes();
         System.out.println("Finished Indexing");
     }
-
 
     @Test
     public void testIndexingAndSearching() throws IOException, ParseException {

@@ -8,12 +8,9 @@ import java.util.List;
 public interface ITuple {
     IField getField(int index);
 
-
     IField getField(String fieldName);
 
-
     List<IField> getFields();
-
 
     Schema getSchema();
 }

@@ -10,7 +10,6 @@ public class Hotel {
     public Hotel() {
     }
 
-
     /** Creates a new instance of Accommodation */
     public Hotel(String id, String name, String city, String description) {
         this.id = id;
@@ -24,7 +23,6 @@ public class Hotel {
      */
     private String name;
 
-
     /**
      * Getter for property title.
      * 
@@ -33,7 +31,6 @@ public class Hotel {
     public String getName() {
         return this.name;
     }
-
 
     /**
      * Setter for property title.
@@ -50,7 +47,6 @@ public class Hotel {
      */
     private String id;
 
-
     /**
      * Getter for property id.
      * 
@@ -59,7 +55,6 @@ public class Hotel {
     public String getId() {
         return this.id;
     }
-
 
     /**
      * Setter for property id.
@@ -76,7 +71,6 @@ public class Hotel {
      */
     private String description;
 
-
     /**
      * Getter for property details.
      * 
@@ -85,7 +79,6 @@ public class Hotel {
     public String getDescription() {
         return this.description;
     }
-
 
     /**
      * Setter for property details.
@@ -102,7 +95,6 @@ public class Hotel {
      */
     private String city;
 
-
     /**
      * Getter for property city.
      * 
@@ -111,7 +103,6 @@ public class Hotel {
     public String getCity() {
         return this.city;
     }
-
 
     /**
      * Setter for property city.
@@ -122,7 +113,6 @@ public class Hotel {
     public void setCity(String city) {
         this.city = city;
     }
-
 
     @Override
     public String toString() {

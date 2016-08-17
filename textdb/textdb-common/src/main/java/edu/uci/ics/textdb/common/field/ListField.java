@@ -9,17 +9,14 @@ public class ListField<T> implements IField {
 
     private List<T> list;
 
-
     public ListField(List<T> list) {
         this.list = list;
     }
-
 
     @Override
     public List<T> getValue() {
         return list;
     }
-
 
     @Override
     public int hashCode() {
@@ -28,7 +25,6 @@ public class ListField<T> implements IField {
         result = prime * result + ((list == null) ? 0 : list.hashCode());
         return result;
     }
-
 
     @Override
     public boolean equals(Object obj) {
@@ -48,7 +44,6 @@ public class ListField<T> implements IField {
             return false;
         return true;
     }
-
 
     @Override
     public String toString() {

@@ -62,13 +62,11 @@ public class RegexToGramQueryTranslatorTest {
         System.out.println();
     }
 
-
     // Helper function to transform a list of strings to a list of Leaf Node
     private List<GramBooleanQuery> getLeafNodeList(String... leafStringArray) {
         return Arrays.asList(leafStringArray).stream().map(x -> GramBooleanQuery.newLeafNode(x))
                 .collect(Collectors.toList());
     }
-
 
     @Test
     public void testEmptyRegex() {
@@ -84,7 +82,6 @@ public class RegexToGramQueryTranslatorTest {
         Assert.assertEquals(exactQuery, expectedQuery);
     }
 
-
     @Test
     public void testStarRegex() {
         String regex = "a*";
@@ -99,7 +96,6 @@ public class RegexToGramQueryTranslatorTest {
         Assert.assertEquals(exactQuery, expectedQuery);
     }
 
-
     @Test
     public void testLiteral1() {
         String regex = "abc";
@@ -113,7 +109,6 @@ public class RegexToGramQueryTranslatorTest {
         Assert.assertEquals(expectedQuery, exactQuery);
         Assert.assertEquals(exactQuery, expectedQuery);
     }
-
 
     // "ab" can't form a gram(default length 3), so the result is an empty OR
     // node.
@@ -131,7 +126,6 @@ public class RegexToGramQueryTranslatorTest {
         Assert.assertEquals(exactQuery, expectedQuery);
     }
 
-
     @Test
     public void testLiteral3() {
         String regex = "abcd";
@@ -147,7 +141,6 @@ public class RegexToGramQueryTranslatorTest {
         Assert.assertEquals(expectedQuery, exactQuery);
         Assert.assertEquals(exactQuery, expectedQuery);
     }
-
 
     @Test
     public void testLiteral4() {
@@ -165,7 +158,6 @@ public class RegexToGramQueryTranslatorTest {
         Assert.assertEquals(exactQuery, expectedQuery);
     }
 
-
     @Test
     public void testLiteral5() {
         String regex = "textdb";
@@ -181,7 +173,6 @@ public class RegexToGramQueryTranslatorTest {
         Assert.assertEquals(expectedQuery, exactQuery);
         Assert.assertEquals(exactQuery, expectedQuery);
     }
-
 
     @Test
     public void testCharClass1() {
@@ -199,7 +190,6 @@ public class RegexToGramQueryTranslatorTest {
         Assert.assertEquals(exactQuery, expectedQuery);
     }
 
-
     @Test
     public void testAlternate1() {
         String regex = "uci|ics";
@@ -215,7 +205,6 @@ public class RegexToGramQueryTranslatorTest {
         Assert.assertEquals(expectedQuery, exactQuery);
         Assert.assertEquals(exactQuery, expectedQuery);
     }
-
 
     @Test
     public void testAlternate2() {
@@ -239,7 +228,6 @@ public class RegexToGramQueryTranslatorTest {
         Assert.assertEquals(exactQuery, expectedQuery);
     }
 
-
     @Test
     public void testPlus1() {
         String regex = "abc+";
@@ -253,7 +241,6 @@ public class RegexToGramQueryTranslatorTest {
         Assert.assertEquals(expectedQuery, exactQuery);
         Assert.assertEquals(exactQuery, expectedQuery);
     }
-
 
     @Test
     public void testPlus2() {
@@ -271,7 +258,6 @@ public class RegexToGramQueryTranslatorTest {
         Assert.assertEquals(exactQuery, expectedQuery);
     }
 
-
     @Test
     public void testQuest1() {
         String regex = "abc?";
@@ -285,7 +271,6 @@ public class RegexToGramQueryTranslatorTest {
         Assert.assertEquals(expectedQuery, exactQuery);
         Assert.assertEquals(exactQuery, expectedQuery);
     }
-
 
     @Test
     public void testQuest2() {
@@ -309,7 +294,6 @@ public class RegexToGramQueryTranslatorTest {
         Assert.assertEquals(exactQuery, expectedQuery);
     }
 
-
     @Test
     // RE2J will simplify REPEAT to equivalent form with QUEST.
     // abc{1,3} will be simplified to abcc?c?
@@ -326,7 +310,6 @@ public class RegexToGramQueryTranslatorTest {
         Assert.assertEquals(exactQuery, expectedQuery);
     }
 
-
     @Test
     public void testCapture1() {
         String regex = "(abc)(qwer)";
@@ -340,7 +323,6 @@ public class RegexToGramQueryTranslatorTest {
         Assert.assertEquals(expectedQuery, exactQuery);
         Assert.assertEquals(exactQuery, expectedQuery);
     }
-
 
     @Test
     public void testRegexCropUrl() {
