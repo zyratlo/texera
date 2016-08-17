@@ -6,39 +6,38 @@ import java.util.List;
 import java.util.Map;
 
 public class Schema {
-	private List<Attribute> attributes;
+    private List<Attribute> attributes;
     private Map<String, Integer> fieldNameVsIndex;
-    
-    public Schema(Attribute... attributes){
-        //Converting to java.util.Arrays.ArrayList 
-        //so that the collection remains static and cannot be extended/shrunk
-        //This makes List<Attribute> partially immutable. 
-        //Partial because we can still replace an element at particular index.
+
+    public Schema(Attribute... attributes) {
+        // Converting to java.util.Arrays.ArrayList
+        // so that the collection remains static and cannot be extended/shrunk
+        // This makes List<Attribute> partially immutable.
+        // Partial because we can still replace an element at particular index.
         this.attributes = Arrays.asList(attributes);
         populateFieldNameVsIndexMap();
     }
-    
+
     private void populateFieldNameVsIndexMap() {
         fieldNameVsIndex = new HashMap<String, Integer>();
         for (int count = 0; count < attributes.size(); count++) {
             String fieldName = attributes.get(count).getFieldName();
-            fieldNameVsIndex.put(fieldName, count);
+            fieldNameVsIndex.put(fieldName.toLowerCase(), count);
         }
     }
 
     public List<Attribute> getAttributes() {
         return attributes;
     }
-    
-    public Integer getIndex(String fieldName){
-        return fieldNameVsIndex.get(fieldName);
+
+    public Integer getIndex(String fieldName) {
+        return fieldNameVsIndex.get(fieldName.toLowerCase());
     }
-    
+
     public boolean containsField(String fieldName) {
-        return fieldNameVsIndex.keySet().contains(fieldName);
+        return fieldNameVsIndex.keySet().contains(fieldName.toLowerCase());
     }
-    
-    
+
     @Override
     public int hashCode() {
         final int prime = 31;

@@ -27,41 +27,37 @@ public class Searcher {
 
     /** Creates a new instance of SearchEngine */
     public Searcher() throws IOException {
-        searcher = new IndexSearcher(DirectoryReader.open(FSDirectory
-                .open(Paths.get(INDEX_DIR))));
+        searcher = new IndexSearcher(DirectoryReader.open(FSDirectory.open(Paths.get(INDEX_DIR))));
         parser = new QueryParser(CONTENT_FIELD, new StandardAnalyzer());
     }
 
-    public TopDocs performSearch(String queryString, int n) throws IOException,
-            ParseException {
+    public TopDocs performSearch(String queryString, int n) throws IOException, ParseException {
         Query query = parser.parse(queryString);
         return searcher.search(query, n);
     }
-    
+
     public SpanTermQuery makeSpanTermQuery(String text) {
-    	Term t = new Term("content",text);
+        Term t = new Term("content", text);
         return new SpanTermQuery(t);
     }
 
     public Document getDocument(int docId) throws IOException {
         return searcher.doc(docId);
     }
+
     public IndexReader getIndexReader() throws IOException {
         return searcher.getIndexReader();
-    } 
+    }
+
     public IndexSearcher getSearcher() throws IOException {
         return searcher;
     }
-    
-    
-    /*public SpanWeight createWeight(String queryString, boolean needsScores) throws IOException{
-    	Query query=null;
-		try {
-			query = parser.parse(queryString);
-		} catch (ParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-    }*/
+
+    /*
+     * public SpanWeight createWeight(String queryString, boolean needsScores)
+     * throws IOException{ Query query=null; try { query =
+     * parser.parse(queryString); } catch (ParseException e) { // TODO
+     * Auto-generated catch block e.printStackTrace(); } }
+     */
 
 }

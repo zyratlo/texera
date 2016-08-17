@@ -11,11 +11,9 @@ import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.dataflow.utils.TestUtils;
 
 /**
- * Created by kishorenarendran on 25/04/16.
- * Testing QueryRewriter
- * This test class tests the functionality of the QueryRewrite operator
- * this is done by feeding the class with different kinds of strings to
- * try the query rewriting.
+ * Created by kishorenarendran on 25/04/16. Testing QueryRewriter This test
+ * class tests the functionality of the QueryRewrite operator this is done by
+ * feeding the class with different kinds of strings to try the query rewriting.
  *
  * This includes query strings like - "newyorkcity", "horseshoe" and other
  * strings which stem from misspelled, missing spaces in search queries
@@ -24,6 +22,7 @@ public class QueryRewriterTest {
 
     /**
      * Tests the QueryRewriter operator with the string "horseshoe"
+     * 
      * @throws Exception
      */
     @Test
@@ -40,6 +39,7 @@ public class QueryRewriterTest {
 
     /**
      * Tests the QueryRewriter operator with the string "horse shoe"
+     * 
      * @throws Exception
      */
     @Test
@@ -56,6 +56,7 @@ public class QueryRewriterTest {
 
     /**
      * Tests the QueryRewriter operator with the string "newyork city"
+     * 
      * @throws Exception
      */
     @Test
@@ -72,6 +73,7 @@ public class QueryRewriterTest {
 
     /**
      * Tests the QueryRewriter operator with empty string ""
+     * 
      * @throws Exception
      */
     @Test
@@ -86,28 +88,34 @@ public class QueryRewriterTest {
         Assert.assertTrue(isSame);
     }
 
-    public static boolean queryRewriterTestBoilerplate(String query, List<String> expectedRewrittenStrings, List<String> expectedAllRewrittenStrings) throws Exception {
+    public static boolean queryRewriterTestBoilerplate(String query, List<String> expectedRewrittenStrings,
+            List<String> expectedAllRewrittenStrings) throws Exception {
 
         QueryRewriter queryRewriter = new QueryRewriter(query);
         queryRewriter.open();
         ITuple resultItuple = queryRewriter.getNextTuple();
-        ArrayList<String> rewrittenStrings = new ArrayList<String>((List<String>)resultItuple.getField(QueryRewriter.QUERYLIST).getValue());
+        ArrayList<String> rewrittenStrings = new ArrayList<String>(
+                (List<String>) resultItuple.getField(QueryRewriter.QUERYLIST).getValue());
         queryRewriter.close();
 
         QueryRewriter allQueryRewriter = new QueryRewriter(query, true);
         allQueryRewriter.open();
         resultItuple = allQueryRewriter.getNextTuple();
-        ArrayList<String> allRewrittenStrings = new ArrayList<String>((List<String>)resultItuple.getField(QueryRewriter.QUERYLIST).getValue());
+        ArrayList<String> allRewrittenStrings = new ArrayList<String>(
+                (List<String>) resultItuple.getField(QueryRewriter.QUERYLIST).getValue());
         queryRewriter.close();
 
-        boolean mostLikelyRewriteTest = TestUtils.containsAllResults(rewrittenStrings, new ArrayList<String>(expectedRewrittenStrings));
-        boolean allRewriteTest = TestUtils.containsAllResults(allRewrittenStrings, new ArrayList<String>(expectedAllRewrittenStrings));
+        boolean mostLikelyRewriteTest = TestUtils.containsAllResults(rewrittenStrings,
+                new ArrayList<String>(expectedRewrittenStrings));
+        boolean allRewriteTest = TestUtils.containsAllResults(allRewrittenStrings,
+                new ArrayList<String>(expectedAllRewrittenStrings));
 
         return (mostLikelyRewriteTest && allRewriteTest);
     }
 
     /**
      * Tests the necessity for method QueryRewriter.open()
+     * 
      * @throws Exception
      */
     @Test
@@ -125,7 +133,9 @@ public class QueryRewriterTest {
     }
 
     /**
-     * Tests that QueryRewriter can be used to return a one-time tuple containing list of all queries
+     * Tests that QueryRewriter can be used to return a one-time tuple
+     * containing list of all queries
+     * 
      * @throws Exception
      */
     @Test
@@ -150,6 +160,7 @@ public class QueryRewriterTest {
 
     /**
      * Tests that QueryRewriter.close() is effective in closing the operator
+     * 
      * @throws Exception
      */
     @Test

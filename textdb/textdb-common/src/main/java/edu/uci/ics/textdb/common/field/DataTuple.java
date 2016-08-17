@@ -17,10 +17,10 @@ public class DataTuple implements ITuple {
 
     public DataTuple(Schema schema, IField... fields) {
         this.schema = schema;
-        //Converting to java.util.Arrays.ArrayList 
-        //so that the collection remains static and cannot be extended/shrunk
-        //This makes List<IField> partially immutable. 
-        //Partial because we can still replace an element at particular index.
+        // Converting to java.util.Arrays.ArrayList
+        // so that the collection remains static and cannot be extended/shrunk
+        // This makes List<IField> partially immutable.
+        // Partial because we can still replace an element at particular index.
         this.fields = Arrays.asList(fields);
     }
 
@@ -28,8 +28,6 @@ public class DataTuple implements ITuple {
     public IField getField(int index) {
         return fields.get(index);
     }
-    
-    
 
     @Override
     public IField getField(String fieldName) {
@@ -38,38 +36,35 @@ public class DataTuple implements ITuple {
     }
 
     @Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((fields == null) ? 0 : fields.hashCode());
-		result = prime * result + ((schema == null) ? 0 : schema.hashCode());
-		return result;
-	}
-    
-    
-    
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((fields == null) ? 0 : fields.hashCode());
+        result = prime * result + ((schema == null) ? 0 : schema.hashCode());
+        return result;
+    }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		DataTuple other = (DataTuple) obj;
-		if (fields == null) {
-			if (other.fields != null)
-				return false;
-		} else if (!fields.equals(other.fields))
-			return false;
-		if (schema == null) {
-			if (other.schema != null)
-				return false;
-		} else if (!schema.equals(other.schema))
-			return false;
-		return true;
-	}
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        DataTuple other = (DataTuple) obj;
+        if (fields == null) {
+            if (other.fields != null)
+                return false;
+        } else if (!fields.equals(other.fields))
+            return false;
+        if (schema == null) {
+            if (other.schema != null)
+                return false;
+        } else if (!schema.equals(other.schema))
+            return false;
+        return true;
+    }
 
     @Override
     public String toString() {

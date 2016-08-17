@@ -44,12 +44,10 @@ public class NlpExtractorTest {
 
     private DataReaderPredicate dataReaderPredicate;
 
-
     @After
     public void cleanUp() throws Exception {
         dataWriter.clearData();
     }
-
 
     /**
      * @param sourceOperator
@@ -57,10 +55,11 @@ public class NlpExtractorTest {
      * @param nlpTokenType
      * @return
      * @throws Exception
-     * @about Using NlpExtractor to get all returned results from sourceOperator,
-     * return as a list of tuples
+     * @about Using NlpExtractor to get all returned results from
+     *        sourceOperator, return as a list of tuples
      */
-    public List<ITuple> getQueryResults(ISourceOperator sourceOperator, List<Attribute> attributes, NlpExtractor.NlpTokenType nlpTokenType) throws Exception {
+    public List<ITuple> getQueryResults(ISourceOperator sourceOperator, List<Attribute> attributes,
+            NlpExtractor.NlpTokenType nlpTokenType) throws Exception {
 
         nlpExtractor = new NlpExtractor(sourceOperator, attributes, nlpTokenType);
         nlpExtractor.open();
@@ -74,9 +73,8 @@ public class NlpExtractorTest {
     }
 
     /**
-     * Scenario 1: Test getNextTuple with only one span in the return list
-     * Text : Microsoft is a organization.
-     * Search for all NE_ALL token types
+     * Scenario 1: Test getNextTuple with only one span in the return list Text
+     * : Microsoft is a organization. Search for all NE_ALL token types
      *
      * @throws Exception
      */
@@ -99,8 +97,8 @@ public class NlpExtractorTest {
 
     /**
      * Scenario 2: Test getNextTuple with more than one span in the return list
-     * Text: Microsoft, Google and Facebook are organizations
-     * Search for all NE_ALL token types
+     * Text: Microsoft, Google and Facebook are organizations Search for all
+     * NE_ALL token types
      */
     @Test
     public void getNextTupleTest2() throws Exception {
@@ -120,8 +118,9 @@ public class NlpExtractorTest {
     }
 
     /**
-     * Scenario 3: Test getNextTuple with more than one span in the return list and with different recognized classes.
-     * Text: Microsoft, Google and Facebook are organizations and Donald Trump and Barack Obama are persons.
+     * Scenario 3: Test getNextTuple with more than one span in the return list
+     * and with different recognized classes. Text: Microsoft, Google and
+     * Facebook are organizations and Donald Trump and Barack Obama are persons.
      * Search for all NE_ALL token types
      */
     @Test
@@ -141,14 +140,14 @@ public class NlpExtractorTest {
         Assert.assertTrue(contains);
     }
 
-
     /**
-     * Scenario 4:Test getNextTuple with more than one span in the return list and with different recognized classes
-     * and more than one fields in the source tuple.
+     * Scenario 4:Test getNextTuple with more than one span in the return list
+     * and with different recognized classes and more than one fields in the
+     * source tuple.
      * <p>
-     * Sentence1: Microsoft, Google and Facebook are organizations.
-     * Sentence2: Donald Trump and Barack Obama are persons.
-     * Search for all NE_ALL token types
+     * Sentence1: Microsoft, Google and Facebook are organizations. Sentence2:
+     * Donald Trump and Barack Obama are persons. Search for all NE_ALL token
+     * types
      */
     @Test
     public void getNextTupleTest4() throws Exception {
@@ -167,16 +166,14 @@ public class NlpExtractorTest {
 
         boolean contains = TestUtils.containsAllResults(expectedResults, returnedResults);
 
-
         Assert.assertTrue(contains);
     }
-
 
     /**
      * Scenario 5:Test getNextTuple using two fields:
      * <p>
-     * Sentence1: Microsoft, Google and Facebook are organizations.
-     * Sentence2: Donald Trump and Barack Obama are persons.
+     * Sentence1: Microsoft, Google and Facebook are organizations. Sentence2:
+     * Donald Trump and Barack Obama are persons.
      * <p>
      * Only search the second field for all NE_ALL token types
      */
@@ -195,16 +192,14 @@ public class NlpExtractorTest {
 
         boolean contains = TestUtils.containsAllResults(expectedResults, returnedResults);
 
-
         Assert.assertTrue(contains);
     }
-
 
     /**
      * Scenario 6:Test getNextTuple using two fields:
      * <p>
-     * Sentence1: Microsoft, Google and Facebook are organizations.
-     * Sentence2: Donald Trump and Barack Obama are persons.
+     * Sentence1: Microsoft, Google and Facebook are organizations. Sentence2:
+     * Donald Trump and Barack Obama are persons.
      * <p>
      * Only search for Organization for all fields.
      */
@@ -220,7 +215,8 @@ public class NlpExtractorTest {
         attributes.add(attribute1);
         attributes.add(attribute2);
 
-        List<ITuple> returnedResults = getQueryResults(sourceOperator, attributes, NlpExtractor.NlpTokenType.Organization);
+        List<ITuple> returnedResults = getQueryResults(sourceOperator, attributes,
+                NlpExtractor.NlpTokenType.Organization);
 
         List<ITuple> expectedResults = NlpExtractorTestConstants.getTest6ResultTuples();
 
@@ -229,11 +225,10 @@ public class NlpExtractorTest {
         Assert.assertTrue(contains);
     }
 
-
     /**
-     * Scenario 7:Test getNextTuple using sentence:
-     * Sentence1: Feeling the warm sun rays beaming steadily down, the girl decided there was no need to wear a coat.
-     * Search for Adjective.
+     * Scenario 7:Test getNextTuple using sentence: Sentence1: Feeling the warm
+     * sun rays beaming steadily down, the girl decided there was no need to
+     * wear a coat. Search for Adjective.
      */
     @Test
     public void getNextTupleTest7() throws Exception {
@@ -254,9 +249,9 @@ public class NlpExtractorTest {
         Assert.assertTrue(contains);
     }
 
-
     /**
-     * @param schema The data schema
+     * @param schema
+     *            The data schema
      * @param data
      * @return
      * @throws Exception
@@ -269,7 +264,8 @@ public class NlpExtractorTest {
         dataWriter = new DataWriter(dataStore, analyzer);
         dataWriter.writeData(data);
 
-        QueryParser queryParser = new QueryParser(NlpExtractorTestConstants.ATTRIBUTES_ONE_SENTENCE.get(0).getFieldName(), analyzer);
+        QueryParser queryParser = new QueryParser(
+                NlpExtractorTestConstants.ATTRIBUTES_ONE_SENTENCE.get(0).getFieldName(), analyzer);
         query = queryParser.parse(DataConstants.SCAN_QUERY);
         dataReaderPredicate = new DataReaderPredicate(query, DataConstants.SCAN_QUERY, dataStore,
                 Arrays.asList(NlpExtractorTestConstants.ATTRIBUTES_ONE_SENTENCE.get(0)), analyzer);

@@ -25,7 +25,7 @@ import edu.uci.ics.textdb.storage.DataReaderPredicate;
  * In the worst case if this integer becomes 0, we will set it to 1. 
  */
 public class FuzzyTokenPredicate implements IPredicate {
-	
+
     private IDataStore dataStore;
     private String query;
     private Query luceneQuery;
@@ -36,13 +36,14 @@ public class FuzzyTokenPredicate implements IPredicate {
     private double thresholdRatio;
     private int threshold;
     private boolean isSpanInformationAdded;
-    
-    public FuzzyTokenPredicate(String query, IDataStore dataStore, List<Attribute> attributeList, Analyzer analyzer, double thresholdRatio, boolean isSpanInformationAdded) throws DataFlowException{
+
+    public FuzzyTokenPredicate(String query, IDataStore dataStore, List<Attribute> attributeList, Analyzer analyzer,
+            double thresholdRatio, boolean isSpanInformationAdded) throws DataFlowException {
         try {
-        	this.thresholdRatio = thresholdRatio;
-        	this.dataStore = dataStore;
-        	this.luceneAnalyzer = analyzer;
-        	this.isSpanInformationAdded= isSpanInformationAdded;
+            this.thresholdRatio = thresholdRatio;
+            this.dataStore = dataStore;
+            this.luceneAnalyzer = analyzer;
+            this.isSpanInformationAdded = isSpanInformationAdded;
             this.query = query;
             this.tokens = Utils.tokenizeQuery(analyzer, query);
             this.computeThreshold();
@@ -54,61 +55,70 @@ public class FuzzyTokenPredicate implements IPredicate {
             throw new DataFlowException(e.getMessage(), e);
         }
     }
-    public boolean getIsSpanInformationAdded(){
-    	return this.isSpanInformationAdded;
+
+    public boolean getIsSpanInformationAdded() {
+        return this.isSpanInformationAdded;
     }
+
     public List<Attribute> getAttributeList() {
-    	return this.attributeList;
+        return this.attributeList;
     }
+
     public int getThreshold() {
-    	return this.threshold;
+        return this.threshold;
     }
-    public ArrayList<String> getQueryTokens(){
-    	return this.tokens;
+
+    public ArrayList<String> getQueryTokens() {
+        return this.tokens;
     }
+
+    public Analyzer getLuceneAnalyzer() {
+        return luceneAnalyzer;
+    }
+
     private void extractSearchFields() {
-    	this.fields = new String[this.attributeList.size()];
-    	int i = 0;
-    	for( Attribute a : this.attributeList) {
-    		this.fields[i] = a.getFieldName();
-    		i++;
-    	}
-	}
+        this.fields = new String[this.attributeList.size()];
+        int i = 0;
+        for (Attribute a : this.attributeList) {
+            this.fields[i] = a.getFieldName();
+            i++;
+        }
+    }
 
     /*
-     * The input threshold given by the end-user (thresholdRatio data member) is a ratio
-     * but boolean search query requires integer as a threshold. In case if the the threshold 
-     * becomes 0, we will set it by default to 1.
+     * The input threshold given by the end-user (thresholdRatio data member) is
+     * a ratio but boolean search query requires integer as a threshold. In case
+     * if the the threshold becomes 0, we will set it by default to 1.
      */
-	public void computeThreshold() {
-		this.threshold = (int) (this.thresholdRatio * this.tokens.size());
-    	if(this.threshold == 0){
-    		this.threshold = 1;
-    	}
+    public void computeThreshold() {
+        this.threshold = (int) (this.thresholdRatio * this.tokens.size());
+        if (this.threshold == 0) {
+            this.threshold = 1;
+        }
     }
-	
-	
+
     private Query createLuceneQueryObject() throws ParseException {
-    	/*
-    	 * By default the boolean query takes 1024 # of clauses as the max limit.
-    	 * Since our input query has no limitaion on the number of tokens, we have to put a check.
-    	 */
-    	if(this.threshold > 1024)
-    		BooleanQuery.setMaxClauseCount(this.threshold + 1);
-    	BooleanQuery.Builder builder = new BooleanQuery.Builder();
-    	builder.setMinimumNumberShouldMatch(this.threshold);
-    	MultiFieldQueryParser qp = new MultiFieldQueryParser(fields, this.luceneAnalyzer);
-    	for(String s : this.tokens) {
-    		builder.add(qp.parse(s), Occur.SHOULD);
-    	}
-    	return builder.build();
+        /*
+         * By default the boolean query takes 1024 # of clauses as the max
+         * limit. Since our input query has no limitaion on the number of
+         * tokens, we have to put a check.
+         */
+        if (this.threshold > 1024)
+            BooleanQuery.setMaxClauseCount(this.threshold + 1);
+        BooleanQuery.Builder builder = new BooleanQuery.Builder();
+        builder.setMinimumNumberShouldMatch(this.threshold);
+        MultiFieldQueryParser qp = new MultiFieldQueryParser(fields, this.luceneAnalyzer);
+        for (String s : this.tokens) {
+            builder.add(qp.parse(s), Occur.SHOULD);
+        }
+        return builder.build();
     }
 
     public DataReaderPredicate getDataReaderPredicate() {
-    	DataReaderPredicate dataReaderPredicate = new DataReaderPredicate(this.luceneQuery,this.query,
-    			this.dataStore, this.attributeList, this.luceneAnalyzer);
-    	dataReaderPredicate.setIsSpanInformationAdded(this.isSpanInformationAdded);
-    	return dataReaderPredicate;
+        DataReaderPredicate dataReaderPredicate = new DataReaderPredicate(this.luceneQuery, this.query, this.dataStore,
+                this.attributeList, this.luceneAnalyzer);
+        dataReaderPredicate.setIsSpanInformationAdded(this.isSpanInformationAdded);
+        return dataReaderPredicate;
     }
 
 }

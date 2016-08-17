@@ -22,9 +22,10 @@ public class Dictionary implements IDictionary {
     private HashMap<String, Double> wordFrequencyMap;
 
     public Dictionary(Collection<String> dictionaryWords) {
-        //Using LinkedHashMap so that getNextValue() returns the words in order.
+        // Using LinkedHashMap so that getNextValue() returns the words in
+        // order.
         this.wordFrequencyMap = new LinkedHashMap<String, Double>();
-        for(String word: dictionaryWords) {
+        for (String word : dictionaryWords) {
             wordFrequencyMap.put(word, 0.0);
         }
     }
@@ -43,8 +44,7 @@ public class Dictionary implements IDictionary {
                 double frequency;
                 try {
                     frequency = Double.parseDouble(lineContents[1]);
-                }
-                catch (ArrayIndexOutOfBoundsException e) {
+                } catch (ArrayIndexOutOfBoundsException e) {
                     frequency = 1;
                 }
                 wordFrequencyMap.put(word, frequency);
@@ -70,7 +70,7 @@ public class Dictionary implements IDictionary {
      */
     @Override
     public String getNextValue() {
-        if(iterator == null){
+        if (iterator == null) {
             iterator = wordFrequencyMap.keySet().iterator();
         }
         if (iterator.hasNext()) {
@@ -84,13 +84,13 @@ public class Dictionary implements IDictionary {
     }
 
     public double getFrequency(String word) {
-        if(wordFrequencyMap.containsKey(word)) {
+        if (wordFrequencyMap.containsKey(word)) {
             return wordFrequencyMap.get(word);
         } else {
             return -1;
         }
     }
-    
+
     /**
      * Reset the cursor to the start of the dictionary.
      */

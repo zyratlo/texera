@@ -14,11 +14,17 @@ public class Tweet {
     public Tweet() {
     }
 
-    /** Creates a new instance of Tweet
-     * @param id Tweet ID
-     * @param date Tweet creation date
-     * @param user Tweet creator
-     * @param text Tweet text
+    /**
+     * Creates a new instance of Tweet
+     * 
+     * @param id
+     *            Tweet ID
+     * @param date
+     *            Tweet creation date
+     * @param user
+     *            Tweet creator
+     * @param text
+     *            Tweet text
      */
     public Tweet(String id, String date, String user, String text) {
         this.id = id;
@@ -40,7 +46,7 @@ public class Tweet {
      * Setter for property date.
      * 
      * @param id
-     * Set new value of id.
+     *            Set new value of id.
      */
     public void setId(String id) {
         this.id = id;
@@ -59,7 +65,7 @@ public class Tweet {
      * Setter for property date.
      * 
      * @param date
-     * Set new value of date.
+     *            Set new value of date.
      */
     public void setDate(String date) {
         this.date = date;
@@ -78,7 +84,7 @@ public class Tweet {
      * Setter for property user.
      * 
      * @param user
-     * Set new value of user.
+     *            Set new value of user.
      */
     public void setUser(String user) {
         this.user = user;
@@ -97,7 +103,7 @@ public class Tweet {
      * Setter for property text.
      * 
      * @param text
-     * Set new value of text.
+     *            Set new value of text.
      */
     public void setText(String text) {
         this.text = text;

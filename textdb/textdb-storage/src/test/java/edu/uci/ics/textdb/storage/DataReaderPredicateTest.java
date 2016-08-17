@@ -19,21 +19,22 @@ public class DataReaderPredicateTest {
     private DataReaderPredicate dataReaderPredicate;
     private IDataStore dataStore;
     private Query luceneQuery;
-    
+
     @Before
-    public void setUp() throws ParseException{
+    public void setUp() throws ParseException {
         dataStore = new DataStore(DataConstants.INDEX_DIR, TestConstants.SCHEMA_PEOPLE);
-        QueryParser luceneQueryParser = new QueryParser(
-                TestConstants.ATTRIBUTES_PEOPLE[0].getFieldName(), new  StandardAnalyzer());
+        QueryParser luceneQueryParser = new QueryParser(TestConstants.ATTRIBUTES_PEOPLE[0].getFieldName(),
+                new StandardAnalyzer());
         luceneQuery = luceneQueryParser.parse(DataConstants.SCAN_QUERY);
-        dataReaderPredicate = new DataReaderPredicate(luceneQuery,DataConstants.SCAN_QUERY, dataStore, Arrays.asList(TestConstants.ATTRIBUTES_PEOPLE), new StandardAnalyzer());
+        dataReaderPredicate = new DataReaderPredicate(luceneQuery, DataConstants.SCAN_QUERY, dataStore,
+                Arrays.asList(TestConstants.ATTRIBUTES_PEOPLE), new StandardAnalyzer());
     }
-    
+
     @Test
-    public void testGetters(){
+    public void testGetters() {
         IDataStore dataStoreReturned = dataReaderPredicate.getDataStore();
         Assert.assertSame(dataStore, dataStoreReturned);
-        
+
         Query queryReturned = dataReaderPredicate.getLuceneQuery();
         Assert.assertSame(luceneQuery, queryReturned);
     }

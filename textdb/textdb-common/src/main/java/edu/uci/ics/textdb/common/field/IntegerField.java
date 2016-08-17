@@ -2,14 +2,14 @@ package edu.uci.ics.textdb.common.field;
 
 import edu.uci.ics.textdb.api.common.IField;
 
-public class IntegerField implements IField{
-    
+public class IntegerField implements IField {
+
     private Integer value;
-    
-    public IntegerField(Integer value){
+
+    public IntegerField(Integer value) {
         this.value = value;
     }
-    
+
     @Override
     public Integer getValue() {
         return value;

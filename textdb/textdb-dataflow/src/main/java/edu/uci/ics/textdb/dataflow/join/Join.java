@@ -36,287 +36,263 @@ import edu.uci.ics.textdb.dataflow.common.JoinPredicate;
 
 public class Join implements IOperator {
 
-	private IOperator outerOperator;
-	private IOperator innerOperator;
-	private JoinPredicate joinPredicate;
-	// To indicate if next result from outer operator has to be obtained.
-	private boolean shouldIGetOuterOperatorNextTuple;
-	private ITuple outerTuple = null;
-	private ITuple innerTuple = null;
-	private List<ITuple> innerTupleList = new ArrayList<>();
-	// Cursor to maintain the position of tuple to be obtained from
-	// innerTupleList.
-	private Integer innerOperatorCursor = 0;
-	// Value to be used as key in Span.
-	// private Integer spanKey = 0;
+    private IOperator outerOperator;
+    private IOperator innerOperator;
+    private JoinPredicate joinPredicate;
+    // To indicate if next result from outer operator has to be obtained.
+    private boolean shouldIGetOuterOperatorNextTuple;
+    private ITuple outerTuple = null;
+    private ITuple innerTuple = null;
+    private List<ITuple> innerTupleList = new ArrayList<>();
+    // Cursor to maintain the position of tuple to be obtained from
+    // innerTupleList.
+    private Integer innerOperatorCursor = 0;
+    // Value to be used as key in Span.
+    // private Integer spanKey = 0;
 
-	/**
-	 * This constructor is used to set the operators whose output is to be
-	 * compared and joined and the predicate which specifies the fields and
-	 * constraints over which join happens.
-	 * 
-	 * @param outer
-	 *            is the outer operator producing the tuples
-	 * @param inner
-	 *            is the inner operator producing the tuples
-	 * @param joinPredicate
-	 *            is the predicate over which the join is made
-	 */
-	public Join(IOperator outerOperator, IOperator innerOperator, JoinPredicate joinPredicate) {
-		this.outerOperator = outerOperator;
-		this.innerOperator = innerOperator;
-		this.joinPredicate = joinPredicate;
-	}
+    /**
+     * This constructor is used to set the operators whose output is to be
+     * compared and joined and the predicate which specifies the fields and
+     * constraints over which join happens.
+     * 
+     * @param outer
+     *            is the outer operator producing the tuples
+     * @param inner
+     *            is the inner operator producing the tuples
+     * @param joinPredicate
+     *            is the predicate over which the join is made
+     */
+    public Join(IOperator outerOperator, IOperator innerOperator, JoinPredicate joinPredicate) {
+        this.outerOperator = outerOperator;
+        this.innerOperator = innerOperator;
+        this.joinPredicate = joinPredicate;
+    }
 
-	@Override
-	public void open() throws Exception, DataFlowException {
-		if (!(joinPredicate.getjoinAttribute().getFieldType()
-				.equals(FieldType.STRING)
-				|| joinPredicate.getjoinAttribute().getFieldType()
-				.equals(FieldType.TEXT))) {
-			throw new Exception(
-					"Fields other than \"STRING\" and \"TEXT\" are not supported by Join yet.");
-		}
+    @Override
+    public void open() throws Exception, DataFlowException {
+        if (!(joinPredicate.getjoinAttribute().getFieldType().equals(FieldType.STRING)
+                || joinPredicate.getjoinAttribute().getFieldType().equals(FieldType.TEXT))) {
+            throw new Exception("Fields other than \"STRING\" and \"TEXT\" are not supported by Join yet.");
+        }
 
-		try {
-			outerOperator.open();
-			innerOperator.open();
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw new DataFlowException(e.getMessage(), e);
-		}
+        try {
+            outerOperator.open();
+            innerOperator.open();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new DataFlowException(e.getMessage(), e);
+        }
 
-		shouldIGetOuterOperatorNextTuple = true;
+        shouldIGetOuterOperatorNextTuple = true;
 
-		// Load the inner tuple list into memory on open.
-		while ((innerTuple = innerOperator.getNextTuple()) != null) {
-			innerTupleList.add(innerTuple);
-		}
+        // Load the inner tuple list into memory on open.
+        while ((innerTuple = innerOperator.getNextTuple()) != null) {
+            innerTupleList.add(innerTuple);
+        }
 
-		// Close the inner operator as all the required tuples are already
-		// loaded into memory.
-		try {
-			innerOperator.close();
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw new DataFlowException(e.getMessage(), e);
-		}
-	}
+        // Close the inner operator as all the required tuples are already
+        // loaded into memory.
+        try {
+            innerOperator.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new DataFlowException(e.getMessage(), e);
+        }
+    }
 
-	/**
-	 * Gets the next tuple which is a joint of two tuples which passed the
-	 * criteria set in the JoinPredicate. <br>
-	 * Example in JoinPredicate.java
-	 * 
-	 * @return nextTuple
-	 */
-	@Override
-	public ITuple getNextTuple() throws Exception {
-		if (innerTupleList.isEmpty()) {
-			return null;
-		}
+    /**
+     * Gets the next tuple which is a joint of two tuples which passed the
+     * criteria set in the JoinPredicate. <br>
+     * Example in JoinPredicate.java
+     * 
+     * @return nextTuple
+     */
+    @Override
+    public ITuple getNextTuple() throws Exception {
+        if (innerTupleList.isEmpty()) {
+            return null;
+        }
 
-		ITuple nextTuple = null;
+        ITuple nextTuple = null;
 
-		do {
-			if (shouldIGetOuterOperatorNextTuple == true) {
-				if ((outerTuple = outerOperator.getNextTuple()) == null) {
-					return null;
-				}
-				shouldIGetOuterOperatorNextTuple = false;
-			}
+        do {
+            if (shouldIGetOuterOperatorNextTuple == true) {
+                if ((outerTuple = outerOperator.getNextTuple()) == null) {
+                    return null;
+                }
+                shouldIGetOuterOperatorNextTuple = false;
+            }
 
-			if (innerOperatorCursor <= innerTupleList.size() - 1) {
-				innerTuple = innerTupleList.get(innerOperatorCursor);
-				innerOperatorCursor++;
-				if (innerOperatorCursor == innerTupleList.size()) {
-					innerOperatorCursor = 0;
-					shouldIGetOuterOperatorNextTuple = true;
-				}
-			}
+            if (innerOperatorCursor <= innerTupleList.size() - 1) {
+                innerTuple = innerTupleList.get(innerOperatorCursor);
+                innerOperatorCursor++;
+                if (innerOperatorCursor == innerTupleList.size()) {
+                    innerOperatorCursor = 0;
+                    shouldIGetOuterOperatorNextTuple = true;
+                }
+            }
 
-			nextTuple = joinTuples(outerTuple, innerTuple, joinPredicate);
-		} while (nextTuple == null);
+            nextTuple = joinTuples(outerTuple, innerTuple, joinPredicate);
+        } while (nextTuple == null);
 
-		return nextTuple;
-	}
+        return nextTuple;
+    }
 
-	@Override
-	public void close() throws Exception {
-		try {
-			outerOperator.close();
-			// innerOperator.close(); already called in open()
+    @Override
+    public void close() throws Exception {
+        try {
+            outerOperator.close();
+            // innerOperator.close(); already called in open()
 
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw new DataFlowException(e.getMessage(), e);
-		}
-		// Clear the inner tuple list from memory on close.
-		innerTupleList.clear();
-	}
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new DataFlowException(e.getMessage(), e);
+        }
+        // Clear the inner tuple list from memory on close.
+        innerTupleList.clear();
+    }
 
-	// Used to compare IDs of the tuples.
-	private boolean compareId(ITuple outerTuple, ITuple innerTuple) {
-		// Check for the Validity of ID field and if both the ID fields are
-		// equal.
+    // Used to compare IDs of the tuples.
+    private boolean compareId(ITuple outerTuple, ITuple innerTuple) {
+        // Check for the Validity of ID field and if both the ID fields are
+        // equal.
 
-		// First check if the field in question exists by using try catch.
-		// Will throw an exception if it doesn't exist. This leads to return
-		// false.
-		// Then check if both the fields are of type IntegerField.
-		// (This is the bare minimum thing that can be done to verify valid
-		// id attribute. (as of now) (probably it is better to add a field
-		// called ID))
-		String fieldName = joinPredicate.getidAttribute().getFieldName();
-		try {
-			if (outerTuple.getField(fieldName).getClass()
-					.equals(IntegerField.class)
-					&& innerTuple.getField(fieldName).getClass()
-					.equals(IntegerField.class)) {
-				if (outerTuple.getField(fieldName).getValue()
-						.equals(innerTuple.getField(fieldName).getValue())) {
-					return true;
-				}
-			}
-		} catch (Exception e) {
-			;
-		}
-		return false;
-	}
+        // First check if the field in question exists by using try catch.
+        // Will throw an exception if it doesn't exist. This leads to return
+        // false.
+        // Then check if both the fields are of type IntegerField.
+        // (This is the bare minimum thing that can be done to verify valid
+        // id attribute. (as of now) (probably it is better to add a field
+        // called ID))
+        String fieldName = joinPredicate.getidAttribute().getFieldName();
+        try {
+            if (outerTuple.getField(fieldName).getClass().equals(IntegerField.class)
+                    && innerTuple.getField(fieldName).getClass().equals(IntegerField.class)) {
+                if (outerTuple.getField(fieldName).getValue().equals(innerTuple.getField(fieldName).getValue())) {
+                    return true;
+                }
+            }
+        } catch (Exception e) {
+            ;
+        }
+        return false;
+    }
 
-	// Process the tuples to get a tuple with join result if predicate is
-	// satisfied.
-	private ITuple joinTuples(ITuple outerTuple, ITuple innerTuple,
-			JoinPredicate joinPredicate) throws Exception {
-		ITuple nextTuple = null;
-		List<Span> newJoinSpanList = new ArrayList<>();
+    // Process the tuples to get a tuple with join result if predicate is
+    // satisfied.
+    private ITuple joinTuples(ITuple outerTuple, ITuple innerTuple, JoinPredicate joinPredicate) throws Exception {
+        ITuple nextTuple = null;
+        List<Span> newJoinSpanList = new ArrayList<>();
 
-		if (!compareId(outerTuple, innerTuple)) {
-			return null;
-		}
+        if (!compareId(outerTuple, innerTuple)) {
+            return null;
+        }
 
-		// If either/both tuples have no span information, return null.
-		// Check using try/catch if both the tuples have span information.
-		// If not return null; so we can process next tuple.
+        // If either/both tuples have no span information, return null.
+        // Check using try/catch if both the tuples have span information.
+        // If not return null; so we can process next tuple.
 
-		IField spanFieldOfInnerTuple = null;
-		IField spanFieldOfOuterTuple = null;
-		try {
-			spanFieldOfInnerTuple = innerTuple
-					.getField(SchemaConstants.SPAN_LIST);
-			spanFieldOfOuterTuple = outerTuple
-					.getField(SchemaConstants.SPAN_LIST);
-		} catch (Exception e) {
-			return null;
-		}
+        IField spanFieldOfInnerTuple = null;
+        IField spanFieldOfOuterTuple = null;
+        try {
+            spanFieldOfInnerTuple = innerTuple.getField(SchemaConstants.SPAN_LIST);
+            spanFieldOfOuterTuple = outerTuple.getField(SchemaConstants.SPAN_LIST);
+        } catch (Exception e) {
+            return null;
+        }
 
-		List<Span> innerSpanList = null;
-		List<Span> outerSpanList = null;
-		// Check if both the fields obtained from the indexes are indeed of type
-		// ListField
-		if (spanFieldOfInnerTuple.getClass().equals(ListField.class)) {
-			innerSpanList = (List<Span>) spanFieldOfInnerTuple.getValue();
-		}
-		if (spanFieldOfOuterTuple.getClass().equals(ListField.class)) {
-			outerSpanList = (List<Span>) spanFieldOfOuterTuple.getValue();
-		}
+        List<Span> innerSpanList = null;
+        List<Span> outerSpanList = null;
+        // Check if both the fields obtained from the indexes are indeed of type
+        // ListField
+        if (spanFieldOfInnerTuple.getClass().equals(ListField.class)) {
+            innerSpanList = (List<Span>) spanFieldOfInnerTuple.getValue();
+        }
+        if (spanFieldOfOuterTuple.getClass().equals(ListField.class)) {
+            outerSpanList = (List<Span>) spanFieldOfOuterTuple.getValue();
+        }
 
-		Iterator<Span> outerSpanIter = outerSpanList.iterator();
+        Iterator<Span> outerSpanIter = outerSpanList.iterator();
 
-		// TODO Currently we are using two loops to go over two span lists.
-		// We can optimize it by sorting the spans based on the start position
-		// and then doing a "sort merge" of the two lists.
-		// (Also probably weed out the spans with fields that don't agree with
-		// the ones specified in the JoinPredicate during "sort merge"?)
-		while (outerSpanIter.hasNext()) {
-			Span outerSpan = outerSpanIter.next();
-			// Check if the field matches the filed over which we want to join.
-			// If not return null.
-			if (!outerSpan.getFieldName()
-					.equals(joinPredicate.getjoinAttribute().getFieldName())) {
-				continue;
-			}
-			Iterator<Span> innerSpanIter = innerSpanList.iterator();
-			while (innerSpanIter.hasNext()) {
-				Span innerSpan = innerSpanIter.next();
-				if (!innerSpan.getFieldName().equals(
-						joinPredicate.getjoinAttribute().getFieldName())) {
-					continue;
-				}
-				Integer threshold = joinPredicate.getThreshold();
-				if (Math.abs(outerSpan.getStart()
-						- innerSpan.getStart()) <= threshold
-						&& Math.abs(outerSpan.getEnd()
-								- innerSpan.getEnd()) <= threshold) {
-					Integer newSpanStartIndex = Math.min(outerSpan.getStart(),
-							innerSpan.getStart());
-					Integer newSpanEndIndex = Math.max(outerSpan.getEnd(),
-							innerSpan.getEnd());
+        // TODO Currently we are using two loops to go over two span lists.
+        // We can optimize it by sorting the spans based on the start position
+        // and then doing a "sort merge" of the two lists.
+        // (Also probably weed out the spans with fields that don't agree with
+        // the ones specified in the JoinPredicate during "sort merge"?)
+        while (outerSpanIter.hasNext()) {
+            Span outerSpan = outerSpanIter.next();
+            // Check if the field matches the filed over which we want to join.
+            // If not return null.
+            if (!outerSpan.getFieldName().equals(joinPredicate.getjoinAttribute().getFieldName())) {
+                continue;
+            }
+            Iterator<Span> innerSpanIter = innerSpanList.iterator();
+            while (innerSpanIter.hasNext()) {
+                Span innerSpan = innerSpanIter.next();
+                if (!innerSpan.getFieldName().equals(joinPredicate.getjoinAttribute().getFieldName())) {
+                    continue;
+                }
+                Integer threshold = joinPredicate.getThreshold();
+                if (Math.abs(outerSpan.getStart() - innerSpan.getStart()) <= threshold
+                        && Math.abs(outerSpan.getEnd() - innerSpan.getEnd()) <= threshold) {
+                    Integer newSpanStartIndex = Math.min(outerSpan.getStart(), innerSpan.getStart());
+                    Integer newSpanEndIndex = Math.max(outerSpan.getEnd(), innerSpan.getEnd());
 
-					// spanKey++;
-					String fieldName = joinPredicate.getjoinAttribute()
-							.getFieldName();
-					String fieldValue = (String) innerTuple.getField(fieldName)
-							.getValue();
-					String newFieldValue = fieldValue
-							.substring(newSpanStartIndex, newSpanEndIndex);
-					String spanKey = outerSpan.getKey() + "_"
-							+ innerSpan.getKey();
-					Span newSpan = new Span(fieldName, newSpanStartIndex,
-							newSpanEndIndex, spanKey, newFieldValue);
-					newJoinSpanList.add(newSpan);
-				}
-			}
-		}
+                    // spanKey++;
+                    String fieldName = joinPredicate.getjoinAttribute().getFieldName();
+                    String fieldValue = (String) innerTuple.getField(fieldName).getValue();
+                    String newFieldValue = fieldValue.substring(newSpanStartIndex, newSpanEndIndex);
+                    String spanKey = outerSpan.getKey() + "_" + innerSpan.getKey();
+                    Span newSpan = new Span(fieldName, newSpanStartIndex, newSpanEndIndex, spanKey, newFieldValue);
+                    newJoinSpanList.add(newSpan);
+                }
+            }
+        }
 
-		if (newJoinSpanList.isEmpty()) {
-			return null;
-		}
+        if (newJoinSpanList.isEmpty()) {
+            return null;
+        }
 
-		List<IField> newFieldList = new ArrayList<>();
+        List<IField> newFieldList = new ArrayList<>();
 
-		ArrayList<Attribute> innerAttrList = new ArrayList<>();
-		innerAttrList.addAll(innerTuple.getSchema().getAttributes());
-		ArrayList<Attribute> outerAttrList = new ArrayList<>();
-		outerAttrList.addAll(outerTuple.getSchema().getAttributes());
+        ArrayList<Attribute> innerAttrList = new ArrayList<>();
+        innerAttrList.addAll(innerTuple.getSchema().getAttributes());
+        ArrayList<Attribute> outerAttrList = new ArrayList<>();
+        outerAttrList.addAll(outerTuple.getSchema().getAttributes());
 
-		List<Attribute> newAttrList = new ArrayList<>();
-		Iterator<Attribute> innerAttrListIter = innerAttrList.iterator();
+        List<Attribute> newAttrList = new ArrayList<>();
+        Iterator<Attribute> innerAttrListIter = innerAttrList.iterator();
 
-		while (innerAttrListIter.hasNext()) {
-			Attribute nextAttr = innerAttrListIter.next();
-			if (!nextAttr.equals(SchemaConstants.SPAN_LIST_ATTRIBUTE)
-					&& outerAttrList.contains(nextAttr)) {
-				String fieldName = nextAttr.getFieldName();
-				if (outerTuple.getField(fieldName)
-						.equals(innerTuple.getField(fieldName))) {
-					newAttrList.add(nextAttr);
-					IField nextField = outerTuple.getField(fieldName);
-					newFieldList.add(nextField);
-				}
-			}
-		}
+        while (innerAttrListIter.hasNext()) {
+            Attribute nextAttr = innerAttrListIter.next();
+            if (!nextAttr.equals(SchemaConstants.SPAN_LIST_ATTRIBUTE) && outerAttrList.contains(nextAttr)) {
+                String fieldName = nextAttr.getFieldName();
+                if (outerTuple.getField(fieldName).equals(innerTuple.getField(fieldName))) {
+                    newAttrList.add(nextAttr);
+                    IField nextField = outerTuple.getField(fieldName);
+                    newFieldList.add(nextField);
+                }
+            }
+        }
 
-		if (newAttrList.isEmpty() || 
-				!newAttrList.contains(joinPredicate.getjoinAttribute())) {
-			return null;
-		}
+        if (newAttrList.isEmpty() || !newAttrList.contains(joinPredicate.getjoinAttribute())) {
+            return null;
+        }
 
-		newAttrList.add(SchemaConstants.SPAN_LIST_ATTRIBUTE);
-		newFieldList.add(new ListField<>(newJoinSpanList));
+        newAttrList.add(SchemaConstants.SPAN_LIST_ATTRIBUTE);
+        newFieldList.add(new ListField<>(newJoinSpanList));
 
-		Attribute[] tempAttrArr = new Attribute[newAttrList.size()];
-		Schema newSchema = new Schema(newAttrList.toArray(tempAttrArr));
+        Attribute[] tempAttrArr = new Attribute[newAttrList.size()];
+        Schema newSchema = new Schema(newAttrList.toArray(tempAttrArr));
 
-		IField[] tempFieldArr = new IField[newFieldList.size()];
-		nextTuple = new DataTuple(newSchema,
-				newFieldList.toArray(tempFieldArr));
+        IField[] tempFieldArr = new IField[newFieldList.size()];
+        nextTuple = new DataTuple(newSchema, newFieldList.toArray(tempFieldArr));
 
-		return nextTuple;
-	}
+        return nextTuple;
+    }
 
-	@Override
-	public Schema getOutputSchema() {
-		return innerOperator.getOutputSchema();
-	}
+    @Override
+    public Schema getOutputSchema() {
+        return innerOperator.getOutputSchema();
+    }
 }
