@@ -32,21 +32,21 @@ public class DataWriterReaderTest {
     private DataReaderPredicate dataReaderPredicate;
     private Analyzer luceneAnalyzer;
     private Query query;
-    
+
     @Before
-    public void setUp() throws ParseException{
+    public void setUp() throws ParseException {
         dataStore = new DataStore(DataConstants.INDEX_DIR, TestConstants.SCHEMA_PEOPLE);
-        luceneAnalyzer = new  StandardAnalyzer();
+        luceneAnalyzer = new StandardAnalyzer();
         dataWriter = new DataWriter(dataStore, luceneAnalyzer);
-        QueryParser queryParser = new QueryParser(
-                TestConstants.ATTRIBUTES_PEOPLE[0].getFieldName(), luceneAnalyzer);
+        QueryParser queryParser = new QueryParser(TestConstants.ATTRIBUTES_PEOPLE[0].getFieldName(), luceneAnalyzer);
         query = queryParser.parse(DataConstants.SCAN_QUERY);
-        dataReaderPredicate = new DataReaderPredicate(query, DataConstants.SCAN_QUERY, dataStore, Arrays.asList(TestConstants.ATTRIBUTES_PEOPLE), luceneAnalyzer);
+        dataReaderPredicate = new DataReaderPredicate(query, DataConstants.SCAN_QUERY, dataStore,
+                Arrays.asList(TestConstants.ATTRIBUTES_PEOPLE), luceneAnalyzer);
         dataReader = new DataReader(dataReaderPredicate);
     }
-    
+
     @Test
-    public void testReadWriteData() throws Exception{
+    public void testReadWriteData() throws Exception {
         dataWriter.clearData();
         List<ITuple> actualTuples = TestConstants.getSamplePeopleTuples();
         dataWriter.writeData(actualTuples);
@@ -55,25 +55,25 @@ public class DataWriterReaderTest {
         ITuple nextTuple = null;
         int numTuples = 0;
         List<ITuple> returnedTuples = new ArrayList<ITuple>();
-        while((nextTuple  = dataReader.getNextTuple()) != null){
+        while ((nextTuple = dataReader.getNextTuple()) != null) {
             returnedTuples.add(nextTuple);
-            numTuples ++;
+            numTuples++;
         }
         Assert.assertEquals(actualTuples.size(), numTuples);
         boolean contains = containsAllResults(actualTuples, returnedTuples);
-		Assert.assertTrue(contains);
+        Assert.assertTrue(contains);
         dataReader.close();
     }
 
     public static boolean containsAllResults(List<ITuple> expectedResults, List<ITuple> exactResults) {
         expectedResults = Utils.removePayload(expectedResults);
         exactResults = Utils.removePayload(exactResults);
-        
-        if(expectedResults.size() != exactResults.size())
+
+        if (expectedResults.size() != exactResults.size())
             return false;
-        if(!(expectedResults.containsAll(exactResults)) || !(exactResults.containsAll(expectedResults)))
+        if (!(expectedResults.containsAll(exactResults)) || !(exactResults.containsAll(expectedResults)))
             return false;
-        
+
         return true;
     }
 }

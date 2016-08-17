@@ -22,18 +22,16 @@ public class PokemonSearcher {
     private QueryParser queryParser;
 
     public PokemonSearcher(String fieldName) throws IOException {
-        indexSearcher = new IndexSearcher(DirectoryReader.open(
-                FSDirectory.open(Paths.get(LuceneConstants.INDEX))));
+        indexSearcher = new IndexSearcher(DirectoryReader.open(FSDirectory.open(Paths.get(LuceneConstants.INDEX))));
         queryParser = new QueryParser(fieldName, new StandardAnalyzer());
     }
 
-    public Document[] performSearch(String queryString, int n) throws IOException,
-            ParseException {
+    public Document[] performSearch(String queryString, int n) throws IOException, ParseException {
         Query query = queryParser.parse(queryString);
         TopDocs topDocs = indexSearcher.search(query, n);
         ScoreDoc[] scoreDocs = topDocs.scoreDocs;
         Document[] documents = new Document[scoreDocs.length];
-        for(int i = 0; i < documents.length; i++) {
+        for (int i = 0; i < documents.length; i++) {
             documents[i] = getDocument(scoreDocs[i].doc);
         }
         return documents;

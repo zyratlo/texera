@@ -23,15 +23,20 @@ import org.apache.lucene.store.FSDirectory;
 
 public class Pokedexer {
 
-    //Data members of the Pokemon Indexer class
+    // Data members of the Pokemon Indexer class
     private IndexWriter indexWriter;
     private int numberOfPokemon;
     private String indexDirectoryPath;
 
     /**
      * Parametrized constructor for the indexer class
-     * @param indexDirectoryPath - Takes the path to where the index is to be built/already exists
-     * @param numberOfPokemon - Takes the number of pokemon whose information the index is to haev
+     * 
+     * @param indexDirectoryPath
+     *            - Takes the path to where the index is to be built/already
+     *            exists
+     * @param numberOfPokemon
+     *            - Takes the number of pokemon whose information the index is
+     *            to haev
      * @throws IOException
      */
     public Pokedexer(String indexDirectoryPath, int numberOfPokemon) throws IOException {
@@ -44,6 +49,7 @@ public class Pokedexer {
 
     /**
      * Getter function that returns the value of a the numberOfPokemon variable
+     * 
      * @return - int - value of the numberOfPokemon variable
      */
     public int getNumberOfPokemon() {
@@ -52,36 +58,42 @@ public class Pokedexer {
 
     /**
      * Function that makes and returns a Document on accepting a Pokemon object.
-     * @param pokemon - pokemon object that needs to be converted to a document
+     * 
+     * @param pokemon
+     *            - pokemon object that needs to be converted to a document
      * @return - Document - Document version of the pokemon object
      * @throws IOException
      */
     private Document makeDocument(Pokemon pokemon) throws IOException {
         Document doc = new Document();
 
-        //index pokemon info
+        // index pokemon info
         Field id = new IntField(LuceneConstants.ID_FIELD, pokemon.getId(), Field.Store.YES);
         Field name = new StringField(LuceneConstants.NAME_FIELD, pokemon.getName(), Field.Store.YES);
 
-//        ArrayList<String> all_types = new ArrayList<String>(Arrays.asList(pokemon.getTypes().split("\\s*,\\s*")));
-//        ArrayList<Field> types = new ArrayList();
-//        for (int i = 0; i < types.size(); i++)
-//            types.add(new StringField(LuceneConstants.TYPES_FIELD, all_types.get(i), Field.Store.YES));
+        // ArrayList<String> all_types = new
+        // ArrayList<String>(Arrays.asList(pokemon.getTypes().split("\\s*,\\s*")));
+        // ArrayList<Field> types = new ArrayList();
+        // for (int i = 0; i < types.size(); i++)
+        // types.add(new StringField(LuceneConstants.TYPES_FIELD,
+        // all_types.get(i), Field.Store.YES));
         Field types = new TextField(LuceneConstants.TYPES_FIELD, pokemon.getTypes(), Field.Store.YES);
 
-//        ArrayList<String> all_moves = new ArrayList(Arrays.asList(pokemon.getMoves().split("\\s*,\\s*")));
-//        ArrayList<Field> moves = new ArrayList();
-//        for (int i = 0; i < moves.size(); i++)
-//            moves.add(new StringField(LuceneConstants.MOVES_FIELD, all_moves.get(i), Field.Store.NO));
+        // ArrayList<String> all_moves = new
+        // ArrayList(Arrays.asList(pokemon.getMoves().split("\\s*,\\s*")));
+        // ArrayList<Field> moves = new ArrayList();
+        // for (int i = 0; i < moves.size(); i++)
+        // moves.add(new StringField(LuceneConstants.MOVES_FIELD,
+        // all_moves.get(i), Field.Store.NO));
         Field moves = new TextField(LuceneConstants.MOVES_FIELD, pokemon.getMoves(), Field.Store.NO);
 
-        //add fields to doc
+        // add fields to doc
         doc.add(id);
         doc.add(name);
-//        for (int i = 0; i < types.size(); i++)
-//            doc.add(types.get(i));
-//        for (int i = 0; i < moves.size(); i++)
-//            doc.add(moves.get(i));
+        // for (int i = 0; i < types.size(); i++)
+        // doc.add(types.get(i));
+        // for (int i = 0; i < moves.size(); i++)
+        // doc.add(moves.get(i));
         doc.add(types);
         doc.add(moves);
 
@@ -90,7 +102,9 @@ public class Pokedexer {
 
     /**
      * Adds a pokemon object to the index after creating a document out of it
-     * @param pokemon - pokemon object that needs to be added to the index
+     * 
+     * @param pokemon
+     *            - pokemon object that needs to be added to the index
      * @throws IOException
      */
     public void addPokemon(Pokemon pokemon) throws IOException {
@@ -99,13 +113,14 @@ public class Pokedexer {
     }
 
     /**
-     * Adds all pokemon as described by the number of pokemon data member
-     * Makes socuments out of these pokemon objects and adds it to the index
+     * Adds all pokemon as described by the number of pokemon data member Makes
+     * socuments out of these pokemon objects and adds it to the index
+     * 
      * @throws IOException
      */
-    public void addPokemon() throws IOException{
+    public void addPokemon() throws IOException {
         Pokemon[] pokemons = Data.POKEMONS;
-        for(Pokemon pokemon: pokemons) {
+        for (Pokemon pokemon : pokemons) {
             Document document = makeDocument(pokemon);
             indexWriter.addDocument(document);
         }
@@ -113,6 +128,7 @@ public class Pokedexer {
 
     /**
      * Closes the IndexWriter object
+     * 
      * @throws IOException
      */
     public void closeIndexWriter() throws IOException {
@@ -123,21 +139,25 @@ public class Pokedexer {
 
     /**
      * Clears the index of all documents
+     * 
      * @throws IOException
      */
-    public void clearIndex() throws IOException{
-        if(indexWriter != null) {
+    public void clearIndex() throws IOException {
+        if (indexWriter != null) {
             indexWriter.deleteAll();
         }
     }
 
     /**
      * Build Index function
-     * @param clearAndBuildFlag - if this flag is enabled, all existing documents in the index are deleted before indexing is done
+     * 
+     * @param clearAndBuildFlag
+     *            - if this flag is enabled, all existing documents in the index
+     *            are deleted before indexing is done
      * @throws IOException
      */
-    public void buildIndexes(boolean clearAndBuildFlag)throws IOException {
-        if(clearAndBuildFlag) {
+    public void buildIndexes(boolean clearAndBuildFlag) throws IOException {
+        if (clearAndBuildFlag) {
             clearIndex();
         }
         this.addPokemon();
@@ -148,8 +168,8 @@ public class Pokedexer {
         File indexDirectory = new File(indexDirectoryPath);
         String files[] = indexDirectory.list();
 
-        for(String file : files)
-            delete(Paths.get(indexDirectory+"/"+file));
+        for (String file : files)
+            delete(Paths.get(indexDirectory + "/" + file));
 
         delete(Paths.get(indexDirectoryPath));
     }

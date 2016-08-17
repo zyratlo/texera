@@ -56,8 +56,7 @@ public class Indexer {
         doc.add(new StringField(ID_FIELD, city.getId(), Field.Store.YES));
         doc.add(new StringField(NAME_FIELD, city.getName(), Field.Store.YES));
         doc.add(new StringField(COUNTRY_FIELD, city.getCountry(), Field.Store.YES));
-        String fullSearchableText = city.getName() + " " + city.getCountry()
-                + " " + city.getDescription();
+        String fullSearchableText = city.getName() + " " + city.getCountry() + " " + city.getDescription();
         doc.add(new TextField(CONTENT_FIELD, fullSearchableText, Field.Store.NO));
         writer.addDocument(doc);
     }

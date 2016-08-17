@@ -1,6 +1,5 @@
 package edu.uci.ics.textdb.sandbox.team8lucenenewsexample;
 
-
 import static edu.uci.ics.textdb.sandbox.team8lucenenewsexample.LuceneIndexConstants.CATEGORY_FIELD;
 import static edu.uci.ics.textdb.sandbox.team8lucenenewsexample.LuceneIndexConstants.CONTENT_FIELD;
 import static edu.uci.ics.textdb.sandbox.team8lucenenewsexample.LuceneIndexConstants.ID_FIELD;
@@ -25,7 +24,6 @@ import org.apache.lucene.store.FSDirectory;
  * Created by Sam on 16/4/10.
  */
 public class Indexer {
-
 
     public Indexer() {
     }
@@ -59,7 +57,7 @@ public class Indexer {
         doc.add(new StringField(CATEGORY_FIELD, news.getCategory(), Field.Store.YES));
         doc.add(new StringField(TEXT_FIELD, news.getText(), Field.Store.YES));
 
-        String fullSearchableText = news.getTitle()+" "+news.getCategory()+" "+news.getText();
+        String fullSearchableText = news.getTitle() + " " + news.getCategory() + " " + news.getText();
 
         doc.add(new TextField(CONTENT_FIELD, fullSearchableText, Field.Store.NO));
         writer.addDocument(doc);

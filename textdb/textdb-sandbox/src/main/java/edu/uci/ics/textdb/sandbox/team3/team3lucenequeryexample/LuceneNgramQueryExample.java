@@ -28,67 +28,66 @@ import edu.uci.ics.textdb.common.constants.DataConstants;
  */
 
 public class LuceneNgramQueryExample {
-	public String dataFileName;
-	
-	private Analyzer analyzer;
-	private IndexSearcher searcher;
-	private IndexWriter indexWriter;
-	
-	public LuceneNgramQueryExample(String dfn, int minNgramSsize, int maxNgramSize) throws Exception {
-		dataFileName = dfn;
+    public String dataFileName;
 
-		analyzer = new Analyzer() {
-			@Override
-			protected TokenStreamComponents createComponents(String fieldName) {
-				Tokenizer source = new NGramTokenizer(minNgramSsize, maxNgramSize);
-				return new TokenStreamComponents(source);
-			}
-		};
-		Directory indexDir = FSDirectory.open(Paths.get(DataConstants.INDEX_DIR));
-		IndexWriterConfig config = new IndexWriterConfig(analyzer);
-		indexWriter = new IndexWriter(indexDir, config);
-	}
-	
-	public void buildNGramIndex() throws Exception {
-		indexWriter.deleteAll();
-		
-		Scanner fileScanner = new Scanner(new File(dataFileName));
-		Integer lineNum = 1;
-		while (fileScanner.hasNextLine()) {
-			Document doc = new Document();
-			FieldType type = getFieldType();
-			Field dataField = new Field("data", fileScanner.nextLine(), type);
-			Field idField = new Field("id", lineNum.toString(), type);
-			doc.add(dataField);
-			doc.add(idField);
-			indexWriter.addDocument(doc);
-			lineNum += 1;
-		}
-		fileScanner.close();
-		indexWriter.close();
-	}
-	
-	private FieldType getFieldType() {
-		FieldType type = new FieldType();
-		type.setIndexOptions(IndexOptions.DOCS);
-		type.setStored(true);
-		type.setStoreTermVectors(true);
-		return type;
-	}
-	
-	public TopDocs search(String queryText, int numOfTopHit) throws Exception{
-		searcher = new IndexSearcher(
-				DirectoryReader.open(FSDirectory.open(Paths.get(DataConstants.INDEX_DIR))));
-		
+    private Analyzer analyzer;
+    private IndexSearcher searcher;
+    private IndexWriter indexWriter;
+
+    public LuceneNgramQueryExample(String dfn, int minNgramSsize, int maxNgramSize) throws Exception {
+        dataFileName = dfn;
+
+        analyzer = new Analyzer() {
+            @Override
+            protected TokenStreamComponents createComponents(String fieldName) {
+                Tokenizer source = new NGramTokenizer(minNgramSsize, maxNgramSize);
+                return new TokenStreamComponents(source);
+            }
+        };
+        Directory indexDir = FSDirectory.open(Paths.get(DataConstants.INDEX_DIR));
+        IndexWriterConfig config = new IndexWriterConfig(analyzer);
+        indexWriter = new IndexWriter(indexDir, config);
+    }
+
+    public void buildNGramIndex() throws Exception {
+        indexWriter.deleteAll();
+
+        Scanner fileScanner = new Scanner(new File(dataFileName));
+        Integer lineNum = 1;
+        while (fileScanner.hasNextLine()) {
+            Document doc = new Document();
+            FieldType type = getFieldType();
+            Field dataField = new Field("data", fileScanner.nextLine(), type);
+            Field idField = new Field("id", lineNum.toString(), type);
+            doc.add(dataField);
+            doc.add(idField);
+            indexWriter.addDocument(doc);
+            lineNum += 1;
+        }
+        fileScanner.close();
+        indexWriter.close();
+    }
+
+    private FieldType getFieldType() {
+        FieldType type = new FieldType();
+        type.setIndexOptions(IndexOptions.DOCS);
+        type.setStored(true);
+        type.setStoreTermVectors(true);
+        return type;
+    }
+
+    public TopDocs search(String queryText, int numOfTopHit) throws Exception {
+        searcher = new IndexSearcher(DirectoryReader.open(FSDirectory.open(Paths.get(DataConstants.INDEX_DIR))));
+
         QueryParser parser = new QueryParser("data", analyzer);
-		Query query = parser.parse(queryText);
-		TopDocs res = searcher.search(query, numOfTopHit);
+        Query query = parser.parse(queryText);
+        TopDocs res = searcher.search(query, numOfTopHit);
 
-		return res;
+        return res;
 
-	}
-	
-	public IndexSearcher getSearcher() {
-		return searcher;
-	}
+    }
+
+    public IndexSearcher getSearcher() {
+        return searcher;
+    }
 }
