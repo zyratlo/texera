@@ -9,14 +9,17 @@ public class ListField<T> implements IField {
 
     private List<T> list;
 
+
     public ListField(List<T> list) {
         this.list = list;
     }
+
 
     @Override
     public List<T> getValue() {
         return list;
     }
+
 
     @Override
     public int hashCode() {
@@ -26,24 +29,26 @@ public class ListField<T> implements IField {
         return result;
     }
 
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
             return false;
-        if (! (obj instanceof ListField<?>)) {
-        	return false;
+        if (!(obj instanceof ListField<?>)) {
+            return false;
         }
-        
+
         ListField<?> other = (ListField<?>) obj;
         if (list == null) {
             if (other.list != null)
                 return false;
-        } else if ( !(list.containsAll(other.list) & other.list.containsAll(list)))
+        } else if (!(list.containsAll(other.list) & other.list.containsAll(list)))
             return false;
         return true;
     }
+
 
     @Override
     public String toString() {

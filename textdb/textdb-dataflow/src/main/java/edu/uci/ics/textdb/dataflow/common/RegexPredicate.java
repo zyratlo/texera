@@ -20,7 +20,8 @@ import edu.uci.ics.textdb.storage.DataReaderPredicate;
 
 /**
  * This class is responsible for calculating regex match. <br>
- * It uses RegexToGramQueryTranslator to translate a regex to a query in lucene. <br>
+ * It uses RegexToGramQueryTranslator to translate a regex to a query in lucene.
+ * <br>
  * 
  * @author Zuozhi Wang
  * @author Shuying Lai
@@ -28,62 +29,66 @@ import edu.uci.ics.textdb.storage.DataReaderPredicate;
  */
 public class RegexPredicate implements IPredicate {
 
-	private String regex;
-	private List<Attribute> attributeList;
-	
-	private Analyzer luceneAnalyzer;	
-	private Query luceneQuery;
-	private String queryString;
+    private String regex;
+    private List<Attribute> attributeList;
+
+    private Analyzer luceneAnalyzer;
+    private Query luceneQuery;
+    private String queryString;
+
 
     public RegexPredicate(String regex, List<Attribute> attributeList, Analyzer analyzer) throws DataFlowException {
-    	this.regex = regex;
-    	this.luceneAnalyzer = analyzer;
-    	this.attributeList = attributeList;
-    	List<String> fieldNameList = attributeList.stream()
-    			.filter(attr -> (attr.getFieldType() == FieldType.TEXT || attr.getFieldType() == FieldType.STRING))
-    			.map(attr -> attr.getFieldName()).collect(Collectors.toList());
-    	
-    	// Try to apply translator. If it fails, use scan query.
+        this.regex = regex;
+        this.luceneAnalyzer = analyzer;
+        this.attributeList = attributeList;
+        List<String> fieldNameList = attributeList.stream()
+                .filter(attr -> (attr.getFieldType() == FieldType.TEXT || attr.getFieldType() == FieldType.STRING))
+                .map(attr -> attr.getFieldName()).collect(Collectors.toList());
+
+        // Try to apply translator. If it fails, use scan query.
         try {
             queryString = RegexToGramQueryTranslator.translate(regex).getLuceneQueryString();
         } catch (com.google.re2j.PatternSyntaxException e) {
             queryString = DataConstants.SCAN_QUERY;
         }
-        
+
         try {
             luceneQuery = generateLuceneQuery(fieldNameList, queryString);
         } catch (ParseException e) {
             e.printStackTrace();
             throw new DataFlowException(e.getMessage(), e);
         }
-        
-	}
-	
-    
-   private Query generateLuceneQuery(List<String> fields, String queryStr) throws ParseException {
+
+    }
+
+
+    private Query generateLuceneQuery(List<String> fields, String queryStr) throws ParseException {
         String[] fieldsArray = new String[fields.size()];
         QueryParser parser = new MultiFieldQueryParser(fields.toArray(fieldsArray), luceneAnalyzer);
         return parser.parse(queryStr);
     }
-	
-	
-	public DataReaderPredicate generateDataReaderPredicate(IDataStore dataStore) {
-	    DataReaderPredicate predicate = new DataReaderPredicate(luceneQuery, queryString, dataStore, attributeList, luceneAnalyzer);
-	    predicate.setIsSpanInformationAdded(false);
-	    return predicate;
-	}
 
-	
-	public String getRegex() {
-		return regex;
-	}
 
-	public Analyzer getLuceneAnalyzer() {
-		return this.luceneAnalyzer;
-	}
+    public DataReaderPredicate generateDataReaderPredicate(IDataStore dataStore) {
+        DataReaderPredicate predicate = new DataReaderPredicate(luceneQuery, queryString, dataStore, attributeList,
+                luceneAnalyzer);
+        predicate.setIsSpanInformationAdded(false);
+        return predicate;
+    }
 
-	public List<Attribute> getAttributeList() {
-		return attributeList;
-	}
+
+    public String getRegex() {
+        return regex;
+    }
+
+
+    public Analyzer getLuceneAnalyzer() {
+        return this.luceneAnalyzer;
+    }
+
+
+    public List<Attribute> getAttributeList() {
+        return attributeList;
+    }
 
 }

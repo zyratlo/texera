@@ -20,79 +20,83 @@ import edu.uci.ics.textdb.dataflow.source.IndexBasedSourceOperator;
 import edu.uci.ics.textdb.storage.DataStore;
 import edu.uci.ics.textdb.storage.writer.DataWriter;
 
-
 /**
  * @author zuozhi
- * @author shuying
- * Helper class to quickly create unit test
+ * @author shuying Helper class to quickly create unit test
  */
 public class RegexMatcherTestHelper {
 
-	RegexMatcher regexMatcher;
-	IDataWriter dataWriter;
-	IDataStore dataStore;
-	
-	List<ITuple> results;
-    Analyzer luceneAnalyzer;
-    
-    Schema inputSchema;
-	
-	public RegexMatcherTestHelper(Schema schema, List<ITuple> data) throws Exception {
-	    inputSchema = schema;
-		dataStore = new DataStore(DataConstants.INDEX_DIR, schema);
-		luceneAnalyzer = CustomAnalyzer.builder()
-				.withTokenizer(NGramTokenizerFactory.class, new String[]{"minGramSize", "3", "maxGramSize", "3"})
-				.build();
-        dataWriter = new DataWriter(dataStore, luceneAnalyzer);
-		dataWriter.clearData();
-		dataWriter.writeData(data);	
-		results = new ArrayList<ITuple>();
-	}
-	
-	public List<ITuple> getResults() {
-		return results;
-	}
-	
-	public Schema getSpanSchema() {
-		return Utils.createSpanSchema(inputSchema);
-	}
-	
-	public void runTest(String regex, Attribute attribute) throws Exception {
-		runTest(regex, attribute, true);
-	}
+    RegexMatcher regexMatcher;
+    IDataWriter dataWriter;
+    IDataStore dataStore;
 
-	public void runTest(String regex, Attribute attribute, boolean useTranslator) throws Exception {
-		runTest(regex, attribute, useTranslator, Integer.MAX_VALUE, 0);
-	}
-	
-	public void runTest(String regex, Attribute attribute, boolean useTranslator, int limit) throws Exception{
-		runTest(regex, attribute, useTranslator, limit, 0);
-	}
-	
-	
-	public void runTest(String regex, Attribute attribute, boolean useTranslator, int limit, int offset) throws Exception {
-		results.clear();
-		RegexPredicate regexPredicate = new RegexPredicate(
-				regex, Arrays.asList(new Attribute[]{attribute}), 
-				luceneAnalyzer);
-		
-		IndexBasedSourceOperator indexInputOperator = new IndexBasedSourceOperator(regexPredicate.generateDataReaderPredicate(dataStore));
-		regexMatcher = new RegexMatcher(regexPredicate);
-		regexMatcher.setInputOperator(indexInputOperator);
-		regexMatcher.open();
-		regexMatcher.setOffset(offset);
-		regexMatcher.setLimit(limit);
-		ITuple nextTuple = null;
-		while ((nextTuple = regexMatcher.getNextTuple()) != null) {
-			results.add(nextTuple);
-		}
-		regexMatcher.close();
-	}
-	
-	
-	
-	public void cleanUp() throws Exception {
-		dataWriter.clearData();
-	}
+    List<ITuple> results;
+    Analyzer luceneAnalyzer;
+
+    Schema inputSchema;
+
+
+    public RegexMatcherTestHelper(Schema schema, List<ITuple> data) throws Exception {
+        inputSchema = schema;
+        dataStore = new DataStore(DataConstants.INDEX_DIR, schema);
+        luceneAnalyzer = CustomAnalyzer.builder()
+                .withTokenizer(NGramTokenizerFactory.class, new String[] { "minGramSize", "3", "maxGramSize", "3" })
+                .build();
+        dataWriter = new DataWriter(dataStore, luceneAnalyzer);
+        dataWriter.clearData();
+        dataWriter.writeData(data);
+        results = new ArrayList<ITuple>();
+    }
+
+
+    public List<ITuple> getResults() {
+        return results;
+    }
+
+
+    public Schema getSpanSchema() {
+        return Utils.createSpanSchema(inputSchema);
+    }
+
+
+    public void runTest(String regex, Attribute attribute) throws Exception {
+        runTest(regex, attribute, true);
+    }
+
+
+    public void runTest(String regex, Attribute attribute, boolean useTranslator) throws Exception {
+        runTest(regex, attribute, useTranslator, Integer.MAX_VALUE, 0);
+    }
+
+
+    public void runTest(String regex, Attribute attribute, boolean useTranslator, int limit) throws Exception {
+        runTest(regex, attribute, useTranslator, limit, 0);
+    }
+
+
+    public void runTest(String regex, Attribute attribute, boolean useTranslator, int limit, int offset)
+            throws Exception {
+        results.clear();
+        RegexPredicate regexPredicate = new RegexPredicate(regex, Arrays.asList(new Attribute[] { attribute }),
+                luceneAnalyzer);
+
+        IndexBasedSourceOperator indexInputOperator = new IndexBasedSourceOperator(
+                regexPredicate.generateDataReaderPredicate(dataStore));
+        regexMatcher = new RegexMatcher(regexPredicate);
+        regexMatcher.setInputOperator(indexInputOperator);
+        regexMatcher.open();
+        regexMatcher.setOffset(offset);
+        regexMatcher.setLimit(limit);
+        ITuple nextTuple = null;
+        while ((nextTuple = regexMatcher.getNextTuple()) != null) {
+            results.add(nextTuple);
+        }
+        regexMatcher.close();
+    }
+
+
+    public void cleanUp() throws Exception {
+        dataWriter.clearData();
+    }
 
 }

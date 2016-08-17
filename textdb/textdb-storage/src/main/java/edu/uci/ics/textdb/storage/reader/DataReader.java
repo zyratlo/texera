@@ -42,191 +42,204 @@ import edu.uci.ics.textdb.storage.DataReaderPredicate;
  */
 
 public class DataReader implements IDataReader {
-	
-	private DataReaderPredicate predicate;
-	private Schema inputSchema;
-	private Schema outputSchema;
 
-	private IndexReader luceneIndexReader;
-	private IndexSearcher luceneIndexSearcher;
-	private ScoreDoc[] scoreDocs;
-	
-	private int cursor = CLOSED;
+    private DataReaderPredicate predicate;
+    private Schema inputSchema;
+    private Schema outputSchema;
 
-	private int limit;
-	private int offset;
-	private boolean payloadAdded = true;
-	
-	public DataReader(DataReaderPredicate dataReaderPredicate) {
-		predicate = dataReaderPredicate;
-	}
-	
-	
-	@Override
-	public void open() throws DataFlowException {
-	    if (cursor != CLOSED) {
-	        return;
-	    }
-		try {
-			String indexDirectoryStr = predicate.getDataStore().getDataDirectory();
-			Directory indexDirectory = FSDirectory.open(Paths.get(indexDirectoryStr));
-			luceneIndexReader = DirectoryReader.open(indexDirectory);
-			luceneIndexSearcher = new IndexSearcher(luceneIndexReader);
-			
-			TopDocs topDocs = luceneIndexSearcher.search(predicate.getLuceneQuery(), Integer.MAX_VALUE);
-			scoreDocs = topDocs.scoreDocs;
-			
-			inputSchema = predicate.getDataStore().getSchema();
-			if (payloadAdded) {
-				outputSchema = Utils.addAttributeToSchema(inputSchema, SchemaConstants.PAYLOAD_ATTRIBUTE);
-			} else {
-				outputSchema = inputSchema;
-			}
-			
-		} catch (IOException e) {
-			e.printStackTrace();
-			throw new DataFlowException(e.getMessage(), e);
-		}
-		
-		cursor = OPENED;
-	}
-	
+    private IndexReader luceneIndexReader;
+    private IndexSearcher luceneIndexSearcher;
+    private ScoreDoc[] scoreDocs;
 
-	@Override
-	public ITuple getNextTuple() throws DataFlowException {
-		if (cursor == CLOSED) {
-			throw new DataFlowException(ErrorMessages.OPERATOR_NOT_OPENED);
-		}
-		
-		ITuple resultTuple;
+    private int cursor = CLOSED;
+
+    private int limit;
+    private int offset;
+    private boolean payloadAdded = true;
+
+
+    public DataReader(DataReaderPredicate dataReaderPredicate) {
+        predicate = dataReaderPredicate;
+    }
+
+
+    @Override
+    public void open() throws DataFlowException {
+        if (cursor != CLOSED) {
+            return;
+        }
         try {
-    		if (cursor >= scoreDocs.length) {
-    			return null;
-    		}
-    		int docID = scoreDocs[cursor].doc;
-    		resultTuple = constructTuple(docID);
-			
-		} catch (IOException | ParseException e) {
-			e.printStackTrace();
-			throw new DataFlowException(e.getMessage(), e);
-		}
-        
-        cursor++;	
-		return resultTuple;
-	}
+            String indexDirectoryStr = predicate.getDataStore().getDataDirectory();
+            Directory indexDirectory = FSDirectory.open(Paths.get(indexDirectoryStr));
+            luceneIndexReader = DirectoryReader.open(indexDirectory);
+            luceneIndexSearcher = new IndexSearcher(luceneIndexReader);
 
-	
-	@Override
-	public void close() throws DataFlowException {
-		cursor = CLOSED;
-		if (luceneIndexReader != null) {
-			try {
-				luceneIndexReader.close();
-				luceneIndexReader = null;
-			} catch (IOException e) {
-				throw new DataFlowException(e.getMessage(), e);
-			}
-		}
-	}
-	
-	
-	private ITuple constructTuple(int docID) throws IOException, ParseException {
-		Document luceneDocument = luceneIndexSearcher.doc(docID);
-		ArrayList<IField> docFields = documentToFields(luceneDocument);
-		
-		if (payloadAdded) {
-			ArrayList<Span> payloadSpanList = buildPayloadFromTermVector(docFields, docID);
-			ListField<Span> payloadField = new ListField<Span>(payloadSpanList);
-			docFields.add(payloadField);
-		}
-		
-		DataTuple resultTuple = new DataTuple(outputSchema, docFields.stream().toArray(IField[]::new));
-		return resultTuple;
-	}
-	
-	
-	private ArrayList<IField> documentToFields(Document luceneDocument) throws ParseException {
-		ArrayList<IField> fields = new ArrayList<>();
+            TopDocs topDocs = luceneIndexSearcher.search(predicate.getLuceneQuery(), Integer.MAX_VALUE);
+            scoreDocs = topDocs.scoreDocs;
+
+            inputSchema = predicate.getDataStore().getSchema();
+            if (payloadAdded) {
+                outputSchema = Utils.addAttributeToSchema(inputSchema, SchemaConstants.PAYLOAD_ATTRIBUTE);
+            } else {
+                outputSchema = inputSchema;
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new DataFlowException(e.getMessage(), e);
+        }
+
+        cursor = OPENED;
+    }
+
+
+    @Override
+    public ITuple getNextTuple() throws DataFlowException {
+        if (cursor == CLOSED) {
+            throw new DataFlowException(ErrorMessages.OPERATOR_NOT_OPENED);
+        }
+
+        ITuple resultTuple;
+        try {
+            if (cursor >= scoreDocs.length) {
+                return null;
+            }
+            int docID = scoreDocs[cursor].doc;
+            resultTuple = constructTuple(docID);
+
+        } catch (IOException | ParseException e) {
+            e.printStackTrace();
+            throw new DataFlowException(e.getMessage(), e);
+        }
+
+        cursor++;
+        return resultTuple;
+    }
+
+
+    @Override
+    public void close() throws DataFlowException {
+        cursor = CLOSED;
+        if (luceneIndexReader != null) {
+            try {
+                luceneIndexReader.close();
+                luceneIndexReader = null;
+            } catch (IOException e) {
+                throw new DataFlowException(e.getMessage(), e);
+            }
+        }
+    }
+
+
+    private ITuple constructTuple(int docID) throws IOException, ParseException {
+        Document luceneDocument = luceneIndexSearcher.doc(docID);
+        ArrayList<IField> docFields = documentToFields(luceneDocument);
+
+        if (payloadAdded) {
+            ArrayList<Span> payloadSpanList = buildPayloadFromTermVector(docFields, docID);
+            ListField<Span> payloadField = new ListField<Span>(payloadSpanList);
+            docFields.add(payloadField);
+        }
+
+        DataTuple resultTuple = new DataTuple(outputSchema, docFields.stream().toArray(IField[]::new));
+        return resultTuple;
+    }
+
+
+    private ArrayList<IField> documentToFields(Document luceneDocument) throws ParseException {
+        ArrayList<IField> fields = new ArrayList<>();
         for (Attribute attr : inputSchema.getAttributes()) {
             FieldType fieldType = attr.getFieldType();
             String fieldValue = luceneDocument.get(attr.getFieldName());
             fields.add(Utils.getField(fieldType, fieldValue));
         }
         return fields;
-	}
-	
-	
-	private ArrayList<Span> buildPayloadFromTermVector(List<IField> fields, int docID) throws IOException {
-		ArrayList<Span> payloadSpanList = new ArrayList<>();
+    }
 
-		for (Attribute attr : inputSchema.getAttributes()) {
-			String fieldName = attr.getFieldName();
-			FieldType fieldType = attr.getFieldType();
-			
-			// We only store positional information for TEXT fields into payload.
-			if (fieldType != FieldType.TEXT) {
-				continue;
-			}
-			
-			String fieldValue = fields.get(inputSchema.getIndex(fieldName)).getValue().toString();
-			
-			Terms termVector = luceneIndexReader.getTermVector(docID, fieldName);			
-			if (termVector == null) {
-				continue;
-			}
 
-			TermsEnum termsEnum = termVector.iterator();
-			PostingsEnum termPostings = null;
-			// go through document terms
-			while ((termsEnum.next()) != null) {
-				termPostings = termsEnum.postings(termPostings, PostingsEnum.ALL);
-				if (termPostings.nextDoc() == DocIdSetIterator.NO_MORE_DOCS) {
-					continue;
-				}
-				// for each term, go through its postings
-				for (int i = 0; i < termPostings.freq(); i++) {
-		        	int tokenPosition = termPostings.nextPosition(); // nextPosition needs to be called first
-		        	
-		        	int charStart = termPostings.startOffset();
-		        	int charEnd = termPostings.endOffset();
-		        	String analyzedTermStr = termsEnum.term().utf8ToString();
-		        	String originalTermStr = fieldValue.substring(charStart, charEnd);
+    private ArrayList<Span> buildPayloadFromTermVector(List<IField> fields, int docID) throws IOException {
+        ArrayList<Span> payloadSpanList = new ArrayList<>();
 
-					Span span = new Span(fieldName, charStart, charEnd, analyzedTermStr, originalTermStr, tokenPosition);
-					payloadSpanList.add(span);
-				}
-			}
-		}
+        for (Attribute attr : inputSchema.getAttributes()) {
+            String fieldName = attr.getFieldName();
+            FieldType fieldType = attr.getFieldType();
 
-		return payloadSpanList;
-	}
-	
-	
-	public int getLimit() {
-		return limit;
-	}
+            // We only store positional information for TEXT fields into
+            // payload.
+            if (fieldType != FieldType.TEXT) {
+                continue;
+            }
 
-	public void setLimit(int limit) {
-		this.limit = limit;
-	}
+            String fieldValue = fields.get(inputSchema.getIndex(fieldName)).getValue().toString();
 
-	public int getOffset() {
-		return offset;
-	}
+            Terms termVector = luceneIndexReader.getTermVector(docID, fieldName);
+            if (termVector == null) {
+                continue;
+            }
 
-	public void setOffset(int offset) {
-		this.offset = offset;
-	}
+            TermsEnum termsEnum = termVector.iterator();
+            PostingsEnum termPostings = null;
+            // go through document terms
+            while ((termsEnum.next()) != null) {
+                termPostings = termsEnum.postings(termPostings, PostingsEnum.ALL);
+                if (termPostings.nextDoc() == DocIdSetIterator.NO_MORE_DOCS) {
+                    continue;
+                }
+                // for each term, go through its postings
+                for (int i = 0; i < termPostings.freq(); i++) {
+                    int tokenPosition = termPostings.nextPosition(); // nextPosition
+                                                                     // needs to
+                                                                     // be
+                                                                     // called
+                                                                     // first
 
-	public boolean isTermVecAdded() {
-		return payloadAdded;
-	}
+                    int charStart = termPostings.startOffset();
+                    int charEnd = termPostings.endOffset();
+                    String analyzedTermStr = termsEnum.term().utf8ToString();
+                    String originalTermStr = fieldValue.substring(charStart, charEnd);
 
-	public void setTermVecAdded(boolean termVecAdded) {
-		this.payloadAdded = termVecAdded;
-	}
-	
-	public Schema getOutputSchema() {
-		return outputSchema;
-	}
+                    Span span = new Span(fieldName, charStart, charEnd, analyzedTermStr, originalTermStr,
+                            tokenPosition);
+                    payloadSpanList.add(span);
+                }
+            }
+        }
+
+        return payloadSpanList;
+    }
+
+
+    public int getLimit() {
+        return limit;
+    }
+
+
+    public void setLimit(int limit) {
+        this.limit = limit;
+    }
+
+
+    public int getOffset() {
+        return offset;
+    }
+
+
+    public void setOffset(int offset) {
+        this.offset = offset;
+    }
+
+
+    public boolean isTermVecAdded() {
+        return payloadAdded;
+    }
+
+
+    public void setTermVecAdded(boolean termVecAdded) {
+        this.payloadAdded = termVecAdded;
+    }
+
+
+    public Schema getOutputSchema() {
+        return outputSchema;
+    }
 }

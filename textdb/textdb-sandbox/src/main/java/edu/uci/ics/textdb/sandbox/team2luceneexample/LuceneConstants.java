@@ -1,7 +1,6 @@
 package edu.uci.ics.textdb.sandbox.team2luceneexample;
 
-public class LuceneConstants
-{
+public class LuceneConstants {
     public static final String INDEX = "pokadex";
     public static final String ID_FIELD = "id";
     public static final String NAME_FIELD = "name";

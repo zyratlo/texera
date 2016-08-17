@@ -8,57 +8,63 @@ import edu.uci.ics.textdb.api.common.Schema;
 import edu.uci.ics.textdb.api.dataflow.ISourceOperator;
 
 /**
- * FileSourceOperator treats files on disk as a source.
- * FileSourceOperator reads a file line by line.
- * A user needs to provide a custom function to convert a string to tuple. 
+ * FileSourceOperator treats files on disk as a source. FileSourceOperator reads
+ * a file line by line. A user needs to provide a custom function to convert a
+ * string to tuple.
+ * 
  * @author zuozhi
  */
 public class FileSourceOperator implements ISourceOperator {
-	
-	@FunctionalInterface
-	public static interface ToTuple {
-		ITuple convertToTuple(String str) throws Exception;
-	}
-	
-	private File file;
-	private Scanner scanner;
-	private ToTuple toTupleFunc;
-	private Schema outputSchema;
 
-	public FileSourceOperator(String filePath, ToTuple toTupleFunc, Schema schema) {
-		this.file = new File(filePath);
-		this.toTupleFunc = toTupleFunc;
-		this.outputSchema = schema;
-	}
+    @FunctionalInterface
+    public static interface ToTuple {
+        ITuple convertToTuple(String str) throws Exception;
+    }
 
-	@Override
-	public void open() throws Exception {
-		this.scanner = new Scanner(file);
-	}
+    private File file;
+    private Scanner scanner;
+    private ToTuple toTupleFunc;
+    private Schema outputSchema;
 
-	@Override
-	public ITuple getNextTuple() throws Exception {
-		if (scanner.hasNextLine()) {
-			try {
-				return this.toTupleFunc.convertToTuple(scanner.nextLine());		 
-			} catch (Exception e) {
-				e.printStackTrace(System.err);
-				return getNextTuple();
-			}
-		}	
-		return null;
-	}
 
-	@Override
-	public void close() throws Exception {
-		if (this.scanner != null) {
-			this.scanner.close();
-		}
-	}
+    public FileSourceOperator(String filePath, ToTuple toTupleFunc, Schema schema) {
+        this.file = new File(filePath);
+        this.toTupleFunc = toTupleFunc;
+        this.outputSchema = schema;
+    }
+
+
+    @Override
+    public void open() throws Exception {
+        this.scanner = new Scanner(file);
+    }
+
+
+    @Override
+    public ITuple getNextTuple() throws Exception {
+        if (scanner.hasNextLine()) {
+            try {
+                return this.toTupleFunc.convertToTuple(scanner.nextLine());
+            } catch (Exception e) {
+                e.printStackTrace(System.err);
+                return getNextTuple();
+            }
+        }
+        return null;
+    }
+
+
+    @Override
+    public void close() throws Exception {
+        if (this.scanner != null) {
+            this.scanner.close();
+        }
+    }
+
 
     @Override
     public Schema getOutputSchema() {
         return outputSchema;
     }
-	
+
 }

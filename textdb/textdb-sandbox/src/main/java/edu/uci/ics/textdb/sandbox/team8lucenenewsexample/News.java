@@ -10,29 +10,35 @@ public class News {
     private String category;
     private String text;
 
+
     public News() {
     }
 
+
     public News(String id, String title, String category, String text) {
-        this.id=id;
-        this.title=title;
-        this.category=category;
-        this.text=text;
+        this.id = id;
+        this.title = title;
+        this.category = category;
+        this.text = text;
     }
 
-    public String getId(){
+
+    public String getId() {
         return this.id;
     }
 
-    public String getTitle(){
+
+    public String getTitle() {
         return this.title;
     }
 
-    public String getCategory(){
+
+    public String getCategory() {
         return this.category;
     }
 
-    public String getText(){
+
+    public String getText() {
         return this.text;
     }
 }

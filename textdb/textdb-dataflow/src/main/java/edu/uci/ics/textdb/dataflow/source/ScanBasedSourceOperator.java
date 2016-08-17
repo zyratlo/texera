@@ -10,12 +10,14 @@ import edu.uci.ics.textdb.common.exception.DataFlowException;
  * Created by chenli on 3/28/16.
  */
 public class ScanBasedSourceOperator implements ISourceOperator {
-    
+
     private IDataReader dataReader;
-    
+
+
     public ScanBasedSourceOperator(IDataReader dataReader) throws DataFlowException {
         this.dataReader = dataReader;
     }
+
 
     @Override
     public void open() throws DataFlowException {
@@ -27,6 +29,7 @@ public class ScanBasedSourceOperator implements ISourceOperator {
         }
     }
 
+
     @Override
     public ITuple getNextTuple() throws DataFlowException {
         try {
@@ -37,6 +40,7 @@ public class ScanBasedSourceOperator implements ISourceOperator {
         }
     }
 
+
     @Override
     public void close() throws DataFlowException {
         try {
@@ -46,6 +50,7 @@ public class ScanBasedSourceOperator implements ISourceOperator {
             throw new DataFlowException(e.getMessage(), e);
         }
     }
+
 
     @Override
     public Schema getOutputSchema() {

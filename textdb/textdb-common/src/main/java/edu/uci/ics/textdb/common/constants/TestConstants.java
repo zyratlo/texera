@@ -46,6 +46,7 @@ public class TestConstants {
             DATE_OF_BIRTH_ATTR, DESCRIPTION_ATTR };
     public static final Schema SCHEMA_PEOPLE = new Schema(ATTRIBUTES_PEOPLE);
 
+
     public static List<ITuple> getSamplePeopleTuples() throws ParseException {
 
         IField[] fields1 = { new StringField("bruce"), new StringField("john Lee"), new IntegerField(46),

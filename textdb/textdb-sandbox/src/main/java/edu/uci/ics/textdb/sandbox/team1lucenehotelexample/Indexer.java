@@ -31,6 +31,7 @@ public class Indexer {
     /** Index all text files under a directory. */
     private IndexWriter indexWriter = null;
 
+
     public IndexWriter getIndexWriter() throws IOException {
         if (indexWriter == null) {
             FSDirectory indexDir = FSDirectory.open(Paths.get(INDEX_DIR));
@@ -41,11 +42,13 @@ public class Indexer {
         return indexWriter;
     }
 
+
     public void closeIndexWriter() throws IOException {
         if (indexWriter != null) {
             indexWriter.close();
         }
     }
+
 
     public void indexHotel(Hotel hotel) throws IOException {
 
@@ -55,11 +58,11 @@ public class Indexer {
         doc.add(new StringField(ID_FIELD, hotel.getId(), Field.Store.YES));
         doc.add(new StringField(NAME_FIELD, hotel.getName(), Field.Store.YES));
         doc.add(new StringField(CITY_FIELD, hotel.getCity(), Field.Store.YES));
-        String fullSearchableText = hotel.getName() + " " + hotel.getCity()
-                + " " + hotel.getDescription();
+        String fullSearchableText = hotel.getName() + " " + hotel.getCity() + " " + hotel.getDescription();
         doc.add(new TextField(CONTENT_FIELD, fullSearchableText, Field.Store.YES));
         writer.addDocument(doc);
     }
+
 
     public void rebuildIndexes() throws IOException {
         getIndexWriter();
@@ -73,6 +76,7 @@ public class Indexer {
         // Closing the Index
         closeIndexWriter();
     }
+
 
     public static void main(String args[]) throws IOException {
         Indexer ind = new Indexer();

@@ -10,6 +10,7 @@ public class Book {
     public Book() {
     }
 
+
     /** Creates a new instance of Book */
     public Book(String id, String name, String author, String description) {
         this.id = id;
@@ -23,6 +24,7 @@ public class Book {
      */
     private String name;
 
+
     /**
      * Getter for property title.
      * 
@@ -31,6 +33,7 @@ public class Book {
     public String getName() {
         return this.name;
     }
+
 
     /**
      * Setter for property title.
@@ -47,6 +50,7 @@ public class Book {
      */
     private String id;
 
+
     /**
      * Getter for property id.
      * 
@@ -55,6 +59,7 @@ public class Book {
     public String getId() {
         return this.id;
     }
+
 
     /**
      * Setter for property id.
@@ -71,6 +76,7 @@ public class Book {
      */
     private String description;
 
+
     /**
      * Getter for property description.
      * 
@@ -79,6 +85,7 @@ public class Book {
     public String getDescription() {
         return this.description;
     }
+
 
     /**
      * Setter for property description.
@@ -95,6 +102,7 @@ public class Book {
      */
     private String author;
 
+
     /**
      * Getter for property author.
      * 
@@ -103,6 +111,7 @@ public class Book {
     public String getAuthor() {
         return this.author;
     }
+
 
     /**
      * Setter for property author.
@@ -113,6 +122,7 @@ public class Book {
     public void setAuthor(String author) {
         this.author = author;
     }
+
 
     @Override
     public String toString() {
