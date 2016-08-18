@@ -8,16 +8,16 @@ import edu.uci.ics.textdb.common.exception.ErrorMessages;
 
 /**
  * AbstractSingleInputOperator is an abstract class that can be used by many operators.
- * This class implements logic such as open and close input operator, manage cursor, manage limit and offset, etc..
- * Operators that extends this class must implement:
+ * This class implements logic such as open and close the input operator, manage the cursor, manage its
+ * limit and offset, etc. An operator that extends this class must implement:
  * 
- *  setUp(). setUp() is called in open(). The purpose is to initialize resources, and build output schema.
- *  computeMatchingResults(). Compute a matching result of an input tuple according to operator's own semantic.
- *  cleanUp(). cleanUp() is called in close(). Close resources and set private variables to null.
- *  
- *  optional: getNextInputTuple(): return the next input tuple. The default implementation is inputOperator.getNextTuple().
- *      An operator can override it based on its own need.
- *  
+ * setUp(): It is called in open(). 
+ *          Its purpose is to initialize resources, and build the output schema.
+ * computeNextMatchingTuple(): It is called in getNextTuple().
+ *          It returns the next available matching tuple, null if there's no more matches.
+ * cleanUp(). It is called in close(). 
+ *          Its purpose is to deallocates resources.
+
  * @author Zuozhi Wang (zuozhiw)
  *
  */
@@ -66,18 +66,14 @@ public abstract class AbstractSingleInputOperator implements IOperator {
             return null;
         }
         try {
-            ITuple inputTuple;
             ITuple resultTuple = null;
             while (true) {
-                inputTuple = getNextInputTuple();
-                if (inputTuple == null) {
+                resultTuple = computeNextMatch();
+                if (resultTuple == null) {
                     break;
                 }
-                resultTuple = computeMatchingResults(inputTuple);
-                if (resultTuple != null) {
-                    cursor++;
-                }
-                if (resultTuple != null && cursor >= offset) {
+                cursor++;
+                if (cursor >= offset) {
                     break;
                 }
             }
@@ -86,11 +82,7 @@ public abstract class AbstractSingleInputOperator implements IOperator {
             throw new DataFlowException(e.getMessage(), e);
         }
     }
-    
-    protected ITuple getNextInputTuple() throws Exception {
-        return inputOperator.getNextTuple();
-    }
-    
+
     /**
      * Given the inputTuple, compute the matching results of this operator, return null if the tuple doesn't match.
      * 
@@ -98,7 +90,7 @@ public abstract class AbstractSingleInputOperator implements IOperator {
      * @return matching result, null if the tuple doesn't match
      * @throws DataFlowException
      */
-    protected abstract ITuple computeMatchingResults(ITuple inputTuple) throws DataFlowException;
+    protected abstract ITuple computeNextMatch() throws DataFlowException;
 
     @Override
     public void close() throws DataFlowException {
