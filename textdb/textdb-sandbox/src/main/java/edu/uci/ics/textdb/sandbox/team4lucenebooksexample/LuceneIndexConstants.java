@@ -7,4 +7,3 @@ public class LuceneIndexConstants {
     public static final String AUTHOR_FIELD = "author";
     public static final String CONTENT_FIELD = "content";
 }
-

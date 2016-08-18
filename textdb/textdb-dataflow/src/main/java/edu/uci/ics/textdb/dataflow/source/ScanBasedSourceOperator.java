@@ -10,9 +10,9 @@ import edu.uci.ics.textdb.common.exception.DataFlowException;
  * Created by chenli on 3/28/16.
  */
 public class ScanBasedSourceOperator implements ISourceOperator {
-    
+
     private IDataReader dataReader;
-    
+
     public ScanBasedSourceOperator(IDataReader dataReader) throws DataFlowException {
         this.dataReader = dataReader;
     }

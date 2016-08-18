@@ -36,7 +36,7 @@ import edu.uci.ics.textdb.storage.writer.DataWriter;
  *
  */
 public class ScanBasedSourceOperatorTest {
-    
+
     private IDataWriter dataWriter;
     private ScanBasedSourceOperator scanBasedSourceOperator;
     private IDataReader dataReader;
@@ -44,44 +44,43 @@ public class ScanBasedSourceOperatorTest {
     private Analyzer lucneAnalyzer;
     private Query query;
     private DataReaderPredicate dataReaderPredicate;
-    
+
     @Before
-    public void setUp() throws Exception{
+    public void setUp() throws Exception {
         dataStore = new DataStore(DataConstants.INDEX_DIR, TestConstants.SCHEMA_PEOPLE);
-        lucneAnalyzer = new  StandardAnalyzer();
+        lucneAnalyzer = new StandardAnalyzer();
         dataWriter = new DataWriter(dataStore, lucneAnalyzer);
-        QueryParser queryParser = new QueryParser(
-                TestConstants.ATTRIBUTES_PEOPLE[0].getFieldName(), lucneAnalyzer);
+        QueryParser queryParser = new QueryParser(TestConstants.ATTRIBUTES_PEOPLE[0].getFieldName(), lucneAnalyzer);
         query = queryParser.parse(DataConstants.SCAN_QUERY);
-        dataReaderPredicate = new DataReaderPredicate(query, DataConstants.SCAN_QUERY,
-                dataStore, Arrays.asList(TestConstants.ATTRIBUTES_PEOPLE[0]), lucneAnalyzer);
+        dataReaderPredicate = new DataReaderPredicate(query, DataConstants.SCAN_QUERY, dataStore,
+                Arrays.asList(TestConstants.ATTRIBUTES_PEOPLE[0]), lucneAnalyzer);
         dataReader = new DataReader(dataReaderPredicate);
-        
+
         dataWriter.clearData();
         dataWriter.writeData(TestConstants.getSamplePeopleTuples());
         scanBasedSourceOperator = new ScanBasedSourceOperator(dataReader);
     }
-    
+
     @After
-    public void cleanUp() throws Exception{
+    public void cleanUp() throws Exception {
         dataWriter.clearData();
     }
-    
+
     @Test
-    public void testFlow() throws DataFlowException, ParseException{
+    public void testFlow() throws DataFlowException, ParseException {
         List<ITuple> actualTuples = TestConstants.getSamplePeopleTuples();
         scanBasedSourceOperator.open();
         ITuple nextTuple = null;
         int numTuples = 0;
         List<ITuple> returnedTuples = new ArrayList<ITuple>();
-        while((nextTuple  = scanBasedSourceOperator.getNextTuple()) != null){
-        	returnedTuples.add(nextTuple);
-            numTuples ++;
+        while ((nextTuple = scanBasedSourceOperator.getNextTuple()) != null) {
+            returnedTuples.add(nextTuple);
+            numTuples++;
         }
         Assert.assertEquals(actualTuples.size(), numTuples);
         boolean contains = TestUtils.containsAllResults(actualTuples, returnedTuples);
-		Assert.assertTrue(contains);
+        Assert.assertTrue(contains);
         scanBasedSourceOperator.close();
     }
-    
+
 }

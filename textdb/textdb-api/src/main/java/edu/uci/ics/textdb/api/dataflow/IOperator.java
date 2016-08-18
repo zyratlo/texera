@@ -7,7 +7,7 @@ import edu.uci.ics.textdb.api.common.Schema;
  * Created by chenli on 3/25/16.
  */
 public interface IOperator {
-    
+
     static final int CLOSED = -1;
     static final int OPENED = 0;
 
@@ -16,6 +16,6 @@ public interface IOperator {
     ITuple getNextTuple() throws Exception;
 
     void close() throws Exception;
-    
+
     Schema getOutputSchema();
 }

@@ -25,15 +25,15 @@ public class DictionaryPredicate implements IPredicate {
     private Analyzer luceneAnalyzer;
     private List<Attribute> attributeList;
     private KeywordMatchingType keywordMatchingType;
-    
+
     /*
-    dictionary refers to list of phrases to search for.
-    For Ex. New York if searched in TextField, we would consider both tokens
-    New and York; if searched in String field we search for Exact string.
+     * dictionary refers to list of phrases to search for. For Ex. New York if
+     * searched in TextField, we would consider both tokens New and York; if
+     * searched in String field we search for Exact string.
      */
 
-    public DictionaryPredicate(IDictionary dictionary, List<Attribute> attributeList,
-    		Analyzer luceneAnalyzer, KeywordMatchingType keywordMatchingType) {
+    public DictionaryPredicate(IDictionary dictionary, List<Attribute> attributeList, Analyzer luceneAnalyzer,
+            KeywordMatchingType keywordMatchingType) {
 
         this.dictionary = dictionary;
         this.luceneAnalyzer = luceneAnalyzer;
@@ -44,12 +44,12 @@ public class DictionaryPredicate implements IPredicate {
     public KeywordMatchingType getKeywordMatchingType() {
         return keywordMatchingType;
     }
-    
+
     /**
      * Reset the Dictionary Cursor to the beginning.
      */
     public void resetDictCursor() {
-    	dictionary.resetCursor();
+        dictionary.resetCursor();
     }
 
     public String getNextDictionaryEntry() {
@@ -63,16 +63,18 @@ public class DictionaryPredicate implements IPredicate {
     public Analyzer getAnalyzer() {
         return luceneAnalyzer;
     }
-    
+
     /*
-    For the given fields , parse the query using query parser
-    and generate SCAN based source operator
+     * For the given fields , parse the query using query parser and generate
+     * SCAN based source operator
      */
 
-    public ScanBasedSourceOperator getScanSourceOperator(IDataStore dataStore) throws ParseException, DataFlowException {
+    public ScanBasedSourceOperator getScanSourceOperator(IDataStore dataStore)
+            throws ParseException, DataFlowException {
         QueryParser luceneQueryParser = new QueryParser(attributeList.get(0).getFieldName(), luceneAnalyzer);
         Query luceneQuery = luceneQueryParser.parse(DataConstants.SCAN_QUERY);
-        DataReaderPredicate dataReaderPredicate = new DataReaderPredicate(luceneQuery,DataConstants.SCAN_QUERY, dataStore, attributeList, luceneAnalyzer);
+        DataReaderPredicate dataReaderPredicate = new DataReaderPredicate(luceneQuery, DataConstants.SCAN_QUERY,
+                dataStore, attributeList, luceneAnalyzer);
         IDataReader dataReader = new DataReader(dataReaderPredicate);
 
         ScanBasedSourceOperator operator = new ScanBasedSourceOperator(dataReader);

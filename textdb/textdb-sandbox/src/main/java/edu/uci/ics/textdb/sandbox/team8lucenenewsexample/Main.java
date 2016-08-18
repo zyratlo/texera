@@ -17,21 +17,19 @@ import org.apache.lucene.search.TopDocs;
  */
 public class Main {
 
-
-    public static void main( String[] args ) throws IOException, ParseException {
+    public static void main(String[] args) throws IOException, ParseException {
 
         Indexer indexer = new Indexer();
         indexer.rebuildIndexes();
 
-        Searcher searcher= new Searcher();
+        Searcher searcher = new Searcher();
 
         // max docs retrieved will be 100
         int maxResults = 20;
 
-        Scanner reader = new Scanner(System.in);  // Reading from System.in
+        Scanner reader = new Scanner(System.in); // Reading from System.in
         System.out.println("Enter a query: ");
         String queryString = reader.nextLine();
-
 
         System.out.println("\nperformSearch");
 
@@ -49,9 +47,8 @@ public class Main {
         }
 
         System.out.println("performSearch done");
-        
-        reader.close();
 
+        reader.close();
 
     }
 

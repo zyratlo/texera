@@ -15,77 +15,73 @@ import org.junit.Test;
 
 public class LuceneDemoTest {
 
-	private Indexer indexer;
-	private Searcher searcher;
-	@Before
-	public void setUp() throws IOException {
-		indexer = new Indexer();
-	}
+    private Indexer indexer;
+    private Searcher searcher;
 
-	@Test
-	public void testIndexing() throws IOException {
-		System.out.println("Building Indexes");
-		indexer.rebuildIndexes();
-		System.out.println("Finished Indexing");
-	}
+    @Before
+    public void setUp() throws IOException {
+        indexer = new Indexer();
+    }
 
-	@Test
-	public void testIndexingAndSearching() throws IOException, ParseException {
-		System.out.println("Building Indexes");
-		indexer.rebuildIndexes();
-		System.out.println("Finished Indexing");
+    @Test
+    public void testIndexing() throws IOException {
+        System.out.println("Building Indexes");
+        indexer.rebuildIndexes();
+        System.out.println("Finished Indexing");
+    }
 
-		searcher = new Searcher();
-		// max docs retrieved will be 100
-		int maxResults = 100;
+    @Test
+    public void testIndexingAndSearching() throws IOException, ParseException {
+        System.out.println("Building Indexes");
+        indexer.rebuildIndexes();
+        System.out.println("Finished Indexing");
 
-		// *:* performs a full scan
-		// Modify this to try different queries
-		String queryString = "paris";
-		System.out.println("\nperformSearch");
+        searcher = new Searcher();
+        // max docs retrieved will be 100
+        int maxResults = 100;
 
-		IndexSearcher Se = searcher.getSearcher();
+        // *:* performs a full scan
+        // Modify this to try different queries
+        String queryString = "paris";
+        System.out.println("\nperformSearch");
 
-		
-		TopDocs topDocs = searcher.performSearch(queryString, maxResults);
-		SpanTermQuery spanTerm = searcher.makeSpanTermQuery(queryString);
-		
-		SpanWeight W = spanTerm.createWeight(Se, false);
-		if(W.equals(null))
-			System.out.println("yes");
-		List<LeafReaderContext> ctx = searcher.getIndexReader().leaves();
-		System.out.println("size: "+ctx.size());
-		Spans S = W.getSpans(ctx.get(0), SpanWeight.Postings.POSITIONS);
-		
-		if(S == null)
-			System.out.println("yes");
-		S.nextDoc();
-		
-		S.nextDoc();
+        IndexSearcher Se = searcher.getSearcher();
 
-	
-		System.out.println("DOC ID:" + S.docID());
-		
-		int start = S.nextStartPosition();
-		
-		
-		
-		System.out.println("Start :" + start);
-		
-		
-		System.out.println("End :" + S.endPosition());
-		
-		
-		System.out.println("Results found: " + topDocs.totalHits);
-//		ScoreDoc[] hits = topDocs.scoreDocs;
-//		for (int i = 0; i < hits.length; i++) {
-//			Document doc = searcher.getDocument(hits[i].doc);
-//			System.out.println("Id: " + doc.get(ID_FIELD) + ", Name: " + doc.get(NAME_FIELD) + " " + ", Content: "
-//			        + doc.get("content"));
-//
-//		}
+        TopDocs topDocs = searcher.performSearch(queryString, maxResults);
+        SpanTermQuery spanTerm = searcher.makeSpanTermQuery(queryString);
 
-		System.out.println("performSearch done");
+        SpanWeight W = spanTerm.createWeight(Se, false);
+        if (W.equals(null))
+            System.out.println("yes");
+        List<LeafReaderContext> ctx = searcher.getIndexReader().leaves();
+        System.out.println("size: " + ctx.size());
+        Spans S = W.getSpans(ctx.get(0), SpanWeight.Postings.POSITIONS);
 
-	}
+        if (S == null)
+            System.out.println("yes");
+        S.nextDoc();
+
+        S.nextDoc();
+
+        System.out.println("DOC ID:" + S.docID());
+
+        int start = S.nextStartPosition();
+
+        System.out.println("Start :" + start);
+
+        System.out.println("End :" + S.endPosition());
+
+        System.out.println("Results found: " + topDocs.totalHits);
+        // ScoreDoc[] hits = topDocs.scoreDocs;
+        // for (int i = 0; i < hits.length; i++) {
+        // Document doc = searcher.getDocument(hits[i].doc);
+        // System.out.println("Id: " + doc.get(ID_FIELD) + ", Name: " +
+        // doc.get(NAME_FIELD) + " " + ", Content: "
+        // + doc.get("content"));
+        //
+        // }
+
+        System.out.println("performSearch done");
+
+    }
 }

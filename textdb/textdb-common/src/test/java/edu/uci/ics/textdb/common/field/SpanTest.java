@@ -6,16 +6,16 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class SpanTest {
-    
+
     private Span span;
-    
+
     @Before
-    public void setUp(){
-        
+    public void setUp() {
+
     }
-    
+
     @Test
-    public void testGetters(){
+    public void testGetters() {
         String fieldName = "description";
         int start = 10;
         int end = 20;
