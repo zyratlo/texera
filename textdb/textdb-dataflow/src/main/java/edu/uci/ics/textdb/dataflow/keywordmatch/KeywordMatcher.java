@@ -46,7 +46,7 @@ public class KeywordMatcher extends AbstractSingleInputOperator {
     }
 
     @Override
-    protected ITuple computeNextMatch() throws Exception {
+    protected ITuple computeNextMatchingTuple() throws Exception {
         ITuple inputTuple = null;
         ITuple resultTuple = null;
         
