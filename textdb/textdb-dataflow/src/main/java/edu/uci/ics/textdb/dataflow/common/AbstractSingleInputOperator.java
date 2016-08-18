@@ -14,7 +14,7 @@ import edu.uci.ics.textdb.common.exception.ErrorMessages;
  * setUp(): It is called in open(). 
  *          Its purpose is to initialize resources, and build the output schema.
  * computeNextMatchingTuple(): It is called in getNextTuple().
- *          It returns the next available matching tuple, null if there's no more matches.
+ *          It returns the next available matching tuple, null if there's no more match.
  * cleanUp(). It is called in close(). 
  *          Its purpose is to deallocates resources.
 
@@ -51,7 +51,7 @@ public abstract class AbstractSingleInputOperator implements IOperator {
     }
     
     /**
-     * SetUp necessary resources, variables in this function.
+     * setUp necessary resources, variables in this function.
      * outputSchema MUST be initialized in setUP().
      * @throws DataFlowException
      */
@@ -68,7 +68,7 @@ public abstract class AbstractSingleInputOperator implements IOperator {
         try {
             ITuple resultTuple = null;
             while (true) {
-                resultTuple = computeNextMatch();
+                resultTuple = computeNextMatchingTuple();
                 if (resultTuple == null) {
                     break;
                 }
@@ -84,13 +84,12 @@ public abstract class AbstractSingleInputOperator implements IOperator {
     }
 
     /**
-     * Given the inputTuple, compute the matching results of this operator, return null if the tuple doesn't match.
+     * Give the input tuples, compute the next matching tuple. Return null if there's no more matching tuple.
      * 
-     * @param inputTuple
-     * @return matching result, null if the tuple doesn't match
-     * @throws DataFlowException
+     * @return next matching tuple, null if there's no more matching tuple.
+     * @throws Exception
      */
-    protected abstract ITuple computeNextMatch() throws Exception;
+    protected abstract ITuple computeNextMatchingTuple() throws Exception;
 
     @Override
     public void close() throws DataFlowException {
