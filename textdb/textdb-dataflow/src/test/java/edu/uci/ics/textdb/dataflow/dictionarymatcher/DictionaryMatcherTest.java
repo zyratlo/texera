@@ -70,40 +70,20 @@ public class DictionaryMatcherTest {
     }
     
     public List<ITuple> getQueryResults(IDictionary dictionary, KeywordMatchingType srcOpType,
-            List<Attribute> attributes) throws Exception {
-<<<<<<< HEAD
+    		List<Attribute> attributes) throws Exception {
     	return getQueryResults(dictionary, srcOpType, attributes, Integer.MAX_VALUE, 0);
     }
-
     
     public List<ITuple> getQueryResults(IDictionary dictionary, KeywordMatchingType srcOpType,
-            List<Attribute> attributes, int limit) throws Exception {
+    		List<Attribute> attributes, int limit) throws Exception {
     	return getQueryResults(dictionary, srcOpType, attributes, limit, 0);
     }
-
-
+    
     public List<ITuple> getQueryResults(IDictionary dictionary, KeywordMatchingType srcOpType,
             List<Attribute> attributes, int limit, int offset) throws Exception {
-        List<ITuple> dictionaryMatcherSourceOperatorResults = 
-                getDictionaryMatcherSourceOperatorResults(dictionary, srcOpType, attributes, limit, offset);
-        List<ITuple> dictionaryMatcherResults = 
-                getDictionaryMatcherResults(dictionary, srcOpType, attributes, limit, offset);
-        
-        Assert.assertTrue(TestUtils.containsAllResults(dictionaryMatcherSourceOperatorResults, dictionaryMatcherResults));
-
-        return dictionaryMatcherResults;
-    }
-    
-    private List<ITuple> getDictionaryMatcherSourceOperatorResults(IDictionary dictionary, KeywordMatchingType srcOpType,
-            List<Attribute> attributes, int limit, int offset) throws Exception {
-        DictionaryPredicate dictionaryPredicate = new DictionaryPredicate(dictionary, attributes, luceneAnalyzer, srcOpType);
-        DictionaryMatcherSourceOperator dictionaryMatcher = new DictionaryMatcherSourceOperator(dictionaryPredicate, dataStore);    
-    	dictionaryMatcher.setLimit(limit);
-    	dictionaryMatcher.setOffset(offset);
-=======
         List<ITuple> dictionaryMatcherSourceOperatorResults = getDictionaryMatcherSourceOperatorResults(dictionary,
-                srcOpType, attributes);
-        List<ITuple> dictionaryMatcherResults = getDictionaryMatcherResults(dictionary, srcOpType, attributes);
+                srcOpType, attributes, limit, offset);
+        List<ITuple> dictionaryMatcherResults = getDictionaryMatcherResults(dictionary, srcOpType, attributes, limit, offset);
 
         Assert.assertTrue(
                 TestUtils.containsAllResults(dictionaryMatcherSourceOperatorResults, dictionaryMatcherResults));
@@ -112,14 +92,15 @@ public class DictionaryMatcherTest {
     }
 
     private List<ITuple> getDictionaryMatcherSourceOperatorResults(IDictionary dictionary,
-            KeywordMatchingType srcOpType, List<Attribute> attributes) throws Exception {
+            KeywordMatchingType srcOpType, List<Attribute> attributes, int limit, int offset) throws Exception {
         DictionaryPredicate dictionaryPredicate = new DictionaryPredicate(dictionary, attributes, luceneAnalyzer,
                 srcOpType);
         DictionaryMatcherSourceOperator dictionaryMatcher = new DictionaryMatcherSourceOperator(dictionaryPredicate,
                 dataStore);
->>>>>>> 36e546bfbc4ec4c393b66beecc5b94da61a5d97f
 
         dictionaryMatcher.open();
+        dictionaryMatcher.setLimit(limit);
+        dictionaryMatcher.setOffset(offset);
         ITuple nextTuple = null;
         List<ITuple> results = new ArrayList<ITuple>();
         while ((nextTuple = dictionaryMatcher.getNextTuple()) != null) {
@@ -130,23 +111,17 @@ public class DictionaryMatcherTest {
     }
 
     private List<ITuple> getDictionaryMatcherResults(IDictionary dictionary, KeywordMatchingType srcOpType,
-<<<<<<< HEAD
             List<Attribute> attributes, int limit, int offset) throws Exception {
-        DictionaryPredicate dictionaryPredicate = new DictionaryPredicate(dictionary, attributes, luceneAnalyzer, srcOpType);
-        
-=======
-            List<Attribute> attributes) throws Exception {
         DictionaryPredicate dictionaryPredicate = new DictionaryPredicate(dictionary, attributes, luceneAnalyzer,
                 srcOpType);
 
->>>>>>> 36e546bfbc4ec4c393b66beecc5b94da61a5d97f
         DictionaryMatcher dictionaryMatcher = new DictionaryMatcher(dictionaryPredicate);
-    	dictionaryMatcher.setLimit(limit);
-    	dictionaryMatcher.setOffset(offset);
         ScanBasedSourceOperator indexSource = dictionaryPredicate.getScanSourceOperator(dataStore);
         dictionaryMatcher.setInputOperator(indexSource);
 
         dictionaryMatcher.open();
+        dictionaryMatcher.setLimit(limit);
+        dictionaryMatcher.setOffset(offset);
         ITuple nextTuple = null;
         List<ITuple> results = new ArrayList<ITuple>();
         while ((nextTuple = dictionaryMatcher.getNextTuple()) != null) {
