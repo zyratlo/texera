@@ -74,8 +74,18 @@ public class PhraseMatcherTest {
      * @throws DataFlowException
      * @throws ParseException
      */
-
+    
     public List<ITuple> getPeopleQueryResults(String query, ArrayList<Attribute> attributeList)
+            throws DataFlowException, ParseException {
+    	return	getPeopleQueryResults(query, attributeList, Integer.MAX_VALUE, 0);
+    }
+    
+    public List<ITuple> getPeopleQueryResults(String query, ArrayList<Attribute> attributeList, int limit)
+            throws DataFlowException, ParseException {
+    	return	getPeopleQueryResults(query, attributeList, limit, 0);
+    }
+
+    public List<ITuple> getPeopleQueryResults(String query, ArrayList<Attribute> attributeList, int limit, int offset)
             throws DataFlowException, ParseException {
 
         KeywordPredicate keywordPredicate = new KeywordPredicate(query, attributeList, luceneAnalyzer,
@@ -87,6 +97,8 @@ public class PhraseMatcherTest {
         keywordMatcher.setInputOperator(indexInputOperator);
 
         keywordMatcher.open();
+        keywordMatcher.setLimit(limit);
+        keywordMatcher.setOffset(offset);
 
         List<ITuple> results = new ArrayList<>();
         ITuple nextTuple = null;

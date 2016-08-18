@@ -77,8 +77,7 @@ public class KeywordMatcherTest {
 
     public List<ITuple> getPeopleQueryResults(String query, ArrayList<Attribute> attributeList)
             throws DataFlowException, ParseException {
-
-<<<<<<< HEAD
+    	
     	return getPeopleQueryResults(query, attributeList, Integer.MAX_VALUE, 0);
     }
     
@@ -88,15 +87,11 @@ public class KeywordMatcherTest {
     }
     
     public List<ITuple> getPeopleQueryResults(String query, ArrayList<Attribute> attributeList, int limit, int offset) throws DataFlowException, ParseException {
-
-        KeywordPredicate keywordPredicate = new KeywordPredicate(query, attributeList, analyzer, DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED);
-        IndexBasedSourceOperator indexInputOperator = new IndexBasedSourceOperator(keywordPredicate.generateDataReaderPredicate(dataStore));
-=======
+    	
         KeywordPredicate keywordPredicate = new KeywordPredicate(query, attributeList, analyzer,
                 DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED);
         IndexBasedSourceOperator indexInputOperator = new IndexBasedSourceOperator(
                 keywordPredicate.generateDataReaderPredicate(dataStore));
->>>>>>> 36e546bfbc4ec4c393b66beecc5b94da61a5d97f
 
         keywordMatcher = new KeywordMatcher(keywordPredicate);
         keywordMatcher.setInputOperator(indexInputOperator);
