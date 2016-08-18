@@ -90,7 +90,7 @@ public abstract class AbstractSingleInputOperator implements IOperator {
      * @return matching result, null if the tuple doesn't match
      * @throws DataFlowException
      */
-    protected abstract ITuple computeNextMatch() throws DataFlowException;
+    protected abstract ITuple computeNextMatch() throws Exception;
 
     @Override
     public void close() throws DataFlowException {
