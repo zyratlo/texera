@@ -33,6 +33,7 @@ import edu.uci.ics.textdb.dataflow.common.JoinPredicate;
 import edu.uci.ics.textdb.dataflow.common.KeywordPredicate;
 import edu.uci.ics.textdb.dataflow.fuzzytokenmatcher.FuzzyTokenMatcher;
 import edu.uci.ics.textdb.dataflow.keywordmatch.KeywordMatcher;
+import edu.uci.ics.textdb.dataflow.projection.ProjectionPredicate;
 import edu.uci.ics.textdb.dataflow.source.IndexBasedSourceOperator;
 import edu.uci.ics.textdb.dataflow.utils.TestUtils;
 import edu.uci.ics.textdb.storage.DataReaderPredicate;
@@ -446,11 +447,13 @@ public class JoinTest {
 
         query = "this writer writes well";
         double thresholdRatio = 0.25;
-        boolean isSpanInformationAdded = false;
-        FuzzyTokenPredicate fuzzyPredicateInner = new FuzzyTokenPredicate(query, dataStoreForInner, attributeList,
-                analyzer, thresholdRatio, isSpanInformationAdded);
+        FuzzyTokenPredicate fuzzyPredicateInner = new FuzzyTokenPredicate(query, attributeList,
+                analyzer, thresholdRatio);
         FuzzyTokenMatcher fuzzyMatcherInner = new FuzzyTokenMatcher(fuzzyPredicateInner);
+        fuzzyMatcherInner.setInputOperator(new IndexBasedSourceOperator(fuzzyPredicateInner.getDataReaderPredicate(dataStoreForInner)));
 
+        
+        
         Attribute idAttr = attributeList.get(0);
         Attribute reviewAttr = attributeList.get(4);
         List<ITuple> resultList = getJoinResults(keywordMatcherOuter, fuzzyMatcherInner, idAttr, reviewAttr, 20);
