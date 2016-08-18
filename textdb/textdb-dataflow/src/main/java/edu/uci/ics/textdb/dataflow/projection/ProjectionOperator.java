@@ -37,14 +37,20 @@ public class ProjectionOperator extends AbstractSingleInputOperator {
     }
 
     @Override
-    protected ITuple computeMatchingResults(ITuple inputTuple) throws DataFlowException {
+    protected ITuple computeNextMatch() throws Exception {
+        ITuple inputTuple = inputOperator.getNextTuple();
+        if (inputTuple == null) {
+            return null;
+        }
+        
         IField[] outputFields = 
                 outputSchema.getAttributes()
                 .stream()
                 .map(attr -> inputTuple.getField(attr.getFieldName()))
                 .toArray(IField[]::new);
         
-        return new DataTuple(outputSchema, outputFields);
+        return new DataTuple(outputSchema, outputFields); 
+
     }
 
     @Override
