@@ -249,41 +249,42 @@ public class NlpExtractorTest {
 
         Assert.assertTrue(contains);
     }
-    
+
     @Test
     public void getNextTupleTest8() throws Exception {
-    	List<ITuple> data = NlpExtractorTestConstants.getTest8Tuple();
-    	ISourceOperator sourceOperator = getSourceOperator(data.get(0).getSchema(), data);
-    	
-    	Attribute attribute1 = NlpExtractorTestConstants.SENTENCE_ONE_ATTR;
-    	
-    	List<Attribute> attributes = new ArrayList<>();
-    	attributes.add(attribute1);
-    	
-    	List<ITuple> returnedResults = getQueryResults(sourceOperator, attributes, NlpExtractor.NlpTokenType.Money);
-    	List<ITuple> expectedResults = NlpExtractorTestConstants.getTest8ResultTuples();
-    	
-    	boolean contains = TestUtils.containsAllResults(expectedResults, returnedResults);
-    	Assert.assertTrue(contains);
+        List<ITuple> data = NlpExtractorTestConstants.getTest8Tuple();
+        ISourceOperator sourceOperator = getSourceOperator(data.get(0).getSchema(), data);
+
+        Attribute attribute1 = NlpExtractorTestConstants.SENTENCE_ONE_ATTR;
+
+        List<Attribute> attributes = new ArrayList<>();
+        attributes.add(attribute1);
+
+        List<ITuple> returnedResults = getQueryResults(sourceOperator, attributes, NlpExtractor.NlpTokenType.Money);
+        List<ITuple> expectedResults = NlpExtractorTestConstants.getTest8ResultTuples();
+
+        boolean contains = TestUtils.containsAllResults(expectedResults, returnedResults);
+        Assert.assertTrue(contains);
     }
-    
+
     @Test
     public void getNextTupleTest9() throws Exception {
-    	List<ITuple> data = NlpExtractorTestConstants.getTest9Tuple();
-    	ISourceOperator sourceOperator = getSourceOperator(data.get(0).getSchema(), data);
-    	
-    	Attribute attribute1 = NlpExtractorTestConstants.SENTENCE_ONE_ATTR;
-    	Attribute attribute2 = NlpExtractorTestConstants.SENTENCE_TWO_ATTR;
-    	
-    	List<Attribute> attributes = new ArrayList<>();
-    	attributes.add(attribute1);
-    	attributes.add(attribute2);
-    	
-    	List<ITuple> returnedResults = Utils.removePayload(getQueryResults(sourceOperator, attributes, NlpExtractor.NlpTokenType.NE_ALL));
-    	List<ITuple> expectedResults = NlpExtractorTestConstants.getTest9ResultTuples();
-    	
-    	boolean contains = TestUtils.containsAllResults(expectedResults, returnedResults);
-    	Assert.assertTrue(contains);
+        List<ITuple> data = NlpExtractorTestConstants.getTest9Tuple();
+        ISourceOperator sourceOperator = getSourceOperator(data.get(0).getSchema(), data);
+
+        Attribute attribute1 = NlpExtractorTestConstants.SENTENCE_ONE_ATTR;
+        Attribute attribute2 = NlpExtractorTestConstants.SENTENCE_TWO_ATTR;
+
+        List<Attribute> attributes = new ArrayList<>();
+        attributes.add(attribute1);
+        attributes.add(attribute2);
+
+        List<ITuple> returnedResults = Utils
+                .removePayload(getQueryResults(sourceOperator, attributes, NlpExtractor.NlpTokenType.NE_ALL));
+        List<ITuple> expectedResults = NlpExtractorTestConstants.getTest9ResultTuples();
+
+        boolean contains = TestUtils.containsAllResults(expectedResults, returnedResults);
+        Assert.assertTrue(contains);
     }
 
     /**

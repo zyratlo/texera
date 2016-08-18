@@ -64,101 +64,102 @@ public class IndexBasedSourceOperatorTest {
                 Arrays.asList(TestConstants.ATTRIBUTES_PEOPLE[0]), luceneAnalyzer);
 
         indexBasedSourceOperator = new IndexBasedSourceOperator(dataReaderPredicate);
-	}
+    }
 
-	public List<ITuple> getQueryResults(String query) throws DataFlowException, ParseException {
-		constructIndexBasedSourceOperator(query);
-		indexBasedSourceOperator.open();
+    public List<ITuple> getQueryResults(String query) throws DataFlowException, ParseException {
+        constructIndexBasedSourceOperator(query);
+        indexBasedSourceOperator.open();
 
-		List<ITuple> results = new ArrayList<ITuple>();
-		ITuple nextTuple = null;
-		while ((nextTuple = indexBasedSourceOperator.getNextTuple()) != null) {
-			results.add(nextTuple);
-		}
-		indexBasedSourceOperator.close();
-		return results;
-	}
+        List<ITuple> results = new ArrayList<ITuple>();
+        ITuple nextTuple = null;
+        while ((nextTuple = indexBasedSourceOperator.getNextTuple()) != null) {
+            results.add(nextTuple);
+        }
+        indexBasedSourceOperator.close();
+        return results;
+    }
 
-	/**
-	 * Search in a text field with multiple tokens.
-	 * @throws DataFlowException
-	 * @throws ParseException
-	 */
-	@Test
-	public void testTextSearchWithMultipleTokens() throws DataFlowException, ParseException {
-		List<ITuple> results = getQueryResults(TestConstants.DESCRIPTION + ":Tall,Brown");
-		int numTuples = results.size();
-		Assert.assertEquals(3, numTuples);
+    /**
+     * Search in a text field with multiple tokens.
+     * 
+     * @throws DataFlowException
+     * @throws ParseException
+     */
+    @Test
+    public void testTextSearchWithMultipleTokens() throws DataFlowException, ParseException {
+        List<ITuple> results = getQueryResults(TestConstants.DESCRIPTION + ":Tall,Brown");
+        int numTuples = results.size();
+        Assert.assertEquals(3, numTuples);
 
-		boolean check = TestUtils.checkResults(results,"Tall,Brown" , this.luceneAnalyzer,TestConstants.DESCRIPTION);
-		Assert.assertTrue(check);
-	}
+        boolean check = TestUtils.checkResults(results, "Tall,Brown", this.luceneAnalyzer, TestConstants.DESCRIPTION);
+        Assert.assertTrue(check);
+    }
 
-	/**
-	 * Search in a text field with a single token
-	 * 
-	 * @throws DataFlowException
-	 * @throws ParseException
-	 */
-	@Test
-	public void testTextSearchWithSingleToken() throws DataFlowException, ParseException {
-		List<ITuple> results = getQueryResults(TestConstants.DESCRIPTION + ":angry");
-		int numTuples = results.size();
-		boolean check = TestUtils.checkResults(results,"angry" , this.luceneAnalyzer,TestConstants.DESCRIPTION);
-		Assert.assertTrue(check);
-		Assert.assertEquals(4, numTuples);
-	}
+    /**
+     * Search in a text field with a single token
+     * 
+     * @throws DataFlowException
+     * @throws ParseException
+     */
+    @Test
+    public void testTextSearchWithSingleToken() throws DataFlowException, ParseException {
+        List<ITuple> results = getQueryResults(TestConstants.DESCRIPTION + ":angry");
+        int numTuples = results.size();
+        boolean check = TestUtils.checkResults(results, "angry", this.luceneAnalyzer, TestConstants.DESCRIPTION);
+        Assert.assertTrue(check);
+        Assert.assertEquals(4, numTuples);
+    }
 
-	/**
-	 * Test a query on the string field, with a substring as the query 
-	 * 			Should return no result
-	 * 
-	 * @throws DataFlowException
-	 * @throws ParseException
-	 */
-	@Test
-	public void testStringSearchWithSubstring() throws DataFlowException, ParseException {
-		List<ITuple> results = getQueryResults("lin");
-		int numTuples = results.size();
-		Assert.assertEquals(0, numTuples);
-	}
+    /**
+     * Test a query on the string field, with a substring as the query Should
+     * return no result
+     * 
+     * @throws DataFlowException
+     * @throws ParseException
+     */
+    @Test
+    public void testStringSearchWithSubstring() throws DataFlowException, ParseException {
+        List<ITuple> results = getQueryResults("lin");
+        int numTuples = results.size();
+        Assert.assertEquals(0, numTuples);
+    }
 
-	/**
-	 * 
-	 * Test a query which has multiple field
-	 * 
-	 * @throws DataFlowException
-	 * @throws ParseException
-	 */
-	@Test
-	public void testMultipleFields() throws DataFlowException, ParseException {
-		List<ITuple> results = getQueryResults(
-				TestConstants.DESCRIPTION + ":(Tall,Brown)" + " AND " + TestConstants.LAST_NAME + ":cruise");
-		int numTuples = results.size();
-		Assert.assertEquals(1, numTuples);
+    /**
+     * 
+     * Test a query which has multiple field
+     * 
+     * @throws DataFlowException
+     * @throws ParseException
+     */
+    @Test
+    public void testMultipleFields() throws DataFlowException, ParseException {
+        List<ITuple> results = getQueryResults(
+                TestConstants.DESCRIPTION + ":(Tall,Brown)" + " AND " + TestConstants.LAST_NAME + ":cruise");
+        int numTuples = results.size();
+        Assert.assertEquals(1, numTuples);
 
-		for (ITuple tuple : results) {
-			String descriptionValue = (String) tuple.getField(TestConstants.DESCRIPTION).getValue();
-			String lastNameValue = (String) tuple.getField(TestConstants.LAST_NAME).getValue();
-			Assert.assertTrue(descriptionValue.toLowerCase().contains("tall")
-					|| descriptionValue.toLowerCase().contains("brown"));
-			Assert.assertTrue(lastNameValue.toLowerCase().contains("cruise"));
-		}
-	}
-	
-	/**
-	 * Tests the scenario where the predicate is reset and the 
-	 * getNextTupkle() is called without opening the operator again.
-	 * This throws an Exception
-	 * @throws ParseException
-	 * @throws DataFlowException
-	 */
-	@Test(expected=DataFlowException.class)
-	public void testResetPredicate() throws ParseException, DataFlowException{
-	    constructIndexBasedSourceOperator(TestConstants.DESCRIPTION + ":angry");
-	    indexBasedSourceOperator.open();
-	    indexBasedSourceOperator.getNextTuple();
-	    indexBasedSourceOperator.resetPredicate(dataReaderPredicate);
-	    indexBasedSourceOperator.getNextTuple();
+        for (ITuple tuple : results) {
+            String descriptionValue = (String) tuple.getField(TestConstants.DESCRIPTION).getValue();
+            String lastNameValue = (String) tuple.getField(TestConstants.LAST_NAME).getValue();
+            Assert.assertTrue(descriptionValue.toLowerCase().contains("tall")
+                    || descriptionValue.toLowerCase().contains("brown"));
+            Assert.assertTrue(lastNameValue.toLowerCase().contains("cruise"));
+        }
+    }
+
+    /**
+     * Tests the scenario where the predicate is reset and the getNextTupkle()
+     * is called without opening the operator again. This throws an Exception
+     * 
+     * @throws ParseException
+     * @throws DataFlowException
+     */
+    @Test(expected = DataFlowException.class)
+    public void testResetPredicate() throws ParseException, DataFlowException {
+        constructIndexBasedSourceOperator(TestConstants.DESCRIPTION + ":angry");
+        indexBasedSourceOperator.open();
+        indexBasedSourceOperator.getNextTuple();
+        indexBasedSourceOperator.resetPredicate(dataReaderPredicate);
+        indexBasedSourceOperator.getNextTuple();
     }
 }
