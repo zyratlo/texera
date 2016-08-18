@@ -11,127 +11,77 @@ import java.util.stream.Collectors;
 
 import edu.uci.ics.textdb.api.common.Attribute;
 import edu.uci.ics.textdb.api.common.FieldType;
-import edu.uci.ics.textdb.api.common.IField;
-import edu.uci.ics.textdb.api.common.IPredicate;
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.common.Schema;
-import edu.uci.ics.textdb.api.dataflow.IOperator;
-import edu.uci.ics.textdb.api.dataflow.ISourceOperator;
-import edu.uci.ics.textdb.api.storage.IDataStore;
 import edu.uci.ics.textdb.common.constants.DataConstants;
 import edu.uci.ics.textdb.common.constants.SchemaConstants;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
-import edu.uci.ics.textdb.common.exception.ErrorMessages;
 import edu.uci.ics.textdb.common.field.Span;
 import edu.uci.ics.textdb.common.utils.Utils;
+import edu.uci.ics.textdb.dataflow.common.AbstractSingleInputOperator;
 import edu.uci.ics.textdb.dataflow.common.KeywordPredicate;
-import edu.uci.ics.textdb.dataflow.source.IndexBasedSourceOperator;
-import edu.uci.ics.textdb.storage.DataReaderPredicate;
 
-/**
- * @author prakul
- * @author Akshay
- * @author Zuozhi Wang
- *
- */
-public class KeywordMatcher implements IOperator {
-    private final KeywordPredicate predicate;
-    private IOperator inputOperator;
+public class KeywordMatcher extends AbstractSingleInputOperator {
+
+    private KeywordPredicate predicate;
     private String query;
 
     private Schema inputSchema;
-    private Schema outputSchema;
-
-    private int cursor;
-    private int limit;
-    private int offset;
 
     public KeywordMatcher(KeywordPredicate predicate) {
-        this.cursor = -1;
-        this.limit = Integer.MAX_VALUE;
-        this.offset = 0;
         this.predicate = predicate;
-        this.query = this.predicate.getQuery();
+        this.query = predicate.getQuery();
     }
 
     @Override
-    public void open() throws DataFlowException {
-        if (this.inputOperator == null) {
-            throw new DataFlowException(ErrorMessages.INPUT_OPERATOR_NOT_SPECIFIED);
+    protected void setUp() {
+        inputSchema = inputOperator.getOutputSchema();
+        outputSchema = inputSchema;
+        if (!inputSchema.containsField(SchemaConstants.PAYLOAD)) {
+            outputSchema = Utils.addAttributeToSchema(outputSchema, SchemaConstants.PAYLOAD_ATTRIBUTE);
         }
-        try {
-            inputOperator.open();
+        if (!inputSchema.containsField(SchemaConstants.SPAN_LIST)) {
+            outputSchema = Utils.addAttributeToSchema(outputSchema, SchemaConstants.SPAN_LIST_ATTRIBUTE);
+        }
+    }
 
-            inputSchema = inputOperator.getOutputSchema();
-            outputSchema = inputSchema;
+    @Override
+    protected ITuple computeNextMatchingTuple() throws Exception {
+        ITuple inputTuple = null;
+        ITuple resultTuple = null;
+        
+        while ((inputTuple = inputOperator.getNextTuple()) != null) {
+            
+            // There's an implicit assumption that, in open() method, PAYLOAD is
+            // checked before SPAN_LIST.
+            // Therefore, PAYLOAD needs to be checked and added first
             if (!inputSchema.containsField(SchemaConstants.PAYLOAD)) {
-                outputSchema = Utils.addAttributeToSchema(outputSchema, SchemaConstants.PAYLOAD_ATTRIBUTE);
+                inputTuple = Utils.getSpanTuple(inputTuple.getFields(),
+                        Utils.generatePayloadFromTuple(inputTuple, predicate.getLuceneAnalyzer()), outputSchema);
             }
             if (!inputSchema.containsField(SchemaConstants.SPAN_LIST)) {
-                outputSchema = Utils.addAttributeToSchema(outputSchema, SchemaConstants.SPAN_LIST_ATTRIBUTE);
+                inputTuple = Utils.getSpanTuple(inputTuple.getFields(), new ArrayList<Span>(), outputSchema);
             }
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new DataFlowException(e.getMessage(), e);
+            if (this.predicate.getOperatorType() == DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED) {
+                resultTuple = computeConjunctionMatchingResult(inputTuple);
+            }
+            if (this.predicate.getOperatorType() == DataConstants.KeywordMatchingType.PHRASE_INDEXBASED) {
+                resultTuple = computePhraseMatchingResult(inputTuple);
+            }
+            if (this.predicate.getOperatorType() == DataConstants.KeywordMatchingType.SUBSTRING_SCANBASED) {
+                resultTuple = computeSubstringMatchingResult(inputTuple);
+            }
+            
+            if (resultTuple != null) {
+                break;
+            }
         }
+        return resultTuple;
     }
 
-    /**
-     * @about Gets next matched tuple. Returns a new span tuple including the
-     *        span results. Performs a scan based search or an index based
-     *        search depending on the sourceOperator provided while initializing
-     *        KeywordPredicate. It scans documents returned by sourceOperator
-     *        for provided keywords/phrase (Depending on provided
-     *        KeywordOperatorType).
-     * 
-     *        See DataConstants.KeywordMatchingType for 3 types of keyword
-     *        matching.
-     */
     @Override
-    public ITuple getNextTuple() throws DataFlowException {
-        try {
-            if (limit == 0 || cursor >= offset + limit - 1) {
-                return null;
-            }
-            ITuple sourceTuple;
-            ITuple resultTuple = null;
-            while ((sourceTuple = inputOperator.getNextTuple()) != null) {
-                // There's an implicit assumption that, in open() method,
-                // PAYLOAD is checked before SPAN_LIST.
-                // Therefore, PAYLOAD needs to be checked and added first
-                if (!inputSchema.containsField(SchemaConstants.PAYLOAD)) {
-                    sourceTuple = Utils.getSpanTuple(sourceTuple.getFields(),
-                            Utils.generatePayloadFromTuple(sourceTuple, predicate.getLuceneAnalyzer()), outputSchema);
-                }
-                if (!inputSchema.containsField(SchemaConstants.SPAN_LIST)) {
-                    sourceTuple = Utils.getSpanTuple(sourceTuple.getFields(), new ArrayList<Span>(), outputSchema);
-                }
-
-                if (this.predicate.getOperatorType() == DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED) {
-                    resultTuple = computeConjunctionMatchingResult(sourceTuple);
-                }
-                if (this.predicate.getOperatorType() == DataConstants.KeywordMatchingType.PHRASE_INDEXBASED) {
-                    resultTuple = computePhraseMatchingResult(sourceTuple);
-                }
-                if (this.predicate.getOperatorType() == DataConstants.KeywordMatchingType.SUBSTRING_SCANBASED) {
-                    resultTuple = computeSubstringMatchingResult(sourceTuple);
-                }
-
-                if (resultTuple != null) {
-                    cursor++;
-                }
-                if (resultTuple != null && cursor >= offset) {
-                    break;
-                }
-            }
-            return resultTuple;
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new DataFlowException(e.getMessage(), e);
-        }
-
+    protected void cleanUp() {
     }
 
     private ITuple computeConjunctionMatchingResult(ITuple sourceTuple) throws DataFlowException {
@@ -338,47 +288,6 @@ public class KeywordMatcher implements IOperator {
             }
         }
         return relevantSpans;
-    }
-
-    @Override
-    public void close() throws DataFlowException {
-        try {
-            if (inputOperator != null) {
-                inputOperator.close();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new DataFlowException(e.getMessage(), e);
-        }
-    }
-
-    public IOperator getInputOperator() {
-        return inputOperator;
-    }
-
-    public void setInputOperator(IOperator inputOperator) {
-        this.inputOperator = inputOperator;
-    }
-
-    @Override
-    public Schema getOutputSchema() {
-        return inputOperator.getOutputSchema();
-    }
-
-    public void setLimit(int limit) {
-        this.limit = limit;
-    }
-
-    public int getLimit() {
-        return limit;
-    }
-
-    public void setOffset(int offset) {
-        this.offset = offset;
-    }
-
-    public int getOffset() {
-        return offset;
     }
 
 }
