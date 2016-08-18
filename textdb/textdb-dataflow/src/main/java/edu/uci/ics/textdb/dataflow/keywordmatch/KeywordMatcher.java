@@ -46,27 +46,36 @@ public class KeywordMatcher extends AbstractSingleInputOperator {
     }
 
     @Override
-    protected ITuple computeMatchingResults(ITuple inputTuple) throws DataFlowException {
+    protected ITuple computeNextMatch() throws Exception {
+        ITuple inputTuple = null;
         ITuple resultTuple = null;
-        // There's an implicit assumption that, in open() method, PAYLOAD is
-        // checked before SPAN_LIST.
-        // Therefore, PAYLOAD needs to be checked and added first
-        if (!inputSchema.containsField(SchemaConstants.PAYLOAD)) {
-            inputTuple = Utils.getSpanTuple(inputTuple.getFields(),
-                    Utils.generatePayloadFromTuple(inputTuple, predicate.getLuceneAnalyzer()), outputSchema);
-        }
-        if (!inputSchema.containsField(SchemaConstants.SPAN_LIST)) {
-            inputTuple = Utils.getSpanTuple(inputTuple.getFields(), new ArrayList<Span>(), outputSchema);
-        }
+        
+        while ((inputTuple = inputOperator.getNextTuple()) != null) {
+            
+            // There's an implicit assumption that, in open() method, PAYLOAD is
+            // checked before SPAN_LIST.
+            // Therefore, PAYLOAD needs to be checked and added first
+            if (!inputSchema.containsField(SchemaConstants.PAYLOAD)) {
+                inputTuple = Utils.getSpanTuple(inputTuple.getFields(),
+                        Utils.generatePayloadFromTuple(inputTuple, predicate.getLuceneAnalyzer()), outputSchema);
+            }
+            if (!inputSchema.containsField(SchemaConstants.SPAN_LIST)) {
+                inputTuple = Utils.getSpanTuple(inputTuple.getFields(), new ArrayList<Span>(), outputSchema);
+            }
 
-        if (this.predicate.getOperatorType() == DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED) {
-            resultTuple = computeConjunctionMatchingResult(inputTuple);
-        }
-        if (this.predicate.getOperatorType() == DataConstants.KeywordMatchingType.PHRASE_INDEXBASED) {
-            resultTuple = computePhraseMatchingResult(inputTuple);
-        }
-        if (this.predicate.getOperatorType() == DataConstants.KeywordMatchingType.SUBSTRING_SCANBASED) {
-            resultTuple = computeSubstringMatchingResult(inputTuple);
+            if (this.predicate.getOperatorType() == DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED) {
+                resultTuple = computeConjunctionMatchingResult(inputTuple);
+            }
+            if (this.predicate.getOperatorType() == DataConstants.KeywordMatchingType.PHRASE_INDEXBASED) {
+                resultTuple = computePhraseMatchingResult(inputTuple);
+            }
+            if (this.predicate.getOperatorType() == DataConstants.KeywordMatchingType.SUBSTRING_SCANBASED) {
+                resultTuple = computeSubstringMatchingResult(inputTuple);
+            }
+            
+            if (resultTuple != null) {
+                break;
+            }
         }
         return resultTuple;
     }
