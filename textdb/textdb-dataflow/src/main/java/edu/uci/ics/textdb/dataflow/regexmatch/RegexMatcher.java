@@ -3,51 +3,30 @@ package edu.uci.ics.textdb.dataflow.regexmatch;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
-import org.apache.lucene.queryparser.classic.ParseException;
-import org.apache.lucene.queryparser.classic.QueryParser;
-import org.apache.lucene.search.Query;
-
 import edu.uci.ics.textdb.api.common.Attribute;
 import edu.uci.ics.textdb.api.common.FieldType;
-import edu.uci.ics.textdb.api.common.IField;
-import edu.uci.ics.textdb.api.common.IPredicate;
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.common.Schema;
-import edu.uci.ics.textdb.api.dataflow.IOperator;
-import edu.uci.ics.textdb.api.dataflow.ISourceOperator;
-import edu.uci.ics.textdb.common.constants.DataConstants;
 import edu.uci.ics.textdb.common.constants.SchemaConstants;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
-import edu.uci.ics.textdb.common.exception.ErrorMessages;
-import edu.uci.ics.textdb.common.field.DataTuple;
-import edu.uci.ics.textdb.common.field.ListField;
 import edu.uci.ics.textdb.common.field.Span;
 import edu.uci.ics.textdb.common.utils.Utils;
+import edu.uci.ics.textdb.dataflow.common.AbstractSingleInputOperator;
 import edu.uci.ics.textdb.dataflow.common.RegexPredicate;
-import edu.uci.ics.textdb.dataflow.source.IndexBasedSourceOperator;
-import edu.uci.ics.textdb.storage.DataReaderPredicate;
 
 /**
  * Created by chenli on 3/25/16.
  * 
- * @author laishuying
+ * @author Shuying Lai (laisycs)
+ * @author Zuozhi Wang (zuozhiw)
  */
-public class RegexMatcher implements IOperator {
+public class RegexMatcher extends AbstractSingleInputOperator {
+    
     private RegexPredicate regexPredicate;
-
     private String regex;
     private List<Attribute> attributeList;
 
-    private Schema inputSchema;
-    private Schema outputSchema;
-
-    private IOperator inputOperator;
-
-    private int limit;
-    private int cursor;
-    private int offset;
+    private boolean isCaseInsensitive = false;
 
     // two available regex engines, RegexMatcher will try RE2J first
     private enum RegexEngine {
@@ -57,78 +36,69 @@ public class RegexMatcher implements IOperator {
     private RegexEngine regexEngine;
     private com.google.re2j.Pattern re2jPattern;
     private java.util.regex.Pattern javaPattern;
+    
+    private Schema inputSchema;
 
-    public RegexMatcher(RegexPredicate predicate) throws DataFlowException {
-        this.cursor = -1;
-        this.offset = 0;
-        this.limit = Integer.MAX_VALUE;
+
+    public RegexMatcher(RegexPredicate predicate) {
         this.regexPredicate = predicate;
         this.regex = regexPredicate.getRegex();
         this.attributeList = regexPredicate.getAttributeList();
-
+    }
+    
+    @Override
+    protected void setUp() throws DataFlowException {
+        inputSchema = inputOperator.getOutputSchema();
+        outputSchema = inputSchema;
+        
+        if (!this.inputSchema.containsField(SchemaConstants.SPAN_LIST)) {
+            outputSchema = Utils.createSpanSchema(inputSchema);
+        }
+        
         // try Java Regex first
         try {
-            this.javaPattern = java.util.regex.Pattern.compile(regex);
-            this.regexEngine = RegexEngine.JavaRegex;
+            if (isCaseInsensitive) {
+                this.javaPattern = java.util.regex.Pattern.compile(regex, java.util.regex.Pattern.CASE_INSENSITIVE);
+                this.regexEngine = RegexEngine.JavaRegex; 
+            } else {
+                this.javaPattern = java.util.regex.Pattern.compile(regex);
+                this.regexEngine = RegexEngine.JavaRegex; 
+            }
+
             // if Java Regex fails, try RE2J
         } catch (java.util.regex.PatternSyntaxException javaException) {
             try {
-                this.re2jPattern = com.google.re2j.Pattern.compile(regexPredicate.getRegex());
-                this.regexEngine = RegexEngine.RE2J;
+                if (isCaseInsensitive) {
+                    this.re2jPattern = com.google.re2j.Pattern.compile(regexPredicate.getRegex(), com.google.re2j.Pattern.CASE_INSENSITIVE);
+                    this.regexEngine = RegexEngine.RE2J;
+                } else {
+                    this.re2jPattern = com.google.re2j.Pattern.compile(regexPredicate.getRegex());
+                    this.regexEngine = RegexEngine.RE2J;                    
+                }
+
                 // if RE2J also fails, throw exception
             } catch (com.google.re2j.PatternSyntaxException re2jException) {
                 throw new DataFlowException(javaException.getMessage(), javaException);
             }
         }
     }
-
+    
     @Override
-    public void open() throws DataFlowException {
-        if (this.inputOperator == null) {
-            throw new DataFlowException(ErrorMessages.INPUT_OPERATOR_NOT_SPECIFIED);
-        }
-
-        try {
-            inputOperator.open();
-
-            this.inputSchema = inputOperator.getOutputSchema();
-            if (!this.inputSchema.containsField(SchemaConstants.SPAN_LIST)) {
-                outputSchema = Utils.createSpanSchema(inputSchema);
-            } else {
-                outputSchema = inputSchema;
+    protected ITuple computeNextMatch() throws Exception {
+        ITuple inputTuple = null;
+        ITuple resultTuple = null;
+        
+        while ((inputTuple = inputOperator.getNextTuple()) != null) {
+            if (!inputSchema.containsField(SchemaConstants.SPAN_LIST)) {
+                inputTuple = Utils.getSpanTuple(inputTuple.getFields(), new ArrayList<Span>(), outputSchema);
+            }            
+            resultTuple = computeMatchingResult(inputTuple);
+            if (resultTuple != null) {
+                break;
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new DataFlowException(e.getMessage(), e);
         }
-    }
-
-    @Override
-    public ITuple getNextTuple() throws DataFlowException {
-        try {
-            if (limit == 0 || cursor >= offset + limit - 1) {
-                return null;
-            }
-            ITuple sourceTuple;
-            ITuple resultTuple = null;
-            while ((sourceTuple = inputOperator.getNextTuple()) != null) {
-                if (!inputSchema.containsField(SchemaConstants.SPAN_LIST)) {
-                    sourceTuple = Utils.getSpanTuple(sourceTuple.getFields(), new ArrayList<Span>(), outputSchema);
-                }
-                resultTuple = computeMatchingResult(sourceTuple);
-
-                if (resultTuple != null) {
-                    cursor++;
-                }
-                if (resultTuple != null && cursor >= offset) {
-                    break;
-                }
-            }
-            return resultTuple;
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new DataFlowException(e.getMessage(), e);
-        }
+        
+        return resultTuple;
     }
 
     /**
@@ -144,7 +114,7 @@ public class RegexMatcher implements IOperator {
      *         in the document
      * @throws DataFlowException
      */
-    public ITuple computeMatchingResult(ITuple sourceTuple) throws DataFlowException {
+    private ITuple computeMatchingResult(ITuple sourceTuple) throws DataFlowException {
         if (sourceTuple == null) {
             return null;
         }
@@ -239,53 +209,25 @@ public class RegexMatcher implements IOperator {
             }
         }
     }
+    
+    public boolean getIsCaseInsensitive() {
+        return isCaseInsensitive;
+    }
+    
+    public void setIsCaseInsensitive(boolean isCaseInsensitive) {
+        this.isCaseInsensitive = isCaseInsensitive;
+    }
 
     public String getRegexEngineString() {
         return this.regexEngine.toString();
-    }
-
-    @Override
-    public void close() throws DataFlowException {
-        try {
-            if (inputOperator != null) {
-                inputOperator.close();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new DataFlowException(e.getMessage(), e);
-        }
     }
 
     public String getRegex() {
         return this.regex;
     }
 
-    public IOperator getInputOperator() {
-        return inputOperator;
-    }
-
-    public void setInputOperator(ISourceOperator inputOperator) {
-        this.inputOperator = inputOperator;
-    }
-
     @Override
-    public Schema getOutputSchema() {
-        return outputSchema;
+    protected void cleanUp() throws DataFlowException {        
     }
-
-    public void setLimit(int limit) {
-        this.limit = limit;
-    }
-
-    public int getLimit() {
-        return this.limit;
-    }
-
-    public void setOffset(int offset) {
-        this.offset = offset;
-    }
-
-    public int getOffset() {
-        return this.offset;
-    }
+    
 }

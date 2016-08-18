@@ -33,17 +33,23 @@ public class RegexPredicate implements IPredicate {
     private List<Attribute> attributeList;
 
     private Analyzer luceneAnalyzer;
-    private Query luceneQuery;
-    private String queryString;
+
 
     public RegexPredicate(String regex, List<Attribute> attributeList, Analyzer analyzer) throws DataFlowException {
         this.regex = regex;
         this.luceneAnalyzer = analyzer;
         this.attributeList = attributeList;
+    }
+
+
+
+    public DataReaderPredicate generateDataReaderPredicate(IDataStore dataStore) throws DataFlowException {
+        Query luceneQuery;
+        String queryString;
         List<String> fieldNameList = attributeList.stream()
                 .filter(attr -> (attr.getFieldType() == FieldType.TEXT || attr.getFieldType() == FieldType.STRING))
                 .map(attr -> attr.getFieldName()).collect(Collectors.toList());
-
+        
         // Try to apply translator. If it fails, use scan query.
         try {
             queryString = RegexToGramQueryTranslator.translate(regex).getLuceneQueryString();
@@ -57,20 +63,17 @@ public class RegexPredicate implements IPredicate {
             e.printStackTrace();
             throw new DataFlowException(e.getMessage(), e);
         }
-
-    }
-
-    private Query generateLuceneQuery(List<String> fields, String queryStr) throws ParseException {
-        String[] fieldsArray = new String[fields.size()];
-        QueryParser parser = new MultiFieldQueryParser(fields.toArray(fieldsArray), luceneAnalyzer);
-        return parser.parse(queryStr);
-    }
-
-    public DataReaderPredicate generateDataReaderPredicate(IDataStore dataStore) {
+        
         DataReaderPredicate predicate = new DataReaderPredicate(luceneQuery, queryString, dataStore, attributeList,
                 luceneAnalyzer);
         predicate.setIsSpanInformationAdded(false);
         return predicate;
+    }
+    
+    private Query generateLuceneQuery(List<String> fields, String queryStr) throws ParseException {
+        String[] fieldsArray = new String[fields.size()];
+        QueryParser parser = new MultiFieldQueryParser(fields.toArray(fieldsArray), luceneAnalyzer);
+        return parser.parse(queryStr);
     }
 
     public String getRegex() {
