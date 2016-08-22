@@ -329,6 +329,34 @@ public class NlpExtractorTest {
         boolean contains = TestUtils.containsAllResults(expectedResults, returnedResults);
         Assert.assertTrue(contains);
     }
+    
+    public void getNextTupleTestWithLimit() throws Exception {
+        List<ITuple> data = NlpExtractorTestConstants.getOneSentenceTestTuple();
+        ISourceOperator sourceOperator = getSourceOperator(NlpExtractorTestConstants.SCHEMA_ONE_SENTENCE, data);
+        
+        Attribute attribute1 = NlpExtractorTestConstants.SENTENCE_ONE_ATTR;
+        List<Attribute> attributes = Arrays.asList(attribute1);
+        
+        List<ITuple> returnedResults = getQueryResults(sourceOperator, attributes, NlpExtractor.NlpTokenType.NE_ALL, 3);
+        List<ITuple> expectedResults = NlpExtractorTestConstants.getTest10ResultTuples();
+        
+        Assert.assertEquals(returnedResults.size(), 3);
+        Assert.assertTrue(expectedResults.containsAll(returnedResults));
+    }
+    
+    public void getNextTupleTestWithLimitOffset() throws Exception {
+        List<ITuple> data = NlpExtractorTestConstants.getOneSentenceTestTuple();
+        ISourceOperator sourceOperator = getSourceOperator(NlpExtractorTestConstants.SCHEMA_ONE_SENTENCE, data);
+        
+        Attribute attribute1 = NlpExtractorTestConstants.SENTENCE_ONE_ATTR;
+        List<Attribute> attributes = Arrays.asList(attribute1);
+        
+        List<ITuple> returnedResults = getQueryResults(sourceOperator, attributes, NlpExtractor.NlpTokenType.NE_ALL, 2, 2);
+        List<ITuple> expectedResults = NlpExtractorTestConstants.getTest10ResultTuples();
+        
+        Assert.assertEquals(returnedResults.size(), 2);
+        Assert.assertTrue(expectedResults.containsAll(returnedResults));
+    }
 
     /**
      * @param schema
