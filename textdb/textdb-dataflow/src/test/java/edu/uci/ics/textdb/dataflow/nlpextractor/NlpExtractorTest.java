@@ -323,8 +323,10 @@ public class NlpExtractorTest {
         Attribute attribute1 = NlpExtractorTestConstants.SENTENCE_TWO_ATTR;
         List<Attribute> attributes = Arrays.asList(attribute1);
         
-        List<ITuple> returnedResults = getQueryResults(sourceOperator, attributes, NlpExtractor.NlpTokenType.Organization);
-        //System.out.println(Utils.getTupleListString(returnedResults));
+        List<ITuple> returnedResults = Utils.removePayload(getQueryResults(sourceOperator, attributes, NlpExtractor.NlpTokenType.NE_ALL));        
+        List<ITuple> expectedResults = NlpExtractorTestConstants.getTest11ResultTuple();  
+        boolean contains = TestUtils.containsAllResults(expectedResults, returnedResults);
+        Assert.assertTrue(contains);
     }
 
     /**

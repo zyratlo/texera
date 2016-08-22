@@ -374,4 +374,43 @@ public class NlpExtractorTestConstants {
         
         return resultList;
     }
+    
+    public static List<ITuple> getTest11ResultTuple() {
+        List<ITuple> resultList = new ArrayList<>();
+        List<Span> spanList = new ArrayList<Span>();
+        
+        Span span1 = new Span("sentence_two", 0, 12, NlpExtractor.NlpTokenType.Person.toString(), "Donald Trump");
+        Span span2 = new Span("sentence_two", 17, 29, NlpExtractor.NlpTokenType.Person.toString(), "Barack Obama");
+        Span span3 = new Span("sentence_two", 0, 12, NlpExtractor.NlpTokenType.Date.toString(), "Aug 16 , 2016");
+        Span span4 = new Span("sentence_two", 0, 14, NlpExtractor.NlpTokenType.Person.toString(), "Shirley Temple");
+        
+        IField[] fields1 = { new TextField("Microsoft, Google and Facebook are organizations."),
+                new TextField("Donald Trump and Barack Obama are persons") };
+        IField[] fields2 = { new TextField("I made an appointment at 8 am."), 
+                new TextField("Aug 16, 2016 is a really important date.")};
+        IField[] fields3 = { new TextField("I really love Kelly Clarkson's Because of You."),
+                new TextField("Shirley Temple is a very famous actress.")};
+        
+        ITuple tuple1 = new DataTuple(SCHEMA_TWO_SENTENCE, fields1);
+        ITuple tuple2 = new DataTuple(SCHEMA_TWO_SENTENCE, fields2);
+        ITuple tuple3 = new DataTuple(SCHEMA_TWO_SENTENCE, fields3);
+        
+        Schema returnSchema1 = Utils.createSpanSchema(tuple1.getSchema());
+        Schema returnSchema2 = Utils.createSpanSchema(tuple2.getSchema());
+        Schema returnSchema3 = Utils.createSpanSchema(tuple3.getSchema());
+        
+        spanList.add(span1);
+        spanList.add(span2);
+        resultList.add(Utils.getSpanTuple(tuple1.getFields(), spanList, returnSchema1));
+        
+        spanList.clear();
+        spanList.add(span3);
+        resultList.add(Utils.getSpanTuple(tuple2.getFields(), spanList, returnSchema2));
+        
+        spanList.clear();
+        spanList.add(span4);
+        resultList.add(Utils.getSpanTuple(tuple3.getFields(), spanList, returnSchema3));
+        
+        return resultList;
+    }
 }
