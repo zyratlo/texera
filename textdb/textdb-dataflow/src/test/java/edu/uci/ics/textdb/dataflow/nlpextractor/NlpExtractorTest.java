@@ -340,9 +340,9 @@ public class NlpExtractorTest {
         List<ITuple> returnedResults = getQueryResults(sourceOperator, attributes, NlpExtractor.NlpTokenType.NE_ALL, 3);
         List<ITuple> expectedResults = NlpExtractorTestConstants.getTest10ResultTuples();
         
-        /* ExpectedResults is the array contains all matches without limit and offset.
-           Since the order of returning records in returnedResults is not fixed, we use
-           containsAll to ensure that returnedResults are included in the ExpectedResults. */
+        // ExpectedResults is the array containing all the matches.
+        // Since the order of returning records in returnedResults is not deterministic, we use containsAll
+        // to ensure that the records in returnedResults are included in the ExpectedResults.
         Assert.assertEquals(returnedResults.size(), 3);
         Assert.assertTrue(expectedResults.containsAll(returnedResults));
     }
