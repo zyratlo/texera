@@ -379,10 +379,15 @@ public class NlpExtractorTestConstants {
         List<ITuple> resultList = new ArrayList<>();
         List<Span> spanList = new ArrayList<Span>();
         
-        Span span1 = new Span("sentence_two", 0, 12, NlpExtractor.NlpTokenType.Person.toString(), "Donald Trump");
-        Span span2 = new Span("sentence_two", 17, 29, NlpExtractor.NlpTokenType.Person.toString(), "Barack Obama");
-        Span span3 = new Span("sentence_two", 0, 12, NlpExtractor.NlpTokenType.Date.toString(), "Aug 16 , 2016");
-        Span span4 = new Span("sentence_two", 0, 14, NlpExtractor.NlpTokenType.Person.toString(), "Shirley Temple");
+        Span span1 = new Span("sentence_one", 0, 9, NlpExtractor.NlpTokenType.Organization.toString(), "Microsoft");
+        Span span2 = new Span("sentence_one", 11, 17, NlpExtractor.NlpTokenType.Organization.toString(), "Google");
+        Span span3 = new Span("sentence_one", 22, 30, NlpExtractor.NlpTokenType.Organization.toString(), "Facebook");
+        Span span4 = new Span("sentence_two", 0, 12, NlpExtractor.NlpTokenType.Person.toString(), "Donald Trump");
+        Span span5 = new Span("sentence_two", 17, 29, NlpExtractor.NlpTokenType.Person.toString(), "Barack Obama");
+        Span span6 = new Span("sentence_one", 25 ,29, NlpExtractor.NlpTokenType.Time.toString(), "8 am");
+        Span span7 = new Span("sentence_two", 0, 12, NlpExtractor.NlpTokenType.Date.toString(), "Aug 16 , 2016");
+        Span span8 = new Span("sentence_one", 14, 28, NlpExtractor.NlpTokenType.Person.toString(), "Kelly Clarkson");
+        Span span9 = new Span("sentence_two", 0, 14, NlpExtractor.NlpTokenType.Person.toString(), "Shirley Temple");
         
         IField[] fields1 = { new TextField("Microsoft, Google and Facebook are organizations."),
                 new TextField("Donald Trump and Barack Obama are persons") };
@@ -401,14 +406,19 @@ public class NlpExtractorTestConstants {
         
         spanList.add(span1);
         spanList.add(span2);
+        spanList.add(span3);
+        spanList.add(span4);
+        spanList.add(span5);
         resultList.add(Utils.getSpanTuple(tuple1.getFields(), spanList, returnSchema1));
         
         spanList.clear();
-        spanList.add(span3);
+        spanList.add(span6);
+        spanList.add(span7);
         resultList.add(Utils.getSpanTuple(tuple2.getFields(), spanList, returnSchema2));
         
         spanList.clear();
-        spanList.add(span4);
+        spanList.add(span8);
+        spanList.add(span9);
         resultList.add(Utils.getSpanTuple(tuple3.getFields(), spanList, returnSchema3));
         
         return resultList;

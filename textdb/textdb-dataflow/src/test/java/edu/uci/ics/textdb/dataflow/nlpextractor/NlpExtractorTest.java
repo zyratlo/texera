@@ -320,8 +320,9 @@ public class NlpExtractorTest {
         List<ITuple> data = NlpExtractorTestConstants.getTwoSentenceTestTuple();
         ISourceOperator sourceOperator = getSourceOperator(NlpExtractorTestConstants.SCHEMA_TWO_SENTENCE, data);
         
-        Attribute attribute1 = NlpExtractorTestConstants.SENTENCE_TWO_ATTR;
-        List<Attribute> attributes = Arrays.asList(attribute1);
+        Attribute attribute1 = NlpExtractorTestConstants.SENTENCE_ONE_ATTR;
+        Attribute attribute2 = NlpExtractorTestConstants.SENTENCE_TWO_ATTR;
+        List<Attribute> attributes = Arrays.asList(attribute1, attribute2);
         
         List<ITuple> returnedResults = Utils.removePayload(getQueryResults(sourceOperator, attributes, NlpExtractor.NlpTokenType.NE_ALL));        
         List<ITuple> expectedResults = NlpExtractorTestConstants.getTest11ResultTuple();  
