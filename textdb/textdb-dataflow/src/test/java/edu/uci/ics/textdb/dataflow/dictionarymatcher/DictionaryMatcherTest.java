@@ -770,7 +770,7 @@ public class DictionaryMatcherTest {
         List<Attribute> attributes = Arrays.asList(TestConstants.FIRST_NAME_ATTR, TestConstants.LAST_NAME_ATTR,
                 TestConstants.DESCRIPTION_ATTR);
         List<ITuple> expectedList = new ArrayList<>();
-        List<ITuple> resultList = getQueryResults(dictionary, KeywordMatchingType.PHRASE_INDEXBASED, attributes, 2);
+        List<ITuple> resultList = getQueryResults(dictionary, KeywordMatchingType.PHRASE_INDEXBASED, attributes, 1, 1);
 
         expectedList.add(tuple1);
         expectedList.add(tuple2);
@@ -780,7 +780,7 @@ public class DictionaryMatcherTest {
         resultList = Utils.removePayload(resultList);
 
         Assert.assertEquals(expectedList.size(), 4);
-        Assert.assertEquals(resultList.size(), 2);
+        Assert.assertEquals(resultList.size(), 1);
         Assert.assertTrue(expectedList.containsAll(resultList));
     }
 }
