@@ -72,8 +72,8 @@ public abstract class AbstractSingleInputOperator implements IOperator {
                 if (resultTuple == null) {
                     break;
                 }
-                cursor++;
-                if (cursor >= offset) {
+                resultCursor++;
+                if (resultCursor >= offset) {
                     break;
                 }
             }

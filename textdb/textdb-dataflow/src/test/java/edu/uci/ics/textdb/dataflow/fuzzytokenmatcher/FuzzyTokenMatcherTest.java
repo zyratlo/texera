@@ -30,6 +30,7 @@ import edu.uci.ics.textdb.common.field.ListField;
 import edu.uci.ics.textdb.common.field.Span;
 import edu.uci.ics.textdb.common.field.StringField;
 import edu.uci.ics.textdb.common.field.TextField;
+import edu.uci.ics.textdb.common.utils.Utils;
 import edu.uci.ics.textdb.dataflow.common.FuzzyTokenPredicate;
 import edu.uci.ics.textdb.dataflow.utils.TestUtils;
 import edu.uci.ics.textdb.storage.DataStore;
@@ -63,11 +64,24 @@ public class FuzzyTokenMatcherTest {
 
     public List<ITuple> getQueryResults(String query, double threshold, ArrayList<Attribute> attributeList,
             boolean isSpanInformationAdded) throws DataFlowException, ParseException {
+        return getQueryResults(query, threshold, attributeList, isSpanInformationAdded, Integer.MAX_VALUE, 0);
+    }
+
+    public List<ITuple> getQueryResults(String query, double threshold, ArrayList<Attribute> attributeList,
+            boolean isSpanInformationAdded, int limit) throws DataFlowException, ParseException {
+
+        return getQueryResults(query, threshold, attributeList, isSpanInformationAdded, limit, 0);
+    }
+
+    public List<ITuple> getQueryResults(String query, double threshold, ArrayList<Attribute> attributeList,
+            boolean isSpanInformationAdded, int limit, int offset) throws DataFlowException, ParseException {
 
         FuzzyTokenPredicate predicate = new FuzzyTokenPredicate(query, dataStore, attributeList, analyzer, threshold,
                 isSpanInformationAdded);
         fuzzyTokenMatcher = new FuzzyTokenMatcher(predicate);
         fuzzyTokenMatcher.open();
+        fuzzyTokenMatcher.setLimit(limit);
+        fuzzyTokenMatcher.setOffset(offset);
 
         List<ITuple> results = new ArrayList<>();
         ITuple nextTuple = null;
@@ -108,14 +122,19 @@ public class FuzzyTokenMatcherTest {
         IField[] fields3 = { new StringField("george lin lin"), new StringField("lin clooney"), new IntegerField(43),
                 new DoubleField(6.06), new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-13-1973")),
                 new TextField("Lin Clooney is Short and lin clooney is Angry") };
+        IField[] fields4 = { new StringField("Mary brown"), new StringField("Lake Forest"), new IntegerField(42),
+                new DoubleField(5.99), new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-13-1974")),
+                new TextField("Short angry") };
 
         ITuple tuple1 = new DataTuple(new Schema(schemaAttributes), fields1);
         ITuple tuple2 = new DataTuple(new Schema(schemaAttributes), fields2);
         ITuple tuple3 = new DataTuple(new Schema(schemaAttributes), fields3);
+        ITuple tuple4 = new DataTuple(new Schema(schemaAttributes), fields4);
         List<ITuple> expectedResultList = new ArrayList<>();
         expectedResultList.add(tuple1);
         expectedResultList.add(tuple2);
         expectedResultList.add(tuple3);
+        expectedResultList.add(tuple4);
 
         List<ITuple> results = getQueryResults(query, threshold, attributeList, isSpanInformationAdded);
         boolean contains = TestUtils.containsAllResults(expectedResultList, results);
@@ -141,14 +160,19 @@ public class FuzzyTokenMatcherTest {
         IField[] fields3 = { new StringField("george lin lin"), new StringField("lin clooney"), new IntegerField(43),
                 new DoubleField(6.06), new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-13-1973")),
                 new TextField("Lin Clooney is Short and lin clooney is Angry") };
+        IField[] fields4 = { new StringField("Mary brown"), new StringField("Lake Forest"), new IntegerField(42),
+                new DoubleField(5.99), new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-13-1974")),
+                new TextField("Short angry") };
 
         ITuple tuple1 = new DataTuple(new Schema(schemaAttributes), fields1);
         ITuple tuple2 = new DataTuple(new Schema(schemaAttributes), fields2);
         ITuple tuple3 = new DataTuple(new Schema(schemaAttributes), fields3);
+        ITuple tuple4 = new DataTuple(new Schema(schemaAttributes), fields4);
         List<ITuple> expectedResultList = new ArrayList<>();
         expectedResultList.add(tuple1);
         expectedResultList.add(tuple2);
         expectedResultList.add(tuple3);
+        expectedResultList.add(tuple4);
 
         List<ITuple> results = getQueryResults(query, threshold, attributeList, isSpanInformationAdded);
         boolean contains = TestUtils.containsAllResults(expectedResultList, results);
@@ -188,15 +212,19 @@ public class FuzzyTokenMatcherTest {
         IField[] fields3 = { new StringField("george lin lin"), new StringField("lin clooney"), new IntegerField(43),
                 new DoubleField(6.06), new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-13-1973")),
                 new TextField("Lin Clooney is Short and lin clooney is Angry") };
+        IField[] fields4 = { new StringField("Mary brown"), new StringField("Lake Forest"), new IntegerField(42),
+                new DoubleField(5.99), new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-13-1974")),
+                new TextField("Short angry") };
 
         ITuple tuple1 = new DataTuple(new Schema(schemaAttributes), fields1);
         ITuple tuple2 = new DataTuple(new Schema(schemaAttributes), fields2);
         ITuple tuple3 = new DataTuple(new Schema(schemaAttributes), fields3);
+        ITuple tuple4 = new DataTuple(new Schema(schemaAttributes), fields4);
         List<ITuple> expectedResultList = new ArrayList<>();
         expectedResultList.add(tuple1);
         expectedResultList.add(tuple2);
         expectedResultList.add(tuple3);
-
+        expectedResultList.add(tuple4);
         List<ITuple> results = getQueryResults(query, threshold, attributeList, isSpanInformationAdded);
         boolean contains = TestUtils.containsAllResults(expectedResultList, results);
         Assert.assertTrue(contains);
@@ -237,16 +265,144 @@ public class FuzzyTokenMatcherTest {
                 new DoubleField(6.06), new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-13-1973")),
                 new TextField("Lin Clooney is Short and lin clooney is Angry"), new ListField<>(list) };
 
+        list = new ArrayList<>();
+        span = new Span(TestConstants.DESCRIPTION, 6, 11, "angry", "angry", 1);
+        list.add(span);
+        IField[] fields4 = { new StringField("Mary brown"), new StringField("Lake Forest"), new IntegerField(42),
+                new DoubleField(5.99), new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-13-1974")),
+                new TextField("Short angry"), new ListField<>(list) };
+
         ITuple tuple1 = new DataTuple(new Schema(schemaAttributes), fields1);
         ITuple tuple2 = new DataTuple(new Schema(schemaAttributes), fields2);
         ITuple tuple3 = new DataTuple(new Schema(schemaAttributes), fields3);
+        ITuple tuple4 = new DataTuple(new Schema(schemaAttributes), fields4);
         List<ITuple> expectedResultList = new ArrayList<>();
         expectedResultList.add(tuple1);
         expectedResultList.add(tuple2);
         expectedResultList.add(tuple3);
+        expectedResultList.add(tuple4);
 
-        List<ITuple> results = getQueryResults(query, threshold, attributeList, isSpanInformationAdded);
+        List<ITuple> results = Utils
+                .removePayload(getQueryResults(query, threshold, attributeList, isSpanInformationAdded));
         boolean contains = TestUtils.containsAllResults(expectedResultList, results);
         Assert.assertTrue(contains);
+    }
+
+    @Test
+    public void TestFuzzyTokenMatcherWithLimit() throws Exception {
+        String query = "Twelve Angry Men";
+        double threshold = 0.5; // The ratio of tokens that need to be matched
+        boolean isSpanInformationAdded = true;
+        ArrayList<Attribute> attributeList = new ArrayList<>();
+        attributeList.add(TestConstants.DESCRIPTION_ATTR);
+
+        Attribute[] schemaAttributes = new Attribute[TestConstants.ATTRIBUTES_PEOPLE.length + 1];
+        for (int count = 0; count < schemaAttributes.length - 1; count++) {
+            schemaAttributes[count] = TestConstants.ATTRIBUTES_PEOPLE[count];
+        }
+        schemaAttributes[schemaAttributes.length - 1] = SchemaConstants.SPAN_LIST_ATTRIBUTE;
+
+        List<Span> list = new ArrayList<>();
+        Span span = new Span(TestConstants.DESCRIPTION, 5, 10, "angry", "Angry", 1);
+        list.add(span);
+        IField[] fields1 = { new StringField("bruce"), new StringField("john Lee"), new IntegerField(46),
+                new DoubleField(5.50), new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-14-1970")),
+                new TextField("Tall Angry"), new ListField<>(list) };
+
+        list = new ArrayList<>();
+        span = new Span(TestConstants.DESCRIPTION, 6, 11, "angry", "Angry", 1);
+        list.add(span);
+        IField[] fields2 = { new StringField("brad lie angelina"), new StringField("pitt"), new IntegerField(44),
+                new DoubleField(6.10), new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-12-1972")),
+                new TextField("White Angry"), new ListField<>(list) };
+
+        list = new ArrayList<>();
+        span = new Span(TestConstants.DESCRIPTION, 40, 45, "angry", "Angry", 8);
+        list.add(span);
+        IField[] fields3 = { new StringField("george lin lin"), new StringField("lin clooney"), new IntegerField(43),
+                new DoubleField(6.06), new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-13-1973")),
+                new TextField("Lin Clooney is Short and lin clooney is Angry"), new ListField<>(list) };
+
+        list = new ArrayList<>();
+        span = new Span(TestConstants.DESCRIPTION, 6, 11, "angry", "angry", 1);
+        list.add(span);
+        IField[] fields4 = { new StringField("Mary brown"), new StringField("Lake Forest"), new IntegerField(42),
+                new DoubleField(5.99), new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-13-1974")),
+                new TextField("Short angry"), new ListField<>(list) };
+
+        ITuple tuple1 = new DataTuple(new Schema(schemaAttributes), fields1);
+        ITuple tuple2 = new DataTuple(new Schema(schemaAttributes), fields2);
+        ITuple tuple3 = new DataTuple(new Schema(schemaAttributes), fields3);
+        ITuple tuple4 = new DataTuple(new Schema(schemaAttributes), fields4);
+        List<ITuple> expectedResultList = new ArrayList<>();
+        expectedResultList.add(tuple1);
+        expectedResultList.add(tuple2);
+        expectedResultList.add(tuple3);
+        expectedResultList.add(tuple4);
+
+        List<ITuple> results = Utils
+                .removePayload(getQueryResults(query, threshold, attributeList, isSpanInformationAdded, 2));
+        Assert.assertEquals(expectedResultList.size(), 4);
+        Assert.assertEquals(results.size(), 2);
+        Assert.assertTrue(expectedResultList.containsAll(results));
+    }
+
+    @Test
+    public void TestFuzzyTokenMatcherWithLimitOffset() throws Exception {
+        String query = "Twelve Angry Men";
+        double threshold = 0.5; // The ratio of tokens that need to be matched
+        boolean isSpanInformationAdded = true;
+        ArrayList<Attribute> attributeList = new ArrayList<>();
+        attributeList.add(TestConstants.DESCRIPTION_ATTR);
+
+        Attribute[] schemaAttributes = new Attribute[TestConstants.ATTRIBUTES_PEOPLE.length + 1];
+        for (int count = 0; count < schemaAttributes.length - 1; count++) {
+            schemaAttributes[count] = TestConstants.ATTRIBUTES_PEOPLE[count];
+        }
+        schemaAttributes[schemaAttributes.length - 1] = SchemaConstants.SPAN_LIST_ATTRIBUTE;
+
+        List<Span> list = new ArrayList<>();
+        Span span = new Span(TestConstants.DESCRIPTION, 5, 10, "angry", "Angry", 1);
+        list.add(span);
+        IField[] fields1 = { new StringField("bruce"), new StringField("john Lee"), new IntegerField(46),
+                new DoubleField(5.50), new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-14-1970")),
+                new TextField("Tall Angry"), new ListField<>(list) };
+
+        list = new ArrayList<>();
+        span = new Span(TestConstants.DESCRIPTION, 6, 11, "angry", "Angry", 1);
+        list.add(span);
+        IField[] fields2 = { new StringField("brad lie angelina"), new StringField("pitt"), new IntegerField(44),
+                new DoubleField(6.10), new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-12-1972")),
+                new TextField("White Angry"), new ListField<>(list) };
+
+        list = new ArrayList<>();
+        span = new Span(TestConstants.DESCRIPTION, 40, 45, "angry", "Angry", 8);
+        list.add(span);
+        IField[] fields3 = { new StringField("george lin lin"), new StringField("lin clooney"), new IntegerField(43),
+                new DoubleField(6.06), new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-13-1973")),
+                new TextField("Lin Clooney is Short and lin clooney is Angry"), new ListField<>(list) };
+
+        list = new ArrayList<>();
+        span = new Span(TestConstants.DESCRIPTION, 6, 11, "angry", "angry", 1);
+        list.add(span);
+        IField[] fields4 = { new StringField("Mary brown"), new StringField("Lake Forest"), new IntegerField(42),
+                new DoubleField(5.99), new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-13-1974")),
+                new TextField("Short angry"), new ListField<>(list) };
+
+        ITuple tuple1 = new DataTuple(new Schema(schemaAttributes), fields1);
+        ITuple tuple2 = new DataTuple(new Schema(schemaAttributes), fields2);
+        ITuple tuple3 = new DataTuple(new Schema(schemaAttributes), fields3);
+        ITuple tuple4 = new DataTuple(new Schema(schemaAttributes), fields4);
+        List<ITuple> expectedResultList = new ArrayList<>();
+        expectedResultList.add(tuple1);
+        expectedResultList.add(tuple2);
+        expectedResultList.add(tuple3);
+        expectedResultList.add(tuple4);
+
+        List<ITuple> results = Utils
+                .removePayload(getQueryResults(query, threshold, attributeList, isSpanInformationAdded, 2, 1));
+        Assert.assertEquals(expectedResultList.size(), 4);
+        Assert.assertEquals(results.size(), 2);
+        Assert.assertTrue(expectedResultList.containsAll(results));
     }
 }
