@@ -47,8 +47,9 @@ public class Join implements IOperator {
     // Cursor to maintain the position of tuple to be obtained from
     // innerTupleList.
     private Integer innerOperatorCursor = 0;
-    // Value to be used as key in Span.
-    // private Integer spanKey = 0;
+    private List<Attribute> newAttrList;
+    private Schema newSchema;
+    private boolean createNewSchema;
 
     /**
      * This constructor is used to set the operators whose output is to be
@@ -84,6 +85,7 @@ public class Join implements IOperator {
         }
 
         shouldIGetOuterOperatorNextTuple = true;
+        createNewSchema = true;
 
         // Load the inner tuple list into memory on open.
         while ((innerTuple = innerOperator.getNextTuple()) != null) {
@@ -112,6 +114,10 @@ public class Join implements IOperator {
         if (innerTupleList.isEmpty()) {
             return null;
         }
+
+        if (createNewSchema == false && newAttrList.isEmpty()) {
+    		return null;
+    	}
 
         ITuple nextTuple = null;
 
@@ -237,8 +243,6 @@ public class Join implements IOperator {
                         && Math.abs(outerSpan.getEnd() - innerSpan.getEnd()) <= threshold) {
                     Integer newSpanStartIndex = Math.min(outerSpan.getStart(), innerSpan.getStart());
                     Integer newSpanEndIndex = Math.max(outerSpan.getEnd(), innerSpan.getEnd());
-
-                    // spanKey++;
                     String fieldName = joinPredicate.getjoinAttribute().getFieldName();
                     String fieldValue = (String) innerTuple.getField(fieldName).getValue();
                     String newFieldValue = fieldValue.substring(newSpanStartIndex, newSpanEndIndex);
@@ -253,38 +257,50 @@ public class Join implements IOperator {
             return null;
         }
 
+        // If createNewSchema is true then we will create a new Schema which
+        // is an intersection of Attributes from both the inner and outer 
+        // tuples. This new Schema is then used to form tuples returned upon 
+        // subsequent calls of getNextTuple() 
         List<IField> newFieldList = new ArrayList<>();
 
-        ArrayList<Attribute> innerAttrList = new ArrayList<>();
-        innerAttrList.addAll(innerTuple.getSchema().getAttributes());
-        ArrayList<Attribute> outerAttrList = new ArrayList<>();
-        outerAttrList.addAll(outerTuple.getSchema().getAttributes());
+        if (createNewSchema) {
+        	List<Attribute> innerAttrList = innerTuple.getSchema().getAttributes();
+        	List<Attribute> outerAttrList = outerTuple.getSchema().getAttributes();
 
-        List<Attribute> newAttrList = new ArrayList<>();
-        Iterator<Attribute> innerAttrListIter = innerAttrList.iterator();
+        	newAttrList = new ArrayList<>();
+        	Iterator<Attribute> innerAttrListIter = innerAttrList.iterator();
 
-        while (innerAttrListIter.hasNext()) {
-            Attribute nextAttr = innerAttrListIter.next();
-            if (!nextAttr.equals(SchemaConstants.SPAN_LIST_ATTRIBUTE) && outerAttrList.contains(nextAttr)) {
-                String fieldName = nextAttr.getFieldName();
-                if (outerTuple.getField(fieldName).equals(innerTuple.getField(fieldName))) {
-                    newAttrList.add(nextAttr);
-                    IField nextField = outerTuple.getField(fieldName);
-                    newFieldList.add(nextField);
-                }
-            }
+        	while (innerAttrListIter.hasNext()) {
+        		Attribute nextAttr = innerAttrListIter.next();
+        		if (!nextAttr.equals(SchemaConstants.SPAN_LIST_ATTRIBUTE) && outerAttrList.contains(nextAttr)) {
+        			String fieldName = nextAttr.getFieldName();
+        			if (outerTuple.getField(fieldName).equals(innerTuple.getField(fieldName))) {
+        				newAttrList.add(nextAttr);
+        				IField nextField = outerTuple.getField(fieldName);
+        				newFieldList.add(nextField);
+        			}
+        		}
+        	}
+
+        	if (newAttrList.isEmpty() || !newAttrList.contains(joinPredicate.getjoinAttribute())) {
+        		return null;
+        	}
+
+        	newAttrList.add(SchemaConstants.SPAN_LIST_ATTRIBUTE);
+        	Attribute[] tempAttrArr = new Attribute[newAttrList.size()];
+        	newSchema = new Schema(newAttrList.toArray(tempAttrArr));
+        	createNewSchema = false;
+        } else {
+        	for (int i = 0; i < newAttrList.size() - 1; i++) {
+        		String fieldName = newAttrList.get(i).getFieldName();
+        		if (outerTuple.getField(fieldName).equals(innerTuple.getField(fieldName))) {
+        			IField nextField = outerTuple.getField(fieldName);
+        			newFieldList.add(nextField);
+        		}
+        	}
         }
 
-        if (newAttrList.isEmpty() || !newAttrList.contains(joinPredicate.getjoinAttribute())) {
-            return null;
-        }
-
-        newAttrList.add(SchemaConstants.SPAN_LIST_ATTRIBUTE);
         newFieldList.add(new ListField<>(newJoinSpanList));
-
-        Attribute[] tempAttrArr = new Attribute[newAttrList.size()];
-        Schema newSchema = new Schema(newAttrList.toArray(tempAttrArr));
-
         IField[] tempFieldArr = new IField[newFieldList.size()];
         nextTuple = new DataTuple(newSchema, newFieldList.toArray(tempFieldArr));
 
@@ -293,6 +309,6 @@ public class Join implements IOperator {
 
     @Override
     public Schema getOutputSchema() {
-        return innerOperator.getOutputSchema();
+        return newSchema;
     }
 }

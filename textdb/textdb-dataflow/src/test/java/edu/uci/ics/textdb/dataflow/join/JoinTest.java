@@ -333,10 +333,10 @@ public class JoinTest {
     // [<11, 18>]
     // [<27, 33>]
     // threshold = 20
-    // [ ]
-    // [ ]
+    // [           ]
+    //          [          ]
     // <-------->
-    // <-------> (within threshold)
+    //             <-------> (within threshold)
     // Test result: The list contains a tuple with all the fields and a span
     // list consisting of the joined span. The joined span is made up of the
     // field name, start and stop index (computed as <min(span1 spanStartIndex,
@@ -392,8 +392,8 @@ public class JoinTest {
     // [<11, 18>]
     // [<42, 48>]
     // threshold = 20
-    // [ ]
-    // [ ]
+    // [           ]
+    //           [     ]
     // <--------> (beyond threshold)
     // Test result: An empty list is returned.
     @Test
@@ -462,9 +462,9 @@ public class JoinTest {
     // [<11, 18>]
     // [<3, 33>]
     // threshold = 20
-    // [ ]
-    // [ ]
-    // <----> <-----> (within threshold)
+    // [              ]
+    //      [   ]
+    // <---->   <-----> (within threshold)
     // Test result: The bigger span should be returned.
     // [<3, 33>]
     @Test
@@ -517,9 +517,9 @@ public class JoinTest {
     // [<11, 18>]
     // [<3, 33>]
     // threshold = 20
-    // [ ]
-    // [ ]
-    // <--> <---> (beyond threshold)
+    // [             ]
+    //     [    ]
+    // <-->     <---> (beyond threshold)
     // Test result: Join should return an empty list.
     @Test
     public void testOneSpanEncompassesOtherAndDifferenceGreaterThanThreshold() throws Exception {
@@ -544,8 +544,8 @@ public class JoinTest {
     // [<75, 97>]
     // [<92, 109>]
     // threshold = 20
-    // [ ]
-    // [ ]
+    // [      ]
+    //      [         ]
     // <----> <-------> (within threshold)
     // Test result: The list contains a tuple with all the fields and a span
     // list consisting of the joined span. The joined span is made up of the
@@ -604,8 +604,8 @@ public class JoinTest {
     // [<75, 97>]
     // [<92, 109>]
     // threshold = 10
-    // [ ]
-    // [ ]
+    // [    ]
+    //    [        ]
     // <--> <-----> (beyond threshold)
     // Test result: Join should return an empty list.
     @Test
@@ -724,12 +724,15 @@ public class JoinTest {
         Assert.assertEquals(0, resultList.size());
     }
 
-    // -----------------------------------T3-----------------------------------
+    // -----------------<Test cases for intersection of tuples>----------------
 
-    // This case tests for the scenario when the tuples have different set of
-    // attributes (hence different schema) barring the attribute join has to
+    // This case tests for the scenario when the tuples have different sets of
+    // attributes (hence different schemas) barring the attribute join has to
     // be performed upon (for this case, threshold condition is satisfied).
-    // Test result: Join should result in an list with single tuple which has
+    // e.g. Schema1: {ID, Author, Pages, Review}
+    //		Schema2: {ID, Title, Pages, Review}
+    // 		Join Attribute: Review
+    // Test result: Join should result in a list with single tuple which has
     // the attributes common to both the tuples and the joined span.
     @Test
     public void testAttributesAndFieldsIntersection() throws Exception {
@@ -817,11 +820,16 @@ public class JoinTest {
         Assert.assertTrue(contains);
     }
 
-    // This case tests for the scenario when one of the attributes' (not the
+    // This case tests for the scenario when one of the attributes (not the
     // one join is performed upon) has different field values (assume threshold
     // condition is satisfied).
+    // e.g. Schema1: {ID, Author, Title, Pages, Review}
+    //		Values1: { 2,      A,     B,     5,    ABC}
+    //		Schema2: {ID, Author, Title, Pages, Review}
+    //		Values2: { 2,      A,     C,     5,    ABC}
+    //		Join Attribute: Review
     // Test result: The attribute and the respective field in question is
-    // dropped form the result tuple.
+    // dropped from the result tuple.
     @Test
     public void testWhenAttributeFieldsAreDifferent() throws Exception {
         final Attribute idAttr = new Attribute("id", FieldType.INTEGER);
@@ -907,9 +915,14 @@ public class JoinTest {
         Assert.assertTrue(contains);
     }
 
-    // This case tests for the scenario when one of the attributes' (the one
+    // This case tests for the scenario when one of the attributes (the one
     // join is performed upon) has different field values (assume threshold
     // condition is satisfied).
+    // e.g. Schema1: {ID, Author, Title, Pages, Review}
+    //		Values1: { 2,      A,     B,     5,    ABC}
+    //		Schema2: {ID, Author, Title, Pages, Review}
+    //		Values2: { 2,      A,     B,     5,     AB}
+    //		Join Attribute: Review
     // Test result: An empty list is returned.
     @Test
     public void testJoinAttributeFieldsAreDifferent() throws Exception {
@@ -977,9 +990,9 @@ public class JoinTest {
 
     // This case tests for the scenario when an attribute (not the one join is
     // performed upon) has same name and same respective field value but has
-    // different field type.
+    // different field types.
     // Test result: The attribute and the respective field in question is
-    // dropped form the result tuple.
+    // dropped from the result tuple.
     @Test
     public void testWhenAttributeOfSameNameAreDifferent() throws Exception {
         final Attribute idAttr = new Attribute("id", FieldType.INTEGER);
@@ -1071,7 +1084,7 @@ public class JoinTest {
 
     // This case tests for the scenario when an attribute (the one join is
     // performed upon) has same name and same respective field value but has
-    // different field type.
+    // different field types.
     // Test result: An empty list is returned.
     @Test
     public void testJoinAttributeOfSameNameHaveDifferentFieldType() throws Exception {
@@ -1170,15 +1183,15 @@ public class JoinTest {
     // list of multiple tuples should match with the ID of the single tuple) and
     // spans are within the threshold.
     // e.g.
-    // ID: 1 2 3 4
+    // ID: 			1 		  2 		3		  4
     // Tuples: [<67, 73>][<67, 73>][<67, 73>][<67, 73>]
-    // ID: 2
+    // ID: 		   2
     // Tuple: [<62, 66>]
     // threshold = 12
-    // [ ] [ ] [ ] [ ]
-    // [ ]
+    // [      ] [ ] [ ] [ ]
+    //       [      ]
     // <----->
-    // <-----> (ID match, within threshold)
+    //        <-----> (ID match, within threshold)
     // Test result: Join should result in a list with a single tuple with the
     // matched ID and the corresponding joined spans.
     // Tuple: [<62, 73>]
@@ -1236,13 +1249,13 @@ public class JoinTest {
     // list of multiple tuples should match with the ID of the single tuple) and
     // none of the spans are not within threshold.
     // e.g.
-    // ID: 1 2 3 4
+    // ID: 			1		  2		    3		  4
     // Tuples: [<67, 73>][<67, 73>][<67, 73>][<67, 73>]
-    // ID: 2
+    // ID: 		   2
     // Tuple: [<62, 66>]
     // threshold = 4
     // [ ] [ ] [ ] [ ]
-    // [ ]
+    //      [ ]
     // <--->
     // <--> (ID match, beyond threshold)
     // Test result: Join should result in an empty list.
@@ -1267,15 +1280,15 @@ public class JoinTest {
     // This case tests for the scenario when both the operators' have multiple
     // tuples and some of tuples IDs match and spans are within threshold.
     // e.g.
-    // ID: 1 2 3 4
+    // ID: 			1		  2		    3		  4
     // Tuples: [<67, 73>][<67, 73>][<67, 73>][<67, 73>]
-    // ID: 2 4
+    // ID: 			2 		   4
     // Tuples: [<62, 66>] [<62, 66>]
     // threshold = 12
-    // [ ] [ ] [ ] [ ]
-    // [ ] [ ] [ ] [ ] [ ]
+    // [       ]            [      ] [ ] [ ]
+    //       [      ] [       ] [ ] [ ] [ ]
     // <-----> <---->
-    // <-----> <---->(ID match, beyond threshold)
+    //                <-----> <---->(ID match, within threshold)
     // Test result: Join should result in a list containing tuples with spans.
     // The number of tuples is equal to the number of tuples with both ID match
     // and span within threshold.
@@ -1371,15 +1384,15 @@ public class JoinTest {
     // tuples and some of tuples IDs match, but none of spans are within
     // threshold.
     // e.g.
-    // ID: 1 2 3 4
+    // ID: 			1		  2		    3		  4
     // Tuples: [<67, 73>][<67, 73>][<67, 73>][<67, 73>]
-    // ID: 2 4
+    // ID: 			2  		   4
     // Tuples: [<62, 66>] [<62, 66>]
     // threshold = 4
-    // [ ] [ ] [ ] [ ]
-    // [ ] [ ] [ ] [ ] [ ]
-    // <-----> <---->
-    // <-----> <---->(ID match, beyond threshold)
+    // [     ]        [      ]       [      ] [ ]
+    // [ ] [ ] [       ]      [       ] [ ]
+    //         <-----> <---->
+    //                        <-----> <---->(ID match, beyond threshold)
     // Test result: Join should result in an empty list.
     @Test
     public void testBothOperatorsMultipleTuplesSpanExceedThreshold() throws Exception {
