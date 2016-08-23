@@ -66,7 +66,7 @@ public class FuzzyTokenMatcher extends AbstractSingleInputOperator {
                 inputTuple = Utils.getSpanTuple(inputTuple.getFields(), new ArrayList<Span>(), outputSchema);
             }
             
-            resultTuple = computeMatchResult(inputTuple);
+            resultTuple = processOneInputTuple(inputTuple);
             
             if (resultTuple != null) {
                 break;
@@ -75,7 +75,7 @@ public class FuzzyTokenMatcher extends AbstractSingleInputOperator {
         return resultTuple;
     }
     
-    private ITuple computeMatchResult(ITuple inputTuple) throws DataFlowException {
+    private ITuple processOneInputTuple(ITuple inputTuple) throws DataFlowException {
         List<Span> payload = (List<Span>) inputTuple.getField(SchemaConstants.PAYLOAD).getValue();
         List<Span> relevantSpans = filterRelevantSpans(payload);
         List<Span> matchResults = new ArrayList<>();
