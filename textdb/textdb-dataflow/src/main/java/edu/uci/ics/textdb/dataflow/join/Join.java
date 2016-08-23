@@ -16,6 +16,7 @@ import edu.uci.ics.textdb.common.field.DataTuple;
 import edu.uci.ics.textdb.common.field.IntegerField;
 import edu.uci.ics.textdb.common.field.ListField;
 import edu.uci.ics.textdb.common.field.Span;
+import edu.uci.ics.textdb.dataflow.common.AbstractSingleInputOperator;
 import edu.uci.ics.textdb.dataflow.common.JoinPredicate;
 
 /**
@@ -34,7 +35,7 @@ import edu.uci.ics.textdb.dataflow.common.JoinPredicate;
 // and Threshold -> The value within which the difference of span starts and
 // the difference of span ends should be for the join to take place.
 
-public class Join implements IOperator {
+public class Join extends AbstractSingleInputOperator {
 
     private IOperator outerOperator;
     private IOperator innerOperator;
@@ -70,10 +71,10 @@ public class Join implements IOperator {
     }
 
     @Override
-    public void open() throws Exception, DataFlowException {
+    public void open() throws DataFlowException {
         if (!(joinPredicate.getjoinAttribute().getFieldType().equals(FieldType.STRING)
                 || joinPredicate.getjoinAttribute().getFieldType().equals(FieldType.TEXT))) {
-            throw new Exception("Fields other than \"STRING\" and \"TEXT\" are not supported by Join yet.");
+            throw new DataFlowException("Fields other than \"STRING\" and \"TEXT\" are not supported by Join yet.");
         }
 
         try {
@@ -87,9 +88,14 @@ public class Join implements IOperator {
         createNewSchema = true;
 
         // Load the inner tuple list into memory on open.
-        while ((innerTuple = innerOperator.getNextTuple()) != null) {
-            innerTupleList.add(innerTuple);
-        }
+        try {
+			while ((innerTuple = innerOperator.getNextTuple()) != null) {
+			    innerTupleList.add(innerTuple);
+			}
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 
         // Close the inner operator as all the required tuples are already
         // loaded into memory.
@@ -110,7 +116,7 @@ public class Join implements IOperator {
      * @return nextTuple
      */
     @Override
-    public ITuple getNextTuple() throws Exception {
+    public ITuple getNextTuple() throws DataFlowException {
         if (innerTupleList.isEmpty()) {
             return null;
         }
@@ -123,9 +129,14 @@ public class Join implements IOperator {
 
         do {
             if (shouldIGetOuterOperatorNextTuple == true) {
-                if ((outerTuple = outerOperator.getNextTuple()) == null) {
-                    return null;
-                }
+                try {
+					if ((outerTuple = outerOperator.getNextTuple()) == null) {
+					    return null;
+					}
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
                 shouldIGetOuterOperatorNextTuple = false;
             }
 
@@ -138,14 +149,19 @@ public class Join implements IOperator {
                 }
             }
 
-            nextTuple = joinTuples(outerTuple, innerTuple, joinPredicate);
+            try {
+				nextTuple = joinTuples(outerTuple, innerTuple, joinPredicate);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
         } while (nextTuple == null);
 
         return nextTuple;
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() throws DataFlowException {
         try {
             outerOperator.close();
             // innerOperator.close(); already called in open()
@@ -327,4 +343,22 @@ public class Join implements IOperator {
     public void setInnerOperator(IOperator innerOperator) {
         this.innerOperator = innerOperator;
     }
+
+	@Override
+	protected void setUp() throws DataFlowException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	protected ITuple computeNextMatchingTuple() throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	protected void cleanUp() throws DataFlowException {
+		// TODO Auto-generated method stub
+		
+	}
 }
