@@ -176,7 +176,6 @@ public class NlpExtractor extends AbstractSingleInputOperator {
                 }
             }
         }
-        System.out.println("extract nlp span: "+spanList);
         return spanList;
     }
 
