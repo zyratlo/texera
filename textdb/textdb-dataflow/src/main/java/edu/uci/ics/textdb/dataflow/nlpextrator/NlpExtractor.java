@@ -13,15 +13,15 @@ import edu.uci.ics.textdb.api.common.Attribute;
 import edu.uci.ics.textdb.api.common.IField;
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.common.Schema;
-import edu.uci.ics.textdb.api.dataflow.IOperator;
-import edu.uci.ics.textdb.api.dataflow.ISourceOperator;
+import edu.uci.ics.textdb.common.constants.SchemaConstants;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
-import edu.uci.ics.textdb.common.exception.ErrorMessages;
 import edu.uci.ics.textdb.common.field.Span;
 import edu.uci.ics.textdb.common.utils.Utils;
+import edu.uci.ics.textdb.dataflow.common.AbstractSingleInputOperator;
+import edu.uci.ics.textdb.dataflow.nlpextrator.NlpPredicate.NlpTokenType;
 
 /**
- * @author Feng
+ * @author Feng Hong
  * @about Wrap the Stanford NLP as an operator to extractor desired information
  *        (Named Entities, Part of Speech). This operator could recognize 7
  *        Named Entity classes: Location, Person, Organization, Money, Percent,
@@ -34,138 +34,68 @@ import edu.uci.ics.textdb.common.utils.Utils;
  *        field for the returned tuple: ["sentence1,0,6,Google, Organization",
  *        "sentence2,24,37,Mountain View, Location"]
  */
+public class NlpExtractor extends AbstractSingleInputOperator {
 
-public class NlpExtractor implements IOperator {
+    private NlpPredicate predicate;
 
-    private IOperator inputOperator;
-    private List<Attribute> searchInAttributes;
-    private ITuple sourceTuple;
-    private Schema returnSchema;
-    private NlpTokenType inputNlpTokenType = null;
-    private String nlpTypeIndicator = null;
-    private int limit;
-    private int cursor;
-    private int offset;
+    private Schema inputSchema;
 
     /**
-     * Named Entity Token Types: NE_ALL, Number, Location, Person, Organization,
-     * Money, Percent, Date, Time. Part Of Speech Token Types: Noun, Verb,
-     * Adjective, Adverb
-     */
-    public enum NlpTokenType {
-        NE_ALL, Number, Location, Person, Organization, Money, Percent, Date, Time, Noun, Verb, Adjective, Adverb;
-
-        private static boolean isPOSTokenType(NlpTokenType tokenType) {
-            if (tokenType.equals(NlpTokenType.Adjective) || tokenType.equals(NlpTokenType.Adverb)
-                    || tokenType.equals(NlpTokenType.Noun) || tokenType.equals(NlpTokenType.Verb)) {
-                return true;
-            } else {
-                return false;
-            }
-        }
-    }
-
-    ;
-
-    /**
-     * @param operator
-     * @param searchInAttributes
-     * @param inputNlpTokenType
-     * @throws DataFlowException
-     * @about The constructor of the NlpExtractor. Allow users to pass a list of
-     *        attributes and an inputNlpTokenType. The operator will only search
-     *        within the attributes and return the same tokens that are
+     * @param NlpPredicate
+     * @about The constructor of the NlpExtractor.The operator will only search
+     *        within the attributes specified in predicate and return the same tokens that are
      *        recognized as the same input inputNlpTokenType. If the input token
      *        type is NlpTokenType.NE_ALL, return all tokens that are recognized
      *        as NamedEntity Token Types.
      */
-    public NlpExtractor(IOperator operator, List<Attribute> searchInAttributes, NlpTokenType inputNlpTokenType)
-            throws DataFlowException {
-        this.cursor = -1;
-        this.limit = Integer.MAX_VALUE;
-        this.offset = 0;
-        this.inputOperator = operator;
-        this.searchInAttributes = searchInAttributes;
-        this.inputNlpTokenType = inputNlpTokenType;
-        if (NlpTokenType.isPOSTokenType(inputNlpTokenType)) {
-            nlpTypeIndicator = "POS";
-        } else {
-            nlpTypeIndicator = "NE_ALL";
-        }
+    public NlpExtractor(NlpPredicate predicate) {
+        this.predicate = predicate;
     }
 
     @Override
-    public void open() throws Exception {
-        if (this.inputOperator == null) {
-            throw new DataFlowException(ErrorMessages.INPUT_OPERATOR_NOT_SPECIFIED);
-        }
-        try {
-            inputOperator.open();
-            returnSchema = null;
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new DataFlowException(e.getMessage(), e);
+    protected void setUp() throws DataFlowException {
+        inputSchema = inputOperator.getOutputSchema();
+        outputSchema = inputSchema;
+        if (!inputSchema.containsField(SchemaConstants.SPAN_LIST)) {
+            outputSchema = Utils.addAttributeToSchema(outputSchema, SchemaConstants.SPAN_LIST_ATTRIBUTE);
         }
     }
-
-    /**
-     * @about Extract a list of spans based on the input token type. Append the
-     *        list as a new field to the original tuple and return.
-     * @overview Get a tuple from the source operator Use the Stanford NLP
-     *           package to process specified fields. For all recognized tokens
-     *           that match the input token type, create their spans and make
-     *           them as a list. Append the list as a field in the original
-     *           tuple.
-     */
+    
     @Override
-    public ITuple getNextTuple() throws Exception {
-        if (limit == 0 || cursor >= limit + offset - 1) {
-            return null;
-        }
-        ITuple sourceTuple;
-        ITuple returnTuple = null;
-        while ((sourceTuple = inputOperator.getNextTuple()) != null) {
-            returnTuple = computeMatchingResult(sourceTuple);
-
-            if (returnTuple != null) {
-                cursor++;
-            }
-            if (cursor >= offset) {
+    protected ITuple computeNextMatchingTuple() throws Exception {
+        ITuple inputTuple = null;
+        ITuple resultTuple = null;
+        
+        while ((inputTuple = inputOperator.getNextTuple()) != null) {
+            if (!inputSchema.containsField(SchemaConstants.SPAN_LIST)) {
+                inputTuple = Utils.getSpanTuple(inputTuple.getFields(), new ArrayList<Span>(), outputSchema);
+            }            
+            resultTuple = processOneInputTuple(inputTuple);
+            if (resultTuple != null) {
                 break;
             }
         }
-        return returnTuple;
+        
+        return resultTuple;
     }
 
-    private ITuple computeMatchingResult(ITuple sourceTuple) {
-        if (returnSchema == null) {
-            returnSchema = Utils.createSpanSchema(sourceTuple.getSchema());
-        }
-        List<Span> spanList = new ArrayList<>();
-        for (Attribute attribute : searchInAttributes) {
+    private ITuple processOneInputTuple(ITuple inputTuple) throws DataFlowException {
+        List<Span> matchingResults = new ArrayList<>();
+        for (Attribute attribute : predicate.getAttributeList()) {
             String fieldName = attribute.getFieldName();
-            IField field = sourceTuple.getField(fieldName);
-            spanList.addAll(extractNlpSpans(field, fieldName));
+            IField field = inputTuple.getField(fieldName);
+            matchingResults.addAll(extractNlpSpans(field, fieldName));
         }
-        return Utils.getSpanTuple(sourceTuple.getFields(), spanList, returnSchema);
-    }
 
-    public void setLimit(int limit) {
-        this.limit = limit;
-    }
+        if (matchingResults.isEmpty()) {
+            return null;
+        }
 
-    public int getLimit() {
-        return this.limit;
+        List<Span> spanList = (List<Span>) inputTuple.getField(SchemaConstants.SPAN_LIST).getValue();
+        spanList.addAll(matchingResults);
+        return inputTuple;
     }
-
-    public void setOffset(int offset) {
-        this.offset = offset;
-    }
-
-    public int getOffset() {
-        return this.offset;
-    }
-
+    
     /**
      * @param iField
      * @param fieldName
@@ -223,7 +153,7 @@ public class NlpExtractor implements IOperator {
         Properties props = new Properties();
 
         // Setup Stanford NLP pipeline based on nlpTypeIndicator
-        if (nlpTypeIndicator.equals("POS")) {
+        if (predicate.getNlpTypeIndicator().equals("POS")) {
             props.setProperty("annotators", "tokenize, ssplit, pos");
         } else {
             props.setProperty("annotators", "tokenize, ssplit, pos, lemma, " + "ner");
@@ -238,7 +168,7 @@ public class NlpExtractor implements IOperator {
                 String stanfordNlpConstant;
 
                 // Extract annotations based on nlpTypeIndicator
-                if (nlpTypeIndicator.equals("POS")) {
+                if (predicate.getNlpTypeIndicator().equals("POS")) {
                     stanfordNlpConstant = token.get(CoreAnnotations.PartOfSpeechAnnotation.class);
                 } else {
                     stanfordNlpConstant = token.get(CoreAnnotations.NamedEntityTagAnnotation.class);
@@ -248,13 +178,13 @@ public class NlpExtractor implements IOperator {
                 if (thisNlpTokenType == null) {
                     continue;
                 }
-                if (inputNlpTokenType.equals(NlpTokenType.NE_ALL) || inputNlpTokenType.equals(thisNlpTokenType)) {
+                if (predicate.getNlpTokenType().equals(NlpTokenType.NE_ALL) || predicate.getNlpTokenType().equals(thisNlpTokenType)) {
                     int start = token.get(CoreAnnotations.CharacterOffsetBeginAnnotation.class);
                     int end = token.get(CoreAnnotations.CharacterOffsetEndAnnotation.class);
                     String word = token.get(CoreAnnotations.TextAnnotation.class);
 
                     Span span = new Span(fieldName, start, end, thisNlpTokenType.toString(), word);
-                    if (spanList.size() >= 1 && (nlpTypeIndicator.equals("NE_ALL"))) {
+                    if (spanList.size() >= 1 && (predicate.getNlpTypeIndicator().equals("NE_ALL"))) {
                         Span previousSpan = spanList.get(spanList.size() - 1);
                         if (previousSpan.getFieldName().equals(span.getFieldName())
                                 && (span.getStart() - previousSpan.getEnd() <= 1)
@@ -361,31 +291,7 @@ public class NlpExtractor implements IOperator {
     }
 
     @Override
-    public void close() throws DataFlowException {
-        try {
-            inputNlpTokenType = null;
-            searchInAttributes = null;
-            sourceTuple = null;
-            returnSchema = null;
-            if (inputOperator != null) {
-                inputOperator.close();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new DataFlowException(e.getMessage(), e);
-        }
+    protected void cleanUp() throws DataFlowException {
     }
 
-    public IOperator getInputOperator() {
-        return inputOperator;
-    }
-
-    public void setInputOperator(ISourceOperator inputOperator) {
-        this.inputOperator = inputOperator;
-    }
-
-    @Override
-    public Schema getOutputSchema() {
-        return returnSchema;
-    }
 }

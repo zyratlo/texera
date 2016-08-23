@@ -3,6 +3,7 @@ package edu.uci.ics.textdb.dataflow.join;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
@@ -32,6 +33,8 @@ import edu.uci.ics.textdb.dataflow.common.JoinPredicate;
 import edu.uci.ics.textdb.dataflow.common.KeywordPredicate;
 import edu.uci.ics.textdb.dataflow.fuzzytokenmatcher.FuzzyTokenMatcher;
 import edu.uci.ics.textdb.dataflow.keywordmatch.KeywordMatcher;
+import edu.uci.ics.textdb.dataflow.projection.ProjectionOperator;
+import edu.uci.ics.textdb.dataflow.projection.ProjectionPredicate;
 import edu.uci.ics.textdb.dataflow.source.IndexBasedSourceOperator;
 import edu.uci.ics.textdb.dataflow.utils.TestUtils;
 import edu.uci.ics.textdb.storage.DataStore;
@@ -443,14 +446,21 @@ public class JoinTest {
 
         query = "this writer writes well";
         double thresholdRatio = 0.25;
-        boolean isSpanInformationAdded = false;
-        FuzzyTokenPredicate fuzzyPredicateInner = new FuzzyTokenPredicate(query, dataStoreForInner, attributeList,
-                analyzer, thresholdRatio, isSpanInformationAdded);
+        List<Attribute> textAttributes = attributeList.stream().filter(attr -> attr.getFieldType() != FieldType.TEXT).collect(Collectors.toList());
+        FuzzyTokenPredicate fuzzyPredicateInner = new FuzzyTokenPredicate(query, textAttributes,
+                analyzer, thresholdRatio);
         FuzzyTokenMatcher fuzzyMatcherInner = new FuzzyTokenMatcher(fuzzyPredicateInner);
+        fuzzyMatcherInner.setInputOperator(new IndexBasedSourceOperator(fuzzyPredicateInner.getDataReaderPredicate(dataStoreForInner)));
 
+        ProjectionPredicate removeSpanListPredicate = new ProjectionPredicate(
+                dataStoreForInner.getSchema().getAttributes().stream().map(attr -> attr.getFieldName()).collect(Collectors.toList()));
+        ProjectionOperator removeSpanListProjection = new ProjectionOperator(removeSpanListPredicate);
+        removeSpanListProjection.setInputOperator(fuzzyMatcherInner);
+        
+        
         Attribute idAttr = attributeList.get(0);
         Attribute reviewAttr = attributeList.get(4);
-        List<ITuple> resultList = getJoinResults(keywordMatcherOuter, fuzzyMatcherInner, idAttr, reviewAttr, 20);
+        List<ITuple> resultList = getJoinResults(keywordMatcherOuter, removeSpanListProjection, idAttr, reviewAttr, 20);
         Assert.assertEquals(0, resultList.size());
     }
 

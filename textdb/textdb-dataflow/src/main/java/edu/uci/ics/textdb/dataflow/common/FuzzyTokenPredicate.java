@@ -26,7 +26,6 @@ import edu.uci.ics.textdb.storage.DataReaderPredicate;
  */
 public class FuzzyTokenPredicate implements IPredicate {
 
-    private IDataStore dataStore;
     private String query;
     private Query luceneQuery;
     private ArrayList<String> tokens;
@@ -35,15 +34,12 @@ public class FuzzyTokenPredicate implements IPredicate {
     private Analyzer luceneAnalyzer;
     private double thresholdRatio;
     private int threshold;
-    private boolean isSpanInformationAdded;
 
-    public FuzzyTokenPredicate(String query, IDataStore dataStore, List<Attribute> attributeList, Analyzer analyzer,
-            double thresholdRatio, boolean isSpanInformationAdded) throws DataFlowException {
+    public FuzzyTokenPredicate(String query, List<Attribute> attributeList, Analyzer analyzer,
+            double thresholdRatio) throws DataFlowException {
         try {
             this.thresholdRatio = thresholdRatio;
-            this.dataStore = dataStore;
             this.luceneAnalyzer = analyzer;
-            this.isSpanInformationAdded = isSpanInformationAdded;
             this.query = query;
             this.tokens = Utils.tokenizeQuery(analyzer, query);
             this.computeThreshold();
@@ -54,10 +50,6 @@ public class FuzzyTokenPredicate implements IPredicate {
             e.printStackTrace();
             throw new DataFlowException(e.getMessage(), e);
         }
-    }
-
-    public boolean getIsSpanInformationAdded() {
-        return this.isSpanInformationAdded;
     }
 
     public List<Attribute> getAttributeList() {
@@ -114,10 +106,10 @@ public class FuzzyTokenPredicate implements IPredicate {
         return builder.build();
     }
 
-    public DataReaderPredicate getDataReaderPredicate() {
-        DataReaderPredicate dataReaderPredicate = new DataReaderPredicate(this.luceneQuery, this.query, this.dataStore,
+    public DataReaderPredicate getDataReaderPredicate(IDataStore dataStore) {
+        DataReaderPredicate dataReaderPredicate = new DataReaderPredicate(this.luceneQuery, this.query, dataStore,
                 this.attributeList, this.luceneAnalyzer);
-        dataReaderPredicate.setIsSpanInformationAdded(this.isSpanInformationAdded);
+        dataReaderPredicate.setIsSpanInformationAdded(true);
         return dataReaderPredicate;
     }
 
