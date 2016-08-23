@@ -7,18 +7,22 @@ import java.util.stream.Collectors;
 
 import edu.uci.ics.textdb.api.common.Attribute;
 import edu.uci.ics.textdb.api.common.FieldType;
-import edu.uci.ics.textdb.api.common.IField;
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.common.Schema;
-import edu.uci.ics.textdb.common.constants.DataConstants;
 import edu.uci.ics.textdb.common.constants.SchemaConstants;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
 import edu.uci.ics.textdb.common.field.Span;
-import edu.uci.ics.textdb.common.field.TextField;
 import edu.uci.ics.textdb.common.utils.Utils;
 import edu.uci.ics.textdb.dataflow.common.AbstractSingleInputOperator;
 import edu.uci.ics.textdb.dataflow.common.FuzzyTokenPredicate;
 
+/**
+ *  @author Zuozhi Wang (zuozhiw)
+ *  @author Parag Saraogi
+ *  @author Varun Bharill
+ *  
+ *  This class provides token based fuzzy matching.
+ */
 public class FuzzyTokenMatcher extends AbstractSingleInputOperator {
     
     private FuzzyTokenPredicate predicate;
@@ -46,7 +50,7 @@ public class FuzzyTokenMatcher extends AbstractSingleInputOperator {
     }
 
     @Override
-    protected ITuple computeNextMatch() throws Exception {
+    protected ITuple computeNextMatchingTuple() throws Exception {
         ITuple inputTuple = null;
         ITuple resultTuple = null;
         

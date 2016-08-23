@@ -37,7 +37,7 @@ public class ProjectionOperator extends AbstractSingleInputOperator {
     }
 
     @Override
-    protected ITuple computeNextMatch() throws Exception {
+    protected ITuple computeNextMatchingTuple() throws Exception {
         ITuple inputTuple = inputOperator.getNextTuple();
         if (inputTuple == null) {
             return null;

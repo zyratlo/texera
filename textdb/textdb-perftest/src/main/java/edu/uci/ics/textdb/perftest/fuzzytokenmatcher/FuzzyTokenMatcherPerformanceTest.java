@@ -142,8 +142,8 @@ public class FuzzyTokenMatcherPerformanceTest {
         Attribute[] attributeList = new Attribute[] { MedlineIndexWriter.ABSTRACT_ATTR };
 
         for (String query : queryList) {
-            FuzzyTokenPredicate predicate = new FuzzyTokenPredicate(query, dataStore, Arrays.asList(attributeList),
-                    luceneAnalyzer, threshold, true);
+            FuzzyTokenPredicate predicate = new FuzzyTokenPredicate(query, Arrays.asList(attributeList),
+                    luceneAnalyzer, threshold);
             FuzzyTokenMatcher fuzzyTokenMatcher = new FuzzyTokenMatcher(predicate);
 
             long startMatchTime = System.currentTimeMillis();
