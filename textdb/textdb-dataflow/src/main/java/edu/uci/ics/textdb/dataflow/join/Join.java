@@ -76,7 +76,6 @@ public class Join implements IOperator {
         }
 
         try {
-            outerOperator.open();
             innerOperator.open();
         } catch (Exception e) {
             e.printStackTrace();
@@ -94,6 +93,7 @@ public class Join implements IOperator {
         // loaded into memory.
         try {
             innerOperator.close();
+            outerOperator.open();
         } catch (Exception e) {
             e.printStackTrace();
             throw new DataFlowException(e.getMessage(), e);
@@ -275,5 +275,21 @@ public class Join implements IOperator {
     @Override
     public Schema getOutputSchema() {
         return innerOperator.getOutputSchema();
+    }
+    
+    public IOperator getOuterOperator() {
+        return outerOperator;
+    }
+
+    public void setOuterOperator(IOperator outerOperator) {
+        this.outerOperator = outerOperator;
+    }
+
+    public IOperator getInnerOperator() {
+        return innerOperator;
+    }
+
+    public void setInnerOperator(IOperator innerOperator) {
+        this.innerOperator = innerOperator;
     }
 }
