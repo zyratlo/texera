@@ -92,7 +92,7 @@ public class RegexMatcher extends AbstractSingleInputOperator {
             if (!inputSchema.containsField(SchemaConstants.SPAN_LIST)) {
                 inputTuple = Utils.getSpanTuple(inputTuple.getFields(), new ArrayList<Span>(), outputSchema);
             }            
-            resultTuple = computeMatchingResult(inputTuple);
+            resultTuple = processOneInputTuple(inputTuple);
             if (resultTuple != null) {
                 break;
             }
@@ -114,7 +114,7 @@ public class RegexMatcher extends AbstractSingleInputOperator {
      *         in the document
      * @throws DataFlowException
      */
-    private ITuple computeMatchingResult(ITuple sourceTuple) throws DataFlowException {
+    private ITuple processOneInputTuple(ITuple sourceTuple) throws DataFlowException {
         if (sourceTuple == null) {
             return null;
         }
