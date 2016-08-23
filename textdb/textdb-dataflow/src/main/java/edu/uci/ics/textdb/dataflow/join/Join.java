@@ -16,7 +16,6 @@ import edu.uci.ics.textdb.common.field.DataTuple;
 import edu.uci.ics.textdb.common.field.IntegerField;
 import edu.uci.ics.textdb.common.field.ListField;
 import edu.uci.ics.textdb.common.field.Span;
-import edu.uci.ics.textdb.dataflow.common.AbstractSingleInputOperator;
 import edu.uci.ics.textdb.dataflow.common.JoinPredicate;
 
 /**
@@ -35,7 +34,7 @@ import edu.uci.ics.textdb.dataflow.common.JoinPredicate;
 // and Threshold -> The value within which the difference of span starts and
 // the difference of span ends should be for the join to take place.
 
-public class Join extends AbstractSingleInputOperator {
+public class Join implements IOperator {
 
     private IOperator outerOperator;
     private IOperator innerOperator;
@@ -48,9 +47,9 @@ public class Join extends AbstractSingleInputOperator {
     // Cursor to maintain the position of tuple to be obtained from
     // innerTupleList.
     private Integer innerOperatorCursor = 0;
-    private List<Attribute> newAttrList;
-    private Schema newSchema;
-    private boolean createNewSchema;
+    private List<Attribute> outputAttrList;
+    private Schema outputSchema;
+    private boolean outputSchemaCreated;
 
     /**
      * This constructor is used to set the operators whose output is to be
@@ -71,10 +70,10 @@ public class Join extends AbstractSingleInputOperator {
     }
 
     @Override
-    public void open() throws DataFlowException {
+    public void open() throws Exception, DataFlowException {
         if (!(joinPredicate.getjoinAttribute().getFieldType().equals(FieldType.STRING)
                 || joinPredicate.getjoinAttribute().getFieldType().equals(FieldType.TEXT))) {
-            throw new DataFlowException("Fields other than \"STRING\" and \"TEXT\" are not supported by Join yet.");
+            throw new Exception("Fields other than \"STRING\" and \"TEXT\" are not supported by Join yet.");
         }
 
         try {
@@ -85,17 +84,12 @@ public class Join extends AbstractSingleInputOperator {
         }
 
         shouldIGetOuterOperatorNextTuple = true;
-        createNewSchema = true;
+        outputSchemaCreated = false;
 
         // Load the inner tuple list into memory on open.
-        try {
-			while ((innerTuple = innerOperator.getNextTuple()) != null) {
-			    innerTupleList.add(innerTuple);
-			}
-		} catch (Exception e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
+        while ((innerTuple = innerOperator.getNextTuple()) != null) {
+            innerTupleList.add(innerTuple);
+        }
 
         // Close the inner operator as all the required tuples are already
         // loaded into memory.
@@ -116,12 +110,12 @@ public class Join extends AbstractSingleInputOperator {
      * @return nextTuple
      */
     @Override
-    public ITuple getNextTuple() throws DataFlowException {
+    public ITuple getNextTuple() throws Exception {
         if (innerTupleList.isEmpty()) {
             return null;
         }
 
-        if (createNewSchema == false && newAttrList.isEmpty()) {
+        if (outputSchemaCreated == true && outputAttrList.isEmpty()) {
     		return null;
     	}
 
@@ -129,14 +123,9 @@ public class Join extends AbstractSingleInputOperator {
 
         do {
             if (shouldIGetOuterOperatorNextTuple == true) {
-                try {
-					if ((outerTuple = outerOperator.getNextTuple()) == null) {
-					    return null;
-					}
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+                if ((outerTuple = outerOperator.getNextTuple()) == null) {
+                    return null;
+                }
                 shouldIGetOuterOperatorNextTuple = false;
             }
 
@@ -149,19 +138,14 @@ public class Join extends AbstractSingleInputOperator {
                 }
             }
 
-            try {
-				nextTuple = joinTuples(outerTuple, innerTuple, joinPredicate);
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+            nextTuple = joinTuples(outerTuple, innerTuple, joinPredicate);
         } while (nextTuple == null);
 
         return nextTuple;
     }
 
     @Override
-    public void close() throws DataFlowException {
+    public void close() throws Exception {
         try {
             outerOperator.close();
             // innerOperator.close(); already called in open()
@@ -273,17 +257,17 @@ public class Join extends AbstractSingleInputOperator {
             return null;
         }
 
-        // If createNewSchema is true then we will create a new Schema which
-        // is an intersection of Attributes from both the inner and outer 
-        // tuples. This new Schema is then used to form tuples returned upon 
-        // subsequent calls of getNextTuple() 
+        // If outputSchemaCreated is false then we will create a new Schema called 
+        // outputSchema which is an intersection of Attributes from both the 
+        // inner and outer tuples. This new Schema is then used to form tuples 
+        // returned upon subsequent calls of getNextTuple(). 
         List<IField> newFieldList = new ArrayList<>();
 
-        if (createNewSchema) {
+        if (outputSchemaCreated == false) {
         	List<Attribute> innerAttrList = innerTuple.getSchema().getAttributes();
         	List<Attribute> outerAttrList = outerTuple.getSchema().getAttributes();
 
-        	newAttrList = new ArrayList<>();
+        	outputAttrList = new ArrayList<>();
         	Iterator<Attribute> innerAttrListIter = innerAttrList.iterator();
 
         	while (innerAttrListIter.hasNext()) {
@@ -291,24 +275,24 @@ public class Join extends AbstractSingleInputOperator {
         		if (!nextAttr.equals(SchemaConstants.SPAN_LIST_ATTRIBUTE) && outerAttrList.contains(nextAttr)) {
         			String fieldName = nextAttr.getFieldName();
         			if (outerTuple.getField(fieldName).equals(innerTuple.getField(fieldName))) {
-        				newAttrList.add(nextAttr);
+        				outputAttrList.add(nextAttr);
         				IField nextField = outerTuple.getField(fieldName);
         				newFieldList.add(nextField);
         			}
         		}
         	}
 
-        	if (newAttrList.isEmpty() || !newAttrList.contains(joinPredicate.getjoinAttribute())) {
+        	if (outputAttrList.isEmpty() || !outputAttrList.contains(joinPredicate.getjoinAttribute())) {
         		return null;
         	}
 
-        	newAttrList.add(SchemaConstants.SPAN_LIST_ATTRIBUTE);
-        	Attribute[] tempAttrArr = new Attribute[newAttrList.size()];
-        	newSchema = new Schema(newAttrList.toArray(tempAttrArr));
-        	createNewSchema = false;
+        	outputAttrList.add(SchemaConstants.SPAN_LIST_ATTRIBUTE);
+        	Attribute[] tempAttrArr = new Attribute[outputAttrList.size()];
+        	outputSchema = new Schema(outputAttrList.toArray(tempAttrArr));
+        	outputSchemaCreated = true;
         } else {
-        	for (int i = 0; i < newAttrList.size() - 1; i++) {
-        		String fieldName = newAttrList.get(i).getFieldName();
+        	for (int i = 0; i < outputAttrList.size() - 1; i++) {
+        		String fieldName = outputAttrList.get(i).getFieldName();
         		if (outerTuple.getField(fieldName).equals(innerTuple.getField(fieldName))) {
         			IField nextField = outerTuple.getField(fieldName);
         			newFieldList.add(nextField);
@@ -318,14 +302,14 @@ public class Join extends AbstractSingleInputOperator {
 
         newFieldList.add(new ListField<>(newJoinSpanList));
         IField[] tempFieldArr = new IField[newFieldList.size()];
-        nextTuple = new DataTuple(newSchema, newFieldList.toArray(tempFieldArr));
+        nextTuple = new DataTuple(outputSchema, newFieldList.toArray(tempFieldArr));
 
         return nextTuple;
     }
 
     @Override
     public Schema getOutputSchema() {
-        return newSchema;
+        return outputSchema;
     }
     
     public IOperator getOuterOperator() {
@@ -343,22 +327,4 @@ public class Join extends AbstractSingleInputOperator {
     public void setInnerOperator(IOperator innerOperator) {
         this.innerOperator = innerOperator;
     }
-
-	@Override
-	protected void setUp() throws DataFlowException {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	protected ITuple computeNextMatchingTuple() throws Exception {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	protected void cleanUp() throws DataFlowException {
-		// TODO Auto-generated method stub
-		
-	}
 }

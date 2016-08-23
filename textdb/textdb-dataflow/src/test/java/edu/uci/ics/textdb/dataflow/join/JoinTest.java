@@ -742,7 +742,7 @@ public class JoinTest {
     // e.g. Schema1: {ID, Author, Pages, Review}
     //		Schema2: {ID, Title, Pages, Review}
     // 		Join Attribute: Review
-    // Test result: Join should result in a list with single tuple which has
+    // Test result: Join should result in a list with a single tuple which has
     // the attributes common to both the tuples and the joined span.
     @Test
     public void testAttributesAndFieldsIntersection() throws Exception {
