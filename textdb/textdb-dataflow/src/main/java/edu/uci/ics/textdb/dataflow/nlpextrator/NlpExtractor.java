@@ -20,12 +20,34 @@ import edu.uci.ics.textdb.common.utils.Utils;
 import edu.uci.ics.textdb.dataflow.common.AbstractSingleInputOperator;
 import edu.uci.ics.textdb.dataflow.nlpextrator.NlpPredicate.NlpTokenType;
 
+/**
+ * @author Feng Hong
+ * @about Wrap the Stanford NLP as an operator to extractor desired information
+ *        (Named Entities, Part of Speech). This operator could recognize 7
+ *        Named Entity classes: Location, Person, Organization, Money, Percent,
+ *        Date and Time. It'll also detect 4 types of Part of Speech: Noun,
+ *        Verb, Adjective and Adverb.Return the extracted tokens as a list of
+ *        spans and appends to the original tuple as a new field. For example:
+ *        Given tuple with two fields: sentence1, sentence2, specify to extract
+ *        all Named Entities. Source Tuple: ["Google is an organization.", "Its
+ *        headquarters are in Mountain View."] Appends a list of spans as a
+ *        field for the returned tuple: ["sentence1,0,6,Google, Organization",
+ *        "sentence2,24,37,Mountain View, Location"]
+ */
 public class NlpExtractor extends AbstractSingleInputOperator {
 
     private NlpPredicate predicate;
 
     private Schema inputSchema;
 
+    /**
+     * @param NlpPredicate
+     * @about The constructor of the NlpExtractor.The operator will only search
+     *        within the attributes specified in predicate and return the same tokens that are
+     *        recognized as the same input inputNlpTokenType. If the input token
+     *        type is NlpTokenType.NE_ALL, return all tokens that are recognized
+     *        as NamedEntity Token Types.
+     */
     public NlpExtractor(NlpPredicate predicate) {
         this.predicate = predicate;
     }
