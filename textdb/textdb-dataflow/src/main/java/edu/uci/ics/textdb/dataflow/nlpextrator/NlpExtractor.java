@@ -48,7 +48,7 @@ public class NlpExtractor extends AbstractSingleInputOperator {
             if (!inputSchema.containsField(SchemaConstants.SPAN_LIST)) {
                 inputTuple = Utils.getSpanTuple(inputTuple.getFields(), new ArrayList<Span>(), outputSchema);
             }            
-            resultTuple = computeMatchingResults(inputTuple);
+            resultTuple = processOneInputTuple(inputTuple);
             if (resultTuple != null) {
                 break;
             }
@@ -57,7 +57,7 @@ public class NlpExtractor extends AbstractSingleInputOperator {
         return resultTuple;
     }
 
-    private ITuple computeMatchingResults(ITuple inputTuple) throws DataFlowException {
+    private ITuple processOneInputTuple(ITuple inputTuple) throws DataFlowException {
         List<Span> matchingResults = new ArrayList<>();
         for (Attribute attribute : predicate.getAttributeList()) {
             String fieldName = attribute.getFieldName();

@@ -332,22 +332,18 @@ public class NlpExtractorTestConstants {
         IField[] fields2 = { new TextField("Microsoft, Google and Facebook are organizations.") };
         IField[] fields3 = { new TextField(
                 "Microsoft, Google and Facebook are organizations and Donald Trump and Barack Obama are persons.") };
-        IField[] fields4 = { new TextField(
-                "Feeling the warm sun rays beaming steadily down, the girl decided there was no need to wear a coat.") };
         IField[] fields5 = { new TextField("This backpack costs me 300 dollars.")};
         IField[] fields6 = { new TextField("What't the brand, Samsung or Apple?")};
         
         ITuple tuple1 = new DataTuple(SCHEMA_ONE_SENTENCE, fields1);
         ITuple tuple2 = new DataTuple(SCHEMA_ONE_SENTENCE, fields2);
         ITuple tuple3 = new DataTuple(SCHEMA_ONE_SENTENCE, fields3);
-        ITuple tuple4 = new DataTuple(SCHEMA_ONE_SENTENCE, fields4);
         ITuple tuple5 = new DataTuple(SCHEMA_ONE_SENTENCE, fields5);
         ITuple tuple6 = new DataTuple(SCHEMA_ONE_SENTENCE, fields6);
         
         Schema returnSchema1 = Utils.createSpanSchema(tuple1.getSchema());
         Schema returnSchema2 = Utils.createSpanSchema(tuple2.getSchema());
         Schema returnSchema3 = Utils.createSpanSchema(tuple3.getSchema());
-        Schema returnSchema4 = Utils.createSpanSchema(tuple4.getSchema());
         Schema returnSchema5 = Utils.createSpanSchema(tuple5.getSchema());
         Schema returnSchema6 = Utils.createSpanSchema(tuple6.getSchema());
         
@@ -361,9 +357,6 @@ public class NlpExtractorTestConstants {
         spanList.add(span4);
         spanList.add(span5);
         resultList.add(Utils.getSpanTuple(tuple3.getFields(), spanList, returnSchema3));
-        
-        spanList.clear();
-        resultList.add(Utils.getSpanTuple(tuple4.getFields(), spanList, returnSchema4));
         
         spanList.clear();
         spanList.add(span6);

@@ -312,8 +312,6 @@ public class NlpExtractorTest {
         List<ITuple> returnedResults = getQueryResults(sourceOperator, attributes, NlpPredicate.NlpTokenType.NE_ALL);
         List<ITuple> expectedResults = NlpExtractorTestConstants.getTest10ResultTuples();
         boolean contains = TestUtils.containsAllResults(expectedResults, returnedResults);
-        System.out.println("expected: \n"+Utils.getTupleListString(expectedResults));
-        System.out.println("returned: \n"+Utils.getTupleListString(returnedResults));
         Assert.assertTrue(contains);
     }
     
