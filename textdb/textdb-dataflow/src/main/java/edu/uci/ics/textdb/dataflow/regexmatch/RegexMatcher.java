@@ -114,8 +114,8 @@ public class RegexMatcher extends AbstractSingleInputOperator {
      *         in the document
      * @throws DataFlowException
      */
-    private ITuple processOneInputTuple(ITuple sourceTuple) throws DataFlowException {
-        if (sourceTuple == null) {
+    private ITuple processOneInputTuple(ITuple inputTuple) throws DataFlowException {
+        if (inputTuple == null) {
             return null;
         }
 
@@ -124,7 +124,7 @@ public class RegexMatcher extends AbstractSingleInputOperator {
         for (Attribute attribute : attributeList) {
             String fieldName = attribute.getFieldName();
             FieldType fieldType = attribute.getFieldType();
-            String fieldValue = sourceTuple.getField(fieldName).getValue().toString();
+            String fieldValue = inputTuple.getField(fieldName).getValue().toString();
 
             // types other than TEXT and STRING: throw Exception for now
             if (fieldType != FieldType.STRING && fieldType != FieldType.TEXT) {
@@ -145,10 +145,10 @@ public class RegexMatcher extends AbstractSingleInputOperator {
             return null;
         }
 
-        List<Span> spanList = (List<Span>) sourceTuple.getField(SchemaConstants.SPAN_LIST).getValue();
+        List<Span> spanList = (List<Span>) inputTuple.getField(SchemaConstants.SPAN_LIST).getValue();
         spanList.addAll(matchingResults);
 
-        return sourceTuple;
+        return inputTuple;
     }
 
     private List<Span> javaRegexMatch(String fieldValue, String fieldName) {
