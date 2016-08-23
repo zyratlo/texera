@@ -311,4 +311,20 @@ public class Join implements IOperator {
     public Schema getOutputSchema() {
         return newSchema;
     }
+
+    public IOperator getOuterOperator() {
+        return outerOperator;
+    }
+
+    public void setOuterOperator(IOperator outerOperator) {
+        this.outerOperator = outerOperator;
+    }
+
+    public IOperator getInnerOperator() {
+        return innerOperator;
+    }
+
+    public void setInnerOperator(IOperator innerOperator) {
+        this.innerOperator = innerOperator;
+    }
 }
