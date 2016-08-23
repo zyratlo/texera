@@ -6,12 +6,16 @@ import edu.uci.ics.textdb.api.common.Attribute;
 import edu.uci.ics.textdb.api.common.IPredicate;
 
 public class NlpPredicate implements IPredicate {
-
+    
+    /**
+     * Named Entity Token Types: NE_ALL, Number, Location, Person, Organization,
+     * Money, Percent, Date, Time. Part Of Speech Token Types: Noun, Verb,
+     * Adjective, Adverb
+     */
     public enum NlpTokenType {
         Noun, Verb, Adjective, Adverb,
 
         NE_ALL, Number, Location, Person, Organization, Money, Percent, Date, Time;
-
     }
 
     private NlpTokenType nlpTokenType;
