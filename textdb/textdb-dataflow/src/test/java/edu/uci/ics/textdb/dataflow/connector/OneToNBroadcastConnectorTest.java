@@ -98,7 +98,6 @@ public class OneToNBroadcastConnectorTest {
         projection2.setInputOperator(connector.getOutputOperator(1));
         
         projection1.open();    
-        projection2.open();
         
         List<ITuple> projection1Results = new ArrayList<>();
         ITuple nextTuple = null;
@@ -107,6 +106,8 @@ public class OneToNBroadcastConnectorTest {
         }
         projection1.close();
         
+        projection2.open();
+
         List<ITuple> projection2Results = new ArrayList<>();
         nextTuple = null;
         while ((nextTuple = projection2.getNextTuple()) != null) {
