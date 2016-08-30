@@ -61,7 +61,7 @@ public class OneToNBroadcastConnectorTest {
     
     
     /*
-     * 
+     * This test connects Connector with Projection
      */
     @Test
     public void testTwoOutputsWithProjection() throws DataFlowException {
