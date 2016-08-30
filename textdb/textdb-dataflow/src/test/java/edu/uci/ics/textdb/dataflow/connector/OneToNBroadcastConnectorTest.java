@@ -60,6 +60,9 @@ public class OneToNBroadcastConnectorTest {
     }
     
     
+    /*
+     * 
+     */
     @Test
     public void testTwoOutputsWithProjection() throws DataFlowException {
         IOperator sourceOperator = getScanSourceOperator(dataStore);
@@ -117,6 +120,10 @@ public class OneToNBroadcastConnectorTest {
    
     }
     
+    
+    /*
+     * This test tests if the connectors' three outputs are the same.
+     */
     @Test
     public void testThreeOutputsWithItself() throws Exception {
         IOperator sourceOperator = getScanSourceOperator(dataStore);

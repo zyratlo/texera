@@ -11,7 +11,7 @@ import edu.uci.ics.textdb.api.dataflow.IOperator;
  * OneToNBroadcastConnector connects one input operator with multiple output operators.
  * The tuples from the input operator will be broadcast to every output operator.
  * 
- * It is required that all output operators needs to be opened prior to calling getNextTuple().
+ * It is required that all output operators need to be opened prior to calling getNextTuple().
  * @author Zuozhi Wang (zuozhiw)
  *
  */
@@ -24,10 +24,11 @@ public class OneToNBroadcastConnector implements IConnector {
     // A list to maintain cursors of all operators
     private ArrayList<Integer> outputCursorList;
     // A list to maintain operators' status (opened or closed)
-    private ArrayList<Boolean> outputOpenStatus;
+    private ArrayList<Boolean> outputStatusList;
     private boolean inputOperatorOpened;
     
     private IOperator inputOperator;
+    // an in-memory list to cache tuples from input tuple, see getNextTuple() for more details
     private ArrayList<ITuple> inputTupleList;
     
     /**
@@ -44,11 +45,11 @@ public class OneToNBroadcastConnector implements IConnector {
     private void intializeOutputOperators() {
         this.outputOperatorList = new ArrayList<>();
         this.outputCursorList = new ArrayList<>();
-        this.outputOpenStatus = new ArrayList<>();
+        this.outputStatusList = new ArrayList<>();
         
         for (int i = 0; i < this.outputOperatorNumber; i++) {
             outputCursorList.add(-1);
-            outputOpenStatus.add(false);
+            outputStatusList.add(false);
             outputOperatorList.add(new ConnectorOutputOperator(this, i));
         }
     }
@@ -63,19 +64,25 @@ public class OneToNBroadcastConnector implements IConnector {
     
     /**
      * Get the output operator corresponding to the index.
-     * Index starts with 0. 
+     * Index starts from 0. 
      * 0 corresponds to the first output operator, 1 corresponds to the second, etc.
+     * 
+     * Return null if outputIndex is out of bound.
      */
     @Override
     public IOperator getOutputOperator(int outputIndex) {
-        return this.outputOperatorList.get(outputIndex);
+        if (outputIndex < outputOperatorNumber) {
+            return this.outputOperatorList.get(outputIndex);
+        } else {
+            return null;
+        }
     }
         
     /*
      * This returns the nextTuple of the operator corresponding to the index.
      * A cursor will be maintained for each operator. 
      * Tuples from input operators are cached in an in-memory list.
-     * A new tuple will be fetched from input operator whenever a cursor exceeds the list.
+     * A new tuple will be fetched from input operator whenever a cursor exceeds the list size.
      */
     private ITuple getNextTuple(int outputOperatorIndex) throws Exception {
         int nextPosition = outputCursorList.get(outputOperatorIndex) + 1;
@@ -95,16 +102,16 @@ public class OneToNBroadcastConnector implements IConnector {
     }
     
     private void openInputOperator(int outputOperatorIndex) throws Exception {
-        outputOpenStatus.set(outputOperatorIndex, true);
+        outputStatusList.set(outputOperatorIndex, true);
         if (! inputOperatorOpened) {
             inputOperator.open();
             inputOperatorOpened = true;
         }
     }
     
-    private void closeConsumer(int outputOperatorIndex) throws Exception {
-        outputOpenStatus.set(outputOperatorIndex, false);
-        boolean isAllClosed = isAllClosed();
+    private void closeInputOperator(int outputOperatorIndex) throws Exception {
+        outputStatusList.set(outputOperatorIndex, false);
+        boolean isAllClosed = isAllOutputOperatorClosed();
         if (isAllClosed) {
             inputOperator.close();
         }
@@ -122,39 +129,39 @@ public class OneToNBroadcastConnector implements IConnector {
         return this.inputOperator;
     }
 
-    private boolean isAllClosed() {
-        return ! outputOpenStatus.stream().reduce(false, (a, b) -> (a || b));
+    private boolean isAllOutputOperatorClosed() {
+        return ! outputStatusList.stream().reduce(false, (a, b) -> (a || b));
     }
     
     
     private class ConnectorOutputOperator implements IOperator {
         
-        private OneToNBroadcastConnector parentConnector;
+        private OneToNBroadcastConnector ownerConnector;
         private int outputIndex;
-                
-        private ConnectorOutputOperator(OneToNBroadcastConnector parentConnector, int outputIndex) {
-            this.parentConnector = parentConnector;
+        
+        private ConnectorOutputOperator(OneToNBroadcastConnector ownerConnector, int outputIndex) {
+            this.ownerConnector = ownerConnector;
             this.outputIndex = outputIndex;
         }
 
         @Override
         public void open() throws Exception {
-            parentConnector.openInputOperator(outputIndex);
+            ownerConnector.openInputOperator(outputIndex);
         }
 
         @Override
         public ITuple getNextTuple() throws Exception {
-            return parentConnector.getNextTuple(outputIndex);
+            return ownerConnector.getNextTuple(outputIndex);
         }
 
         @Override
         public void close() throws Exception {      
-            parentConnector.closeConsumer(outputIndex);
+            ownerConnector.closeInputOperator(outputIndex);
         }
 
         @Override
         public Schema getOutputSchema() {
-            return parentConnector.getInputOperator().getOutputSchema();
+            return ownerConnector.getInputOperator().getOutputSchema();
         }
         
     }
