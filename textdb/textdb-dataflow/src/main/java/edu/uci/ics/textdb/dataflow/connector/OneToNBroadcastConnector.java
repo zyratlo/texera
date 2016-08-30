@@ -8,7 +8,7 @@ import edu.uci.ics.textdb.api.dataflow.IConnector;
 import edu.uci.ics.textdb.api.dataflow.IOperator;
 
 /**
- * OneToNBroadcaastConnector connects one input operator with multiple output operators.
+ * OneToNBroadcastConnector connects one input operator with multiple output operators.
  * The tuples from the input operator will be broadcast to every output operator.
  * 
  * It is required that all output operators needs to be opened prior to calling getNextTuple().
