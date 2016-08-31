@@ -19,18 +19,22 @@ import edu.uci.ics.textdb.perftest.fuzzytokenmatcher.*;
 public class RunPerftests {
 
     /**
-     * Run all performance tests. file folder path (where data set stored)
-     * Passed in below arguments: result folder path (where performance test
-     * results stored) standard index folder path (where standard index stored)
-     * trigram index folder path (where trigram index stored) queries folder
-     * path (where query files stored)
+     * Run all performance tests. 
+     * 
+     * 
+     * Passed in below arguments: 
+     * file folder path (where data set stored)
+     * result folder path (where performance test results stored) 
+     * standard index folder path (where standard index stored)
+     * trigram index folder path (where trigram index stored) 
+     * queries folder path (where query files stored)
      * 
      * If above arguments are not passed in, default paths will be used (refer
      * to PerfTestUtils.java) If some of the arguments are not applicable,
      * define them as empty string.
      * 
      * Make necessary changes for arguments, such as query file name, threshold
-     * list, iteration number and regexQueries
+     * list, and regexQueries
      *
      */
     public static void main(String[] args) {
@@ -46,11 +50,11 @@ public class RunPerftests {
             List<String> regexQueries = Arrays.asList("mosquitos?", "v[ir]{2}[us]{2}", "market(ing)?",
                     "medic(ine|al|ation|are|aid)?", "[A-Z][aeiou|AEIOU][A-Za-z]*");
 
-            KeywordMatcherPerformanceTest.runTest("sample_queries.txt", 1);
-            DictionaryMatcherPerformanceTest.runTest("sample_queries.txt", 1);
-            FuzzyTokenMatcherPerformanceTest.runTest("sample_queries.txt", 1, thresholds);
-            RegexMatcherPerformanceTest.runTest(regexQueries, 2);
-            NlpExtractorPerformanceTest.runTest(1);
+            KeywordMatcherPerformanceTest.runTest("sample_queries.txt");
+            DictionaryMatcherPerformanceTest.runTest("sample_queries.txt");
+            FuzzyTokenMatcherPerformanceTest.runTest("sample_queries.txt", thresholds);
+            RegexMatcherPerformanceTest.runTest(regexQueries);
+            NlpExtractorPerformanceTest.runTest();
 
         } catch (StorageException | DataFlowException | IOException e) {
             e.printStackTrace();

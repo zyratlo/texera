@@ -3,10 +3,12 @@ package edu.uci.ics.textdb.perftest.utils;
 /**
  *@author Hailey Pan
  *
- *performance test helper functions 
+ *Performance test helper functions 
  **/
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -33,6 +35,25 @@ public class PerfTestUtils {
     public static String resultFolder = "./data-files/results/";
     public static String queryFolder = "./data-files/queries/";
 
+    /**
+     * 
+     * @param filePath
+     * @param header
+     * @throws IOException
+     * 
+     * Checks whether the given file exists. If not, create such a file with a header written into it.
+     */
+    public static void createFile(String filePath, String header) throws IOException{
+    	File file = new File(filePath);
+    	if(!file.exists()){
+    		file.createNewFile();
+    		FileWriter fileWriter = new FileWriter(filePath, true);
+        	fileWriter.write(header);
+        	fileWriter.close();
+    	}
+    	
+    }
+    
     /**
      * The purpose for below setters:
      * 
@@ -237,7 +258,7 @@ public class PerfTestUtils {
     public static String formatTime(long time) {
         Date date = new Date(time);
 
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd-HHmmss");
+        SimpleDateFormat sdf = new SimpleDateFormat("MM-dd-yyyy HH:mm:ss");
 
         return sdf.format(date).toString();
     }

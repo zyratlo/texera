@@ -39,14 +39,19 @@ import edu.uci.ics.textdb.storage.DataStore;
 
 public class KeywordMatcherPerformanceTest {
 
-    private static String HEADER = "Record #,Operator , Min Time, Max Time, Average Time, Std, Average Results\n";
-    private static String basicHeader = "Conjunctive,";
-    private static String phraseHeader = "Phrase,";
+    private static String HEADER = "Date,Record #,Min Time, Max Time, Average Time, Std, Average Results\n";
+    private static String delimiter = ",";
     private static String newLine = "\n";
-
+   
+   
     private static List<Double> timeResults = null;
     private static int totalResultCount = 0;
-    private static String csvFileFolder = "keyword/";
+    private static String currentTime = "";
+    
+    //result files
+    private static String conjunctiveCsv = "keyword-conjunctive.csv";
+    private static String scanCsv = "keyword-scan.csv";
+    private static String phraseCsv = "keyword-phrase.csv";
 
     /**
      * @param queryFileName:
@@ -59,76 +64,69 @@ public class KeywordMatcherPerformanceTest {
      *         This function will match the queries against all indices in
      *         ./index/standard/
      * 
-     *         Test results include minimum runtime, maximum runtime, average
-     *         runtime, the standard deviation and the average results for each
-     *         index, each operator and each test cycle. They are recorded in a
-     *         csv file that is named by current time and located at
-     *         ./data-files/results/keyword/.
+     *         Test results for each operator include minimum runtime, maximum runtime, average
+     *         runtime, the standard deviation and the average number of results are recorded in corresponding 
+     *         csv files: ./data-files/results/keyword-conjunctive
+     *         		      ./data-files/results/keyword-phrase
+     *                    ./data-files/results/keyword-scan			 
+     *         
+     * @throws Exception 
      * 
      */
-    public static void runTest(String queryFileName, int iterationNumber)
-            throws StorageException, DataFlowException, IOException {
+    public static void runTest(String queryFileName)
+            throws Exception {
 
         // Reads queries from query file into a list
         ArrayList<String> queries = PerfTestUtils.readQueries(PerfTestUtils.getQueryPath(queryFileName));
+ 
+        // Gets the current time  
+        currentTime = PerfTestUtils.formatTime(System.currentTimeMillis());
 
-        // Checks whether "keyword" folder exists in
-        // ./data-files/results/
-        if (!new File(PerfTestUtils.resultFolder, "keyword").exists()) {
-            File resultFile = new File(PerfTestUtils.resultFolder + csvFileFolder);
-            resultFile.mkdir();
-        }
-
-        // Gets the current time for naming the cvs file
-        String currentTime = PerfTestUtils.formatTime(System.currentTimeMillis());
-        String csvFile = csvFileFolder + currentTime + ".csv";
-        FileWriter fileWriter = new FileWriter(PerfTestUtils.getResultPath(csvFile));
-
-        // Iterates through the times of test
-        // Writes results to the csv file
         File indexFiles = new File(PerfTestUtils.standardIndexFolder);
-        double avgTime = 0;
-        for (int i = 1; i <= iterationNumber; i++) {
-            fileWriter.append("Cycle" + i);
-            fileWriter.append(newLine);
-            fileWriter.append(HEADER);
-
-            // Does match against each index in ./index/
-            for (File file : indexFiles.listFiles()) {
-                if (file.getName().startsWith(".")) {
-                    continue;
-                }
-                DataStore dataStore = new DataStore(PerfTestUtils.getIndexPath(file.getName()),
-                        MedlineIndexWriter.SCHEMA_MEDLINE);
-
-                fileWriter.append(file.getName() + ",");
-                fileWriter.append(basicHeader);
-                resetStats();
-                match(queries, DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED, new StandardAnalyzer(),
-                        dataStore);
-                avgTime = PerfTestUtils.calculateAverage(timeResults);
-                fileWriter.append(Collections.min(timeResults) + "," + Collections.max(timeResults) + "," + avgTime
-                        + "," + PerfTestUtils.calculateSTD(timeResults, avgTime) + ","
-                        + String.format("%.2f", totalResultCount * 1.0 / queries.size()));
-                fileWriter.append(newLine);
-
-                fileWriter.append(file.getName() + ",");
-                fileWriter.append(phraseHeader);
-                resetStats();
-                match(queries, DataConstants.KeywordMatchingType.PHRASE_INDEXBASED, new StandardAnalyzer(), dataStore);
-                avgTime = PerfTestUtils.calculateAverage(timeResults);
-                fileWriter.append(Collections.min(timeResults) + "," + Collections.max(timeResults) + "," + avgTime
-                        + "," + PerfTestUtils.calculateSTD(timeResults, avgTime) + ","
-                        + String.format("%.2f", totalResultCount * 1.0 / queries.size()));
-                fileWriter.append(newLine);
-
+    
+        // Does match against each index in ./index/
+        for (File file : indexFiles.listFiles()) {
+            if (file.getName().startsWith(".")) {
+                continue;
             }
-            fileWriter.append(newLine);
+            DataStore dataStore = new DataStore(PerfTestUtils.getIndexPath(file.getName()),
+                    MedlineIndexWriter.SCHEMA_MEDLINE);
+            
+            csvWriter(conjunctiveCsv, file.getName(), queries, DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED, dataStore);
+            csvWriter(phraseCsv, file.getName(), queries, DataConstants.KeywordMatchingType.PHRASE_INDEXBASED, dataStore);
+            csvWriter(scanCsv, file.getName(), queries, DataConstants.KeywordMatchingType.SUBSTRING_SCANBASED, dataStore);
+
         }
-
-        fileWriter.flush();
-        fileWriter.close();
-
+        
+    }
+    
+    /**
+     * 
+     * @param resultFile
+     * @param recordNum
+     * @param queries
+     * @param opType
+     * @param dataStore
+     * @throws Exception
+     * 
+     * This function writes test results to the given csv file.
+     */
+    public static void csvWriter(String resultFile, String recordNum, ArrayList<String> queries, 
+    		KeywordMatchingType opType, DataStore dataStore) throws Exception {
+    	double avgTime = 0.0;
+    	PerfTestUtils.createFile(PerfTestUtils.getResultPath(resultFile), HEADER);
+    	FileWriter fileWriter = new FileWriter(PerfTestUtils.getResultPath(resultFile),true);
+    	fileWriter.append(currentTime + delimiter);
+    	fileWriter.append(recordNum + delimiter);
+    	resetStats();
+    	match(queries, opType, new StandardAnalyzer(), dataStore);
+    	avgTime = PerfTestUtils.calculateAverage(timeResults);
+    	fileWriter.append(Collections.min(timeResults) + delimiter + Collections.max(timeResults) + delimiter + 
+     		avgTime + delimiter + PerfTestUtils.calculateSTD(timeResults, avgTime) + delimiter
+             + String.format("%.2f", totalResultCount * 1.0 / queries.size()));
+    	fileWriter.append(newLine);
+    	fileWriter.flush();
+     	fileWriter.close();
     }
 
     /**

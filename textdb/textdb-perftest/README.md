@@ -18,7 +18,8 @@ If you want to store the indices to somewhere else, you can specify the
 standard index path or trigram index path when running WriteIndex.
 
 NOTE: Once index is created, it can be reused (no writing index needed in the future)!!!!
-		However, if you make changes to your data set(s), writing index is still needed.
+		However, if you make changes to your data set(s), please clean up the old 
+		indices and writing index is still needed.
 
 Step 3-Prepare Queries:
 By default, there is a sample query file named "sample_queries.txt" in ./data-files/queries/.
@@ -44,7 +45,7 @@ specify the standard index path and trigram index path before running the class.
 If you have a specific location for the test results to be stored, please specify it before running the class.
 
 Step 5-Review Test Results:
-Performance test results can be found in the corresponding folders in ./data-files/results/
+Performance test results can be found in the corresponding csv files in ./data-files/results/
 or the result folder you previously specify.
-For example, test results for dictionary matcher can be found in ./data-files/results/queries/.
+For example, test results for regex matcher can be found in ./data-files/results/regex.csv.
  
