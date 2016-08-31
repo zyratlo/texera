@@ -921,11 +921,11 @@ public class JoinTest {
                         + "hilariously so), and pop science writer Mary Roach is " + "always up to the task."),
                 new ListField<>(spanList) };
         ITuple expectedTuple = new DataTuple(new Schema(schemaAttributes), book);
-        List<ITuple> expectedResult = new ArrayList<>();
+        List<ITuple> expectedResult = new ArrayList<>(1);
         expectedResult.add(expectedTuple);
-        
+
         boolean contains = TestUtils.containsAllResults(expectedResult, resultList);
-        
+
         Assert.assertEquals(1, resultList.size());
         Assert.assertTrue(contains);
     }
