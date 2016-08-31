@@ -18,8 +18,8 @@ import edu.uci.ics.textdb.api.dataflow.IOperator;
 public class OneToNBroadcastConnector implements IConnector {
     
     private static final int PRE_OPEN = -2;
-    private static final int CLOSED = -1;
     private static final int OPENED = 0;
+    private static final int CLOSED = -1;
     
     private int outputOperatorNumber;
     
