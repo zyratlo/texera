@@ -3,6 +3,7 @@ package edu.uci.ics.textdb.dataflow.join;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import edu.uci.ics.textdb.api.common.Attribute;
 import edu.uci.ics.textdb.api.common.FieldType;
@@ -16,6 +17,7 @@ import edu.uci.ics.textdb.common.field.DataTuple;
 import edu.uci.ics.textdb.common.field.IntegerField;
 import edu.uci.ics.textdb.common.field.ListField;
 import edu.uci.ics.textdb.common.field.Span;
+import edu.uci.ics.textdb.common.utils.Utils;
 import edu.uci.ics.textdb.dataflow.common.JoinPredicate;
 
 /**
@@ -49,7 +51,6 @@ public class Join implements IOperator {
     private Integer innerOperatorCursor = 0;
     private List<Attribute> outputAttrList;
     private Schema outputSchema;
-    private boolean outputSchemaCreated;
 
     /**
      * This constructor is used to set the operators whose output is to be
@@ -68,6 +69,10 @@ public class Join implements IOperator {
         this.innerOperator = innerOperator;
         this.joinPredicate = joinPredicate;
     }
+    
+    public Join(JoinPredicate joinPredicate) {
+        this.joinPredicate = joinPredicate;
+    }
 
     @Override
     public void open() throws Exception, DataFlowException {
@@ -84,7 +89,6 @@ public class Join implements IOperator {
         }
 
         shouldIGetOuterOperatorNextTuple = true;
-        outputSchemaCreated = false;
 
         // Load the inner tuple list into memory on open.
         while ((innerTuple = innerOperator.getNextTuple()) != null) {
@@ -100,6 +104,9 @@ public class Join implements IOperator {
             e.printStackTrace();
             throw new DataFlowException(e.getMessage(), e);
         }
+        
+        generateIntersectionSchema();
+        outputAttrList = outputSchema.getAttributes();
     }
 
     /**
@@ -115,9 +122,9 @@ public class Join implements IOperator {
             return null;
         }
 
-        if (outputSchemaCreated == true && outputAttrList.isEmpty()) {
-    		return null;
-    	}
+        if (outputAttrList.isEmpty()) {
+            return null;
+        }
 
         ITuple nextTuple = null;
 
@@ -257,47 +264,15 @@ public class Join implements IOperator {
             return null;
         }
 
-        // If outputSchemaCreated is false then we will create a new Schema called 
-        // outputSchema which is an intersection of Attributes from both the 
-        // inner and outer tuples. This new Schema is then used to form tuples 
-        // returned upon subsequent calls of getNextTuple(). 
+
         List<IField> newFieldList = new ArrayList<>();
 
-        if (outputSchemaCreated == false) {
-        	List<Attribute> innerAttrList = innerTuple.getSchema().getAttributes();
-        	List<Attribute> outerAttrList = outerTuple.getSchema().getAttributes();
-
-        	outputAttrList = new ArrayList<>();
-        	Iterator<Attribute> innerAttrListIter = innerAttrList.iterator();
-
-        	while (innerAttrListIter.hasNext()) {
-        		Attribute nextAttr = innerAttrListIter.next();
-        		if (!nextAttr.equals(SchemaConstants.SPAN_LIST_ATTRIBUTE) && outerAttrList.contains(nextAttr)) {
-        			String fieldName = nextAttr.getFieldName();
-        			if (outerTuple.getField(fieldName).equals(innerTuple.getField(fieldName))) {
-        				outputAttrList.add(nextAttr);
-        				IField nextField = outerTuple.getField(fieldName);
-        				newFieldList.add(nextField);
-        			}
-        		}
-        	}
-
-        	if (outputAttrList.isEmpty() || !outputAttrList.contains(joinPredicate.getjoinAttribute())) {
-        		return null;
-        	}
-
-        	outputAttrList.add(SchemaConstants.SPAN_LIST_ATTRIBUTE);
-        	Attribute[] tempAttrArr = new Attribute[outputAttrList.size()];
-        	outputSchema = new Schema(outputAttrList.toArray(tempAttrArr));
-        	outputSchemaCreated = true;
-        } else {
-        	for (int i = 0; i < outputAttrList.size() - 1; i++) {
-        		String fieldName = outputAttrList.get(i).getFieldName();
-        		if (outerTuple.getField(fieldName).equals(innerTuple.getField(fieldName))) {
-        			IField nextField = outerTuple.getField(fieldName);
-        			newFieldList.add(nextField);
-        		}
-        	}
+        for (int i = 0; i < outputAttrList.size() - 1; i++) {
+            String fieldName = outputAttrList.get(i).getFieldName();
+            if (outerTuple.getField(fieldName).equals(innerTuple.getField(fieldName))) {
+                IField nextField = outerTuple.getField(fieldName);
+                newFieldList.add(nextField);
+            }
         }
 
         newFieldList.add(new ListField<>(newJoinSpanList));
@@ -305,6 +280,41 @@ public class Join implements IOperator {
         nextTuple = new DataTuple(outputSchema, newFieldList.toArray(tempFieldArr));
 
         return nextTuple;
+    }
+    
+    
+    
+    // create a new Schema called 
+    // outputSchema which is an intersection of Attributes from both the 
+    // inner and outer tuples. This new Schema is then used to form tuples 
+    // returned upon subsequent calls of getNextTuple(). 
+    private void generateIntersectionSchema() throws DataFlowException {
+        List<Attribute> innerAttributes = innerOperator.getOutputSchema().getAttributes();
+        List<Attribute> outerAttributes = outerOperator.getOutputSchema().getAttributes();
+        
+        List<Attribute> intersectionAttributes = 
+                innerAttributes.stream()
+                .filter(attr -> ! attr.equals(SchemaConstants.SPAN_LIST_ATTRIBUTE))
+                .filter(attr -> outerAttributes.contains(attr))
+                .collect(Collectors.toList());
+        
+        if (intersectionAttributes.isEmpty()) {
+            throw new DataFlowException("inner operator and outer operator don't have common attributes");
+        } else if (! intersectionAttributes.contains(joinPredicate.getjoinAttribute())) {
+            throw new DataFlowException("inner operator and outer operator don't contain join attribute");
+        } else {
+            Schema intersectionSchema = new Schema(intersectionAttributes.stream().toArray(Attribute[]::new));      
+            intersectionSchema = Utils.createSpanSchema(intersectionSchema);
+            outputSchema = intersectionSchema;
+        }
+    }
+    
+    public void setInnerInputOperator(IOperator innerInputOperator) {
+        this.innerOperator = innerInputOperator;
+    }
+    
+    public void setOuterInputOperator(IOperator outerInputOperator) {
+        this.outerOperator = outerInputOperator;
     }
 
     @Override
