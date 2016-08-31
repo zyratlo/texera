@@ -138,7 +138,6 @@ public class Join implements IOperator {
                     shouldIGetOuterOperatorNextTuple = true;
                 }
             }
-
             
             nextTuple = joinTuples(outerTuple, innerTuple, joinPredicate);
         } while (nextTuple == null);
@@ -160,8 +159,8 @@ public class Join implements IOperator {
         innerTupleList.clear();
     }
 
-    // check if the ID of two tuples are the same
-    // return null if one of them doesn't have ID field
+    // compare if two tuples have the save value over a field
+    // return null if one of them doesn't have this field
     private boolean compareField(ITuple innerTuple, ITuple outerTuple, String fieldName) {  
         IField innerField = innerTuple.getField(fieldName);
         IField outerField = outerTuple.getField(fieldName);
@@ -255,8 +254,8 @@ public class Join implements IOperator {
         if (newJoinSpanList.isEmpty()) {
             return null;
         }
-
-        
+       
+        // create output fields based on innerTuple's value
         List<IField> outputFields = 
                 outputAttrList.stream()
                 .filter(attr -> ! attr.equals(SchemaConstants.SPAN_LIST_ATTRIBUTE))
