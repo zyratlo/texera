@@ -85,11 +85,11 @@ public class JoinPredicate implements IPredicate {
         this.threshold = threshold;
     }
 
-    public Attribute getidAttribute() {
+    public Attribute getIdAttribute() {
         return this.idAttribute;
     }
 
-    public Attribute getjoinAttribute() {
+    public Attribute getJoinAttribute() {
         return this.joinAttribute;
     }
 

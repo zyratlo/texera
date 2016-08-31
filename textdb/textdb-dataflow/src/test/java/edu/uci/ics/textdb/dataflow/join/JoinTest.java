@@ -434,10 +434,10 @@ public class JoinTest {
     }
 
     // This case tests for the scenario when the IDs match, fields to be joined
-    // match, but one of the operators result lists has no span. This can happen
-    // when one is using FuzzyTokenMatcher with "isSpanInformationAdded = false"
-    // Test result: Join should return an empty list.
-    @Test
+    // match, but one of the operators result lists has no span. 
+    // If one of the operators doesn't have span, then an exception will be thrown.
+    // Test result: DataFlowException is thrown
+    @Test(expected = DataFlowException.class)
     public void testOneOfTheOperatorResultContainsNoSpan() throws Exception {
         writeTuples(bookTuple1, bookTuple1);
 
@@ -461,7 +461,6 @@ public class JoinTest {
         Attribute idAttr = attributeList.get(0);
         Attribute reviewAttr = attributeList.get(4);
         List<ITuple> resultList = getJoinResults(keywordMatcherOuter, removeSpanListProjection, idAttr, reviewAttr, 20);
-        Assert.assertEquals(0, resultList.size());
     }
 
     // This case tests for the scenario when the IDs match, fields to be joined
@@ -688,8 +687,9 @@ public class JoinTest {
 
     // This case tests for the scenario when the specified ID field of either/
     // both of the operators' does not exist.
-    // Test result: Join should return an empty list.
-    @Test
+    // In this case, an exception is thrown to warn user that join can't be performed without ID field.
+    // Test result: DataFlowException is thrown
+    @Test(expected = DataFlowException.class)
     public void testIDFieldDoesNotExist() throws Exception {
         ArrayList<Attribute> list = new ArrayList<>(attributeList.size());
         list.addAll(attributeList);
@@ -731,7 +731,6 @@ public class JoinTest {
         Attribute idAttr = attributeList.get(0);
         Attribute reviewAttr = attributeList.get(4);
         List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 10);
-        Assert.assertEquals(0, resultList.size());
     }
 
     // -----------------<Test cases for intersection of tuples>----------------
@@ -830,16 +829,22 @@ public class JoinTest {
         Assert.assertTrue(contains);
     }
 
-    // This case tests for the scenario when one of the attributes (not the
-    // one join is performed upon) has different field values (assume threshold
-    // condition is satisfied).
-    // e.g. Schema1: {ID, Author, Title, Pages, Review}
-    //		Values1: { 2,      A,     B,     5,    ABC}
-    //		Schema2: {ID, Author, Title, Pages, Review}
-    //		Values2: { 2,      A,     C,     5,    ABC}
-    //		Join Attribute: Review
-    // Test result: The attribute and the respective field in question is
-    // dropped from the result tuple.
+    
+    /*
+     * This case tests for the scenario when one of the attributes (not the
+     * one join is performed upon) has different field values (assume threshold
+     * condition is satisfied).
+     * 
+     * e.g. Schema1: {ID, Author, Title, Pages, Review}
+     *      Values1: { 2,      A,     B,     5,    ABC}
+     *      Schema2: {ID, Author, Title, Pages, Review}
+     *      Values2: { 2,      A,     C,     5,    ABC}
+     * 
+     * The values of "Title" field are different, since "title" is not join attribute,
+     * JoinOperator remains silent about the difference, and use the innerTuple's value.
+     * 
+     * Test result: the output value of Title Field is value of innerTuple, in this test case, "Grunt".
+     */
     @Test
     public void testWhenAttributeFieldsAreDifferent() throws Exception {
         final Attribute idAttr = new Attribute("id", FieldType.INTEGER);
@@ -901,7 +906,7 @@ public class JoinTest {
 
         List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 20);
 
-        Attribute[] schemaAttributes = { idAttr, authorAttr, pagesAttr, reviewAttr,
+        Attribute[] schemaAttributes = { idAttr, authorAttr, titleAttr, pagesAttr, reviewAttr,
                 SchemaConstants.SPAN_LIST_ATTRIBUTE };
 
         List<Span> spanList = new ArrayList<>();
@@ -910,17 +915,17 @@ public class JoinTest {
         Span span1 = new Span(reviewField, 11, 33, "special_writer", "special kind of " + "writer");
         spanList.add(span1);
 
-        IField[] book = { new IntegerField(52), new StringField("Mary Roach"), new IntegerField(288),
+        IField[] book = { new IntegerField(52), new StringField("Mary Roach"), new StringField("Grunt"), new IntegerField(288),
                 new TextField("It takes a special kind " + "of writer to make topics ranging from death to our "
                         + "gastrointestinal tract interesting (sometimes "
                         + "hilariously so), and pop science writer Mary Roach is " + "always up to the task."),
                 new ListField<>(spanList) };
         ITuple expectedTuple = new DataTuple(new Schema(schemaAttributes), book);
-        List<ITuple> expectedResult = new ArrayList<>(1);
+        List<ITuple> expectedResult = new ArrayList<>();
         expectedResult.add(expectedTuple);
-
+        
         boolean contains = TestUtils.containsAllResults(expectedResult, resultList);
-
+        
         Assert.assertEquals(1, resultList.size());
         Assert.assertTrue(contains);
     }
@@ -1092,11 +1097,19 @@ public class JoinTest {
         Assert.assertTrue(contains);
     }
 
-    // This case tests for the scenario when an attribute (the one join is
-    // performed upon) has same name and same respective field value but has
-    // different field types.
-    // Test result: An empty list is returned.
-    @Test
+    /*
+     * This case tests for the scenario when an attribute (the one join is
+     * performed upon) has same name, but different field types.
+     * 
+     * Attributes must have same name and type to be considered equal.
+     * 
+     * In this case, since it's the attribute to be joined is not the same,
+     * an exception is thrown to warn user that join cannot be performed.
+     * 
+     * Test result: DataFlowException is thrown.
+     * 
+     */
+    @Test(expected = DataFlowException.class)
     public void testJoinAttributeOfSameNameHaveDifferentFieldType() throws Exception {
         final Attribute idAttr = new Attribute("id", FieldType.INTEGER);
         final Attribute authorAttr = new Attribute("author", FieldType.STRING);

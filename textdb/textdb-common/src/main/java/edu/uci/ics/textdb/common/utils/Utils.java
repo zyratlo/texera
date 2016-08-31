@@ -144,6 +144,15 @@ public class Utils {
         Schema newSchema = new Schema(attributes.toArray(new Attribute[attributes.size()]));
         return newSchema;
     }
+    
+    /**
+     * Get the field names of a list of attributes
+     * @param attributeList
+     * @return a list of strings, which are names of each attribute
+     */
+    public static List<String> getAttributeNameList(List<Attribute> attributeList) {
+        return attributeList.stream().map(attr -> attr.getFieldName()).collect(Collectors.toList());
+    }
 
     /**
      * Tokenizes the query string using the given analyser

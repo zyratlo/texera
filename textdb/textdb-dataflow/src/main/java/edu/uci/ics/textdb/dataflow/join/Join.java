@@ -14,10 +14,8 @@ import edu.uci.ics.textdb.api.dataflow.IOperator;
 import edu.uci.ics.textdb.common.constants.SchemaConstants;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
 import edu.uci.ics.textdb.common.field.DataTuple;
-import edu.uci.ics.textdb.common.field.IntegerField;
 import edu.uci.ics.textdb.common.field.ListField;
 import edu.uci.ics.textdb.common.field.Span;
-import edu.uci.ics.textdb.common.utils.Utils;
 import edu.uci.ics.textdb.dataflow.common.JoinPredicate;
 
 /**
@@ -76,8 +74,8 @@ public class Join implements IOperator {
 
     @Override
     public void open() throws Exception, DataFlowException {
-        if (!(joinPredicate.getjoinAttribute().getFieldType().equals(FieldType.STRING)
-                || joinPredicate.getjoinAttribute().getFieldType().equals(FieldType.TEXT))) {
+        if (!(joinPredicate.getJoinAttribute().getFieldType().equals(FieldType.STRING)
+                || joinPredicate.getJoinAttribute().getFieldType().equals(FieldType.TEXT))) {
             throw new Exception("Fields other than \"STRING\" and \"TEXT\" are not supported by Join yet.");
         }
 
@@ -122,10 +120,6 @@ public class Join implements IOperator {
             return null;
         }
 
-        if (outputAttrList.isEmpty()) {
-            return null;
-        }
-
         ITuple nextTuple = null;
 
         do {
@@ -145,6 +139,7 @@ public class Join implements IOperator {
                 }
             }
 
+            
             nextTuple = joinTuples(outerTuple, innerTuple, joinPredicate);
         } while (nextTuple == null);
 
@@ -165,42 +160,39 @@ public class Join implements IOperator {
         innerTupleList.clear();
     }
 
-    // Used to compare IDs of the tuples.
-    private boolean compareId(ITuple outerTuple, ITuple innerTuple) {
-        // Check for the Validity of ID field and if both the ID fields are
-        // equal.
-
-        // First check if the field in question exists by using try catch.
-        // Will throw an exception if it doesn't exist. This leads to return
-        // false.
-        // Then check if both the fields are of type IntegerField.
-        // (This is the bare minimum thing that can be done to verify valid
-        // id attribute. (as of now) (probably it is better to add a field
-        // called ID))
-        String fieldName = joinPredicate.getidAttribute().getFieldName();
-        try {
-            if (outerTuple.getField(fieldName).getClass().equals(IntegerField.class)
-                    && innerTuple.getField(fieldName).getClass().equals(IntegerField.class)) {
-                if (outerTuple.getField(fieldName).getValue().equals(innerTuple.getField(fieldName).getValue())) {
-                    return true;
-                }
-            }
-        } catch (Exception e) {
-            ;
+    // check if the ID of two tuples are the same
+    // return null if one of them doesn't have ID field
+    private boolean compareField(ITuple innerTuple, ITuple outerTuple, String fieldName) {  
+        IField innerField = innerTuple.getField(fieldName);
+        IField outerField = outerTuple.getField(fieldName);
+        
+        if (innerField == null ||  outerField == null) {
+            return false;
         }
-        return false;
+
+        return innerField.getValue().equals(outerField.getValue());
     }
 
     // Process the tuples to get a tuple with join result if predicate is
     // satisfied.
     private ITuple joinTuples(ITuple outerTuple, ITuple innerTuple, JoinPredicate joinPredicate) throws Exception {
-        ITuple nextTuple = null;
         List<Span> newJoinSpanList = new ArrayList<>();
+        
+        // We expect the values of all fields to be the same for innerTuple and outerTuple.
+        // We only checks ID field, and field to be joined, since they are crucial to join operator.
+        // For other fields, we use the value from innerTuple.
 
-        if (!compareId(outerTuple, innerTuple)) {
+        // check if the ID fields are the same
+        if (! compareField(innerTuple, outerTuple, joinPredicate.getIdAttribute().getFieldName())) {
             return null;
         }
 
+        // check if the fields to be joined are the same
+        if (! compareField(innerTuple, outerTuple, joinPredicate.getJoinAttribute().getFieldName())) {
+            return null;
+        }
+        
+        
         // If either/both tuples have no span information, return null.
         // Check using try/catch if both the tuples have span information.
         // If not return null; so we can process next tuple.
@@ -236,13 +228,13 @@ public class Join implements IOperator {
             Span outerSpan = outerSpanIter.next();
             // Check if the field matches the filed over which we want to join.
             // If not return null.
-            if (!outerSpan.getFieldName().equals(joinPredicate.getjoinAttribute().getFieldName())) {
+            if (!outerSpan.getFieldName().equals(joinPredicate.getJoinAttribute().getFieldName())) {
                 continue;
             }
             Iterator<Span> innerSpanIter = innerSpanList.iterator();
             while (innerSpanIter.hasNext()) {
                 Span innerSpan = innerSpanIter.next();
-                if (!innerSpan.getFieldName().equals(joinPredicate.getjoinAttribute().getFieldName())) {
+                if (!innerSpan.getFieldName().equals(joinPredicate.getJoinAttribute().getFieldName())) {
                     continue;
                 }
                 Integer threshold = joinPredicate.getThreshold();
@@ -250,7 +242,7 @@ public class Join implements IOperator {
                         && Math.abs(outerSpan.getEnd() - innerSpan.getEnd()) <= threshold) {
                     Integer newSpanStartIndex = Math.min(outerSpan.getStart(), innerSpan.getStart());
                     Integer newSpanEndIndex = Math.max(outerSpan.getEnd(), innerSpan.getEnd());
-                    String fieldName = joinPredicate.getjoinAttribute().getFieldName();
+                    String fieldName = joinPredicate.getJoinAttribute().getFieldName();
                     String fieldValue = (String) innerTuple.getField(fieldName).getValue();
                     String newFieldValue = fieldValue.substring(newSpanStartIndex, newSpanEndIndex);
                     String spanKey = outerSpan.getKey() + "_" + innerSpan.getKey();
@@ -264,27 +256,29 @@ public class Join implements IOperator {
             return null;
         }
 
-
-        List<IField> newFieldList = new ArrayList<>();
-
-        for (int i = 0; i < outputAttrList.size() - 1; i++) {
-            String fieldName = outputAttrList.get(i).getFieldName();
-            if (outerTuple.getField(fieldName).equals(innerTuple.getField(fieldName))) {
-                IField nextField = outerTuple.getField(fieldName);
-                newFieldList.add(nextField);
-            }
-        }
-
-        newFieldList.add(new ListField<>(newJoinSpanList));
-        IField[] tempFieldArr = new IField[newFieldList.size()];
-        nextTuple = new DataTuple(outputSchema, newFieldList.toArray(tempFieldArr));
-
-        return nextTuple;
+        
+        List<IField> outputFields = 
+                outputAttrList.stream()
+                .filter(attr -> ! attr.equals(SchemaConstants.SPAN_LIST_ATTRIBUTE))
+                .map(attr -> attr.getFieldName())
+                .map(fieldName -> innerTuple.getField(fieldName))
+                .collect(Collectors.toList());
+        
+        outputFields.add(new ListField<>(newJoinSpanList));
+        
+        return new DataTuple(outputSchema, outputFields.stream().toArray(IField[]::new));
     }
     
     
     /*
      * Create outputSchema, which is the intersection of innerOperator's schema and outerOperator's schema.
+     * The attributes have to be exactly the same (name and type) to be intersected.
+     * 
+     * InnerOperator's attributes and outerOperator's attributes must:
+     * both contain the attributes to be joined.
+     * both contain "ID" attribute. (ID attribute that user specifies in joinPredicate)
+     * both contain "spanList" attribute.
+     * 
      */
     private void generateIntersectionSchema() throws DataFlowException {
         List<Attribute> innerAttributes = innerOperator.getOutputSchema().getAttributes();
@@ -292,19 +286,20 @@ public class Join implements IOperator {
         
         List<Attribute> intersectionAttributes = 
                 innerAttributes.stream()
-                .filter(attr -> ! attr.equals(SchemaConstants.SPAN_LIST_ATTRIBUTE))
                 .filter(attr -> outerAttributes.contains(attr))
                 .collect(Collectors.toList());
         
         if (intersectionAttributes.isEmpty()) {
-            throw new DataFlowException("inner operator and outer operator don't have common attributes");
-        } else if (! intersectionAttributes.contains(joinPredicate.getjoinAttribute())) {
-            throw new DataFlowException("inner operator and outer operator don't contain join attribute");
-        } else {
-            Schema intersectionSchema = new Schema(intersectionAttributes.stream().toArray(Attribute[]::new));      
-            intersectionSchema = Utils.createSpanSchema(intersectionSchema);
-            outputSchema = intersectionSchema;
-        }
+            throw new DataFlowException("inner operator and outer operator don't share any common attributes");
+        } else if (! intersectionAttributes.contains(joinPredicate.getJoinAttribute())) {
+            throw new DataFlowException("inner operator or outer operator doesn't contain join attribute");
+        } else if (! intersectionAttributes.contains(joinPredicate.getIdAttribute())) {
+            throw new DataFlowException("inner operator or outer operator doesn't contain ID attribute");
+        } else if (! intersectionAttributes.contains(SchemaConstants.SPAN_LIST_ATTRIBUTE)) {
+            throw new DataFlowException("inner operator or outer operator doesn't contain spanList attribute");
+        } 
+        
+        outputSchema = new Schema(intersectionAttributes.stream().toArray(Attribute[]::new));
     }
     
     public void setInnerInputOperator(IOperator innerInputOperator) {
