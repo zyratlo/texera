@@ -283,11 +283,9 @@ public class Join implements IOperator {
     }
     
     
-    
-    // create a new Schema called 
-    // outputSchema which is an intersection of Attributes from both the 
-    // inner and outer tuples. This new Schema is then used to form tuples 
-    // returned upon subsequent calls of getNextTuple(). 
+    /*
+     * Create outputSchema, which is the intersection of innerOperator's schema and outerOperator's schema.
+     */
     private void generateIntersectionSchema() throws DataFlowException {
         List<Attribute> innerAttributes = innerOperator.getOutputSchema().getAttributes();
         List<Attribute> outerAttributes = outerOperator.getOutputSchema().getAttributes();
