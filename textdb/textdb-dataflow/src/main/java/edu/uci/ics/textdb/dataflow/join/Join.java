@@ -182,7 +182,7 @@ public class Join implements IOperator {
         // For other fields, we use the value from innerTuple.
 
         // check if the ID fields are the same
-        if (! compareField(innerTuple, outerTuple, joinPredicate.getIdAttribute().getFieldName())) {
+        if (! compareField(innerTuple, outerTuple, joinPredicate.getIDAttribute().getFieldName())) {
             return null;
         }
 
@@ -292,7 +292,7 @@ public class Join implements IOperator {
             throw new DataFlowException("inner operator and outer operator don't share any common attributes");
         } else if (! intersectionAttributes.contains(joinPredicate.getJoinAttribute())) {
             throw new DataFlowException("inner operator or outer operator doesn't contain join attribute");
-        } else if (! intersectionAttributes.contains(joinPredicate.getIdAttribute())) {
+        } else if (! intersectionAttributes.contains(joinPredicate.getIDAttribute())) {
             throw new DataFlowException("inner operator or outer operator doesn't contain ID attribute");
         } else if (! intersectionAttributes.contains(SchemaConstants.SPAN_LIST_ATTRIBUTE)) {
             throw new DataFlowException("inner operator or outer operator doesn't contain spanList attribute");
