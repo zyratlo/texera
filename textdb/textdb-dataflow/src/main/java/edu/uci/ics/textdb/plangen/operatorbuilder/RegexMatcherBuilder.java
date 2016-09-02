@@ -1,10 +1,22 @@
 package edu.uci.ics.textdb.plangen.operatorbuilder;
 
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+
+import edu.uci.ics.textdb.api.common.Attribute;
+import edu.uci.ics.textdb.common.constants.DataConstants;
+import edu.uci.ics.textdb.common.exception.DataFlowException;
+import edu.uci.ics.textdb.common.exception.PlanGenException;
+import edu.uci.ics.textdb.dataflow.common.RegexPredicate;
+import edu.uci.ics.textdb.dataflow.regexmatch.RegexMatcher;
+import edu.uci.ics.textdb.plangen.PlanGenUtils;
+
 /**
  * RegexMatcherBuilder provides a static function that builds a RegexMatcher.
  * 
  * Besides some commonly used properties (properties for attribute list, limit, offset), 
- * KeywordMatcherBuilder currently needs the following properties:
+ * RegexMatcherBuilder currently needs the following properties:
  * 
  *   regex (required)
  * 
@@ -15,6 +27,34 @@ public class RegexMatcherBuilder {
     
     public static final String REGEX = "regex";
     
-    
+    /**
+     * Builds a RegexMatcher according to operatorProperties.
+     */
+    public static RegexMatcher buildRegexMatcher(Map<String, String> operatorProperties) throws PlanGenException, DataFlowException, IOException {
+        String regex = OperatorBuilderUtils.getRequiredProperty(REGEX, operatorProperties);
+
+        // check if regex is empty
+        PlanGenUtils.planGenAssert(!regex.trim().isEmpty(), "regex is empty");
+
+        // generate attribute list
+        List<Attribute> attributeList = OperatorBuilderUtils.constructAttributeList(operatorProperties);
+
+        // build RegexMatcher
+        RegexPredicate regexPredicate = new RegexPredicate(regex, attributeList,
+                DataConstants.getTrigramAnalyzer());
+        RegexMatcher regexMatcher = new RegexMatcher(regexPredicate);
+
+        // set limit and offset
+        Integer limitInt = OperatorBuilderUtils.findLimit(operatorProperties);
+        if (limitInt != null) {
+            regexMatcher.setLimit(limitInt);
+        }
+        Integer offsetInt = OperatorBuilderUtils.findOffset(operatorProperties);
+        if (offsetInt != null) {
+            regexMatcher.setOffset(offsetInt);
+        }
+
+        return regexMatcher;
+    }
 
 }

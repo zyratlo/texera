@@ -229,5 +229,9 @@ public class RegexMatcher extends AbstractSingleInputOperator {
     @Override
     protected void cleanUp() throws DataFlowException {        
     }
+
+    public RegexPredicate getPredicate() {
+        return this.regexPredicate;
+    }
     
 }
