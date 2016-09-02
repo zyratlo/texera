@@ -16,7 +16,7 @@ import edu.uci.ics.textdb.plangen.PlanGenUtils;
 /**
  * KeywordMatcherBuilder is an OperatorBuilder that builds a KeywordMatcher.
  * 
- * Besides commonly used properties that are defined in OperatorBuilder, 
+ * Besides some commonly used properties (properties for attribute list, limit, offset), 
  * KeywordMatcherBuilder currently needs the following properties:
  * 
  *   keyword (required)
