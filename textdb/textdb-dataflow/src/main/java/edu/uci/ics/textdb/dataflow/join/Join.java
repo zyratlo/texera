@@ -32,7 +32,7 @@ import edu.uci.ics.textdb.dataflow.common.JoinPredicate;
  * the difference of span ends should be for the join to take place.
  * 
  * Join takes two operators: innerOperator and outerOperator.
- * Each operator have a stream of output tuples, Join performs join on 
+ * Each operator has a stream of output tuples, Join performs join on 
  * two tuples' span lists only if two tuples have the same ID.
  * 
  * Two operators usually have the same schema, but they don't necessarily have to.
@@ -40,9 +40,9 @@ import edu.uci.ics.textdb.dataflow.common.JoinPredicate;
  * For other attributes, join will perform an intersection on them.
  * 
  * Join assumes two tuples are the same if their ID are same.
- * If some attribute value of two tuples are different, if the attribute is the 
+ * If some attribute values of two tuples are different, if the attribute is the 
  * join attribute, the tuple is discarded. If the attribute is not join attribute,
- * then one of the value will be chosen to become the output value.
+ * then one of the values will be chosen to become the output value.
  * 
  * @author Sripad Kowshik Subramanyam (sripadks)
  *
