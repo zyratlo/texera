@@ -14,7 +14,7 @@ import edu.uci.ics.textdb.dataflow.keywordmatch.KeywordMatcher;
 import edu.uci.ics.textdb.plangen.PlanGenUtils;
 
 /**
- * KeywordMatcherBuilder is an OperatorBuilder that builds a KeywordMatcher.
+ * KeywordMatcherBuilder provides a static function that builds a KeywordMatcher.
  * 
  * Besides some commonly used properties (properties for attribute list, limit, offset), 
  * KeywordMatcherBuilder currently needs the following properties:
@@ -31,7 +31,7 @@ public class KeywordMatcherBuilder {
     public static final String MATCHING_TYPE = "matchingType";
 
     /**
-     * Builds a KeywordMatcher according to
+     * Builds a KeywordMatcher according to operatorProperties.
      */
     public static KeywordMatcher buildKeywordMatcher(Map<String, String> operatorProperties) throws PlanGenException, DataFlowException {
         String keyword = OperatorBuilderUtils.getRequiredProperty(KEYWORD, operatorProperties);
