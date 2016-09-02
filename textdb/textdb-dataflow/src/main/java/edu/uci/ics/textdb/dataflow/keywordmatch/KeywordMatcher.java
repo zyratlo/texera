@@ -290,4 +290,8 @@ public class KeywordMatcher extends AbstractSingleInputOperator {
         return relevantSpans;
     }
 
+    public KeywordPredicate getPredicate() {
+        return this.predicate;
+    }
+
 }
