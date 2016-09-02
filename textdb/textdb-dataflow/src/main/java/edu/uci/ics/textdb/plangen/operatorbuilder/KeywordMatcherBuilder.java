@@ -33,7 +33,7 @@ public class KeywordMatcherBuilder {
     /**
      * Builds a KeywordMatcher according to
      */
-    public static KeywordMatcher buildOperator(Map<String, String> operatorProperties) throws PlanGenException, DataFlowException {
+    public static KeywordMatcher buildKeywordMatcher(Map<String, String> operatorProperties) throws PlanGenException, DataFlowException {
         String keyword = OperatorBuilderUtils.getRequiredProperty(KEYWORD, operatorProperties);
         String matchingTypeStr = OperatorBuilderUtils.getRequiredProperty(MATCHING_TYPE, operatorProperties);
 

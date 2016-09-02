@@ -16,24 +16,6 @@ import edu.uci.ics.textdb.plangen.operatorbuilder.KeywordMatcherBuilder;
  */
 public class PlanGenUtils {
     
-    @FunctionalInterface
-    public interface OperatorBuilderFunc {
-        public IOperator build(Map<String, String> operatorProperties) throws Exception;
-    }
-    
-    /**
-     * A map of operators to the their builder classes.
-     */
-    public static final Map<String, OperatorBuilderFunc> operatorBuilderMap;
-    static {
-        operatorBuilderMap = new HashMap<>();
-        operatorBuilderMap.put("KeywordMatcher".toLowerCase(), KeywordMatcherBuilder::buildOperator);
-    }
-    
-    
-    public static void planGenAssert(boolean assertBoolean) throws PlanGenException {
-        planGenAssert(assertBoolean, "");
-    }
     
     public static void planGenAssert(boolean assertBoolean, String errorMessage) throws PlanGenException {
         if (! assertBoolean) {
@@ -59,19 +41,6 @@ public class PlanGenUtils {
      */
     public static boolean isValidAttributeType(String attributeType) {
         return DataTypeConstants.attributeTypeList.stream().anyMatch(str -> str.toLowerCase().equals(attributeType.toLowerCase()));
-    }
-
-    /**
-     * This function builds the operator based on the type and properties.
-     * 
-     * @param operatorType
-     * @param operatorProperties
-     * @return operator that is built
-     * @throws Exception
-     */
-    public static IOperator buildOperator(String operatorType, Map<String, String> operatorProperties) throws Exception {
-        OperatorBuilderFunc operatorBuilderFunc = operatorBuilderMap.get(operatorType.toLowerCase());       
-        return operatorBuilderFunc.build(operatorProperties);
     }
 
 }

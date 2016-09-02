@@ -38,7 +38,7 @@ public class KeywordMatcherBuilderTest {
         keywordProperties.put(OperatorBuilderUtils.ATTRIBUTE_TYPES, "TEXT");
         keywordProperties.put(KeywordMatcherBuilder.MATCHING_TYPE, "conjunction_indexbased");
         
-        KeywordMatcher keywordZika = KeywordMatcherBuilder.buildOperator(keywordProperties);
+        KeywordMatcher keywordZika = KeywordMatcherBuilder.buildKeywordMatcher(keywordProperties);
         
         Assert.assertEquals("zika", keywordZika.getPredicate().getQuery());
         List<Attribute> zikaAttrList = Arrays.asList(
@@ -69,7 +69,7 @@ public class KeywordMatcherBuilderTest {
         keywordProperties.put(OperatorBuilderUtils.LIMIT, "10");
         keywordProperties.put(OperatorBuilderUtils.OFFSET, "2");
         
-        KeywordMatcher keywordIrvine = KeywordMatcherBuilder.buildOperator(keywordProperties);
+        KeywordMatcher keywordIrvine = KeywordMatcherBuilder.buildKeywordMatcher(keywordProperties);
                
         Assert.assertEquals("Irvine", keywordIrvine.getPredicate().getQuery());
         List<Attribute> irvineAttrList = Arrays.asList(
@@ -94,7 +94,7 @@ public class KeywordMatcherBuilderTest {
         keywordProperties.put(OperatorBuilderUtils.LIMIT, "10");
         keywordProperties.put(OperatorBuilderUtils.OFFSET, "2");
         
-        KeywordMatcherBuilder.buildOperator(keywordProperties);       
+        KeywordMatcherBuilder.buildKeywordMatcher(keywordProperties);       
     }
     
     /*
@@ -110,7 +110,7 @@ public class KeywordMatcherBuilderTest {
         keywordProperties.put(OperatorBuilderUtils.LIMIT, "10");
         keywordProperties.put(OperatorBuilderUtils.OFFSET, "2");
         
-        KeywordMatcherBuilder.buildOperator(keywordProperties);      
+        KeywordMatcherBuilder.buildKeywordMatcher(keywordProperties);      
     }
     
     /*
@@ -125,7 +125,7 @@ public class KeywordMatcherBuilderTest {
         keywordProperties.put(OperatorBuilderUtils.LIMIT, "10");
         keywordProperties.put(OperatorBuilderUtils.OFFSET, "2");
         
-        KeywordMatcherBuilder.buildOperator(keywordProperties);       
+        KeywordMatcherBuilder.buildKeywordMatcher(keywordProperties);       
     }
     
     /*
@@ -141,7 +141,7 @@ public class KeywordMatcherBuilderTest {
         keywordProperties.put(OperatorBuilderUtils.LIMIT, "10");
         keywordProperties.put(OperatorBuilderUtils.OFFSET, "2");
         
-        KeywordMatcherBuilder.buildOperator(keywordProperties);       
+        KeywordMatcherBuilder.buildKeywordMatcher(keywordProperties);       
     }
     
     /*
@@ -157,7 +157,7 @@ public class KeywordMatcherBuilderTest {
         keywordProperties.put(OperatorBuilderUtils.LIMIT, "10");
         keywordProperties.put(OperatorBuilderUtils.OFFSET, "2");
         
-        KeywordMatcherBuilder.buildOperator(keywordProperties);  
+        KeywordMatcherBuilder.buildKeywordMatcher(keywordProperties);  
     }
     
     /*
@@ -173,7 +173,7 @@ public class KeywordMatcherBuilderTest {
         keywordProperties.put(OperatorBuilderUtils.LIMIT, "10");
         keywordProperties.put(OperatorBuilderUtils.OFFSET, "2");
         
-        KeywordMatcherBuilder.buildOperator(keywordProperties);  
+        KeywordMatcherBuilder.buildKeywordMatcher(keywordProperties);  
     }
 
 }
