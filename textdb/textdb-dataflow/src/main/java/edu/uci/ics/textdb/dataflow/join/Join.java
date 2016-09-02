@@ -18,22 +18,35 @@ import edu.uci.ics.textdb.common.field.ListField;
 import edu.uci.ics.textdb.common.field.Span;
 import edu.uci.ics.textdb.dataflow.common.JoinPredicate;
 
+
 /**
+ * The Join operator is an operator which intends to perform a "join" over the
+ * the outputs of two other operators based on certain conditions defined
+ * using the JoinPredicate.
  * 
- * @author sripadks
+ * The JoinPredicate currently takes:
+ * ID attribute -> Which serves as the document/tuple ID. Only for the tuples
+ * whose IDs match, we perform the join.
+ * Join Attribute -> The attribute to perform Join on.
+ * and Threshold -> The value within which the difference of span starts and
+ * the difference of span ends should be for the join to take place.
+ * 
+ * Join takes two operators: innerOperator and outerOperator.
+ * Each operator have a stream of output tuples, Join performs join on 
+ * two tuples' span lists only if two tuples have the same ID.
+ * 
+ * Two operators usually have the same schema, but they don't necessarily have to.
+ * Join requires two operators to share ID attribute and attribute to join.
+ * For other attributes, join will perform an intersection on them.
+ * 
+ * Join assumes two tuples are the same if their ID are same.
+ * If some attribute value of two tuples are different, if the attribute is the 
+ * join attribute, the tuple is discarded. If the attribute is not join attribute,
+ * then one of the value will be chosen to become the output value.
+ * 
+ * @author Sripad Kowshik Subramanyam (sripadks)
  *
  */
-
-// The Join operator is an operator which intends to perform a "join" over the
-// the outputs of two other operators based on certain conditions defined
-// using the JoinPredicate.
-// The JoinPredicate currently takes:
-// ID attribute -> Which serves as the document/tuple ID. Only for the tuples
-// whose IDs match, we perform the join.
-// Join Attribute -> The attribute to perform Join on.
-// and Threshold -> The value within which the difference of span starts and
-// the difference of span ends should be for the join to take place.
-
 public class Join implements IOperator {
 
     private IOperator outerOperator;
