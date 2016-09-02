@@ -25,14 +25,14 @@ import edu.uci.ics.textdb.plangen.PlanGenUtils;
  *
  */
 public class FuzzyTokenMatcherBuilder {
-    public static final String QUERY = "query";
+    public static final String FUZZY_STRING = "fuzzyString";
     public static final String THRESHOLD_RATIO = "thresholdRatio";
     
     /**
      * Builds a FuzzyTokenMatcher according to operatorProperties.
      */
     public static FuzzyTokenMatcher buildOperator(Map<String, String> operatorProperties) throws PlanGenException, DataFlowException, IOException {
-        String query = OperatorBuilderUtils.getRequiredProperty(QUERY, operatorProperties);
+        String query = OperatorBuilderUtils.getRequiredProperty(FUZZY_STRING, operatorProperties);
         String thresholdStr = OperatorBuilderUtils.getRequiredProperty(THRESHOLD_RATIO, operatorProperties);
 
         // check if query is empty

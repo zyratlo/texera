@@ -12,7 +12,6 @@ import edu.uci.ics.textdb.api.common.FieldType;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
 import edu.uci.ics.textdb.common.exception.PlanGenException;
 import edu.uci.ics.textdb.dataflow.fuzzytokenmatcher.FuzzyTokenMatcher;
-import edu.uci.ics.textdb.dataflow.regexmatch.RegexMatcher;
 import junit.framework.Assert;
 
 /**
@@ -36,7 +35,7 @@ public class FuzzyTokenMatcherBuilderTest {
         String query = "test with fuzzy token matcher builder";
         
         HashMap<String, String> operatorProperties = new HashMap<>();
-        operatorProperties.put(FuzzyTokenMatcherBuilder.QUERY, query);
+        operatorProperties.put(FuzzyTokenMatcherBuilder.FUZZY_STRING, query);
         operatorProperties.put(FuzzyTokenMatcherBuilder.THRESHOLD_RATIO, "0.5");
         operatorProperties.put(OperatorBuilderUtils.ATTRIBUTE_NAMES, "content");
         operatorProperties.put(OperatorBuilderUtils.ATTRIBUTE_TYPES, "TEXT");
@@ -63,7 +62,7 @@ public class FuzzyTokenMatcherBuilderTest {
         String query = "test with fuzzy token matcher builder";
         
         HashMap<String, String> operatorProperties = new HashMap<>();
-        operatorProperties.put(FuzzyTokenMatcherBuilder.QUERY, query);
+        operatorProperties.put(FuzzyTokenMatcherBuilder.FUZZY_STRING, query);
         operatorProperties.put(FuzzyTokenMatcherBuilder.THRESHOLD_RATIO, "1");
         operatorProperties.put(OperatorBuilderUtils.ATTRIBUTE_NAMES, "content");
         operatorProperties.put(OperatorBuilderUtils.ATTRIBUTE_TYPES, "TEXT");
@@ -90,7 +89,7 @@ public class FuzzyTokenMatcherBuilderTest {
         String query = "test with fuzzy token matcher builder";
         
         HashMap<String, String> operatorProperties = new HashMap<>();
-        operatorProperties.put(FuzzyTokenMatcherBuilder.QUERY, query);
+        operatorProperties.put(FuzzyTokenMatcherBuilder.FUZZY_STRING, query);
         operatorProperties.put(FuzzyTokenMatcherBuilder.THRESHOLD_RATIO, "0");
         operatorProperties.put(OperatorBuilderUtils.ATTRIBUTE_NAMES, "content");
         operatorProperties.put(OperatorBuilderUtils.ATTRIBUTE_TYPES, "TEXT");
@@ -109,7 +108,7 @@ public class FuzzyTokenMatcherBuilderTest {
     }
     
     /*
-     * test invalid FuzzyTokenMatcherBuilder with missing query property
+     * test invalid FuzzyTokenMatcherBuilder by missing a query property
      * 
      */
     @Test(expected = PlanGenException.class)
@@ -126,7 +125,7 @@ public class FuzzyTokenMatcherBuilderTest {
     }
     
     /*
-     * test invalid FuzzyTokenMatcherBuilder with empty query
+     * test invalid FuzzyTokenMatcherBuilder by an empty query
      * 
      */
     @Test(expected = PlanGenException.class)
@@ -134,7 +133,7 @@ public class FuzzyTokenMatcherBuilderTest {
         String query = "";
         
         HashMap<String, String> operatorProperties = new HashMap<>();
-        operatorProperties.put(FuzzyTokenMatcherBuilder.QUERY, query);
+        operatorProperties.put(FuzzyTokenMatcherBuilder.FUZZY_STRING, query);
         operatorProperties.put(FuzzyTokenMatcherBuilder.THRESHOLD_RATIO, "0.5");
         operatorProperties.put(OperatorBuilderUtils.ATTRIBUTE_NAMES, "content");
         operatorProperties.put(OperatorBuilderUtils.ATTRIBUTE_TYPES, "TEXT");
@@ -145,7 +144,7 @@ public class FuzzyTokenMatcherBuilderTest {
     }
     
     /*
-     * test invalid FuzzyTokenMatcherBuilder with missing thresholdRatio property
+     * test invalid FuzzyTokenMatcherBuilder by missing a thresholdRatio property
      * 
      */
     @Test(expected = PlanGenException.class)
@@ -153,7 +152,7 @@ public class FuzzyTokenMatcherBuilderTest {
         String query = "test with fuzzy token matcher builder";
         
         HashMap<String, String> operatorProperties = new HashMap<>();
-        operatorProperties.put(FuzzyTokenMatcherBuilder.QUERY, query);
+        operatorProperties.put(FuzzyTokenMatcherBuilder.FUZZY_STRING, query);
         operatorProperties.put(OperatorBuilderUtils.ATTRIBUTE_NAMES, "content");
         operatorProperties.put(OperatorBuilderUtils.ATTRIBUTE_TYPES, "TEXT");
         operatorProperties.put(OperatorBuilderUtils.LIMIT, "100");
@@ -163,7 +162,7 @@ public class FuzzyTokenMatcherBuilderTest {
     }
 
     /*
-     * test invalid FuzzyTokenMatcherBuilder with invalid thresholdRatio property
+     * test invalid FuzzyTokenMatcherBuilder by an invalid thresholdRatio property
      * 
      */
     @Test(expected = PlanGenException.class)
@@ -171,7 +170,7 @@ public class FuzzyTokenMatcherBuilderTest {
         String query = "test with fuzzy token matcher builder";
         
         HashMap<String, String> operatorProperties = new HashMap<>();
-        operatorProperties.put(FuzzyTokenMatcherBuilder.QUERY, query);
+        operatorProperties.put(FuzzyTokenMatcherBuilder.FUZZY_STRING, query);
         operatorProperties.put(FuzzyTokenMatcherBuilder.THRESHOLD_RATIO, "100");
         operatorProperties.put(OperatorBuilderUtils.ATTRIBUTE_NAMES, "content");
         operatorProperties.put(OperatorBuilderUtils.ATTRIBUTE_TYPES, "TEXT");
@@ -182,7 +181,7 @@ public class FuzzyTokenMatcherBuilderTest {
     }
     
     /*
-     * test invalid FuzzyTokenMatcherBuilder with invalid thresholdRatio property
+     * test invalid FuzzyTokenMatcherBuilder with an invalid thresholdRatio property
      * 
      */
     @Test(expected = PlanGenException.class)
@@ -190,7 +189,7 @@ public class FuzzyTokenMatcherBuilderTest {
         String query = "test with fuzzy token matcher builder";
         
         HashMap<String, String> operatorProperties = new HashMap<>();
-        operatorProperties.put(FuzzyTokenMatcherBuilder.QUERY, query);
+        operatorProperties.put(FuzzyTokenMatcherBuilder.FUZZY_STRING, query);
         operatorProperties.put(FuzzyTokenMatcherBuilder.THRESHOLD_RATIO, "-1.2");
         operatorProperties.put(OperatorBuilderUtils.ATTRIBUTE_NAMES, "content");
         operatorProperties.put(OperatorBuilderUtils.ATTRIBUTE_TYPES, "TEXT");

@@ -15,7 +15,6 @@ import edu.uci.ics.textdb.common.field.Span;
 import edu.uci.ics.textdb.common.utils.Utils;
 import edu.uci.ics.textdb.dataflow.common.AbstractSingleInputOperator;
 import edu.uci.ics.textdb.dataflow.common.FuzzyTokenPredicate;
-import edu.uci.ics.textdb.dataflow.regexmatch.RegexMatcher;
 
 /**
  *  @author Zuozhi Wang (zuozhiw)
