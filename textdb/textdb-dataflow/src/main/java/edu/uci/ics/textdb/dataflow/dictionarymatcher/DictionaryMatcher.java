@@ -152,4 +152,8 @@ public class DictionaryMatcher implements IOperator {
         return inputOperator;
     }
 
+    public DictionaryPredicate getPredicate() {
+        return this.predicate;
+    }
+
 }
