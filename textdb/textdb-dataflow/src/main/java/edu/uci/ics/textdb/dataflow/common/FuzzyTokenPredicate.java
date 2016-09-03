@@ -113,4 +113,12 @@ public class FuzzyTokenPredicate implements IPredicate {
         return dataReaderPredicate;
     }
 
+    public String getQuery() {
+        return this.query;
+    }
+
+    public double getThresholdRatio() {
+        return this.thresholdRatio;
+    }
+
 }
