@@ -36,7 +36,7 @@ import edu.uci.ics.textdb.storage.reader.DataReader;
  */
 public class NlpExtractorPerformanceTest {
 
-    private static String HEADER = "Date,Record #, Avg Time, Avg Result #\n";
+    private static String HEADER = "Date,Record #, Avg Time, Avg Result #, Commit #";
     private static String delimiter = ",";
     private static String newLine = "\n";
     private static int numOfNlpType = 5;
@@ -69,6 +69,7 @@ public class NlpExtractorPerformanceTest {
                     MedlineIndexWriter.SCHEMA_MEDLINE);
             PerfTestUtils.createFile(PerfTestUtils.getResultPath(csvFile), HEADER);
             FileWriter fileWriter = new FileWriter(PerfTestUtils.getResultPath(csvFile), true);
+            fileWriter.append(newLine);
             fileWriter.append(currentTime + delimiter);
             fileWriter.append(file.getName() + delimiter);
             matchNLP(dataStore, NlpPredicate.NlpTokenType.NE_ALL, new StandardAnalyzer());
@@ -79,7 +80,6 @@ public class NlpExtractorPerformanceTest {
             fileWriter.append(String.format("%.4f", totalMatchingTime / numOfNlpType));
             fileWriter.append(delimiter);
             fileWriter.append(String.format("%.2f", totalResults * 0.1 / numOfNlpType ));
-            fileWriter.append(newLine);
             fileWriter.flush();
             fileWriter.close();
         }

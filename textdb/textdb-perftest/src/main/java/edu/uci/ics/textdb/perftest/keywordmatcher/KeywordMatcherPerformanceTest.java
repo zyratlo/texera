@@ -39,7 +39,7 @@ import edu.uci.ics.textdb.storage.DataStore;
 
 public class KeywordMatcherPerformanceTest {
 
-    private static String HEADER = "Date,Record #,Min Time, Max Time, Average Time, Std, Average Results\n";
+    private static String HEADER = "Date,Record #,Min Time, Max Time, Average Time, Std, Average Results, Commit Number";
     private static String delimiter = ",";
     private static String newLine = "\n";
    
@@ -116,6 +116,7 @@ public class KeywordMatcherPerformanceTest {
     	double avgTime = 0.0;
     	PerfTestUtils.createFile(PerfTestUtils.getResultPath(resultFile), HEADER);
     	FileWriter fileWriter = new FileWriter(PerfTestUtils.getResultPath(resultFile),true);
+    	fileWriter.append(newLine);
     	fileWriter.append(currentTime + delimiter);
     	fileWriter.append(recordNum + delimiter);
     	resetStats();
@@ -124,7 +125,6 @@ public class KeywordMatcherPerformanceTest {
     	fileWriter.append(Collections.min(timeResults) + delimiter + Collections.max(timeResults) + delimiter + 
      		avgTime + delimiter + PerfTestUtils.calculateSTD(timeResults, avgTime) + delimiter
              + String.format("%.2f", totalResultCount * 1.0 / queries.size()));
-    	fileWriter.append(newLine);
     	fileWriter.flush();
      	fileWriter.close();
     }

@@ -31,7 +31,7 @@ import edu.uci.ics.textdb.storage.DataStore;
 public class RegexMatcherPerformanceTest {
 
     public static int resultNumber;
-    private static String HEADER = "Date, dataset, Average Time, Average Results\n";
+    private static String HEADER = "Date, dataset, Average Time, Average Results, Commit Number";
     private static String delimiter = ",";
     private static double totalMatchingTime = 0.0;
     private static int totalRegexResultCount = 0;
@@ -70,12 +70,12 @@ public class RegexMatcherPerformanceTest {
             PerfTestUtils.createFile(PerfTestUtils.getResultPath(csvFile), HEADER);
             fileWriter = new FileWriter(PerfTestUtils.getResultPath(csvFile),true);
             matchRegex(regexQueries, dataStore);
+            fileWriter.append("\n");
             fileWriter.append(currentTime + delimiter);
             fileWriter.append(file.getName() + delimiter);
             fileWriter.append(String.format("%.4f", totalMatchingTime / regexQueries.size()));
             fileWriter.append(delimiter);
             fileWriter.append(String.format("%.2f", totalRegexResultCount * 1.0 / regexQueries.size()));
-            fileWriter.append("\n");
             fileWriter.flush();
             fileWriter.close();
         }

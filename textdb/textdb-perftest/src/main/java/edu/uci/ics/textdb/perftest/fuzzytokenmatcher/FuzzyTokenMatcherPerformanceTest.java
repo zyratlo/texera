@@ -36,7 +36,7 @@ import edu.uci.ics.textdb.storage.DataStore;
 
 public class FuzzyTokenMatcherPerformanceTest {
 
-    private static String HEADER = "Date,Record #, Threshold,Min, Max, Average, Std, Average Results\n";
+    private static String HEADER = "Date,Record #, Threshold,Min, Max, Average, Std, Average Results,Commit Number";
     private static String delimiter = ",";
     private static String newLine = "\n";
 
@@ -85,6 +85,7 @@ public class FuzzyTokenMatcherPerformanceTest {
                 
                 PerfTestUtils.createFile(PerfTestUtils.getResultPath(csvFile), HEADER);
                 fileWriter = new FileWriter(PerfTestUtils.getResultPath(csvFile), true);
+                fileWriter.append(newLine);
                 fileWriter.append(currentTime + delimiter);
                 fileWriter.append(file.getName() + delimiter);
                 fileWriter.append(Double.toString(threshold) + delimiter);
@@ -94,7 +95,6 @@ public class FuzzyTokenMatcherPerformanceTest {
                 fileWriter.append(Collections.min(timeResults) + "," + Collections.max(timeResults) + "," + avgTime
                         + "," + PerfTestUtils.calculateSTD(timeResults, avgTime) + ","
                         + totalResultCount / queries.size());
-                fileWriter.append(newLine);
                 fileWriter.flush();
                 fileWriter.close();
 

@@ -34,7 +34,7 @@ import edu.uci.ics.textdb.storage.DataStore;
 
 public class DictionaryMatcherPerformanceTest {
 
-	private static String HEADER = "Date, Record #, Dictionary, Words/Phrase Count, Time(sec), Total Results\n";
+	private static String HEADER = "Date, Record #, Dictionary, Words/Phrase Count, Time(sec), Total Results, Commit Number";
 
 	private static String commaDelimiter = ",";
 	private static String newLine = "\n";
@@ -104,6 +104,7 @@ public class DictionaryMatcherPerformanceTest {
 		
 		PerfTestUtils.createFile(PerfTestUtils.getResultPath(resultFile), HEADER);
 		FileWriter fileWriter = new FileWriter(PerfTestUtils.getResultPath(resultFile), true);
+		fileWriter.append(newLine);
 		fileWriter.append(currentTime + commaDelimiter);
 		fileWriter.append(recordNum + commaDelimiter);
 		fileWriter.append(queryFileName + commaDelimiter);
@@ -111,7 +112,7 @@ public class DictionaryMatcherPerformanceTest {
 		match(dictionary, opType, new StandardAnalyzer(),
 				dataStore);
 		fileWriter.append(String.format("%.4f", matchTime) + commaDelimiter);
-		fileWriter.append(Integer.toString(resultCount) + newLine);
+		fileWriter.append(Integer.toString(resultCount));
 		fileWriter.flush();
 		fileWriter.close();
 	}
