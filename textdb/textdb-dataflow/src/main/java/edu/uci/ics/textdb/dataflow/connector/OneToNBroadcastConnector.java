@@ -17,14 +17,18 @@ import edu.uci.ics.textdb.api.dataflow.IOperator;
  */
 public class OneToNBroadcastConnector implements IConnector {
     
+    private static final int PRE_OPEN = -2;
+    private static final int OPENED = 0;
+    private static final int CLOSED = -1;
+    
     private int outputOperatorNumber;
     
-    // A list of all child output operators
+    // A list of all output operators
     private ArrayList<IOperator> outputOperatorList;
     // A list to maintain cursors of all operators
     private ArrayList<Integer> outputCursorList;
-    // A list to maintain operators' status (opened or closed)
-    private ArrayList<Boolean> outputStatusList;
+    // A list to maintain operators' status (pre-open, opened or closed)
+    private ArrayList<Integer> outputStatusList;
     private boolean inputOperatorOpened;
     
     private IOperator inputOperator;
@@ -33,12 +37,12 @@ public class OneToNBroadcastConnector implements IConnector {
     
     /**
      * Constructs a OneToNBroadcastConnector with n output operators.
-     * @param n, the number of output operators this connector has
+     * @param outputOperatorNumber, the number of output operators this connector has
      */
-    public OneToNBroadcastConnector(int n) {        
+    public OneToNBroadcastConnector(int outputOperatorNumber) {        
         this.inputTupleList = new ArrayList<>();
         inputOperatorOpened = false;
-        this.outputOperatorNumber = n;
+        this.outputOperatorNumber = outputOperatorNumber;
         intializeOutputOperators();
     }
     
@@ -49,7 +53,7 @@ public class OneToNBroadcastConnector implements IConnector {
         
         for (int i = 0; i < this.outputOperatorNumber; i++) {
             outputCursorList.add(-1);
-            outputStatusList.add(false);
+            outputStatusList.add(PRE_OPEN);
             outputOperatorList.add(new ConnectorOutputOperator(this, i));
         }
     }
@@ -102,7 +106,7 @@ public class OneToNBroadcastConnector implements IConnector {
     }
     
     private void openInputOperator(int outputOperatorIndex) throws Exception {
-        outputStatusList.set(outputOperatorIndex, true);
+        outputStatusList.set(outputOperatorIndex, OPENED);
         if (! inputOperatorOpened) {
             inputOperator.open();
             inputOperatorOpened = true;
@@ -110,7 +114,7 @@ public class OneToNBroadcastConnector implements IConnector {
     }
     
     private void closeInputOperator(int outputOperatorIndex) throws Exception {
-        outputStatusList.set(outputOperatorIndex, false);
+        outputStatusList.set(outputOperatorIndex, CLOSED);
         boolean isAllClosed = isAllOutputOperatorClosed();
         if (isAllClosed) {
             inputOperator.close();
@@ -130,7 +134,7 @@ public class OneToNBroadcastConnector implements IConnector {
     }
 
     private boolean isAllOutputOperatorClosed() {
-        return ! outputStatusList.stream().reduce(false, (a, b) -> (a || b));
+        return outputStatusList.stream().reduce(CLOSED, (a, b) -> (a == b ? CLOSED : OPENED)) == -1;
     }
     
     

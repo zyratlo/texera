@@ -132,4 +132,8 @@ public class FuzzyTokenMatcher extends AbstractSingleInputOperator {
     protected void cleanUp() throws DataFlowException {        
     }
 
+    public FuzzyTokenPredicate getPredicate() {
+        return this.predicate;
+    }
+
 }
