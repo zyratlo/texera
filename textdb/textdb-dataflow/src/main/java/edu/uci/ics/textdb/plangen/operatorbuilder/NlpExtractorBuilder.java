@@ -28,7 +28,7 @@ public class NlpExtractorBuilder {
     public static final String NLP_TYPE = "nlpType";
     
     /**
-     * Builds a RegexMatcher according to operatorProperties.
+     * Builds a NlpExtractor according to operatorProperties.
      */
     public static NlpExtractor buildOperator(Map<String, String> operatorProperties) throws PlanGenException, DataFlowException, IOException {
         String nlpTypeStr = OperatorBuilderUtils.getRequiredProperty(NLP_TYPE, operatorProperties);
@@ -39,7 +39,7 @@ public class NlpExtractorBuilder {
         // generate attribute list
         List<Attribute> attributeList = OperatorBuilderUtils.constructAttributeList(operatorProperties);
 
-        // build RegexMatcher
+        // build NlpExtractor
         NlpPredicate predicate = new NlpPredicate(convertToNlpType(nlpTypeStr), attributeList);
         NlpExtractor operator = new NlpExtractor(predicate);
 
@@ -66,5 +66,5 @@ public class NlpExtractorBuilder {
                 .filter(nlpType -> nlpType.toString().toLowerCase().equals(nlpTypeStr.toLowerCase()))
                 .findAny().orElse(null);
     }
-
+    
 }
