@@ -57,8 +57,8 @@ public class OperatorBuilderUtils {
         String attributeNamesStr = getRequiredProperty(ATTRIBUTE_NAMES, operatorProperties);
         String attributeTypesStr = getRequiredProperty(ATTRIBUTE_TYPES, operatorProperties);
 
-        List<String> attributeNames = splitAttributes(attributeNamesStr);
-        List<String> attributeTypes = splitAttributes(attributeTypesStr);
+        List<String> attributeNames = splitStringByComma(attributeNamesStr);
+        List<String> attributeTypes = splitStringByComma(attributeTypesStr);
 
         PlanGenUtils.planGenAssert(attributeNames.size() == attributeTypes.size(), "attribute names and attribute types are not coherent");
         PlanGenUtils.planGenAssert(attributeTypes.stream().allMatch(typeStr -> PlanGenUtils.isValidAttributeType(typeStr))
@@ -76,9 +76,9 @@ public class OperatorBuilderUtils {
         return new Attribute(attributeNameStr, fieldType);
     }
 
-    private static List<String> splitAttributes(String attributesStr) {
-        String[] attributeArray = attributesStr.split(",");
-        return Arrays.asList(attributeArray).stream().map(s -> s.trim()).filter(s -> !s.isEmpty())
+    public static List<String> splitStringByComma(String str) {
+        String[] strArray = str.split(",");
+        return Arrays.asList(strArray).stream().map(s -> s.trim()).filter(s -> !s.isEmpty())
                 .collect(Collectors.toList());
     }
 
