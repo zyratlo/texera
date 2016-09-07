@@ -1,14 +1,10 @@
 package edu.uci.ics.textdb.plangen;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.stream.Stream;
 
 import edu.uci.ics.textdb.api.common.FieldType;
-import edu.uci.ics.textdb.api.dataflow.IOperator;
 import edu.uci.ics.textdb.common.constants.OperatorConstants;
 import edu.uci.ics.textdb.common.exception.PlanGenException;
-import edu.uci.ics.textdb.plangen.operatorbuilder.KeywordMatcherBuilder;
 
 /**
  * This class provides a set of helper functions that are commonly used in plan generation.

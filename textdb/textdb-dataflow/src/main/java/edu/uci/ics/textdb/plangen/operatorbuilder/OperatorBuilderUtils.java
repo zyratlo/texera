@@ -56,17 +56,19 @@ public class OperatorBuilderUtils {
     
     /**
      * This function constructs a DataStore from operator properties.
+     * 
      * It currently needs the following properties from operatorProperties:
-     * directory: the directory of data store
-     * schema: schema of data store, which is a JSON-format string. Each key is attribute name, each value is attribute type.
+     * 
+     *   directory: the directory of data store
+     *   schema: schema of data store, which is a JSON-format string. Each key is attribute name, each value is attribute type.
      * 
      * Here's a sample JSON representation of these properties:
      * 
      * {
-     * "directory" : "directoryOfDatastore",
-     * "schema" : {
-     *   "attribute1Name" : "attribute1Type",
-     *   "attribute2Name" : "attribute2Type"
+     *   "directory" : "directoryOfDatastore",
+     *   "schema" : {
+     *     "attribute1Name" : "attribute1Type",
+     *     "attribute2Name" : "attribute2Type"
      *   }
      * }
      * 
@@ -99,6 +101,18 @@ public class OperatorBuilderUtils {
      * This function finds properties related to constructing the attributes in
      * operatorProperties, and converts them to a list of attributes.
      * 
+     * It currently needs the following properties from operatorProperties: 
+     *   attributeNames: a list of attributes' names (separated by comma)
+     *   attributeTypes: a list of attributes' types corresponding to attribute names (separated by comma)
+     *   
+     * Here's a sample JSON representation of these properties:
+     * 
+     * {
+     *   "attributeNames" : "attribute1Name, attribute2Name, attribute3Name",
+     *   "attributeTypes" : "attribute1Type, attribute2Type, attribute3Type"
+     * }
+     * 
+     * @param operatorProperties
      * @return a list of attributes
      * @throws PlanGenException
      */
