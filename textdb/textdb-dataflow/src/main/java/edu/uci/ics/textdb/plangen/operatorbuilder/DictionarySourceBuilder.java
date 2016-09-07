@@ -6,34 +6,35 @@ import java.util.Map;
 import edu.uci.ics.textdb.api.common.Attribute;
 import edu.uci.ics.textdb.common.constants.DataConstants;
 import edu.uci.ics.textdb.common.constants.DataConstants.KeywordMatchingType;
-import edu.uci.ics.textdb.common.exception.DataFlowException;
 import edu.uci.ics.textdb.common.exception.PlanGenException;
 import edu.uci.ics.textdb.dataflow.common.Dictionary;
 import edu.uci.ics.textdb.dataflow.common.DictionaryPredicate;
-import edu.uci.ics.textdb.dataflow.dictionarymatcher.DictionaryMatcher;
+import edu.uci.ics.textdb.dataflow.dictionarymatcher.DictionaryMatcherSourceOperator;
 import edu.uci.ics.textdb.plangen.PlanGenUtils;
+import edu.uci.ics.textdb.storage.DataStore;
 
 /**
- * DictionaryMatcherBuilder provides a static function that builds a DictionaryMatcher.
+ * DictionarySourceBuilder provides a static function that builds a DictionaryMatcherSourceOperator.
  * 
- * Besides some commonly used properties (properties for attribute list, limit, offset), 
- * DictionaryMatcherBuilder currently needs the following properties:
+ * DictionarySourceBuilder currently needs the following properties:
  * 
  *   dictionary (required)
  *   matchingType (required)
+ *   
+ *   properties required for constructing attributeList, see OperatorBuilderUtils.constructAttributeList
+ *   properties required for constructing dataStore, see OperatorBuilderUtils.constructDataStore
+ * 
  * 
  * @author Zuozhi Wang
  *
  */
-public class DictionaryMatcherBuilder {
-
-    public static final String DICTIONARY = "dictionary";
+public class DictionarySourceBuilder {
+    
+    public static String DICTIONARY = "dictionary";
     public static final String MATCHING_TYPE = KeywordMatcherBuilder.MATCHING_TYPE;
 
-    /**
-     * Builds a DictionaryMatcher according to operatorProperties.
-     */
-    public static DictionaryMatcher buildOperator(Map<String, String> operatorProperties) throws PlanGenException, DataFlowException {
+    
+    public static DictionaryMatcherSourceOperator buildSourceOperator(Map<String, String> operatorProperties) throws PlanGenException {
         String dictionaryStr = OperatorBuilderUtils.getRequiredProperty(DICTIONARY, operatorProperties);
         String matchingTypeStr = OperatorBuilderUtils.getRequiredProperty(MATCHING_TYPE, operatorProperties);
 
@@ -50,23 +51,15 @@ public class DictionaryMatcherBuilder {
         PlanGenUtils.planGenAssert(matchingType != null, 
                 "matching type: "+ matchingTypeStr +" is not valid, "
                 + "must be one of " + KeywordMatcherBuilder.keywordMatchingTypeMap.keySet());
-
-        // build DictionaryMatcher
-        DictionaryPredicate predicate = new DictionaryPredicate(dictionary, attributeList,
-                DataConstants.getStandardAnalyzer(), matchingType);
-        DictionaryMatcher operator = new DictionaryMatcher(predicate);
-
-        // set limit and offset
-        Integer limitInt = OperatorBuilderUtils.findLimit(operatorProperties);
-        if (limitInt != null) {
-            operator.setLimit(limitInt);
-        }
-        Integer offsetInt = OperatorBuilderUtils.findOffset(operatorProperties);
-        if (offsetInt != null) {
-            operator.setOffset(offsetInt);
-        }
-
-        return operator;
+        
+        DictionaryPredicate predicate = new DictionaryPredicate(
+                dictionary, attributeList, DataConstants.getStandardAnalyzer(), matchingType);
+        
+        DataStore dataStore = OperatorBuilderUtils.constructDataStore(operatorProperties);
+        
+        DictionaryMatcherSourceOperator sourceOperator = new DictionaryMatcherSourceOperator(predicate, dataStore);
+                
+        return sourceOperator;
     }
 
 }

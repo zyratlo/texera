@@ -1,15 +1,20 @@
 package edu.uci.ics.textdb.plangen.operatorbuilder;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import org.json.JSONObject;
+
 import edu.uci.ics.textdb.api.common.Attribute;
 import edu.uci.ics.textdb.api.common.FieldType;
+import edu.uci.ics.textdb.api.common.Schema;
 import edu.uci.ics.textdb.common.exception.PlanGenException;
 import edu.uci.ics.textdb.plangen.PlanGenUtils;
+import edu.uci.ics.textdb.storage.DataStore;
 
 public class OperatorBuilderUtils {
     
@@ -17,6 +22,9 @@ public class OperatorBuilderUtils {
     public static final String ATTRIBUTE_TYPES = "attributeTypes";
     public static final String LIMIT = "limit";
     public static final String OFFSET = "offset";
+    
+    public static String DATA_DIRECTORY = "directory";
+    public static String SCHEMA = "schema";
     
     
     /**
@@ -44,6 +52,47 @@ public class OperatorBuilderUtils {
      */
     public static String getOptionalProperty(String key, Map<String, String> operatorProperties) {
         return operatorProperties.get(key);
+    }
+    
+    /**
+     * This function constructs a DataStore from operator properties.
+     * It currently needs the following properties from operatorProperties:
+     * directory: the directory of data store
+     * schema: schema of data store, which is a JSON-format string. Each key is attribute name, each value is attribute type.
+     * 
+     * Here's a sample JSON representation of these properties:
+     * 
+     * {
+     * "directory" : "directoryOfDatastore",
+     * "schema" : {
+     *   "attribute1Name" : "attribute1Type",
+     *   "attribute2Name" : "attribute2Type"
+     *   }
+     * }
+     * 
+     * @param operatorProperties
+     * @return dataStore, dataStore constructed according to directory and schema.
+     * @throws PlanGenException
+     */
+    public static DataStore constructDataStore(Map<String, String> operatorProperties) throws PlanGenException {
+        String directoryStr = OperatorBuilderUtils.getRequiredProperty(DATA_DIRECTORY, operatorProperties);
+        String schemaStr = OperatorBuilderUtils.getRequiredProperty(SCHEMA, operatorProperties);
+        
+        JSONObject schemaJsonObject = new JSONObject(schemaStr);
+        List<Attribute> attributeList = new ArrayList<>();
+        for (String schemaKey : schemaJsonObject.keySet()) {
+            String schemaTypeStr = schemaJsonObject.getString(schemaKey);
+            FieldType schemaType = PlanGenUtils.convertAttributeType(schemaTypeStr);
+            PlanGenUtils.planGenAssert(schemaType != null, 
+                    schemaType + " is not a valid type, "
+                    + "must be one of " + Arrays.asList(FieldType.values()).toString());
+            attributeList.add(new Attribute(schemaKey, schemaType));
+        }
+        Schema schema = new Schema(attributeList.stream().toArray(Attribute[]::new));
+        
+        DataStore dataStore = new DataStore(directoryStr, schema);
+        
+        return dataStore;
     }
 
     /**
@@ -119,5 +168,6 @@ public class OperatorBuilderUtils {
         }
         return offset;
     }
+    
 
 }

@@ -1,7 +1,9 @@
 package edu.uci.ics.textdb.plangen.operatorbuilder;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import edu.uci.ics.textdb.api.common.Attribute;
@@ -44,8 +46,10 @@ public class KeywordMatcherBuilder {
         List<Attribute> attributeList = OperatorBuilderUtils.constructAttributeList(operatorProperties);
 
         // generate matching type
-        PlanGenUtils.planGenAssert(isValidKeywordMatchingType(matchingTypeStr), "matching type is not valid");
-        KeywordMatchingType matchingType = KeywordMatchingType.valueOf(matchingTypeStr.toUpperCase());
+        KeywordMatchingType matchingType = KeywordMatcherBuilder.getKeywordMatchingType(matchingTypeStr);
+        PlanGenUtils.planGenAssert(matchingType != null, 
+                "matching type: "+ matchingTypeStr +" is not valid, "
+                + "must be one of " + KeywordMatcherBuilder.keywordMatchingTypeMap.keySet());
 
         // build KeywordMatcher
         KeywordPredicate keywordPredicate = new KeywordPredicate(keyword, attributeList,
@@ -64,10 +68,20 @@ public class KeywordMatcherBuilder {
 
         return keywordMatcher;
     }
-
-    private static boolean isValidKeywordMatchingType(String matchingTypeStr) {
-        return Stream.of(KeywordMatchingType.values()).map(KeywordMatchingType::name)
-                .anyMatch(name -> name.toUpperCase().equals(matchingTypeStr.toUpperCase()));
+    
+    public static Map<String, KeywordMatchingType> keywordMatchingTypeMap = new HashMap<>();
+    static {
+        // put all keywordMatchingType
+        keywordMatchingTypeMap.putAll(
+                Stream.of(KeywordMatchingType.values()).collect(Collectors.toMap((x -> x.toString().toLowerCase()), (x -> x))));
+        // add a few abbreviations
+        keywordMatchingTypeMap.put("substring", KeywordMatchingType.SUBSTRING_SCANBASED);
+        keywordMatchingTypeMap.put("conjunction", KeywordMatchingType.CONJUNCTION_INDEXBASED);
+        keywordMatchingTypeMap.put("phrase", KeywordMatchingType.PHRASE_INDEXBASED);
+    }
+    
+    public static KeywordMatchingType getKeywordMatchingType(String matchingTypeStr) {
+        return keywordMatchingTypeMap.get(matchingTypeStr.toLowerCase());      
     }
 
 }
