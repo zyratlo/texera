@@ -294,4 +294,8 @@ public class NlpExtractor extends AbstractSingleInputOperator {
     protected void cleanUp() throws DataFlowException {
     }
 
+    public NlpPredicate getPredicate() {
+        return this.predicate;
+    }
+
 }
