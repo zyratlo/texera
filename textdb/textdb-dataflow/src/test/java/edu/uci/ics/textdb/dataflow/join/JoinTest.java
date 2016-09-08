@@ -29,7 +29,7 @@ import edu.uci.ics.textdb.common.field.Span;
 import edu.uci.ics.textdb.common.field.StringField;
 import edu.uci.ics.textdb.common.field.TextField;
 import edu.uci.ics.textdb.dataflow.common.FuzzyTokenPredicate;
-import edu.uci.ics.textdb.dataflow.common.JoinPredicate;
+import edu.uci.ics.textdb.dataflow.common.JoinDistancePredicate;
 import edu.uci.ics.textdb.dataflow.common.KeywordPredicate;
 import edu.uci.ics.textdb.dataflow.fuzzytokenmatcher.FuzzyTokenMatcher;
 import edu.uci.ics.textdb.dataflow.keywordmatch.KeywordMatcher;
@@ -108,7 +108,7 @@ public class JoinTest {
     // A helper method to get join result. Called from each test case
     public List<ITuple> getJoinResults(IOperator outer, IOperator inner, Attribute idAttribute, Attribute joinAttribute,
             Integer threshold) throws Exception {
-        JoinPredicate joinPredicate = new JoinPredicate(idAttribute, joinAttribute, threshold);
+        JoinDistancePredicate joinPredicate = new JoinDistancePredicate(idAttribute, joinAttribute, threshold);
         join = new Join(outer, inner, joinPredicate);
         join.open();
 
