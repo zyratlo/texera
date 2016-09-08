@@ -11,7 +11,7 @@ import edu.uci.ics.textdb.api.common.Schema;
 import edu.uci.ics.textdb.api.dataflow.IOperator;
 import edu.uci.ics.textdb.common.constants.SchemaConstants;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
-import edu.uci.ics.textdb.dataflow.common.JoinDistancePredicate;
+import edu.uci.ics.textdb.dataflow.common.IJoinPredicate;
 
 
 /**
@@ -46,7 +46,7 @@ public class Join implements IOperator {
 
     private IOperator outerOperator;
     private IOperator innerOperator;
-    private JoinDistancePredicate joinDistancePredicate;
+    private IJoinPredicate joinPredicate;
     // To indicate if next result from outer operator has to be obtained.
     private boolean shouldIGetOuterOperatorNextTuple;
     private ITuple outerTuple = null;
@@ -67,19 +67,19 @@ public class Join implements IOperator {
      *            is the outer operator producing the tuples
      * @param inner
      *            is the inner operator producing the tuples
-     * @param joinPredicate
+     * @param joinDistancePredicate
      *            is the predicate over which the join is made
      */
-    public Join(IOperator outerOperator, IOperator innerOperator, JoinDistancePredicate joinPredicate) {
+    public Join(IOperator outerOperator, IOperator innerOperator, IJoinPredicate joinDistancePredicate) {
         this.outerOperator = outerOperator;
         this.innerOperator = innerOperator;
-        this.joinDistancePredicate = joinPredicate;
+        this.joinPredicate = joinDistancePredicate;
     }
 
     @Override
     public void open() throws Exception, DataFlowException {
-        if (!(joinDistancePredicate.getJoinAttribute().getFieldType().equals(FieldType.STRING)
-                || joinDistancePredicate.getJoinAttribute().getFieldType().equals(FieldType.TEXT))) {
+        if (!(joinPredicate.getJoinAttribute().getFieldType().equals(FieldType.STRING)
+                || joinPredicate.getJoinAttribute().getFieldType().equals(FieldType.TEXT))) {
             throw new Exception("Fields other than \"STRING\" and \"TEXT\" are not supported by Join yet.");
         }
 
@@ -143,7 +143,7 @@ public class Join implements IOperator {
                 }
             }
             
-            nextTuple = joinDistancePredicate.joinTuples(this, outerTuple, innerTuple);
+            nextTuple = joinPredicate.joinTuples(outerTuple, innerTuple, outputSchema);
         } while (nextTuple == null);
 
         return nextTuple;
@@ -163,7 +163,7 @@ public class Join implements IOperator {
         innerTupleList.clear();
     }
 
-    /*
+    /**
      * Create outputSchema, which is the intersection of innerOperator's schema and outerOperator's schema.
      * The attributes have to be exactly the same (name and type) to be intersected.
      * 
@@ -172,6 +172,7 @@ public class Join implements IOperator {
      * both contain "ID" attribute. (ID attribute that user specifies in joinPredicate)
      * both contain "spanList" attribute.
      * 
+     * @return outputSchema
      */
     private void generateIntersectionSchema() throws DataFlowException {
         List<Attribute> innerAttributes = innerOperator.getOutputSchema().getAttributes();
@@ -184,9 +185,9 @@ public class Join implements IOperator {
         
         if (intersectionAttributes.isEmpty()) {
             throw new DataFlowException("inner operator and outer operator don't share any common attributes");
-        } else if (! intersectionAttributes.contains(joinDistancePredicate.getJoinAttribute())) {
+        } else if (! intersectionAttributes.contains(joinPredicate.getJoinAttribute())) {
             throw new DataFlowException("inner operator or outer operator doesn't contain join attribute");
-        } else if (! intersectionAttributes.contains(joinDistancePredicate.getIDAttribute())) {
+        } else if (! intersectionAttributes.contains(joinPredicate.getIDAttribute())) {
             throw new DataFlowException("inner operator or outer operator doesn't contain ID attribute");
         } else if (! intersectionAttributes.contains(SchemaConstants.SPAN_LIST_ATTRIBUTE)) {
             throw new DataFlowException("inner operator or outer operator doesn't contain spanList attribute");

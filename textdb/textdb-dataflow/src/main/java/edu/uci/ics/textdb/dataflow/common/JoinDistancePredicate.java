@@ -7,14 +7,12 @@ import java.util.stream.Collectors;
 
 import edu.uci.ics.textdb.api.common.Attribute;
 import edu.uci.ics.textdb.api.common.IField;
-import edu.uci.ics.textdb.api.common.IPredicate;
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.common.Schema;
 import edu.uci.ics.textdb.common.constants.SchemaConstants;
 import edu.uci.ics.textdb.common.field.DataTuple;
 import edu.uci.ics.textdb.common.field.ListField;
 import edu.uci.ics.textdb.common.field.Span;
-import edu.uci.ics.textdb.dataflow.join.Join;
 
 /**
  * 
@@ -110,14 +108,21 @@ public class JoinDistancePredicate implements IJoinPredicate {
         return this.threshold;
     }
 
-	public ITuple joinTuples(Join join, ITuple outerTuple, ITuple innerTuple) throws Exception {
+    /**
+     * This method is called by the Join operator to perform the join on the 
+     * tuples passed.
+     * 
+     * @return New Tuple containing the result of join operation.
+     */
+	public ITuple joinTuples(ITuple outerTuple, ITuple innerTuple, Schema outputSchema) throws Exception {
 	    List<Span> newJoinSpanList = new ArrayList<>();
-	    
-	    // We expect the values of all fields to be the same for innerTuple and outerTuple.
-	    // We only checks ID field, and field to be joined, since they are crucial to join operator.
-	    // For other fields, we use the value from innerTuple.
-	
-	    // check if the ID fields are the same
+
+	    /*
+	     * We expect the values of all fields to be the same for innerTuple and outerTuple.
+	     * We only checks ID field, and field to be joined, since they are crucial to join operator.
+	     * For other fields, we use the value from innerTuple.
+	     * check if the ID fields are the same
+	     */
 	    if (! compareField(innerTuple, outerTuple, this.getIDAttribute().getFieldName())) {
 	        return null;
 	    }
@@ -126,12 +131,12 @@ public class JoinDistancePredicate implements IJoinPredicate {
 	    if (! compareField(innerTuple, outerTuple, this.getJoinAttribute().getFieldName())) {
 	        return null;
 	    }
-	    
-	    
-	    // If either/both tuples have no span information, return null.
-	    // Check using try/catch if both the tuples have span information.
-	    // If not return null; so we can process next tuple.
-	
+
+	    /*
+	     * If either/both tuples have no span information, return null.
+	     * Check using try/catch if both the tuples have span information.
+	     * If not return null; so we can process next tuple.
+	     */
 	    IField spanFieldOfInnerTuple = null;
 	    IField spanFieldOfOuterTuple = null;
 	    try {
@@ -192,7 +197,6 @@ public class JoinDistancePredicate implements IJoinPredicate {
 	    }
 	   
 	    // create output fields based on innerTuple's value
-	    Schema outputSchema = join.getOutputSchema();
 	    List<Attribute> outputAttrList = outputSchema.getAttributes();
 	    List<IField> outputFields = 
 	            outputAttrList.stream()
@@ -206,6 +210,14 @@ public class JoinDistancePredicate implements IJoinPredicate {
 	    return new DataTuple(outputSchema, outputFields.stream().toArray(IField[]::new));
 	}
 
+	/**
+	 * Used to compare the value's of a field from the outer and inner tuples'.
+	 * 
+	 * @param innerTuple
+	 * @param outerTuple
+	 * @param fieldName
+	 * @return True if both the tuples have the field and the values are equal.
+	 */
 	private boolean compareField(ITuple innerTuple, ITuple outerTuple, String fieldName) {  
 	    IField innerField = innerTuple.getField(fieldName);
 	    IField outerField = outerTuple.getField(fieldName);
