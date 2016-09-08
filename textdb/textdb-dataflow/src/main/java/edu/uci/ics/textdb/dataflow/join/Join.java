@@ -46,7 +46,7 @@ public class Join implements IOperator {
 
     private IOperator outerOperator;
     private IOperator innerOperator;
-    private IJoinPredicate joinPredicate;
+    private IJoinPredicate joinDistancePredicate;
     // To indicate if next result from outer operator has to be obtained.
     private boolean shouldIGetOuterOperatorNextTuple;
     private ITuple outerTuple = null;
@@ -73,13 +73,13 @@ public class Join implements IOperator {
     public Join(IOperator outerOperator, IOperator innerOperator, IJoinPredicate joinDistancePredicate) {
         this.outerOperator = outerOperator;
         this.innerOperator = innerOperator;
-        this.joinPredicate = joinDistancePredicate;
+        this.joinDistancePredicate = joinDistancePredicate;
     }
 
     @Override
     public void open() throws Exception, DataFlowException {
-        if (!(joinPredicate.getJoinAttribute().getFieldType().equals(FieldType.STRING)
-                || joinPredicate.getJoinAttribute().getFieldType().equals(FieldType.TEXT))) {
+        if (!(joinDistancePredicate.getJoinAttribute().getFieldType().equals(FieldType.STRING)
+                || joinDistancePredicate.getJoinAttribute().getFieldType().equals(FieldType.TEXT))) {
             throw new Exception("Fields other than \"STRING\" and \"TEXT\" are not supported by Join yet.");
         }
 
@@ -143,7 +143,7 @@ public class Join implements IOperator {
                 }
             }
             
-            nextTuple = joinPredicate.joinTuples(outerTuple, innerTuple, outputSchema);
+            nextTuple = joinDistancePredicate.joinTuples(outerTuple, innerTuple, outputSchema);
         } while (nextTuple == null);
 
         return nextTuple;
@@ -185,9 +185,9 @@ public class Join implements IOperator {
         
         if (intersectionAttributes.isEmpty()) {
             throw new DataFlowException("inner operator and outer operator don't share any common attributes");
-        } else if (! intersectionAttributes.contains(joinPredicate.getJoinAttribute())) {
+        } else if (! intersectionAttributes.contains(joinDistancePredicate.getJoinAttribute())) {
             throw new DataFlowException("inner operator or outer operator doesn't contain join attribute");
-        } else if (! intersectionAttributes.contains(joinPredicate.getIDAttribute())) {
+        } else if (! intersectionAttributes.contains(joinDistancePredicate.getIDAttribute())) {
             throw new DataFlowException("inner operator or outer operator doesn't contain ID attribute");
         } else if (! intersectionAttributes.contains(SchemaConstants.SPAN_LIST_ATTRIBUTE)) {
             throw new DataFlowException("inner operator or outer operator doesn't contain spanList attribute");
