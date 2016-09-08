@@ -108,8 +108,8 @@ public class JoinTest {
     // A helper method to get join result. Called from each test case
     public List<ITuple> getJoinResults(IOperator outer, IOperator inner, Attribute idAttribute, Attribute joinAttribute,
             Integer threshold) throws Exception {
-        JoinDistancePredicate joinPredicate = new JoinDistancePredicate(idAttribute, joinAttribute, threshold);
-        join = new Join(outer, inner, joinPredicate);
+        JoinDistancePredicate joinDistancePredicate = new JoinDistancePredicate(idAttribute, joinAttribute, threshold);
+        join = new Join(outer, inner, joinDistancePredicate);
         join.open();
 
         List<ITuple> results = new ArrayList<>();
