@@ -13,7 +13,6 @@ import edu.uci.ics.textdb.common.constants.DataConstants.KeywordMatchingType;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
 import edu.uci.ics.textdb.common.exception.PlanGenException;
 import edu.uci.ics.textdb.dataflow.dictionarymatcher.DictionaryMatcher;
-import edu.uci.ics.textdb.dataflow.keywordmatch.KeywordMatcher;
 import junit.framework.Assert;
 
 public class DictionaryMatcherBuilderTest {

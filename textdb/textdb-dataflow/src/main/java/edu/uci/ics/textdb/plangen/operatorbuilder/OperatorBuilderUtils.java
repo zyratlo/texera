@@ -1,6 +1,5 @@
 package edu.uci.ics.textdb.plangen.operatorbuilder;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -60,15 +59,17 @@ public class OperatorBuilderUtils {
      * It currently needs the following properties from operatorProperties:
      * 
      *   directory: the directory of data store
-     *   schema: schema of data store, which is a JSON-format string. Each key is attribute name, each value is attribute type.
+     *   schema: schema of data store, which is a JSON-format string. 
+     *   "attributeNames" key's value is a string of comma-separated attribute names, 
+     *   "attirbuteTypes" key's value is a string of comma-separated attribute types corresponding to attribute names.
      * 
      * Here's a sample JSON representation of these properties:
      * 
      * {
      *   "directory" : "directoryOfDatastore",
      *   "schema" : {
-     *     "attribute1Name" : "attribute1Type",
-     *     "attribute2Name" : "attribute2Type"
+     *     "attributeNames" : "attribute1Name, attribute2Name, attribute3Name",
+     *     "attributeTypes" : "integer, string, text"
      *   }
      * }
      * 
@@ -81,15 +82,21 @@ public class OperatorBuilderUtils {
         String schemaStr = OperatorBuilderUtils.getRequiredProperty(SCHEMA, operatorProperties);
         
         JSONObject schemaJsonObject = new JSONObject(schemaStr);
-        List<Attribute> attributeList = new ArrayList<>();
-        for (String schemaKey : schemaJsonObject.keySet()) {
-            String schemaTypeStr = schemaJsonObject.getString(schemaKey);
-            FieldType schemaType = PlanGenUtils.convertAttributeType(schemaTypeStr);
-            PlanGenUtils.planGenAssert(schemaType != null, 
-                    schemaType + " is not a valid type, "
-                    + "must be one of " + Arrays.asList(FieldType.values()).toString());
-            attributeList.add(new Attribute(schemaKey, schemaType));
-        }
+        
+        String attributeNamesStr = schemaJsonObject.getString(ATTRIBUTE_NAMES);
+        String attributeTypesStr = schemaJsonObject.getString(ATTRIBUTE_TYPES);
+        
+        List<String> attributeNames = splitStringByComma(attributeNamesStr);
+        List<String> attributeTypes = splitStringByComma(attributeTypesStr);
+
+        PlanGenUtils.planGenAssert(attributeNames.size() == attributeTypes.size(), "attribute names and attribute types are not coherent");
+        PlanGenUtils.planGenAssert(attributeTypes.stream().allMatch(typeStr -> PlanGenUtils.isValidAttributeType(typeStr))
+                ,"attribute type is not valid");
+
+        List<Attribute> attributeList = IntStream.range(0, attributeNames.size()) // for each index in the list
+                .mapToObj(i -> constructAttribute(attributeNames.get(i), attributeTypes.get(i))) // construct an attribute
+                .collect(Collectors.toList());
+
         Schema schema = new Schema(attributeList.stream().toArray(Attribute[]::new));
         
         DataStore dataStore = new DataStore(directoryStr, schema);
