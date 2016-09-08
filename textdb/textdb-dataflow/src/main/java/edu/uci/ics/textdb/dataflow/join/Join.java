@@ -46,7 +46,7 @@ public class Join implements IOperator {
 
     private IOperator outerOperator;
     private IOperator innerOperator;
-    private IJoinPredicate joinDistancePredicate;
+    private IJoinPredicate joinPredicate;
     // To indicate if next result from outer operator has to be obtained.
     private boolean shouldIGetOuterOperatorNextTuple;
     private ITuple outerTuple = null;
@@ -67,19 +67,19 @@ public class Join implements IOperator {
      *            is the outer operator producing the tuples
      * @param inner
      *            is the inner operator producing the tuples
-     * @param joinDistancePredicate
+     * @param joinPredicate
      *            is the predicate over which the join is made
      */
-    public Join(IOperator outerOperator, IOperator innerOperator, IJoinPredicate joinDistancePredicate) {
+    public Join(IOperator outerOperator, IOperator innerOperator, IJoinPredicate joinPredicate) {
         this.outerOperator = outerOperator;
         this.innerOperator = innerOperator;
-        this.joinDistancePredicate = joinDistancePredicate;
+        this.joinPredicate = joinPredicate;
     }
 
     @Override
     public void open() throws Exception, DataFlowException {
-        if (!(joinDistancePredicate.getJoinAttribute().getFieldType().equals(FieldType.STRING)
-                || joinDistancePredicate.getJoinAttribute().getFieldType().equals(FieldType.TEXT))) {
+        if (!(joinPredicate.getJoinAttribute().getFieldType().equals(FieldType.STRING)
+                || joinPredicate.getJoinAttribute().getFieldType().equals(FieldType.TEXT))) {
             throw new Exception("Fields other than \"STRING\" and \"TEXT\" are not supported by Join yet.");
         }
 
@@ -143,7 +143,7 @@ public class Join implements IOperator {
                 }
             }
             
-            nextTuple = joinDistancePredicate.joinTuples(outerTuple, innerTuple, outputSchema);
+            nextTuple = joinPredicate.joinTuples(outerTuple, innerTuple, outputSchema);
         } while (nextTuple == null);
 
         return nextTuple;
@@ -185,9 +185,9 @@ public class Join implements IOperator {
         
         if (intersectionAttributes.isEmpty()) {
             throw new DataFlowException("inner operator and outer operator don't share any common attributes");
-        } else if (! intersectionAttributes.contains(joinDistancePredicate.getJoinAttribute())) {
+        } else if (! intersectionAttributes.contains(joinPredicate.getJoinAttribute())) {
             throw new DataFlowException("inner operator or outer operator doesn't contain join attribute");
-        } else if (! intersectionAttributes.contains(joinDistancePredicate.getIDAttribute())) {
+        } else if (! intersectionAttributes.contains(joinPredicate.getIDAttribute())) {
             throw new DataFlowException("inner operator or outer operator doesn't contain ID attribute");
         } else if (! intersectionAttributes.contains(SchemaConstants.SPAN_LIST_ATTRIBUTE)) {
             throw new DataFlowException("inner operator or outer operator doesn't contain spanList attribute");
