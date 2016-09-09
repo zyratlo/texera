@@ -11,6 +11,7 @@ import edu.uci.ics.textdb.api.common.Schema;
 import edu.uci.ics.textdb.api.dataflow.IOperator;
 import edu.uci.ics.textdb.common.constants.SchemaConstants;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
+import edu.uci.ics.textdb.common.exception.ErrorMessages;
 import edu.uci.ics.textdb.dataflow.common.IJoinPredicate;
 
 
@@ -58,6 +59,12 @@ public class Join implements IOperator {
     private List<Attribute> outputAttrList;
     private Schema outputSchema;
 
+    private int cursor = CLOSED;
+    
+    private int resultCursor = -1;
+    private int limit = Integer.MAX_VALUE;
+    private int offset = 0;
+
     /**
      * This constructor is used to set the operators whose output is to be
      * compared and joined and the predicate which specifies the fields and
@@ -83,6 +90,10 @@ public class Join implements IOperator {
             throw new Exception("Fields other than \"STRING\" and \"TEXT\" are not supported by Join yet.");
         }
 
+        if (cursor != CLOSED) {
+        	return;
+        }
+
         try {
             innerOperator.open();
         } catch (Exception e) {
@@ -106,7 +117,8 @@ public class Join implements IOperator {
             e.printStackTrace();
             throw new DataFlowException(e.getMessage(), e);
         }
-        
+
+        cursor = OPENED;
         generateIntersectionSchema();
         outputAttrList = outputSchema.getAttributes();
     }
@@ -120,14 +132,49 @@ public class Join implements IOperator {
      */
     @Override
     public ITuple getNextTuple() throws Exception {
+    	if (cursor == CLOSED) {
+            throw new DataFlowException(ErrorMessages.OPERATOR_NOT_OPENED);
+        }
+
         if (innerTupleList.isEmpty()) {
+            return null;
+        }
+
+        if (resultCursor >= limit + offset - 1 || limit == 0){
             return null;
         }
 
         ITuple nextTuple = null;
 
+        if (offset > 0) {
+        	while (resultCursor < offset - 1) {
+        		if (shouldIGetOuterOperatorNextTuple == true) {
+        			if ((outerTuple = outerOperator.getNextTuple()) == null) {
+        				resultCursor = offset;
+        				return null;
+        			}
+        			shouldIGetOuterOperatorNextTuple = false;
+        		}
+
+        		if (innerOperatorCursor <= innerTupleList.size() - 1) {
+        			innerTuple = innerTupleList.get(innerOperatorCursor);
+        			innerOperatorCursor++;
+        			if (innerOperatorCursor == innerTupleList.size()) {
+        				innerOperatorCursor = 0;
+        				shouldIGetOuterOperatorNextTuple = true;
+        			}
+        		}
+
+        		nextTuple = joinPredicate.joinTuples(outerTuple, innerTuple, outputSchema);
+        		if (nextTuple == null) {
+        			continue;
+        		}
+        		resultCursor++;
+        	}
+        }
+
         do {
-            if (shouldIGetOuterOperatorNextTuple == true) {
+        	if (shouldIGetOuterOperatorNextTuple == true) {
                 if ((outerTuple = outerOperator.getNextTuple()) == null) {
                     return null;
                 }
@@ -146,11 +193,16 @@ public class Join implements IOperator {
             nextTuple = joinPredicate.joinTuples(outerTuple, innerTuple, outputSchema);
         } while (nextTuple == null);
 
+        resultCursor++;
         return nextTuple;
     }
 
     @Override
     public void close() throws Exception {
+    	if (cursor == CLOSED) {
+            return;
+        }
+
         try {
             outerOperator.close();
             // innerOperator.close(); already called in open()
@@ -223,5 +275,21 @@ public class Join implements IOperator {
 
     public void setInnerOperator(IOperator innerOperator) {
         this.innerOperator = innerOperator;
+    }
+
+    public void setLimit(int limit) {
+        this.limit = limit;
+    }
+    
+    public int getLimit() {
+        return limit;
+    }
+    
+    public void setOffset(int offset) {
+        this.offset = offset;
+    }
+    
+    public int getOffset() {
+        return offset;
     }
 }
