@@ -213,6 +213,7 @@ public class Join implements IOperator {
         }
         // Clear the inner tuple list from memory on close.
         innerTupleList.clear();
+        cursor = CLOSED;
     }
 
     /**

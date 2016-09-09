@@ -1906,4 +1906,49 @@ public class JoinTest {
         List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 90, 1, 10);
         Assert.assertEquals(0, resultList.size());
     }
+
+    // ------------------------<Test cases for cursor.>------------------------
+    /*
+     * This case tests for the scenario when open and/or close is called twice 
+     * and also when getNextTuple() is called when operator is closed.
+     * Test result: Opening or closing the operator twice shouldn't result in 
+     * any noticeable difference in operation. But, calling getNetTuple() when 
+     * operator is closed should throw an exception.
+     */
+    @Test(expected = DataFlowException.class)
+    public void testWhenOpenOrCloseIsCalledTwiceAndTryToGetNextTupleWhenClosed() throws Exception {
+    	bookTuple1 = setupTuplesList(1, 5);
+        writeTuples(bookTuple1, bookTuple1);
+
+        String query = "typical";
+        keywordMatcherOuter = (KeywordMatcher) setupOperators(query, "index", "outer");
+        query = "actually";
+        keywordMatcherInner = (KeywordMatcher) setupOperators(query, "index", "inner");
+
+        Attribute idAttr = attributeList.get(0);
+        Attribute reviewAttr = attributeList.get(4);
+
+        IJoinPredicate joinDistancePredicate = new JoinDistancePredicate(idAttr, reviewAttr, 90);
+        join = new Join(keywordMatcherOuter, keywordMatcherInner, joinDistancePredicate);
+        join.setLimit(2);
+        join.setOffset(2);
+        join.open();
+        join.open();
+
+        List<ITuple> results = new ArrayList<>();
+        ITuple nextTuple = null;
+
+        if ((nextTuple = join.getNextTuple()) != null) {
+            results.add(nextTuple);
+        }
+
+        join.close();
+        join.close();
+
+        Assert.assertEquals(1, results.size());
+        
+        if ((nextTuple = join.getNextTuple()) != null) {
+            results.add(nextTuple);
+        }
+    }
 }
