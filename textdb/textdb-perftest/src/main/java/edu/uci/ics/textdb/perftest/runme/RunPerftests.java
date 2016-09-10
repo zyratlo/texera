@@ -45,6 +45,8 @@ public class RunPerftests {
             PerfTestUtils.setQueryFolder(args[3]);
         }
         
+        
+        
         try {
             List<Double> thresholds = Arrays.asList(0.8, 0.65, 0.5, 0.35);
             List<String> regexQueries = Arrays.asList("mosquitos?", "v[ir]{2}[us]{2}", "market(ing)?",
