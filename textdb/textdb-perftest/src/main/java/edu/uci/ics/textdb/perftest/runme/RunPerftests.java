@@ -44,7 +44,6 @@ public class RunPerftests {
             PerfTestUtils.setTrigramIndexFolder(args[2]);
             PerfTestUtils.setQueryFolder(args[3]);
         }
-
         
         try {
             List<Double> thresholds = Arrays.asList(0.8, 0.65, 0.5, 0.35);
@@ -57,6 +56,8 @@ public class RunPerftests {
             RegexMatcherPerformanceTest.runTest(regexQueries);
             NlpExtractorPerformanceTest.runTest();
 
+            
+            
         } catch (StorageException | DataFlowException | IOException e) {
             e.printStackTrace();
         } catch (Exception e) {
