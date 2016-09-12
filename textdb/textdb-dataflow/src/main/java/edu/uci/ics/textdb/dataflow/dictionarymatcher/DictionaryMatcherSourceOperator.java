@@ -308,5 +308,5 @@ public class DictionaryMatcherSourceOperator implements ISourceOperator {
     public IDataStore getDataStore() {
         return this.dataStore;
     }
-
+    
 }
