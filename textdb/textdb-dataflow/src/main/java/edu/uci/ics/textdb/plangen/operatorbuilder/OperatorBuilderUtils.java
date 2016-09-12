@@ -6,10 +6,14 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import org.json.JSONObject;
+
 import edu.uci.ics.textdb.api.common.Attribute;
 import edu.uci.ics.textdb.api.common.FieldType;
+import edu.uci.ics.textdb.api.common.Schema;
 import edu.uci.ics.textdb.common.exception.PlanGenException;
 import edu.uci.ics.textdb.plangen.PlanGenUtils;
+import edu.uci.ics.textdb.storage.DataStore;
 
 public class OperatorBuilderUtils {
     
@@ -45,11 +49,24 @@ public class OperatorBuilderUtils {
     public static String getOptionalProperty(String key, Map<String, String> operatorProperties) {
         return operatorProperties.get(key);
     }
+    
 
     /**
      * This function finds properties related to constructing the attributes in
      * operatorProperties, and converts them to a list of attributes.
      * 
+     * It currently needs the following properties from operatorProperties: 
+     *   attributeNames: a list of attributes' names (separated by comma)
+     *   attributeTypes: a list of attributes' types corresponding to attribute names (separated by comma)
+     *   
+     * Here's a sample JSON representation of these properties:
+     * 
+     * {
+     *   "attributeNames" : "attribute1Name, attribute2Name, attribute3Name",
+     *   "attributeTypes" : "attribute1Type, attribute2Type, attribute3Type"
+     * }
+     * 
+     * @param operatorProperties
      * @return a list of attributes
      * @throws PlanGenException
      */
@@ -119,5 +136,6 @@ public class OperatorBuilderUtils {
         }
         return offset;
     }
+    
 
 }
