@@ -61,6 +61,15 @@ public class FuzzyTokenMatcherPerformanceTest {
      *         Test results includes minimum runtime, maximum runtime, average
      *         runtime, the standard deviation and the average results each threshold. They are written in a
      *         csv file ./data-files/results/fuzzytoken.csv
+     *         
+     * CSV file example:
+     * 
+     * Date,                Record #,       Threshold, Min,  Max,     Average, Std,    Average Results, Commit Number
+     * 09-09-2016 00:54:27, abstract_100,   0.8,       0.01, 0.128,   0.042,   0.0393, 8
+     * 
+     * Commit number is designed for performance dashboard.
+	 * It will be appended to the result file only when the performance test is run by 
+	 * /textdb-scripts/dashboard/build.py
      * 
      */
     public static void runTest(String queryFileName, List<Double> thresholds)

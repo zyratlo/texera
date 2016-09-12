@@ -98,6 +98,15 @@ public class DictionaryMatcherPerformanceTest {
 	 * @throws Exception
 	 * 
 	 * This function writes test results to the given result file.
+	 * 
+	 * CSV file example:
+	 * Date                 Record #      Dictionary          Words/Phrase Count  Time(sec)  Total Results, Commit Number
+	 * 09-09-2016 00:50:40  abstract_100  sample_queries.txt  11                  0.4480     24
+	 * 
+	 * Commit number is designed for performance dashboard.
+	 * It will be appended to the result file only when the performance test is run by 
+	 * /textdb-scripts/dashboard/build.py
+	 * 
 	 */
 	public static void csvWriter(String resultFile, String recordNum, String queryFileName,
 			ArrayList<String> dictionary, KeywordMatchingType opType, DataStore dataStore) throws Exception{

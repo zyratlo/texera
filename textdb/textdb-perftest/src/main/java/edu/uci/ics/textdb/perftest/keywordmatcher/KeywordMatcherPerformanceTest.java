@@ -110,6 +110,16 @@ public class KeywordMatcherPerformanceTest {
      * @throws Exception
      * 
      * This function writes test results to the given csv file.
+     * 
+     * Example
+     * 
+     * Date,                Record #,     Min Time, Max Time, Average Time, Std,    Average Results, Commit Number
+     * 09-09-2016 00:54:18, abstract_100, 0.017,    1.373,    0.2371,       0.4464, 2.18
+     * 
+     * Commit number is designed for performance dashboard.
+	 * It will be appended to the result file only when the performance test is run by 
+	 * /textdb-scripts/dashboard/build.py
+	 * 
      */
     public static void csvWriter(String resultFile, String recordNum, ArrayList<String> queries, 
     		KeywordMatchingType opType, DataStore dataStore) throws Exception {

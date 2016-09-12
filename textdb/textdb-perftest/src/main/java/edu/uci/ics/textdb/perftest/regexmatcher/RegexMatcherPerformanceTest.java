@@ -48,6 +48,15 @@ public class RegexMatcherPerformanceTest {
      * 
      *         Test results includes the average runtime of all queries, the average number of results.
      *         These results are written to ./data-file/results/regex.csv.  
+     *       
+     * CSV file example:        
+     * Date,                dataset,      Average Time, Average Results, Commit Number
+     * 09-09-2016 00:54:29, abstract_100, 0.2798,       69.80
+     * 
+     * Commit number is designed for performance dashboard.
+	 * It will be appended to the result file only when the performance test is run by 
+	 * /textdb-scripts/dashboard/build.py
+	 * 
      */
     public static void runTest(List<String> regexQueries)
             throws StorageException, DataFlowException, IOException {
