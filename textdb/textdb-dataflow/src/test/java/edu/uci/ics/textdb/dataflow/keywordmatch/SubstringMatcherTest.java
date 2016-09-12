@@ -14,7 +14,6 @@ import org.junit.Test;
 
 import edu.uci.ics.textdb.api.common.Attribute;
 import edu.uci.ics.textdb.api.common.IField;
-import edu.uci.ics.textdb.api.common.IPredicate;
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.common.Schema;
 import edu.uci.ics.textdb.api.storage.IDataWriter;
@@ -33,7 +32,6 @@ import edu.uci.ics.textdb.common.field.TextField;
 import edu.uci.ics.textdb.dataflow.common.KeywordPredicate;
 import edu.uci.ics.textdb.dataflow.source.IndexBasedSourceOperator;
 import edu.uci.ics.textdb.dataflow.utils.TestUtils;
-import edu.uci.ics.textdb.storage.DataReaderPredicate;
 import edu.uci.ics.textdb.storage.DataStore;
 import edu.uci.ics.textdb.storage.writer.DataWriter;
 
@@ -44,7 +42,6 @@ import edu.uci.ics.textdb.storage.writer.DataWriter;
 
 public class SubstringMatcherTest {
 
-    private KeywordMatcher keywordMatcher;
     private IDataWriter dataWriter;
     private DataStore dataStore;
     private Analyzer luceneAnalyzer;
@@ -80,16 +77,14 @@ public class SubstringMatcherTest {
 
         KeywordPredicate keywordPredicate = new KeywordPredicate(query, attributeList, luceneAnalyzer,
                 DataConstants.KeywordMatchingType.SUBSTRING_SCANBASED);
-        IndexBasedSourceOperator indexInputOperator = new IndexBasedSourceOperator(
-                keywordPredicate.generateDataReaderPredicate(dataStore));
-        keywordMatcher = new KeywordMatcher(keywordPredicate);
-        keywordMatcher.setInputOperator(indexInputOperator);
-        keywordMatcher.open();
+        
+        KeywordMatcherSourceOperator keywordSource = new KeywordMatcherSourceOperator(keywordPredicate, dataStore);
+        keywordSource.open();
 
         List<ITuple> results = new ArrayList<>();
         ITuple nextTuple = null;
 
-        while ((nextTuple = keywordMatcher.getNextTuple()) != null) {
+        while ((nextTuple = keywordSource.getNextTuple()) != null) {
             results.add(nextTuple);
         }
 

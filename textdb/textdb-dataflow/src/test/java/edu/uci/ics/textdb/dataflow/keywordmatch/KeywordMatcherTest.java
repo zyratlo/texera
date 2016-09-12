@@ -31,9 +31,7 @@ import edu.uci.ics.textdb.common.field.StringField;
 import edu.uci.ics.textdb.common.field.TextField;
 import edu.uci.ics.textdb.common.utils.Utils;
 import edu.uci.ics.textdb.dataflow.common.KeywordPredicate;
-import edu.uci.ics.textdb.dataflow.source.IndexBasedSourceOperator;
 import edu.uci.ics.textdb.dataflow.utils.TestUtils;
-import edu.uci.ics.textdb.storage.DataReaderPredicate;
 import edu.uci.ics.textdb.storage.DataStore;
 import edu.uci.ics.textdb.storage.writer.DataWriter;
 
@@ -44,7 +42,6 @@ import edu.uci.ics.textdb.storage.writer.DataWriter;
 
 public class KeywordMatcherTest {
 
-    private KeywordMatcher keywordMatcher;
     private IDataWriter dataWriter;
     private DataStore dataStore;
     private Analyzer analyzer;
@@ -92,25 +89,23 @@ public class KeywordMatcherTest {
 
         KeywordPredicate keywordPredicate = new KeywordPredicate(query, attributeList, analyzer,
                 DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED);
-        IndexBasedSourceOperator indexInputOperator = new IndexBasedSourceOperator(
-                keywordPredicate.generateDataReaderPredicate(dataStore));
 
-        keywordMatcher = new KeywordMatcher(keywordPredicate);
-        keywordMatcher.setInputOperator(indexInputOperator);
+        KeywordMatcherSourceOperator keywordSource = new KeywordMatcherSourceOperator(keywordPredicate, dataStore);
 
-        keywordMatcher.open();
-        keywordMatcher.setLimit(limit);
-        keywordMatcher.setOffset(offset);
+        keywordSource.open();
+        keywordSource.setLimit(limit);
+        keywordSource.setOffset(offset);
 
         List<ITuple> results = new ArrayList<>();
         ITuple nextTuple = null;
 
-        while ((nextTuple = keywordMatcher.getNextTuple()) != null) {
+        while ((nextTuple = keywordSource.getNextTuple()) != null) {
             results.add(nextTuple);
         }
 
         return results;
     }
+
 
     /**
      * Verifies Keyword Matcher on multiword string. Since both tokens in Query
