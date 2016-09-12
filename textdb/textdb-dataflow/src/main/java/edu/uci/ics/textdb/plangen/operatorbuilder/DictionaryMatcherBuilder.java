@@ -2,7 +2,6 @@ package edu.uci.ics.textdb.plangen.operatorbuilder;
 
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Stream;
 
 import edu.uci.ics.textdb.api.common.Attribute;
 import edu.uci.ics.textdb.common.constants.DataConstants;
@@ -46,9 +45,11 @@ public class DictionaryMatcherBuilder {
         // generate attribute list
         List<Attribute> attributeList = OperatorBuilderUtils.constructAttributeList(operatorProperties);
 
-        // generate matching type
-        PlanGenUtils.planGenAssert(isValidKeywordMatchingType(matchingTypeStr), "matching type is not valid");
-        KeywordMatchingType matchingType = KeywordMatchingType.valueOf(matchingTypeStr.toUpperCase());
+        // generate matching type        
+        KeywordMatchingType matchingType = KeywordMatcherBuilder.getKeywordMatchingType(matchingTypeStr);
+        PlanGenUtils.planGenAssert(matchingType != null, 
+                "matching type: "+ matchingTypeStr +" is not valid, "
+                + "must be one of " + KeywordMatcherBuilder.keywordMatchingTypeMap.keySet());
 
         // build DictionaryMatcher
         DictionaryPredicate predicate = new DictionaryPredicate(dictionary, attributeList,
@@ -68,9 +69,4 @@ public class DictionaryMatcherBuilder {
         return operator;
     }
 
-    private static boolean isValidKeywordMatchingType(String matchingTypeStr) {
-        return Stream.of(KeywordMatchingType.values()).map(KeywordMatchingType::name)
-                .anyMatch(name -> name.toUpperCase().equals(matchingTypeStr.toUpperCase()));
-    }
-    
 }
