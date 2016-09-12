@@ -301,12 +301,4 @@ public class DictionaryMatcherSourceOperator implements ISourceOperator {
         return outputSchema;
     }
 
-    public DictionaryPredicate getPredicate() {
-        return this.predicate;
-    }
-
-    public IDataStore getDataStore() {
-        return this.dataStore;
-    }
-
 }
