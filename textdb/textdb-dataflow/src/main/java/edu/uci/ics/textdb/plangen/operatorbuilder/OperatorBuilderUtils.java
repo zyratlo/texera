@@ -22,6 +22,9 @@ public class OperatorBuilderUtils {
     public static final String LIMIT = "limit";
     public static final String OFFSET = "offset";
     
+    public static String DATA_DIRECTORY = "directory";
+    public static String SCHEMA = "schema";
+    
     
     /**
      * This function returns a required property. An exception is thrown
@@ -50,6 +53,56 @@ public class OperatorBuilderUtils {
         return operatorProperties.get(key);
     }
     
+    /**
+     * This function constructs a DataStore from operator properties.
+     * 
+     * It currently needs the following properties from operatorProperties:
+     * 
+     *   directory: the directory of data store
+     *   schema: schema of data store, which is a JSON-format string. 
+     *   "attributeNames" key's value is a string of comma-separated attribute names, 
+     *   "attirbuteTypes" key's value is a string of comma-separated attribute types corresponding to attribute names.
+     * 
+     * Here's a sample JSON representation of these properties:
+     * 
+     * {
+     *   "directory" : "directoryOfDatastore",
+     *   "schema" : {
+     *     "attributeNames" : "attribute1Name, attribute2Name, attribute3Name",
+     *     "attributeTypes" : "integer, string, text"
+     *   }
+     * }
+     * 
+     * @param operatorProperties
+     * @return dataStore, dataStore constructed according to directory and schema.
+     * @throws PlanGenException
+     */
+    public static DataStore constructDataStore(Map<String, String> operatorProperties) throws PlanGenException {
+        String directoryStr = OperatorBuilderUtils.getRequiredProperty(DATA_DIRECTORY, operatorProperties);
+        String schemaStr = OperatorBuilderUtils.getRequiredProperty(SCHEMA, operatorProperties);
+        
+        JSONObject schemaJsonObject = new JSONObject(schemaStr);
+        
+        String attributeNamesStr = schemaJsonObject.getString(ATTRIBUTE_NAMES);
+        String attributeTypesStr = schemaJsonObject.getString(ATTRIBUTE_TYPES);
+        
+        List<String> attributeNames = splitStringByComma(attributeNamesStr);
+        List<String> attributeTypes = splitStringByComma(attributeTypesStr);
+
+        PlanGenUtils.planGenAssert(attributeNames.size() == attributeTypes.size(), "attribute names and attribute types are not coherent");
+        PlanGenUtils.planGenAssert(attributeTypes.stream().allMatch(typeStr -> PlanGenUtils.isValidAttributeType(typeStr))
+                ,"attribute type is not valid");
+
+        List<Attribute> attributeList = IntStream.range(0, attributeNames.size()) // for each index in the list
+                .mapToObj(i -> constructAttribute(attributeNames.get(i), attributeTypes.get(i))) // construct an attribute
+                .collect(Collectors.toList());
+
+        Schema schema = new Schema(attributeList.stream().toArray(Attribute[]::new));
+        
+        DataStore dataStore = new DataStore(directoryStr, schema);
+        
+        return dataStore;
+    }
 
     /**
      * This function finds properties related to constructing the attributes in
@@ -137,5 +190,4 @@ public class OperatorBuilderUtils {
         return offset;
     }
     
-
 }
