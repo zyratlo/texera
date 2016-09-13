@@ -135,46 +135,43 @@ public class Join implements IOperator {
     	if (cursor == CLOSED) {
             throw new DataFlowException(ErrorMessages.OPERATOR_NOT_OPENED);
         }
-
-        if (innerTupleList.isEmpty()) {
-            return null;
-        }
-
+    	
         if (resultCursor >= limit + offset - 1 || limit == 0){
             return null;
         }
-
-        ITuple nextTuple = null;
-
-        if (offset > 0) {
-        	while (resultCursor < offset - 1) {
-        		if (shouldIGetOuterOperatorNextTuple == true) {
-        			if ((outerTuple = outerOperator.getNextTuple()) == null) {
-        				resultCursor = offset;
-        				return null;
-        			}
-        			shouldIGetOuterOperatorNextTuple = false;
-        		}
-
-        		if (innerOperatorCursor <= innerTupleList.size() - 1) {
-        			innerTuple = innerTupleList.get(innerOperatorCursor);
-        			innerOperatorCursor++;
-        			if (innerOperatorCursor == innerTupleList.size()) {
-        				innerOperatorCursor = 0;
-        				shouldIGetOuterOperatorNextTuple = true;
-        			}
-        		}
-
-        		nextTuple = computeNextMatchingTuple();
-        		if (nextTuple == null) {
-        			continue;
-        		}
-        		resultCursor++;
-        	}
+        
+        try {
+            ITuple resultTuple = null;
+            while (true) {
+                resultTuple = computeNextMatchingTuple();
+                if (resultTuple == null) {
+                    break;
+                }
+                resultCursor++;
+                if (resultCursor >= offset) {
+                    break;
+                }
+            }
+            return resultTuple;
+        } catch (Exception e) {
+            throw new DataFlowException(e.getMessage(), e);
         }
+    }
 
-        do {
-        	if (shouldIGetOuterOperatorNextTuple == true) {
+    /*
+     * Called from getNextTuple() method in order to obtain the next tuple 
+     * that satisfies the predicate. 
+     * 
+     * It returns null if there's no more tuples.
+     */
+    protected  ITuple computeNextMatchingTuple() throws Exception {
+        if (innerTupleList.isEmpty()) {
+            return null;
+        }
+        
+        ITuple nextTuple = null;
+        while (nextTuple == null) {
+            if (shouldIGetOuterOperatorNextTuple == true) {
                 if ((outerTuple = outerOperator.getNextTuple()) == null) {
                     return null;
                 }
@@ -190,19 +187,10 @@ public class Join implements IOperator {
                 }
             }
             
-            nextTuple = computeNextMatchingTuple();
-        } while (nextTuple == null);
-
-        resultCursor++;
-        return nextTuple;
-    }
-
-    /*
-     * Called from getNextTuple() method in order to obtain the next tuple 
-     * that satisfies the predicate. 
-     */
-    protected  ITuple computeNextMatchingTuple() throws Exception {
-    	return joinPredicate.joinTuples(outerTuple, innerTuple, outputSchema);
+            nextTuple = joinPredicate.joinTuples(outerTuple, innerTuple, outputSchema);
+        }
+        
+    	return nextTuple;
     }
 
     @Override
