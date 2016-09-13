@@ -8,7 +8,7 @@ import edu.uci.ics.textdb.api.storage.IDataStore;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
 import edu.uci.ics.textdb.dataflow.common.AbstractSingleInputOperator;
 import edu.uci.ics.textdb.dataflow.common.KeywordPredicate;
-import edu.uci.ics.textdb.dataflow.source.IndexBasedSourceOperator;
+import edu.uci.ics.textdb.storage.reader.DataReader;
 
 /**
  * KeywordMatcherSourceOperator is a source operator with a keyword query.
@@ -21,19 +21,16 @@ public class KeywordMatcherSourceOperator extends AbstractSingleInputOperator im
     private KeywordPredicate predicate;
     private IDataStore dataStore;
     
-    private IndexBasedSourceOperator indexSource;
+    private DataReader indexSource;
     private KeywordMatcher keywordMatcher;
     
     private Schema outputSchema;
-
-    protected int cursor = CLOSED;
-
     
     public KeywordMatcherSourceOperator(KeywordPredicate predicate, IDataStore dataStore) {
         this.predicate = predicate;
         this.dataStore = dataStore;
         
-        indexSource = new IndexBasedSourceOperator(predicate.generateDataReaderPredicate(dataStore));
+        indexSource = new DataReader(predicate.generateDataReaderPredicate(dataStore));
         keywordMatcher = new KeywordMatcher(predicate);
         keywordMatcher.setInputOperator(indexSource);
         inputOperator = this.keywordMatcher;
