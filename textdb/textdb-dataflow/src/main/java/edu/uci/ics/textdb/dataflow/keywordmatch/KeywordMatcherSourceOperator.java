@@ -21,7 +21,7 @@ public class KeywordMatcherSourceOperator extends AbstractSingleInputOperator im
     private KeywordPredicate predicate;
     private IDataStore dataStore;
     
-    private DataReader indexSource;
+    private DataReader dataReader;
     private KeywordMatcher keywordMatcher;
     
     private Schema outputSchema;
@@ -30,9 +30,9 @@ public class KeywordMatcherSourceOperator extends AbstractSingleInputOperator im
         this.predicate = predicate;
         this.dataStore = dataStore;
         
-        indexSource = new DataReader(predicate.generateDataReaderPredicate(dataStore));
+        dataReader = new DataReader(predicate.generateDataReaderPredicate(dataStore));
         keywordMatcher = new KeywordMatcher(predicate);
-        keywordMatcher.setInputOperator(indexSource);
+        keywordMatcher.setInputOperator(dataReader);
         inputOperator = this.keywordMatcher;
     }
 
