@@ -56,7 +56,7 @@ public class KeywordMatcherSourceOperator extends AbstractSingleInputOperator im
     }
     
     /**
-     * Source Operator doesn't need input operator
+     * Source Operator doesn't need an input operator. Calling setInputOperator won't have any effects.
      */
     @Override
     public void setInputOperator(IOperator inputOperator) {
