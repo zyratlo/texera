@@ -165,7 +165,7 @@ public class Join implements IOperator {
         			}
         		}
 
-        		nextTuple = joinPredicate.joinTuples(outerTuple, innerTuple, outputSchema);
+        		nextTuple = computeNextMatchingTuple();
         		if (nextTuple == null) {
         			continue;
         		}
@@ -190,11 +190,19 @@ public class Join implements IOperator {
                 }
             }
             
-            nextTuple = joinPredicate.joinTuples(outerTuple, innerTuple, outputSchema);
+            nextTuple = computeNextMatchingTuple();
         } while (nextTuple == null);
 
         resultCursor++;
         return nextTuple;
+    }
+
+    /*
+     * Called from getNextTuple() method in order to obtain the next tuple 
+     * that satisfies the predicate. 
+     */
+    protected  ITuple computeNextMatchingTuple() throws Exception {
+    	return joinPredicate.joinTuples(outerTuple, innerTuple, outputSchema);
     }
 
     @Override
