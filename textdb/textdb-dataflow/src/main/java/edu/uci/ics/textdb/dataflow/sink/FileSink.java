@@ -22,7 +22,7 @@ public class FileSink extends AbstractSink {
     private final File file;   
     private TupleToString toStringFunction = (tuple -> tuple.toString());
     
-    public FileSink(File file) throws FileNotFoundException {
+    public FileSink(File file) {
         this.file = file;
     }
     
