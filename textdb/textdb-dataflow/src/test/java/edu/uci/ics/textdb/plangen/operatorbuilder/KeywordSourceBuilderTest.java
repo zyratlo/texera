@@ -1,6 +1,5 @@
 package edu.uci.ics.textdb.plangen.operatorbuilder;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -30,7 +29,7 @@ public class KeywordSourceBuilderTest {
                 new Attribute("location", FieldType.STRING),
                 new Attribute("content", FieldType.TEXT));
         
-        String keyword = "textdb";
+        String keyword = "Irvine";
         List<Attribute> keywordAttributes = schemaAttrs.stream()
                 .filter(attr -> ! attr.getFieldName().equals("id")).collect(Collectors.toList());
 
@@ -46,21 +45,21 @@ public class KeywordSourceBuilderTest {
         KeywordMatcherSourceOperator sourceOperator = KeywordSourceBuilder.buildSourceOperator(operatorProperties);
 
         
-        // compare dict
+        // compare the keyword
         Assert.assertEquals(keyword, sourceOperator.getPredicate().getQuery());
-        // compare dataStore directory
+        // compare the dataStore directory
         Assert.assertEquals(directoryStr, sourceOperator.getDataStore().getDataDirectory());
-        // compare dataStore schema
+        // compare the dataStore schema
         Assert.assertEquals(
                 schemaAttrs.stream().collect(Collectors.toList()).toString(), 
                 sourceOperator.getDataStore().getSchema().getAttributes().stream().collect(Collectors.toList()).toString());
-        // compare dictMatcher attribute list
+        // compare the keyword matcher attribute list
         Assert.assertEquals(keywordAttributes.toString(), sourceOperator.getPredicate().getAttributeList().toString());
 
     }
     
     /*
-     * Test invalid KeywordMatcherSourceOperator with invalid attribute type
+     * Test invalid KeywordMatcherSourceOperator with an invalid attribute type
      */
     @Test(expected = PlanGenException.class)
     public void testInvalidBuilder1() throws Exception {
@@ -79,7 +78,7 @@ public class KeywordSourceBuilderTest {
         operatorProperties.put(OperatorBuilderUtils.DATA_DIRECTORY, directoryStr);
         operatorProperties.put(OperatorBuilderUtils.SCHEMA, schemaJsonJSONObject.toString());
         
-        KeywordMatcherSourceOperator sourceOperator = KeywordSourceBuilder.buildSourceOperator(operatorProperties);
+        KeywordSourceBuilder.buildSourceOperator(operatorProperties);
     }
     
     /*
@@ -102,11 +101,11 @@ public class KeywordSourceBuilderTest {
         operatorProperties.put(OperatorBuilderUtils.DATA_DIRECTORY, directoryStr);
         operatorProperties.put(OperatorBuilderUtils.SCHEMA, schemaJsonJSONObject.toString());
         
-        KeywordMatcherSourceOperator sourceOperator = KeywordSourceBuilder.buildSourceOperator(operatorProperties);
+        KeywordSourceBuilder.buildSourceOperator(operatorProperties);
     }
     
     /*
-     * Test invalid KeywordMatcherSourceOperator with empty directory
+     * Test invalid KeywordMatcherSourceOperator with an empty directory
      */
     @Test(expected = PlanGenException.class)
     public void testInvalidBuilder3() throws Exception {
@@ -125,11 +124,11 @@ public class KeywordSourceBuilderTest {
         operatorProperties.put(OperatorBuilderUtils.DATA_DIRECTORY, directoryStr);
         operatorProperties.put(OperatorBuilderUtils.SCHEMA, schemaJsonJSONObject.toString());
         
-        KeywordMatcherSourceOperator sourceOperator = KeywordSourceBuilder.buildSourceOperator(operatorProperties);
+        KeywordSourceBuilder.buildSourceOperator(operatorProperties);
     }
     
     /*
-     * Test invalid KeywordMatcherSourceOperator with another empty directory
+     * Test invalid KeywordMatcherSourceOperator with an empty directory with only spaces
      */
     @Test(expected = PlanGenException.class)
     public void testInvalidBuilder4() throws Exception {
@@ -148,7 +147,7 @@ public class KeywordSourceBuilderTest {
         operatorProperties.put(OperatorBuilderUtils.DATA_DIRECTORY, directoryStr);
         operatorProperties.put(OperatorBuilderUtils.SCHEMA, schemaJsonJSONObject.toString());
         
-        KeywordMatcherSourceOperator sourceOperator = KeywordSourceBuilder.buildSourceOperator(operatorProperties);
+        KeywordSourceBuilder.buildSourceOperator(operatorProperties);
     }
 
 }
