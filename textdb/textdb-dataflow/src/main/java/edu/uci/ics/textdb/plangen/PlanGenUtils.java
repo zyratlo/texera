@@ -1,13 +1,10 @@
 package edu.uci.ics.textdb.plangen;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.stream.Stream;
 
-import edu.uci.ics.textdb.api.dataflow.IOperator;
-import edu.uci.ics.textdb.common.constants.DataTypeConstants;
+import edu.uci.ics.textdb.api.common.FieldType;
 import edu.uci.ics.textdb.common.constants.OperatorConstants;
 import edu.uci.ics.textdb.common.exception.PlanGenException;
-import edu.uci.ics.textdb.plangen.operatorbuilder.KeywordMatcherBuilder;
 
 /**
  * This class provides a set of helper functions that are commonly used in plan generation.
@@ -40,7 +37,21 @@ public class PlanGenUtils {
      * @return true if the string is an attribute type
      */
     public static boolean isValidAttributeType(String attributeType) {
-        return DataTypeConstants.attributeTypeList.stream().anyMatch(str -> str.toLowerCase().equals(attributeType.toLowerCase()));
+        return Stream.of(FieldType.values()).anyMatch(type -> type.toString().toLowerCase().equals(attributeType.toLowerCase()));
     }
+    
+    /**
+     * This function converts a attributeTypeString to FieldType (case insensitive). 
+     * It returns null if string is not a valid type.
+     * 
+     * @param attributeTypeStr
+     * @return FieldType, null if attributeTypeStr is not a valid type.
+     */
+    public static FieldType convertAttributeType(String attributeTypeStr) {
+        return Stream.of(FieldType.values())
+                .filter(typeStr -> typeStr.toString().toLowerCase().equals(attributeTypeStr.toLowerCase()))
+                .findAny().orElse(null);
+    }
+    
 
 }
