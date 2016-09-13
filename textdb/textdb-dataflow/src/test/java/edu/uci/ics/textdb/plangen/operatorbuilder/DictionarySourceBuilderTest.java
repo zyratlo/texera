@@ -20,9 +20,9 @@ public class DictionarySourceBuilderTest {
     @Test
     public void testDictionarySourceBuilder1() throws Exception {
         String directoryStr = "./index";
-        JSONObject schemaJsonJSONObject = new JSONObject();
-        schemaJsonJSONObject.put(OperatorBuilderUtils.ATTRIBUTE_NAMES, "id, city, location, content");
-        schemaJsonJSONObject.put(OperatorBuilderUtils.ATTRIBUTE_TYPES, "integer, string, string, text");
+        JSONObject schemaJsonObject = new JSONObject();
+        schemaJsonObject.put(OperatorBuilderUtils.ATTRIBUTE_NAMES, "id, city, location, content");
+        schemaJsonObject.put(OperatorBuilderUtils.ATTRIBUTE_TYPES, "integer, string, string, text");
                 
         List<Attribute> schemaAttrs = Arrays.asList(
                 new Attribute("id", FieldType.INTEGER),
@@ -46,7 +46,7 @@ public class DictionarySourceBuilderTest {
         operatorProperties.put(OperatorBuilderUtils.ATTRIBUTE_NAMES, "city, location, content");
         operatorProperties.put(OperatorBuilderUtils.ATTRIBUTE_TYPES, "STRING, STRING, TEXT");
         operatorProperties.put(OperatorBuilderUtils.DATA_DIRECTORY, directoryStr);
-        operatorProperties.put(OperatorBuilderUtils.SCHEMA, schemaJsonJSONObject.toString());
+        operatorProperties.put(OperatorBuilderUtils.SCHEMA, schemaJsonObject.toString());
         
         DictionaryMatcherSourceOperator sourceOperator = DictionarySourceBuilder.buildSourceOperator(operatorProperties);
 
@@ -71,14 +71,14 @@ public class DictionarySourceBuilderTest {
     }
     
     /*
-     * Test invalid DictionaryMatcherSourceOperator with invalid attribute type
+     * Test invalid DictionaryMatcherSourceOperator with an invalid attribute type
      */
     @Test(expected = PlanGenException.class)
     public void testInvalidBuilder1() throws Exception {
         String directoryStr = "./index";
-        JSONObject schemaJsonJSONObject = new JSONObject();
-        schemaJsonJSONObject.put(OperatorBuilderUtils.ATTRIBUTE_NAMES, "id, city, location, content");
-        schemaJsonJSONObject.put(OperatorBuilderUtils.ATTRIBUTE_TYPES, "random_type, string, type-that-doesnt-exist, text");
+        JSONObject schemaJsonObject = new JSONObject();
+        schemaJsonObject.put(OperatorBuilderUtils.ATTRIBUTE_NAMES, "id, city, location, content");
+        schemaJsonObject.put(OperatorBuilderUtils.ATTRIBUTE_TYPES, "random_type, string, type-that-doesnt-exist, text");
          
         String dictionaryStr = "Irvine, Anaheim, Costa Mesa, Santa Ana";
    
@@ -88,9 +88,9 @@ public class DictionarySourceBuilderTest {
         operatorProperties.put(OperatorBuilderUtils.ATTRIBUTE_NAMES, "city, location, content");
         operatorProperties.put(OperatorBuilderUtils.ATTRIBUTE_TYPES, "STRING, STRING, TEXT");
         operatorProperties.put(OperatorBuilderUtils.DATA_DIRECTORY, directoryStr);
-        operatorProperties.put(OperatorBuilderUtils.SCHEMA, schemaJsonJSONObject.toString());
+        operatorProperties.put(OperatorBuilderUtils.SCHEMA, schemaJsonObject.toString());
         
-        DictionaryMatcherSourceOperator sourceOperator = DictionarySourceBuilder.buildSourceOperator(operatorProperties);
+        DictionarySourceBuilder.buildSourceOperator(operatorProperties);
     }
     
     /*
@@ -99,9 +99,9 @@ public class DictionarySourceBuilderTest {
     @Test(expected = PlanGenException.class)
     public void testInvalidBuilder2() throws Exception {
         String directoryStr = "./index";
-        JSONObject schemaJsonJSONObject = new JSONObject();
-        schemaJsonJSONObject.put(OperatorBuilderUtils.ATTRIBUTE_NAMES, "id, city, location, content");
-        schemaJsonJSONObject.put(OperatorBuilderUtils.ATTRIBUTE_TYPES, "integer, string, text");
+        JSONObject schemaJsonObject = new JSONObject();
+        schemaJsonObject.put(OperatorBuilderUtils.ATTRIBUTE_NAMES, "id, city, location, content");
+        schemaJsonObject.put(OperatorBuilderUtils.ATTRIBUTE_TYPES, "integer, string, text");
          
         String dictionaryStr = "Irvine, Anaheim, Costa Mesa, Santa Ana";
    
@@ -111,20 +111,20 @@ public class DictionarySourceBuilderTest {
         operatorProperties.put(OperatorBuilderUtils.ATTRIBUTE_NAMES, "city, location, content");
         operatorProperties.put(OperatorBuilderUtils.ATTRIBUTE_TYPES, "STRING, STRING, TEXT");
         operatorProperties.put(OperatorBuilderUtils.DATA_DIRECTORY, directoryStr);
-        operatorProperties.put(OperatorBuilderUtils.SCHEMA, schemaJsonJSONObject.toString());
+        operatorProperties.put(OperatorBuilderUtils.SCHEMA, schemaJsonObject.toString());
         
-        DictionaryMatcherSourceOperator sourceOperator = DictionarySourceBuilder.buildSourceOperator(operatorProperties);
+        DictionarySourceBuilder.buildSourceOperator(operatorProperties);
     }
     
     /*
-     * Test invalid DictionaryMatcherSourceOperator with empty directory
+     * Test invalid DictionaryMatcherSourceOperator with an empty directory
      */
     @Test(expected = PlanGenException.class)
     public void testInvalidBuilder3() throws Exception {
         String directoryStr = "";
-        JSONObject schemaJsonJSONObject = new JSONObject();
-        schemaJsonJSONObject.put(OperatorBuilderUtils.ATTRIBUTE_NAMES, "id, city, location, content");
-        schemaJsonJSONObject.put(OperatorBuilderUtils.ATTRIBUTE_TYPES, "integer, string, text");
+        JSONObject schemaJsonObject = new JSONObject();
+        schemaJsonObject.put(OperatorBuilderUtils.ATTRIBUTE_NAMES, "id, city, location, content");
+        schemaJsonObject.put(OperatorBuilderUtils.ATTRIBUTE_TYPES, "integer, string, text");
          
         String dictionaryStr = "Irvine, Anaheim, Costa Mesa, Santa Ana";
    
@@ -134,20 +134,20 @@ public class DictionarySourceBuilderTest {
         operatorProperties.put(OperatorBuilderUtils.ATTRIBUTE_NAMES, "city, location, content");
         operatorProperties.put(OperatorBuilderUtils.ATTRIBUTE_TYPES, "STRING, STRING, TEXT");
         operatorProperties.put(OperatorBuilderUtils.DATA_DIRECTORY, directoryStr);
-        operatorProperties.put(OperatorBuilderUtils.SCHEMA, schemaJsonJSONObject.toString());
+        operatorProperties.put(OperatorBuilderUtils.SCHEMA, schemaJsonObject.toString());
         
-        DictionaryMatcherSourceOperator sourceOperator = DictionarySourceBuilder.buildSourceOperator(operatorProperties);
+        DictionarySourceBuilder.buildSourceOperator(operatorProperties);
     }
     
     /*
-     * Test invalid DictionaryMatcherSourceOperator with another empty directory
+     * Test invalid DictionaryMatcherSourceOperator with an empty directory
      */
     @Test(expected = PlanGenException.class)
     public void testInvalidBuilder4() throws Exception {
         String directoryStr = "      ";
-        JSONObject schemaJsonJSONObject = new JSONObject();
-        schemaJsonJSONObject.put(OperatorBuilderUtils.ATTRIBUTE_NAMES, "id, city, location, content");
-        schemaJsonJSONObject.put(OperatorBuilderUtils.ATTRIBUTE_TYPES, "integer, string, text");
+        JSONObject schemaJsonObject = new JSONObject();
+        schemaJsonObject.put(OperatorBuilderUtils.ATTRIBUTE_NAMES, "id, city, location, content");
+        schemaJsonObject.put(OperatorBuilderUtils.ATTRIBUTE_TYPES, "integer, string, text");
          
         String dictionaryStr = "Irvine, Anaheim, Costa Mesa, Santa Ana";
    
@@ -157,9 +157,9 @@ public class DictionarySourceBuilderTest {
         operatorProperties.put(OperatorBuilderUtils.ATTRIBUTE_NAMES, "city, location, content");
         operatorProperties.put(OperatorBuilderUtils.ATTRIBUTE_TYPES, "STRING, STRING, TEXT");
         operatorProperties.put(OperatorBuilderUtils.DATA_DIRECTORY, directoryStr);
-        operatorProperties.put(OperatorBuilderUtils.SCHEMA, schemaJsonJSONObject.toString());
+        operatorProperties.put(OperatorBuilderUtils.SCHEMA, schemaJsonObject.toString());
         
-        DictionaryMatcherSourceOperator sourceOperator = DictionarySourceBuilder.buildSourceOperator(operatorProperties);
+        DictionarySourceBuilder.buildSourceOperator(operatorProperties);
     }
 
 }

@@ -8,7 +8,7 @@ import edu.uci.ics.textdb.api.storage.IDataStore;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
 import edu.uci.ics.textdb.dataflow.common.AbstractSingleInputOperator;
 import edu.uci.ics.textdb.dataflow.common.KeywordPredicate;
-import edu.uci.ics.textdb.dataflow.source.IndexBasedSourceOperator;
+import edu.uci.ics.textdb.storage.reader.DataReader;
 
 /**
  * KeywordMatcherSourceOperator is a source operator with a keyword query.
@@ -21,19 +21,19 @@ public class KeywordMatcherSourceOperator extends AbstractSingleInputOperator im
     private KeywordPredicate predicate;
     private IDataStore dataStore;
     
-    private ISourceOperator indexSource;
+    private DataReader dataReader;
     private KeywordMatcher keywordMatcher;
     
     private Schema outputSchema;
-
-    protected int cursor = CLOSED;
-
     
     public KeywordMatcherSourceOperator(KeywordPredicate predicate, IDataStore dataStore) {
-        this.indexSource = new IndexBasedSourceOperator(predicate.generateDataReaderPredicate(dataStore));
-        this.keywordMatcher = new KeywordMatcher(predicate);
-        this.keywordMatcher.setInputOperator(indexSource);
-        this.inputOperator = this.keywordMatcher;
+        this.predicate = predicate;
+        this.dataStore = dataStore;
+        
+        dataReader = new DataReader(predicate.generateDataReaderPredicate(dataStore));
+        keywordMatcher = new KeywordMatcher(predicate);
+        keywordMatcher.setInputOperator(dataReader);
+        inputOperator = this.keywordMatcher;
     }
 
     @Override
@@ -56,7 +56,7 @@ public class KeywordMatcherSourceOperator extends AbstractSingleInputOperator im
     }
     
     /**
-     * Source Operator doesn't need input operator
+     * Source Operator doesn't need an input operator. Calling setInputOperator won't have any effects.
      */
     @Override
     public void setInputOperator(IOperator inputOperator) {
