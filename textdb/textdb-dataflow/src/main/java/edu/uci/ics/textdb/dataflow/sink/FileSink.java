@@ -1,7 +1,6 @@
 package edu.uci.ics.textdb.dataflow.sink;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 
 import edu.uci.ics.textdb.api.common.ITuple;
