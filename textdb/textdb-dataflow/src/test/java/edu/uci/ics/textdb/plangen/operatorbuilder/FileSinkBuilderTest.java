@@ -1,4 +1,4 @@
-package edu.uci.ics.textdb.plangen;
+package edu.uci.ics.textdb.plangen.operatorbuilder;
 
 import java.io.File;
 import java.util.HashMap;
@@ -6,6 +6,7 @@ import java.util.HashMap;
 import org.junit.Assert;
 import org.junit.Test;
 
+import edu.uci.ics.textdb.common.exception.PlanGenException;
 import edu.uci.ics.textdb.dataflow.sink.FileSink;
 import edu.uci.ics.textdb.plangen.operatorbuilder.FileSinkBuilder;
 
@@ -26,7 +27,7 @@ public class FileSinkBuilderTest {
     /*
      * Test building an invalid file sink with an empty path.
      */
-    @Test
+    @Test(expected = PlanGenException.class)
     public void testInvalidFileSinkBuilder1() throws Exception {
         String filePath = "";
         
@@ -39,7 +40,7 @@ public class FileSinkBuilderTest {
     /*
      * Test building an invalid file sink with an empty path.
      */
-    @Test
+    @Test(expected = PlanGenException.class)
     public void testInvalidFileSinkBuilder2() throws Exception {
         String filePath = "     ";
         
