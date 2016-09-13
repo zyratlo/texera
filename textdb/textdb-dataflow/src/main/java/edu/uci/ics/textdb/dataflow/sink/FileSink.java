@@ -48,4 +48,8 @@ public class FileSink extends AbstractSink {
     protected void processOneTuple(ITuple nextTuple) {
         printWriter.write(toStringFunction.convertToString(nextTuple));
     }
+    
+    public File getFile() {
+        return this.file;
+    }
 }

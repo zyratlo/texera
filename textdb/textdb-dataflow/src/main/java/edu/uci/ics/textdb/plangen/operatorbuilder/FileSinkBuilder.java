@@ -5,6 +5,7 @@ import java.util.Map;
 
 import edu.uci.ics.textdb.common.exception.PlanGenException;
 import edu.uci.ics.textdb.dataflow.sink.FileSink;
+import edu.uci.ics.textdb.plangen.PlanGenUtils;
 
 /**
  * FileSinkBuilder provides a static function that builds a FileSink.
@@ -21,6 +22,8 @@ public class FileSinkBuilder {
     
     public static FileSink buildSink(Map<String, String> operatorProperties) throws PlanGenException {
         String filePath = OperatorBuilderUtils.getRequiredProperty(FILE_PATH, operatorProperties);
+        
+        PlanGenUtils.planGenAssert(! filePath.trim().isEmpty(), "file path can't be empty");
         
         File file = new File(filePath);
         FileSink fileSink = new FileSink(file);
