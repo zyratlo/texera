@@ -30,25 +30,24 @@ import edu.uci.ics.textdb.storage.DataStore;
  */
 public class KeywordSourceBuilder {
     
-    public static String KEYWORD = KeywordMatcherBuilder.KEYWORD;
-    public static final String MATCHING_TYPE = KeywordMatcherBuilder.MATCHING_TYPE;
+    public static KeywordMatcherSourceOperator buildSourceOperator(Map<String, String> operatorProperties) 
+            throws PlanGenException, DataFlowException {
+        String keyword = OperatorBuilderUtils.getRequiredProperty(
+                KeywordMatcherBuilder.KEYWORD, operatorProperties);
+        String matchingTypeStr = OperatorBuilderUtils.getRequiredProperty(
+                KeywordMatcherBuilder.MATCHING_TYPE, operatorProperties);
 
-    
-    public static KeywordMatcherSourceOperator buildSourceOperator(Map<String, String> operatorProperties) throws PlanGenException, DataFlowException {
-        String keyword = OperatorBuilderUtils.getRequiredProperty(KEYWORD, operatorProperties);
-        String matchingTypeStr = OperatorBuilderUtils.getRequiredProperty(MATCHING_TYPE, operatorProperties);
+        // check if the keyword is empty
+        PlanGenUtils.planGenAssert(!keyword.trim().isEmpty(), "the keyword is empty");
 
-        // check if keyword is empty
-        PlanGenUtils.planGenAssert(!keyword.trim().isEmpty(), "keyword is empty");
-
-        // generate attribute list
+        // generate the attribute list
         List<Attribute> attributeList = OperatorBuilderUtils.constructAttributeList(operatorProperties);
 
-        // generate matching type
+        // generate the keyword matching type
         KeywordMatchingType matchingType = KeywordMatcherBuilder.getKeywordMatchingType(matchingTypeStr);
         PlanGenUtils.planGenAssert(matchingType != null, 
-                "matching type: "+ matchingTypeStr +" is not valid, "
-                + "must be one of " + KeywordMatcherBuilder.keywordMatchingTypeMap.keySet());
+                "the matching type: "+ matchingTypeStr +" is not valid. "
+                + "It must be one of " + KeywordMatcherBuilder.keywordMatchingTypeMap.keySet());
         
         KeywordPredicate keywordPredicate = new KeywordPredicate(keyword, attributeList,
                 DataConstants.getStandardAnalyzer(), matchingType);
