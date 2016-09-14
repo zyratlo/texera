@@ -5,7 +5,6 @@ import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 
 import edu.uci.ics.textdb.api.common.ITuple;
-import edu.uci.ics.textdb.api.dataflow.IOperator;
 
 /**
  * Created by chenli on 5/11/16.
@@ -13,13 +12,22 @@ import edu.uci.ics.textdb.api.dataflow.IOperator;
  * This class serializes each tuple from the subtree to a given file.
  */
 public class FileSink extends AbstractSink {
+    
+    @FunctionalInterface
+    public static interface TupleToString {
+        String convertToString(ITuple tuple);
+    }
 
     private PrintWriter printWriter;
-    private final File file;
-
-    public FileSink(IOperator childOperator, File file) throws FileNotFoundException {
-        super(childOperator);
+    private final File file;   
+    private TupleToString toStringFunction = (tuple -> tuple.toString());
+    
+    public FileSink(File file) throws FileNotFoundException {
         this.file = file;
+    }
+    
+    public void setToStringFunction(TupleToString toStringFunction) {
+        this.toStringFunction = toStringFunction;
     }
 
     @Override
@@ -38,6 +46,6 @@ public class FileSink extends AbstractSink {
 
     @Override
     protected void processOneTuple(ITuple nextTuple) {
-        printWriter.write(nextTuple.toString());
+        printWriter.write(toStringFunction.convertToString(nextTuple));
     }
 }

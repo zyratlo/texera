@@ -4,7 +4,6 @@ import org.apache.lucene.analysis.Analyzer;
 
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.common.Schema;
-import edu.uci.ics.textdb.api.dataflow.IOperator;
 import edu.uci.ics.textdb.common.exception.StorageException;
 import edu.uci.ics.textdb.storage.DataStore;
 import edu.uci.ics.textdb.storage.writer.DataWriter;
@@ -18,14 +17,7 @@ public class IndexSink extends AbstractSink {
 
     private DataWriter dataWriter;
 
-    public IndexSink(IOperator inputOperator, String indexDirectory, Schema schema, Analyzer luceneAnalyzer) {
-        super(inputOperator);
-        DataStore dataStore = new DataStore(indexDirectory, schema);
-        this.dataWriter = new DataWriter(dataStore, luceneAnalyzer);
-    }
-
     public IndexSink(String indexDirectory, Schema schema, Analyzer luceneAnalyzer) {
-        super(null);
         DataStore dataStore = new DataStore(indexDirectory, schema);
         this.dataWriter = new DataWriter(dataStore, luceneAnalyzer);
     }
