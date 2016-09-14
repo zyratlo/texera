@@ -13,7 +13,6 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 
 import edu.uci.ics.textdb.api.common.Attribute;
-import edu.uci.ics.textdb.api.common.IPredicate;
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.common.constants.SchemaConstants;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
@@ -43,33 +42,29 @@ public class FuzzyTokenMatcherPerformanceTest {
     private static List<Double> timeResults = null;
     private static int totalResultCount = 0;
     private static boolean bool = true;
-    private static String csvFile  = "fuzzytoken.csv";
+    private static String csvFile = "fuzzytoken.csv";
 
-    /**
-     * @param queryFileName:
-     *            this file contains line(s) of queries; the file must be placed
-     *            in ./data-files/queries/
-     * @param iterationNumber:
-     *            the number of times the test expected to be run
-     * @param thresholds:
-     *            a list of thresholds
-     * @return
+    /*
+     * queryFileName contains line(s) of queries; the file must be placed in
+     * ./data-files/queries/
      * 
-     *         This function will match the queries against all indices in
-     *         ./index/standard/
+     * thresholds is a list of thresholds
      * 
-     *         Test results includes minimum runtime, maximum runtime, average
-     *         runtime, the standard deviation and the average results each threshold. They are written in a
-     *         csv file ./data-files/results/fuzzytoken.csv
-     *         
+     * This function will match the queries against all indices in
+     * ./index/standard/
+     * 
+     * Test results includes minimum runtime, maximum runtime, average runtime,
+     * the standard deviation and the average results each threshold. They are
+     * written in a csv file ./data-files/results/fuzzytoken.csv
+     * 
      * CSV file example:
      * 
      * Date,                Record #,       Threshold, Min,  Max,     Average, Std,    Average Results, Commit Number
      * 09-09-2016 00:54:27, abstract_100,   0.8,       0.01, 0.128,   0.042,   0.0393, 8
      * 
-     * Commit number is designed for performance dashboard.
-	 * It will be appended to the result file only when the performance test is run by 
-	 * /textdb-scripts/dashboard/build.py
+     * Commit number is designed for performance dashboard. It will be appended
+     * to the result file only when the performance test is run by
+     * /textdb-scripts/dashboard/build.py
      * 
      */
     public static void runTest(String queryFileName, List<Double> thresholds)
@@ -78,10 +73,10 @@ public class FuzzyTokenMatcherPerformanceTest {
         // Reads queries from query file into a list
         ArrayList<String> queries = PerfTestUtils.readQueries(PerfTestUtils.getQueryPath(queryFileName));
         FileWriter fileWriter = null;
-        
-        // Gets the current time  
+
+        // Gets the current time
         String currentTime = PerfTestUtils.formatTime(System.currentTimeMillis());
-         
+
         File indexFiles = new File(PerfTestUtils.standardIndexFolder);
         double avgTime = 0;
         for (double threshold : thresholds) {
@@ -91,7 +86,7 @@ public class FuzzyTokenMatcherPerformanceTest {
                 }
                 DataStore dataStore = new DataStore(PerfTestUtils.getIndexPath(file.getName()),
                         MedlineIndexWriter.SCHEMA_MEDLINE);
-                
+
                 PerfTestUtils.createFile(PerfTestUtils.getResultPath(csvFile), HEADER);
                 fileWriter = new FileWriter(PerfTestUtils.getResultPath(csvFile), true);
                 fileWriter.append(newLine);
@@ -110,10 +105,8 @@ public class FuzzyTokenMatcherPerformanceTest {
             }
         }
     }
-        
-    
 
-    /**
+    /*
      * reset timeResults and totalReusltCount
      */
     public static void resetStats() {
@@ -121,15 +114,8 @@ public class FuzzyTokenMatcherPerformanceTest {
         totalResultCount = 0;
     }
 
-    /**
-     * @param queryList:
-     *            queries
-     * @param threshold
-     * @param luceneAnalyzer
-     * @param DataStore
-     * @return
-     * 
-     *         This function does match for a list of queries
+    /*
+     * This function does match for a list of queries
      */
     public static void match(ArrayList<String> queryList, double threshold, Analyzer luceneAnalyzer,
             DataStore dataStore, boolean bool) throws DataFlowException, IOException {
@@ -137,12 +123,13 @@ public class FuzzyTokenMatcherPerformanceTest {
         Attribute[] attributeList = new Attribute[] { MedlineIndexWriter.ABSTRACT_ATTR };
 
         for (String query : queryList) {
-            FuzzyTokenPredicate predicate = new FuzzyTokenPredicate(query, Arrays.asList(attributeList),
-                    luceneAnalyzer, threshold);
+            FuzzyTokenPredicate predicate = new FuzzyTokenPredicate(query, Arrays.asList(attributeList), luceneAnalyzer,
+                    threshold);
             FuzzyTokenMatcher fuzzyTokenMatcher = new FuzzyTokenMatcher(predicate);
-            
-            IndexBasedSourceOperator indexSource = new IndexBasedSourceOperator(predicate.getDataReaderPredicate(dataStore));
-            
+
+            IndexBasedSourceOperator indexSource = new IndexBasedSourceOperator(
+                    predicate.getDataReaderPredicate(dataStore));
+
             fuzzyTokenMatcher.setInputOperator(indexSource);
 
             long startMatchTime = System.currentTimeMillis();
