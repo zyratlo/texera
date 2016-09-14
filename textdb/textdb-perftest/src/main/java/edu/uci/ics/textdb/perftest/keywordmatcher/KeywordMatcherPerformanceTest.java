@@ -45,7 +45,7 @@ public class KeywordMatcherPerformanceTest {
     private static String currentTime = "";
 
     // result files
-    private static String conjunctiveCsv = "keyword-conjunctive.csv";
+    private static String conjunctionCsv = "keyword-conjunction.csv";
     private static String scanCsv = "keyword-scan.csv";
     private static String phraseCsv = "keyword-phrase.csv";
 
@@ -59,7 +59,7 @@ public class KeywordMatcherPerformanceTest {
      * Test results for each operator include minimum runtime, maximum runtime,
      * average runtime, the standard deviation and the average number of results
      * are recorded in corresponding csv files:
-     * ./data-files/results/keyword-conjunctive
+     * ./data-files/results/keyword-conjunction
      * ./data-files/results/keyword-phrase ./data-files/results/keyword-scan
      * 
      * 
@@ -82,7 +82,7 @@ public class KeywordMatcherPerformanceTest {
             DataStore dataStore = new DataStore(PerfTestUtils.getIndexPath(file.getName()),
                     MedlineIndexWriter.SCHEMA_MEDLINE);
 
-            csvWriter(conjunctiveCsv, file.getName(), queries, DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED,
+            csvWriter(conjunctionCsv, file.getName(), queries, DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED,
                     dataStore);
             csvWriter(phraseCsv, file.getName(), queries, DataConstants.KeywordMatchingType.PHRASE_INDEXBASED,
                     dataStore);
