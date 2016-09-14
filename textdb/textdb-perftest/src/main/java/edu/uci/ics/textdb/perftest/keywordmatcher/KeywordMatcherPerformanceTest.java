@@ -14,13 +14,11 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 
 import edu.uci.ics.textdb.api.common.Attribute;
-import edu.uci.ics.textdb.api.common.IPredicate;
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.common.constants.DataConstants;
 import edu.uci.ics.textdb.common.constants.SchemaConstants;
 import edu.uci.ics.textdb.common.constants.DataConstants.KeywordMatchingType;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
-import edu.uci.ics.textdb.common.exception.StorageException;
 import edu.uci.ics.textdb.common.field.ListField;
 import edu.uci.ics.textdb.common.field.Span;
 import edu.uci.ics.textdb.dataflow.common.KeywordPredicate;
@@ -28,13 +26,12 @@ import edu.uci.ics.textdb.dataflow.keywordmatch.KeywordMatcher;
 import edu.uci.ics.textdb.dataflow.source.IndexBasedSourceOperator;
 import edu.uci.ics.textdb.perftest.medline.MedlineIndexWriter;
 import edu.uci.ics.textdb.perftest.utils.PerfTestUtils;
-import edu.uci.ics.textdb.storage.DataReaderPredicate;
 import edu.uci.ics.textdb.storage.DataStore;
 
 /**
  * @author Hailey Pan
  * 
- *         This is the performance test of KeywordMatcher
+ * This is the performance test of KeywordMatcher
  */
 
 public class KeywordMatcherPerformanceTest {
@@ -42,48 +39,41 @@ public class KeywordMatcherPerformanceTest {
     private static String HEADER = "Date,Record #,Min Time, Max Time, Average Time, Std, Average Results, Commit Number";
     private static String delimiter = ",";
     private static String newLine = "\n";
-   
-   
+
     private static List<Double> timeResults = null;
     private static int totalResultCount = 0;
     private static String currentTime = "";
-    
-    //result files
+
+    // result files
     private static String conjunctiveCsv = "keyword-conjunctive.csv";
     private static String scanCsv = "keyword-scan.csv";
     private static String phraseCsv = "keyword-phrase.csv";
 
-    /**
-     * @param queryFileName:
-     *            this file contains line(s) of queries; the file must be placed
-     *            in ./data-files/queries/
-     * @param iterationNumber:
-     *            the number of times the test expected to be run
-     * @return
+    /*
+     * queryFileName contains line(s) of queries; the file must be placed in
+     * ./data-files/queries/
      * 
-     *         This function will match the queries against all indices in
-     *         ./index/standard/
+     * This function will match the queries against all indices in
+     * ./index/standard/
      * 
-     *         Test results for each operator include minimum runtime, maximum runtime, average
-     *         runtime, the standard deviation and the average number of results are recorded in corresponding 
-     *         csv files: ./data-files/results/keyword-conjunctive
-     *         		      ./data-files/results/keyword-phrase
-     *                    ./data-files/results/keyword-scan			 
-     *         
-     * @throws Exception 
+     * Test results for each operator include minimum runtime, maximum runtime,
+     * average runtime, the standard deviation and the average number of results
+     * are recorded in corresponding csv files:
+     * ./data-files/results/keyword-conjunctive
+     * ./data-files/results/keyword-phrase ./data-files/results/keyword-scan
+     * 
      * 
      */
-    public static void runTest(String queryFileName)
-            throws Exception {
+    public static void runTest(String queryFileName) throws Exception {
 
         // Reads queries from query file into a list
         ArrayList<String> queries = PerfTestUtils.readQueries(PerfTestUtils.getQueryPath(queryFileName));
- 
-        // Gets the current time  
+
+        // Gets the current time
         currentTime = PerfTestUtils.formatTime(System.currentTimeMillis());
 
         File indexFiles = new File(PerfTestUtils.standardIndexFolder);
-    
+
         // Does match against each index in ./index/
         for (File file : indexFiles.listFiles()) {
             if (file.getName().startsWith(".")) {
@@ -91,24 +81,19 @@ public class KeywordMatcherPerformanceTest {
             }
             DataStore dataStore = new DataStore(PerfTestUtils.getIndexPath(file.getName()),
                     MedlineIndexWriter.SCHEMA_MEDLINE);
-            
-            csvWriter(conjunctiveCsv, file.getName(), queries, DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED, dataStore);
-            csvWriter(phraseCsv, file.getName(), queries, DataConstants.KeywordMatchingType.PHRASE_INDEXBASED, dataStore);
-            csvWriter(scanCsv, file.getName(), queries, DataConstants.KeywordMatchingType.SUBSTRING_SCANBASED, dataStore);
+
+            csvWriter(conjunctiveCsv, file.getName(), queries, DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED,
+                    dataStore);
+            csvWriter(phraseCsv, file.getName(), queries, DataConstants.KeywordMatchingType.PHRASE_INDEXBASED,
+                    dataStore);
+            csvWriter(scanCsv, file.getName(), queries, DataConstants.KeywordMatchingType.SUBSTRING_SCANBASED,
+                    dataStore);
 
         }
-        
+
     }
-    
-    /**
-     * 
-     * @param resultFile
-     * @param recordNum
-     * @param queries
-     * @param opType
-     * @param dataStore
-     * @throws Exception
-     * 
+
+    /*
      * This function writes test results to the given csv file.
      * 
      * Example
@@ -116,27 +101,27 @@ public class KeywordMatcherPerformanceTest {
      * Date,                Record #,     Min Time, Max Time, Average Time, Std,    Average Results, Commit Number
      * 09-09-2016 00:54:18, abstract_100, 0.017,    1.373,    0.2371,       0.4464, 2.18
      * 
-     * Commit number is designed for performance dashboard.
-	 * It will be appended to the result file only when the performance test is run by 
-	 * /textdb-scripts/dashboard/build.py
-	 * 
+     * Commit number is designed for performance dashboard. It will be appended
+     * to the result file only when the performance test is run by
+     * /textdb-scripts/dashboard/build.py
+     * 
      */
-    public static void csvWriter(String resultFile, String recordNum, ArrayList<String> queries, 
-    		KeywordMatchingType opType, DataStore dataStore) throws Exception {
-    	double avgTime = 0.0;
-    	PerfTestUtils.createFile(PerfTestUtils.getResultPath(resultFile), HEADER);
-    	FileWriter fileWriter = new FileWriter(PerfTestUtils.getResultPath(resultFile),true);
-    	fileWriter.append(newLine);
-    	fileWriter.append(currentTime + delimiter);
-    	fileWriter.append(recordNum + delimiter);
-    	resetStats();
-    	match(queries, opType, new StandardAnalyzer(), dataStore);
-    	avgTime = PerfTestUtils.calculateAverage(timeResults);
-    	fileWriter.append(Collections.min(timeResults) + delimiter + Collections.max(timeResults) + delimiter + 
-     		avgTime + delimiter + PerfTestUtils.calculateSTD(timeResults, avgTime) + delimiter
-             + String.format("%.2f", totalResultCount * 1.0 / queries.size()));
-    	fileWriter.flush();
-     	fileWriter.close();
+    public static void csvWriter(String resultFile, String recordNum, ArrayList<String> queries,
+            KeywordMatchingType opType, DataStore dataStore) throws Exception {
+        double avgTime = 0.0;
+        PerfTestUtils.createFile(PerfTestUtils.getResultPath(resultFile), HEADER);
+        FileWriter fileWriter = new FileWriter(PerfTestUtils.getResultPath(resultFile), true);
+        fileWriter.append(newLine);
+        fileWriter.append(currentTime + delimiter);
+        fileWriter.append(recordNum + delimiter);
+        resetStats();
+        match(queries, opType, new StandardAnalyzer(), dataStore);
+        avgTime = PerfTestUtils.calculateAverage(timeResults);
+        fileWriter.append(Collections.min(timeResults) + delimiter + Collections.max(timeResults) + delimiter + avgTime
+                + delimiter + PerfTestUtils.calculateSTD(timeResults, avgTime) + delimiter
+                + String.format("%.2f", totalResultCount * 1.0 / queries.size()));
+        fileWriter.flush();
+        fileWriter.close();
     }
 
     /**
@@ -147,16 +132,8 @@ public class KeywordMatcherPerformanceTest {
         totalResultCount = 0;
     }
 
-    /**
-     * @param queryList:
-     *            queries
-     * @param Optype:
-     *            operator type
-     * @param luceneAnalyzer
-     * @param DataStore
-     * @return
-     * 
-     *         This function does match for a list of queries
+    /*
+     * This function does match for a list of queries
      */
     public static void match(ArrayList<String> queryList, KeywordMatchingType opType, Analyzer luceneAnalyzer,
             DataStore dataStore) throws DataFlowException, IOException {
