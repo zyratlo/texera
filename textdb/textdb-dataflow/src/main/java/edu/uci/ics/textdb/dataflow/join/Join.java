@@ -11,6 +11,7 @@ import edu.uci.ics.textdb.api.common.Schema;
 import edu.uci.ics.textdb.api.dataflow.IOperator;
 import edu.uci.ics.textdb.common.constants.SchemaConstants;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
+import edu.uci.ics.textdb.common.exception.ErrorMessages;
 import edu.uci.ics.textdb.dataflow.common.IJoinPredicate;
 
 
@@ -58,6 +59,12 @@ public class Join implements IOperator {
     private List<Attribute> outputAttrList;
     private Schema outputSchema;
 
+    private int cursor = CLOSED;
+    
+    private int resultCursor = -1;
+    private int limit = Integer.MAX_VALUE;
+    private int offset = 0;
+
     /**
      * This constructor is used to set the operators whose output is to be
      * compared and joined and the predicate which specifies the fields and
@@ -83,6 +90,10 @@ public class Join implements IOperator {
             throw new Exception("Fields other than \"STRING\" and \"TEXT\" are not supported by Join yet.");
         }
 
+        if (cursor != CLOSED) {
+        	return;
+        }
+
         try {
             innerOperator.open();
         } catch (Exception e) {
@@ -106,7 +117,8 @@ public class Join implements IOperator {
             e.printStackTrace();
             throw new DataFlowException(e.getMessage(), e);
         }
-        
+
+        cursor = OPENED;
         generateIntersectionSchema();
         outputAttrList = outputSchema.getAttributes();
     }
@@ -120,13 +132,45 @@ public class Join implements IOperator {
      */
     @Override
     public ITuple getNextTuple() throws Exception {
+    	if (cursor == CLOSED) {
+            throw new DataFlowException(ErrorMessages.OPERATOR_NOT_OPENED);
+        }
+    	
+        if (resultCursor >= limit + offset - 1 || limit == 0){
+            return null;
+        }
+        
+        try {
+            ITuple resultTuple = null;
+            while (true) {
+                resultTuple = computeNextMatchingTuple();
+                if (resultTuple == null) {
+                    break;
+                }
+                resultCursor++;
+                if (resultCursor >= offset) {
+                    break;
+                }
+            }
+            return resultTuple;
+        } catch (Exception e) {
+            throw new DataFlowException(e.getMessage(), e);
+        }
+    }
+
+    /*
+     * Called from getNextTuple() method in order to obtain the next tuple 
+     * that satisfies the predicate. 
+     * 
+     * It returns null if there's no more tuples.
+     */
+    protected  ITuple computeNextMatchingTuple() throws Exception {
         if (innerTupleList.isEmpty()) {
             return null;
         }
-
+        
         ITuple nextTuple = null;
-
-        do {
+        while (nextTuple == null) {
             if (shouldIGetOuterOperatorNextTuple == true) {
                 if ((outerTuple = outerOperator.getNextTuple()) == null) {
                     return null;
@@ -144,13 +188,17 @@ public class Join implements IOperator {
             }
             
             nextTuple = joinPredicate.joinTuples(outerTuple, innerTuple, outputSchema);
-        } while (nextTuple == null);
-
-        return nextTuple;
+        }
+        
+    	return nextTuple;
     }
 
     @Override
     public void close() throws Exception {
+    	if (cursor == CLOSED) {
+            return;
+        }
+
         try {
             outerOperator.close();
             // innerOperator.close(); already called in open()
@@ -161,6 +209,7 @@ public class Join implements IOperator {
         }
         // Clear the inner tuple list from memory on close.
         innerTupleList.clear();
+        cursor = CLOSED;
     }
 
     /**
@@ -223,5 +272,21 @@ public class Join implements IOperator {
 
     public void setInnerOperator(IOperator innerOperator) {
         this.innerOperator = innerOperator;
+    }
+
+    public void setLimit(int limit) {
+        this.limit = limit;
+    }
+    
+    public int getLimit() {
+        return limit;
+    }
+    
+    public void setOffset(int offset) {
+        this.offset = offset;
+    }
+    
+    public int getOffset() {
+        return offset;
     }
 }

@@ -21,7 +21,8 @@ public class FileSinkTest {
     public void setUp() throws FileNotFoundException {
         childOperator = Mockito.mock(IOperator.class);
         file = new File("sample.txt");
-        fileSink = new FileSink(childOperator, file);
+        fileSink = new FileSink(file);
+        fileSink.setInputOperator(childOperator);
     }
 
     @After
