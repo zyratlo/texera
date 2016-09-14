@@ -43,24 +43,26 @@ public class NlpExtractorPerformanceTest {
     private static String csvFile = "nlp.csv";
     private static double totalMatchingTime = 0.0;
     private static int totalResults = 0;
-    /**
+    
+    
+    /*
      * 
-     * @return
      * 
-     *         This function will match the queries against all indices in
-     *         ./index/standard/
+     * This function will match the queries against all indices in
+     * ./index/standard/
      * 
-     *         Test results includes the average runtime of all nlp token types, the average number of results. 
-     *         These results are recorded in ./data-files/results/nlp.csv
-     *    
+     * Test results includes the average runtime of all nlp token types, the
+     * average number of results. These results are recorded in
+     * ./data-files/results/nlp.csv
+     * 
      * CSV file example:
      * Date,                Record #,     Avg Time, Avg Result #, Commit #
      * 09-09-2016 00:54:40, abstract_100, 29.5494,  252.36
      * 
-     * Commit number is designed for performance dashboard.
-	 * It will be appended to the result file only when the performance test is run by 
-	 * /textdb-scripts/dashboard/build.py
-	 * 
+     * Commit number is designed for performance dashboard. It will be appended
+     * to the result file only when the performance test is run by
+     * /textdb-scripts/dashboard/build.py
+     * 
      */
     public static void runTest() throws Exception {
     	
@@ -95,13 +97,8 @@ public class NlpExtractorPerformanceTest {
  
     }
 
-    /**
-     * @param DataStore
-     * @param tokenType
-     * @param analyzer
-     * @return
-     * 
-     *         This function does match based on tokenType
+    /*
+     * This function does match based on tokenType
      */
     public static void matchNLP(IDataStore dataStore, NlpPredicate.NlpTokenType tokenType, Analyzer analyzer) throws Exception {
 
