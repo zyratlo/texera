@@ -1,10 +1,5 @@
 package edu.uci.ics.textdb.perftest.utils;
 
-/**
- *@author Hailey Pan
- *
- *Performance test helper functions 
- **/
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
@@ -23,6 +18,12 @@ import edu.uci.ics.textdb.engine.Engine;
 import edu.uci.ics.textdb.perftest.medline.MedlineIndexWriter;
 import edu.uci.ics.textdb.storage.DataStore;
 
+/**
+ * @author Hailey Pan
+ *
+ *         Performance test helper functions
+ **/
+
 public class PerfTestUtils {
 
     /**
@@ -37,24 +38,21 @@ public class PerfTestUtils {
 
     /**
      * 
-     * @param filePath
-     * @param header
-     * @throws IOException
-     * 
-     * Checks whether the given file exists. If not, create such a file with a header written into it.
+     * Checks whether the given file exists. If not, create such a file with a
+     * header written into it.
      */
-    public static void createFile(String filePath, String header) throws IOException{
-    	File file = new File(filePath);
-    	if(!file.exists()){
-    		file.createNewFile();
-    		FileWriter fileWriter = new FileWriter(filePath, true);
-        	fileWriter.write(header);
-        	fileWriter.close();
-    	}
-    	
+    public static void createFile(String filePath, String header) throws IOException {
+        File file = new File(filePath);
+        if (!file.exists()) {
+            file.createNewFile();
+            FileWriter fileWriter = new FileWriter(filePath, true);
+            fileWriter.write(header);
+            fileWriter.close();
+        }
+
     }
-    
-    /**
+
+    /*
      * The purpose for below setters:
      * 
      * When the program is not run from the directory, textdb-perftest, all path
