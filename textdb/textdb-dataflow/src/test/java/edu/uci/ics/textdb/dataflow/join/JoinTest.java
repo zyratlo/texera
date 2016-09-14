@@ -60,6 +60,7 @@ public class JoinTest {
     List<ITuple> bookTuple2;
     List<Attribute> attributeList;
     List<Attribute> modifiedAttributeList;
+    private int maxVal = Integer.MAX_VALUE;
 
     // This method sets up some stuff before beginning each test.
     @Before
@@ -108,9 +109,11 @@ public class JoinTest {
 
     // A helper method to get join result. Called from each test case
     public List<ITuple> getJoinResults(IOperator outer, IOperator inner, Attribute idAttribute, Attribute joinAttribute,
-            Integer threshold) throws Exception {
+            Integer threshold, int limit, int offset) throws Exception {
         IJoinPredicate joinDistancePredicate = new JoinDistancePredicate(idAttribute, joinAttribute, threshold);
         join = new Join(outer, inner, joinDistancePredicate);
+        join.setLimit(limit);
+        join.setOffset(offset);
         join.open();
 
         List<ITuple> results = new ArrayList<>();
@@ -326,7 +329,7 @@ public class JoinTest {
 
         Attribute idAttr = attributeList.get(0);
         Attribute reviewAttr = attributeList.get(4);
-        List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 10);
+        List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 10, maxVal, 0);
         Assert.assertEquals(0, resultList.size());
     }
 
@@ -359,7 +362,7 @@ public class JoinTest {
 
         Attribute idAttr = attributeList.get(0);
         Attribute reviewAttr = attributeList.get(4);
-        List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 20);
+        List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 20, maxVal, 0);
 
         Attribute[] schemaAttributes = new Attribute[attributeList.size() + 1];
         for (int index = 0; index < schemaAttributes.length - 1; index++) {
@@ -411,7 +414,7 @@ public class JoinTest {
 
         Attribute idAttr = attributeList.get(0);
         Attribute reviewAttr = attributeList.get(4);
-        List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 20);
+        List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 20, maxVal, 0);
         Assert.assertEquals(0, resultList.size());
     }
 
@@ -430,7 +433,7 @@ public class JoinTest {
 
         Attribute idAttr = attributeList.get(0);
         Attribute reviewAttr = attributeList.get(4);
-        List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 20);
+        List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 20, maxVal, 0);
         Assert.assertEquals(0, resultList.size());
     }
 
@@ -461,7 +464,7 @@ public class JoinTest {
         
         Attribute idAttr = attributeList.get(0);
         Attribute reviewAttr = attributeList.get(4);
-        List<ITuple> resultList = getJoinResults(keywordMatcherOuter, removeSpanListProjection, idAttr, reviewAttr, 20);
+        List<ITuple> resultList = getJoinResults(keywordMatcherOuter, removeSpanListProjection, idAttr, reviewAttr, 20, maxVal, 0);
     }
 
     // This case tests for the scenario when the IDs match, fields to be joined
@@ -488,7 +491,7 @@ public class JoinTest {
 
         Attribute idAttr = attributeList.get(0);
         Attribute reviewAttr = attributeList.get(4);
-        List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 20);
+        List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 20, maxVal, 0);
 
         Attribute[] schemaAttributes = new Attribute[attributeList.size() + 1];
         for (int index = 0; index < schemaAttributes.length - 1; index++) {
@@ -542,7 +545,7 @@ public class JoinTest {
 
         Attribute idAttr = attributeList.get(0);
         Attribute reviewAttr = attributeList.get(4);
-        List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 10);
+        List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 10, maxVal, 0);
         Assert.assertEquals(0, resultList.size());
     }
 
@@ -575,7 +578,7 @@ public class JoinTest {
 
         Attribute idAttr = attributeList.get(0);
         Attribute reviewAttr = attributeList.get(4);
-        List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 20);
+        List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 20, maxVal, 0);
 
         Attribute[] schemaAttributes = new Attribute[attributeList.size() + 1];
         for (int index = 0; index < schemaAttributes.length - 1; index++) {
@@ -629,7 +632,7 @@ public class JoinTest {
 
         Attribute idAttr = attributeList.get(0);
         Attribute reviewAttr = attributeList.get(4);
-        List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 10);
+        List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 10, maxVal, 0);
         Assert.assertEquals(0, resultList.size());
     }
 
@@ -656,7 +659,7 @@ public class JoinTest {
 
         Attribute idAttr = attributeList.get(0);
         Attribute reviewAttr = attributeList.get(4);
-        List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 20);
+        List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 20, maxVal, 0);
 
         Attribute[] schemaAttributes = new Attribute[attributeList.size() + 1];
         for (int index = 0; index < schemaAttributes.length - 1; index++) {
@@ -731,7 +734,7 @@ public class JoinTest {
 
         Attribute idAttr = attributeList.get(0);
         Attribute reviewAttr = attributeList.get(4);
-        List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 10);
+        List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 10, maxVal, 0);
     }
 
     // -----------------<Test cases for intersection of tuples>----------------
@@ -805,7 +808,7 @@ public class JoinTest {
         keywordMatcherInner = new KeywordMatcher(keywordPredicate);
         keywordMatcherInner.setInputOperator(indexInputOperator);
 
-        List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 20);
+        List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 20, maxVal, 0);
 
         Attribute[] schemaAttributes = { idAttr, pagesAttr, reviewAttr, SchemaConstants.SPAN_LIST_ATTRIBUTE };
 
@@ -905,7 +908,7 @@ public class JoinTest {
         keywordMatcherInner = new KeywordMatcher(keywordPredicate);
         keywordMatcherInner.setInputOperator(indexInputOperator);
 
-        List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 20);
+        List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 20, maxVal, 0);
 
         Attribute[] schemaAttributes = { idAttr, authorAttr, titleAttr, pagesAttr, reviewAttr,
                 SchemaConstants.SPAN_LIST_ATTRIBUTE };
@@ -999,7 +1002,7 @@ public class JoinTest {
         keywordMatcherInner = new KeywordMatcher(keywordPredicate);
         keywordMatcherInner.setInputOperator(indexInputOperator);
 
-        List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 20);
+        List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 20, maxVal, 0);
 
         Assert.assertEquals(0, resultList.size());
     }
@@ -1072,7 +1075,7 @@ public class JoinTest {
         keywordMatcherInner = new KeywordMatcher(keywordPredicate);
         keywordMatcherInner.setInputOperator(indexInputOperator);
 
-        List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 20);
+        List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 20, maxVal, 0);
 
         Attribute[] schemaAttributes = { idAttr, authorAttr, pagesAttr, reviewAttr,
                 SchemaConstants.SPAN_LIST_ATTRIBUTE };
@@ -1173,7 +1176,7 @@ public class JoinTest {
         keywordMatcherInner = new KeywordMatcher(keywordPredicate);
         keywordMatcherInner.setInputOperator(indexInputOperator);
 
-        List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr1, 20);
+        List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr1, 20, maxVal, 0);
 
         Assert.assertEquals(0, resultList.size());
     }
@@ -1198,7 +1201,7 @@ public class JoinTest {
 
         Attribute idAttr = attributeList.get(0);
         Attribute reviewAttr = attributeList.get(4);
-        List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 12);
+        List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 12, maxVal, 0);
         Assert.assertEquals(0, resultList.size());
     }
 
@@ -1233,7 +1236,7 @@ public class JoinTest {
 
         Attribute idAttr = attributeList.get(0);
         Attribute reviewAttr = attributeList.get(4);
-        List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 12);
+        List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 12, maxVal, 0);
 
         Attribute[] schemaAttributes = new Attribute[attributeList.size() + 1];
         for (int index = 0; index < schemaAttributes.length - 1; index++) {
@@ -1297,7 +1300,7 @@ public class JoinTest {
 
         Attribute idAttr = attributeList.get(0);
         Attribute reviewAttr = attributeList.get(4);
-        List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 4);
+        List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 4, maxVal, 0);
         Assert.assertEquals(0, resultList.size());
     }
 
@@ -1338,7 +1341,7 @@ public class JoinTest {
 
         Attribute idAttr = attributeList.get(0);
         Attribute reviewAttr = attributeList.get(4);
-        List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 12);
+        List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 12, maxVal, 0);
 
         Attribute[] schemaAttributes = new Attribute[attributeList.size() + 1];
         for (int index = 0; index < schemaAttributes.length - 1; index++) {
@@ -1439,7 +1442,7 @@ public class JoinTest {
 
         Attribute idAttr = attributeList.get(0);
         Attribute reviewAttr = attributeList.get(4);
-        List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 4);
+        List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 4, maxVal, 0);
         Assert.assertEquals(0, resultList.size());
     }
 
@@ -1460,7 +1463,7 @@ public class JoinTest {
 
         Attribute idAttr = attributeList.get(0);
         Attribute reviewAttr = attributeList.get(4);
-        List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 90);
+        List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 90, maxVal, 0);
 
         Attribute[] schemaAttributes = new Attribute[attributeList.size() + 1];
         for (int index = 0; index < schemaAttributes.length - 1; index++) {
@@ -1534,5 +1537,418 @@ public class JoinTest {
 
         Assert.assertEquals(5, resultList.size());
         Assert.assertTrue(contains);
+    }
+
+    // ---------------------<Limit and offset test cases.>---------------------
+
+    /*
+     * This case tests for the scenario when limit is some integer greater than
+     * 0 and less than the actual number of results and offset is 0 and join 
+     * is performed.
+     * Test result: A list of tuples with number of tuples equal to limit.
+     */
+    @Test
+    public void testForLimitWhenLimitIsLesserThanActualNumberOfResults() throws Exception{
+    	bookTuple1 = setupTuplesList(1, 5);
+        writeTuples(bookTuple1, bookTuple1);
+
+        String query = "typical";
+        keywordMatcherOuter = (KeywordMatcher) setupOperators(query, "index", "outer");
+        query = "actually";
+        keywordMatcherInner = (KeywordMatcher) setupOperators(query, "index", "inner");
+
+        Attribute idAttr = attributeList.get(0);
+        Attribute reviewAttr = attributeList.get(4);
+        List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 90, 3, 0);
+
+        Attribute[] schemaAttributes = new Attribute[attributeList.size() + 1];
+        for (int index = 0; index < schemaAttributes.length - 1; index++) {
+            schemaAttributes[index] = attributeList.get(index);
+        }
+        schemaAttributes[schemaAttributes.length - 1] = SchemaConstants.SPAN_LIST_ATTRIBUTE;
+
+        List<Span> spanList = new ArrayList<>();
+        String reviewField = attributeList.get(4).getFieldName();
+
+        Span span1 = new Span(reviewField, 28, 119, "typical_actually", "typical review. "
+                + "This is a test. A book review test. " + "A test to test queries without actually");
+        spanList.add(span1);
+        Span span2 = new Span(reviewField, 186, 234, "typical_actually",
+                "actually a review " + "even if it is not your typical");
+        spanList.add(span2);
+
+        IField[] book1 = { new IntegerField(51), new StringField("author unknown"), new StringField("typical"),
+                new IntegerField(300),
+                new TextField("Review of a Book. This is a typical " + "review. This is a test. A book review "
+                        + "test. A test to test queries without " + "actually using actual review. From "
+                        + "here onwards, we can pretend this to " + "be actually a review even if it is not "
+                        + "your typical book review."),
+                new ListField<>(spanList) };
+
+        IField[] book2 = { new IntegerField(54), new StringField("Andria Williams"),
+                new StringField("The Longest Night: A Novel"), new IntegerField(400),
+                new TextField("Review of a Book. This is a typical " + "review. This is a test. A book review "
+                        + "test. A test to test queries without " + "actually using actual review. From "
+                        + "here onwards, we can pretend this to " + "be actually a review even if it is not "
+                        + "your typical book review."),
+                new ListField<>(spanList) };
+
+        IField[] book3 = { new IntegerField(55), new StringField("Matti Friedman"),
+                new StringField("Pumpkinflowers: A Soldier's " + "Story"), new IntegerField(256),
+                new TextField("Review of a Book. This is a typical " + "review. This is a test. A book review "
+                        + "test. A test to test queries without " + "actually using actual review. From "
+                        + "here onwards, we can pretend this to " + "be actually a review even if it is not "
+                        + "your typical book review."),
+                new ListField<>(spanList) };
+
+        ITuple expectedTuple1 = new DataTuple(new Schema(schemaAttributes), book1);
+        ITuple expectedTuple2 = new DataTuple(new Schema(schemaAttributes), book2);
+        ITuple expectedTuple3 = new DataTuple(new Schema(schemaAttributes), book3);
+        List<ITuple> expectedResult = new ArrayList<>(3);
+        expectedResult.add(expectedTuple1);
+        expectedResult.add(expectedTuple2);
+        expectedResult.add(expectedTuple3);
+
+        boolean contains = TestUtils.containsAllResults(expectedResult, resultList);
+
+        Assert.assertEquals(3, resultList.size());
+        Assert.assertTrue(contains);
+    }
+
+    /*
+     * This case tests for the scenario when limit is some integer greater than
+     * 0 and greater than the actual number of results and offset is 0 and join
+     * is performed.
+     * Test result: A list of tuples with number of tuples equal to the maximum
+     * number of tuples operator can generate (which is lesser than limit.)
+     */
+    @Test
+    public void testForLimitWhenLimitIsGreaterThanActualNumberOfResults() throws Exception{
+    	bookTuple1 = setupTuplesList(1, 5);
+        writeTuples(bookTuple1, bookTuple1);
+
+        String query = "typical";
+        keywordMatcherOuter = (KeywordMatcher) setupOperators(query, "index", "outer");
+        query = "actually";
+        keywordMatcherInner = (KeywordMatcher) setupOperators(query, "index", "inner");
+
+        Attribute idAttr = attributeList.get(0);
+        Attribute reviewAttr = attributeList.get(4);
+        List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 90, 10, 0);
+
+        Attribute[] schemaAttributes = new Attribute[attributeList.size() + 1];
+        for (int index = 0; index < schemaAttributes.length - 1; index++) {
+            schemaAttributes[index] = attributeList.get(index);
+        }
+        schemaAttributes[schemaAttributes.length - 1] = SchemaConstants.SPAN_LIST_ATTRIBUTE;
+
+        List<Span> spanList = new ArrayList<>();
+        String reviewField = attributeList.get(4).getFieldName();
+
+        Span span1 = new Span(reviewField, 28, 119, "typical_actually", "typical review. "
+                + "This is a test. A book review test. " + "A test to test queries without actually");
+        spanList.add(span1);
+        Span span2 = new Span(reviewField, 186, 234, "typical_actually",
+                "actually a review " + "even if it is not your typical");
+        spanList.add(span2);
+
+        IField[] book1 = { new IntegerField(51), new StringField("author unknown"), new StringField("typical"),
+                new IntegerField(300),
+                new TextField("Review of a Book. This is a typical " + "review. This is a test. A book review "
+                        + "test. A test to test queries without " + "actually using actual review. From "
+                        + "here onwards, we can pretend this to " + "be actually a review even if it is not "
+                        + "your typical book review."),
+                new ListField<>(spanList) };
+
+        IField[] book2 = { new IntegerField(52), new StringField("Mary Roach"),
+                new StringField("Grunt: The Curious Science of " + "Humans at War"), new IntegerField(288),
+                new TextField("Review of a Book. This is a typical " + "review. This is a test. A book review "
+                        + "test. A test to test queries without " + "actually using actual review. From "
+                        + "here onwards, we can pretend this to " + "be actually a review even if it is not "
+                        + "your typical book review."),
+                new ListField<>(spanList) };
+
+        IField[] book3 = { new IntegerField(53), new StringField("Noah Hawley"), new StringField("Before the Fall"),
+                new IntegerField(400),
+                new TextField("Review of a Book. This is a typical " + "review. This is a test. A book review "
+                        + "test. A test to test queries without " + "actually using actual review. From "
+                        + "here onwards, we can pretend this to " + "be actually a review even if it is not "
+                        + "your typical book review."),
+                new ListField<>(spanList) };
+
+        IField[] book4 = { new IntegerField(54), new StringField("Andria Williams"),
+                new StringField("The Longest Night: A Novel"), new IntegerField(400),
+                new TextField("Review of a Book. This is a typical " + "review. This is a test. A book review "
+                        + "test. A test to test queries without " + "actually using actual review. From "
+                        + "here onwards, we can pretend this to " + "be actually a review even if it is not "
+                        + "your typical book review."),
+                new ListField<>(spanList) };
+
+        IField[] book5 = { new IntegerField(55), new StringField("Matti Friedman"),
+                new StringField("Pumpkinflowers: A Soldier's " + "Story"), new IntegerField(256),
+                new TextField("Review of a Book. This is a typical " + "review. This is a test. A book review "
+                        + "test. A test to test queries without " + "actually using actual review. From "
+                        + "here onwards, we can pretend this to " + "be actually a review even if it is not "
+                        + "your typical book review."),
+                new ListField<>(spanList) };
+
+        ITuple expectedTuple1 = new DataTuple(new Schema(schemaAttributes), book1);
+        ITuple expectedTuple2 = new DataTuple(new Schema(schemaAttributes), book2);
+        ITuple expectedTuple3 = new DataTuple(new Schema(schemaAttributes), book3);
+        ITuple expectedTuple4 = new DataTuple(new Schema(schemaAttributes), book4);
+        ITuple expectedTuple5 = new DataTuple(new Schema(schemaAttributes), book5);
+        List<ITuple> expectedResult = new ArrayList<>(5);
+        expectedResult.add(expectedTuple1);
+        expectedResult.add(expectedTuple2);
+        expectedResult.add(expectedTuple3);
+        expectedResult.add(expectedTuple4);
+        expectedResult.add(expectedTuple5);
+
+        boolean contains = TestUtils.containsAllResults(expectedResult, resultList);
+
+        Assert.assertEquals(5, resultList.size());
+        Assert.assertTrue(contains);
+    }
+
+    /*
+     * This case tests for the scenario when limit is 0 and offset is 0 and 
+     * join is performed.
+     * Test result: An empty list.
+     */
+    @Test
+    public void testForLimitWhenLimitIsZero() throws Exception{
+    	bookTuple1 = setupTuplesList(1, 5);
+        writeTuples(bookTuple1, bookTuple1);
+
+        String query = "typical";
+        keywordMatcherOuter = (KeywordMatcher) setupOperators(query, "index", "outer");
+        query = "actually";
+        keywordMatcherInner = (KeywordMatcher) setupOperators(query, "index", "inner");
+
+        Attribute idAttr = attributeList.get(0);
+        Attribute reviewAttr = attributeList.get(4);
+        List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 90, 0, 0);
+        Assert.assertEquals(0, resultList.size());
+    }
+
+    /*
+     * This case tests for the scenario when limit is 0 and offset is some 
+     * integer greater than 0 and less than the actual number of results and 
+     * join is performed.
+     * Test result: An empty list.
+     */
+    @Test
+    public void testForLimitWhenLimitIsZeroAndHasOffset() throws Exception{
+    	bookTuple1 = setupTuplesList(1, 5);
+        writeTuples(bookTuple1, bookTuple1);
+
+        String query = "typical";
+        keywordMatcherOuter = (KeywordMatcher) setupOperators(query, "index", "outer");
+        query = "actually";
+        keywordMatcherInner = (KeywordMatcher) setupOperators(query, "index", "inner");
+
+        Attribute idAttr = attributeList.get(0);
+        Attribute reviewAttr = attributeList.get(4);
+        List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 90, 0, 2);
+        Assert.assertEquals(0, resultList.size());
+    }
+
+    /*
+     * This case tests for the scenario when limit is some integer greater than
+     * 0 and less than the actual number of results and offset is some integer
+     * greater than 0 and less than actual number of results and join is 
+     * performed.
+     * Test result: A list of tuples with number of tuples equal to limit 
+     * starting from the set offset.
+     */
+    @Test
+    public void testForLimitWhenLimitIsLesserThanActualNumberOfResultsAndHasOffset() throws Exception {
+        bookTuple1 = setupTuplesList(1, 5);
+        writeTuples(bookTuple1, bookTuple1);
+
+        String query = "typical";
+        keywordMatcherOuter = (KeywordMatcher) setupOperators(query, "index", "outer");
+        query = "actually";
+        keywordMatcherInner = (KeywordMatcher) setupOperators(query, "index", "inner");
+
+        Attribute idAttr = attributeList.get(0);
+        Attribute reviewAttr = attributeList.get(4);
+        List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 90, 1, 2);
+
+        Attribute[] schemaAttributes = new Attribute[attributeList.size() + 1];
+        for (int index = 0; index < schemaAttributes.length - 1; index++) {
+            schemaAttributes[index] = attributeList.get(index);
+        }
+        schemaAttributes[schemaAttributes.length - 1] = SchemaConstants.SPAN_LIST_ATTRIBUTE;
+
+        List<Span> spanList = new ArrayList<>();
+        String reviewField = attributeList.get(4).getFieldName();
+
+        Span span1 = new Span(reviewField, 28, 119, "typical_actually", "typical review. "
+                + "This is a test. A book review test. " + "A test to test queries without actually");
+        spanList.add(span1);
+        Span span2 = new Span(reviewField, 186, 234, "typical_actually",
+                "actually a review " + "even if it is not your typical");
+        spanList.add(span2);
+
+        IField[] book1 = { new IntegerField(54), new StringField("Andria Williams"),
+                new StringField("The Longest Night: A Novel"), new IntegerField(400),
+                new TextField("Review of a Book. This is a typical " + "review. This is a test. A book review "
+                        + "test. A test to test queries without " + "actually using actual review. From "
+                        + "here onwards, we can pretend this to " + "be actually a review even if it is not "
+                        + "your typical book review."),
+                new ListField<>(spanList) };
+
+        ITuple expectedTuple1 = new DataTuple(new Schema(schemaAttributes), book1);
+        List<ITuple> expectedResult = new ArrayList<>(1);
+        expectedResult.add(expectedTuple1);
+
+        boolean contains = TestUtils.containsAllResults(expectedResult, resultList);
+
+        Assert.assertEquals(1, resultList.size());
+        Assert.assertTrue(contains);
+    }
+
+    /*
+     * This case tests for the scenario when limit is some integer greater than
+     * 0 and greater than the actual number of results and offset is some integer 
+     * greater than 0 and less than actual number of results and join is 
+     * performed.
+     * Test result: A list of tuples with number of tuples equal to the maximum
+     * number of tuples the operator can generate starting from the set offset.
+     */
+    @Test
+    public void testForLimitWhenLimitIsGreaterThanActualNumberOfResultsAndHasOffset() throws Exception {
+        bookTuple1 = setupTuplesList(1, 5);
+        writeTuples(bookTuple1, bookTuple1);
+
+        String query = "typical";
+        keywordMatcherOuter = (KeywordMatcher) setupOperators(query, "index", "outer");
+        query = "actually";
+        keywordMatcherInner = (KeywordMatcher) setupOperators(query, "index", "inner");
+
+        Attribute idAttr = attributeList.get(0);
+        Attribute reviewAttr = attributeList.get(4);
+        List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 90, 10, 2);
+
+        Attribute[] schemaAttributes = new Attribute[attributeList.size() + 1];
+        for (int index = 0; index < schemaAttributes.length - 1; index++) {
+            schemaAttributes[index] = attributeList.get(index);
+        }
+        schemaAttributes[schemaAttributes.length - 1] = SchemaConstants.SPAN_LIST_ATTRIBUTE;
+
+        List<Span> spanList = new ArrayList<>();
+        String reviewField = attributeList.get(4).getFieldName();
+
+        Span span1 = new Span(reviewField, 28, 119, "typical_actually", "typical review. "
+                + "This is a test. A book review test. " + "A test to test queries without actually");
+        spanList.add(span1);
+        Span span2 = new Span(reviewField, 186, 234, "typical_actually",
+                "actually a review " + "even if it is not your typical");
+        spanList.add(span2);
+
+        IField[] book1 = { new IntegerField(52), new StringField("Mary Roach"),
+                new StringField("Grunt: The Curious Science of " + "Humans at War"), new IntegerField(288),
+                new TextField("Review of a Book. This is a typical " + "review. This is a test. A book review "
+                        + "test. A test to test queries without " + "actually using actual review. From "
+                        + "here onwards, we can pretend this to " + "be actually a review even if it is not "
+                        + "your typical book review."),
+                new ListField<>(spanList) };
+
+        IField[] book2 = { new IntegerField(53), new StringField("Noah Hawley"), new StringField("Before the Fall"),
+                new IntegerField(400),
+                new TextField("Review of a Book. This is a typical " + "review. This is a test. A book review "
+                        + "test. A test to test queries without " + "actually using actual review. From "
+                        + "here onwards, we can pretend this to " + "be actually a review even if it is not "
+                        + "your typical book review."),
+                new ListField<>(spanList) };
+
+        IField[] book3 = { new IntegerField(54), new StringField("Andria Williams"),
+                new StringField("The Longest Night: A Novel"), new IntegerField(400),
+                new TextField("Review of a Book. This is a typical " + "review. This is a test. A book review "
+                        + "test. A test to test queries without " + "actually using actual review. From "
+                        + "here onwards, we can pretend this to " + "be actually a review even if it is not "
+                        + "your typical book review."),
+                new ListField<>(spanList) };
+
+        ITuple expectedTuple1 = new DataTuple(new Schema(schemaAttributes), book1);
+        ITuple expectedTuple2 = new DataTuple(new Schema(schemaAttributes), book2);
+        ITuple expectedTuple3 = new DataTuple(new Schema(schemaAttributes), book3);
+        List<ITuple> expectedResult = new ArrayList<>(3);
+        expectedResult.add(expectedTuple1);
+        expectedResult.add(expectedTuple2);
+        expectedResult.add(expectedTuple3);
+
+        boolean contains = TestUtils.containsAllResults(expectedResult, resultList);
+
+        Assert.assertEquals(3, resultList.size());
+        Assert.assertTrue(contains);
+    }
+
+    /*
+     * This case tests for the scenario when offset is some integer greater 
+     * than 0 and greater than the actual number of results and join is 
+     * performed.
+     * Test result: An empty list.
+     */
+    @Test
+    public void testOffsetGreaterThanNumberOfResults() throws Exception{
+    	bookTuple1 = setupTuplesList(1, 5);
+        writeTuples(bookTuple1, bookTuple1);
+
+        String query = "typical";
+        keywordMatcherOuter = (KeywordMatcher) setupOperators(query, "index", "outer");
+        query = "actually";
+        keywordMatcherInner = (KeywordMatcher) setupOperators(query, "index", "inner");
+
+        Attribute idAttr = attributeList.get(0);
+        Attribute reviewAttr = attributeList.get(4);
+        List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 90, 1, 10);
+        Assert.assertEquals(0, resultList.size());
+    }
+
+    // ------------------------<Test cases for cursor.>------------------------
+    /*
+     * This case tests for the scenario when open and/or close is called twice 
+     * and also when getNextTuple() is called when operator is closed.
+     * Test result: Opening or closing the operator twice shouldn't result in 
+     * any noticeable difference in operation. But, calling getNetTuple() when 
+     * operator is closed should throw an exception.
+     */
+    @Test(expected = DataFlowException.class)
+    public void testWhenOpenOrCloseIsCalledTwiceAndTryToGetNextTupleWhenClosed() throws Exception {
+    	bookTuple1 = setupTuplesList(1, 5);
+        writeTuples(bookTuple1, bookTuple1);
+
+        String query = "typical";
+        keywordMatcherOuter = (KeywordMatcher) setupOperators(query, "index", "outer");
+        query = "actually";
+        keywordMatcherInner = (KeywordMatcher) setupOperators(query, "index", "inner");
+
+        Attribute idAttr = attributeList.get(0);
+        Attribute reviewAttr = attributeList.get(4);
+
+        IJoinPredicate joinDistancePredicate = new JoinDistancePredicate(idAttr, reviewAttr, 90);
+        join = new Join(keywordMatcherOuter, keywordMatcherInner, joinDistancePredicate);
+        join.setLimit(2);
+        join.setOffset(2);
+        join.open();
+        join.open();
+
+        List<ITuple> results = new ArrayList<>();
+        ITuple nextTuple = null;
+
+        if ((nextTuple = join.getNextTuple()) != null) {
+            results.add(nextTuple);
+        }
+
+        join.close();
+        join.close();
+
+        Assert.assertEquals(1, results.size());
+        
+        if ((nextTuple = join.getNextTuple()) != null) {
+            results.add(nextTuple);
+        }
     }
 }

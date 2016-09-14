@@ -15,12 +15,13 @@ public class AbstractSinkTest {
     @Before
     public void setUp() {
         childOperator = Mockito.mock(IOperator.class);
-        sink = new AbstractSink(childOperator) {
+        sink = new AbstractSink() {
             @Override
             protected void processOneTuple(ITuple nextTuple) {
 
             }
         };
+        sink.setInputOperator(childOperator);
     }
 
     @Test
