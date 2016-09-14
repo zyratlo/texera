@@ -341,6 +341,7 @@ public class Utils {
                 payload.add(new Span(fieldName, charStart, charEnd, analyzedTermStr, originalTermStr, tokenPosition));
                 tokenCounter++;
             }
+            tokenStream.close();
         } catch (IOException e) {
             payload.clear(); // return empty payload
         }
