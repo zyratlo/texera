@@ -37,26 +37,24 @@ public class RegexMatcherPerformanceTest {
     private static int totalRegexResultCount = 0;
     private static String csvFile  = "regex.csv";
 
-    /**
-     * @param regexQueries:
-     *            a list of regex queries.
-     *  
-     * @return
+    /*
+     * regexQueries is a list of regex queries.
      * 
-     *         This function will match the queries against all indices in
-     *         ./index/trigram/
+     * This function will match the queries against all indices in
+     * ./index/trigram/
      * 
-     *         Test results includes the average runtime of all queries, the average number of results.
-     *         These results are written to ./data-file/results/regex.csv.  
-     *       
-     * CSV file example:        
+     * Test results includes the average runtime of all queries, the average
+     * number of results. These results are written to
+     * ./data-file/results/regex.csv.
+     * 
+     * CSV file example: 
      * Date,                dataset,      Average Time, Average Results, Commit Number
      * 09-09-2016 00:54:29, abstract_100, 0.2798,       69.80
      * 
-     * Commit number is designed for performance dashboard.
-	 * It will be appended to the result file only when the performance test is run by 
-	 * /textdb-scripts/dashboard/build.py
-	 * 
+     * Commit number is designed for performance dashboard. It will be appended
+     * to the result file only when the performance test is run by
+     * /textdb-scripts/dashboard/build.py
+     * 
      */
     public static void runTest(List<String> regexQueries)
             throws StorageException, DataFlowException, IOException {
@@ -91,11 +89,7 @@ public class RegexMatcherPerformanceTest {
    
     }
 
-    /**
-     * @param regex
-     * @param dataStore
-     * @return
-     * 
+    /*
      *         This function does match for a list of regex queries
      */
     public static void matchRegex(List<String> regexes, DataStore dataStore) throws DataFlowException, IOException {
