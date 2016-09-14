@@ -50,5 +50,4 @@ public class FileSinkBuilderTest {
         FileSinkBuilder.buildSink(operatorProperties);
     }
 
-
 }
