@@ -1,7 +1,6 @@
 package edu.uci.ics.textdb.dataflow.sink;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 
 import edu.uci.ics.textdb.api.common.ITuple;
@@ -22,7 +21,7 @@ public class FileSink extends AbstractSink {
     private final File file;   
     private TupleToString toStringFunction = (tuple -> tuple.toString());
     
-    public FileSink(File file) throws FileNotFoundException {
+    public FileSink(File file) {
         this.file = file;
     }
     
@@ -47,5 +46,9 @@ public class FileSink extends AbstractSink {
     @Override
     protected void processOneTuple(ITuple nextTuple) {
         printWriter.write(toStringFunction.convertToString(nextTuple));
+    }
+    
+    public File getFile() {
+        return this.file;
     }
 }
