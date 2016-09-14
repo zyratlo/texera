@@ -2,10 +2,18 @@ from subprocess import call
 from subprocess import check_output
 import os
 
-# @author Hailey Pan
+# author Hailey Pan
+
+# This Python script is for running TextDB performance test automatically.
+# It will: 
+# pull the latest changes from github
+# if there's a change in master branch, run the performance test
+# append the commit number to performance test results
 
 if __name__ == "__main__":
 
+    # the home directory of textdb. 
+    # Please modify this path if running this script on a different machine.
     home = "/home/bot/textdbworkspace/"
     textdb_home = "textdb/textdb/"
     result_path = "textdb-perftest/data-files/results/"    
