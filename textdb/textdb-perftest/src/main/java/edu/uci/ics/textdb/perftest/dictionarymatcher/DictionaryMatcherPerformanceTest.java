@@ -44,7 +44,7 @@ public class DictionaryMatcherPerformanceTest {
 	private static String currentTime = "";
 	
 	// result files
-	private static String conjunctiveCsv = "dictionary-conjunctive.csv";
+	private static String conjunctionCsv = "dictionary-conjunction.csv";
 	private static String scanCsv = "dictionary-scan.csv";
 	private static String phraseCsv = "dictionary-phrase.csv";
 
@@ -60,7 +60,7 @@ public class DictionaryMatcherPerformanceTest {
 	 *         ./index/standard/
 	 * 
 	 *      Test results for each operator are recorded in corresponding 
-			csv files: ./data-files/results/dictionary-conjunctive.csv
+			csv files: ./data-files/results/dictionary-conjunction.csv
 					   ./data-files/results/dictionary-phrase.csv
 					   ./data-files/results/dictionary-scan.csv.
 	 * 
@@ -81,7 +81,7 @@ public class DictionaryMatcherPerformanceTest {
 			DataStore dataStore = new DataStore(PerfTestUtils.getIndexPath(file.getName()),
 					MedlineIndexWriter.SCHEMA_MEDLINE);
 
-			csvWriter(conjunctiveCsv, file.getName(), queryFileName, dictionary, DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED, dataStore);
+			csvWriter(conjunctionCsv, file.getName(), queryFileName, dictionary, DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED, dataStore);
 			csvWriter(phraseCsv, file.getName(), queryFileName, dictionary, DataConstants.KeywordMatchingType.PHRASE_INDEXBASED, dataStore);
 			csvWriter(scanCsv, file.getName(), queryFileName, dictionary, DataConstants.KeywordMatchingType.SUBSTRING_SCANBASED, dataStore); 
 		}
