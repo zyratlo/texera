@@ -1,11 +1,8 @@
 package edu.uci.ics.textdb.perftest.runme;
-/**
- * @author Hailey Pan
- */
+
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-
 import edu.uci.ics.textdb.common.exception.DataFlowException;
 import edu.uci.ics.textdb.common.exception.StorageException;
 import edu.uci.ics.textdb.perftest.dictionarymatcher.DictionaryMatcherPerformanceTest;
@@ -15,17 +12,19 @@ import edu.uci.ics.textdb.perftest.nlpextractor.NlpExtractorPerformanceTest;
 import edu.uci.ics.textdb.perftest.regexmatcher.RegexMatcherPerformanceTest;
 import edu.uci.ics.textdb.perftest.utils.PerfTestUtils;
 
+/**
+ * @author Hailey Pan
+ */
+
 public class RunTests {
-    /**
-     * Write Indices
-     * Run all performance tests. 
+    /*
+     * Write Indices Run all performance tests.
      * 
-     * Passed in below arguments: 
-     * file folder path (where data set stored)
-     * result folder path (where performance test results stored) 
-     * standard index folder path (where standard index stored)
-     * trigram index folder path (where trigram index stored) 
-     * queries folder path (where query files stored)
+     * Passed in below arguments: file folder path (where data set stored)
+     * result folder path (where performance test results stored) standard index
+     * folder path (where standard index stored) trigram index folder path
+     * (where trigram index stored) queries folder path (where query files
+     * stored)
      * 
      * If above arguments are not passed in, default paths will be used (refer
      * to PerfTestUtils.java) If some of the arguments are not applicable,
