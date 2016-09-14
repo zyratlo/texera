@@ -16,10 +16,6 @@ public abstract class AbstractSink implements ISink {
 
     private IOperator inputOperator;
 
-    public AbstractSink(IOperator inputOperator) {
-        this.inputOperator = inputOperator;
-    }
-
     /**
      * @about Opens the child operator.
      */
@@ -38,13 +34,11 @@ public abstract class AbstractSink implements ISink {
 
     @Override
     public void processTuples() throws Exception {
-
         ITuple nextTuple;
 
         while ((nextTuple = inputOperator.getNextTuple()) != null) {
             processOneTuple(nextTuple);
         }
-
     }
 
     /**
