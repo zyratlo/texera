@@ -16,7 +16,7 @@ java8_bin = "/usr/bin/java"
 
 textdb_home = "textdb/textdb/"
 result_path = "textdb-perftest/data-files/results/"    
-branch = "master"
+branch = "hailey-perftest-modification"
 
 textdb_path = textdb_workspace + textdb_home
 textdb_perftest_path = textdb_path + "textdb-perftest/"
