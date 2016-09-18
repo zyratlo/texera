@@ -66,12 +66,12 @@ if __name__ == "__main__":
     os.chdir(textdb_path)
     call(["git", "checkout", branch])
     git_update_string = check_output(["git", "pull"]).splitlines()[-1].decode("UTF-8")
-    if git_update_string != "Already up-to-date.":
+    if True or git_update_string != "Already up-to-date.":
         call(["mvn", "clean"])
         call(["mvn", "test"])
 
         os.chdir(textdb_perftest_path)
-        call(build_run_command(perftest_arguments))
+        call(build_run_command(perftest_arguments), shell = True)
 
         git_log_str = check_output(["git", "log"]).split()[1].decode("UTF-8")[:7]
         for file in os.listdir(result_folder):
