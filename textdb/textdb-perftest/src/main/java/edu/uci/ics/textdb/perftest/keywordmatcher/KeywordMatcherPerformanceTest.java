@@ -51,7 +51,7 @@ public class KeywordMatcherPerformanceTest {
 
     /*
      * queryFileName contains line(s) of queries; the file must be placed in
-     * ./data-files/queries/
+     * ./perftest-files/queries/
      * 
      * This function will match the queries against all indices in
      * ./index/standard/
@@ -59,8 +59,8 @@ public class KeywordMatcherPerformanceTest {
      * Test results for each operator include minimum runtime, maximum runtime,
      * average runtime, the standard deviation and the average number of results
      * are recorded in corresponding csv files:
-     * ./data-files/results/keyword-conjunction
-     * ./data-files/results/keyword-phrase ./data-files/results/keyword-scan
+     * ./perftest-files/results/keyword-conjunction.csv
+     * ./perftest-files/results/keyword-phrase.csv ./data-files/results/keyword-scan.csv
      * 
      * 
      */

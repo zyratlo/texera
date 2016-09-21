@@ -30,11 +30,11 @@ public class PerfTestUtils {
      * These default paths work only when the program is run from the directory,
      * textdb-perftest
      */
-    public static String fileFolder = "./data-files/";
+    public static String fileFolder = "./sample-data-files/";
     public static String standardIndexFolder = "./index/standard/";
     public static String trigramIndexFolder = "./index/trigram/";
-    public static String resultFolder = "./data-files/results/";
-    public static String queryFolder = "./data-files/queries/";
+    public static String resultFolder = "./perftest-files/results/";
+    public static String queryFolder = "./perftest-files/queries/";
 
     /**
      * 

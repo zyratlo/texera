@@ -2,10 +2,10 @@ from subprocess import call
 from subprocess import check_output
 import os
 
-# author Hailey Pan
+# author Hailey Pan and Zuozhi Wang
 
 # This Python script is for running TextDB performance test automatically.
-# It will: 
+# It will:
 # pull the latest changes from github
 # if there's a change in master branch, run the performance test
 # append the commit number to performance test results
@@ -15,7 +15,7 @@ maven_repo_home = "/home/bot/.m2/repository/"
 java8_bin = "/usr/bin/java"
 
 textdb_home = "textdb/textdb/"
-result_path = "textdb-perftest/data-files/results/"    
+result_path = "textdb-perftest/data-files/results/"
 branch = "hailey-perftest-modification"
 
 textdb_path = textdb_workspace + textdb_home

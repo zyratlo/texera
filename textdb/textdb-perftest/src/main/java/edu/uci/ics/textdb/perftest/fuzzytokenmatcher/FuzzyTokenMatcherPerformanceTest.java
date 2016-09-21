@@ -46,7 +46,7 @@ public class FuzzyTokenMatcherPerformanceTest {
 
     /*
      * queryFileName contains line(s) of queries; the file must be placed in
-     * ./data-files/queries/
+     * ./perftest-files/queries/
      * 
      * thresholds is a list of thresholds
      * 
@@ -55,7 +55,7 @@ public class FuzzyTokenMatcherPerformanceTest {
      * 
      * Test results includes minimum runtime, maximum runtime, average runtime,
      * the standard deviation and the average results each threshold. They are
-     * written in a csv file ./data-files/results/fuzzytoken.csv
+     * written in a csv file ./perftest-files/results/fuzzytoken.csv
      * 
      * CSV file example:
      * 

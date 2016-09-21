@@ -45,7 +45,7 @@ public class RegexMatcherPerformanceTest {
      * 
      * Test results includes the average runtime of all queries, the average
      * number of results. These results are written to
-     * ./data-file/results/regex.csv.
+     * ./perftest-files/results/regex.csv.
      * 
      * CSV file example: 
      * Date,                dataset,      Average Time, Average Results, Commit Number

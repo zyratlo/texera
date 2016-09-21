@@ -50,15 +50,15 @@ public class DictionaryMatcherPerformanceTest {
     /*
      * queryFileName contains line(s) of phrases/words which are used to form a
      * dictionary for matching; the file must be placed in
-     * ./data-files/queries/.
+     * ./perftest-files/queries/.
      * 
      * This function will match the dictionary against all indices in
      * ./index/standard/
      * 
      * Test results for each operator are recorded in corresponding csv files:
-     *   ./data-files/results/dictionary-conjunction.csv
-     *   ./data-files/results/dictionary-phrase.csv
-     *   ./data-files/results/dictionary-scan.csv.
+     *   ./perftest-files/results/dictionary-conjunction.csv
+     *   ./perftest-files/results/dictionary-phrase.csv
+     *   ./perftest-files/results/dictionary-scan.csv.
      * 
      */
     public static void runTest(String queryFileName) throws Exception {

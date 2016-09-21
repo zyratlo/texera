@@ -53,7 +53,7 @@ public class NlpExtractorPerformanceTest {
      * 
      * Test results includes the average runtime of all nlp token types, the
      * average number of results. These results are recorded in
-     * ./data-files/results/nlp.csv
+     * ./perftest-files/results/nlp.csv
      * 
      * CSV file example:
      * Date,                Record #,     Avg Time, Avg Result #, Commit #
