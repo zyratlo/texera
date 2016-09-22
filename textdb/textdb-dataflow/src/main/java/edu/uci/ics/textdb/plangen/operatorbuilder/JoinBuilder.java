@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 
 import edu.uci.ics.textdb.api.common.Attribute;
-import edu.uci.ics.textdb.api.dataflow.IOperator;
 import edu.uci.ics.textdb.common.exception.PlanGenException;
 import edu.uci.ics.textdb.dataflow.common.IJoinPredicate;
 import edu.uci.ics.textdb.dataflow.common.JoinDistancePredicate;
@@ -32,10 +31,11 @@ public class JoinBuilder {
     public static final String JOIN_ID_ATTRIBUTE_NAME = "idAttributeName";
     public static final String JOIN_ID_ATTRIBUTE_TYPE = "idAttributeType";
     
-    public static final String JOIN_CHARACTER_DISTANCE = "characterDistance";
+    public static final String JOIN_CHARACTER_DISTANCE = "CharacterDistance";
+    public static final String JOIN_DISTANCE = "distance";
     
-        
-    public static IOperator buildOperator(Map<String, String> operatorProperties) throws PlanGenException {        
+    
+    public static Join buildOperator(Map<String, String> operatorProperties) throws PlanGenException {        
         String joinPredicateType = OperatorBuilderUtils.getRequiredProperty(JOIN_PREDICATE, operatorProperties);
         PlanGenUtils.planGenAssert(! joinPredicateType.trim().isEmpty(), "Join predicate type is empty");
         
@@ -53,18 +53,18 @@ public class JoinBuilder {
     
     private static HashMap<String, GetJoinPredicate> joinPredicateHandlerMap = new HashMap<>();
     static {
-        joinPredicateHandlerMap.put("CharacterDistance".toLowerCase(), JoinBuilder::getJoinCharDistancePredicate);
+        joinPredicateHandlerMap.put(JOIN_CHARACTER_DISTANCE.toLowerCase(), JoinBuilder::getJoinCharDistancePredicate);
     }
     
     private static IJoinPredicate generateJoinPredicate(String joinPredicateType, Map<String, String> operatorProperties) throws PlanGenException {
         PlanGenUtils.planGenAssert(joinPredicateHandlerMap.containsKey(joinPredicateType.toLowerCase()), 
                 "Join predicate type is invalid, it must be one of " + joinPredicateHandlerMap.keySet());
-        return joinPredicateHandlerMap.get(joinPredicateType).getJoinPredicate(operatorProperties);
+        return joinPredicateHandlerMap.get(joinPredicateType.toLowerCase()).getJoinPredicate(operatorProperties);
     }
     
     private static JoinDistancePredicate getJoinCharDistancePredicate(
             Map<String, String> operatorProperties) throws PlanGenException{
-        String distanceStr = OperatorBuilderUtils.getRequiredProperty(JOIN_ID_ATTRIBUTE_TYPE, operatorProperties);
+        String distanceStr = OperatorBuilderUtils.getRequiredProperty(JOIN_DISTANCE, operatorProperties);
         String joinIDAttributeName = OperatorBuilderUtils.getRequiredProperty(JOIN_ID_ATTRIBUTE_NAME, operatorProperties);
         String joinIDAttributeType = OperatorBuilderUtils.getRequiredProperty(JOIN_ID_ATTRIBUTE_TYPE, operatorProperties);
         
