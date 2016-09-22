@@ -1,5 +1,7 @@
 package edu.uci.ics.textdb.perftest.runme;
 
+import java.io.File;
+
 import edu.uci.ics.textdb.perftest.utils.PerfTestUtils;
 
 /*
@@ -26,6 +28,9 @@ public class WriteIndex {
         }
 
         try {
+            PerfTestUtils.deleteDirectory(new File(PerfTestUtils.standardIndexFolder));
+            PerfTestUtils.deleteDirectory(new File(PerfTestUtils.trigramIndexFolder));
+            
             PerfTestUtils.writeStandardAnalyzerIndices();
             PerfTestUtils.writeTrigramIndices();
         } catch (Exception e) {

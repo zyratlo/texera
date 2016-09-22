@@ -125,6 +125,22 @@ public class PerfTestUtils {
 
         return Double.parseDouble(String.format("%.4f", Math.sqrt(numerator / testResults.size())));
     }
+    
+    /**
+     * Delete all files recursively in a directory
+     * 
+     * @param indexDirectory
+     * @throws Exception
+     */
+    public static void deleteDirectory(File indexDirectory) throws Exception {
+        if (indexDirectory.isDirectory()) {
+            for (File file : indexDirectory.listFiles()) {
+                deleteDirectory(file);
+            }
+        } else {
+            indexDirectory.delete();
+        }
+    }
 
     /**
      * Writes all files in ./data-files/ into indices
@@ -142,7 +158,6 @@ public class PerfTestUtils {
             }
             writeIndex(file.getName(), new StandardAnalyzer(), "standard");
         }
-
     }
 
     /**
