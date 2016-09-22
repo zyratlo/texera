@@ -51,6 +51,16 @@ public class JoinBuilder {
         IJoinPredicate getJoinPredicate(Map<String, String> operatorProperties) throws PlanGenException;
     }
     
+    private static HashMap<String, GetJoinPredicate> joinPredicateHandlerMap = new HashMap<>();
+    static {
+        joinPredicateHandlerMap.put("CharacterDistance".toLowerCase(), JoinBuilder::getJoinCharDistancePredicate);
+    }
+    
+    private static IJoinPredicate generateJoinPredicate(String joinPredicateType, Map<String, String> operatorProperties) throws PlanGenException {
+        PlanGenUtils.planGenAssert(joinPredicateHandlerMap.containsKey(joinPredicateType.toLowerCase()), 
+                "Join predicate type is invalid, it must be one of " + joinPredicateHandlerMap.keySet());
+        return joinPredicateHandlerMap.get(joinPredicateType).getJoinPredicate(operatorProperties);
+    }
     
     private static JoinDistancePredicate getJoinCharDistancePredicate(
             Map<String, String> operatorProperties) throws PlanGenException{
@@ -81,17 +91,6 @@ public class JoinBuilder {
         }
         
         return new JoinDistancePredicate(joinIDAttribute, joinAttribute, distance);
-    }
-    
-    private static HashMap<String, GetJoinPredicate> joinPredicateHandlerMap = new HashMap<>();
-    static {
-        joinPredicateHandlerMap.put("CharacterDistance".toLowerCase(), JoinBuilder::getJoinCharDistancePredicate);
-    }
-    
-    private static IJoinPredicate generateJoinPredicate(String joinPredicateType, Map<String, String> operatorProperties) throws PlanGenException {
-        PlanGenUtils.planGenAssert(joinPredicateHandlerMap.containsKey(joinPredicateType.toLowerCase()), 
-                "Join predicate type is invalid, it must be one of " + joinPredicateHandlerMap.keySet());
-        return joinPredicateHandlerMap.get(joinPredicateType).getJoinPredicate(operatorProperties);
     }
 
 }
