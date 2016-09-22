@@ -15,15 +15,15 @@ maven_repo_home = "/home/bot/.m2/repository/"
 java8_bin = "/usr/bin/java"
 
 textdb_home = "textdb/textdb/"
-result_path = "textdb-perftest/data-files/results/"
-branch = "hailey-perftest-modification"
+result_path = "textdb-perftest/perftest-files/results/"
+branch = "master"
 main_class = "edu.uci.ics.textdb.perftest.runme.RunTests"
 
 textdb_path = textdb_workspace + textdb_home
 textdb_perftest_path = textdb_path + "textdb-perftest/"
 result_folder = textdb_workspace + textdb_home + result_path
 
-perftest_arguments = ["./sample-data-files/","","","",""]
+perftest_arguments = ["./home/bot/textdbworkspace/data-files/","\"\"","\"\"","\"\"","\"\""]
 
 
 def build_run_command():
@@ -68,8 +68,7 @@ if __name__ == "__main__":
     call(["git", "checkout", branch])
     git_update_string = check_output(["git", "pull"]).splitlines()[-1].decode("UTF-8")
     if git_update_string != "Already up-to-date.":
-        call(["mvn", "clean"])
-        call(["mvn", "test"])
+        call(["mvn", "clean", "install"])
 
         os.chdir(textdb_perftest_path)
         call(build_run_command(), shell = True)
