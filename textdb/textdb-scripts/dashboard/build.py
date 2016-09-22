@@ -23,10 +23,10 @@ textdb_path = textdb_workspace + textdb_home
 textdb_perftest_path = textdb_path + "textdb-perftest/"
 result_folder = textdb_workspace + textdb_home + result_path
 
-perftest_arguments = ["./textdb-perftest/sample-data-files/","./textdb-perftest/perftest-files/results/","./textdb-perftest/index/standard/", "./textdb-perftest/index/trigram/", "./perftest-files/data-files/queries/"]
+perftest_arguments = ["./sample-data-files/","","","",""]
 
 
-def build_run_command(arguments):
+def build_run_command():
     command = "" + \
         java8_bin + " " + \
         "-Dfile.encoding=UTF-8 -classpath" + " " + \
@@ -57,7 +57,7 @@ def build_run_command(arguments):
         maven_repo_home + "edu/stanford/nlp/stanford-corenlp/3.6.0/stanford-corenlp-3.6.0-models.jar" + ":" + \
         maven_repo_home + "org/mockito/mockito-all/1.9.5/mockito-all-1.9.5.jar" + " " + \
         main_class + " " +\
-        " ".join(arguments)
+        " ".join(perftest_arguments)
     return command
 
 
@@ -72,7 +72,7 @@ if __name__ == "__main__":
         call(["mvn", "test"])
 
         os.chdir(textdb_perftest_path)
-        call(build_run_command(perftest_arguments), shell = True)
+        call(build_run_command(), shell = True)
 
         git_log_str = check_output(["git", "log"]).split()[1].decode("UTF-8")[:7]
         for file in os.listdir(result_folder):

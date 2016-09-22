@@ -36,11 +36,13 @@ public class RunPerftests {
      *
      */
     public static void main(String[] args) {
-        if (args.length != 0) {
+        try {
             PerfTestUtils.setResultFolder(args[0]);
             PerfTestUtils.setStandardIndexFolder(args[1]);
             PerfTestUtils.setTrigramIndexFolder(args[2]);
             PerfTestUtils.setQueryFolder(args[3]);
+        } catch (ArrayIndexOutOfBoundsException e){
+            e.printStackTrace();
         }
 
         try {

@@ -35,12 +35,15 @@ public class RunTests {
      *
      */
     public static void main(String[] args) {
-        if (args.length != 0) {
+        
+        try {
             PerfTestUtils.setFileFolder(args[0]);
             PerfTestUtils.setResultFolder(args[1]);
             PerfTestUtils.setStandardIndexFolder(args[2]);
             PerfTestUtils.setTrigramIndexFolder(args[3]);
             PerfTestUtils.setQueryFolder(args[4]);
+        }catch(ArrayIndexOutOfBoundsException e){
+            e.printStackTrace();
         }
 
         try {
