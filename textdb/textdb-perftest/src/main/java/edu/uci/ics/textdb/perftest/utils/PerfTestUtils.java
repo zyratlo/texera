@@ -132,12 +132,13 @@ public class PerfTestUtils {
      * @param indexDirectory
      * @throws Exception
      */
-    public static void deleteDirectory(File indexDirectory) throws Exception {
+    public static void deleteDirectory(File indexDirectory, boolean isTopDirectory) throws Exception {
         if (indexDirectory.isDirectory()) {
             for (File file : indexDirectory.listFiles()) {
-                deleteDirectory(file);
-            }
-        } else {
+                deleteDirectory(file, false);
+            }            
+        }
+        if (! isTopDirectory) {
             indexDirectory.delete();
         }
     }
