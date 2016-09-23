@@ -1,5 +1,6 @@
 package edu.uci.ics.textdb.perftest.runme;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -48,6 +49,8 @@ public class RunTests {
         }
 
         try {
+            PerfTestUtils.deleteDirectory(new File(PerfTestUtils.standardIndexFolder));
+            PerfTestUtils.deleteDirectory(new File(PerfTestUtils.trigramIndexFolder));
 
             PerfTestUtils.writeStandardAnalyzerIndices();
             PerfTestUtils.writeTrigramIndices();
