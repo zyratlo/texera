@@ -135,7 +135,7 @@ public class PerfTestUtils {
     public static void deleteDirectory(File indexDirectory, boolean isTopDirectory) throws Exception {
         if (isTopDirectory) {
             for (File file : indexDirectory.listFiles()) {
-                if (file.getName().startsWith(".")) {
+                if (file.getName().equals(".gitignore")) {
                     continue;
                 }
                 if (file.isDirectory()) {
