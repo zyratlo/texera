@@ -133,13 +133,17 @@ public class PerfTestUtils {
      * @throws Exception
      */
     public static void deleteDirectory(File indexDirectory, boolean isTopDirectory) throws Exception {
-        if (indexDirectory.isDirectory()) {
+        if (isTopDirectory) {
             for (File file : indexDirectory.listFiles()) {
-                deleteDirectory(file, false);
-            }            
-        }
-        if (! isTopDirectory) {
-            indexDirectory.delete();
+                if (file.getName().startsWith(".")) {
+                    continue;
+                }
+                if (file.isDirectory()) {
+                    deleteDirectory(indexDirectory, false);
+                } else {
+                    file.delete();
+                }
+            }
         }
     }
 
