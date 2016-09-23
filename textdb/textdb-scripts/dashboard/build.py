@@ -23,7 +23,7 @@ textdb_path = textdb_workspace + textdb_home
 textdb_perftest_path = textdb_path + "textdb-perftest/"
 result_folder = textdb_workspace + textdb_home + result_path
 
-perftest_arguments = ["./home/bot/textdbworkspace/data-files/","\"\"","\"\"","\"\"","\"\""]
+perftest_arguments = ["/home/bot/textdbworkspace/data-files/", "\"\"","\"\"","\"\"","\"\""]
 
 
 def build_run_command():
