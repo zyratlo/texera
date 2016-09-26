@@ -28,8 +28,8 @@ public class WriteIndex {
         }
 
         try {
-            PerfTestUtils.deleteDirectory(new File(PerfTestUtils.standardIndexFolder), true);
-            PerfTestUtils.deleteDirectory(new File(PerfTestUtils.trigramIndexFolder), true);
+            PerfTestUtils.deleteDirectory(new File(PerfTestUtils.standardIndexFolder));
+            PerfTestUtils.deleteDirectory(new File(PerfTestUtils.trigramIndexFolder));
             
             PerfTestUtils.writeStandardAnalyzerIndices();
             PerfTestUtils.writeTrigramIndices();

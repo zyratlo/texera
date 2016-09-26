@@ -132,19 +132,22 @@ public class PerfTestUtils {
      * @param indexDirectory
      * @throws Exception
      */
-    public static void deleteDirectory(File indexDirectory, boolean isTopDirectory) throws Exception {
-        if (isTopDirectory) {
-            for (File file : indexDirectory.listFiles()) {
-                if (file.getName().equals(".gitignore")) {
-                    continue;
-                }
-                if (file.isDirectory()) {
-                    deleteDirectory(indexDirectory, false);
-                } else {
-                    file.delete();
-                }
+    public static void deleteDirectory(File indexDirectory) throws Exception {
+        boolean deleteTopDir= false; 
+        for (File file : indexDirectory.listFiles()) {
+            if (file.getName().equals(".gitignore")) {
+                continue;
+            }
+            if (file.isDirectory()) {
+                deleteDirectory(file);
+            } else {
+                deleteTopDir = file.delete();
             }
         }
+        if(deleteTopDir){
+            indexDirectory.delete();
+        }
+        
     }
 
     /**

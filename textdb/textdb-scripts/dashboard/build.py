@@ -10,6 +10,7 @@ import os
 # if there's a change in master branch, run the performance test
 # append the commit number to performance test results
 
+
 textdb_workspace = "/home/bot/textdbworkspace/"
 maven_repo_home = "/home/bot/.m2/repository/"
 java8_bin = "/usr/bin/java"
@@ -18,12 +19,14 @@ textdb_home = "textdb/textdb/"
 result_path = "textdb-perftest/perftest-files/results/"
 branch = "master"
 main_class = "edu.uci.ics.textdb.perftest.runme.RunTests"
+# Refer to the codebase to understand what arguments the main class takes in.
+perftest_arguments = ["/home/bot/textdbworkspace/data-files/", "\"\"","\"\"","\"\"","\"\""]
+
 
 textdb_path = textdb_workspace + textdb_home
 textdb_perftest_path = textdb_path + "textdb-perftest/"
 result_folder = textdb_workspace + textdb_home + result_path
 
-perftest_arguments = ["/home/bot/textdbworkspace/data-files/", "\"\"","\"\"","\"\"","\"\""]
 
 
 def build_run_command():

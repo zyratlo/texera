@@ -49,21 +49,21 @@ public class RunTests {
         }
 
         try {
-            PerfTestUtils.deleteDirectory(new File(PerfTestUtils.standardIndexFolder), true);
-            PerfTestUtils.deleteDirectory(new File(PerfTestUtils.trigramIndexFolder), true);
+            PerfTestUtils.deleteDirectory(new File(PerfTestUtils.standardIndexFolder));
+            PerfTestUtils.deleteDirectory(new File(PerfTestUtils.trigramIndexFolder));
 
             PerfTestUtils.writeStandardAnalyzerIndices();
             PerfTestUtils.writeTrigramIndices();
 
-            List<Double> thresholds = Arrays.asList(0.8, 0.65, 0.5, 0.35);
-            List<String> regexQueries = Arrays.asList("mosquitos?", "v[ir]{2}[us]{2}", "market(ing)?",
-                    "medic(ine|al|ation|are|aid)?", "[A-Z][aeiou|AEIOU][A-Za-z]*");
-
-            KeywordMatcherPerformanceTest.runTest("sample_queries.txt");
-            DictionaryMatcherPerformanceTest.runTest("sample_queries.txt");
-            FuzzyTokenMatcherPerformanceTest.runTest("sample_queries.txt", thresholds);
-            RegexMatcherPerformanceTest.runTest(regexQueries);
-            NlpExtractorPerformanceTest.runTest();
+//            List<Double> thresholds = Arrays.asList(0.8, 0.65, 0.5, 0.35);
+//            List<String> regexQueries = Arrays.asList("mosquitos?", "v[ir]{2}[us]{2}", "market(ing)?",
+//                    "medic(ine|al|ation|are|aid)?", "[A-Z][aeiou|AEIOU][A-Za-z]*");
+//
+//            KeywordMatcherPerformanceTest.runTest("sample_queries.txt");
+//            DictionaryMatcherPerformanceTest.runTest("sample_queries.txt");
+//            FuzzyTokenMatcherPerformanceTest.runTest("sample_queries.txt", thresholds);
+//            RegexMatcherPerformanceTest.runTest(regexQueries);
+//            NlpExtractorPerformanceTest.runTest();
 
         } catch (StorageException | DataFlowException | IOException e) {
             e.printStackTrace();
