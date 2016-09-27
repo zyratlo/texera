@@ -289,4 +289,8 @@ public class Join implements IOperator {
     public int getOffset() {
         return offset;
     }
+    
+    public IJoinPredicate getPredicate() {
+        return this.joinPredicate;
+    }
 }
