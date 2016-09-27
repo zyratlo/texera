@@ -36,86 +36,69 @@ import edu.uci.ics.textdb.storage.reader.DataReader;
  */
 public class NlpExtractorPerformanceTest {
 
-    private static String csvFileFolder = "nlp/";
-    private static String HEADER = "Record #, TokenType, Time, Result #\n";
+    private static String HEADER = "Date,Record #, Avg Time, Avg Result #, Commit #";
+    private static String delimiter = ",";
     private static String newLine = "\n";
-    private static FileWriter fileWriter = null;
-
-    /**
-     * @param iterationNumber:
-     *            the number of times the test expected to be ran
-     * @return
+    private static int numOfNlpType = 5;
+    private static String csvFile = "nlp.csv";
+    private static double totalMatchingTime = 0.0;
+    private static int totalResults = 0;
+    
+    
+    /*
      * 
-     *         This function will match the queries against all indices in
-     *         ./index/standard/
      * 
-     *         Test results includes runtime, the number of results for each nlp
-     *         token type and each test cycle. They are written in a csv file
-     *         that is named by current time and located at
-     *         ./data-files/results/nlp/.
+     * This function will match the queries against all indices in
+     * ./index/standard/
+     * 
+     * Test results includes the average runtime of all nlp token types, the
+     * average number of results. These results are recorded in
+     * ./perftest-files/results/nlp.csv
+     * 
+     * CSV file example:
+     * Date,                Record #,     Avg Time, Avg Result #, Commit #
+     * 09-09-2016 00:54:40, abstract_100, 29.5494,  252.36
+     * 
+     * Commit number is designed for performance dashboard. It will be appended
+     * to the result file only when the performance test is run by
+     * /textdb-scripts/dashboard/build.py
      * 
      */
-    public static void runTest(int iterationNumber) throws Exception {
-
-        // Checks whether "nlp" folder exists in
-        // ./data-files/results/
-        if (!new File(PerfTestUtils.resultFolder, "nlp").exists()) {
-            File resultFile = new File(PerfTestUtils.resultFolder + csvFileFolder);
-            resultFile.mkdir();
-        }
-
-        // Gets the current time for naming the cvs file
+    public static void runTest() throws Exception {
+    	
+    	// Gets the current time  
         String currentTime = PerfTestUtils.formatTime(System.currentTimeMillis());
-        String csvFile = csvFileFolder + currentTime + ".csv";
-        fileWriter = new FileWriter(PerfTestUtils.getResultPath(csvFile));
-
-        // Iterates through the times of test
-        // Writes results to the csv file
+        
         File indexFiles = new File(PerfTestUtils.standardIndexFolder);
-        for (int i = 1; i <= iterationNumber; i++) {
-            fileWriter.append("Cycle" + i);
-            fileWriter.append(newLine);
-            fileWriter.append(HEADER);
-            for (File file : indexFiles.listFiles()) {
-                if (file.getName().startsWith(".")) {
-                    continue;
-                }
-                DataStore dataStore = new DataStore(PerfTestUtils.getIndexPath(file.getName()),
-                        MedlineIndexWriter.SCHEMA_MEDLINE);
-
-                fileWriter.append(file.getName().replace(".txt", "") + ",");
-                fileWriter.append("NE_ALL,");
-                matchNLP(dataStore, NlpPredicate.NlpTokenType.NE_ALL, new StandardAnalyzer());
-
-                fileWriter.append(file.getName().replace(".txt", "") + ",");
-                fileWriter.append("Adjective,");
-                matchNLP(dataStore, NlpPredicate.NlpTokenType.Adjective, new StandardAnalyzer());
-
-                fileWriter.append(file.getName().replace(".txt", "") + ",");
-                fileWriter.append("Adverb,");
-                matchNLP(dataStore, NlpPredicate.NlpTokenType.Adverb, new StandardAnalyzer());
-
-                fileWriter.append(file.getName().replace(".txt", "") + ",");
-                fileWriter.append("Noun,");
-                matchNLP(dataStore, NlpPredicate.NlpTokenType.Noun, new StandardAnalyzer());
-
-                fileWriter.append(file.getName().replace(".txt", "") + ",");
-                fileWriter.append("Verb,");
-                matchNLP(dataStore, NlpPredicate.NlpTokenType.Verb, new StandardAnalyzer());
-
+        
+        for (File file : indexFiles.listFiles()) {
+            if (file.getName().startsWith(".")) {
+                continue;
             }
+            DataStore dataStore = new DataStore(PerfTestUtils.getIndexPath(file.getName()),
+                    MedlineIndexWriter.SCHEMA_MEDLINE);
+            PerfTestUtils.createFile(PerfTestUtils.getResultPath(csvFile), HEADER);
+            FileWriter fileWriter = new FileWriter(PerfTestUtils.getResultPath(csvFile), true);
+            fileWriter.append(newLine);
+            fileWriter.append(currentTime + delimiter);
+            fileWriter.append(file.getName() + delimiter);
+            matchNLP(dataStore, NlpPredicate.NlpTokenType.NE_ALL, new StandardAnalyzer());
+            matchNLP(dataStore, NlpPredicate.NlpTokenType.Adjective, new StandardAnalyzer());
+            matchNLP(dataStore, NlpPredicate.NlpTokenType.Adverb, new StandardAnalyzer());
+            matchNLP(dataStore, NlpPredicate.NlpTokenType.Noun, new StandardAnalyzer());
+            matchNLP(dataStore, NlpPredicate.NlpTokenType.Verb, new StandardAnalyzer());
+            fileWriter.append(String.format("%.4f", totalMatchingTime / numOfNlpType));
+            fileWriter.append(delimiter);
+            fileWriter.append(String.format("%.2f", totalResults * 0.1 / numOfNlpType ));
+            fileWriter.flush();
+            fileWriter.close();
         }
-        fileWriter.flush();
-        fileWriter.close();
+    
+ 
     }
 
-    /**
-     * @param DataStore
-     * @param tokenType
-     * @param analyzer
-     * @return
-     * 
-     *         This function does match based on tokenType
+    /*
+     * This function does match based on tokenType
      */
     public static void matchNLP(IDataStore dataStore, NlpPredicate.NlpTokenType tokenType, Analyzer analyzer) throws Exception {
 
@@ -146,9 +129,8 @@ public class NlpExtractorPerformanceTest {
         long endMatchTime = System.currentTimeMillis();
         double matchTime = (endMatchTime - startMatchTime) / 1000.0;
 
-        fileWriter.append(String.format("%.4f", matchTime) + ",");
-        fileWriter.append(counter + ",");
-        fileWriter.append(newLine);
+        totalMatchingTime += matchTime;
+        totalResults += counter;
 
     }
 

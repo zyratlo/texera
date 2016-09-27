@@ -12,7 +12,6 @@ import org.apache.lucene.analysis.standard.StandardAnalyzer;
 
 import edu.uci.ics.textdb.api.common.Attribute;
 import edu.uci.ics.textdb.api.common.IDictionary;
-import edu.uci.ics.textdb.api.common.IPredicate;
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.common.constants.DataConstants;
 import edu.uci.ics.textdb.common.constants.SchemaConstants;
@@ -34,102 +33,91 @@ import edu.uci.ics.textdb.storage.DataStore;
 
 public class DictionaryMatcherPerformanceTest {
 
-    private static String HEADER = "Record #,Operator,Dict, Words/Phrase in dict, Time, Total Results\n";
-    private static String basicHeader = "Conjunctive,";
-    private static String phraseHeader = "Phrase,";
-    private static String scanHeader = "Scan,";
+    private static String HEADER = "Date, Record #, Dictionary, Words/Phrase Count, Time(sec), Total Results, Commit Number";
+
     private static String commaDelimiter = ",";
     private static String newLine = "\n";
-    private static FileWriter fileWriter = null;
-    private static String csvFileFolder = "dictionary/";
+    private static double matchTime = 0.0;
+    private static int resultCount = 0;
 
-    /**
-     * @param queryFileName:
-     *            this file contains line(s) of phrases/words which are used to
-     *            form a dictionary for matching; the file must be placed in
-     *            ./data-files/queries/.
+    private static String currentTime = "";
+
+    // result files
+    private static String conjunctionCsv = "dictionary-conjunction.csv";
+    private static String scanCsv = "dictionary-scan.csv";
+    private static String phraseCsv = "dictionary-phrase.csv";
+
+    /*
+     * queryFileName contains line(s) of phrases/words which are used to form a
+     * dictionary for matching; the file must be placed in
+     * ./perftest-files/queries/.
      * 
-     * @param IterationNumber:
-     *            the number of times the test expected to be run
-     * @return
+     * This function will match the dictionary against all indices in
+     * ./index/standard/
      * 
-     *         This function will match the dictionary against all indices in
-     *         ./index/standard/
-     * 
-     *         Test results include runtime, the number of results for each
-     *         operator, each index and each iteration. They are written in a
-     *         csv file that is named by the current time and located at
-     *         ./data-files/results/dictionary/.
+     * Test results for each operator are recorded in corresponding csv files:
+     *   ./perftest-files/results/dictionary-conjunction.csv
+     *   ./perftest-files/results/dictionary-phrase.csv
+     *   ./perftest-files/results/dictionary-scan.csv.
      * 
      */
-    public static void runTest(String queryFileName, int IterationNumber) throws Exception {
+    public static void runTest(String queryFileName) throws Exception {
 
         // Reads queries from query file into a list
         ArrayList<String> dictionary = PerfTestUtils.readQueries(PerfTestUtils.getQueryPath(queryFileName));
 
-        // Checks whether "dictionary" folder exists in
-        // ./data-files/results/
-        if (!new File(PerfTestUtils.resultFolder, "dictionary").exists()) {
-            File resultFile = new File(PerfTestUtils.resultFolder + csvFileFolder);
-            resultFile.mkdir();
-        }
-
-        // Gets the current time for naming the cvs file
-        String currentTime = PerfTestUtils.formatTime(System.currentTimeMillis());
-        String csvFile = csvFileFolder + currentTime + ".csv";
-        fileWriter = new FileWriter(PerfTestUtils.getResultPath(csvFile));
-
-        // Iterates through the times of test
-        // Writes results to the csv file
+        // Gets the current time
+        currentTime = PerfTestUtils.formatTime(System.currentTimeMillis());
         File indexFiles = new File(PerfTestUtils.standardIndexFolder);
-        for (int i = 1; i <= IterationNumber; i++) {
-            fileWriter.append("Cycle" + i);
-            fileWriter.append(newLine);
-            fileWriter.append(HEADER);
-            for (File file : indexFiles.listFiles()) {
-                if (file.getName().startsWith(".")) {
-                    continue;
-                }
-                DataStore dataStore = new DataStore(PerfTestUtils.getIndexPath(file.getName()),
-                        MedlineIndexWriter.SCHEMA_MEDLINE);
-                fileWriter.append(file.getName() + ",");
-                fileWriter.append(basicHeader);
-                fileWriter.append(queryFileName + commaDelimiter);
-                fileWriter.append(Integer.toString(dictionary.size()) + commaDelimiter);
-                match(dictionary, DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED, new StandardAnalyzer(),
-                        dataStore);
 
-                fileWriter.append(file.getName() + ",");
-                fileWriter.append(phraseHeader);
-                fileWriter.append(queryFileName + commaDelimiter);
-                fileWriter.append(Integer.toString(dictionary.size()) + commaDelimiter);
-                match(dictionary, DataConstants.KeywordMatchingType.PHRASE_INDEXBASED, new StandardAnalyzer(),
-                        dataStore);
-
-                fileWriter.append(file.getName() + ",");
-                fileWriter.append(scanHeader);
-                fileWriter.append(queryFileName + commaDelimiter);
-                fileWriter.append(Integer.toString(dictionary.size()) + commaDelimiter);
-                match(dictionary, DataConstants.KeywordMatchingType.SUBSTRING_SCANBASED, new StandardAnalyzer(),
-                        dataStore);
+        for (File file : indexFiles.listFiles()) {
+            if (file.getName().startsWith(".")) {
+                continue;
             }
-            fileWriter.append(newLine);
-        }
+            DataStore dataStore = new DataStore(PerfTestUtils.getIndexPath(file.getName()),
+                    MedlineIndexWriter.SCHEMA_MEDLINE);
 
+            csvWriter(conjunctionCsv, file.getName(), queryFileName, dictionary,
+                    DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED, dataStore);
+            csvWriter(phraseCsv, file.getName(), queryFileName, dictionary,
+                    DataConstants.KeywordMatchingType.PHRASE_INDEXBASED, dataStore);
+            csvWriter(scanCsv, file.getName(), queryFileName, dictionary,
+                    DataConstants.KeywordMatchingType.SUBSTRING_SCANBASED, dataStore);
+        }
+    }
+
+    /*
+     * 
+     * This function writes test results to the given result file.
+     * 
+     * CSV file example: Date Record # Dictionary Words/Phrase Count Time(sec)
+     * Total Results, Commit Number 09-09-2016 00:50:40 abstract_100
+     * sample_queries.txt 11 0.4480 24
+     * 
+     * Commit number is designed for performance dashboard. It will be appended
+     * to the result file only when the performance test is run by
+     * /textdb-scripts/dashboard/build.py
+     * 
+     */
+    public static void csvWriter(String resultFile, String recordNum, String queryFileName,
+            ArrayList<String> dictionary, KeywordMatchingType opType, DataStore dataStore) throws Exception {
+
+        PerfTestUtils.createFile(PerfTestUtils.getResultPath(resultFile), HEADER);
+        FileWriter fileWriter = new FileWriter(PerfTestUtils.getResultPath(resultFile), true);
+        fileWriter.append(newLine);
+        fileWriter.append(currentTime + commaDelimiter);
+        fileWriter.append(recordNum + commaDelimiter);
+        fileWriter.append(queryFileName + commaDelimiter);
+        fileWriter.append(Integer.toString(dictionary.size()) + commaDelimiter);
+        match(dictionary, opType, new StandardAnalyzer(), dataStore);
+        fileWriter.append(String.format("%.4f", matchTime) + commaDelimiter);
+        fileWriter.append(Integer.toString(resultCount));
         fileWriter.flush();
         fileWriter.close();
     }
 
     /**
-     * @param queryList:
-     *            dictionary
-     * @param opTye:
-     *            operator type
-     * @param luceneAnalyzer
-     * @param DataStore
-     * @return
-     * 
-     *         This function does match for a dictionary
+     * This function does match for a dictionary
      */
     public static void match(ArrayList<String> queryList, KeywordMatchingType opType, Analyzer luceneAnalyzer,
             DataStore dataStore) throws Exception {
@@ -151,11 +139,8 @@ public class DictionaryMatcherPerformanceTest {
         }
         dictionaryMatcher.close();
         long endMatchTime = System.currentTimeMillis();
-        double matchTime = (endMatchTime - startMatchTime) / 1000.0;
-
-        fileWriter.append(String.format("%.4f secs", matchTime) + commaDelimiter);
-        fileWriter.append(Integer.toString(counter));
-        fileWriter.append(newLine);
+        matchTime = (endMatchTime - startMatchTime) / 1000.0;
+        resultCount = counter;
     }
 
 }

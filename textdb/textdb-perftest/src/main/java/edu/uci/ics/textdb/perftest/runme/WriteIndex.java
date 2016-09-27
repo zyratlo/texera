@@ -1,12 +1,12 @@
 package edu.uci.ics.textdb.perftest.runme;
 
-/**
- * @author Hailey Pan
- * */
+import java.io.File;
 
 import edu.uci.ics.textdb.perftest.utils.PerfTestUtils;
 
 /*
+ * @author Hailey Pan
+ * 
  * Run this class to write all necessary index for performance tests!
  * 
  * Passed in below arguments:
@@ -28,6 +28,9 @@ public class WriteIndex {
         }
 
         try {
+            PerfTestUtils.deleteDirectory(new File(PerfTestUtils.standardIndexFolder));
+            PerfTestUtils.deleteDirectory(new File(PerfTestUtils.trigramIndexFolder));
+            
             PerfTestUtils.writeStandardAnalyzerIndices();
             PerfTestUtils.writeTrigramIndices();
         } catch (Exception e) {
