@@ -1,6 +1,7 @@
 package edu.uci.ics.textdb.dataflow.sink;
 
 import edu.uci.ics.textdb.api.common.ITuple;
+import edu.uci.ics.textdb.api.common.Schema;
 import edu.uci.ics.textdb.api.dataflow.IOperator;
 import edu.uci.ics.textdb.api.dataflow.ISink;
 
@@ -51,5 +52,9 @@ public abstract class AbstractSink implements ISink {
     @Override
     public void close() throws Exception {
         inputOperator.close();
+    }
+    
+    public Schema getOutputSchema() {
+        return this.inputOperator.getOutputSchema();
     }
 }

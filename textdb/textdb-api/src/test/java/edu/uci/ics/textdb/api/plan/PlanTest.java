@@ -5,6 +5,7 @@ import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import edu.uci.ics.textdb.api.common.Schema;
 import edu.uci.ics.textdb.api.dataflow.ISink;
 
 public class PlanTest {
@@ -42,6 +43,12 @@ public class PlanTest {
             public void close() throws Exception {
                 // TODO Auto-generated method stub
 
+            }
+
+            @Override
+            public Schema getOutputSchema() {
+                // TODO Auto-generated method stub
+                return null;
             }
         };
     }
