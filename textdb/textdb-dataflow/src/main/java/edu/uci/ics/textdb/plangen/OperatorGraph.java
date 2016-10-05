@@ -1,7 +1,6 @@
 package edu.uci.ics.textdb.plangen;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -41,9 +40,9 @@ public class OperatorGraph {
     /**
      * Adds an operator to the operator graph.
      * 
-     * @param operatorID
-     * @param operatorType
-     * @param operatorProperties
+     * @param operatorID, a unique ID of the operator
+     * @param operatorType, the type of the operator
+     * @param operatorProperties, a key-value pair map of the properties of the operator
      * @throws Exception 
      */
     public void addOperator(String operatorID, String operatorType, Map<String, String> operatorProperties) throws Exception {
@@ -297,7 +296,8 @@ public class OperatorGraph {
     /*
      * Connects IOperator objects together according to the operator graph.
      * 
-     * This function traverses the graph using DFS. For each link it encounters, it invokes
+     * This function assumes that the operator graph is valid.
+     * It goes through every link, and invokes
      * the corresponding "setInputOperator" function to connect operators.
      */
     private void connectOperators() throws PlanGenException { 
@@ -305,7 +305,7 @@ public class OperatorGraph {
             IOperator currentOperator = operatorObjectMap.get(vertex);
             int outputArity = adjacencyList.get(vertex).size();
             
-            // automatically adds a OneToNBroadcastConnector if the output arity > 1.s
+            // automatically adds a OneToNBroadcastConnector if the output arity > 1
             if (outputArity > 1) {
                 OneToNBroadcastConnector oneToNConnector = new OneToNBroadcastConnector(outputArity);
                 oneToNConnector.setInputOperator(currentOperator);
@@ -324,20 +324,22 @@ public class OperatorGraph {
         }     
     }
 
-    
-    private void handleSetInputOperator(IOperator from, IOperator to) throws PlanGenException {
+    /*
+     * Invoke the corresponding "setInputOperator" method of the dest operator.
+     */
+    private void handleSetInputOperator(IOperator src, IOperator dest) throws PlanGenException {
         // handles Join operator differently
-        if (to instanceof Join) {
-            Join join = (Join) to;
+        if (dest instanceof Join) {
+            Join join = (Join) dest;
             if (join.getInnerOperator() == null) {
-                join.setInnerInputOperator(from);
+                join.setInnerInputOperator(src);
             } else {
-                join.setOuterInputOperator(from);
+                join.setOuterInputOperator(src);
             }
         // invokes "setInputOperator" for all other operators
         } else {
             try {
-                to.getClass().getMethod("setInputOperator", IOperator.class).invoke(to, from);
+                dest.getClass().getMethod("setInputOperator", IOperator.class).invoke(dest, src);
             } catch (NoSuchMethodException | SecurityException | IllegalAccessException 
                     | IllegalArgumentException | InvocationTargetException e) {
                 throw new PlanGenException(e.getMessage(), e);
