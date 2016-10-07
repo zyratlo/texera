@@ -31,7 +31,7 @@ public class FuzzyTokenMatcherBuilder {
     /**
      * Builds a FuzzyTokenMatcher according to operatorProperties.
      */
-    public static FuzzyTokenMatcher buildOperator(Map<String, String> operatorProperties) throws PlanGenException, DataFlowException, IOException {
+    public static FuzzyTokenMatcher buildOperator(Map<String, String> operatorProperties) throws PlanGenException {
         String query = OperatorBuilderUtils.getRequiredProperty(FUZZY_STRING, operatorProperties);
         String thresholdStr = OperatorBuilderUtils.getRequiredProperty(THRESHOLD_RATIO, operatorProperties);
 
@@ -45,8 +45,13 @@ public class FuzzyTokenMatcherBuilder {
         Double thresholdRatioDouble = generateThresholdDouble(thresholdStr);
 
         // build FuzzyTokenMatcher
-        FuzzyTokenPredicate fuzzyTokenPredicate = new FuzzyTokenPredicate(query, attributeList,
-                DataConstants.getStandardAnalyzer(), thresholdRatioDouble);
+        FuzzyTokenPredicate fuzzyTokenPredicate;
+        try {
+            fuzzyTokenPredicate = new FuzzyTokenPredicate(query, attributeList,
+                    DataConstants.getStandardAnalyzer(), thresholdRatioDouble);
+        } catch (DataFlowException e) {
+            throw new PlanGenException(e.getMessage(), e);
+        }
         FuzzyTokenMatcher fuzzyTokenMatcher = new FuzzyTokenMatcher(fuzzyTokenPredicate);
 
         // set limit and offset
