@@ -193,7 +193,7 @@ public class OperatorGraph {
         HashSet<String> dfsPath = new HashSet<>();
         
         for (String vertex : adjacencyList.keySet()) {
-            if (dfsPath.contains(vertex)) {
+            if (unvisitedVertices.contains(vertex)) {
                 checkCyclicityDfsVisit(vertex, unvisitedVertices, dfsPath);
             }
         }
