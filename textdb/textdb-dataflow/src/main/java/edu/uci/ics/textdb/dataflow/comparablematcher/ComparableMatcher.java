@@ -6,7 +6,7 @@ import edu.uci.ics.textdb.common.exception.DataFlowException;
 import edu.uci.ics.textdb.dataflow.common.AbstractSingleInputOperator;
 
 /**
- * ComparableMatcher is matcher for number comparison query on an integer or double field.
+ * ComparableMatcher is matcher for comparison query on any field which deals with Comparable.
  *
  * @author Adrian Seungjin Lee
  */
