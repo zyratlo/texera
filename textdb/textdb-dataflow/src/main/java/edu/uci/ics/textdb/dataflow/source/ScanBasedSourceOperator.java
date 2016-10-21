@@ -25,6 +25,7 @@ public class ScanBasedSourceOperator implements ISourceOperator {
 
     public ScanBasedSourceOperator(IDataStore dataStore, Analyzer luceneAnalyzer) throws DataFlowException {
         this.dataStore = dataStore;
+        this.luceneAnalyzer = luceneAnalyzer;
     }
 
     @Override
