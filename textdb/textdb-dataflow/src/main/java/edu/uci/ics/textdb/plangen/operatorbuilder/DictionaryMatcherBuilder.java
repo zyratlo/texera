@@ -33,7 +33,7 @@ public class DictionaryMatcherBuilder {
     /**
      * Builds a DictionaryMatcher according to operatorProperties.
      */
-    public static DictionaryMatcher buildOperator(Map<String, String> operatorProperties) throws PlanGenException, DataFlowException {
+    public static DictionaryMatcher buildOperator(Map<String, String> operatorProperties) throws PlanGenException {
         String dictionaryStr = OperatorBuilderUtils.getRequiredProperty(DICTIONARY, operatorProperties);
         String matchingTypeStr = OperatorBuilderUtils.getRequiredProperty(MATCHING_TYPE, operatorProperties);
 
