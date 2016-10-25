@@ -35,7 +35,7 @@ public class KeywordMatcherBuilder {
     /**
      * Builds a KeywordMatcher according to operatorProperties.
      */
-    public static KeywordMatcher buildKeywordMatcher(Map<String, String> operatorProperties) throws PlanGenException, DataFlowException {
+    public static KeywordMatcher buildKeywordMatcher(Map<String, String> operatorProperties) throws PlanGenException {
         String keyword = OperatorBuilderUtils.getRequiredProperty(KEYWORD, operatorProperties);
         String matchingTypeStr = OperatorBuilderUtils.getRequiredProperty(MATCHING_TYPE, operatorProperties);
 
@@ -52,8 +52,13 @@ public class KeywordMatcherBuilder {
                 + "must be one of " + KeywordMatcherBuilder.keywordMatchingTypeMap.keySet());
 
         // build KeywordMatcher
-        KeywordPredicate keywordPredicate = new KeywordPredicate(keyword, attributeList,
-                DataConstants.getStandardAnalyzer(), matchingType);
+        KeywordPredicate keywordPredicate;
+        try {
+            keywordPredicate = new KeywordPredicate(keyword, attributeList,
+                    DataConstants.getStandardAnalyzer(), matchingType);
+        } catch (DataFlowException e) {
+            throw new PlanGenException(e.getMessage(), e);
+        }
         KeywordMatcher keywordMatcher = new KeywordMatcher(keywordPredicate);
 
         // set limit and offset
