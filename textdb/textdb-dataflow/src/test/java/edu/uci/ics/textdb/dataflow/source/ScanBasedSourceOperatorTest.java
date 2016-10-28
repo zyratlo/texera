@@ -57,7 +57,9 @@ public class ScanBasedSourceOperatorTest {
         dataReader = new DataReader(dataReaderPredicate);
 
         dataWriter.clearData();
-        dataWriter.writeData(TestConstants.getSamplePeopleTuples());
+        for (ITuple tuple : TestConstants.getSamplePeopleTuples()) {
+            dataWriter.insertTuple(tuple);
+        }
         scanBasedSourceOperator = new ScanBasedSourceOperator(dataReader);
     }
 

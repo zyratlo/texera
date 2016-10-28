@@ -374,7 +374,9 @@ public class NlpExtractorTest {
         dataStore = new DataStore(DataConstants.INDEX_DIR, schema);
         analyzer = new StandardAnalyzer();
         dataWriter = new DataWriter(dataStore, analyzer);
-        dataWriter.writeData(data);
+        for (ITuple tuple : data) {
+            dataWriter.insertTuple(tuple);
+        }
 
         QueryParser queryParser = new QueryParser(
                 NlpExtractorTestConstants.ATTRIBUTES_ONE_SENTENCE.get(0).getFieldName(), analyzer);
