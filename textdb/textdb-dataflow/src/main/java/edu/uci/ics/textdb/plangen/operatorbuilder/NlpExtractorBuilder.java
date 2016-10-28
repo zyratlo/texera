@@ -30,7 +30,7 @@ public class NlpExtractorBuilder {
     /**
      * Builds a NlpExtractor according to operatorProperties.
      */
-    public static NlpExtractor buildOperator(Map<String, String> operatorProperties) throws PlanGenException, DataFlowException, IOException {
+    public static NlpExtractor buildOperator(Map<String, String> operatorProperties) throws PlanGenException {
         String nlpTypeStr = OperatorBuilderUtils.getRequiredProperty(NLP_TYPE, operatorProperties);
 
         // check if nlpType is valid
