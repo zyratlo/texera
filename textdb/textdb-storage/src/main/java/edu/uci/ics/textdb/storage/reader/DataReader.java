@@ -217,25 +217,15 @@ public class DataReader implements IDataReader {
         this.offset = offset;
     }
 
-    public boolean isPayloadAdded() {
+    public boolean isTermVecAdded() {
         return payloadAdded;
     }
 
-    public void setIsPayloadAdded(boolean payloadAdded) {
-        this.payloadAdded = payloadAdded;
+    public void setTermVecAdded(boolean termVecAdded) {
+        this.payloadAdded = termVecAdded;
     }
 
     public Schema getOutputSchema() {
         return outputSchema;
-    }
-    
-    public static boolean isIndexExist(String directory) {
-        try {
-            return DirectoryReader.indexExists(
-                    FSDirectory.open(Paths.get(directory)));
-        } catch (Exception e) {
-            return false;
-        }
-
     }
 }
