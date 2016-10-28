@@ -31,7 +31,7 @@ import edu.uci.ics.textdb.storage.DataStore;
 public class KeywordSourceBuilder {
     
     public static KeywordMatcherSourceOperator buildSourceOperator(Map<String, String> operatorProperties) 
-            throws PlanGenException, DataFlowException {
+            throws PlanGenException {
         String keyword = OperatorBuilderUtils.getRequiredProperty(
                 KeywordMatcherBuilder.KEYWORD, operatorProperties);
         String matchingTypeStr = OperatorBuilderUtils.getRequiredProperty(
@@ -49,8 +49,13 @@ public class KeywordSourceBuilder {
                 "the matching type: "+ matchingTypeStr +" is not valid. "
                 + "It must be one of " + KeywordMatcherBuilder.keywordMatchingTypeMap.keySet());
         
-        KeywordPredicate keywordPredicate = new KeywordPredicate(keyword, attributeList,
-                DataConstants.getStandardAnalyzer(), matchingType);
+        KeywordPredicate keywordPredicate;
+        try {
+            keywordPredicate = new KeywordPredicate(keyword, attributeList,
+                    DataConstants.getStandardAnalyzer(), matchingType);     
+        } catch (DataFlowException e) {
+            throw new PlanGenException(e.getMessage(), e);
+        }
         
         DataStore dataStore = OperatorBuilderUtils.constructDataStore(operatorProperties);
 
