@@ -43,9 +43,9 @@ public class OperatorGraph {
      * @param operatorID, a unique ID of the operator
      * @param operatorType, the type of the operator
      * @param operatorProperties, a key-value pair map of the properties of the operator
-     * @throws Exception 
+     * @throws PlanGenException 
      */
-    public void addOperator(String operatorID, String operatorType, Map<String, String> operatorProperties) throws Exception {
+    public void addOperator(String operatorID, String operatorType, Map<String, String> operatorProperties) throws PlanGenException {
         PlanGenUtils.planGenAssert(operatorID != null, "operatorID is null");
         PlanGenUtils.planGenAssert(operatorType != null, "operatorType is null");
         PlanGenUtils.planGenAssert(operatorProperties != null, "operatorProperties is null");
@@ -100,9 +100,9 @@ public class OperatorGraph {
      * Builds and returns the query plan from the operator graph.
      * 
      * @return the plan generated from the operator graph
-     * @throws Exception, if the operator graph is invalid.
+     * @throws PlanGenException, if the operator graph is invalid.
      */
-    public Plan buildQueryPlan() throws Exception {
+    public Plan buildQueryPlan() throws PlanGenException {
         validateOperatorGraph();
         connectOperators();
         ISink sink = findSinkOperator();
