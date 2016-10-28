@@ -39,11 +39,7 @@ public class ComparableMatcherTest {
     private Analyzer analyzer;
 
     private ScanBasedSourceOperator getScanSourceOperator(IDataStore dataStore) throws DataFlowException {
-        DataReaderPredicate dataReaderPredicate = new DataReaderPredicate(
-                new MatchAllDocsQuery(), DataConstants.SCAN_QUERY, dataStore,
-                dataStore.getSchema().getAttributes(), analyzer);
-        DataReader dataReader = new DataReader(dataReaderPredicate);
-        ScanBasedSourceOperator scanSource = new ScanBasedSourceOperator(dataReader);
+        ScanBasedSourceOperator scanSource = new ScanBasedSourceOperator(dataStore, analyzer);
         return scanSource;
     }
 

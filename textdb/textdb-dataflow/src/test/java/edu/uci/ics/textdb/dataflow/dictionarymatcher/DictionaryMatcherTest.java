@@ -118,7 +118,7 @@ public class DictionaryMatcherTest {
                 srcOpType);
 
         DictionaryMatcher dictionaryMatcher = new DictionaryMatcher(dictionaryPredicate);
-        ScanBasedSourceOperator indexSource = dictionaryPredicate.getScanSourceOperator(dataStore);
+        ScanBasedSourceOperator indexSource = new ScanBasedSourceOperator(dataStore, luceneAnalyzer);
         dictionaryMatcher.setInputOperator(indexSource);
 
         dictionaryMatcher.open();
