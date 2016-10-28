@@ -78,6 +78,7 @@ public class DataWriter implements IDataWriter {
         try {
             Document document = getDocument(dataStore.getSchema(), tuple);
             this.luceneIndexWriter.addDocument(document);
+            this.dataStore.incrementNumDocuments(1);
         } catch (IOException e) {
             throw new StorageException(e.getMessage(), e);
         } finally {

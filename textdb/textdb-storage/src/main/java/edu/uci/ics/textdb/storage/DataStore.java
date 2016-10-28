@@ -5,11 +5,22 @@ import edu.uci.ics.textdb.api.storage.IDataStore;
 
 public class DataStore implements IDataStore {
     private String dataDirectory;
+    private int numDocuments;
     private Schema schema;
 
     public DataStore(String dataDirectory, Schema schema) {
         this.dataDirectory = dataDirectory;
         this.schema = schema;
+    }
+
+    @Override
+    public void incrementNumDocuments(int incrementBy) {
+        numDocuments += incrementBy;
+    }
+
+    @Override
+    public int getNumDocuments() {
+        return numDocuments;
     }
 
     @Override

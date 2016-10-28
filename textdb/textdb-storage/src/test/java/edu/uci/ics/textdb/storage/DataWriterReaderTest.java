@@ -52,6 +52,8 @@ public class DataWriterReaderTest {
             dataWriter.insertTuple(tuple);
         }
         
+        Assert.assertEquals(dataStore.getNumDocuments(), actualTuples.size());
+        
         dataReader.open();
         ITuple nextTuple = null;
         int numTuples = 0;
