@@ -33,7 +33,7 @@ public class IndexSink extends AbstractSink {
     }
 
     protected void processOneTuple(ITuple nextTuple) throws StorageException {
-        dataWriter.writeTuple(nextTuple);
+        dataWriter.insertTuple(nextTuple);
     }
 
     public void close() throws Exception {

@@ -49,7 +49,9 @@ public class ScanBasedSourceOperatorTest {
         
         dataWriter = new DataWriter(dataStore, luceneAnalyzer);
         dataWriter.clearData();
-        dataWriter.writeData(TestConstants.getSamplePeopleTuples());
+        for (ITuple tuple : TestConstants.getSamplePeopleTuples()) {
+            dataWriter.insertTuple(tuple);
+        }
         
         scanBasedSourceOperator = new ScanBasedSourceOperator(dataStore, luceneAnalyzer);
     }
