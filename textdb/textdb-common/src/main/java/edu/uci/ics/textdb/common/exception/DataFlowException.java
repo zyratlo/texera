@@ -6,7 +6,7 @@ package edu.uci.ics.textdb.common.exception;
 import edu.uci.ics.textdb.api.exception.TextDBException;
 
 /**
- *  Thrown to indicate that an exception occurs when a TextDB operator processes data.  
+ *  Thrown to indicate that an exception occurs when a TextDB operator processes data.
  */
 public class DataFlowException extends TextDBException {
 
