@@ -30,11 +30,10 @@ public class LogicalPlan implements Serializable {
     HashMap<String, HashSet<String>> adjacencyList;
 
     
-    public LogicalPlan(LogicalPlan logicalPlan) {
+    public LogicalPlan() {
         operatorTypeMap = new HashMap<>();
         operatorPropertyMap = new HashMap<>();
         adjacencyList = new HashMap<>();
-        
     }
     
     /**
