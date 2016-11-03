@@ -1,5 +1,6 @@
 package edu.uci.ics.textdb.plangen;
 
+import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -17,10 +18,9 @@ import edu.uci.ics.textdb.dataflow.join.Join;
  * 
  * @author Zuozhi Wang
  */
-public class OperatorGraph {
+public class LogicalPlan implements Serializable {
     
-    // a map of an operator ID to the operator object
-    HashMap<String, IOperator> operatorObjectMap;
+    private static final long serialVersionUID = -4473743060478893198L;
     
     // a map of an operator ID to the operator's type
     HashMap<String, String> operatorTypeMap;
@@ -30,11 +30,11 @@ public class OperatorGraph {
     HashMap<String, HashSet<String>> adjacencyList;
 
     
-    public OperatorGraph() {
-        operatorObjectMap = new HashMap<>();
+    public LogicalPlan(LogicalPlan logicalPlan) {
         operatorTypeMap = new HashMap<>();
         operatorPropertyMap = new HashMap<>();
         adjacencyList = new HashMap<>();
+        
     }
     
     /**
@@ -62,8 +62,6 @@ public class OperatorGraph {
         operatorPropertyMap.put(operatorID, operatorProperties);
         adjacencyList.put(operatorID, new HashSet<>());
         
-        IOperator operator = PlanGenUtils.buildOperator(operatorType, operatorProperties);
-        operatorObjectMap.put(operatorID, operator);
     }
     
     /**
@@ -103,12 +101,26 @@ public class OperatorGraph {
      * @throws PlanGenException, if the operator graph is invalid.
      */
     public Plan buildQueryPlan() throws PlanGenException {
+        HashMap<String, IOperator> operatorObjectMap = buildOperators();
         validateOperatorGraph();
-        connectOperators();
-        ISink sink = findSinkOperator();
+        connectOperators(operatorObjectMap);
+        ISink sink = findSinkOperator(operatorObjectMap);
         
         Plan queryPlan = new Plan(sink);
         return queryPlan;
+    }
+    
+    /*
+     * Build the operator objects from operator properties.
+     */
+    private HashMap<String, IOperator> buildOperators() throws PlanGenException {
+        HashMap<String, IOperator> operatorObjectMap = new HashMap<>();
+        for (String operatorID : operatorTypeMap.keySet()) {
+            IOperator operator = PlanGenUtils.buildOperator(
+                    operatorTypeMap.get(operatorID), operatorPropertyMap.get(operatorID));
+            operatorObjectMap.put(operatorID, operator);
+        }
+        return operatorObjectMap;
     }
 
 
@@ -300,7 +312,7 @@ public class OperatorGraph {
      * It goes through every link, and invokes
      * the corresponding "setInputOperator" function to connect operators.
      */
-    private void connectOperators() throws PlanGenException { 
+    private void connectOperators(HashMap<String, IOperator> operatorObjectMap) throws PlanGenException { 
         for (String vertex : adjacencyList.keySet()) {
             IOperator currentOperator = operatorObjectMap.get(vertex);
             int outputArity = adjacencyList.get(vertex).size();
@@ -352,7 +364,7 @@ public class OperatorGraph {
      * 
      * This function assumes that the graph is valid and there is only one sink in the graph.
      */
-    private ISink findSinkOperator() throws PlanGenException {
+    private ISink findSinkOperator(HashMap<String, IOperator> operatorObjectMap) throws PlanGenException {
         IOperator sinkOperator = adjacencyList.keySet().stream()
                 .filter(operator -> operatorTypeMap.get(operator).toLowerCase().contains("sink"))
                 .map(operator -> operatorObjectMap.get(operator))
