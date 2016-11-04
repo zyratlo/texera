@@ -9,9 +9,9 @@ import edu.uci.ics.textdb.api.common.Schema;
  * 
  * @author Zuozhi Wang
  */
-public interface ICatalogManager {
+public interface IRelationManager {
     
-    public ICatalogManager getCatalogManager();
+    public IRelationManager getRelationManager();
     
     public boolean tableExists(String tableName);
     
