@@ -31,10 +31,11 @@ public class QueryPlanResource {
     @Path("/execute")
     public Response executeQueryPlan(QueryPlanRequest queryPlanRequest) throws Exception {
         // Aggregating all the operator properties in the query plan input
-        queryPlanRequest.aggregateOperatorProperties();
+        boolean aggregatePropertiesFlag = queryPlanRequest.aggregateOperatorProperties();
+        boolean createLogicalPlanFlag = queryPlanRequest.createLogicalPlan();
 
         ObjectMapper objectMapper = new ObjectMapper();
-        if(queryPlanRequest.getOperatorProperties() != null) {
+        if(aggregatePropertiesFlag && createLogicalPlanFlag) {
             // Temporary sample response when the operator properties aggregation works correctly
             SampleResponse sampleResponse = new SampleResponse(0, "Successful");
             return Response.status(200)
@@ -43,7 +44,7 @@ public class QueryPlanResource {
                     .build();
         }
         else {
-            // Temporay sample response when the operator properties aggregation does not function
+            // Temporary sample response when the operator properties aggregation does not function
             SampleResponse sampleResponse = new SampleResponse(1, "Unsuccessful");
             return Response.status(400)
                     .entity(objectMapper.writeValueAsString(sampleResponse))
