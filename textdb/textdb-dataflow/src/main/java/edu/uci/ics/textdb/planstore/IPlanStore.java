@@ -1,7 +1,7 @@
 package edu.uci.ics.textdb.planstore;
 
 import edu.uci.ics.textdb.api.common.ITuple;
-import edu.uci.ics.textdb.plangen.OperatorGraph;
+import edu.uci.ics.textdb.plangen.LogicalPlan;
 
 import java.util.List;
 
@@ -19,7 +19,7 @@ public interface IPlanStore {
 
     void destroyPlanStorage();
 
-    void addPlan(String name, String description, OperatorGraph plan);
+    void addPlan(String name, String description, LogicalPlan plan);
 
     ITuple getPlan(String name);
 
@@ -27,9 +27,9 @@ public interface IPlanStore {
 
     void deletePlan(String name);
 
-    void updatePlan(String name, OperatorGraph plan);
+    void updatePlan(String name, LogicalPlan plan);
 
     void updatePlan(String name, String description);
 
-    void updatePlan(String name, String description, OperatorGraph plan);
+    void updatePlan(String name, String description, LogicalPlan plan);
 }
