@@ -94,15 +94,15 @@ public class LogicalPlanTest {
      */
     @Test
     public void testLogicalPlan1() throws Exception {
-        LogicalPlan LogicalPlan = new LogicalPlan();
+        LogicalPlan logicalPlan = new LogicalPlan();
 
-        LogicalPlan.addOperator("source", "KeywordSource", keywordSourceProperties);
-        LogicalPlan.addOperator("regex", "RegexMatcher", regexMatcherProperties);
-        LogicalPlan.addOperator("sink", "FileSink", fileSinkProperties);
-        LogicalPlan.addLink("source", "regex");
-        LogicalPlan.addLink("regex", "sink");
+        logicalPlan.addOperator("source", "KeywordSource", keywordSourceProperties);
+        logicalPlan.addOperator("regex", "RegexMatcher", regexMatcherProperties);
+        logicalPlan.addOperator("sink", "FileSink", fileSinkProperties);
+        logicalPlan.addLink("source", "regex");
+        logicalPlan.addLink("regex", "sink");
 
-        Plan queryPlan = LogicalPlan.buildQueryPlan();
+        Plan queryPlan = logicalPlan.buildQueryPlan();
 
         ISink fileSink = queryPlan.getRoot();
         Assert.assertTrue(fileSink instanceof FileSink);
@@ -124,25 +124,25 @@ public class LogicalPlanTest {
      */
     @Test
     public void testLogicalPlan2() throws Exception {
-        LogicalPlan LogicalPlan = new LogicalPlan();
+        LogicalPlan logicalPlan = new LogicalPlan();
 
         JSONObject schemaJsonJSONObject = new JSONObject();
         schemaJsonJSONObject.put(OperatorBuilderUtils.ATTRIBUTE_NAMES, "id, city, location, content");
         schemaJsonJSONObject.put(OperatorBuilderUtils.ATTRIBUTE_TYPES, "integer, string, string, text");
 
-        LogicalPlan.addOperator("source", "KeywordSource", keywordSourceProperties);
-        LogicalPlan.addOperator("regex", "RegexMatcher", regexMatcherProperties);
-        LogicalPlan.addOperator("nlp", "NlpExtractor", nlpExtractorProperties);
-        LogicalPlan.addOperator("join", "Join", joinProperties);
-        LogicalPlan.addOperator("sink", "FileSink", fileSinkProperties);
+        logicalPlan.addOperator("source", "KeywordSource", keywordSourceProperties);
+        logicalPlan.addOperator("regex", "RegexMatcher", regexMatcherProperties);
+        logicalPlan.addOperator("nlp", "NlpExtractor", nlpExtractorProperties);
+        logicalPlan.addOperator("join", "Join", joinProperties);
+        logicalPlan.addOperator("sink", "FileSink", fileSinkProperties);
 
-        LogicalPlan.addLink("source", "regex");
-        LogicalPlan.addLink("source", "nlp");
-        LogicalPlan.addLink("regex", "join");
-        LogicalPlan.addLink("nlp", "join");
-        LogicalPlan.addLink("join", "sink");
+        logicalPlan.addLink("source", "regex");
+        logicalPlan.addLink("source", "nlp");
+        logicalPlan.addLink("regex", "join");
+        logicalPlan.addLink("nlp", "join");
+        logicalPlan.addLink("join", "sink");
 
-        Plan queryPlan = LogicalPlan.buildQueryPlan();
+        Plan queryPlan = logicalPlan.buildQueryPlan();
 
         ISink fileSink = queryPlan.getRoot();
         Assert.assertTrue(fileSink instanceof FileSink);
@@ -188,30 +188,30 @@ public class LogicalPlanTest {
      */
     @Test
     public void testLogicalPlan3() throws Exception {
-        LogicalPlan LogicalPlan = new LogicalPlan();
+        LogicalPlan logicalPlan = new LogicalPlan();
 
         JSONObject schemaJsonJSONObject = new JSONObject();
         schemaJsonJSONObject.put(OperatorBuilderUtils.ATTRIBUTE_NAMES, "id, city, location, content");
         schemaJsonJSONObject.put(OperatorBuilderUtils.ATTRIBUTE_TYPES, "integer, string, string, text");
 
-        LogicalPlan.addOperator("source", "KeywordSource", keywordSourceProperties);
-        LogicalPlan.addOperator("regex", "RegexMatcher", regexMatcherProperties);
-        LogicalPlan.addOperator("nlp", "NlpExtractor", nlpExtractorProperties);
-        LogicalPlan.addOperator("fuzzytoken", "FuzzyTokenMatcher", fuzzyTokenMatcherProperties);
-        LogicalPlan.addOperator("join", "Join", joinProperties);
-        LogicalPlan.addOperator("join2", "Join", joinProperties);
-        LogicalPlan.addOperator("sink", "FileSink", fileSinkProperties);
+        logicalPlan.addOperator("source", "KeywordSource", keywordSourceProperties);
+        logicalPlan.addOperator("regex", "RegexMatcher", regexMatcherProperties);
+        logicalPlan.addOperator("nlp", "NlpExtractor", nlpExtractorProperties);
+        logicalPlan.addOperator("fuzzytoken", "FuzzyTokenMatcher", fuzzyTokenMatcherProperties);
+        logicalPlan.addOperator("join", "Join", joinProperties);
+        logicalPlan.addOperator("join2", "Join", joinProperties);
+        logicalPlan.addOperator("sink", "FileSink", fileSinkProperties);
 
-        LogicalPlan.addLink("source", "regex");
-        LogicalPlan.addLink("source", "nlp");
-        LogicalPlan.addLink("source", "fuzzytoken");
-        LogicalPlan.addLink("regex", "join");
-        LogicalPlan.addLink("nlp", "join");
-        LogicalPlan.addLink("join", "join2");
-        LogicalPlan.addLink("fuzzytoken", "join2");
-        LogicalPlan.addLink("join2", "sink");
+        logicalPlan.addLink("source", "regex");
+        logicalPlan.addLink("source", "nlp");
+        logicalPlan.addLink("source", "fuzzytoken");
+        logicalPlan.addLink("regex", "join");
+        logicalPlan.addLink("nlp", "join");
+        logicalPlan.addLink("join", "join2");
+        logicalPlan.addLink("fuzzytoken", "join2");
+        logicalPlan.addLink("join2", "sink");
 
-        Plan queryPlan = LogicalPlan.buildQueryPlan();
+        Plan queryPlan = logicalPlan.buildQueryPlan();
 
         ISink fileSink = queryPlan.getRoot();
         Assert.assertTrue(fileSink instanceof FileSink);
@@ -267,13 +267,13 @@ public class LogicalPlanTest {
      */
     @Test(expected = PlanGenException.class)
     public void testInvalidLogicalPlan1() throws Exception {
-        LogicalPlan LogicalPlan = new LogicalPlan();
+        LogicalPlan logicalPlan = new LogicalPlan();
 
-        LogicalPlan.addOperator("regex", "RegexMatcher", regexMatcherProperties);
-        LogicalPlan.addOperator("sink", "FileSink", fileSinkProperties);
-        LogicalPlan.addLink("regex", "sink");
+        logicalPlan.addOperator("regex", "RegexMatcher", regexMatcherProperties);
+        logicalPlan.addOperator("sink", "FileSink", fileSinkProperties);
+        logicalPlan.addLink("regex", "sink");
 
-        LogicalPlan.buildQueryPlan();
+        logicalPlan.buildQueryPlan();
     }
 
     /*
@@ -284,13 +284,13 @@ public class LogicalPlanTest {
      */
     @Test(expected = PlanGenException.class)
     public void testInvalidLogicalPlan2() throws Exception {
-        LogicalPlan LogicalPlan = new LogicalPlan();
+        LogicalPlan logicalPlan = new LogicalPlan();
 
-        LogicalPlan.addOperator("source", "KeywordSource", keywordSourceProperties);
-        LogicalPlan.addOperator("regex", "RegexMatcher", regexMatcherProperties);
-        LogicalPlan.addLink("source", "regex");
+        logicalPlan.addOperator("source", "KeywordSource", keywordSourceProperties);
+        logicalPlan.addOperator("regex", "RegexMatcher", regexMatcherProperties);
+        logicalPlan.addLink("source", "regex");
 
-        LogicalPlan.buildQueryPlan();
+        logicalPlan.buildQueryPlan();
     }
 
     /*
@@ -301,18 +301,18 @@ public class LogicalPlanTest {
      */
     @Test(expected = PlanGenException.class)
     public void testInvalidLogicalPlan3() throws Exception {
-        LogicalPlan LogicalPlan = new LogicalPlan();
+        LogicalPlan logicalPlan = new LogicalPlan();
 
-        LogicalPlan.addOperator("source", "KeywordSource", keywordSourceProperties);
-        LogicalPlan.addOperator("regex", "RegexMatcher", regexMatcherProperties);
-        LogicalPlan.addOperator("sink1", "FileSink", fileSinkProperties);
-        LogicalPlan.addOperator("sink2", "FileSink", fileSinkProperties);
+        logicalPlan.addOperator("source", "KeywordSource", keywordSourceProperties);
+        logicalPlan.addOperator("regex", "RegexMatcher", regexMatcherProperties);
+        logicalPlan.addOperator("sink1", "FileSink", fileSinkProperties);
+        logicalPlan.addOperator("sink2", "FileSink", fileSinkProperties);
 
-        LogicalPlan.addLink("source", "regex");
-        LogicalPlan.addLink("regex", "sink1");
-        LogicalPlan.addLink("regex", "sink2");
+        logicalPlan.addLink("source", "regex");
+        logicalPlan.addLink("regex", "sink1");
+        logicalPlan.addLink("regex", "sink2");
 
-        LogicalPlan.buildQueryPlan();
+        logicalPlan.buildQueryPlan();
     }
 
     /*
@@ -325,20 +325,20 @@ public class LogicalPlanTest {
      */
     @Test(expected = PlanGenException.class)
     public void testInvalidLogicalPlan4() throws Exception {
-        LogicalPlan LogicalPlan = new LogicalPlan();
+        LogicalPlan logicalPlan = new LogicalPlan();
 
-        LogicalPlan.addOperator("source", "KeywordSource", keywordSourceProperties);
-        LogicalPlan.addOperator("regex", "RegexMatcher", regexMatcherProperties);
-        LogicalPlan.addOperator("sink1", "FileSink", fileSinkProperties);
+        logicalPlan.addOperator("source", "KeywordSource", keywordSourceProperties);
+        logicalPlan.addOperator("regex", "RegexMatcher", regexMatcherProperties);
+        logicalPlan.addOperator("sink1", "FileSink", fileSinkProperties);
 
-        LogicalPlan.addOperator("regex2", "RegexMatcher", regexMatcherProperties);
-        LogicalPlan.addOperator("nlp", "NlpExtractor", nlpExtractorProperties);
+        logicalPlan.addOperator("regex2", "RegexMatcher", regexMatcherProperties);
+        logicalPlan.addOperator("nlp", "NlpExtractor", nlpExtractorProperties);
 
-        LogicalPlan.addLink("source", "regex");
-        LogicalPlan.addLink("regex", "sink1");
-        LogicalPlan.addLink("regex2", "nlp");
+        logicalPlan.addLink("source", "regex");
+        logicalPlan.addLink("regex", "sink1");
+        logicalPlan.addLink("regex2", "nlp");
 
-        LogicalPlan.buildQueryPlan();
+        logicalPlan.buildQueryPlan();
     }
 
     /*
@@ -352,25 +352,25 @@ public class LogicalPlanTest {
      */
     @Test(expected = PlanGenException.class)
     public void testInvalidLogicalPlan5() throws Exception {
-        LogicalPlan LogicalPlan = new LogicalPlan();
+        LogicalPlan logicalPlan = new LogicalPlan();
 
-        LogicalPlan.addOperator("source", "KeywordSource", keywordSourceProperties);
-        LogicalPlan.addOperator("regex1", "RegexMatcher", regexMatcherProperties);
-        LogicalPlan.addOperator("sink1", "FileSink", fileSinkProperties);
+        logicalPlan.addOperator("source", "KeywordSource", keywordSourceProperties);
+        logicalPlan.addOperator("regex1", "RegexMatcher", regexMatcherProperties);
+        logicalPlan.addOperator("sink1", "FileSink", fileSinkProperties);
 
-        LogicalPlan.addOperator("regex2", "RegexMatcher", regexMatcherProperties);
-        LogicalPlan.addOperator("nlp", "NlpExtractor", nlpExtractorProperties);
-        LogicalPlan.addOperator("join", "Join", joinProperties);
+        logicalPlan.addOperator("regex2", "RegexMatcher", regexMatcherProperties);
+        logicalPlan.addOperator("nlp", "NlpExtractor", nlpExtractorProperties);
+        logicalPlan.addOperator("join", "Join", joinProperties);
 
 
-        LogicalPlan.addLink("source", "regex1");
-        LogicalPlan.addLink("regex1", "join");
-        LogicalPlan.addLink("regex2", "nlp");
-        LogicalPlan.addLink("nlp", "regex2");
-        LogicalPlan.addLink("nlp", "join");
-        LogicalPlan.addLink("join", "sink1");
+        logicalPlan.addLink("source", "regex1");
+        logicalPlan.addLink("regex1", "join");
+        logicalPlan.addLink("regex2", "nlp");
+        logicalPlan.addLink("nlp", "regex2");
+        logicalPlan.addLink("nlp", "join");
+        logicalPlan.addLink("join", "sink1");
 
-        LogicalPlan.buildQueryPlan();
+        logicalPlan.buildQueryPlan();
     }
     
     /*
@@ -384,22 +384,22 @@ public class LogicalPlanTest {
      */
     @Test(expected = PlanGenException.class)
     public void testInvalidLogicalPlan6() throws Exception {
-        LogicalPlan LogicalPlan = new LogicalPlan();
+        LogicalPlan logicalPlan = new LogicalPlan();
 
-        LogicalPlan.addOperator("source", "KeywordSource", keywordSourceProperties);
-        LogicalPlan.addOperator("source2", "KeywordSource", keywordSourceProperties);
+        logicalPlan.addOperator("source", "KeywordSource", keywordSourceProperties);
+        logicalPlan.addOperator("source2", "KeywordSource", keywordSourceProperties);
 
-        LogicalPlan.addOperator("regex", "RegexMatcher", regexMatcherProperties);
-        LogicalPlan.addOperator("regex2", "RegexMatcher", regexMatcherProperties);
+        logicalPlan.addOperator("regex", "RegexMatcher", regexMatcherProperties);
+        logicalPlan.addOperator("regex2", "RegexMatcher", regexMatcherProperties);
 
-        LogicalPlan.addOperator("sink1", "FileSink", fileSinkProperties);
+        logicalPlan.addOperator("sink1", "FileSink", fileSinkProperties);
 
-        LogicalPlan.addLink("source", "regex");
-        LogicalPlan.addLink("source2", "regex2");
-        LogicalPlan.addLink("regex", "sink1");
-        LogicalPlan.addLink("regex2", "sink1");
+        logicalPlan.addLink("source", "regex");
+        logicalPlan.addLink("source2", "regex2");
+        logicalPlan.addLink("regex", "sink1");
+        logicalPlan.addLink("regex2", "sink1");
 
-        LogicalPlan.buildQueryPlan();
+        logicalPlan.buildQueryPlan();
     }
     
     /*
@@ -414,20 +414,20 @@ public class LogicalPlanTest {
      */
     @Test(expected = PlanGenException.class)
     public void testInvalidLogicalPlan7() throws Exception {
-        LogicalPlan LogicalPlan = new LogicalPlan();
+        LogicalPlan logicalPlan = new LogicalPlan();
 
-        LogicalPlan.addOperator("source", "KeywordSource", keywordSourceProperties);
+        logicalPlan.addOperator("source", "KeywordSource", keywordSourceProperties);
 
-        LogicalPlan.addOperator("regex", "RegexMatcher", regexMatcherProperties);
-        LogicalPlan.addOperator("regex2", "RegexMatcher", regexMatcherProperties);
+        logicalPlan.addOperator("regex", "RegexMatcher", regexMatcherProperties);
+        logicalPlan.addOperator("regex2", "RegexMatcher", regexMatcherProperties);
 
-        LogicalPlan.addOperator("sink1", "FileSink", fileSinkProperties);
+        logicalPlan.addOperator("sink1", "FileSink", fileSinkProperties);
 
-        LogicalPlan.addLink("source", "regex");
-        LogicalPlan.addLink("source", "regex2");
-        LogicalPlan.addLink("regex", "sink1");
+        logicalPlan.addLink("source", "regex");
+        logicalPlan.addLink("source", "regex2");
+        logicalPlan.addLink("regex", "sink1");
 
-        LogicalPlan.buildQueryPlan();
+        logicalPlan.buildQueryPlan();
     }
     
     /*
@@ -438,15 +438,15 @@ public class LogicalPlanTest {
      */
     @Test(expected = PlanGenException.class)
     public void testInvalidLogicalPlan8() throws Exception {
-        LogicalPlan LogicalPlan = new LogicalPlan();
+        LogicalPlan logicalPlan = new LogicalPlan();
 
-        LogicalPlan.addOperator("source", "KeywordSource", keywordSourceProperties);
-        LogicalPlan.addOperator("sink1", "FileSink", fileSinkProperties);
+        logicalPlan.addOperator("source", "KeywordSource", keywordSourceProperties);
+        logicalPlan.addOperator("sink1", "FileSink", fileSinkProperties);
 
-        LogicalPlan.addLink("source", "sink1");
-        LogicalPlan.addLink("sink1", "source");
+        logicalPlan.addLink("source", "sink1");
+        logicalPlan.addLink("sink1", "source");
 
-        LogicalPlan.buildQueryPlan();
+        logicalPlan.buildQueryPlan();
     }
 
 }
