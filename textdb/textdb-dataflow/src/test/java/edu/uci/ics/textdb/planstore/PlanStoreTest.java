@@ -1,4 +1,4 @@
-package edu.uci.ics.textdb.planstorage;
+package edu.uci.ics.textdb.planstore;
 
 import org.junit.After;
 import org.junit.Before;
@@ -8,7 +8,7 @@ import org.junit.Test;
  * @author sweetest
  *
  */
-public class PlanStorageTest {
+public class PlanStoreTest {
     @Before
     public void setUp() throws Exception {
     }

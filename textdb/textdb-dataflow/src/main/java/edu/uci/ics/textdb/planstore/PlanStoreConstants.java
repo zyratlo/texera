@@ -1,4 +1,4 @@
-package edu.uci.ics.textdb.planstorage;
+package edu.uci.ics.textdb.planstore;
 
 import edu.uci.ics.textdb.api.common.Attribute;
 import edu.uci.ics.textdb.api.common.FieldType;
@@ -8,7 +8,7 @@ import edu.uci.ics.textdb.api.common.Schema;
  * @author sweetest
  *
  */
-public class PlanStorageConstants {
+public class PlanStoreConstants {
     public static final String PLAN_STORAGE_DIR = "../plan";
 
     public static final String PLAN_NAME_FIELD = "plan";
