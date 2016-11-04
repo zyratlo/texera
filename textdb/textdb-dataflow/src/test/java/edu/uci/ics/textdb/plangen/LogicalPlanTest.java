@@ -27,7 +27,7 @@ import edu.uci.ics.textdb.plangen.operatorbuilder.OperatorBuilderUtils;
 import edu.uci.ics.textdb.plangen.operatorbuilder.RegexMatcherBuilder;
 import junit.framework.Assert;
 
-public class OperatorGraphTest {
+public class LogicalPlanTest {
 
     public static HashMap<String, String> keywordSourceProperties = new HashMap<String, String>() {
         {
@@ -93,16 +93,16 @@ public class OperatorGraphTest {
      * 
      */
     @Test
-    public void testOperatorGraph1() throws Exception {
-        OperatorGraph operatorGraph = new OperatorGraph();
+    public void testLogicalPlan1() throws Exception {
+        LogicalPlan logicalPlan = new LogicalPlan();
 
-        operatorGraph.addOperator("source", "KeywordSource", keywordSourceProperties);
-        operatorGraph.addOperator("regex", "RegexMatcher", regexMatcherProperties);
-        operatorGraph.addOperator("sink", "FileSink", fileSinkProperties);
-        operatorGraph.addLink("source", "regex");
-        operatorGraph.addLink("regex", "sink");
+        logicalPlan.addOperator("source", "KeywordSource", keywordSourceProperties);
+        logicalPlan.addOperator("regex", "RegexMatcher", regexMatcherProperties);
+        logicalPlan.addOperator("sink", "FileSink", fileSinkProperties);
+        logicalPlan.addLink("source", "regex");
+        logicalPlan.addLink("regex", "sink");
 
-        Plan queryPlan = operatorGraph.buildQueryPlan();
+        Plan queryPlan = logicalPlan.buildQueryPlan();
 
         ISink fileSink = queryPlan.getRoot();
         Assert.assertTrue(fileSink instanceof FileSink);
@@ -123,26 +123,26 @@ public class OperatorGraphTest {
      * 
      */
     @Test
-    public void testOperatorGraph2() throws Exception {
-        OperatorGraph operatorGraph = new OperatorGraph();
+    public void testLogicalPlan2() throws Exception {
+        LogicalPlan logicalPlan = new LogicalPlan();
 
         JSONObject schemaJsonJSONObject = new JSONObject();
         schemaJsonJSONObject.put(OperatorBuilderUtils.ATTRIBUTE_NAMES, "id, city, location, content");
         schemaJsonJSONObject.put(OperatorBuilderUtils.ATTRIBUTE_TYPES, "integer, string, string, text");
 
-        operatorGraph.addOperator("source", "KeywordSource", keywordSourceProperties);
-        operatorGraph.addOperator("regex", "RegexMatcher", regexMatcherProperties);
-        operatorGraph.addOperator("nlp", "NlpExtractor", nlpExtractorProperties);
-        operatorGraph.addOperator("join", "Join", joinProperties);
-        operatorGraph.addOperator("sink", "FileSink", fileSinkProperties);
+        logicalPlan.addOperator("source", "KeywordSource", keywordSourceProperties);
+        logicalPlan.addOperator("regex", "RegexMatcher", regexMatcherProperties);
+        logicalPlan.addOperator("nlp", "NlpExtractor", nlpExtractorProperties);
+        logicalPlan.addOperator("join", "Join", joinProperties);
+        logicalPlan.addOperator("sink", "FileSink", fileSinkProperties);
 
-        operatorGraph.addLink("source", "regex");
-        operatorGraph.addLink("source", "nlp");
-        operatorGraph.addLink("regex", "join");
-        operatorGraph.addLink("nlp", "join");
-        operatorGraph.addLink("join", "sink");
+        logicalPlan.addLink("source", "regex");
+        logicalPlan.addLink("source", "nlp");
+        logicalPlan.addLink("regex", "join");
+        logicalPlan.addLink("nlp", "join");
+        logicalPlan.addLink("join", "sink");
 
-        Plan queryPlan = operatorGraph.buildQueryPlan();
+        Plan queryPlan = logicalPlan.buildQueryPlan();
 
         ISink fileSink = queryPlan.getRoot();
         Assert.assertTrue(fileSink instanceof FileSink);
@@ -187,31 +187,31 @@ public class OperatorGraphTest {
      * 
      */
     @Test
-    public void testOperatorGraph3() throws Exception {
-        OperatorGraph operatorGraph = new OperatorGraph();
+    public void testLogicalPlan3() throws Exception {
+        LogicalPlan logicalPlan = new LogicalPlan();
 
         JSONObject schemaJsonJSONObject = new JSONObject();
         schemaJsonJSONObject.put(OperatorBuilderUtils.ATTRIBUTE_NAMES, "id, city, location, content");
         schemaJsonJSONObject.put(OperatorBuilderUtils.ATTRIBUTE_TYPES, "integer, string, string, text");
 
-        operatorGraph.addOperator("source", "KeywordSource", keywordSourceProperties);
-        operatorGraph.addOperator("regex", "RegexMatcher", regexMatcherProperties);
-        operatorGraph.addOperator("nlp", "NlpExtractor", nlpExtractorProperties);
-        operatorGraph.addOperator("fuzzytoken", "FuzzyTokenMatcher", fuzzyTokenMatcherProperties);
-        operatorGraph.addOperator("join", "Join", joinProperties);
-        operatorGraph.addOperator("join2", "Join", joinProperties);
-        operatorGraph.addOperator("sink", "FileSink", fileSinkProperties);
+        logicalPlan.addOperator("source", "KeywordSource", keywordSourceProperties);
+        logicalPlan.addOperator("regex", "RegexMatcher", regexMatcherProperties);
+        logicalPlan.addOperator("nlp", "NlpExtractor", nlpExtractorProperties);
+        logicalPlan.addOperator("fuzzytoken", "FuzzyTokenMatcher", fuzzyTokenMatcherProperties);
+        logicalPlan.addOperator("join", "Join", joinProperties);
+        logicalPlan.addOperator("join2", "Join", joinProperties);
+        logicalPlan.addOperator("sink", "FileSink", fileSinkProperties);
 
-        operatorGraph.addLink("source", "regex");
-        operatorGraph.addLink("source", "nlp");
-        operatorGraph.addLink("source", "fuzzytoken");
-        operatorGraph.addLink("regex", "join");
-        operatorGraph.addLink("nlp", "join");
-        operatorGraph.addLink("join", "join2");
-        operatorGraph.addLink("fuzzytoken", "join2");
-        operatorGraph.addLink("join2", "sink");
+        logicalPlan.addLink("source", "regex");
+        logicalPlan.addLink("source", "nlp");
+        logicalPlan.addLink("source", "fuzzytoken");
+        logicalPlan.addLink("regex", "join");
+        logicalPlan.addLink("nlp", "join");
+        logicalPlan.addLink("join", "join2");
+        logicalPlan.addLink("fuzzytoken", "join2");
+        logicalPlan.addLink("join2", "sink");
 
-        Plan queryPlan = operatorGraph.buildQueryPlan();
+        Plan queryPlan = logicalPlan.buildQueryPlan();
 
         ISink fileSink = queryPlan.getRoot();
         Assert.assertTrue(fileSink instanceof FileSink);
@@ -266,14 +266,14 @@ public class OperatorGraphTest {
      * 
      */
     @Test(expected = PlanGenException.class)
-    public void testInvalidOperatorGraph1() throws Exception {
-        OperatorGraph operatorGraph = new OperatorGraph();
+    public void testInvalidLogicalPlan1() throws Exception {
+        LogicalPlan logicalPlan = new LogicalPlan();
 
-        operatorGraph.addOperator("regex", "RegexMatcher", regexMatcherProperties);
-        operatorGraph.addOperator("sink", "FileSink", fileSinkProperties);
-        operatorGraph.addLink("regex", "sink");
+        logicalPlan.addOperator("regex", "RegexMatcher", regexMatcherProperties);
+        logicalPlan.addOperator("sink", "FileSink", fileSinkProperties);
+        logicalPlan.addLink("regex", "sink");
 
-        operatorGraph.buildQueryPlan();
+        logicalPlan.buildQueryPlan();
     }
 
     /*
@@ -283,14 +283,14 @@ public class OperatorGraphTest {
      * 
      */
     @Test(expected = PlanGenException.class)
-    public void testInvalidOperatorGraph2() throws Exception {
-        OperatorGraph operatorGraph = new OperatorGraph();
+    public void testInvalidLogicalPlan2() throws Exception {
+        LogicalPlan logicalPlan = new LogicalPlan();
 
-        operatorGraph.addOperator("source", "KeywordSource", keywordSourceProperties);
-        operatorGraph.addOperator("regex", "RegexMatcher", regexMatcherProperties);
-        operatorGraph.addLink("source", "regex");
+        logicalPlan.addOperator("source", "KeywordSource", keywordSourceProperties);
+        logicalPlan.addOperator("regex", "RegexMatcher", regexMatcherProperties);
+        logicalPlan.addLink("source", "regex");
 
-        operatorGraph.buildQueryPlan();
+        logicalPlan.buildQueryPlan();
     }
 
     /*
@@ -300,19 +300,19 @@ public class OperatorGraphTest {
      *                                   -> FileSink2
      */
     @Test(expected = PlanGenException.class)
-    public void testInvalidOperatorGraph3() throws Exception {
-        OperatorGraph operatorGraph = new OperatorGraph();
+    public void testInvalidLogicalPlan3() throws Exception {
+        LogicalPlan logicalPlan = new LogicalPlan();
 
-        operatorGraph.addOperator("source", "KeywordSource", keywordSourceProperties);
-        operatorGraph.addOperator("regex", "RegexMatcher", regexMatcherProperties);
-        operatorGraph.addOperator("sink1", "FileSink", fileSinkProperties);
-        operatorGraph.addOperator("sink2", "FileSink", fileSinkProperties);
+        logicalPlan.addOperator("source", "KeywordSource", keywordSourceProperties);
+        logicalPlan.addOperator("regex", "RegexMatcher", regexMatcherProperties);
+        logicalPlan.addOperator("sink1", "FileSink", fileSinkProperties);
+        logicalPlan.addOperator("sink2", "FileSink", fileSinkProperties);
 
-        operatorGraph.addLink("source", "regex");
-        operatorGraph.addLink("regex", "sink1");
-        operatorGraph.addLink("regex", "sink2");
+        logicalPlan.addLink("source", "regex");
+        logicalPlan.addLink("regex", "sink1");
+        logicalPlan.addLink("regex", "sink2");
 
-        operatorGraph.buildQueryPlan();
+        logicalPlan.buildQueryPlan();
     }
 
     /*
@@ -324,21 +324,21 @@ public class OperatorGraphTest {
      * 
      */
     @Test(expected = PlanGenException.class)
-    public void testInvalidOperatorGraph4() throws Exception {
-        OperatorGraph operatorGraph = new OperatorGraph();
+    public void testInvalidLogicalPlan4() throws Exception {
+        LogicalPlan logicalPlan = new LogicalPlan();
 
-        operatorGraph.addOperator("source", "KeywordSource", keywordSourceProperties);
-        operatorGraph.addOperator("regex", "RegexMatcher", regexMatcherProperties);
-        operatorGraph.addOperator("sink1", "FileSink", fileSinkProperties);
+        logicalPlan.addOperator("source", "KeywordSource", keywordSourceProperties);
+        logicalPlan.addOperator("regex", "RegexMatcher", regexMatcherProperties);
+        logicalPlan.addOperator("sink1", "FileSink", fileSinkProperties);
 
-        operatorGraph.addOperator("regex2", "RegexMatcher", regexMatcherProperties);
-        operatorGraph.addOperator("nlp", "NlpExtractor", nlpExtractorProperties);
+        logicalPlan.addOperator("regex2", "RegexMatcher", regexMatcherProperties);
+        logicalPlan.addOperator("nlp", "NlpExtractor", nlpExtractorProperties);
 
-        operatorGraph.addLink("source", "regex");
-        operatorGraph.addLink("regex", "sink1");
-        operatorGraph.addLink("regex2", "nlp");
+        logicalPlan.addLink("source", "regex");
+        logicalPlan.addLink("regex", "sink1");
+        logicalPlan.addLink("regex2", "nlp");
 
-        operatorGraph.buildQueryPlan();
+        logicalPlan.buildQueryPlan();
     }
 
     /*
@@ -351,26 +351,26 @@ public class OperatorGraphTest {
      *                                 --> (back to the same) RegexMatcher2
      */
     @Test(expected = PlanGenException.class)
-    public void testInvalidOperatorGraph5() throws Exception {
-        OperatorGraph operatorGraph = new OperatorGraph();
+    public void testInvalidLogicalPlan5() throws Exception {
+        LogicalPlan logicalPlan = new LogicalPlan();
 
-        operatorGraph.addOperator("source", "KeywordSource", keywordSourceProperties);
-        operatorGraph.addOperator("regex1", "RegexMatcher", regexMatcherProperties);
-        operatorGraph.addOperator("sink1", "FileSink", fileSinkProperties);
+        logicalPlan.addOperator("source", "KeywordSource", keywordSourceProperties);
+        logicalPlan.addOperator("regex1", "RegexMatcher", regexMatcherProperties);
+        logicalPlan.addOperator("sink1", "FileSink", fileSinkProperties);
 
-        operatorGraph.addOperator("regex2", "RegexMatcher", regexMatcherProperties);
-        operatorGraph.addOperator("nlp", "NlpExtractor", nlpExtractorProperties);
-        operatorGraph.addOperator("join", "Join", joinProperties);
+        logicalPlan.addOperator("regex2", "RegexMatcher", regexMatcherProperties);
+        logicalPlan.addOperator("nlp", "NlpExtractor", nlpExtractorProperties);
+        logicalPlan.addOperator("join", "Join", joinProperties);
 
 
-        operatorGraph.addLink("source", "regex1");
-        operatorGraph.addLink("regex1", "join");
-        operatorGraph.addLink("regex2", "nlp");
-        operatorGraph.addLink("nlp", "regex2");
-        operatorGraph.addLink("nlp", "join");
-        operatorGraph.addLink("join", "sink1");
+        logicalPlan.addLink("source", "regex1");
+        logicalPlan.addLink("regex1", "join");
+        logicalPlan.addLink("regex2", "nlp");
+        logicalPlan.addLink("nlp", "regex2");
+        logicalPlan.addLink("nlp", "join");
+        logicalPlan.addLink("join", "sink1");
 
-        operatorGraph.buildQueryPlan();
+        logicalPlan.buildQueryPlan();
     }
     
     /*
@@ -383,23 +383,23 @@ public class OperatorGraphTest {
      * 
      */
     @Test(expected = PlanGenException.class)
-    public void testInvalidOperatorGraph6() throws Exception {
-        OperatorGraph operatorGraph = new OperatorGraph();
+    public void testInvalidLogicalPlan6() throws Exception {
+        LogicalPlan logicalPlan = new LogicalPlan();
 
-        operatorGraph.addOperator("source", "KeywordSource", keywordSourceProperties);
-        operatorGraph.addOperator("source2", "KeywordSource", keywordSourceProperties);
+        logicalPlan.addOperator("source", "KeywordSource", keywordSourceProperties);
+        logicalPlan.addOperator("source2", "KeywordSource", keywordSourceProperties);
 
-        operatorGraph.addOperator("regex", "RegexMatcher", regexMatcherProperties);
-        operatorGraph.addOperator("regex2", "RegexMatcher", regexMatcherProperties);
+        logicalPlan.addOperator("regex", "RegexMatcher", regexMatcherProperties);
+        logicalPlan.addOperator("regex2", "RegexMatcher", regexMatcherProperties);
 
-        operatorGraph.addOperator("sink1", "FileSink", fileSinkProperties);
+        logicalPlan.addOperator("sink1", "FileSink", fileSinkProperties);
 
-        operatorGraph.addLink("source", "regex");
-        operatorGraph.addLink("source2", "regex2");
-        operatorGraph.addLink("regex", "sink1");
-        operatorGraph.addLink("regex2", "sink1");
+        logicalPlan.addLink("source", "regex");
+        logicalPlan.addLink("source2", "regex2");
+        logicalPlan.addLink("regex", "sink1");
+        logicalPlan.addLink("regex2", "sink1");
 
-        operatorGraph.buildQueryPlan();
+        logicalPlan.buildQueryPlan();
     }
     
     /*
@@ -413,21 +413,21 @@ public class OperatorGraphTest {
      * 
      */
     @Test(expected = PlanGenException.class)
-    public void testInvalidOperatorGraph7() throws Exception {
-        OperatorGraph operatorGraph = new OperatorGraph();
+    public void testInvalidLogicalPlan7() throws Exception {
+        LogicalPlan logicalPlan = new LogicalPlan();
 
-        operatorGraph.addOperator("source", "KeywordSource", keywordSourceProperties);
+        logicalPlan.addOperator("source", "KeywordSource", keywordSourceProperties);
 
-        operatorGraph.addOperator("regex", "RegexMatcher", regexMatcherProperties);
-        operatorGraph.addOperator("regex2", "RegexMatcher", regexMatcherProperties);
+        logicalPlan.addOperator("regex", "RegexMatcher", regexMatcherProperties);
+        logicalPlan.addOperator("regex2", "RegexMatcher", regexMatcherProperties);
 
-        operatorGraph.addOperator("sink1", "FileSink", fileSinkProperties);
+        logicalPlan.addOperator("sink1", "FileSink", fileSinkProperties);
 
-        operatorGraph.addLink("source", "regex");
-        operatorGraph.addLink("source", "regex2");
-        operatorGraph.addLink("regex", "sink1");
+        logicalPlan.addLink("source", "regex");
+        logicalPlan.addLink("source", "regex2");
+        logicalPlan.addLink("regex", "sink1");
 
-        operatorGraph.buildQueryPlan();
+        logicalPlan.buildQueryPlan();
     }
     
     /*
@@ -437,16 +437,16 @@ public class OperatorGraphTest {
      * 
      */
     @Test(expected = PlanGenException.class)
-    public void testInvalidOperatorGraph8() throws Exception {
-        OperatorGraph operatorGraph = new OperatorGraph();
+    public void testInvalidLogicalPlan8() throws Exception {
+        LogicalPlan logicalPlan = new LogicalPlan();
 
-        operatorGraph.addOperator("source", "KeywordSource", keywordSourceProperties);
-        operatorGraph.addOperator("sink1", "FileSink", fileSinkProperties);
+        logicalPlan.addOperator("source", "KeywordSource", keywordSourceProperties);
+        logicalPlan.addOperator("sink1", "FileSink", fileSinkProperties);
 
-        operatorGraph.addLink("source", "sink1");
-        operatorGraph.addLink("sink1", "source");
+        logicalPlan.addLink("source", "sink1");
+        logicalPlan.addLink("sink1", "source");
 
-        operatorGraph.buildQueryPlan();
+        logicalPlan.buildQueryPlan();
     }
 
 }
