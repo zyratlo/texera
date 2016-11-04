@@ -12,7 +12,7 @@ import static org.junit.Assert.assertEquals;
  * Checks the deserialization of a logical query plan
  * Created by kishorenarendran on 10/21/16.
  */
-public class LogicalPlanTest {
+public class QueryPlanRequestTest {
     private static final ObjectMapper MAPPER = Jackson.newObjectMapper();
 
     @Test
@@ -41,8 +41,8 @@ public class LogicalPlanTest {
                 "        \"to\": \"operator2\"    \n" +
                 "    }]\n" +
                 "}";
-        LogicalPlan logicalPlan = MAPPER.readValue(jsonString, LogicalPlan.class);
-        assertEquals(logicalPlan.getOperators().size(), 2);
-        assertEquals(logicalPlan.getLinks().size(), 1);
+        QueryPlanRequest queryPlanRequest = MAPPER.readValue(jsonString, QueryPlanRequest.class);
+        assertEquals(queryPlanRequest.getOperators().size(), 2);
+        assertEquals(queryPlanRequest.getLinks().size(), 1);
     }
 }

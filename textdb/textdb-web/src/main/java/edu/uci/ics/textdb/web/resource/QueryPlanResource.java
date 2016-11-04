@@ -1,7 +1,7 @@
 package edu.uci.ics.textdb.web.resource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import edu.uci.ics.textdb.web.request.LogicalPlan;
+import edu.uci.ics.textdb.web.request.QueryPlanRequest;
 import edu.uci.ics.textdb.web.response.SampleResponse;
 
 import javax.ws.rs.Consumes;
@@ -10,7 +10,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.HashMap;
 
 /**
  * This class will be the resource class for accepting a query plan edu.uci.ics.textdb.web.request and executing the
@@ -24,18 +23,18 @@ public class QueryPlanResource {
 
     /**
      * This is the edu.uci.ics.textdb.web.request handler for the execution of a Query Plan.
-     * @param logicalPlan - An object that models the query plan edu.uci.ics.textdb.web.request that will be POSTed
+     * @param queryPlanRequest - An object that models the query plan edu.uci.ics.textdb.web.request that will be POSTed
      * @return - Generic response object for now, which wjust verifies the creation of operator properties' hashmap
      * @throws Exception
      */
     @POST
     @Path("/execute")
-    public Response executeQueryPlan(LogicalPlan logicalPlan) throws Exception {
+    public Response executeQueryPlan(QueryPlanRequest queryPlanRequest) throws Exception {
         // Aggregating all the operator properties in the query plan input
-        logicalPlan.aggregateOperatorProperties();
+        queryPlanRequest.aggregateOperatorProperties();
 
         ObjectMapper objectMapper = new ObjectMapper();
-        if(logicalPlan.getOperatorProperties() != null) {
+        if(queryPlanRequest.getOperatorProperties() != null) {
             // Temporary sample response when the operator properties aggregation works correctly
             SampleResponse sampleResponse = new SampleResponse(0, "Successful");
             return Response.status(200)

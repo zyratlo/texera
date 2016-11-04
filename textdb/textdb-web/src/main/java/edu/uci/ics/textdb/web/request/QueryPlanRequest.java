@@ -16,7 +16,7 @@ import java.util.Iterator;
  * properties for a given logical query plan.
  * Created by kishorenarendran on 10/21/16.
  */
-public class LogicalPlan {
+public class QueryPlanRequest {
     private ArrayList<OperatorBean> operators;
     private ArrayList<LinkBean> links;
     private HashMap<String, HashMap<String, String>> operatorProperties;
@@ -26,10 +26,10 @@ public class LogicalPlan {
         put("DictionaryMatcher", DictionaryMatcherBean.class);
     }};
 
-    public LogicalPlan() {
+    public QueryPlanRequest() {
     }
 
-    public LogicalPlan(ArrayList<OperatorBean> operators, ArrayList<LinkBean> links) {
+    public QueryPlanRequest(ArrayList<OperatorBean> operators, ArrayList<LinkBean> links) {
         this.operators = operators;
         this.links = links;
     }
