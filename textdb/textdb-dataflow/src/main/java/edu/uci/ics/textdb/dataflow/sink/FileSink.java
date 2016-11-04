@@ -1,9 +1,11 @@
 package edu.uci.ics.textdb.dataflow.sink;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 
 import edu.uci.ics.textdb.api.common.ITuple;
+import edu.uci.ics.textdb.api.exception.TextDBException;
 
 /**
  * Created by chenli on 5/11/16.
@@ -30,13 +32,17 @@ public class FileSink extends AbstractSink {
     }
 
     @Override
-    public void open() throws Exception {
+    public void open() throws TextDBException {
         super.open();
-        this.printWriter = new PrintWriter(file);
+        try {
+            this.printWriter = new PrintWriter(file);
+        } catch (FileNotFoundException e) {
+            throw new TextDBException("Failed to open file sink", e);
+        }
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() throws TextDBException {
         if (this.printWriter != null) {
             this.printWriter.close();
         }
