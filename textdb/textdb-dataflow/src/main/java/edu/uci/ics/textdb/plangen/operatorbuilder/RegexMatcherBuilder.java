@@ -30,7 +30,7 @@ public class RegexMatcherBuilder {
     /**
      * Builds a RegexMatcher according to operatorProperties.
      */
-    public static RegexMatcher buildRegexMatcher(Map<String, String> operatorProperties) throws PlanGenException, DataFlowException, IOException {
+    public static RegexMatcher buildRegexMatcher(Map<String, String> operatorProperties) throws PlanGenException {
         String regex = OperatorBuilderUtils.getRequiredProperty(REGEX, operatorProperties);
 
         // check if regex is empty
@@ -40,8 +40,13 @@ public class RegexMatcherBuilder {
         List<Attribute> attributeList = OperatorBuilderUtils.constructAttributeList(operatorProperties);
 
         // build RegexMatcher
-        RegexPredicate regexPredicate = new RegexPredicate(regex, attributeList,
-                DataConstants.getTrigramAnalyzer());
+        RegexPredicate regexPredicate;
+        try {
+            regexPredicate = new RegexPredicate(regex, attributeList,
+                    DataConstants.getTrigramAnalyzer());
+        } catch (DataFlowException | IOException e) {
+            throw new PlanGenException(e.getMessage(), e);
+        }
         RegexMatcher regexMatcher = new RegexMatcher(regexPredicate);
 
         // set limit and offset

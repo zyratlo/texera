@@ -26,7 +26,7 @@ public class PlanGenUtils {
     
     @FunctionalInterface
     public interface OperatorBuilder {
-        public IOperator buildOperator(Map<String, String> operatorProperties) throws Exception;
+        public IOperator buildOperator(Map<String, String> operatorProperties) throws PlanGenException;
     }
     
     public static Map<String, OperatorBuilder> operatorBuilderMap = new HashMap<>();
@@ -42,7 +42,7 @@ public class PlanGenUtils {
         operatorBuilderMap.put("Join".toLowerCase(), JoinBuilder::buildOperator);
     }
     
-    public static IOperator buildOperator(String operatorType, Map<String, String> operatorProperties) throws Exception {
+    public static IOperator buildOperator(String operatorType, Map<String, String> operatorProperties) throws PlanGenException {
         OperatorBuilder operatorBuilder = operatorBuilderMap.get(operatorType.toLowerCase());
         planGenAssert(operatorBuilder != null, 
                 String.format("operatorType %s is invalid. It must be one of %s.", operatorType, operatorBuilderMap.keySet()));
