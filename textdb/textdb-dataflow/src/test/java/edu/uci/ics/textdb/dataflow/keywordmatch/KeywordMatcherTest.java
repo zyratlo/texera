@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.uci.ics.textdb.api.exception.TextDBException;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.queryparser.classic.ParseException;
@@ -75,19 +76,19 @@ public class KeywordMatcherTest {
      */
 
     public List<ITuple> getPeopleQueryResults(String query, ArrayList<Attribute> attributeList)
-            throws DataFlowException, ParseException {
+            throws TextDBException, ParseException {
 
         return getPeopleQueryResults(query, attributeList, Integer.MAX_VALUE, 0);
     }
 
     public List<ITuple> getPeopleQueryResults(String query, ArrayList<Attribute> attributeList, int limit)
-            throws DataFlowException, ParseException {
+            throws TextDBException, ParseException {
 
         return getPeopleQueryResults(query, attributeList, limit, 0);
     }
 
     public List<ITuple> getPeopleQueryResults(String query, ArrayList<Attribute> attributeList, int limit, int offset)
-            throws DataFlowException, ParseException {
+            throws TextDBException, ParseException {
 
         KeywordPredicate keywordPredicate = new KeywordPredicate(query, attributeList, analyzer,
                 DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED);
@@ -348,7 +349,7 @@ public class KeywordMatcherTest {
     }
 
     @Test
-    public void testMatchingWithLimit() throws DataFlowException, ParseException, java.text.ParseException {
+    public void testMatchingWithLimit() throws TextDBException, ParseException, java.text.ParseException {
         String query = "angry";
         ArrayList<Attribute> attributeList = new ArrayList<>();
         attributeList.add(TestConstants.FIRST_NAME_ATTR);
@@ -410,7 +411,7 @@ public class KeywordMatcherTest {
     }
 
     @Test
-    public void testMatchingWithLimitOffset() throws DataFlowException, ParseException, java.text.ParseException {
+    public void testMatchingWithLimitOffset() throws TextDBException, ParseException, java.text.ParseException {
         String query = "angry";
         ArrayList<Attribute> attributeList = new ArrayList<>();
         attributeList.add(TestConstants.FIRST_NAME_ATTR);
