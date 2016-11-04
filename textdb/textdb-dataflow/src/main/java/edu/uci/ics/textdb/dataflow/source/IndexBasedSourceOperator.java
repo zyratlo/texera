@@ -7,6 +7,7 @@ import edu.uci.ics.textdb.api.dataflow.ISourceOperator;
 import edu.uci.ics.textdb.api.storage.IDataReader;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
 import edu.uci.ics.textdb.common.exception.ErrorMessages;
+import edu.uci.ics.textdb.api.exception.TextDBException;
 import edu.uci.ics.textdb.storage.DataReaderPredicate;
 import edu.uci.ics.textdb.storage.reader.DataReader;
 
@@ -24,7 +25,7 @@ public class IndexBasedSourceOperator implements ISourceOperator {
     }
 
     @Override
-    public void open() throws DataFlowException {
+    public void open() throws TextDBException {
         try {
             dataReader = new DataReader(predicate);
             dataReader.open();
@@ -36,7 +37,7 @@ public class IndexBasedSourceOperator implements ISourceOperator {
     }
 
     @Override
-    public ITuple getNextTuple() throws DataFlowException {
+    public ITuple getNextTuple() throws TextDBException {
         if (cursor == CLOSED) {
             throw new DataFlowException(ErrorMessages.OPERATOR_NOT_OPENED);
         }
@@ -49,7 +50,7 @@ public class IndexBasedSourceOperator implements ISourceOperator {
     }
 
     @Override
-    public void close() throws DataFlowException {
+    public void close() throws TextDBException {
         try {
             dataReader.close();
             cursor = CLOSED;
