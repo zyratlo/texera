@@ -30,7 +30,7 @@ public class QueryPlanResource {
     @POST
     @Path("/execute")
     public Response executeQueryPlan(QueryPlanRequest queryPlanRequest) throws Exception {
-        // Aggregating all the operator properties in the query plan input
+        // Aggregating all the operator properties, and creating a logical plan object
         boolean aggregatePropertiesFlag = queryPlanRequest.aggregateOperatorProperties();
         boolean createLogicalPlanFlag = queryPlanRequest.createLogicalPlan();
 

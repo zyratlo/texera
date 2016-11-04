@@ -93,6 +93,8 @@ public class QueryPlanRequest {
      */
     public boolean createLogicalPlan() {
         logicalPlan = new LogicalPlan();
+
+        // Adding operators to the logical plan
         for(Iterator<OperatorBean> iterator = operators.iterator(); iterator.hasNext(); ) {
             try {
                 OperatorBean operatorBean = iterator.next();
@@ -105,6 +107,7 @@ public class QueryPlanRequest {
             }
         }
 
+        // Adding links to the logical plan
         for(Iterator<LinkBean> iterator = links.iterator(); iterator.hasNext(); ) {
             try {
                 LinkBean linkBean = iterator.next();
