@@ -17,7 +17,7 @@ public interface IRelationManager {
     public boolean checkTableExistence(String tableName);
     
     // create a new table, tableName must be unique
-    public void createTable(String tableName, String indexDirectory, Schema schema) throws Exception;
+    public void createTable(String tableName, String indexDirectory, Schema schema, String luceneAnalyzer) throws Exception;
     
     // drop a table
     public void deleteTable(String tableName) throws Exception;
@@ -37,5 +37,10 @@ public interface IRelationManager {
     // get the dataReader to scan a table
     public IDataReader scanTable(String tableName) throws Exception;
     
+    public String getTableDirectory(String tableName);
+    
+    public Schema getTableSchema(String tableName);
+    
+    public String getTableAnalyzer(String tableName);
     
 }
