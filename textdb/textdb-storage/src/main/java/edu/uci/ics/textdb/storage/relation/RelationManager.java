@@ -1,4 +1,4 @@
-package edu.uci.ics.textdb.relation;
+package edu.uci.ics.textdb.storage.relation;
 
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.common.Schema;
@@ -6,11 +6,22 @@ import edu.uci.ics.textdb.api.storage.IDataReader;
 import edu.uci.ics.textdb.api.storage.IRelationManager;
 
 public class RelationManager implements IRelationManager {
+    
+    private static volatile RelationManager singletonRelationManager = null;
+    
+    private RelationManager() {
+    }
 
     @Override
     public IRelationManager getRelationManager() {
-        // TODO Auto-generated method stub
-        return null;
+        if (singletonRelationManager == null) {
+            synchronized (RelationManager.class) {
+                if (singletonRelationManager == null) {
+                    singletonRelationManager = new RelationManager();
+                }
+            }
+        }
+        return singletonRelationManager;
     }
 
     @Override
