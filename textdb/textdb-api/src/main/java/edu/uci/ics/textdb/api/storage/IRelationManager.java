@@ -4,8 +4,9 @@ import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.common.Schema;
 
 /**
- * ICatalogManager is the interface for TextDB's catalog manager, 
- *   which handles the meta data information about each table.
+ * IRelationManager is the interface for TextDB's relation manager, 
+ *   which manages the meta data information about each table, 
+ *   and provides functions to manipulate tables.
  * 
  * @author Zuozhi Wang
  */
@@ -13,7 +14,7 @@ public interface IRelationManager {
     
     public IRelationManager getRelationManager();
     
-    public boolean tableExists(String tableName);
+    public boolean checkTableExistence(String tableName);
     
     // create a new table, tableName must be unique
     public void createTable(String tableName, String indexDirectory, Schema schema) throws Exception;
