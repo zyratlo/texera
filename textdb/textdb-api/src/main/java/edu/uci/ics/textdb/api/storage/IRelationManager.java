@@ -33,5 +33,9 @@ public interface IRelationManager {
     
     // get a tuple by its primary attribute
     public ITuple getTuple(String tableName, String primaryAttribute, Object value) throws Exception;
-
+    
+    // get the dataReader to scan a table
+    public IDataReader scanTable(String tableName) throws Exception;
+    
+    
 }
