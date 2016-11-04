@@ -16,6 +16,7 @@ import edu.uci.ics.textdb.api.common.Schema;
 import edu.uci.ics.textdb.common.constants.DataConstants;
 import edu.uci.ics.textdb.common.constants.SchemaConstants;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
+import edu.uci.ics.textdb.api.exception.TextDBException;
 import edu.uci.ics.textdb.common.field.Span;
 import edu.uci.ics.textdb.common.utils.Utils;
 import edu.uci.ics.textdb.dataflow.common.AbstractSingleInputOperator;
@@ -34,7 +35,7 @@ public class KeywordMatcher extends AbstractSingleInputOperator {
     }
 
     @Override
-    protected void setUp() {
+    protected void setUp() throws TextDBException {
         inputSchema = inputOperator.getOutputSchema();
         outputSchema = inputSchema;
         if (!inputSchema.containsField(SchemaConstants.PAYLOAD)) {
@@ -46,7 +47,7 @@ public class KeywordMatcher extends AbstractSingleInputOperator {
     }
 
     @Override
-    protected ITuple computeNextMatchingTuple() throws Exception {
+    protected ITuple computeNextMatchingTuple() throws TextDBException {
         ITuple inputTuple = null;
         ITuple resultTuple = null;
         

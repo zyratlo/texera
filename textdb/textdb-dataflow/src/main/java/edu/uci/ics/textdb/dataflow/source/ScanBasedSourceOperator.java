@@ -1,5 +1,6 @@
 package edu.uci.ics.textdb.dataflow.source;
 
+import edu.uci.ics.textdb.api.exception.TextDBException;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.search.MatchAllDocsQuery;
 
@@ -29,7 +30,7 @@ public class ScanBasedSourceOperator implements ISourceOperator {
     }
 
     @Override
-    public void open() throws DataFlowException {
+    public void open() throws TextDBException {
         try {
             DataReaderPredicate predicate = new DataReaderPredicate(
                     new MatchAllDocsQuery(), DataConstants.SCAN_QUERY, dataStore,
@@ -43,7 +44,7 @@ public class ScanBasedSourceOperator implements ISourceOperator {
     }
 
     @Override
-    public ITuple getNextTuple() throws DataFlowException {
+    public ITuple getNextTuple() throws TextDBException {
         try {
             return dataReader.getNextTuple();
         } catch (Exception e) {
@@ -53,7 +54,7 @@ public class ScanBasedSourceOperator implements ISourceOperator {
     }
 
     @Override
-    public void close() throws DataFlowException {
+    public void close() throws TextDBException {
         try {
             dataReader.close();
         } catch (Exception e) {
