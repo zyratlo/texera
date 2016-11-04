@@ -43,8 +43,8 @@ public class RegexMatcherBuilder {
         RegexPredicate regexPredicate;
         try {
             regexPredicate = new RegexPredicate(regex, attributeList,
-                    DataConstants.getTrigramAnalyzer());
-        } catch (DataFlowException | IOException e) {
+                    DataConstants.getNGramAnalyzer(3));
+        } catch (DataFlowException e) {
             throw new PlanGenException(e.getMessage(), e);
         }
         RegexMatcher regexMatcher = new RegexMatcher(regexPredicate);

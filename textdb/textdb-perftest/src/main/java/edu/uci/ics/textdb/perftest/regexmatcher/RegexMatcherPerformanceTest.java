@@ -99,7 +99,7 @@ public class RegexMatcherPerformanceTest {
         for(String regex: regexes){
 	        // analyzer should generate grams all in lower case to build a lower
 	        // case index.
-	        Analyzer luceneAnalyzer = DataConstants.getTrigramAnalyzer();
+	        Analyzer luceneAnalyzer = DataConstants.getNGramAnalyzer(3);
 	        RegexPredicate regexPredicate = new RegexPredicate(regex, Arrays.asList(attributeList), luceneAnalyzer);
 	        IndexBasedSourceOperator indexInputOperator = new IndexBasedSourceOperator(
 	                regexPredicate.generateDataReaderPredicate(dataStore));

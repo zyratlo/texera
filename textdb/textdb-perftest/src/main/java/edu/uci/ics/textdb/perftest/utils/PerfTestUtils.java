@@ -182,7 +182,7 @@ public class PerfTestUtils {
             if (file.isDirectory()) {
                 continue;
             }
-            writeIndex(file.getName(), DataConstants.getTrigramAnalyzer(), "trigram");
+            writeIndex(file.getName(), DataConstants.getNGramAnalyzer(3), "trigram");
         }
 
     }
