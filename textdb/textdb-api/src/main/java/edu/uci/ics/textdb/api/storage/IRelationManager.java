@@ -2,6 +2,7 @@ package edu.uci.ics.textdb.api.storage;
 
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.common.Schema;
+import edu.uci.ics.textdb.api.exception.TextDBException;
 
 /**
  * IRelationManager is the interface for TextDB's relation manager, 
@@ -17,25 +18,25 @@ public interface IRelationManager {
     public boolean checkTableExistence(String tableName);
     
     // create a new table, tableName must be unique
-    public void createTable(String tableName, String indexDirectory, Schema schema, String luceneAnalyzer) throws Exception;
+    public void createTable(String tableName, String indexDirectory, Schema schema, String luceneAnalyzer) throws TextDBException;
     
     // drop a table
-    public void deleteTable(String tableName) throws Exception;
+    public void deleteTable(String tableName) throws TextDBException;
     
     // insert a tuple to a table, the primaryAttribute field must be unique
-    public void insertTuple(String tableName, ITuple tuple, String primaryAttribute) throws Exception;
+    public void insertTuple(String tableName, ITuple tuple, String primaryAttribute) throws TextDBException;
     
     // delete a tuple by its primary attribute
-    public void deleteTuple(String tableName, String primaryAttribute, Object value) throws Exception;
+    public void deleteTuple(String tableName, String primaryAttribute, Object value) throws TextDBException;
     
     // update a tuple by its primary attribute
-    public void updateTuple(String tableName, ITuple tuple, String primaryAttribute, Object value) throws Exception;
+    public void updateTuple(String tableName, ITuple tuple, String primaryAttribute, Object value) throws TextDBException;
     
     // get a tuple by its primary attribute
-    public ITuple getTuple(String tableName, String primaryAttribute, Object value) throws Exception;
+    public ITuple getTuple(String tableName, String primaryAttribute, Object value) throws TextDBException;
     
     // get the dataReader to scan a table
-    public IDataReader scanTable(String tableName) throws Exception;
+    public IDataReader scanTable(String tableName) throws TextDBException;
     
     public String getTableDirectory(String tableName);
     
