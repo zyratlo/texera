@@ -16,10 +16,12 @@ import static org.junit.Assert.assertEquals;
 public class DictionaryMatcherBeanTest {
 
     private static final ObjectMapper MAPPER = Jackson.newObjectMapper();
+    private DictionaryMatcherBean dictionaryMatcherBean;
+    private Object deserializedObject;
 
     @Test
     public void testDeserialization() throws IOException{
-        final DictionaryMatcherBean dictionaryMatcherBean = new DictionaryMatcherBean("operator1", "DictionaryMatcher",
+        dictionaryMatcherBean = new DictionaryMatcherBean("operator1", "DictionaryMatcher",
                 "attributes", "10", "100", "dictionary", DataConstants.KeywordMatchingType.PHRASE_INDEXBASED);
         String jsonString = "{\n" +
                 "    \"operator_id\": \"operator1\",\n" +
@@ -30,7 +32,24 @@ public class DictionaryMatcherBeanTest {
                 "    \"dictionary\": \"dictionary\",\n" +
                 "    \"matching_type\": \"PHRASE_INDEXBASED\"\n" +
                 "}";
-        Object deserializedObject = MAPPER.readValue(jsonString, DictionaryMatcherBean.class);
+        deserializedObject = MAPPER.readValue(jsonString, DictionaryMatcherBean.class);
         assertEquals(dictionaryMatcherBean.equals(deserializedObject), true);
+    }
+
+    @Test
+    public void testInvalidDeserialization() throws IOException{
+        dictionaryMatcherBean = new DictionaryMatcherBean("operator1", "DictionaryMatcher",
+                "attributes", "10", "100", "dictionary", DataConstants.KeywordMatchingType.PHRASE_INDEXBASED);
+        String jsonString = "{\n" +
+                "    \"operator_id\": \"operator1\",\n" +
+                "    \"operator_type\": \"DictionaryMatcher\",\n" +
+                "    \"attributes\":  \"attributes\",\n" +
+                "    \"limit\": \"10\",\n" +
+                "    \"offset\": \"100\",\n" +
+                "    \"dictionary\": \"dictionary2\",\n" +
+                "    \"matching_type\": \"PHRASE_INDEXBASED\"\n" +
+                "}";
+        deserializedObject = MAPPER.readValue(jsonString, DictionaryMatcherBean.class);
+        assertEquals(dictionaryMatcherBean.equals(deserializedObject), false);
     }
 }
