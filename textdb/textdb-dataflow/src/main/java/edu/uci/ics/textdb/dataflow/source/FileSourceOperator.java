@@ -1,11 +1,13 @@
 package edu.uci.ics.textdb.dataflow.source;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.Scanner;
 
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.common.Schema;
 import edu.uci.ics.textdb.api.dataflow.ISourceOperator;
+import edu.uci.ics.textdb.api.exception.TextDBException;
 
 /**
  * FileSourceOperator treats files on disk as a source. FileSourceOperator reads
@@ -33,12 +35,16 @@ public class FileSourceOperator implements ISourceOperator {
     }
 
     @Override
-    public void open() throws Exception {
-        this.scanner = new Scanner(file);
+    public void open() throws TextDBException {
+        try {
+            this.scanner = new Scanner(file);
+        } catch (FileNotFoundException e) {
+            throw new TextDBException("Failed to open FileSourceOperator", e);
+        }
     }
 
     @Override
-    public ITuple getNextTuple() throws Exception {
+    public ITuple getNextTuple() throws TextDBException {
         if (scanner.hasNextLine()) {
             try {
                 return this.toTupleFunc.convertToTuple(scanner.nextLine());
@@ -51,7 +57,7 @@ public class FileSourceOperator implements ISourceOperator {
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() throws TextDBException {
         if (this.scanner != null) {
             this.scanner.close();
         }

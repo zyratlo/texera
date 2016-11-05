@@ -16,6 +16,7 @@ import edu.uci.ics.textdb.common.constants.DataConstants;
 import edu.uci.ics.textdb.common.constants.DataConstants.KeywordMatchingType;
 import edu.uci.ics.textdb.common.constants.SchemaConstants;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
+import edu.uci.ics.textdb.api.exception.TextDBException;
 import edu.uci.ics.textdb.common.field.Span;
 import edu.uci.ics.textdb.common.utils.Utils;
 import edu.uci.ics.textdb.dataflow.common.DictionaryPredicate;
@@ -137,7 +138,7 @@ public class DictionaryMatcherSourceOperator implements ISourceOperator {
      * 
      */
     @Override
-    public ITuple getNextTuple() throws Exception {
+    public ITuple getNextTuple() throws TextDBException {
         if (resultCursor >= limit + offset - 1) {
             return null;
         }
@@ -223,7 +224,7 @@ public class DictionaryMatcherSourceOperator implements ISourceOperator {
      * Advance the cursor of dictionary. if reach the end of the dictionary,
      * advance the cursor of tuples and reset dictionary
      */
-    private void advanceDictionaryCursor() throws Exception {
+    private void advanceDictionaryCursor() throws TextDBException {
         if ((currentDictionaryEntry = predicate.getNextDictionaryEntry()) != null) {
             return;
         }
@@ -236,7 +237,7 @@ public class DictionaryMatcherSourceOperator implements ISourceOperator {
      * original dataTuple object, if there's a match, return a new dataTuple
      * with span list added
      */
-    private ITuple computeMatchingResult(String key, ITuple sourceTuple) throws Exception {
+    private ITuple computeMatchingResult(String key, ITuple sourceTuple) throws TextDBException {
 
         List<Attribute> attributeList = predicate.getAttributeList();
         List<Span> matchingResults = new ArrayList<>();

@@ -6,6 +6,7 @@ import edu.uci.ics.textdb.api.dataflow.IOperator;
 import edu.uci.ics.textdb.api.dataflow.ISourceOperator;
 import edu.uci.ics.textdb.api.storage.IDataStore;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
+import edu.uci.ics.textdb.api.exception.TextDBException;
 import edu.uci.ics.textdb.dataflow.common.AbstractSingleInputOperator;
 import edu.uci.ics.textdb.dataflow.common.KeywordPredicate;
 import edu.uci.ics.textdb.storage.reader.DataReader;
@@ -47,7 +48,7 @@ public class KeywordMatcherSourceOperator extends AbstractSingleInputOperator im
     }
 
     @Override
-    protected ITuple computeNextMatchingTuple() throws Exception {
+    protected ITuple computeNextMatchingTuple() throws TextDBException {
         return this.keywordMatcher.getNextTuple();
     }
 

@@ -8,6 +8,7 @@ import edu.uci.ics.textdb.api.common.IField;
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.common.Schema;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
+import edu.uci.ics.textdb.api.exception.TextDBException;
 import edu.uci.ics.textdb.common.field.DataTuple;
 import edu.uci.ics.textdb.dataflow.common.AbstractSingleInputOperator;
 
@@ -22,7 +23,7 @@ public class ProjectionOperator extends AbstractSingleInputOperator {
     }
 
     @Override
-    protected void setUp() throws DataFlowException {
+    protected void setUp() throws TextDBException {
         inputSchema = inputOperator.getOutputSchema();
         List<Attribute> outputAttributes = 
                 inputSchema.getAttributes()
@@ -37,7 +38,7 @@ public class ProjectionOperator extends AbstractSingleInputOperator {
     }
 
     @Override
-    protected ITuple computeNextMatchingTuple() throws Exception {
+    protected ITuple computeNextMatchingTuple() throws TextDBException {
         ITuple inputTuple = inputOperator.getNextTuple();
         if (inputTuple == null) {
             return null;

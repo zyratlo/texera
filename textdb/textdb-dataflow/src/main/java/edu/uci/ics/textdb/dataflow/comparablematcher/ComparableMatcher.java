@@ -3,6 +3,7 @@ package edu.uci.ics.textdb.dataflow.comparablematcher;
 import edu.uci.ics.textdb.api.common.*;
 import edu.uci.ics.textdb.common.constants.DataConstants;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
+import edu.uci.ics.textdb.api.exception.TextDBException;
 import edu.uci.ics.textdb.dataflow.common.AbstractSingleInputOperator;
 
 /**
@@ -26,7 +27,7 @@ public class ComparableMatcher<T extends Comparable> extends AbstractSingleInput
     }
 
     @Override
-    protected ITuple computeNextMatchingTuple() throws Exception {
+    protected ITuple computeNextMatchingTuple() throws TextDBException {
         ITuple inputTuple = null;
         ITuple resultTuple = null;
 
