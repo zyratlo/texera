@@ -84,7 +84,7 @@ public class DictionarySourceBean extends OperatorBean {
                 .append(dictionary, dictionarySourceBean.getDictionary())
                 .append(matchingType, dictionarySourceBean.getMatchingType())
                 .append(dataSource, dictionarySourceBean.getDataSource())
-                .isEquals();
+                .isEquals() && super.equals(dictionarySourceBean);
     }
 
     @Override
