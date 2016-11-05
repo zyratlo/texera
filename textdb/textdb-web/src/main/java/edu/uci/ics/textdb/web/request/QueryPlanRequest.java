@@ -60,11 +60,11 @@ public class QueryPlanRequest {
         this.operatorLinkBeans = operatorLinkBeans;
     }
 
-    public HashMap<String, HashMap<String, String>> getOperatorProperties() {
+    private HashMap<String, HashMap<String, String>> getOperatorProperties() {
         return operatorProperties;
     }
 
-    public LogicalPlan getLogicalPlan() {
+    private LogicalPlan getLogicalPlan() {
         return logicalPlan;
     }
 
