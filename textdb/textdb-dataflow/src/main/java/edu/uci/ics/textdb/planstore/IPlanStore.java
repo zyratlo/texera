@@ -7,29 +7,29 @@ import java.util.List;
 
 /**
  * @author sweetest
- * Schema of plan storage consists of two fields
+ * Schema of plan store consists of three fields
  * - name : name of plan
  * - description : detailed description of plan
- * - query : json format of plan
+ * - fileName : name of the file where the corresponding logicalPlan is stored
  *
  */
 public interface IPlanStore {
 
-    void create();
+    void createPlanStore();
 
-    void destroyPlanStorage();
+    void destroyPlanStore();
 
-    void addPlan(String name, String description, LogicalPlan plan);
+    void addPlan(String planName, String description, LogicalPlan plan);
 
-    ITuple getPlan(String name);
+    ITuple getPlan(String planName);
 
     List<ITuple> getAllPlans();
 
-    void deletePlan(String name);
+    void deletePlan(String planName);
 
-    void updatePlan(String name, LogicalPlan plan);
+    void updatePlan(String planName, LogicalPlan plan);
 
-    void updatePlan(String name, String description);
+    void updatePlan(String planName, String description);
 
-    void updatePlan(String name, String description, LogicalPlan plan);
+    void updatePlan(String planName, String description, LogicalPlan plan);
 }
