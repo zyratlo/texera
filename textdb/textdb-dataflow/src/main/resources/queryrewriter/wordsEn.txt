@@ -54976,7 +54976,7 @@ linkers
 linking
 linkman
 linkmen
-links
+operatorLinkBeans
 linkup
 linkups
 linky
@@ -65598,7 +65598,7 @@ operative
 operatively
 operatives
 operator
-operators
+operatorBeans
 operculated
 operetta
 operettas

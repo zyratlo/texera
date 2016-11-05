@@ -1,9 +1,10 @@
 package edu.uci.ics.textdb.web.request;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import edu.uci.ics.textdb.common.exception.PlanGenException;
 import edu.uci.ics.textdb.plangen.LogicalPlan;
 import edu.uci.ics.textdb.web.request.beans.DictionaryMatcherBean;
-import edu.uci.ics.textdb.web.request.beans.LinkBean;
+import edu.uci.ics.textdb.web.request.beans.OperatorLinkBean;
 import edu.uci.ics.textdb.web.request.beans.OperatorBean;
 
 import java.lang.reflect.InvocationTargetException;
@@ -14,13 +15,15 @@ import java.util.Iterator;
 
 /**
  * This class describes the JSON edu.uci.ics.textdb.web.request when a logical query plan is submitted.
- * It also contains the HashMap that is a representation of all the operators'
+ * It also contains the HashMap that is a representation of all the operatorBeans'
  * properties for a given logical query plan.
  * Created by kishorenarendran on 10/21/16.
  */
 public class QueryPlanRequest {
-    private ArrayList<OperatorBean> operators;
-    private ArrayList<LinkBean> links;
+    @JsonProperty("operators")
+    private ArrayList<OperatorBean> operatorBeans;
+    @JsonProperty("links")
+    private ArrayList<OperatorLinkBean> operatorLinkBeans;
     private HashMap<String, HashMap<String, String>> operatorProperties;
     private LogicalPlan logicalPlan;
 
@@ -32,25 +35,29 @@ public class QueryPlanRequest {
     public QueryPlanRequest() {
     }
 
-    public QueryPlanRequest(ArrayList<OperatorBean> operators, ArrayList<LinkBean> links) {
-        this.operators = operators;
-        this.links = links;
+    public QueryPlanRequest(ArrayList<OperatorBean> operators, ArrayList<OperatorLinkBean> operatorLinkBeans) {
+        this.operatorBeans = operators;
+        this.operatorLinkBeans = operatorLinkBeans;
     }
 
-    public ArrayList<OperatorBean> getOperators() {
-        return operators;
+    @JsonProperty("operators")
+    public ArrayList<OperatorBean> getOperatorBeans() {
+        return operatorBeans;
     }
 
-    public void setOperators(ArrayList<OperatorBean> operators) {
-        this.operators = operators;
+    @JsonProperty("operators")
+    public void setOperatorBeans(ArrayList<OperatorBean> operatorBeans) {
+        this.operatorBeans = operatorBeans;
     }
 
-    public ArrayList<LinkBean> getLinks() {
-        return links;
+    @JsonProperty("links")
+    public ArrayList<OperatorLinkBean> getOperatorLinkBeans() {
+        return operatorLinkBeans;
     }
 
-    public void setLinks(ArrayList<LinkBean> links) {
-        this.links = links;
+    @JsonProperty("links")
+    public void setOperatorLinkBeans(ArrayList<OperatorLinkBean> operatorLinkBeans) {
+        this.operatorLinkBeans = operatorLinkBeans;
     }
 
     public HashMap<String, HashMap<String, String>> getOperatorProperties() {
@@ -62,13 +69,13 @@ public class QueryPlanRequest {
     }
 
     /**
-     * This method parses and aggregates the properties of all the operators in the operators data members. It returns
+     * This method parses and aggregates the properties of all the operatorBeans in the operatorBeans data members. It returns
      * a false flag when there are any exceptions thrown when trying to create the operator properties HashMap
-     * @return - A boolean to denote the status of aggregating the different operators' properties
+     * @return - A boolean to denote the status of aggregating the different operatorBeans' properties
      */
     public boolean aggregateOperatorProperties() {
         this.operatorProperties = new HashMap<>();
-        for(Iterator<OperatorBean> iter = operators.iterator(); iter.hasNext(); ) {
+        for(Iterator<OperatorBean> iter = operatorBeans.iterator(); iter.hasNext(); ) {
             OperatorBean operatorBean = iter.next();
             Class operatorBeanClassName =  OPERATOR_BEAN_MAP.get(operatorBean.getOperatorType());
             try {
@@ -94,8 +101,8 @@ public class QueryPlanRequest {
     public boolean createLogicalPlan() {
         logicalPlan = new LogicalPlan();
 
-        // Adding operators to the logical plan
-        for(Iterator<OperatorBean> iterator = operators.iterator(); iterator.hasNext(); ) {
+        // Adding operatorBeans to the logical plan
+        for(Iterator<OperatorBean> iterator = operatorBeans.iterator(); iterator.hasNext(); ) {
             try {
                 OperatorBean operatorBean = iterator.next();
                 logicalPlan.addOperator(operatorBean.getOperatorID(), operatorBean.getOperatorType(), operatorProperties.get(operatorBean.getOperatorID()));
@@ -107,11 +114,11 @@ public class QueryPlanRequest {
             }
         }
 
-        // Adding links to the logical plan
-        for(Iterator<LinkBean> iterator = links.iterator(); iterator.hasNext(); ) {
+        // Adding operatorLinkBeans to the logical plan
+        for(Iterator<OperatorLinkBean> iterator = operatorLinkBeans.iterator(); iterator.hasNext(); ) {
             try {
-                LinkBean linkBean = iterator.next();
-                logicalPlan.addLink(linkBean.getFromOperatorID(), linkBean.getToOperatorID());
+                OperatorLinkBean operatorLinkBean = iterator.next();
+                logicalPlan.addLink(operatorLinkBean.getFromOperatorID(), operatorLinkBean.getToOperatorID());
             }
             catch(PlanGenException e) {
                 // If a PlanGenException occurs the logical plan object is assigned to NULL, and a false value is returned

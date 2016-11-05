@@ -42,7 +42,7 @@ public class QueryPlanRequestTest {
                 "    }]\n" +
                 "}";
         QueryPlanRequest queryPlanRequest = MAPPER.readValue(jsonString, QueryPlanRequest.class);
-        assertEquals(queryPlanRequest.getOperators().size(), 2);
-        assertEquals(queryPlanRequest.getLinks().size(), 1);
+        assertEquals(queryPlanRequest.getOperatorBeans().size(), 2);
+        assertEquals(queryPlanRequest.getOperatorLinkBeans().size(), 1);
     }
 }
