@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import edu.uci.ics.textdb.common.constants.DataConstants;
 import edu.uci.ics.textdb.plangen.operatorbuilder.DictionaryMatcherBuilder;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import java.util.HashMap;
 
@@ -62,8 +64,18 @@ public class DictionaryMatcherBean extends OperatorBean {
         if (other == this) return true;
         if (!(other instanceof OperatorBean)) return false;
         DictionaryMatcherBean dictionaryMatcherBean = (DictionaryMatcherBean) other;
-        return super.equals(other) &&
-                this.getDictionary().equals(dictionaryMatcherBean.getDictionary()) &&
-                this.getMatchingType().name().equals(dictionaryMatcherBean.getMatchingType().name());
+
+        return new EqualsBuilder()
+                .append(dictionary, dictionaryMatcherBean.getDictionary())
+                .append(matchingType, dictionaryMatcherBean.getMatchingType())
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 31)
+                .append(dictionary)
+                .append(matchingType)
+                .toHashCode();
     }
 }

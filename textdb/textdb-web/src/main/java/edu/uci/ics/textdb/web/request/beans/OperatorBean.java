@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import edu.uci.ics.textdb.plangen.operatorbuilder.OperatorBuilderUtils;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import java.util.HashMap;
 
@@ -108,20 +110,23 @@ public abstract class OperatorBean {
         if (other == this) return true;
         if (!(other instanceof OperatorBean))return false;
         OperatorBean operatorBean = (OperatorBean)other;
+        return new EqualsBuilder()
+                .append(operatorID, operatorBean.getOperatorID())
+                .append(operatorType, operatorBean.getOperatorType())
+                .append(attributes, operatorBean.getAttributes())
+                .append(limit, operatorBean.getLimit())
+                .append(offset, operatorBean.getOffset())
+                .isEquals();
+    }
 
-        if(operatorBean.getAttributes() != null && this.getAttributes() != null)
-            if(!operatorBean.getAttributes().equals(this.getAttributes()))
-                return false;
-
-        if(operatorBean.getLimit() != null && this.getLimit() != null)
-            if(!operatorBean.getLimit().equals(this.getLimit()))
-                return false;
-
-        if(operatorBean.getOffset() != null && this.getOffset() != null)
-            if(!operatorBean.getOffset().equals(this.getOffset()))
-                return false;
-
-        return operatorBean.getOperatorID().equals(this.getOperatorID()) &&
-                operatorBean.getOperatorType().equals(this.getOperatorType());
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 31)
+                .append(operatorID)
+                .append(operatorType)
+                .append(attributes)
+                .append(limit)
+                .append(offset)
+                .toHashCode();
     }
 }
