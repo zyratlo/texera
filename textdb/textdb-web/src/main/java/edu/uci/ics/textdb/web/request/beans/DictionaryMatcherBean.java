@@ -68,7 +68,8 @@ public class DictionaryMatcherBean extends OperatorBean {
         return new EqualsBuilder()
                 .append(dictionary, dictionaryMatcherBean.getDictionary())
                 .append(matchingType, dictionaryMatcherBean.getMatchingType())
-                .isEquals();
+                .isEquals() &&
+                super.equals(dictionaryMatcherBean);
     }
 
     @Override
