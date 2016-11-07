@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import edu.uci.ics.textdb.common.exception.PlanGenException;
 import edu.uci.ics.textdb.plangen.LogicalPlan;
 import edu.uci.ics.textdb.web.request.beans.DictionaryMatcherBean;
+import edu.uci.ics.textdb.web.request.beans.DictionarySourceBean;
 import edu.uci.ics.textdb.web.request.beans.OperatorLinkBean;
 import edu.uci.ics.textdb.web.request.beans.OperatorBean;
 
@@ -30,6 +31,7 @@ public class QueryPlanRequest {
     public static final String GET_PROPERTIES_FUNCTION_NAME = "getOperatorProperties";
     public static final HashMap<String, Class> OPERATOR_BEAN_MAP = new HashMap<String, Class>() {{
         put("DictionaryMatcher", DictionaryMatcherBean.class);
+        put("DictionarySource", DictionarySourceBean.class);
     }};
 
     public QueryPlanRequest() {

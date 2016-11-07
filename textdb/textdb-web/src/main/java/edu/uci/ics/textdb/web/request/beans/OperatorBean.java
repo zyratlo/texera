@@ -19,6 +19,7 @@ import java.util.HashMap;
 @JsonTypeInfo(use=JsonTypeInfo.Id.NAME, include= JsonTypeInfo.As.PROPERTY, property="operator_type", visible = true)
 @JsonSubTypes({
         @JsonSubTypes.Type(value=DictionaryMatcherBean.class, name="DictionaryMatcher"),
+        @JsonSubTypes.Type(value=DictionarySourceBean.class, name="DictionarySource")
 })
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public abstract class OperatorBean {
