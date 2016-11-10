@@ -54,6 +54,8 @@ public class JoinBean extends OperatorBean {
 
     public HashMap<String, String> getOperatorProperties() {
         HashMap<String, String> operatorProperties = super.getOperatorProperties();
+        if(this.getIdAttribute() == null || this.getDistance() == null || operatorProperties == null)
+            return null;
         operatorProperties.put(JoinBuilder.JOIN_ID_ATTRIBUTE_NAME, this.getIdAttribute());
         operatorProperties.put(JoinBuilder.JOIN_DISTANCE, this.getDistance());
         // TODO - Check on the other properties required for the Join Operator

@@ -54,6 +54,8 @@ public class RegexSourceBean extends OperatorBean {
     @Override
     public HashMap<String, String> getOperatorProperties() {
         HashMap<String, String> operatorProperties = super.getOperatorProperties();
+        if(this.getRegex() == null || this.getDataSource() == null || operatorProperties == null)
+            return null;
         operatorProperties.put(RegexMatcherBuilder.REGEX, this.getRegex());
         operatorProperties.put(OperatorBuilderUtils.DATA_DIRECTORY, this.getDataSource());
         return operatorProperties;

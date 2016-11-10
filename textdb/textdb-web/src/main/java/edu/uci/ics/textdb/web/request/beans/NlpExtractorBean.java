@@ -41,6 +41,8 @@ public class NlpExtractorBean extends OperatorBean {
     @Override
     public HashMap<String, String> getOperatorProperties() {
         HashMap<String, String> operatorProperties = super.getOperatorProperties();
+        if(this.getNlpTokenType() == null || operatorProperties == null)
+            return null;
         operatorProperties.put(NlpExtractorBuilder.NLP_TYPE, this.getNlpTokenType().name());
         return operatorProperties;
     }

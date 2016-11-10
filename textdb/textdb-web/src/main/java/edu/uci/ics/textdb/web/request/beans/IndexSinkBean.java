@@ -51,6 +51,8 @@ public class IndexSinkBean extends OperatorBean {
 
     public HashMap<String, String> getOperatorProperties() {
         HashMap<String, String> operatorProperties = super.getOperatorProperties();
+        if(operatorProperties == null)
+            return null;
         //TODO - Check on properties for IndexSink, IndexSinkBuilder seems to be missing
         return operatorProperties;
     }

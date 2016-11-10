@@ -15,6 +15,8 @@ public class ProjectionBean extends OperatorBean {
     @Override
     public HashMap<String, String> getOperatorProperties() {
         HashMap<String, String> operatorProperties = super.getOperatorProperties();
+        if(operatorProperties == null)
+            return null;
         return operatorProperties;
     }
 }

@@ -67,6 +67,9 @@ public class KeywordSourceBean extends OperatorBean {
 
     public HashMap<String, String> getOperatorProperties() {
         HashMap<String, String> operatorProperties = super.getOperatorProperties();
+        if(this.getKeyword() == null || this.getMatchingType() == null || this.getDataSource() == null ||
+                operatorProperties == null)
+            return null;
         operatorProperties.put(KeywordMatcherBuilder.KEYWORD, this.getKeyword());
         operatorProperties.put(KeywordMatcherBuilder.MATCHING_TYPE, this.getMatchingType().name());
         operatorProperties.put(OperatorBuilderUtils.DATA_DIRECTORY, this.getDataSource());

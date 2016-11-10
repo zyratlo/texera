@@ -39,6 +39,8 @@ public class FileSinkBean extends OperatorBean {
 
     public HashMap<String, String> getOperatorProperties() {
         HashMap<String, String> operatorProperties = super.getOperatorProperties();
+        if(operatorProperties == null || this.getFilePath() == null)
+            return null;
         operatorProperties.put(FileSinkBuilder.FILE_PATH, this.getFilePath());
         return operatorProperties;
     }

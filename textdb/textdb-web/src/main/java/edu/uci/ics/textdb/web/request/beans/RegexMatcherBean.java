@@ -40,6 +40,8 @@ public class RegexMatcherBean extends OperatorBean {
     @Override
     public HashMap<String, String> getOperatorProperties() {
         HashMap<String, String> operatorProperties = super.getOperatorProperties();
+        if(this.getRegex() == null || operatorProperties == null)
+            return null;
         operatorProperties.put(RegexMatcherBuilder.REGEX, this.getRegex());
         return operatorProperties;
     }
