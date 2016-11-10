@@ -81,4 +81,3 @@ public class JoinBean extends OperatorBean {
                 .toHashCode();
     }
 }
-}
