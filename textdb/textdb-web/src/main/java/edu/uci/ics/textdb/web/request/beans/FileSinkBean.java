@@ -3,6 +3,7 @@ package edu.uci.ics.textdb.web.request.beans;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import edu.uci.ics.textdb.plangen.operatorbuilder.FileSinkBuilder;
+import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import java.util.HashMap;
@@ -48,9 +49,10 @@ public class FileSinkBean extends OperatorBean {
         if (other == this) return true;
         if (!(other instanceof OperatorBean)) return false;
         FileSinkBean fileSinkBean = (FileSinkBean) other;
-        return super.equals(other) &&
-                this.getFilePath().equals(fileSinkBean.getFilePath())
-                && super.equals(fileSinkBean);
+        return new EqualsBuilder()
+                .append(filePath, fileSinkBean.getFilePath())
+                .isEquals() &&
+                super.equals(fileSinkBean);
     }
 
     @Override
