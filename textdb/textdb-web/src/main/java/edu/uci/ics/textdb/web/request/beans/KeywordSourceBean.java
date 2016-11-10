@@ -3,7 +3,7 @@ package edu.uci.ics.textdb.web.request.beans;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import edu.uci.ics.textdb.common.constants.DataConstants;
-import edu.uci.ics.textdb.plangen.operatorbuilder.DictionarySourceBuilder;
+import edu.uci.ics.textdb.plangen.operatorbuilder.KeywordMatcherBuilder;
 import edu.uci.ics.textdb.plangen.operatorbuilder.OperatorBuilderUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -11,38 +11,38 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import java.util.HashMap;
 
 /**
- * This class defines the properties/data members specific to the DictionarySource operator
+ * This class defines the properties/data members specific to the KeywordSource operator
  * and extends the OperatorBean class which defines the data members general to all operators
- * Created by kishorenarendran on 11/05/16.
+ * Created by kishorenarendran on 11/09/16.
  */
-@JsonTypeName("DictionarySource")
-public class DictionarySourceBean extends OperatorBean {
-    @JsonProperty("dictionary")
-    private String dictionary;
+@JsonTypeName("KeywordSource")
+public class KeywordSourceBean extends OperatorBean {
+    @JsonProperty("keyword")
+    private String keyword;
     @JsonProperty("matching_type")
     private DataConstants.KeywordMatchingType matchingType;
     @JsonProperty("data_source")
     private String dataSource;
 
-    public DictionarySourceBean() {
+    public KeywordSourceBean() {
     }
 
-    public DictionarySourceBean(String operatorID, String operatorType, String attributes, String limit, String offset,
-                                String dictionary, DataConstants.KeywordMatchingType matchingType, String dataSource) {
+    public KeywordSourceBean(String operatorID, String operatorType, String attributes, String limit, String offset,
+                             String keyword, DataConstants.KeywordMatchingType matchingType, String dataSource) {
         super(operatorID, operatorType, attributes, limit, offset);
-        this.dictionary = dictionary;
+        this.keyword = keyword;
         this.matchingType = matchingType;
         this.dataSource = dataSource;
     }
 
-    @JsonProperty("dictionary")
-    public String getDictionary() {
-        return dictionary;
+    @JsonProperty("keyword")
+    public String getKeyword() {
+        return keyword;
     }
 
-    @JsonProperty("dictionary")
-    public void setDictionary(String dictionary) {
-        this.dictionary = dictionary;
+    @JsonProperty("keyword")
+    public void setKeyword(String keyword) {
+        this.keyword = keyword;
     }
 
     @JsonProperty("matching_type")
@@ -67,11 +67,11 @@ public class DictionarySourceBean extends OperatorBean {
 
     public HashMap<String, String> getOperatorProperties() {
         HashMap<String, String> operatorProperties = super.getOperatorProperties();
-        if(this.getDictionary() == null || this.getMatchingType() == null || this.getDataSource() == null ||
+        if(this.getKeyword() == null || this.getMatchingType() == null || this.getDataSource() == null ||
                 operatorProperties == null)
             return null;
-        operatorProperties.put(DictionarySourceBuilder.DICTIONARY, this.getDictionary());
-        operatorProperties.put(DictionarySourceBuilder.MATCHING_TYPE, this.getMatchingType().name());
+        operatorProperties.put(KeywordMatcherBuilder.KEYWORD, this.getKeyword());
+        operatorProperties.put(KeywordMatcherBuilder.MATCHING_TYPE, this.getMatchingType().name());
         operatorProperties.put(OperatorBuilderUtils.DATA_DIRECTORY, this.getDataSource());
         return operatorProperties;
     }
@@ -81,19 +81,19 @@ public class DictionarySourceBean extends OperatorBean {
         if (other == null) return false;
         if (other == this) return true;
         if (!(other instanceof OperatorBean)) return false;
-        DictionarySourceBean dictionarySourceBean = (DictionarySourceBean) other;
-
+        KeywordSourceBean keywordSourceBean = (KeywordSourceBean) other;
         return new EqualsBuilder()
-                .append(dictionary, dictionarySourceBean.getDictionary())
-                .append(matchingType, dictionarySourceBean.getMatchingType())
-                .append(dataSource, dictionarySourceBean.getDataSource())
-                .isEquals() && super.equals(dictionarySourceBean);
+                .append(keyword, keywordSourceBean.getKeyword())
+                .append(matchingType, keywordSourceBean.getMatchingType())
+                .append(dataSource, keywordSourceBean.getDataSource())
+                .isEquals() &&
+                super.equals(keywordSourceBean);
     }
 
     @Override
     public int hashCode() {
         return new HashCodeBuilder(17, 31)
-                .append(dictionary)
+                .append(keyword)
                 .append(matchingType)
                 .append(dataSource)
                 .toHashCode();
