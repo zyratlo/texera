@@ -8,6 +8,7 @@ import edu.uci.ics.textdb.api.common.IField;
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.common.Schema;
 import edu.uci.ics.textdb.api.dataflow.IOperator;
+import edu.uci.ics.textdb.api.exception.TextDBException;
 import edu.uci.ics.textdb.common.field.DataTuple;
 import edu.uci.ics.textdb.common.field.ListField;
 
@@ -66,7 +67,7 @@ public class QueryRewriter implements IOperator {
      * @throws Exception
      */
     @Override
-    public void open() throws Exception {
+    public void open() throws TextDBException {
         this.isOpen = true;
         this.sourceTuple = null;
     }
@@ -83,7 +84,7 @@ public class QueryRewriter implements IOperator {
      * @throws Exception
      */
     @Override
-    public ITuple getNextTuple() throws Exception {
+    public ITuple getNextTuple() throws TextDBException {
 
         boolean endOfResult = (sourceTuple != null); // Ensures you can call
                                                      // QueryRewriter.getNextTuple
@@ -109,7 +110,7 @@ public class QueryRewriter implements IOperator {
      * @throws Exception
      */
     @Override
-    public void close() throws Exception {
+    public void close() throws TextDBException {
         this.isOpen = false;
         this.searchQuery = null;
         this.sourceTuple = null;

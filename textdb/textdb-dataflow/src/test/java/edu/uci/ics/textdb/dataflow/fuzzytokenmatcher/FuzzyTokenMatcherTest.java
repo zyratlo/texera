@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import edu.uci.ics.textdb.api.exception.TextDBException;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.queryparser.classic.ParseException;
@@ -21,7 +22,6 @@ import edu.uci.ics.textdb.api.storage.IDataWriter;
 import edu.uci.ics.textdb.common.constants.DataConstants;
 import edu.uci.ics.textdb.common.constants.SchemaConstants;
 import edu.uci.ics.textdb.common.constants.TestConstants;
-import edu.uci.ics.textdb.common.exception.DataFlowException;
 import edu.uci.ics.textdb.common.field.DataTuple;
 import edu.uci.ics.textdb.common.field.DateField;
 import edu.uci.ics.textdb.common.field.DoubleField;
@@ -66,17 +66,17 @@ public class FuzzyTokenMatcherTest {
     }
 
     public List<ITuple> getQueryResults(String query, double threshold, ArrayList<Attribute> attributeList)
-            throws DataFlowException, ParseException {
+            throws TextDBException, ParseException {
         return getQueryResults(query, threshold, attributeList, Integer.MAX_VALUE, 0);
     }
 
     public List<ITuple> getQueryResults(String query, double threshold, ArrayList<Attribute> attributeList,
-            int limit) throws DataFlowException, ParseException {
+            int limit) throws TextDBException, ParseException {
         return getQueryResults(query, threshold, attributeList, limit, 0);
     }
 
     public List<ITuple> getQueryResults(String query, double threshold, ArrayList<Attribute> attributeList,
-            int limit, int offset) throws DataFlowException, ParseException {
+            int limit, int offset) throws TextDBException, ParseException {
 
         FuzzyTokenPredicate predicate = new FuzzyTokenPredicate(query, attributeList, analyzer, threshold);
         fuzzyTokenMatcher = new FuzzyTokenMatcher(predicate);

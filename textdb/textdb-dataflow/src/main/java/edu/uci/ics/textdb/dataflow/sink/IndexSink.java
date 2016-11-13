@@ -1,10 +1,10 @@
 package edu.uci.ics.textdb.dataflow.sink;
 
+import edu.uci.ics.textdb.api.exception.TextDBException;
 import org.apache.lucene.analysis.Analyzer;
 
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.common.Schema;
-import edu.uci.ics.textdb.common.exception.StorageException;
 import edu.uci.ics.textdb.storage.DataStore;
 import edu.uci.ics.textdb.storage.writer.DataWriter;
 
@@ -24,7 +24,7 @@ public class IndexSink extends AbstractSink {
         this.isAppend = isAppend;
     }
 
-    public void open() throws Exception {
+    public void open() throws TextDBException {
         super.open();
         if (! this.isAppend) {
             this.dataWriter.clearData();
@@ -32,11 +32,11 @@ public class IndexSink extends AbstractSink {
         this.dataWriter.open();
     }
 
-    protected void processOneTuple(ITuple nextTuple) throws StorageException {
+    protected void processOneTuple(ITuple nextTuple) throws TextDBException {
         dataWriter.insertTuple(nextTuple);
     }
 
-    public void close() throws Exception {
+    public void close() throws TextDBException {
         if (this.dataWriter != null) {
             this.dataWriter.close();
         }

@@ -14,7 +14,7 @@ import edu.uci.ics.textdb.api.common.IField;
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.common.Schema;
 import edu.uci.ics.textdb.common.constants.SchemaConstants;
-import edu.uci.ics.textdb.common.exception.DataFlowException;
+import edu.uci.ics.textdb.api.exception.TextDBException;
 import edu.uci.ics.textdb.common.field.Span;
 import edu.uci.ics.textdb.common.utils.Utils;
 import edu.uci.ics.textdb.dataflow.common.AbstractSingleInputOperator;
@@ -53,7 +53,7 @@ public class NlpExtractor extends AbstractSingleInputOperator {
     }
 
     @Override
-    protected void setUp() throws DataFlowException {
+    protected void setUp() throws TextDBException {
         inputSchema = inputOperator.getOutputSchema();
         outputSchema = inputSchema;
         if (!inputSchema.containsField(SchemaConstants.SPAN_LIST)) {
@@ -62,7 +62,7 @@ public class NlpExtractor extends AbstractSingleInputOperator {
     }
     
     @Override
-    protected ITuple computeNextMatchingTuple() throws Exception {
+    protected ITuple computeNextMatchingTuple() throws TextDBException {
         ITuple inputTuple = null;
         ITuple resultTuple = null;
         
@@ -79,7 +79,7 @@ public class NlpExtractor extends AbstractSingleInputOperator {
         return resultTuple;
     }
 
-    private ITuple processOneInputTuple(ITuple inputTuple) throws DataFlowException {
+    private ITuple processOneInputTuple(ITuple inputTuple) throws TextDBException {
         List<Span> matchingResults = new ArrayList<>();
         for (Attribute attribute : predicate.getAttributeList()) {
             String fieldName = attribute.getFieldName();
@@ -291,7 +291,7 @@ public class NlpExtractor extends AbstractSingleInputOperator {
     }
 
     @Override
-    protected void cleanUp() throws DataFlowException {
+    protected void cleanUp() throws TextDBException {
     }
 
     public NlpPredicate getPredicate() {

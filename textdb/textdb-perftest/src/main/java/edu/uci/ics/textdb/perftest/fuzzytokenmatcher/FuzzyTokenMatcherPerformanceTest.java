@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import edu.uci.ics.textdb.api.exception.TextDBException;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 
@@ -68,7 +69,7 @@ public class FuzzyTokenMatcherPerformanceTest {
      * 
      */
     public static void runTest(String queryFileName, List<Double> thresholds)
-            throws StorageException, DataFlowException, IOException {
+            throws TextDBException, IOException {
 
         // Reads queries from query file into a list
         ArrayList<String> queries = PerfTestUtils.readQueries(PerfTestUtils.getQueryPath(queryFileName));
@@ -118,7 +119,7 @@ public class FuzzyTokenMatcherPerformanceTest {
      * This function does match for a list of queries
      */
     public static void match(ArrayList<String> queryList, double threshold, Analyzer luceneAnalyzer,
-            DataStore dataStore, boolean bool) throws DataFlowException, IOException {
+            DataStore dataStore, boolean bool) throws TextDBException, IOException {
 
         Attribute[] attributeList = new Attribute[] { MedlineIndexWriter.ABSTRACT_ATTR };
 

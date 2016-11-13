@@ -9,16 +9,14 @@ import edu.uci.ics.textdb.common.constants.DataConstants;
 import edu.uci.ics.textdb.common.constants.DataConstants.NumberMatchingType;
 import edu.uci.ics.textdb.common.constants.TestConstants;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
+import edu.uci.ics.textdb.api.exception.TextDBException;
 import edu.uci.ics.textdb.common.field.*;
 import edu.uci.ics.textdb.dataflow.source.ScanBasedSourceOperator;
 import edu.uci.ics.textdb.dataflow.utils.TestUtils;
-import edu.uci.ics.textdb.storage.DataReaderPredicate;
 import edu.uci.ics.textdb.storage.DataStore;
-import edu.uci.ics.textdb.storage.reader.DataReader;
 import edu.uci.ics.textdb.storage.writer.DataWriter;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.apache.lucene.search.MatchAllDocsQuery;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -60,7 +58,7 @@ public class ComparableMatcherTest {
     }
 
     public List<ITuple> getDoubleQueryResults(double threshold, Attribute attribute, NumberMatchingType matchingType)
-            throws DataFlowException {
+            throws TextDBException {
         // Perform the query
         ComparablePredicate<Double> comparablePredicate = new ComparablePredicate<>(threshold, attribute, matchingType);
         ComparableMatcher<Double> comparableMatcher = new ComparableMatcher<>(comparablePredicate);
@@ -69,7 +67,7 @@ public class ComparableMatcherTest {
     }
 
     public List<ITuple> getIntegerQueryResults(int threshold, Attribute attribute, NumberMatchingType matchingType)
-            throws DataFlowException {
+            throws TextDBException {
         // Perform the query
         ComparablePredicate<Integer> comparablePredicate = new ComparablePredicate<>(threshold, attribute, matchingType);
         ComparableMatcher<Integer> comparableMatcher = new ComparableMatcher<>(comparablePredicate);
@@ -78,7 +76,7 @@ public class ComparableMatcherTest {
     }
 
     public List<ITuple> getDateQueryResults(Date threshold, Attribute attribute, NumberMatchingType matchingType)
-            throws DataFlowException {
+            throws TextDBException {
         // Perform the query
         ComparablePredicate<Date> comparablePredicate = new ComparablePredicate<>(threshold, attribute, matchingType);
         ComparableMatcher<Date> comparableMatcher = new ComparableMatcher<>(comparablePredicate);
@@ -86,7 +84,7 @@ public class ComparableMatcherTest {
         return getQueryResults(comparableMatcher);
     }
 
-    public void setDefaultMatcherConfig(ComparableMatcher comparableMatcher) throws DataFlowException {
+    public void setDefaultMatcherConfig(ComparableMatcher comparableMatcher) throws TextDBException {
         // Perform the query
         ScanBasedSourceOperator sourceOperator = getScanSourceOperator(dataStore);
         comparableMatcher.setInputOperator(sourceOperator);
@@ -95,7 +93,7 @@ public class ComparableMatcherTest {
         comparableMatcher.setOffset(0);
     }
 
-    public List<ITuple> getQueryResults(ComparableMatcher comparableMatcher) throws DataFlowException {
+    public List<ITuple> getQueryResults(ComparableMatcher comparableMatcher) throws TextDBException {
         List<ITuple> returnedResults = new ArrayList<>();
         ITuple nextTuple = null;
 
