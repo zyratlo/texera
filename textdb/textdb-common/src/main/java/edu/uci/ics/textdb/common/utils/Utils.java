@@ -245,10 +245,6 @@ public class Utils {
                 List<Span> spanList = ((ListField<Span>) tuple.getField(SchemaConstants.SPAN_LIST)).getValue();
                 sb.append(getSpanListString(spanList));
                 sb.append("\n");
-            } else if (attribute.getFieldName().equals(SchemaConstants.PAYLOAD)) {
-                List<Span> spanList = ((ListField<Span>) tuple.getField(SchemaConstants.PAYLOAD)).getValue();
-                sb.append(getSpanListString(spanList));
-                sb.append("\n");
             } else {
                 sb.append(attribute.getFieldName());
                 sb.append("(");
