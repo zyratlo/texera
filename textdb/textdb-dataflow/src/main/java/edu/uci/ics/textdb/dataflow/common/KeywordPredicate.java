@@ -5,33 +5,16 @@ import java.util.HashSet;
 import java.util.List;
 
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.apache.lucene.index.Term;
-import org.apache.lucene.queryparser.classic.ParseException;
-import org.apache.lucene.search.BooleanClause;
-import org.apache.lucene.search.BooleanQuery;
-import org.apache.lucene.search.MatchAllDocsQuery;
-import org.apache.lucene.search.PhraseQuery;
 import org.apache.lucene.search.Query;
-import org.apache.lucene.search.TermQuery;
 
-import edu.uci.ics.textdb.api.common.Attribute;
-import edu.uci.ics.textdb.api.common.FieldType;
 import edu.uci.ics.textdb.api.common.IPredicate;
-import edu.uci.ics.textdb.api.storage.IDataStore;
 import edu.uci.ics.textdb.common.constants.DataConstants.KeywordMatchingType;
-import edu.uci.ics.textdb.common.exception.DataFlowException;
 import edu.uci.ics.textdb.common.utils.Utils;
-import edu.uci.ics.textdb.storage.DataReaderPredicate;
 
 /**
- *  @author prakul
- *  @author Zhenfeng Qi
- *  @author Zuozhi Wang
+ * @author Zuozhi Wang
+ * @author prakul
  *
- */
-
-/**
  * This class handles creation of predicate for querying using Keyword Matcher
  */
 public class KeywordPredicate implements IPredicate {
@@ -51,25 +34,17 @@ public class KeywordPredicate implements IPredicate {
      * searched in String field we search for Exact string.
      */
     public KeywordPredicate(String query, List<String> attributeNames, Analyzer luceneAnalyzer,
-            KeywordMatchingType operatorType) throws DataFlowException {
-        try {
-            this.query = query;
-            this.queryTokenList = Utils.tokenizeQuery(luceneAnalyzer, query);
-            this.queryTokenSet = new HashSet<>(this.queryTokenList);
-            this.queryTokensWithStopwords = Utils.tokenizeQueryWithStopwords(query);
+            KeywordMatchingType operatorType) {
+        this.query = query;
+        this.queryTokenList = Utils.tokenizeQuery(luceneAnalyzer, query);
+        this.queryTokenSet = new HashSet<>(this.queryTokenList);
+        this.queryTokensWithStopwords = Utils.tokenizeQueryWithStopwords(query);
 
-            this.attributeNames = attributeNames;
-            this.operatorType = operatorType;
+        this.attributeNames = attributeNames;
+        this.operatorType = operatorType;
 
-            this.luceneAnalyzer = luceneAnalyzer;
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new DataFlowException(e.getMessage(), e);
-        }
+        this.luceneAnalyzer = luceneAnalyzer;
     }
-
-
 
     public KeywordMatchingType getOperatorType() {
         return operatorType;

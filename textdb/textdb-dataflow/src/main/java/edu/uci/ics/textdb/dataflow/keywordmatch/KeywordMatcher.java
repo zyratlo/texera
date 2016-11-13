@@ -9,7 +9,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import edu.uci.ics.textdb.api.common.Attribute;
 import edu.uci.ics.textdb.api.common.FieldType;
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.common.Schema;
@@ -91,8 +90,7 @@ public class KeywordMatcher extends AbstractSingleInputOperator {
         List<Span> matchingResults = new ArrayList<>();
 
         for (String fieldName : this.predicate.getAttributeNames()) {
-            String fieldName = attribute.getFieldName();
-            FieldType fieldType = attribute.getFieldType();
+            FieldType fieldType = this.inputSchema.getAttribute(fieldName).getFieldType();
             String fieldValue = sourceTuple.getField(fieldName).getValue().toString();
 
             // types other than TEXT and STRING: throw Exception for now
@@ -136,9 +134,8 @@ public class KeywordMatcher extends AbstractSingleInputOperator {
         List<Span> relevantSpans = filterRelevantSpans(payload);
         List<Span> matchingResults = new ArrayList<>();
 
-        for (Attribute attribute : this.predicate.getAttributeList()) {
-            String fieldName = attribute.getFieldName();
-            FieldType fieldType = attribute.getFieldType();
+        for (String fieldName : this.predicate.getAttributeNames()) {
+            FieldType fieldType = this.inputSchema.getAttribute(fieldName).getFieldType();
             String fieldValue = sourceTuple.getField(fieldName).getValue().toString();
 
             // types other than TEXT and STRING: throw Exception for now
@@ -233,9 +230,8 @@ public class KeywordMatcher extends AbstractSingleInputOperator {
     private ITuple computeSubstringMatchingResult(ITuple sourceTuple) throws DataFlowException {
         List<Span> matchingResults = new ArrayList<>();
 
-        for (Attribute attribute : this.predicate.getAttributeList()) {
-            String fieldName = attribute.getFieldName();
-            FieldType fieldType = attribute.getFieldType();
+        for (String fieldName : this.predicate.getAttributeNames()) {
+            FieldType fieldType = this.inputSchema.getAttribute(fieldName).getFieldType();
             String fieldValue = sourceTuple.getField(fieldName).getValue().toString();
 
             // types other than TEXT and STRING: throw Exception for now
