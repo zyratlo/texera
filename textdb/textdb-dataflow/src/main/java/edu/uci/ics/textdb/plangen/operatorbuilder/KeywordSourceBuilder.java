@@ -42,8 +42,8 @@ public class KeywordSourceBuilder {
         // check if the keyword is empty
         PlanGenUtils.planGenAssert(!keyword.trim().isEmpty(), "the keyword is empty");
 
-        // generate the attribute list
-        List<Attribute> attributeList = OperatorBuilderUtils.constructAttributeList(operatorProperties);
+        // generate the attribute names
+        List<String> attributeNames = OperatorBuilderUtils.constructAttributeNames(operatorProperties);
 
         // generate the keyword matching type
         KeywordMatchingType matchingType = KeywordMatcherBuilder.getKeywordMatchingType(matchingTypeStr);
@@ -52,9 +52,8 @@ public class KeywordSourceBuilder {
                 + "It must be one of " + KeywordMatcherBuilder.keywordMatchingTypeMap.keySet());
         
         KeywordPredicate keywordPredicate;
-        keywordPredicate = new KeywordPredicate(keyword, 
-                Utils.getAttributeNames(attributeList),
-                LuceneAnalyzerConstants.getStandardAnalyzer(), matchingType);     
+        keywordPredicate = new KeywordPredicate(keyword, attributeNames,
+                LuceneAnalyzerConstants.getStandardAnalyzer(), matchingType);  
         
         DataStore dataStore = OperatorBuilderUtils.constructDataStore(operatorProperties);
 
