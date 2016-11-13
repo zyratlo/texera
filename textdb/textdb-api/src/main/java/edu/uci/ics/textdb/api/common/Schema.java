@@ -33,6 +33,14 @@ public class Schema {
     public Integer getIndex(String fieldName) {
         return fieldNameVsIndex.get(fieldName.toLowerCase());
     }
+    
+    public Attribute getAttribute(String fieldName) {
+        Integer attrIndex = getIndex(fieldName);
+        if (attrIndex == null) {
+            return null;
+        }
+        return attributes.get(attrIndex);
+    }
 
     public boolean containsField(String fieldName) {
         return fieldNameVsIndex.keySet().contains(fieldName.toLowerCase());
