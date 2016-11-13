@@ -36,7 +36,7 @@ import edu.uci.ics.textdb.storage.DataReaderPredicate;
  */
 public class KeywordPredicate implements IPredicate {
 
-    private List<Attribute> attributeList;
+    private List<String> attributeNames;
     private String query;
     private Query luceneQuery;
     private ArrayList<String> queryTokenList;
@@ -50,7 +50,7 @@ public class KeywordPredicate implements IPredicate {
      * searched in TextField, we would consider both tokens New and York; if
      * searched in String field we search for Exact string.
      */
-    public KeywordPredicate(String query, List<Attribute> attributeList, Analyzer luceneAnalyzer,
+    public KeywordPredicate(String query, List<String> attributeNames, Analyzer luceneAnalyzer,
             KeywordMatchingType operatorType) throws DataFlowException {
         try {
             this.query = query;
@@ -58,11 +58,10 @@ public class KeywordPredicate implements IPredicate {
             this.queryTokenSet = new HashSet<>(this.queryTokenList);
             this.queryTokensWithStopwords = Utils.tokenizeQueryWithStopwords(query);
 
-            this.attributeList = attributeList;
+            this.attributeNames = attributeNames;
             this.operatorType = operatorType;
 
             this.luceneAnalyzer = luceneAnalyzer;
-            this.luceneQuery = createLuceneQueryObject();
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -70,121 +69,7 @@ public class KeywordPredicate implements IPredicate {
         }
     }
 
-    /**
-     * Creates a Query object as a boolean Query on all attributes Example: For
-     * creating a query like (TestConstants.DESCRIPTION + ":lin" + " AND " +
-     * TestConstants.LAST_NAME + ":lin") we provide a list of AttributeFields
-     * (Description, Last_name) to search on and a query string (lin)
-     *
-     * @return Query
-     * @throws ParseException
-     * @throws DataFlowException
-     */
-    private Query createLuceneQueryObject() throws DataFlowException {
-        Query query = null;
-        if (this.operatorType == KeywordMatchingType.CONJUNCTION_INDEXBASED) {
-            query = buildConjunctionQuery();
-        }
-        if (this.operatorType == KeywordMatchingType.PHRASE_INDEXBASED) {
-            query = buildPhraseQuery();
-        }
-        if (this.operatorType == KeywordMatchingType.SUBSTRING_SCANBASED) {
-            query = buildScanQuery();
-        }
 
-        return query;
-    }
-
-    private Query buildConjunctionQuery() throws DataFlowException {
-        BooleanQuery.Builder booleanQueryBuilder = new BooleanQuery.Builder();
-
-        for (Attribute attribute : this.attributeList) {
-            String fieldName = attribute.getFieldName();
-            FieldType fieldType = attribute.getFieldType();
-
-            // types other than TEXT and STRING: throw Exception for now
-            if (fieldType != FieldType.STRING && fieldType != FieldType.TEXT) {
-                throw new DataFlowException(
-                        "KeywordPredicate: Fields other than STRING and TEXT are not supported yet");
-            }
-
-            if (fieldType == FieldType.STRING) {
-                Query termQuery = new TermQuery(new Term(fieldName, this.query));
-                booleanQueryBuilder.add(termQuery, BooleanClause.Occur.SHOULD);
-            }
-            if (fieldType == FieldType.TEXT) {
-                BooleanQuery.Builder fieldQueryBuilder = new BooleanQuery.Builder();
-                for (String token : this.queryTokenSet) {
-                    Query termQuery = new TermQuery(new Term(fieldName, token.toLowerCase()));
-                    fieldQueryBuilder.add(termQuery, BooleanClause.Occur.MUST);
-                }
-                booleanQueryBuilder.add(fieldQueryBuilder.build(), BooleanClause.Occur.SHOULD);
-            }
-
-        }
-
-        return booleanQueryBuilder.build();
-    }
-
-    private Query buildPhraseQuery() throws DataFlowException {
-        BooleanQuery.Builder booleanQueryBuilder = new BooleanQuery.Builder();
-
-        for (Attribute attribute : this.attributeList) {
-            String fieldName = attribute.getFieldName();
-            FieldType fieldType = attribute.getFieldType();
-
-            // types other than TEXT and STRING: throw Exception for now
-            if (fieldType != FieldType.STRING && fieldType != FieldType.TEXT) {
-                throw new DataFlowException(
-                        "KeywordPredicate: Fields other than STRING and TEXT are not supported yet");
-            }
-
-            if (fieldType == FieldType.STRING) {
-                Query termQuery = new TermQuery(new Term(fieldName, this.query));
-                booleanQueryBuilder.add(termQuery, BooleanClause.Occur.SHOULD);
-            }
-            if (fieldType == FieldType.TEXT) {
-                if (queryTokenList.size() == 1) {
-                    Query termQuery = new TermQuery(new Term(fieldName, this.query.toLowerCase()));
-                    booleanQueryBuilder.add(termQuery, BooleanClause.Occur.SHOULD);
-                } else {
-                    PhraseQuery.Builder phraseQueryBuilder = new PhraseQuery.Builder();
-                    for (int i = 0; i < queryTokensWithStopwords.size(); i++) {
-                        if (!StandardAnalyzer.STOP_WORDS_SET.contains(queryTokensWithStopwords.get(i))) {
-                            phraseQueryBuilder.add(new Term(fieldName, queryTokensWithStopwords.get(i).toLowerCase()),
-                                    i);
-                        }
-                    }
-                    PhraseQuery phraseQuery = phraseQueryBuilder.build();
-                    booleanQueryBuilder.add(phraseQuery, BooleanClause.Occur.SHOULD);
-                }
-            }
-
-        }
-
-        return booleanQueryBuilder.build();
-    }
-
-    private Query buildScanQuery() throws DataFlowException {
-        for (Attribute attribute : this.attributeList) {
-            FieldType fieldType = attribute.getFieldType();
-
-            // types other than TEXT and STRING: throw Exception for now
-            if (fieldType != FieldType.STRING && fieldType != FieldType.TEXT) {
-                throw new DataFlowException(
-                        "KeywordPredicate: Fields other than STRING and TEXT are not supported yet");
-            }
-        }
-
-        return new MatchAllDocsQuery();
-    }
-
-    public DataReaderPredicate generateDataReaderPredicate(IDataStore dataStore) {
-        DataReaderPredicate predicate = new DataReaderPredicate(this.luceneQuery, this.query, dataStore,
-                this.attributeList, this.luceneAnalyzer);
-        predicate.setIsSpanInformationAdded(true);
-        return predicate;
-    }
 
     public KeywordMatchingType getOperatorType() {
         return operatorType;
@@ -194,8 +79,8 @@ public class KeywordPredicate implements IPredicate {
         return query;
     }
 
-    public List<Attribute> getAttributeList() {
-        return attributeList;
+    public List<String> getAttributeNames() {
+        return attributeNames;
     }
 
     public Query getQueryObject() {

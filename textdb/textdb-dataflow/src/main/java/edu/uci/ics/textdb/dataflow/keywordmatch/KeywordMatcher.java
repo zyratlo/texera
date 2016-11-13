@@ -90,7 +90,7 @@ public class KeywordMatcher extends AbstractSingleInputOperator {
         List<Span> relevantSpans = filterRelevantSpans(payload);
         List<Span> matchingResults = new ArrayList<>();
 
-        for (Attribute attribute : this.predicate.getAttributeList()) {
+        for (String fieldName : this.predicate.getAttributeNames()) {
             String fieldName = attribute.getFieldName();
             FieldType fieldType = attribute.getFieldType();
             String fieldValue = sourceTuple.getField(fieldName).getValue().toString();
