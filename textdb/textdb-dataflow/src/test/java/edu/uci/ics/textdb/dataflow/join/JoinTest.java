@@ -111,7 +111,8 @@ public class JoinTest {
     // A helper method to get join result. Called from each test case
     public List<ITuple> getJoinResults(IOperator outer, IOperator inner, Attribute idAttribute, Attribute joinAttribute,
             Integer threshold, int limit, int offset) throws Exception {
-        IJoinPredicate joinDistancePredicate = new JoinDistancePredicate(idAttribute, joinAttribute, threshold);
+        IJoinPredicate joinDistancePredicate = new JoinDistancePredicate(
+                idAttribute.getFieldName(), joinAttribute.getFieldName(), threshold);
         join = new Join(outer, inner, joinDistancePredicate);
         join.setLimit(limit);
         join.setOffset(offset);
@@ -1952,8 +1953,10 @@ public class JoinTest {
         Attribute idAttr = attributeList.get(0);
         Attribute reviewAttr = attributeList.get(4);
 
-        IJoinPredicate joinDistancePredicate = new JoinDistancePredicate(idAttr, reviewAttr, 90);
+        IJoinPredicate joinDistancePredicate = new JoinDistancePredicate(
+                idAttr.getFieldName(), reviewAttr.getFieldName(), 90);
         join = new Join(keywordSourceOuter, keywordSourceInner, joinDistancePredicate);
+        
         join.setLimit(2);
         join.setOffset(2);
         join.open();
