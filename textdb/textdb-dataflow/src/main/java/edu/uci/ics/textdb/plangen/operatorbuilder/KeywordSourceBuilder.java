@@ -58,7 +58,12 @@ public class KeywordSourceBuilder {
         
         DataStore dataStore = OperatorBuilderUtils.constructDataStore(operatorProperties);
 
-        KeywordMatcherSourceOperator sourceOperator = new KeywordMatcherSourceOperator(keywordPredicate, dataStore);
+        KeywordMatcherSourceOperator sourceOperator;
+        try {
+            sourceOperator = new KeywordMatcherSourceOperator(keywordPredicate, dataStore);
+        } catch (DataFlowException e) {
+            throw new PlanGenException(e.getMessage(), e);
+        }
    
         return sourceOperator;
     }

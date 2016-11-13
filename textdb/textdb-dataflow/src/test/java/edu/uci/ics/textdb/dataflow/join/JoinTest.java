@@ -1015,7 +1015,7 @@ public class JoinTest {
                 Utils.getAttributeNames(modBookAttr), analyzer,
                 DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED);
         
-        keywordSourceOuter = new KeywordMatcherSourceOperator(keywordPredicate, dataStore);
+        keywordSourceInner = new KeywordMatcherSourceOperator(keywordPredicate, dataStore);
 
 
         List<ITuple> resultList = getJoinResults(keywordSourceOuter, keywordSourceInner, idAttr, reviewAttr, 20, maxVal, 0);
@@ -1093,7 +1093,7 @@ public class JoinTest {
                 Utils.getAttributeNames(modBookAttr2), analyzer,
                 DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED);
         
-        keywordSourceOuter = new KeywordMatcherSourceOperator(keywordPredicate, dataStore);
+        keywordSourceInner = new KeywordMatcherSourceOperator(keywordPredicate, dataStore);
 
         List<ITuple> resultList = getJoinResults(keywordSourceOuter, keywordSourceInner, idAttr, reviewAttr, 20, maxVal, 0);
 
@@ -1198,7 +1198,7 @@ public class JoinTest {
                 Utils.getAttributeNames(modBookAttr2), analyzer,
                 DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED);
         
-        keywordSourceOuter = new KeywordMatcherSourceOperator(keywordPredicate, dataStore);
+        keywordSourceInner = new KeywordMatcherSourceOperator(keywordPredicate, dataStore);
 
         List<ITuple> resultList = getJoinResults(keywordSourceOuter, keywordSourceInner, idAttr, reviewAttr1, 20, maxVal, 0);
 

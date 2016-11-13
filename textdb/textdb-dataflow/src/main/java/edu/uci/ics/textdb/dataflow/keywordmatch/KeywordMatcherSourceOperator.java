@@ -44,20 +44,12 @@ public class KeywordMatcherSourceOperator extends AbstractSingleInputOperator im
     private Schema inputSchema;
     private Schema outputSchema;
 
-    public KeywordMatcherSourceOperator(KeywordPredicate predicate, IDataStore dataStore) {
+    public KeywordMatcherSourceOperator(KeywordPredicate predicate, IDataStore dataStore) throws DataFlowException {
         this.predicate = predicate;
         this.dataStore = dataStore;
 
         this.keywordQuery = predicate.getQuery();
-    }
-
-    @Override
-    public Schema getOutputSchema() {
-        return this.outputSchema;
-    }
-
-    @Override
-    protected void setUp() throws DataFlowException {
+        
         // input schema must be setup first
         this.inputSchema = dataStore.getSchema();
 
@@ -71,8 +63,17 @@ public class KeywordMatcherSourceOperator extends AbstractSingleInputOperator im
         // generate KeywordMatcher
         keywordMatcher = new KeywordMatcher(predicate);
         keywordMatcher.setInputOperator(dataReader);
-        inputOperator = this.keywordMatcher;
+        
+        this.inputOperator = this.keywordMatcher;
+    }
 
+    @Override
+    public Schema getOutputSchema() {
+        return this.outputSchema;
+    }
+
+    @Override
+    protected void setUp() throws DataFlowException {
         this.outputSchema = keywordMatcher.getOutputSchema();
     }
 
