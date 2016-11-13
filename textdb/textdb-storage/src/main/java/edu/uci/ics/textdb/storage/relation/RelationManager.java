@@ -12,6 +12,7 @@ public class RelationManager implements IRelationManager {
     private static volatile RelationManager singletonRelationManager = null;
     
     private RelationManager() {
+        
     }
 
     @Override
