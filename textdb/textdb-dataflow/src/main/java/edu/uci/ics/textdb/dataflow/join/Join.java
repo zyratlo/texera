@@ -237,7 +237,7 @@ public class Join implements IOperator {
         }
         
         // check if join attribute is TEXT or STRING
-        FieldType joinAttrType = outputSchema.getAttribute(joinPredicate.getJoinAttributeName()).getFieldType();
+        FieldType joinAttrType = intersectionSchema.getAttribute(joinPredicate.getJoinAttributeName()).getFieldType();
         if (joinAttrType != FieldType.TEXT && joinAttrType != FieldType.STRING) {
             throw new DataFlowException(
                     String.format("Join attribute %s must be either TEXT or STRING.", joinPredicate.getJoinAttributeName()));

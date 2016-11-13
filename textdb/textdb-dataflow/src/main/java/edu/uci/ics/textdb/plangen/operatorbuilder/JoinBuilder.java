@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import edu.uci.ics.textdb.api.common.Attribute;
 import edu.uci.ics.textdb.common.exception.PlanGenException;
 import edu.uci.ics.textdb.dataflow.common.IJoinPredicate;
 import edu.uci.ics.textdb.dataflow.common.JoinDistancePredicate;
@@ -98,10 +97,10 @@ public class JoinBuilder {
         PlanGenUtils.planGenAssert(! joinIDAttributeName.trim().isEmpty(), 
                 "Join character distance predicate: ID attribute name is empty.");
         
-        List<Attribute> attributeList = OperatorBuilderUtils.constructAttributeList(operatorProperties);       
-        PlanGenUtils.planGenAssert(attributeList.size() == 1, 
-                "Join character distance predicate allows only 1 attribute, got " + attributeList.size()+  " attributes.");
-        Attribute joinAttribute = attributeList.get(0);
+        List<String> attributeNames = OperatorBuilderUtils.constructAttributeNames(operatorProperties);
+        PlanGenUtils.planGenAssert(attributeNames.size() == 1, 
+                "Join character distance predicate allows only 1 attribute, got " + attributeNames.size()+  " attributes.");
+        String joinAttributeName = attributeNames.get(0);
         
         int distance;
         try {
@@ -113,7 +112,7 @@ public class JoinBuilder {
             throw new PlanGenException("Join character distance predicate: distance must be greater than 0.");
         }
         
-        return new JoinDistancePredicate(joinIDAttribute, joinAttribute, distance);
+        return new JoinDistancePredicate(joinIDAttributeName, joinAttributeName, distance);
     }
 
 }
