@@ -10,7 +10,7 @@ import edu.uci.ics.textdb.api.common.FieldType;
 import edu.uci.ics.textdb.api.common.IField;
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.common.Schema;
-import edu.uci.ics.textdb.common.constants.DataConstants;
+import edu.uci.ics.textdb.common.constants.LuceneAnalyzerConstants;
 import edu.uci.ics.textdb.common.field.DataTuple;
 import edu.uci.ics.textdb.common.field.IntegerField;
 import edu.uci.ics.textdb.common.field.StringField;
@@ -66,11 +66,11 @@ public class CatalogConstants {
     public static List<ITuple> getInitialCollectionCatalogTuples() {
         String collectionCatalogDirectoryAbsolute = new File(COLLECTION_CATALOG_DIRECTORY).getAbsolutePath();
         IField[] collectionFields = { new StringField(COLLECTION_CATALOG), new StringField(collectionCatalogDirectoryAbsolute),
-                new StringField(DataConstants.STANDARD_LUCENE_ANALYZER) };
+                new StringField(LuceneAnalyzerConstants.standardAnalyzerString()) };
         
         String schemaCatalogDirectoryAbsolute = new File(SCHEMA_CATALOG_DIRECTORY).getAbsolutePath();
         IField[] schemaFields = { new StringField(SCHEMA_CATALOG), new StringField(schemaCatalogDirectoryAbsolute),
-                new StringField(DataConstants.STANDARD_LUCENE_ANALYZER) };
+                new StringField(LuceneAnalyzerConstants.standardAnalyzerString()) };
 
         List<IField[]> fieldsList = Arrays.asList(collectionFields, schemaFields);
         return fieldsList.stream().map(fields -> new DataTuple(CatalogConstants.COLLECTION_CATALOG_SCHEMA, fields))

@@ -1,7 +1,9 @@
 package edu.uci.ics.textdb.storage.relation;
 
+import edu.uci.ics.textdb.api.common.IField;
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.common.Schema;
+import edu.uci.ics.textdb.api.exception.TextDBException;
 import edu.uci.ics.textdb.api.storage.IDataReader;
 import edu.uci.ics.textdb.api.storage.IRelationManager;
 
@@ -31,43 +33,44 @@ public class RelationManager implements IRelationManager {
     }
 
     @Override
-    public void createTable(String tableName, String indexDirectory, Schema schema, String luceneAnalyzer) throws Exception {
+    public void createTable(String tableName, String indexDirectory, Schema schema, String luceneAnalyzer)
+            throws TextDBException {
         // TODO Auto-generated method stub
         
     }
 
     @Override
-    public void deleteTable(String tableName) throws Exception {
+    public void deleteTable(String tableName) throws TextDBException {
         // TODO Auto-generated method stub
         
     }
 
     @Override
-    public void insertTuple(String tableName, ITuple tuple, String primaryAttribute) throws Exception {
-        // TODO Auto-generated method stub
-        
-    }
-
-    @Override
-    public void deleteTuple(String tableName, String primaryAttribute, Object value) throws Exception {
-        // TODO Auto-generated method stub
-        
-    }
-
-    @Override
-    public void updateTuple(String tableName, ITuple tuple, String primaryAttribute, Object value) throws Exception {
-        // TODO Auto-generated method stub
-        
-    }
-
-    @Override
-    public ITuple getTuple(String tableName, String primaryAttribute, Object value) throws Exception {
+    public IField insertTuple(String tableName, ITuple tuple) throws TextDBException {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public IDataReader scanTable(String tableName) throws Exception {
+    public void deleteTuple(String tableName, IField idValue) throws TextDBException {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void updateTuple(String tableName, ITuple newTuple, IField idValue) throws TextDBException {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public ITuple getTuple(String tableName, IField idValue) throws TextDBException {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public IDataReader scanTable(String tableName) throws TextDBException {
         // TODO Auto-generated method stub
         return null;
     }
@@ -89,5 +92,6 @@ public class RelationManager implements IRelationManager {
         // TODO Auto-generated method stub
         return null;
     }
+
 
 }
