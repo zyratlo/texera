@@ -28,12 +28,13 @@ import edu.uci.ics.textdb.common.field.ListField;
 import edu.uci.ics.textdb.common.field.Span;
 import edu.uci.ics.textdb.common.field.StringField;
 import edu.uci.ics.textdb.common.field.TextField;
+import edu.uci.ics.textdb.common.utils.Utils;
 import edu.uci.ics.textdb.dataflow.common.FuzzyTokenPredicate;
 import edu.uci.ics.textdb.dataflow.common.IJoinPredicate;
 import edu.uci.ics.textdb.dataflow.common.JoinDistancePredicate;
 import edu.uci.ics.textdb.dataflow.common.KeywordPredicate;
 import edu.uci.ics.textdb.dataflow.fuzzytokenmatcher.FuzzyTokenMatcher;
-import edu.uci.ics.textdb.dataflow.keywordmatch.KeywordMatcher;
+import edu.uci.ics.textdb.dataflow.keywordmatch.KeywordMatcherSourceOperator;
 import edu.uci.ics.textdb.dataflow.projection.ProjectionOperator;
 import edu.uci.ics.textdb.dataflow.projection.ProjectionPredicate;
 import edu.uci.ics.textdb.dataflow.source.IndexBasedSourceOperator;
@@ -48,8 +49,8 @@ import junit.framework.Assert;
  *
  */
 public class JoinTest {
-    private KeywordMatcher keywordMatcherOuter;
-    private KeywordMatcher keywordMatcherInner;
+    private KeywordMatcherSourceOperator keywordSourceOuter;
+    private KeywordMatcherSourceOperator keywordSourceInner;
     private IDataWriter dataWriterForOuter;
     private DataStore dataStoreForOuter;
     private IDataWriter dataWriterForInner;
@@ -158,22 +159,26 @@ public class JoinTest {
         case "index":
             if (whichOperator == "outer") {
                 dataStore = dataStoreForOuter;
-                keywordPredicate = new KeywordPredicate(query, modifiedAttributeList, analyzer,
+                keywordPredicate = new KeywordPredicate(query, 
+                        Utils.getAttributeNames(modifiedAttributeList), analyzer,
                         DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED);
             } else if (whichOperator == "inner") {
                 dataStore = dataStoreForInner;
-                keywordPredicate = new KeywordPredicate(query, modifiedAttributeList, analyzer,
+                keywordPredicate = new KeywordPredicate(query, 
+                        Utils.getAttributeNames(modifiedAttributeList), analyzer,
                         DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED);
             }
             break;
         case "phrase":
             if (whichOperator == "outer") {
                 dataStore = dataStoreForOuter;
-                keywordPredicate = new KeywordPredicate(query, modifiedAttributeList, analyzer,
+                keywordPredicate = new KeywordPredicate(query, 
+                        Utils.getAttributeNames(modifiedAttributeList), analyzer,
                         DataConstants.KeywordMatchingType.PHRASE_INDEXBASED);
             } else if (whichOperator == "inner") {
                 dataStore = dataStoreForInner;
-                keywordPredicate = new KeywordPredicate(query, modifiedAttributeList, analyzer,
+                keywordPredicate = new KeywordPredicate(query, 
+                        Utils.getAttributeNames(modifiedAttributeList), analyzer,
                         DataConstants.KeywordMatchingType.PHRASE_INDEXBASED);
             }
             break;
@@ -182,12 +187,9 @@ public class JoinTest {
             break;
         }
 
-        IndexBasedSourceOperator indexInputOperator = new IndexBasedSourceOperator(
-                keywordPredicate.generateDataReaderPredicate(dataStore));
-        KeywordMatcher keywordMatcher = new KeywordMatcher(keywordPredicate);
-        keywordMatcher.setInputOperator(indexInputOperator);
+        KeywordMatcherSourceOperator keywordSource = new KeywordMatcherSourceOperator(keywordPredicate, dataStore);
 
-        return keywordMatcher;
+        return keywordSource;
     }
 
     // A helper method to populate tuples' list to query upon. Currently
@@ -328,13 +330,13 @@ public class JoinTest {
         writeTuples(bookTuple1, bookTuple2);
 
         String query = "special";
-        keywordMatcherOuter = (KeywordMatcher) setupOperators(query, "index", "outer");
+        keywordSourceOuter = (KeywordMatcherSourceOperator) setupOperators(query, "index", "outer");
         query = "cancer";
-        keywordMatcherInner = (KeywordMatcher) setupOperators(query, "index", "inner");
+        keywordSourceInner = (KeywordMatcherSourceOperator) setupOperators(query, "index", "inner");
 
         Attribute idAttr = attributeList.get(0);
         Attribute reviewAttr = attributeList.get(4);
-        List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 10, maxVal, 0);
+        List<ITuple> resultList = getJoinResults(keywordSourceOuter, keywordSourceInner, idAttr, reviewAttr, 10, maxVal, 0);
         Assert.assertEquals(0, resultList.size());
     }
 
@@ -361,13 +363,13 @@ public class JoinTest {
         writeTuples(bookTuple1, bookTuple1);
 
         String query = "special";
-        keywordMatcherOuter = (KeywordMatcher) setupOperators(query, "index", "outer");
+        keywordSourceOuter = (KeywordMatcherSourceOperator) setupOperators(query, "index", "outer");
         query = "writer";
-        keywordMatcherInner = (KeywordMatcher) setupOperators(query, "index", "inner");
+        keywordSourceInner = (KeywordMatcherSourceOperator) setupOperators(query, "index", "inner");
 
         Attribute idAttr = attributeList.get(0);
         Attribute reviewAttr = attributeList.get(4);
-        List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 20, maxVal, 0);
+        List<ITuple> resultList = getJoinResults(keywordSourceOuter, keywordSourceInner, idAttr, reviewAttr, 20, maxVal, 0);
 
         Attribute[] schemaAttributes = new Attribute[attributeList.size() + 1];
         for (int index = 0; index < schemaAttributes.length - 1; index++) {
@@ -413,13 +415,13 @@ public class JoinTest {
         writeTuples(bookTuple1, bookTuple1);
 
         String query = "special";
-        keywordMatcherOuter = (KeywordMatcher) setupOperators(query, "index", "outer");
+        keywordSourceOuter = (KeywordMatcherSourceOperator) setupOperators(query, "index", "outer");
         query = "topics";
-        keywordMatcherInner = (KeywordMatcher) setupOperators(query, "index", "inner");
+        keywordSourceInner = (KeywordMatcherSourceOperator) setupOperators(query, "index", "inner");
 
         Attribute idAttr = attributeList.get(0);
         Attribute reviewAttr = attributeList.get(4);
-        List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 20, maxVal, 0);
+        List<ITuple> resultList = getJoinResults(keywordSourceOuter, keywordSourceInner, idAttr, reviewAttr, 20, maxVal, 0);
         Assert.assertEquals(0, resultList.size());
     }
 
@@ -432,13 +434,13 @@ public class JoinTest {
         writeTuples(bookTuple1, bookTuple1);
 
         String query = "special";
-        keywordMatcherOuter = (KeywordMatcher) setupOperators(query, "index", "outer");
+        keywordSourceOuter = (KeywordMatcherSourceOperator) setupOperators(query, "index", "outer");
         query = "book";
-        keywordMatcherInner = (KeywordMatcher) setupOperators(query, "index", "inner");
+        keywordSourceInner = (KeywordMatcherSourceOperator) setupOperators(query, "index", "inner");
 
         Attribute idAttr = attributeList.get(0);
         Attribute reviewAttr = attributeList.get(4);
-        List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 20, maxVal, 0);
+        List<ITuple> resultList = getJoinResults(keywordSourceOuter, keywordSourceInner, idAttr, reviewAttr, 20, maxVal, 0);
         Assert.assertEquals(0, resultList.size());
     }
 
@@ -451,7 +453,7 @@ public class JoinTest {
         writeTuples(bookTuple1, bookTuple1);
 
         String query = "special";
-        keywordMatcherOuter = (KeywordMatcher) setupOperators(query, "index", "outer");
+        keywordSourceOuter = (KeywordMatcherSourceOperator) setupOperators(query, "index", "outer");
 
         query = "this writer writes well";
         double thresholdRatio = 0.25;
@@ -462,14 +464,14 @@ public class JoinTest {
         fuzzyMatcherInner.setInputOperator(new IndexBasedSourceOperator(fuzzyPredicateInner.getDataReaderPredicate(dataStoreForInner)));
 
         ProjectionPredicate removeSpanListPredicate = new ProjectionPredicate(
-                dataStoreForInner.getSchema().getAttributes().stream().map(attr -> attr.getFieldName()).collect(Collectors.toList()));
+                Utils.getAttributeNames(dataStoreForInner.getSchema().getAttributes()));
         ProjectionOperator removeSpanListProjection = new ProjectionOperator(removeSpanListPredicate);
         removeSpanListProjection.setInputOperator(fuzzyMatcherInner);
         
         
         Attribute idAttr = attributeList.get(0);
         Attribute reviewAttr = attributeList.get(4);
-        List<ITuple> resultList = getJoinResults(keywordMatcherOuter, removeSpanListProjection, idAttr, reviewAttr, 20, maxVal, 0);
+        List<ITuple> resultList = getJoinResults(keywordSourceOuter, removeSpanListProjection, idAttr, reviewAttr, 20, maxVal, 0);
     }
 
     // This case tests for the scenario when the IDs match, fields to be joined
@@ -490,13 +492,13 @@ public class JoinTest {
         writeTuples(bookTuple1, bookTuple1);
 
         String query = "special";
-        keywordMatcherOuter = (KeywordMatcher) setupOperators(query, "index", "outer");
+        keywordSourceOuter = (KeywordMatcherSourceOperator) setupOperators(query, "index", "outer");
         query = "takes a special kind of writer";
-        keywordMatcherInner = (KeywordMatcher) setupOperators(query, "phrase", "inner");
+        keywordSourceInner = (KeywordMatcherSourceOperator) setupOperators(query, "phrase", "inner");
 
         Attribute idAttr = attributeList.get(0);
         Attribute reviewAttr = attributeList.get(4);
-        List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 20, maxVal, 0);
+        List<ITuple> resultList = getJoinResults(keywordSourceOuter, keywordSourceInner, idAttr, reviewAttr, 20, maxVal, 0);
 
         Attribute[] schemaAttributes = new Attribute[attributeList.size() + 1];
         for (int index = 0; index < schemaAttributes.length - 1; index++) {
@@ -544,13 +546,13 @@ public class JoinTest {
         writeTuples(bookTuple1, bookTuple1);
 
         String query = "special";
-        keywordMatcherOuter = (KeywordMatcher) setupOperators(query, "index", "outer");
+        keywordSourceOuter = (KeywordMatcherSourceOperator) setupOperators(query, "index", "outer");
         query = "takes a special kind of writer";
-        keywordMatcherInner = (KeywordMatcher) setupOperators(query, "phrase", "inner");
+        keywordSourceInner = (KeywordMatcherSourceOperator) setupOperators(query, "phrase", "inner");
 
         Attribute idAttr = attributeList.get(0);
         Attribute reviewAttr = attributeList.get(4);
-        List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 10, maxVal, 0);
+        List<ITuple> resultList = getJoinResults(keywordSourceOuter, keywordSourceInner, idAttr, reviewAttr, 10, maxVal, 0);
         Assert.assertEquals(0, resultList.size());
     }
 
@@ -577,13 +579,13 @@ public class JoinTest {
         writeTuples(bookTuple1, bookTuple1);
 
         String query = "gastrointestinal tract";
-        keywordMatcherOuter = (KeywordMatcher) setupOperators(query, "phrase", "outer");
+        keywordSourceOuter = (KeywordMatcherSourceOperator) setupOperators(query, "phrase", "outer");
         query = "tract interesting";
-        keywordMatcherInner = (KeywordMatcher) setupOperators(query, "phrase", "inner");
+        keywordSourceInner = (KeywordMatcherSourceOperator) setupOperators(query, "phrase", "inner");
 
         Attribute idAttr = attributeList.get(0);
         Attribute reviewAttr = attributeList.get(4);
-        List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 20, maxVal, 0);
+        List<ITuple> resultList = getJoinResults(keywordSourceOuter, keywordSourceInner, idAttr, reviewAttr, 20, maxVal, 0);
 
         Attribute[] schemaAttributes = new Attribute[attributeList.size() + 1];
         for (int index = 0; index < schemaAttributes.length - 1; index++) {
@@ -631,13 +633,13 @@ public class JoinTest {
         writeTuples(bookTuple1, bookTuple1);
 
         String query = "takes a special";
-        keywordMatcherOuter = (KeywordMatcher) setupOperators(query, "phrase", "outer");
+        keywordSourceOuter = (KeywordMatcherSourceOperator) setupOperators(query, "phrase", "outer");
         query = "special kind of writer";
-        keywordMatcherInner = (KeywordMatcher) setupOperators(query, "phrase", "inner");
+        keywordSourceInner = (KeywordMatcherSourceOperator) setupOperators(query, "phrase", "inner");
 
         Attribute idAttr = attributeList.get(0);
         Attribute reviewAttr = attributeList.get(4);
-        List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 10, maxVal, 0);
+        List<ITuple> resultList = getJoinResults(keywordSourceOuter, keywordSourceInner, idAttr, reviewAttr, 10, maxVal, 0);
         Assert.assertEquals(0, resultList.size());
     }
 
@@ -658,13 +660,13 @@ public class JoinTest {
         writeTuples(bookTuple1, bookTuple1);
 
         String query = "special";
-        keywordMatcherOuter = (KeywordMatcher) setupOperators(query, "index", "outer");
+        keywordSourceOuter = (KeywordMatcherSourceOperator) setupOperators(query, "index", "outer");
         query = "special";
-        keywordMatcherInner = (KeywordMatcher) setupOperators(query, "index", "inner");
+        keywordSourceInner = (KeywordMatcherSourceOperator) setupOperators(query, "index", "inner");
 
         Attribute idAttr = attributeList.get(0);
         Attribute reviewAttr = attributeList.get(4);
-        List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 20, maxVal, 0);
+        List<ITuple> resultList = getJoinResults(keywordSourceOuter, keywordSourceInner, idAttr, reviewAttr, 20, maxVal, 0);
 
         Attribute[] schemaAttributes = new Attribute[attributeList.size() + 1];
         for (int index = 0; index < schemaAttributes.length - 1; index++) {
@@ -729,19 +731,16 @@ public class JoinTest {
         }
 
         String query = "special";
-        keywordMatcherOuter = (KeywordMatcher) setupOperators(query, "index", "outer");
+        keywordSourceOuter = (KeywordMatcherSourceOperator) setupOperators(query, "index", "outer");
         query = "kind";
-        KeywordPredicate keywordPredicate = new KeywordPredicate(query, modifiedAttributeList, analyzer,
+        KeywordPredicate keywordPredicate = new KeywordPredicate(query, Utils.getAttributeNames(modifiedAttributeList), analyzer,
                 DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED);
 
-        IndexBasedSourceOperator indexInputOperator = new IndexBasedSourceOperator(
-                keywordPredicate.generateDataReaderPredicate(dataStore));
-        keywordMatcherInner = new KeywordMatcher(keywordPredicate);
-        keywordMatcherInner.setInputOperator(indexInputOperator);
+        keywordSourceInner = new KeywordMatcherSourceOperator(keywordPredicate, dataStore);
 
         Attribute idAttr = attributeList.get(0);
         Attribute reviewAttr = attributeList.get(4);
-        List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 10, maxVal, 0);
+        List<ITuple> resultList = getJoinResults(keywordSourceOuter, keywordSourceInner, idAttr, reviewAttr, 10, maxVal, 0);
     }
 
     // -----------------<Test cases for intersection of tuples>----------------
@@ -805,21 +804,19 @@ public class JoinTest {
 
         String query = "special";
         dataStore = dataStoreForOuter;
-        keywordPredicate = new KeywordPredicate(query, Arrays.asList(modBookAttr1), analyzer,
+        keywordPredicate = new KeywordPredicate(query, 
+                Utils.getAttributeNames(modBookAttr1), analyzer,
                 DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED);
-        indexInputOperator = new IndexBasedSourceOperator(keywordPredicate.generateDataReaderPredicate(dataStore));
-        keywordMatcherOuter = new KeywordMatcher(keywordPredicate);
-        keywordMatcherOuter.setInputOperator(indexInputOperator);
+        keywordSourceOuter = new KeywordMatcherSourceOperator(keywordPredicate, dataStore);
 
         query = "writer";
         dataStore = dataStoreForInner;
-        keywordPredicate = new KeywordPredicate(query, Arrays.asList(modBookAttr2), analyzer,
+        keywordPredicate = new KeywordPredicate(query, 
+                Utils.getAttributeNames(modBookAttr2), analyzer,
                 DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED);
-        indexInputOperator = new IndexBasedSourceOperator(keywordPredicate.generateDataReaderPredicate(dataStore));
-        keywordMatcherInner = new KeywordMatcher(keywordPredicate);
-        keywordMatcherInner.setInputOperator(indexInputOperator);
+        keywordSourceInner = new KeywordMatcherSourceOperator(keywordPredicate, dataStore);
 
-        List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 20, maxVal, 0);
+        List<ITuple> resultList = getJoinResults(keywordSourceOuter, keywordSourceInner, idAttr, reviewAttr, 20, maxVal, 0);
 
         Attribute[] schemaAttributes = { idAttr, pagesAttr, reviewAttr, SchemaConstants.SPAN_LIST_ATTRIBUTE };
 
@@ -909,21 +906,21 @@ public class JoinTest {
 
         String query = "special";
         dataStore = dataStoreForOuter;
-        keywordPredicate = new KeywordPredicate(query, Arrays.asList(modBookAttr), analyzer,
+        keywordPredicate = new KeywordPredicate(query, 
+                Utils.getAttributeNames(modBookAttr), analyzer,
                 DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED);
-        indexInputOperator = new IndexBasedSourceOperator(keywordPredicate.generateDataReaderPredicate(dataStore));
-        keywordMatcherOuter = new KeywordMatcher(keywordPredicate);
-        keywordMatcherOuter.setInputOperator(indexInputOperator);
+        
+        keywordSourceOuter = new KeywordMatcherSourceOperator(keywordPredicate, dataStore);
 
         query = "writer";
         dataStore = dataStoreForInner;
-        keywordPredicate = new KeywordPredicate(query, Arrays.asList(modBookAttr), analyzer,
+        keywordPredicate = new KeywordPredicate(query, 
+                Utils.getAttributeNames(modBookAttr), analyzer,
                 DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED);
-        indexInputOperator = new IndexBasedSourceOperator(keywordPredicate.generateDataReaderPredicate(dataStore));
-        keywordMatcherInner = new KeywordMatcher(keywordPredicate);
-        keywordMatcherInner.setInputOperator(indexInputOperator);
+        
+        keywordSourceInner = new KeywordMatcherSourceOperator(keywordPredicate, dataStore);
 
-        List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 20, maxVal, 0);
+        List<ITuple> resultList = getJoinResults(keywordSourceOuter, keywordSourceInner, idAttr, reviewAttr, 20, maxVal, 0);
 
         Attribute[] schemaAttributes = { idAttr, authorAttr, titleAttr, pagesAttr, reviewAttr,
                 SchemaConstants.SPAN_LIST_ATTRIBUTE };
@@ -1007,21 +1004,22 @@ public class JoinTest {
 
         String query = "special";
         dataStore = dataStoreForOuter;
-        keywordPredicate = new KeywordPredicate(query, Arrays.asList(modBookAttr), analyzer,
+        keywordPredicate = new KeywordPredicate(query, 
+                Utils.getAttributeNames(modBookAttr), analyzer,
                 DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED);
-        indexInputOperator = new IndexBasedSourceOperator(keywordPredicate.generateDataReaderPredicate(dataStore));
-        keywordMatcherOuter = new KeywordMatcher(keywordPredicate);
-        keywordMatcherOuter.setInputOperator(indexInputOperator);
+
+        keywordSourceOuter = new KeywordMatcherSourceOperator(keywordPredicate, dataStore);
 
         query = "writer";
         dataStore = dataStoreForInner;
-        keywordPredicate = new KeywordPredicate(query, Arrays.asList(modBookAttr), analyzer,
+        keywordPredicate = new KeywordPredicate(query, 
+                Utils.getAttributeNames(modBookAttr), analyzer,
                 DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED);
-        indexInputOperator = new IndexBasedSourceOperator(keywordPredicate.generateDataReaderPredicate(dataStore));
-        keywordMatcherInner = new KeywordMatcher(keywordPredicate);
-        keywordMatcherInner.setInputOperator(indexInputOperator);
+        
+        keywordSourceInner = new KeywordMatcherSourceOperator(keywordPredicate, dataStore);
 
-        List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 20, maxVal, 0);
+
+        List<ITuple> resultList = getJoinResults(keywordSourceOuter, keywordSourceInner, idAttr, reviewAttr, 20, maxVal, 0);
 
         Assert.assertEquals(0, resultList.size());
     }
@@ -1084,21 +1082,21 @@ public class JoinTest {
 
         String query = "special";
         dataStore = dataStoreForOuter;
-        keywordPredicate = new KeywordPredicate(query, Arrays.asList(modBookAttr1), analyzer,
+        keywordPredicate = new KeywordPredicate(query, 
+                Utils.getAttributeNames(modBookAttr1), analyzer,
                 DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED);
-        indexInputOperator = new IndexBasedSourceOperator(keywordPredicate.generateDataReaderPredicate(dataStore));
-        keywordMatcherOuter = new KeywordMatcher(keywordPredicate);
-        keywordMatcherOuter.setInputOperator(indexInputOperator);
+
+        keywordSourceOuter = new KeywordMatcherSourceOperator(keywordPredicate, dataStore);
 
         query = "writer";
         dataStore = dataStoreForInner;
-        keywordPredicate = new KeywordPredicate(query, Arrays.asList(modBookAttr2), analyzer,
+        keywordPredicate = new KeywordPredicate(query, 
+                Utils.getAttributeNames(modBookAttr2), analyzer,
                 DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED);
-        indexInputOperator = new IndexBasedSourceOperator(keywordPredicate.generateDataReaderPredicate(dataStore));
-        keywordMatcherInner = new KeywordMatcher(keywordPredicate);
-        keywordMatcherInner.setInputOperator(indexInputOperator);
+        
+        keywordSourceInner = new KeywordMatcherSourceOperator(keywordPredicate, dataStore);
 
-        List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 20, maxVal, 0);
+        List<ITuple> resultList = getJoinResults(keywordSourceOuter, keywordSourceInner, idAttr, reviewAttr, 20, maxVal, 0);
 
         Attribute[] schemaAttributes = { idAttr, authorAttr, pagesAttr, reviewAttr,
                 SchemaConstants.SPAN_LIST_ATTRIBUTE };
@@ -1189,21 +1187,21 @@ public class JoinTest {
 
         String query = "special";
         dataStore = dataStoreForOuter;
-        keywordPredicate = new KeywordPredicate(query, Arrays.asList(modBookAttr1), analyzer,
+        keywordPredicate = new KeywordPredicate(query, 
+                Utils.getAttributeNames(modBookAttr1), analyzer,
                 DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED);
-        indexInputOperator = new IndexBasedSourceOperator(keywordPredicate.generateDataReaderPredicate(dataStore));
-        keywordMatcherOuter = new KeywordMatcher(keywordPredicate);
-        keywordMatcherOuter.setInputOperator(indexInputOperator);
+        
+        keywordSourceOuter = new KeywordMatcherSourceOperator(keywordPredicate, dataStore);
 
         query = "writer";
         dataStore = dataStoreForInner;
-        keywordPredicate = new KeywordPredicate(query, Arrays.asList(modBookAttr2), analyzer,
+        keywordPredicate = new KeywordPredicate(query, 
+                Utils.getAttributeNames(modBookAttr2), analyzer,
                 DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED);
-        indexInputOperator = new IndexBasedSourceOperator(keywordPredicate.generateDataReaderPredicate(dataStore));
-        keywordMatcherInner = new KeywordMatcher(keywordPredicate);
-        keywordMatcherInner.setInputOperator(indexInputOperator);
+        
+        keywordSourceInner = new KeywordMatcherSourceOperator(keywordPredicate, dataStore);
 
-        List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr1, 20, maxVal, 0);
+        List<ITuple> resultList = getJoinResults(keywordSourceOuter, keywordSourceInner, idAttr, reviewAttr1, 20, maxVal, 0);
 
         Assert.assertEquals(0, resultList.size());
     }
@@ -1222,13 +1220,13 @@ public class JoinTest {
         writeTuples(bookTuple1, bookTuple2);
 
         String query = "review";
-        keywordMatcherOuter = (KeywordMatcher) setupOperators(query, "index", "outer");
+        keywordSourceOuter = (KeywordMatcherSourceOperator) setupOperators(query, "index", "outer");
         query = "book";
-        keywordMatcherInner = (KeywordMatcher) setupOperators(query, "index", "inner");
+        keywordSourceInner = (KeywordMatcherSourceOperator) setupOperators(query, "index", "inner");
 
         Attribute idAttr = attributeList.get(0);
         Attribute reviewAttr = attributeList.get(4);
-        List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 12, maxVal, 0);
+        List<ITuple> resultList = getJoinResults(keywordSourceOuter, keywordSourceInner, idAttr, reviewAttr, 12, maxVal, 0);
         Assert.assertEquals(0, resultList.size());
     }
 
@@ -1257,13 +1255,13 @@ public class JoinTest {
         writeTuples(bookTuple1, bookTuple2);
 
         String query = "review";
-        keywordMatcherOuter = (KeywordMatcher) setupOperators(query, "index", "outer");
+        keywordSourceOuter = (KeywordMatcherSourceOperator) setupOperators(query, "index", "outer");
         query = "book";
-        keywordMatcherInner = (KeywordMatcher) setupOperators(query, "index", "inner");
+        keywordSourceInner = (KeywordMatcherSourceOperator) setupOperators(query, "index", "inner");
 
         Attribute idAttr = attributeList.get(0);
         Attribute reviewAttr = attributeList.get(4);
-        List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 12, maxVal, 0);
+        List<ITuple> resultList = getJoinResults(keywordSourceOuter, keywordSourceInner, idAttr, reviewAttr, 12, maxVal, 0);
 
         Attribute[] schemaAttributes = new Attribute[attributeList.size() + 1];
         for (int index = 0; index < schemaAttributes.length - 1; index++) {
@@ -1321,13 +1319,13 @@ public class JoinTest {
         writeTuples(bookTuple1, bookTuple2);
 
         String query = "review";
-        keywordMatcherOuter = (KeywordMatcher) setupOperators(query, "index", "outer");
+        keywordSourceOuter = (KeywordMatcherSourceOperator) setupOperators(query, "index", "outer");
         query = "book";
-        keywordMatcherInner = (KeywordMatcher) setupOperators(query, "index", "inner");
+        keywordSourceInner = (KeywordMatcherSourceOperator) setupOperators(query, "index", "inner");
 
         Attribute idAttr = attributeList.get(0);
         Attribute reviewAttr = attributeList.get(4);
-        List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 4, maxVal, 0);
+        List<ITuple> resultList = getJoinResults(keywordSourceOuter, keywordSourceInner, idAttr, reviewAttr, 4, maxVal, 0);
         Assert.assertEquals(0, resultList.size());
     }
 
@@ -1362,13 +1360,13 @@ public class JoinTest {
 
         writeTuples(bookTuple1, bookTuple2);
         String query = "review";
-        keywordMatcherOuter = (KeywordMatcher) setupOperators(query, "index", "outer");
+        keywordSourceOuter = (KeywordMatcherSourceOperator) setupOperators(query, "index", "outer");
         query = "book";
-        keywordMatcherInner = (KeywordMatcher) setupOperators(query, "index", "inner");
+        keywordSourceInner = (KeywordMatcherSourceOperator) setupOperators(query, "index", "inner");
 
         Attribute idAttr = attributeList.get(0);
         Attribute reviewAttr = attributeList.get(4);
-        List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 12, maxVal, 0);
+        List<ITuple> resultList = getJoinResults(keywordSourceOuter, keywordSourceInner, idAttr, reviewAttr, 12, maxVal, 0);
 
         Attribute[] schemaAttributes = new Attribute[attributeList.size() + 1];
         for (int index = 0; index < schemaAttributes.length - 1; index++) {
@@ -1463,13 +1461,13 @@ public class JoinTest {
 
         writeTuples(bookTuple1, bookTuple2);
         String query = "review";
-        keywordMatcherOuter = (KeywordMatcher) setupOperators(query, "index", "outer");
+        keywordSourceOuter = (KeywordMatcherSourceOperator) setupOperators(query, "index", "outer");
         query = "book";
-        keywordMatcherInner = (KeywordMatcher) setupOperators(query, "index", "inner");
+        keywordSourceInner = (KeywordMatcherSourceOperator) setupOperators(query, "index", "inner");
 
         Attribute idAttr = attributeList.get(0);
         Attribute reviewAttr = attributeList.get(4);
-        List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 4, maxVal, 0);
+        List<ITuple> resultList = getJoinResults(keywordSourceOuter, keywordSourceInner, idAttr, reviewAttr, 4, maxVal, 0);
         Assert.assertEquals(0, resultList.size());
     }
 
@@ -1484,13 +1482,13 @@ public class JoinTest {
         writeTuples(bookTuple1, bookTuple1);
 
         String query = "typical";
-        keywordMatcherOuter = (KeywordMatcher) setupOperators(query, "index", "outer");
+        keywordSourceOuter = (KeywordMatcherSourceOperator) setupOperators(query, "index", "outer");
         query = "actually";
-        keywordMatcherInner = (KeywordMatcher) setupOperators(query, "index", "inner");
+        keywordSourceInner = (KeywordMatcherSourceOperator) setupOperators(query, "index", "inner");
 
         Attribute idAttr = attributeList.get(0);
         Attribute reviewAttr = attributeList.get(4);
-        List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 90, maxVal, 0);
+        List<ITuple> resultList = getJoinResults(keywordSourceOuter, keywordSourceInner, idAttr, reviewAttr, 90, maxVal, 0);
 
         Attribute[] schemaAttributes = new Attribute[attributeList.size() + 1];
         for (int index = 0; index < schemaAttributes.length - 1; index++) {
@@ -1580,13 +1578,13 @@ public class JoinTest {
         writeTuples(bookTuple1, bookTuple1);
 
         String query = "typical";
-        keywordMatcherOuter = (KeywordMatcher) setupOperators(query, "index", "outer");
+        keywordSourceOuter = (KeywordMatcherSourceOperator) setupOperators(query, "index", "outer");
         query = "actually";
-        keywordMatcherInner = (KeywordMatcher) setupOperators(query, "index", "inner");
+        keywordSourceInner = (KeywordMatcherSourceOperator) setupOperators(query, "index", "inner");
 
         Attribute idAttr = attributeList.get(0);
         Attribute reviewAttr = attributeList.get(4);
-        List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 90, 3, 0);
+        List<ITuple> resultList = getJoinResults(keywordSourceOuter, keywordSourceInner, idAttr, reviewAttr, 90, 3, 0);
 
         Attribute[] schemaAttributes = new Attribute[attributeList.size() + 1];
         for (int index = 0; index < schemaAttributes.length - 1; index++) {
@@ -1655,13 +1653,13 @@ public class JoinTest {
         writeTuples(bookTuple1, bookTuple1);
 
         String query = "typical";
-        keywordMatcherOuter = (KeywordMatcher) setupOperators(query, "index", "outer");
+        keywordSourceOuter = (KeywordMatcherSourceOperator) setupOperators(query, "index", "outer");
         query = "actually";
-        keywordMatcherInner = (KeywordMatcher) setupOperators(query, "index", "inner");
+        keywordSourceInner = (KeywordMatcherSourceOperator) setupOperators(query, "index", "inner");
 
         Attribute idAttr = attributeList.get(0);
         Attribute reviewAttr = attributeList.get(4);
-        List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 90, 10, 0);
+        List<ITuple> resultList = getJoinResults(keywordSourceOuter, keywordSourceInner, idAttr, reviewAttr, 90, 10, 0);
 
         Attribute[] schemaAttributes = new Attribute[attributeList.size() + 1];
         for (int index = 0; index < schemaAttributes.length - 1; index++) {
@@ -1748,13 +1746,13 @@ public class JoinTest {
         writeTuples(bookTuple1, bookTuple1);
 
         String query = "typical";
-        keywordMatcherOuter = (KeywordMatcher) setupOperators(query, "index", "outer");
+        keywordSourceOuter = (KeywordMatcherSourceOperator) setupOperators(query, "index", "outer");
         query = "actually";
-        keywordMatcherInner = (KeywordMatcher) setupOperators(query, "index", "inner");
+        keywordSourceInner = (KeywordMatcherSourceOperator) setupOperators(query, "index", "inner");
 
         Attribute idAttr = attributeList.get(0);
         Attribute reviewAttr = attributeList.get(4);
-        List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 90, 0, 0);
+        List<ITuple> resultList = getJoinResults(keywordSourceOuter, keywordSourceInner, idAttr, reviewAttr, 90, 0, 0);
         Assert.assertEquals(0, resultList.size());
     }
 
@@ -1770,13 +1768,13 @@ public class JoinTest {
         writeTuples(bookTuple1, bookTuple1);
 
         String query = "typical";
-        keywordMatcherOuter = (KeywordMatcher) setupOperators(query, "index", "outer");
+        keywordSourceOuter = (KeywordMatcherSourceOperator) setupOperators(query, "index", "outer");
         query = "actually";
-        keywordMatcherInner = (KeywordMatcher) setupOperators(query, "index", "inner");
+        keywordSourceInner = (KeywordMatcherSourceOperator) setupOperators(query, "index", "inner");
 
         Attribute idAttr = attributeList.get(0);
         Attribute reviewAttr = attributeList.get(4);
-        List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 90, 0, 2);
+        List<ITuple> resultList = getJoinResults(keywordSourceOuter, keywordSourceInner, idAttr, reviewAttr, 90, 0, 2);
         Assert.assertEquals(0, resultList.size());
     }
 
@@ -1794,13 +1792,13 @@ public class JoinTest {
         writeTuples(bookTuple1, bookTuple1);
 
         String query = "typical";
-        keywordMatcherOuter = (KeywordMatcher) setupOperators(query, "index", "outer");
+        keywordSourceOuter = (KeywordMatcherSourceOperator) setupOperators(query, "index", "outer");
         query = "actually";
-        keywordMatcherInner = (KeywordMatcher) setupOperators(query, "index", "inner");
+        keywordSourceInner = (KeywordMatcherSourceOperator) setupOperators(query, "index", "inner");
 
         Attribute idAttr = attributeList.get(0);
         Attribute reviewAttr = attributeList.get(4);
-        List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 90, 1, 2);
+        List<ITuple> resultList = getJoinResults(keywordSourceOuter, keywordSourceInner, idAttr, reviewAttr, 90, 1, 2);
 
         Attribute[] schemaAttributes = new Attribute[attributeList.size() + 1];
         for (int index = 0; index < schemaAttributes.length - 1; index++) {
@@ -1850,13 +1848,13 @@ public class JoinTest {
         writeTuples(bookTuple1, bookTuple1);
 
         String query = "typical";
-        keywordMatcherOuter = (KeywordMatcher) setupOperators(query, "index", "outer");
+        keywordSourceOuter = (KeywordMatcherSourceOperator) setupOperators(query, "index", "outer");
         query = "actually";
-        keywordMatcherInner = (KeywordMatcher) setupOperators(query, "index", "inner");
+        keywordSourceInner = (KeywordMatcherSourceOperator) setupOperators(query, "index", "inner");
 
         Attribute idAttr = attributeList.get(0);
         Attribute reviewAttr = attributeList.get(4);
-        List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 90, 10, 2);
+        List<ITuple> resultList = getJoinResults(keywordSourceOuter, keywordSourceInner, idAttr, reviewAttr, 90, 10, 2);
 
         Attribute[] schemaAttributes = new Attribute[attributeList.size() + 1];
         for (int index = 0; index < schemaAttributes.length - 1; index++) {
@@ -1924,13 +1922,13 @@ public class JoinTest {
         writeTuples(bookTuple1, bookTuple1);
 
         String query = "typical";
-        keywordMatcherOuter = (KeywordMatcher) setupOperators(query, "index", "outer");
+        keywordSourceOuter = (KeywordMatcherSourceOperator) setupOperators(query, "index", "outer");
         query = "actually";
-        keywordMatcherInner = (KeywordMatcher) setupOperators(query, "index", "inner");
+        keywordSourceInner = (KeywordMatcherSourceOperator) setupOperators(query, "index", "inner");
 
         Attribute idAttr = attributeList.get(0);
         Attribute reviewAttr = attributeList.get(4);
-        List<ITuple> resultList = getJoinResults(keywordMatcherOuter, keywordMatcherInner, idAttr, reviewAttr, 90, 1, 10);
+        List<ITuple> resultList = getJoinResults(keywordSourceOuter, keywordSourceInner, idAttr, reviewAttr, 90, 1, 10);
         Assert.assertEquals(0, resultList.size());
     }
 
@@ -1948,16 +1946,17 @@ public class JoinTest {
         writeTuples(bookTuple1, bookTuple1);
 
         String query = "typical";
-        keywordMatcherOuter = (KeywordMatcher) setupOperators(query, "index", "outer");
+        keywordSourceOuter = (KeywordMatcherSourceOperator) setupOperators(query, "index", "outer");
         query = "actually";
-        keywordMatcherInner = (KeywordMatcher) setupOperators(query, "index", "inner");
+        keywordSourceInner = (KeywordMatcherSourceOperator) setupOperators(query, "index", "inner");
 
         Attribute idAttr = attributeList.get(0);
         Attribute reviewAttr = attributeList.get(4);
 
         IJoinPredicate joinDistancePredicate = new JoinDistancePredicate(
                 idAttr.getFieldName(), reviewAttr.getFieldName(), 90);
-        join = new Join(keywordMatcherOuter, keywordMatcherInner, joinDistancePredicate);
+        join = new Join(keywordSourceOuter, keywordSourceInner, joinDistancePredicate);
+        
         join.setLimit(2);
         join.setOffset(2);
         join.open();
