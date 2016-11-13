@@ -43,8 +43,8 @@ public class KeywordMatcherBuilder {
         // check if keyword is empty
         PlanGenUtils.planGenAssert(!keyword.trim().isEmpty(), "keyword is empty");
 
-        // generate attribute list
-        List<Attribute> attributeList = OperatorBuilderUtils.constructAttributeList(operatorProperties);
+        // generate attribute names
+        List<String> attributeNames = OperatorBuilderUtils.constructAttributeNames(operatorProperties);
 
         // generate matching type
         KeywordMatchingType matchingType = KeywordMatcherBuilder.getKeywordMatchingType(matchingTypeStr);
@@ -54,8 +54,7 @@ public class KeywordMatcherBuilder {
 
         // build KeywordMatcher
         KeywordPredicate keywordPredicate;
-        keywordPredicate = new KeywordPredicate(keyword, 
-                Utils.getAttributeNames(attributeList),
+        keywordPredicate = new KeywordPredicate(keyword, attributeNames,
                 LuceneAnalyzerConstants.getStandardAnalyzer(), matchingType);     
         
         KeywordMatcher keywordMatcher = new KeywordMatcher(keywordPredicate);
