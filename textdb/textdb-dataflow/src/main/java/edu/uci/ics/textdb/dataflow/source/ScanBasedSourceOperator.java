@@ -35,7 +35,7 @@ public class ScanBasedSourceOperator implements ISourceOperator {
             DataReaderPredicate predicate = new DataReaderPredicate(
                     new MatchAllDocsQuery(), dataStore, luceneAnalyzer);
             // TODO add an option to set if payload is added in the future.
-            predicate.seIsPayloadAdded(false);
+            predicate.setIsPayloadAdded(false);
             this.dataReader = new DataReader(predicate);
             this.dataReader.open();
         } catch (Exception e) {

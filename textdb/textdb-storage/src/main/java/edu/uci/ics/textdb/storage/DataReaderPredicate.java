@@ -34,7 +34,7 @@ public class DataReaderPredicate implements IPredicate {
         return luceneAnalyzer;
     }
 
-    public void seIsPayloadAdded(boolean isPayloadAdded) {
+    public void setIsPayloadAdded(boolean isPayloadAdded) {
         this.payloadAdded = isPayloadAdded;
     }
     
