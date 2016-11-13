@@ -3,16 +3,6 @@
  */
 package edu.uci.ics.textdb.common.constants;
 
-import java.io.IOException;
-
-import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.core.LowerCaseFilterFactory;
-import org.apache.lucene.analysis.custom.CustomAnalyzer;
-import org.apache.lucene.analysis.ngram.NGramTokenizerFactory;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
-
-import edu.uci.ics.textdb.common.exception.DataFlowException;
-
 /**
  * @author sandeepreddy602
  * @author Zuozhi Wang (zuozhi)
@@ -89,50 +79,6 @@ public class DataConstants {
         LESS_THAN_OR_EQUAL_TO,
 
         NOT_EQUAL_TO
-    }
-    
-    
-    public static String getStandardAnalyzerString() {
-        return "standard";
-    }
-    
-    public static String getNGramAnalyzerString(int gramNum) {
-        return gramNum + "-gram";
-    }
-
-    /**
-     * @return a n-gram analyzer that is used by RegexMatcher
-     * @throws IOException
-     */
-    public static Analyzer getNGramAnalyzer(int gramNum) throws DataFlowException {
-        try {
-            return CustomAnalyzer.builder()
-                    .withTokenizer(NGramTokenizerFactory.class, 
-                            new String[] { "minGramSize", Integer.toString(gramNum), "maxGramSize", Integer.toString(gramNum) })
-                    .addTokenFilter(LowerCaseFilterFactory.class).build();
-        } catch (IOException e) {
-            throw new DataFlowException(e.getMessage(), e);
-        }
-    }
-
-    public static Analyzer getStandardAnalyzer() {
-        return new StandardAnalyzer();
-    }
-    
-    public Analyzer getLuceneAnalyzer(String luceneAnalyzerString) throws DataFlowException {
-        if (luceneAnalyzerString.equals("standard")) {
-            return getStandardAnalyzer();
-        }
-        else if (luceneAnalyzerString.endsWith("-gram")) {
-            try {
-                Integer gramNum = Integer.parseInt(
-                        luceneAnalyzerString.substring(0, luceneAnalyzerString.indexOf('-')));
-                return getNGramAnalyzer(gramNum);
-            } catch (NumberFormatException e) {
-                throw new DataFlowException(e.getMessage(), e);
-            }
-        }
-        throw new DataFlowException(luceneAnalyzerString + " is not a valid lucene analyzer");
     }
 
 }
