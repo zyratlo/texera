@@ -12,6 +12,7 @@ import edu.uci.ics.textdb.api.dataflow.IOperator;
 import edu.uci.ics.textdb.common.constants.SchemaConstants;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
 import edu.uci.ics.textdb.common.exception.ErrorMessages;
+import edu.uci.ics.textdb.api.exception.TextDBException;
 import edu.uci.ics.textdb.dataflow.common.IJoinPredicate;
 
 
@@ -84,10 +85,10 @@ public class Join implements IOperator {
     }
 
     @Override
-    public void open() throws Exception, DataFlowException {
+    public void open() throws TextDBException {
         if (!(joinPredicate.getJoinAttribute().getFieldType().equals(FieldType.STRING)
                 || joinPredicate.getJoinAttribute().getFieldType().equals(FieldType.TEXT))) {
-            throw new Exception("Fields other than \"STRING\" and \"TEXT\" are not supported by Join yet.");
+            throw new TextDBException("Fields other than \"STRING\" and \"TEXT\" are not supported by Join yet.");
         }
 
         if (cursor != CLOSED) {
@@ -131,7 +132,7 @@ public class Join implements IOperator {
      * @return nextTuple
      */
     @Override
-    public ITuple getNextTuple() throws Exception {
+    public ITuple getNextTuple() throws TextDBException {
     	if (cursor == CLOSED) {
             throw new DataFlowException(ErrorMessages.OPERATOR_NOT_OPENED);
         }
@@ -194,7 +195,7 @@ public class Join implements IOperator {
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() throws TextDBException {
     	if (cursor == CLOSED) {
             return;
         }

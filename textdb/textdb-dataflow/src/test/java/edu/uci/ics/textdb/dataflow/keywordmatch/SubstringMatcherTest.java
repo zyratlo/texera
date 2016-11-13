@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.uci.ics.textdb.api.exception.TextDBException;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.queryparser.classic.ParseException;
@@ -30,7 +31,6 @@ import edu.uci.ics.textdb.common.field.Span;
 import edu.uci.ics.textdb.common.field.StringField;
 import edu.uci.ics.textdb.common.field.TextField;
 import edu.uci.ics.textdb.dataflow.common.KeywordPredicate;
-import edu.uci.ics.textdb.dataflow.source.IndexBasedSourceOperator;
 import edu.uci.ics.textdb.dataflow.utils.TestUtils;
 import edu.uci.ics.textdb.storage.DataStore;
 import edu.uci.ics.textdb.storage.writer.DataWriter;
@@ -75,7 +75,7 @@ public class SubstringMatcherTest {
      */
 
     public List<ITuple> getPeopleQueryResults(String query, ArrayList<Attribute> attributeList)
-            throws DataFlowException, ParseException {
+            throws TextDBException, ParseException {
 
         KeywordPredicate keywordPredicate = new KeywordPredicate(query, attributeList, luceneAnalyzer,
                 DataConstants.KeywordMatchingType.SUBSTRING_SCANBASED);

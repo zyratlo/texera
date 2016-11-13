@@ -4,6 +4,7 @@ import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.common.Schema;
 import edu.uci.ics.textdb.api.dataflow.IOperator;
 import edu.uci.ics.textdb.api.dataflow.ISink;
+import edu.uci.ics.textdb.api.exception.TextDBException;
 
 /**
  * Created by chenli on 5/11/16.
@@ -21,7 +22,7 @@ public abstract class AbstractSink implements ISink {
      * @about Opens the child operator.
      */
     @Override
-    public void open() throws Exception {
+    public void open() throws TextDBException {
         inputOperator.open();
     }
 
@@ -34,7 +35,7 @@ public abstract class AbstractSink implements ISink {
     }
 
     @Override
-    public void processTuples() throws Exception {
+    public void processTuples() throws TextDBException {
         ITuple nextTuple;
 
         while ((nextTuple = inputOperator.getNextTuple()) != null) {
@@ -47,10 +48,10 @@ public abstract class AbstractSink implements ISink {
      * @param nextTuple
      *            A tuple that needs to be processed during each iteration
      */
-    protected abstract void processOneTuple(ITuple nextTuple) throws Exception;
+    protected abstract void processOneTuple(ITuple nextTuple) throws TextDBException;
 
     @Override
-    public void close() throws Exception {
+    public void close() throws TextDBException {
         inputOperator.close();
     }
     
