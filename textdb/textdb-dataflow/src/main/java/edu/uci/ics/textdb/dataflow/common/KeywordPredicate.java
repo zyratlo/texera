@@ -180,8 +180,7 @@ public class KeywordPredicate implements IPredicate {
     }
 
     public DataReaderPredicate generateDataReaderPredicate(IDataStore dataStore) {
-        DataReaderPredicate predicate = new DataReaderPredicate(this.luceneQuery, this.query, dataStore,
-                this.attributeList, this.luceneAnalyzer);
+        DataReaderPredicate predicate = new DataReaderPredicate(this.luceneQuery, dataStore,this.luceneAnalyzer);
         predicate.setIsSpanInformationAdded(true);
         return predicate;
     }
