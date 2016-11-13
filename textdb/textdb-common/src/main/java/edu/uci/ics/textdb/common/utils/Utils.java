@@ -288,8 +288,8 @@ public class Utils {
     }
 
     public static ITuple removePayload(ITuple tuple) {
-        Attribute payloadAttribute = tuple.getSchema().getAttribute(SchemaConstants.PAYLOAD);
-        if (payloadAttribute == null) {
+        Integer payloadIndex = tuple.getSchema().getIndex(SchemaConstants.PAYLOAD);
+        if (payloadIndex == null) {
             return tuple;
         } else {
             Attribute[] attrWithoutPayload = tuple.getSchema().getAttributes().stream()
@@ -305,7 +305,12 @@ public class Utils {
 
     public static List<Span> generatePayloadFromTuple(ITuple tuple, Analyzer luceneAnalyzer) {
         List<Span> tuplePayload = tuple.getSchema().getAttributes().stream()
-                .filter(attr -> (attr.getFieldType() == FieldType.TEXT)) // generate payload only for TEXT field
+                .filter(attr -> (attr.getFieldType() == FieldType.TEXT)) // generate
+                                                                         // payload
+                                                                         // only
+                                                                         // for
+                                                                         // TEXT
+                                                                         // field
                 .map(attr -> attr.getFieldName())
                 .map(fieldName -> generatePayload(fieldName, tuple.getField(fieldName).getValue().toString(),
                         luceneAnalyzer))
