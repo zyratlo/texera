@@ -11,6 +11,7 @@ import org.junit.Test;
 import edu.uci.ics.textdb.api.common.Attribute;
 import edu.uci.ics.textdb.api.common.FieldType;
 import edu.uci.ics.textdb.common.exception.PlanGenException;
+import edu.uci.ics.textdb.common.utils.Utils;
 import edu.uci.ics.textdb.dataflow.keywordmatch.KeywordMatcherSourceOperator;
 import junit.framework.Assert;
 
@@ -54,7 +55,9 @@ public class KeywordSourceBuilderTest {
                 schemaAttrs.stream().collect(Collectors.toList()).toString(), 
                 sourceOperator.getDataStore().getSchema().getAttributes().stream().collect(Collectors.toList()).toString());
         // compare the keyword matcher attribute list
-        Assert.assertEquals(keywordAttributes.toString(), sourceOperator.getPredicate().getAttributeList().toString());
+        Assert.assertEquals(
+                Utils.getAttributeNames(keywordAttributes).toString(),
+                sourceOperator.getPredicate().getAttributeNames().toString());
 
     }
     

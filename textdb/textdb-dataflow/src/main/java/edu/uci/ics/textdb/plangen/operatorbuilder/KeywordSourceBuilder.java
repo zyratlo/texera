@@ -2,12 +2,14 @@ package edu.uci.ics.textdb.plangen.operatorbuilder;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import edu.uci.ics.textdb.api.common.Attribute;
 import edu.uci.ics.textdb.common.constants.DataConstants.KeywordMatchingType;
 import edu.uci.ics.textdb.common.constants.LuceneAnalyzerConstants;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
 import edu.uci.ics.textdb.common.exception.PlanGenException;
+import edu.uci.ics.textdb.common.utils.Utils;
 import edu.uci.ics.textdb.dataflow.common.KeywordPredicate;
 import edu.uci.ics.textdb.dataflow.keywordmatch.KeywordMatcherSourceOperator;
 import edu.uci.ics.textdb.plangen.PlanGenUtils;
@@ -50,16 +52,18 @@ public class KeywordSourceBuilder {
                 + "It must be one of " + KeywordMatcherBuilder.keywordMatchingTypeMap.keySet());
         
         KeywordPredicate keywordPredicate;
-        try {
-            keywordPredicate = new KeywordPredicate(keyword, attributeList,
-                    LuceneAnalyzerConstants.getStandardAnalyzer(), matchingType);     
-        } catch (DataFlowException e) {
-            throw new PlanGenException(e.getMessage(), e);
-        }
+        keywordPredicate = new KeywordPredicate(keyword, 
+                Utils.getAttributeNames(attributeList),
+                LuceneAnalyzerConstants.getStandardAnalyzer(), matchingType);     
         
         DataStore dataStore = OperatorBuilderUtils.constructDataStore(operatorProperties);
 
-        KeywordMatcherSourceOperator sourceOperator = new KeywordMatcherSourceOperator(keywordPredicate, dataStore);
+        KeywordMatcherSourceOperator sourceOperator;
+        try {
+            sourceOperator = new KeywordMatcherSourceOperator(keywordPredicate, dataStore);
+        } catch (DataFlowException e) {
+            throw new PlanGenException(e.getMessage(), e);
+        }
    
         return sourceOperator;
     }
