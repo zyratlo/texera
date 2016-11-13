@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class Schema {
     private List<Attribute> attributes;
@@ -28,6 +29,10 @@ public class Schema {
 
     public List<Attribute> getAttributes() {
         return attributes;
+    }
+    
+    public List<String> getAttributeNames() {
+        return attributes.stream().map(attr -> attr.getFieldName()).collect(Collectors.toList());
     }
 
     public Integer getIndex(String fieldName) {
