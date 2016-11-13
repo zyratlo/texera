@@ -17,16 +17,16 @@ public class DataReaderPredicate implements IPredicate {
     private Query luceneQuery;
     private String queryString;
     private Analyzer luceneAnalyzer;
-    private List<Attribute> attributeList;
+    private List<String> attributeNames;
     private boolean isSpanInformationAdded = false;
 
     public DataReaderPredicate(Query luceneQuery, String queryString, IDataStore dataStore,
-            List<Attribute> attributeList, Analyzer analyzer) {
+            List<String> attributeNames, Analyzer analyzer) {
         this.dataStore = dataStore;
         this.luceneQuery = luceneQuery;
         this.luceneAnalyzer = analyzer;
         this.queryString = queryString;
-        this.attributeList = attributeList;
+        this.attributeNames = attributeNames;
     }
 
     public void setIsSpanInformationAdded(boolean flag) {
@@ -49,8 +49,8 @@ public class DataReaderPredicate implements IPredicate {
         return luceneAnalyzer;
     }
 
-    public List<Attribute> getAttributeList() {
-        return attributeList;
+    public List<String> getAttributeNames() {
+        return attributeNames;
     }
 
     public boolean getIsSpanInformationAdded() {
