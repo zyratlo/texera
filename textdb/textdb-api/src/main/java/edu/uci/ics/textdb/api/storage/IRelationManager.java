@@ -24,17 +24,17 @@ public interface IRelationManager {
     // drop a table
     public void deleteTable(String tableName) throws TextDBException;
     
-    // insert a tuple to a table, the primaryAttribute field must be unique
-    public IField insertTuple(String tableName, ITuple tuple, String primaryAttribute) throws TextDBException;
+    // insert a tuple to a table, returns the ID field
+    public IField insertTuple(String tableName, ITuple tuple) throws TextDBException;
     
-    // delete a tuple by its primary attribute
-    public void deleteTuple(String tableName, String primaryAttribute, Object value) throws TextDBException;
+    // delete a tuple by its id
+    public void deleteTuple(String tableName, IField idValue) throws TextDBException;
     
-    // update a tuple by its primary attribute
-    public void updateTuple(String tableName, ITuple tuple, String primaryAttribute, Object value) throws TextDBException;
+    // update a tuple by its id
+    public void updateTuple(String tableName, ITuple newTuple, IField idValue) throws TextDBException;
     
-    // get a tuple by its primary attribute
-    public ITuple getTuple(String tableName, Object primaryKeyValue) throws TextDBException;
+    // get a tuple by its id
+    public ITuple getTuple(String tableName, IField idValue) throws TextDBException;
     
     // get the dataReader to scan a table
     public IDataReader scanTable(String tableName) throws TextDBException;
