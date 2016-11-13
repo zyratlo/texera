@@ -1,7 +1,5 @@
 package edu.uci.ics.textdb.dataflow.keywordmatch;
 
-import java.util.List;
-
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.ParseException;
@@ -12,7 +10,6 @@ import org.apache.lucene.search.PhraseQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
 
-import edu.uci.ics.textdb.api.common.Attribute;
 import edu.uci.ics.textdb.api.common.FieldType;
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.common.Schema;
@@ -64,7 +61,14 @@ public class KeywordMatcherSourceOperator extends AbstractSingleInputOperator im
         // input schema must be setup first
         this.inputSchema = dataStore.getSchema();
 
-        dataReader = new DataReader(generateDataReaderPredicate(dataStore));
+        // generate dataReader
+        Query luceneQuery = createLuceneQueryObject();
+        DataReaderPredicate dataReaderPredicate = new DataReaderPredicate(
+                luceneQuery, dataStore, this.predicate.getLuceneAnalyzer());
+        dataReaderPredicate.setIsSpanInformationAdded(true);
+        dataReader = new DataReader(dataReaderPredicate);
+        
+        // generate KeywordMatcher
         keywordMatcher = new KeywordMatcher(predicate);
         keywordMatcher.setInputOperator(dataReader);
         inputOperator = this.keywordMatcher;
@@ -205,11 +209,5 @@ public class KeywordMatcherSourceOperator extends AbstractSingleInputOperator im
         return new MatchAllDocsQuery();
     }
 
-    public DataReaderPredicate generateDataReaderPredicate(IDataStore dataStore, Query luceneQuery) {
-        DataReaderPredicate predicate = new DataReaderPredicate(luceneQuery, this.keywordQuery, dataStore,
-                this.predicate.getAttributeNames(), this.predicate.getLuceneAnalyzer());
-        predicate.setIsSpanInformationAdded(true);
-        return predicate;
-    }
 
 }

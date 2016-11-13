@@ -54,7 +54,8 @@ public class KeywordSourceBuilderTest {
                 schemaAttrs.stream().collect(Collectors.toList()).toString(), 
                 sourceOperator.getDataStore().getSchema().getAttributes().stream().collect(Collectors.toList()).toString());
         // compare the keyword matcher attribute list
-        Assert.assertEquals(keywordAttributes.toString(), sourceOperator.getPredicate().getAttributeList().toString());
+        Assert.assertEquals(keywordAttributes.stream().map(attr -> attr.getFieldName()).collect(Collectors.toList()).toString(), 
+                sourceOperator.getPredicate().getAttributeNames().toString());
 
     }
     

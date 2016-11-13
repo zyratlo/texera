@@ -3,6 +3,7 @@ package edu.uci.ics.textdb.dataflow.keywordmatch;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import edu.uci.ics.textdb.api.exception.TextDBException;
 import org.apache.lucene.analysis.Analyzer;
@@ -87,7 +88,8 @@ public class PhraseMatcherTest {
     public List<ITuple> getPeopleQueryResults(String query, ArrayList<Attribute> attributeList, int limit, int offset)
             throws TextDBException, ParseException {
 
-        KeywordPredicate keywordPredicate = new KeywordPredicate(query, attributeList, luceneAnalyzer,
+        KeywordPredicate keywordPredicate = new KeywordPredicate(query, 
+                attributeList.stream().map(attr -> attr.getFieldName()).collect(Collectors.toList()), luceneAnalyzer,
                 DataConstants.KeywordMatchingType.PHRASE_INDEXBASED);
 
         KeywordMatcherSourceOperator keywordSource = new KeywordMatcherSourceOperator(keywordPredicate, dataStore);
@@ -352,7 +354,8 @@ public class PhraseMatcherTest {
         expectedResultList.add(tuple1);
 
         // Perform Query
-        KeywordPredicate keywordPredicate = new KeywordPredicate(query, attributeList, MedAnalyzer,
+        KeywordPredicate keywordPredicate = new KeywordPredicate(query, 
+                attributeList.stream().map(attr -> attr.getFieldName()).collect(Collectors.toList()), MedAnalyzer,
                 DataConstants.KeywordMatchingType.PHRASE_INDEXBASED);
         
         KeywordMatcherSourceOperator keywordMatcherSource = new KeywordMatcherSourceOperator(keywordPredicate, medDataStore);
@@ -417,7 +420,8 @@ public class PhraseMatcherTest {
         expectedResultList.add(tuple1);
 
         // Perform Query
-        KeywordPredicate keywordPredicate = new KeywordPredicate(query, attributeList, MedAnalyzer,
+        KeywordPredicate keywordPredicate = new KeywordPredicate(query, 
+                attributeList.stream().map(attr -> attr.getFieldName()).collect(Collectors.toList()), MedAnalyzer,
                 DataConstants.KeywordMatchingType.PHRASE_INDEXBASED);
 
         KeywordMatcherSourceOperator keywordSource = new KeywordMatcherSourceOperator(keywordPredicate, medDataStore);
@@ -492,7 +496,8 @@ public class PhraseMatcherTest {
         expectedResultList.add(tuple1);
 
         // Perform Query
-        KeywordPredicate keywordPredicate = new KeywordPredicate(query, attributeList, MedAnalyzer,
+        KeywordPredicate keywordPredicate = new KeywordPredicate(query, 
+                attributeList.stream().map(attr -> attr.getFieldName()).collect(Collectors.toList()), MedAnalyzer,
                 DataConstants.KeywordMatchingType.PHRASE_INDEXBASED);
 
         KeywordMatcherSourceOperator keywordSource = new KeywordMatcherSourceOperator(keywordPredicate, medDataStore);

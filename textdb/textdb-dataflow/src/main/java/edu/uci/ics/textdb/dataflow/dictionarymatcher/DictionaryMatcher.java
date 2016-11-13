@@ -1,5 +1,7 @@
 package edu.uci.ics.textdb.dataflow.dictionarymatcher;
 
+import java.util.stream.Collectors;
+
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.common.Schema;
 import edu.uci.ics.textdb.api.dataflow.IOperator;
@@ -52,7 +54,8 @@ public class DictionaryMatcher implements IOperator {
             }
 
             KeywordPredicate keywordPredicate = new KeywordPredicate(currentDictionaryEntry,
-                    predicate.getAttributeList(), predicate.getAnalyzer(), predicate.getKeywordMatchingType());
+                    predicate.getAttributeList().stream().map(attr -> attr.getFieldName()).collect(Collectors.toList()),
+                    predicate.getAnalyzer(), predicate.getKeywordMatchingType());
 
             keywordMatcher = new KeywordMatcher(keywordPredicate);
             keywordMatcher.setInputOperator(inputOperator);
@@ -97,7 +100,8 @@ public class DictionaryMatcher implements IOperator {
             inputOperator.close();
 
             KeywordPredicate keywordPredicate = new KeywordPredicate(currentDictionaryEntry,
-                    predicate.getAttributeList(), predicate.getAnalyzer(), predicate.getKeywordMatchingType());
+                    predicate.getAttributeList().stream().map(attr -> attr.getFieldName()).collect(Collectors.toList()),
+                    predicate.getAnalyzer(), predicate.getKeywordMatchingType());
 
             keywordMatcher = new KeywordMatcher(keywordPredicate);
             keywordMatcher.setInputOperator(inputOperator);

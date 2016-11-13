@@ -53,12 +53,10 @@ public class KeywordMatcherBuilder {
 
         // build KeywordMatcher
         KeywordPredicate keywordPredicate;
-        try {
-            keywordPredicate = new KeywordPredicate(keyword, attributeList,
-                    LuceneAnalyzerConstants.getStandardAnalyzer(), matchingType);
-        } catch (DataFlowException e) {
-            throw new PlanGenException(e.getMessage(), e);
-        }
+        keywordPredicate = new KeywordPredicate(keyword, 
+                attributeList.stream().map(attr -> attr.getFieldName()).collect(Collectors.toList()),
+                LuceneAnalyzerConstants.getStandardAnalyzer(), matchingType);     
+        
         KeywordMatcher keywordMatcher = new KeywordMatcher(keywordPredicate);
 
         // set limit and offset

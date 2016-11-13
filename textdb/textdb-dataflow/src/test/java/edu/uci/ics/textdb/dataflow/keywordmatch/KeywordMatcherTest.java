@@ -3,6 +3,7 @@ package edu.uci.ics.textdb.dataflow.keywordmatch;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import edu.uci.ics.textdb.api.exception.TextDBException;
 import org.apache.lucene.analysis.Analyzer;
@@ -90,7 +91,8 @@ public class KeywordMatcherTest {
     public List<ITuple> getPeopleQueryResults(String query, ArrayList<Attribute> attributeList, int limit, int offset)
             throws TextDBException, ParseException {
 
-        KeywordPredicate keywordPredicate = new KeywordPredicate(query, attributeList, analyzer,
+        KeywordPredicate keywordPredicate = new KeywordPredicate(query,
+                attributeList.stream().map(attr -> attr.getFieldName()).collect(Collectors.toList()), analyzer,
                 DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED);
 
         KeywordMatcherSourceOperator keywordSource = new KeywordMatcherSourceOperator(keywordPredicate, dataStore);
