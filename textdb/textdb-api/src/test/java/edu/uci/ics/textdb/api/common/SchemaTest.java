@@ -31,9 +31,7 @@ public class SchemaTest {
     }
 
     @Test
-    public void testGetAttribute() {
-        
-        
+    public void testGetIndex() {
 
         int expectedIndex1 = 0;
         int expectedIndex2 = 1;
@@ -42,6 +40,27 @@ public class SchemaTest {
         Assert.assertEquals(expectedIndex1, retrievedIndex1);
         Assert.assertEquals(expectedIndex2, retrievedIndex2);
 
+    }
+    
+    @Test
+    public void testGetAttribute() {
+        
+        Attribute expectedAttribute1 = new Attribute("sampleField_1", FieldType.STRING);
+        Attribute expectedAttribute2 = new Attribute("sampleField_2", FieldType.STRING);
+
+        Attribute retrievedAttribute1 = schema.getAttribute(fieldName1);
+        Attribute retrievedAttribute2 = schema.getAttribute(fieldName2.toUpperCase());
+        
+        Assert.assertEquals(expectedAttribute1, retrievedAttribute1);
+        Assert.assertEquals(expectedAttribute2, retrievedAttribute2);
+
+    }
+    
+    @Test
+    public void testGetInvalidAttribute() {
+        Attribute retrievedAttribute1 = schema.getAttribute("invalid_attribute");
+        
+        Assert.assertNull(retrievedAttribute1);
     }
 
     @Test(expected = UnsupportedOperationException.class)
