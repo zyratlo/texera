@@ -1,5 +1,6 @@
 package edu.uci.ics.textdb.api.common;
 
+import java.util.Arrays;
 import java.util.List;
 
 import junit.framework.Assert;
@@ -54,6 +55,14 @@ public class SchemaTest {
         Assert.assertEquals(expectedAttribute1, retrievedAttribute1);
         Assert.assertEquals(expectedAttribute2, retrievedAttribute2);
 
+    }
+    
+    @Test
+    public void testGetAttributeNames() {
+        List<String> expectedAttrNames = Arrays.asList("sampleField_1", "sampleField_2");
+        List<String> actualAttrNames = schema.getAttributeNames();
+        
+        Assert.assertEquals(expectedAttrNames, actualAttrNames);
     }
     
     @Test
