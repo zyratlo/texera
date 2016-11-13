@@ -3,6 +3,7 @@ package edu.uci.ics.textdb.plangen.operatorbuilder;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.junit.Test;
 
@@ -11,6 +12,7 @@ import edu.uci.ics.textdb.api.common.FieldType;
 import edu.uci.ics.textdb.common.constants.DataConstants.KeywordMatchingType;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
 import edu.uci.ics.textdb.common.exception.PlanGenException;
+import edu.uci.ics.textdb.common.utils.Utils;
 import edu.uci.ics.textdb.dataflow.keywordmatch.KeywordMatcher;
 import junit.framework.Assert;
 
@@ -43,7 +45,9 @@ public class KeywordMatcherBuilderTest {
         Assert.assertEquals("zika", keywordZika.getPredicate().getQuery());
         List<Attribute> zikaAttrList = Arrays.asList(
                 new Attribute("content", FieldType.TEXT));
-        Assert.assertEquals(zikaAttrList.toString(), keywordZika.getPredicate().getAttributeList().toString());
+        Assert.assertEquals(
+                Utils.getAttributeNames(zikaAttrList).toString(),
+                keywordZika.getPredicate().getAttributeNames().toString());
         Assert.assertEquals(KeywordMatchingType.CONJUNCTION_INDEXBASED, keywordZika.getPredicate().getOperatorType());
         Assert.assertEquals(Integer.MAX_VALUE, keywordZika.getLimit());
         Assert.assertEquals(0, keywordZika.getOffset());
@@ -76,7 +80,9 @@ public class KeywordMatcherBuilderTest {
                 new Attribute("city", FieldType.STRING),
                 new Attribute("location", FieldType.STRING),
                 new Attribute("content", FieldType.TEXT));
-        Assert.assertEquals(irvineAttrList.toString(), keywordIrvine.getPredicate().getAttributeList().toString());
+        Assert.assertEquals(
+                Utils.getAttributeNames(irvineAttrList).toString(),
+                keywordIrvine.getPredicate().getAttributeNames().toString());
         Assert.assertEquals(KeywordMatchingType.SUBSTRING_SCANBASED, keywordIrvine.getPredicate().getOperatorType());
         Assert.assertEquals(10, keywordIrvine.getLimit());
         Assert.assertEquals(2, keywordIrvine.getOffset());     

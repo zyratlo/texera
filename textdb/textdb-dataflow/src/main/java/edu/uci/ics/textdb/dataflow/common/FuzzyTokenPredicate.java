@@ -107,8 +107,7 @@ public class FuzzyTokenPredicate implements IPredicate {
     }
 
     public DataReaderPredicate getDataReaderPredicate(IDataStore dataStore) {
-        DataReaderPredicate dataReaderPredicate = new DataReaderPredicate(this.luceneQuery, this.query, dataStore,
-                this.attributeList, this.luceneAnalyzer);
+        DataReaderPredicate dataReaderPredicate = new DataReaderPredicate(this.luceneQuery, dataStore, this.luceneAnalyzer);
         dataReaderPredicate.setIsSpanInformationAdded(true);
         return dataReaderPredicate;
     }

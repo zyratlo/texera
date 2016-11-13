@@ -6,7 +6,6 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -117,6 +116,30 @@ public class Utils {
         IField[] fieldsDuplicate = fieldListDuplicate.toArray(new IField[fieldListDuplicate.size()]);
         return new DataTuple(spanSchema, fieldsDuplicate);
     }
+    
+    /**
+     * Converts a list of attributes to a list of attribute names
+     * 
+     * @param attributeList, a list of attributes
+     * @return a list of attribute names
+     */
+    public static List<String> getAttributeNames(List<Attribute> attributeList) {
+        return attributeList.stream()
+                .map(attr -> attr.getFieldName())
+                .collect(Collectors.toList());
+    }
+    
+    /**
+     * Converts a list of attributes to a list of attribute names
+     * 
+     * @param attributeList, a list of attributes
+     * @return a list of attribute names
+     */
+    public static List<String> getAttributeNames(Attribute... attributeList) {
+        return Arrays.asList(attributeList).stream()
+                .map(attr -> attr.getFieldName())
+                .collect(Collectors.toList());
+    }
 
     /**
      *
@@ -143,15 +166,6 @@ public class Utils {
         attributes.add(attribute);
         Schema newSchema = new Schema(attributes.toArray(new Attribute[attributes.size()]));
         return newSchema;
-    }
-    
-    /**
-     * Get the field names of a list of attributes
-     * @param attributeList
-     * @return a list of strings, which are names of each attribute
-     */
-    public static List<String> getAttributeNameList(List<Attribute> attributeList) {
-        return attributeList.stream().map(attr -> attr.getFieldName()).collect(Collectors.toList());
     }
 
     /**
