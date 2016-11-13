@@ -31,7 +31,9 @@ public class SchemaTest {
     }
 
     @Test
-    public void testGetIndex() {
+    public void testGetAttribute() {
+        
+        
 
         int expectedIndex1 = 0;
         int expectedIndex2 = 1;
