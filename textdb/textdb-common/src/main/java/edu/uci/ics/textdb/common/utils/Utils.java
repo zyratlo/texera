@@ -339,7 +339,6 @@ public class Utils {
         
         try {
             TokenStream tokenStream = luceneAnalyzer.tokenStream(null, new StringReader(fieldValue));
-            System.out.println(tokenStream.getClass());
             OffsetAttribute offsetAttribute = tokenStream.addAttribute(OffsetAttribute.class);
             CharTermAttribute charTermAttribute = tokenStream.addAttribute(CharTermAttribute.class);
             PositionIncrementAttribute positionIncrementAttribute = 
