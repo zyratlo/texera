@@ -1,5 +1,6 @@
 package edu.uci.ics.textdb.api.storage;
 
+import edu.uci.ics.textdb.api.common.IField;
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.common.Schema;
 import edu.uci.ics.textdb.api.exception.TextDBException;
@@ -24,7 +25,7 @@ public interface IRelationManager {
     public void deleteTable(String tableName) throws TextDBException;
     
     // insert a tuple to a table, the primaryAttribute field must be unique
-    public void insertTuple(String tableName, ITuple tuple, String primaryAttribute) throws TextDBException;
+    public IField insertTuple(String tableName, ITuple tuple, String primaryAttribute) throws TextDBException;
     
     // delete a tuple by its primary attribute
     public void deleteTuple(String tableName, String primaryAttribute, Object value) throws TextDBException;
@@ -33,7 +34,7 @@ public interface IRelationManager {
     public void updateTuple(String tableName, ITuple tuple, String primaryAttribute, Object value) throws TextDBException;
     
     // get a tuple by its primary attribute
-    public ITuple getTuple(String tableName, String primaryAttribute, Object value) throws TextDBException;
+    public ITuple getTuple(String tableName, Object primaryKeyValue) throws TextDBException;
     
     // get the dataReader to scan a table
     public IDataReader scanTable(String tableName) throws TextDBException;
