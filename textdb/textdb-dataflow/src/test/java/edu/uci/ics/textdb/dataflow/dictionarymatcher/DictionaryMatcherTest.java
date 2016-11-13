@@ -87,6 +87,8 @@ public class DictionaryMatcherTest {
         List<ITuple> dictionaryMatcherResults = getDictionaryMatcherResults(dictionary, srcOpType, attributes, limit,
                 offset);
 
+        System.out.println("\n\nsource:\n"+Utils.getTupleListString(dictionaryMatcherSourceOperatorResults));
+        System.out.println("\nmatcher:\n"+Utils.getTupleListString(dictionaryMatcherResults));
         Assert.assertTrue(
                 TestUtils.containsAllResults(dictionaryMatcherSourceOperatorResults, dictionaryMatcherResults));
 

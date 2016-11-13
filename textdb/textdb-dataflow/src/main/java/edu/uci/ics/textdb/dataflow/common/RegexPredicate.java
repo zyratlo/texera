@@ -65,7 +65,7 @@ public class RegexPredicate implements IPredicate {
         }
         
         DataReaderPredicate predicate = new DataReaderPredicate(luceneQuery, dataStore, luceneAnalyzer);
-        predicate.setIsSpanInformationAdded(false);
+        predicate.seIsPayloadAdded(false);
         return predicate;
     }
     
