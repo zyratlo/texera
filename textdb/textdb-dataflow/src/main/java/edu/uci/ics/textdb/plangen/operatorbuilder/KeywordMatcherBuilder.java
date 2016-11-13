@@ -7,8 +7,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import edu.uci.ics.textdb.api.common.Attribute;
-import edu.uci.ics.textdb.common.constants.DataConstants;
 import edu.uci.ics.textdb.common.constants.DataConstants.KeywordMatchingType;
+import edu.uci.ics.textdb.common.constants.LuceneAnalyzerConstants;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
 import edu.uci.ics.textdb.common.exception.PlanGenException;
 import edu.uci.ics.textdb.dataflow.common.KeywordPredicate;
@@ -55,7 +55,7 @@ public class KeywordMatcherBuilder {
         KeywordPredicate keywordPredicate;
         try {
             keywordPredicate = new KeywordPredicate(keyword, attributeList,
-                    DataConstants.getStandardAnalyzer(), matchingType);
+                    LuceneAnalyzerConstants.getStandardAnalyzer(), matchingType);
         } catch (DataFlowException e) {
             throw new PlanGenException(e.getMessage(), e);
         }
