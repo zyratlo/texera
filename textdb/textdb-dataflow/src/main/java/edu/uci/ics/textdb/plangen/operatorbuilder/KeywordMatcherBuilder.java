@@ -11,6 +11,7 @@ import edu.uci.ics.textdb.common.constants.DataConstants.KeywordMatchingType;
 import edu.uci.ics.textdb.common.constants.LuceneAnalyzerConstants;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
 import edu.uci.ics.textdb.common.exception.PlanGenException;
+import edu.uci.ics.textdb.common.utils.Utils;
 import edu.uci.ics.textdb.dataflow.common.KeywordPredicate;
 import edu.uci.ics.textdb.dataflow.keywordmatch.KeywordMatcher;
 import edu.uci.ics.textdb.plangen.PlanGenUtils;
@@ -54,7 +55,7 @@ public class KeywordMatcherBuilder {
         // build KeywordMatcher
         KeywordPredicate keywordPredicate;
         keywordPredicate = new KeywordPredicate(keyword, 
-                attributeList.stream().map(attr -> attr.getFieldName()).collect(Collectors.toList()),
+                Utils.getAttributeNames(attributeList),
                 LuceneAnalyzerConstants.getStandardAnalyzer(), matchingType);     
         
         KeywordMatcher keywordMatcher = new KeywordMatcher(keywordPredicate);

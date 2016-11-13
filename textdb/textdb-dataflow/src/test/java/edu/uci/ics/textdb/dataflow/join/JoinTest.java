@@ -28,12 +28,12 @@ import edu.uci.ics.textdb.common.field.ListField;
 import edu.uci.ics.textdb.common.field.Span;
 import edu.uci.ics.textdb.common.field.StringField;
 import edu.uci.ics.textdb.common.field.TextField;
+import edu.uci.ics.textdb.common.utils.Utils;
 import edu.uci.ics.textdb.dataflow.common.FuzzyTokenPredicate;
 import edu.uci.ics.textdb.dataflow.common.IJoinPredicate;
 import edu.uci.ics.textdb.dataflow.common.JoinDistancePredicate;
 import edu.uci.ics.textdb.dataflow.common.KeywordPredicate;
 import edu.uci.ics.textdb.dataflow.fuzzytokenmatcher.FuzzyTokenMatcher;
-import edu.uci.ics.textdb.dataflow.keywordmatch.KeywordMatcher;
 import edu.uci.ics.textdb.dataflow.keywordmatch.KeywordMatcherSourceOperator;
 import edu.uci.ics.textdb.dataflow.projection.ProjectionOperator;
 import edu.uci.ics.textdb.dataflow.projection.ProjectionPredicate;
@@ -159,12 +159,12 @@ public class JoinTest {
             if (whichOperator == "outer") {
                 dataStore = dataStoreForOuter;
                 keywordPredicate = new KeywordPredicate(query, 
-                        modifiedAttributeList.stream().map(attr -> attr.getFieldName()).collect(Collectors.toList()), analyzer,
+                        Utils.getAttributeNames(modifiedAttributeList), analyzer,
                         DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED);
             } else if (whichOperator == "inner") {
                 dataStore = dataStoreForInner;
                 keywordPredicate = new KeywordPredicate(query, 
-                        modifiedAttributeList.stream().map(attr -> attr.getFieldName()).collect(Collectors.toList()), analyzer,
+                        Utils.getAttributeNames(modifiedAttributeList), analyzer,
                         DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED);
             }
             break;
@@ -172,12 +172,12 @@ public class JoinTest {
             if (whichOperator == "outer") {
                 dataStore = dataStoreForOuter;
                 keywordPredicate = new KeywordPredicate(query, 
-                        modifiedAttributeList.stream().map(attr -> attr.getFieldName()).collect(Collectors.toList()), analyzer,
+                        Utils.getAttributeNames(modifiedAttributeList), analyzer,
                         DataConstants.KeywordMatchingType.PHRASE_INDEXBASED);
             } else if (whichOperator == "inner") {
                 dataStore = dataStoreForInner;
                 keywordPredicate = new KeywordPredicate(query, 
-                        modifiedAttributeList.stream().map(attr -> attr.getFieldName()).collect(Collectors.toList()), analyzer,
+                        Utils.getAttributeNames(modifiedAttributeList), analyzer,
                         DataConstants.KeywordMatchingType.PHRASE_INDEXBASED);
             }
             break;
@@ -463,7 +463,7 @@ public class JoinTest {
         fuzzyMatcherInner.setInputOperator(new IndexBasedSourceOperator(fuzzyPredicateInner.getDataReaderPredicate(dataStoreForInner)));
 
         ProjectionPredicate removeSpanListPredicate = new ProjectionPredicate(
-                dataStoreForInner.getSchema().getAttributes().stream().map(attr -> attr.getFieldName()).collect(Collectors.toList()));
+                Utils.getAttributeNames(dataStoreForInner.getSchema().getAttributes()));
         ProjectionOperator removeSpanListProjection = new ProjectionOperator(removeSpanListPredicate);
         removeSpanListProjection.setInputOperator(fuzzyMatcherInner);
         
@@ -732,7 +732,7 @@ public class JoinTest {
         String query = "special";
         keywordSourceOuter = (KeywordMatcherSourceOperator) setupOperators(query, "index", "outer");
         query = "kind";
-        KeywordPredicate keywordPredicate = new KeywordPredicate(query, modifiedAttributeList.stream().map(attr -> attr.getFieldName()).collect(Collectors.toList()), analyzer,
+        KeywordPredicate keywordPredicate = new KeywordPredicate(query, Utils.getAttributeNames(modifiedAttributeList), analyzer,
                 DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED);
 
         keywordSourceInner = new KeywordMatcherSourceOperator(keywordPredicate, dataStore);
@@ -804,14 +804,14 @@ public class JoinTest {
         String query = "special";
         dataStore = dataStoreForOuter;
         keywordPredicate = new KeywordPredicate(query, 
-                Arrays.asList(modBookAttr1).stream().map(attr -> attr.getFieldName()).collect(Collectors.toList()), analyzer,
+                Utils.getAttributeNames(modBookAttr1), analyzer,
                 DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED);
         keywordSourceOuter = new KeywordMatcherSourceOperator(keywordPredicate, dataStore);
 
         query = "writer";
         dataStore = dataStoreForInner;
         keywordPredicate = new KeywordPredicate(query, 
-                Arrays.asList(modBookAttr2).stream().map(attr -> attr.getFieldName()).collect(Collectors.toList()), analyzer,
+                Utils.getAttributeNames(modBookAttr2), analyzer,
                 DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED);
         keywordSourceInner = new KeywordMatcherSourceOperator(keywordPredicate, dataStore);
 
@@ -906,7 +906,7 @@ public class JoinTest {
         String query = "special";
         dataStore = dataStoreForOuter;
         keywordPredicate = new KeywordPredicate(query, 
-                Arrays.asList(modBookAttr).stream().map(attr -> attr.getFieldName()).collect(Collectors.toList()), analyzer,
+                Utils.getAttributeNames(modBookAttr), analyzer,
                 DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED);
         
         keywordSourceOuter = new KeywordMatcherSourceOperator(keywordPredicate, dataStore);
@@ -914,7 +914,7 @@ public class JoinTest {
         query = "writer";
         dataStore = dataStoreForInner;
         keywordPredicate = new KeywordPredicate(query, 
-                Arrays.asList(modBookAttr).stream().map(attr -> attr.getFieldName()).collect(Collectors.toList()), analyzer,
+                Utils.getAttributeNames(modBookAttr), analyzer,
                 DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED);
         
         keywordSourceInner = new KeywordMatcherSourceOperator(keywordPredicate, dataStore);
@@ -1004,7 +1004,7 @@ public class JoinTest {
         String query = "special";
         dataStore = dataStoreForOuter;
         keywordPredicate = new KeywordPredicate(query, 
-                Arrays.asList(modBookAttr).stream().map(attr -> attr.getFieldName()).collect(Collectors.toList()), analyzer,
+                Utils.getAttributeNames(modBookAttr), analyzer,
                 DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED);
 
         keywordSourceOuter = new KeywordMatcherSourceOperator(keywordPredicate, dataStore);
@@ -1012,7 +1012,7 @@ public class JoinTest {
         query = "writer";
         dataStore = dataStoreForInner;
         keywordPredicate = new KeywordPredicate(query, 
-                Arrays.asList(modBookAttr).stream().map(attr -> attr.getFieldName()).collect(Collectors.toList()), analyzer,
+                Utils.getAttributeNames(modBookAttr), analyzer,
                 DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED);
         
         keywordSourceOuter = new KeywordMatcherSourceOperator(keywordPredicate, dataStore);
@@ -1082,7 +1082,7 @@ public class JoinTest {
         String query = "special";
         dataStore = dataStoreForOuter;
         keywordPredicate = new KeywordPredicate(query, 
-                Arrays.asList(modBookAttr1).stream().map(attr -> attr.getFieldName()).collect(Collectors.toList()), analyzer,
+                Utils.getAttributeNames(modBookAttr1), analyzer,
                 DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED);
 
         keywordSourceOuter = new KeywordMatcherSourceOperator(keywordPredicate, dataStore);
@@ -1090,7 +1090,7 @@ public class JoinTest {
         query = "writer";
         dataStore = dataStoreForInner;
         keywordPredicate = new KeywordPredicate(query, 
-                Arrays.asList(modBookAttr2).stream().map(attr -> attr.getFieldName()).collect(Collectors.toList()), analyzer,
+                Utils.getAttributeNames(modBookAttr2), analyzer,
                 DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED);
         
         keywordSourceOuter = new KeywordMatcherSourceOperator(keywordPredicate, dataStore);
@@ -1187,7 +1187,7 @@ public class JoinTest {
         String query = "special";
         dataStore = dataStoreForOuter;
         keywordPredicate = new KeywordPredicate(query, 
-                Arrays.asList(modBookAttr1).stream().map(attr -> attr.getFieldName()).collect(Collectors.toList()), analyzer,
+                Utils.getAttributeNames(modBookAttr1), analyzer,
                 DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED);
         
         keywordSourceOuter = new KeywordMatcherSourceOperator(keywordPredicate, dataStore);
@@ -1195,7 +1195,7 @@ public class JoinTest {
         query = "writer";
         dataStore = dataStoreForInner;
         keywordPredicate = new KeywordPredicate(query, 
-                Arrays.asList(modBookAttr2).stream().map(attr -> attr.getFieldName()).collect(Collectors.toList()), analyzer,
+                Utils.getAttributeNames(modBookAttr2), analyzer,
                 DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED);
         
         keywordSourceOuter = new KeywordMatcherSourceOperator(keywordPredicate, dataStore);

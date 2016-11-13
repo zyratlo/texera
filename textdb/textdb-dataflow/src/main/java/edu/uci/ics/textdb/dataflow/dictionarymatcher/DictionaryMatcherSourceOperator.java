@@ -92,7 +92,7 @@ public class DictionaryMatcherSourceOperator implements ISourceOperator {
                 // For other keyword matching types (conjunction and phrase),
                 // create keyword matcher based on index.
                 KeywordPredicate keywordPredicate = new KeywordPredicate(currentDictionaryEntry,
-                        predicate.getAttributeList().stream().map(attr -> attr.getFieldName()).collect(Collectors.toList()),
+                        Utils.getAttributeNames(predicate.getAttributeList()),
                         predicate.getAnalyzer(),
                         predicate.getKeywordMatchingType());
 
@@ -174,7 +174,7 @@ public class DictionaryMatcherSourceOperator implements ISourceOperator {
                 keywordSource.close();
 
                 KeywordPredicate keywordPredicate = new KeywordPredicate(currentDictionaryEntry,
-                        predicate.getAttributeList().stream().map(attr -> attr.getFieldName()).collect(Collectors.toList()),
+                        Utils.getAttributeNames(predicate.getAttributeList()),
                         predicate.getAnalyzer(), keywordMatchingType);
 
                 keywordSource = new KeywordMatcherSourceOperator(keywordPredicate, dataStore);
