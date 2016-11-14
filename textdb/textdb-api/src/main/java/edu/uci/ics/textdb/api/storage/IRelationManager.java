@@ -14,7 +14,7 @@ import edu.uci.ics.textdb.api.exception.TextDBException;
  */
 public interface IRelationManager {
     
-    public IRelationManager getRelationManager();
+    public IRelationManager getRelationManager() throws TextDBException;
     
     public boolean checkTableExistence(String tableName);
     
