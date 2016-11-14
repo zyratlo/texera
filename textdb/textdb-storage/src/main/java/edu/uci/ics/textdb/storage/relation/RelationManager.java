@@ -33,8 +33,7 @@ public class RelationManager implements IRelationManager {
         }
     }
 
-    @Override
-    public IRelationManager getRelationManager() throws StorageException {
+    public static RelationManager getRelationManager() throws StorageException {
         if (singletonRelationManager == null) {
             synchronized (RelationManager.class) {
                 if (singletonRelationManager == null) {

@@ -13,9 +13,7 @@ import edu.uci.ics.textdb.api.exception.TextDBException;
  * @author Zuozhi Wang
  */
 public interface IRelationManager {
-    
-    public IRelationManager getRelationManager() throws TextDBException;
-    
+        
     public boolean checkTableExistence(String tableName);
     
     // create a new table, tableName must be unique
