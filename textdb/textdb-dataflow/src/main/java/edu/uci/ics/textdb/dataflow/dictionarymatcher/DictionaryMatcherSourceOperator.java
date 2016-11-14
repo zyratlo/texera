@@ -77,7 +77,7 @@ public class DictionaryMatcherSourceOperator implements ISourceOperator {
 
             if (predicate.getKeywordMatchingType() == DataConstants.KeywordMatchingType.SUBSTRING_SCANBASED) {
                 // For Substring matching, create a scan source operator.
-                indexSource = new ScanBasedSourceOperator(dataStore, predicate.getAnalyzer());
+                indexSource = new ScanBasedSourceOperator(dataStore);
                 indexSource.open();
 
                 // Substring matching's output schema needs to contains span
