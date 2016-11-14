@@ -13,6 +13,7 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
+import org.apache.lucene.analysis.tokenattributes.PositionIncrementAttribute;
 import org.apache.lucene.analysis.util.CharArraySet;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.DateTools;
@@ -319,17 +320,11 @@ public class Utils {
 
     public static List<Span> generatePayloadFromTuple(ITuple tuple, Analyzer luceneAnalyzer) {
         List<Span> tuplePayload = tuple.getSchema().getAttributes().stream()
-                .filter(attr -> (attr.getFieldType() == FieldType.TEXT)) // generate
-                                                                         // payload
-                                                                         // only
-                                                                         // for
-                                                                         // TEXT
-                                                                         // field
+                .filter(attr -> (attr.getFieldType() == FieldType.TEXT)) // generate payload only for TEXT field
                 .map(attr -> attr.getFieldName())
                 .map(fieldName -> generatePayload(fieldName, tuple.getField(fieldName).getValue().toString(),
                         luceneAnalyzer))
-                .flatMap(payload -> payload.stream()) // flatten a list of lists
-                                                      // to a list
+                .flatMap(payload -> payload.stream()) // flatten a list of lists to a list
                 .collect(Collectors.toList());
 
         return tuplePayload;
@@ -337,23 +332,26 @@ public class Utils {
 
     public static List<Span> generatePayload(String fieldName, String fieldValue, Analyzer luceneAnalyzer) {
         List<Span> payload = new ArrayList<>();
-
+        
         try {
             TokenStream tokenStream = luceneAnalyzer.tokenStream(null, new StringReader(fieldValue));
             OffsetAttribute offsetAttribute = tokenStream.addAttribute(OffsetAttribute.class);
             CharTermAttribute charTermAttribute = tokenStream.addAttribute(CharTermAttribute.class);
-
-            int tokenCounter = 0;
+            PositionIncrementAttribute positionIncrementAttribute = 
+                    tokenStream.addAttribute(PositionIncrementAttribute.class);
+            
+            int tokenPositionCounter = -1;
             tokenStream.reset();
             while (tokenStream.incrementToken()) {
-                int tokenPosition = tokenCounter;
+                tokenPositionCounter += positionIncrementAttribute.getPositionIncrement();
+                
+                int tokenPosition = tokenPositionCounter;
                 int charStart = offsetAttribute.startOffset();
                 int charEnd = offsetAttribute.endOffset();
                 String analyzedTermStr = charTermAttribute.toString();
                 String originalTermStr = fieldValue.substring(charStart, charEnd);
 
                 payload.add(new Span(fieldName, charStart, charEnd, analyzedTermStr, originalTermStr, tokenPosition));
-                tokenCounter++;
             }
             tokenStream.close();
         } catch (IOException e) {
