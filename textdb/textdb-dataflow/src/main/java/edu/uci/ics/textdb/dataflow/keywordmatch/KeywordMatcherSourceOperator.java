@@ -56,7 +56,7 @@ public class KeywordMatcherSourceOperator extends AbstractSingleInputOperator im
         // generate dataReader
         Query luceneQuery = createLuceneQueryObject();
         DataReaderPredicate dataReaderPredicate = new DataReaderPredicate(
-                luceneQuery, dataStore, this.predicate.getLuceneAnalyzer());
+                luceneQuery, dataStore);
         dataReaderPredicate.setIsPayloadAdded(true);
         dataReader = new DataReader(dataReaderPredicate);
         
