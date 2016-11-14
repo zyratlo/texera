@@ -1,7 +1,14 @@
 package edu.uci.ics.textdb.storage.relation;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import org.apache.lucene.search.MatchAllDocsQuery;
 
+import edu.uci.ics.textdb.api.common.Attribute;
+import edu.uci.ics.textdb.api.common.FieldType;
 import edu.uci.ics.textdb.api.common.IField;
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.common.Schema;
@@ -9,7 +16,6 @@ import edu.uci.ics.textdb.api.exception.TextDBException;
 import edu.uci.ics.textdb.api.storage.IDataReader;
 import edu.uci.ics.textdb.api.storage.IRelationManager;
 import edu.uci.ics.textdb.common.constants.LuceneAnalyzerConstants;
-import edu.uci.ics.textdb.common.exception.DataFlowException;
 import edu.uci.ics.textdb.common.exception.StorageException;
 import edu.uci.ics.textdb.storage.DataReaderPredicate;
 import edu.uci.ics.textdb.storage.DataStore;
@@ -92,19 +98,24 @@ public class RelationManager implements IRelationManager {
     public String getTableDirectory(String tableName) throws StorageException {
         DataStore collectionCatalogStore = new DataStore(CatalogConstants.COLLECTION_CATALOG_DIRECTORY,
                 CatalogConstants.COLLECTION_CATALOG_SCHEMA);
-        DataReaderPredicate scanPredicate = new DataReaderPredicate(new MatchAllDocsQuery(), collectionCatalogStore,
-                LuceneAnalyzerConstants.getStandardAnalyzer());
+        DataReaderPredicate scanPredicate = new DataReaderPredicate(new MatchAllDocsQuery(), collectionCatalogStore);
         scanPredicate.setIsPayloadAdded(false);
         DataReader collectionCatalogReader = new DataReader(scanPredicate);
 
         collectionCatalogReader.open();
-        ITuple tuple;
-        while ((tuple = collectionCatalogReader.getNextTuple()) != null) {
-            IField nameField = tuple.getField(CatalogConstants.COLLECTION_NAME);
-            if (nameField == null || !nameField.getValue().equals(tableName)) {
+        ITuple nextTuple;
+        while ((nextTuple = collectionCatalogReader.getNextTuple()) != null) {
+            IField tableNameField = nextTuple.getField(CatalogConstants.COLLECTION_NAME);
+            // field must not be null
+            if (tableNameField == null) {
                 continue;
             }
-            IField directoryField = tuple.getField(CatalogConstants.COLLECTION_DIRECTORY);
+            // table name must be the same (case insensitive)
+            String tableNameString = tableNameField.getValue().toString();
+            if (! tableNameString.toLowerCase().equals(tableName.toLowerCase())) {
+                continue;
+            }
+            IField directoryField = nextTuple.getField(CatalogConstants.COLLECTION_DIRECTORY);
             if (directoryField == null) {
                 break;
             }
@@ -112,34 +123,53 @@ public class RelationManager implements IRelationManager {
         }
         collectionCatalogReader.close();
 
-        throw new StorageException(String.format("Directory for table %s not found.", tableName));
+        throw new StorageException(String.format("The directory for table %s is not found.", tableName));
     }
 
     @Override
     public Schema getTableSchema(String tableName) throws StorageException {
         DataStore schemaCatalogStore = new DataStore(CatalogConstants.SCHEMA_CATALOG_DIRECTORY,
                 CatalogConstants.SCHEMA_CATALOG_SCHEMA);
-        DataReaderPredicate scanPredicate = new DataReaderPredicate(new MatchAllDocsQuery(), schemaCatalogStore,
-                LuceneAnalyzerConstants.getStandardAnalyzer());
+        DataReaderPredicate scanPredicate = new DataReaderPredicate(new MatchAllDocsQuery(), schemaCatalogStore);
         scanPredicate.setIsPayloadAdded(false);
         DataReader schemaCatalogReader = new DataReader(scanPredicate);   
         
+        // get all the tuples of this table's attributes
         schemaCatalogReader.open();
-        ITuple tuple;
-        while ((tuple = schemaCatalogReader.getNextTuple()) != null) {
-            IField nameField = tuple.getField(CatalogConstants.COLLECTION_NAME);
-            if (nameField == null || !nameField.getValue().equals(tableName)) {
+        List<ITuple> tableAttributeTuples = new ArrayList<>();
+        ITuple nextTuple;
+        
+        while ((nextTuple = schemaCatalogReader.getNextTuple()) != null) {
+            IField tableNameField = nextTuple.getField(CatalogConstants.COLLECTION_NAME);
+            // field must not be null
+            if (tableNameField == null) {
                 continue;
             }
-            IField directoryField = tuple.getField(CatalogConstants.COLLECTION_DIRECTORY);
-            if (directoryField == null) {
-                break;
+            // table name must be the same (case insensitive)
+            String tableNameString = tableNameField.getValue().toString();
+            if (! tableNameString.toLowerCase().equals(tableName.toLowerCase())) {
+                continue;
             }
-            return directoryField.getValue().toString();
+            tableAttributeTuples.add(nextTuple);
         }
         schemaCatalogReader.close();
         
-        return null;
+        // Schema is not found if the list is empty.
+        if (tableAttributeTuples.isEmpty()) {
+            throw new StorageException(String.format("The schema of table %s is not found.", tableName));
+        }
+        
+        // convert the unordered list of tuples to an order list of attributes
+        List<Attribute> collectionSchemaData = tableAttributeTuples.stream()
+                // sort the tuples based on the attributePosition field.
+                .sorted((tuple1, tuple2) -> Integer.compare((int) tuple1.getField(CatalogConstants.ATTR_POSITION).getValue(), 
+                        (int) tuple2.getField(CatalogConstants.ATTR_POSITION).getValue()))
+                // map one tuple to one attribute
+                .map(tuple -> new Attribute(tuple.getField(CatalogConstants.ATTR_NAME).getValue().toString(),
+                        convertAttributeType(tuple.getField(CatalogConstants.ATTR_TYPE).getValue().toString())))
+                .collect(Collectors.toList());
+        
+        return new Schema(collectionSchemaData.stream().toArray(Attribute[]::new));
     }
 
     @Override
@@ -179,5 +209,18 @@ public class RelationManager implements IRelationManager {
             schemaCatalogWriter.insertTuple(tuple);
         }
     }
+    
+    /**
+     * This function converts a attributeTypeString to FieldType (case insensitive). 
+     * It returns null if string is not a valid type.
+     * 
+     * @param attributeTypeStr
+     * @return FieldType, null if attributeTypeStr is not a valid type.
+     */
+    private static FieldType convertAttributeType(String attributeTypeStr) {
+        return Stream.of(FieldType.values())
+                .filter(typeStr -> typeStr.toString().toLowerCase().equals(attributeTypeStr.toLowerCase()))
+                .findAny().orElse(null);
+    }    
 
 }
