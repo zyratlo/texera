@@ -39,7 +39,6 @@ public class KeywordSourceBuilderTest {
         operatorProperties.put(KeywordMatcherBuilder.KEYWORD, keyword);
         operatorProperties.put(KeywordMatcherBuilder.MATCHING_TYPE, "PHRASE_INDEXBASED");
         operatorProperties.put(OperatorBuilderUtils.ATTRIBUTE_NAMES, "city, location, content");
-        operatorProperties.put(OperatorBuilderUtils.ATTRIBUTE_TYPES, "STRING, STRING, TEXT");
         operatorProperties.put(OperatorBuilderUtils.DATA_DIRECTORY, directoryStr);
         operatorProperties.put(OperatorBuilderUtils.SCHEMA, schemaJsonJSONObject.toString());
         
@@ -77,7 +76,6 @@ public class KeywordSourceBuilderTest {
         operatorProperties.put(KeywordMatcherBuilder.KEYWORD, KeywordStr);
         operatorProperties.put(KeywordMatcherBuilder.MATCHING_TYPE, "PHRASE_INDEXBASED");
         operatorProperties.put(OperatorBuilderUtils.ATTRIBUTE_NAMES, "city, location, content");
-        operatorProperties.put(OperatorBuilderUtils.ATTRIBUTE_TYPES, "STRING, STRING, TEXT");
         operatorProperties.put(OperatorBuilderUtils.DATA_DIRECTORY, directoryStr);
         operatorProperties.put(OperatorBuilderUtils.SCHEMA, schemaJsonJSONObject.toString());
         
@@ -100,7 +98,6 @@ public class KeywordSourceBuilderTest {
         operatorProperties.put(KeywordMatcherBuilder.KEYWORD, KeywordStr);
         operatorProperties.put(KeywordMatcherBuilder.MATCHING_TYPE, "PHRASE_INDEXBASED");
         operatorProperties.put(OperatorBuilderUtils.ATTRIBUTE_NAMES, "city, location, content");
-        operatorProperties.put(OperatorBuilderUtils.ATTRIBUTE_TYPES, "STRING, STRING, TEXT");
         operatorProperties.put(OperatorBuilderUtils.DATA_DIRECTORY, directoryStr);
         operatorProperties.put(OperatorBuilderUtils.SCHEMA, schemaJsonJSONObject.toString());
         
@@ -123,7 +120,6 @@ public class KeywordSourceBuilderTest {
         operatorProperties.put(KeywordMatcherBuilder.KEYWORD, KeywordStr);
         operatorProperties.put(KeywordMatcherBuilder.MATCHING_TYPE, "PHRASE_INDEXBASED");
         operatorProperties.put(OperatorBuilderUtils.ATTRIBUTE_NAMES, "city, location, content");
-        operatorProperties.put(OperatorBuilderUtils.ATTRIBUTE_TYPES, "STRING, STRING, TEXT");
         operatorProperties.put(OperatorBuilderUtils.DATA_DIRECTORY, directoryStr);
         operatorProperties.put(OperatorBuilderUtils.SCHEMA, schemaJsonJSONObject.toString());
         
@@ -146,7 +142,6 @@ public class KeywordSourceBuilderTest {
         operatorProperties.put(KeywordMatcherBuilder.KEYWORD, KeywordStr);
         operatorProperties.put(KeywordMatcherBuilder.MATCHING_TYPE, "PHRASE_INDEXBASED");
         operatorProperties.put(OperatorBuilderUtils.ATTRIBUTE_NAMES, "city, location, content");
-        operatorProperties.put(OperatorBuilderUtils.ATTRIBUTE_TYPES, "STRING, STRING, TEXT");
         operatorProperties.put(OperatorBuilderUtils.DATA_DIRECTORY, directoryStr);
         operatorProperties.put(OperatorBuilderUtils.SCHEMA, schemaJsonJSONObject.toString());
         
