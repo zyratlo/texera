@@ -9,13 +9,13 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import edu.uci.ics.textdb.api.common.Attribute;
 import edu.uci.ics.textdb.api.common.FieldType;
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.common.Schema;
 import edu.uci.ics.textdb.common.constants.DataConstants;
 import edu.uci.ics.textdb.common.constants.SchemaConstants;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
+import edu.uci.ics.textdb.api.exception.TextDBException;
 import edu.uci.ics.textdb.common.field.Span;
 import edu.uci.ics.textdb.common.utils.Utils;
 import edu.uci.ics.textdb.dataflow.common.AbstractSingleInputOperator;
@@ -34,7 +34,7 @@ public class KeywordMatcher extends AbstractSingleInputOperator {
     }
 
     @Override
-    protected void setUp() {
+    protected void setUp() throws TextDBException {
         inputSchema = inputOperator.getOutputSchema();
         outputSchema = inputSchema;
         if (!inputSchema.containsField(SchemaConstants.PAYLOAD)) {
@@ -46,37 +46,45 @@ public class KeywordMatcher extends AbstractSingleInputOperator {
     }
 
     @Override
-    protected ITuple computeNextMatchingTuple() throws Exception {
+    protected ITuple computeNextMatchingTuple() throws TextDBException {
         ITuple inputTuple = null;
         ITuple resultTuple = null;
-        
-        while ((inputTuple = inputOperator.getNextTuple()) != null) {
-            
-            // There's an implicit assumption that, in open() method, PAYLOAD is
-            // checked before SPAN_LIST.
-            // Therefore, PAYLOAD needs to be checked and added first
-            if (!inputSchema.containsField(SchemaConstants.PAYLOAD)) {
-                inputTuple = Utils.getSpanTuple(inputTuple.getFields(),
-                        Utils.generatePayloadFromTuple(inputTuple, predicate.getLuceneAnalyzer()), outputSchema);
-            }
-            if (!inputSchema.containsField(SchemaConstants.SPAN_LIST)) {
-                inputTuple = Utils.getSpanTuple(inputTuple.getFields(), new ArrayList<Span>(), outputSchema);
-            }
 
-            if (this.predicate.getOperatorType() == DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED) {
-                resultTuple = computeConjunctionMatchingResult(inputTuple);
-            }
-            if (this.predicate.getOperatorType() == DataConstants.KeywordMatchingType.PHRASE_INDEXBASED) {
-                resultTuple = computePhraseMatchingResult(inputTuple);
-            }
-            if (this.predicate.getOperatorType() == DataConstants.KeywordMatchingType.SUBSTRING_SCANBASED) {
-                resultTuple = computeSubstringMatchingResult(inputTuple);
-            }
-            
+        while ((inputTuple = inputOperator.getNextTuple()) != null) {
+            resultTuple = processOneInputTuple(inputTuple);
+
             if (resultTuple != null) {
                 break;
             }
         }
+        return resultTuple;
+    }
+
+    @Override
+    public ITuple processOneInputTuple(ITuple inputTuple) throws TextDBException {
+        ITuple resultTuple = null;
+
+        // There's an implicit assumption that, in open() method, PAYLOAD is
+        // checked before SPAN_LIST.
+        // Therefore, PAYLOAD needs to be checked and added first
+        if (!inputSchema.containsField(SchemaConstants.PAYLOAD)) {
+            inputTuple = Utils.getSpanTuple(inputTuple.getFields(),
+                    Utils.generatePayloadFromTuple(inputTuple, predicate.getLuceneAnalyzer()), outputSchema);
+        }
+        if (!inputSchema.containsField(SchemaConstants.SPAN_LIST)) {
+            inputTuple = Utils.getSpanTuple(inputTuple.getFields(), new ArrayList<Span>(), outputSchema);
+        }
+
+        if (this.predicate.getOperatorType() == DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED) {
+            resultTuple = computeConjunctionMatchingResult(inputTuple);
+        }
+        if (this.predicate.getOperatorType() == DataConstants.KeywordMatchingType.PHRASE_INDEXBASED) {
+            resultTuple = computePhraseMatchingResult(inputTuple);
+        }
+        if (this.predicate.getOperatorType() == DataConstants.KeywordMatchingType.SUBSTRING_SCANBASED) {
+            resultTuple = computeSubstringMatchingResult(inputTuple);
+        }
+
         return resultTuple;
     }
 
@@ -89,9 +97,8 @@ public class KeywordMatcher extends AbstractSingleInputOperator {
         List<Span> relevantSpans = filterRelevantSpans(payload);
         List<Span> matchingResults = new ArrayList<>();
 
-        for (Attribute attribute : this.predicate.getAttributeList()) {
-            String fieldName = attribute.getFieldName();
-            FieldType fieldType = attribute.getFieldType();
+        for (String fieldName : this.predicate.getAttributeNames()) {
+            FieldType fieldType = this.inputSchema.getAttribute(fieldName).getFieldType();
             String fieldValue = sourceTuple.getField(fieldName).getValue().toString();
 
             // types other than TEXT and STRING: throw Exception for now
@@ -135,9 +142,8 @@ public class KeywordMatcher extends AbstractSingleInputOperator {
         List<Span> relevantSpans = filterRelevantSpans(payload);
         List<Span> matchingResults = new ArrayList<>();
 
-        for (Attribute attribute : this.predicate.getAttributeList()) {
-            String fieldName = attribute.getFieldName();
-            FieldType fieldType = attribute.getFieldType();
+        for (String fieldName : this.predicate.getAttributeNames()) {
+            FieldType fieldType = this.inputSchema.getAttribute(fieldName).getFieldType();
             String fieldValue = sourceTuple.getField(fieldName).getValue().toString();
 
             // types other than TEXT and STRING: throw Exception for now
@@ -232,9 +238,8 @@ public class KeywordMatcher extends AbstractSingleInputOperator {
     private ITuple computeSubstringMatchingResult(ITuple sourceTuple) throws DataFlowException {
         List<Span> matchingResults = new ArrayList<>();
 
-        for (Attribute attribute : this.predicate.getAttributeList()) {
-            String fieldName = attribute.getFieldName();
-            FieldType fieldType = attribute.getFieldType();
+        for (String fieldName : this.predicate.getAttributeNames()) {
+            FieldType fieldType = this.inputSchema.getAttribute(fieldName).getFieldType();
             String fieldValue = sourceTuple.getField(fieldName).getValue().toString();
 
             // types other than TEXT and STRING: throw Exception for now

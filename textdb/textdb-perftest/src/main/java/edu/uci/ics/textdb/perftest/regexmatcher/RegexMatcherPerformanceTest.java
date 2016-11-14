@@ -6,10 +6,11 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
+import edu.uci.ics.textdb.api.exception.TextDBException;
 import org.apache.lucene.analysis.Analyzer;
 import edu.uci.ics.textdb.api.common.Attribute;
 import edu.uci.ics.textdb.api.common.ITuple;
-import edu.uci.ics.textdb.common.constants.DataConstants;
+import edu.uci.ics.textdb.common.constants.LuceneAnalyzerConstants;
 import edu.uci.ics.textdb.common.constants.SchemaConstants;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
 import edu.uci.ics.textdb.common.exception.StorageException;
@@ -57,7 +58,7 @@ public class RegexMatcherPerformanceTest {
      * 
      */
     public static void runTest(List<String> regexQueries)
-            throws StorageException, DataFlowException, IOException {
+            throws TextDBException, IOException {
 
         FileWriter fileWriter = null;
          
@@ -92,14 +93,14 @@ public class RegexMatcherPerformanceTest {
     /*
      *         This function does match for a list of regex queries
      */
-    public static void matchRegex(List<String> regexes, DataStore dataStore) throws DataFlowException, IOException {
+    public static void matchRegex(List<String> regexes, DataStore dataStore) throws TextDBException, IOException {
 
         Attribute[] attributeList = new Attribute[] { MedlineIndexWriter.ABSTRACT_ATTR };
         
         for(String regex: regexes){
 	        // analyzer should generate grams all in lower case to build a lower
 	        // case index.
-	        Analyzer luceneAnalyzer = DataConstants.getTrigramAnalyzer();
+	        Analyzer luceneAnalyzer = LuceneAnalyzerConstants.getNGramAnalyzer(3);
 	        RegexPredicate regexPredicate = new RegexPredicate(regex, Arrays.asList(attributeList), luceneAnalyzer);
 	        IndexBasedSourceOperator indexInputOperator = new IndexBasedSourceOperator(
 	                regexPredicate.generateDataReaderPredicate(dataStore));

@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import edu.uci.ics.textdb.api.exception.TextDBException;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.apache.lucene.search.MatchAllDocsQuery;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -20,15 +20,12 @@ import edu.uci.ics.textdb.api.storage.IDataStore;
 import edu.uci.ics.textdb.api.storage.IDataWriter;
 import edu.uci.ics.textdb.common.constants.DataConstants;
 import edu.uci.ics.textdb.common.constants.TestConstants;
-import edu.uci.ics.textdb.common.exception.DataFlowException;
 import edu.uci.ics.textdb.common.field.DataTuple;
 import edu.uci.ics.textdb.common.field.StringField;
 import edu.uci.ics.textdb.common.field.TextField;
 import edu.uci.ics.textdb.dataflow.source.ScanBasedSourceOperator;
 import edu.uci.ics.textdb.dataflow.utils.TestUtils;
-import edu.uci.ics.textdb.storage.DataReaderPredicate;
 import edu.uci.ics.textdb.storage.DataStore;
-import edu.uci.ics.textdb.storage.reader.DataReader;
 import edu.uci.ics.textdb.storage.writer.DataWriter;
 
 public class ProjectionOperatorTest {
@@ -53,7 +50,7 @@ public class ProjectionOperatorTest {
         dataWriter.clearData();
     }
     
-    public List<ITuple> getProjectionResults(IOperator inputOperator, List<String> projectionFields) throws DataFlowException {
+    public List<ITuple> getProjectionResults(IOperator inputOperator, List<String> projectionFields) throws TextDBException {
         ProjectionPredicate projectionPredicate = new ProjectionPredicate(projectionFields);
         ProjectionOperator projection = new ProjectionOperator(projectionPredicate);
         projection.setInputOperator(inputOperator);
@@ -90,7 +87,7 @@ public class ProjectionOperatorTest {
         ITuple tuple6 = new DataTuple(projectionSchema, fields6);
         
         List<ITuple> expectedResults = Arrays.asList(tuple1, tuple2, tuple3, tuple4, tuple5, tuple6);
-        List<ITuple> returnedResults = getProjectionResults(new ScanBasedSourceOperator(dataStore, luceneAnalyzer), projectionFields);
+        List<ITuple> returnedResults = getProjectionResults(new ScanBasedSourceOperator(dataStore), projectionFields);
         
         Assert.assertTrue(TestUtils.containsAllResults(expectedResults, returnedResults));
     }
@@ -116,7 +113,7 @@ public class ProjectionOperatorTest {
         ITuple tuple6 = new DataTuple(projectionSchema, fields6);
         
         List<ITuple> expectedResults = Arrays.asList(tuple1, tuple2, tuple3, tuple4, tuple5, tuple6);
-        List<ITuple> returnedResults = getProjectionResults(new ScanBasedSourceOperator(dataStore, luceneAnalyzer), projectionFields);
+        List<ITuple> returnedResults = getProjectionResults(new ScanBasedSourceOperator(dataStore), projectionFields);
         
         Assert.assertTrue(TestUtils.containsAllResults(expectedResults, returnedResults));
     }

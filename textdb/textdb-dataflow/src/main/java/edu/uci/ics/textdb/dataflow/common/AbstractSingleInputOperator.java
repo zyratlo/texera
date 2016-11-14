@@ -5,6 +5,7 @@ import edu.uci.ics.textdb.api.common.Schema;
 import edu.uci.ics.textdb.api.dataflow.IOperator;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
 import edu.uci.ics.textdb.common.exception.ErrorMessages;
+import edu.uci.ics.textdb.api.exception.TextDBException;
 
 /**
  * AbstractSingleInputOperator is an abstract class that can be used by many operators.
@@ -33,7 +34,7 @@ public abstract class AbstractSingleInputOperator implements IOperator {
     protected int offset = 0;
     
     @Override
-    public void open() throws DataFlowException {
+    public void open() throws TextDBException {
         if (cursor != CLOSED) {
             return;
         }
@@ -53,12 +54,12 @@ public abstract class AbstractSingleInputOperator implements IOperator {
     /**
      * setUp necessary resources, variables in this function.
      * outputSchema MUST be initialized in setUP().
-     * @throws DataFlowException
+     * @throws TextDBException
      */
-    protected abstract void setUp() throws DataFlowException;
+    protected abstract void setUp() throws TextDBException;
 
     @Override
-    public ITuple getNextTuple() throws DataFlowException {
+    public ITuple getNextTuple() throws TextDBException {
         if (cursor == CLOSED) {
             throw new DataFlowException(ErrorMessages.OPERATOR_NOT_OPENED);
         }
@@ -87,12 +88,14 @@ public abstract class AbstractSingleInputOperator implements IOperator {
      * Give the input tuples, compute the next matching tuple. Return null if there's no more matching tuple.
      * 
      * @return next matching tuple, null if there's no more matching tuple.
-     * @throws Exception
+     * @throws TextDBException
      */
-    protected abstract ITuple computeNextMatchingTuple() throws Exception;
+    protected abstract ITuple computeNextMatchingTuple() throws TextDBException;
+
+    public abstract ITuple processOneInputTuple(ITuple inputTuple) throws TextDBException;
 
     @Override
-    public void close() throws DataFlowException {
+    public void close() throws TextDBException {
         if (cursor == CLOSED) {
             return;
         }
@@ -107,7 +110,7 @@ public abstract class AbstractSingleInputOperator implements IOperator {
         cursor = CLOSED;
     }
     
-    protected abstract void cleanUp() throws DataFlowException;
+    protected abstract void cleanUp() throws TextDBException;
 
     @Override
     public Schema getOutputSchema() {

@@ -6,6 +6,7 @@ import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.common.Schema;
 import edu.uci.ics.textdb.api.dataflow.IConnector;
 import edu.uci.ics.textdb.api.dataflow.IOperator;
+import edu.uci.ics.textdb.api.exception.TextDBException;
 
 /**
  * OneToNBroadcastConnector connects one input operator with multiple output operators.
@@ -88,7 +89,7 @@ public class OneToNBroadcastConnector implements IConnector {
      * Tuples from input operators are cached in an in-memory list.
      * A new tuple will be fetched from input operator whenever a cursor exceeds the list size.
      */
-    private ITuple getNextTuple(int outputOperatorIndex) throws Exception {
+    private ITuple getNextTuple(int outputOperatorIndex) throws TextDBException {
         int nextPosition = outputCursorList.get(outputOperatorIndex) + 1;
         outputCursorList.set(outputOperatorIndex, nextPosition);
         
@@ -105,7 +106,7 @@ public class OneToNBroadcastConnector implements IConnector {
         }
     }
     
-    private void openInputOperator(int outputOperatorIndex) throws Exception {
+    private void openInputOperator(int outputOperatorIndex) throws TextDBException {
         outputStatusList.set(outputOperatorIndex, OPENED);
         if (! inputOperatorOpened) {
             inputOperator.open();
@@ -113,7 +114,7 @@ public class OneToNBroadcastConnector implements IConnector {
         }
     }
     
-    private void closeInputOperator(int outputOperatorIndex) throws Exception {
+    private void closeInputOperator(int outputOperatorIndex) throws TextDBException {
         outputStatusList.set(outputOperatorIndex, CLOSED);
         boolean isAllClosed = isAllOutputOperatorClosed();
         if (isAllClosed) {
@@ -149,17 +150,17 @@ public class OneToNBroadcastConnector implements IConnector {
         }
 
         @Override
-        public void open() throws Exception {
+        public void open() throws TextDBException {
             ownerConnector.openInputOperator(outputIndex);
         }
 
         @Override
-        public ITuple getNextTuple() throws Exception {
+        public ITuple getNextTuple() throws TextDBException {
             return ownerConnector.getNextTuple(outputIndex);
         }
 
         @Override
-        public void close() throws Exception {      
+        public void close() throws TextDBException {
             ownerConnector.closeInputOperator(outputIndex);
         }
 
