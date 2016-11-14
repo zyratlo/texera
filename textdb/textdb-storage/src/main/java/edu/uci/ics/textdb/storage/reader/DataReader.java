@@ -216,7 +216,7 @@ public class DataReader implements IDataReader {
         return outputSchema;
     }
     
-    public static boolean isIndexExist(String directory) {
+    public static boolean indexExists(String directory) {
         try {
             return DirectoryReader.indexExists(
                     FSDirectory.open(Paths.get(directory)));
