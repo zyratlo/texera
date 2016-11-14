@@ -1,6 +1,6 @@
 package edu.uci.ics.textdb.storage;
 
-import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.Query;
 
 import edu.uci.ics.textdb.api.common.IPredicate;
@@ -13,13 +13,11 @@ import edu.uci.ics.textdb.api.storage.IDataStore;
 public class DataReaderPredicate implements IPredicate {
     private IDataStore dataStore;
     private Query luceneQuery;
-    private Analyzer luceneAnalyzer;
     private boolean payloadAdded = false;
 
-    public DataReaderPredicate(Query luceneQuery, IDataStore dataStore, Analyzer analyzer) {
+    public DataReaderPredicate(Query luceneQuery, IDataStore dataStore) {
         this.dataStore = dataStore;
         this.luceneQuery = luceneQuery;
-        this.luceneAnalyzer = analyzer;
     }
 
     public IDataStore getDataStore() {
@@ -29,16 +27,16 @@ public class DataReaderPredicate implements IPredicate {
     public Query getLuceneQuery() {
         return luceneQuery;
     }
-
-    public Analyzer getLuceneAnalyzer() {
-        return luceneAnalyzer;
-    }
-
+    
     public void setIsPayloadAdded(boolean isPayloadAdded) {
         this.payloadAdded = isPayloadAdded;
     }
     
     public boolean isPayloadAdded() {
         return this.payloadAdded;
+    }
+    
+    public static DataReaderPredicate getScanPredicate(IDataStore dataStore) {
+        return new DataReaderPredicate(new MatchAllDocsQuery(), dataStore);
     }
 }
