@@ -1,6 +1,7 @@
 package edu.uci.ics.textdb.storage.relation;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -115,6 +116,28 @@ public class CatalogConstants {
 
         return fieldsList.stream().map(fields -> new DataTuple(CatalogConstants.SCHEMA_CATALOG_SCHEMA, fields))
                 .collect(Collectors.toList());
+    }
+    
+    public static ITuple getCollectionCatalogTuple(String tableName, String tableDirectory, String luceneAnalyzerStr) {
+        String tableDirectoryAbsolute = new File(tableDirectory).getAbsolutePath();
+        return new DataTuple(COLLECTION_CATALOG_SCHEMA, 
+                new StringField(tableName), 
+                new StringField(tableDirectoryAbsolute),
+                new StringField(luceneAnalyzerStr));
+    }
+    
+    public static List<ITuple> getSchemaCatalogTuples(String tableName, Schema tableSchema) {
+        List<ITuple> schemaCatalogTuples = new ArrayList<>();
+        for (int i = 0; i < tableSchema.getAttributes().size(); i++) {
+            Attribute attr = tableSchema.getAttributes().get(i);
+            ITuple schemaTuple = new DataTuple(SCHEMA_CATALOG_SCHEMA, 
+                    new StringField(tableName),
+                    new StringField(attr.getFieldName()),
+                    new StringField(attr.getFieldType().toString().toLowerCase()),
+                    new IntegerField(i));
+            schemaCatalogTuples.add(schemaTuple);
+        }
+        return schemaCatalogTuples;
     }
 
 }

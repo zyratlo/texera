@@ -57,8 +57,27 @@ public class RelationManager implements IRelationManager {
     @Override
     public void createTable(String tableName, String indexDirectory, Schema schema, String luceneAnalyzer)
             throws TextDBException {
-        // TODO Auto-generated method stub
+        // table should not exist
+        if (checkTableExistence(tableName)) {
+            throw new StorageException(String.format("Table %s already exists.", tableName));
+        }
         
+        // write collection catalog
+        DataStore collectionCatalogStore = new DataStore(CatalogConstants.COLLECTION_CATALOG_DIRECTORY,
+                CatalogConstants.COLLECTION_CATALOG_SCHEMA);
+        DataWriter collectionCatalogWriter = new DataWriter(collectionCatalogStore, LuceneAnalyzerConstants.getStandardAnalyzer());
+        collectionCatalogWriter.insertTuple(
+                CatalogConstants.getCollectionCatalogTuple(tableName, indexDirectory, luceneAnalyzer));
+        
+        // write schema catalog
+        DataStore schemaCatalogStore = new DataStore(CatalogConstants.SCHEMA_CATALOG_DIRECTORY,
+                CatalogConstants.SCHEMA_CATALOG_SCHEMA);
+        DataWriter schemaCatalogWriter = new DataWriter(schemaCatalogStore, LuceneAnalyzerConstants.getStandardAnalyzer());
+
+        for (ITuple tuple : CatalogConstants.getSchemaCatalogTuples(tableName, schema)) {
+            schemaCatalogWriter.insertTuple(tuple);
+        }
+                
     }
 
     @Override
