@@ -4,19 +4,29 @@ import edu.uci.ics.textdb.api.common.Attribute;
 import edu.uci.ics.textdb.api.common.FieldType;
 import edu.uci.ics.textdb.api.common.Schema;
 
+import java.util.regex.Pattern;
+
 /**
  * @author sweetest
  *
  */
 public class PlanStoreConstants {
-    public static final String PLAN_STORAGE_DIR = "../plan";
+    public static final String TABLE_NAME = "plan";
 
-    public static final String PLAN_NAME_FIELD = "plan";
-    public static final String PLAN_QUERY_FIELD = "query";
+    public static final Pattern INVALID_PLAN_NAME = Pattern.compile("[^a-zA-Z0-9\\-_]");
 
-    public static final Attribute PLAN_NAME_ATTR = new Attribute(PLAN_NAME_FIELD, FieldType.STRING);
-    public static final Attribute PLAN_QUERY_ATTR = new Attribute(PLAN_QUERY_FIELD, FieldType.STRING);
+    public static final String INDEX_DIR = "../plan";
+    public static final String FILES_DIR = "../plan_files";
+    public static final String FILE_SUFFIX = ".ser";
 
-    public static final Attribute[] ATTRIBUTES_PLAN = {PLAN_NAME_ATTR, PLAN_QUERY_ATTR};
+    public static final String NAME = "name";
+    public static final String DESCRIPTION = "desc";
+    public static final String FILE_PATH = "filePath";
+
+    public static final Attribute NAME_ATTR = new Attribute(NAME, FieldType.STRING);
+    public static final Attribute DESCRIPTION_ATTR = new Attribute(DESCRIPTION, FieldType.STRING);
+    public static final Attribute FILE_PATH_ATTR = new Attribute(FILE_PATH, FieldType.STRING);
+
+    public static final Attribute[] ATTRIBUTES_PLAN = {NAME_ATTR, DESCRIPTION_ATTR, FILE_PATH_ATTR};
     public static final Schema SCHEMA_PLAN = new Schema(ATTRIBUTES_PLAN);
 }

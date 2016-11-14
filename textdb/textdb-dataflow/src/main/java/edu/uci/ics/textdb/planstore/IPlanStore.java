@@ -1,6 +1,8 @@
 package edu.uci.ics.textdb.planstore;
 
 import edu.uci.ics.textdb.api.common.ITuple;
+import edu.uci.ics.textdb.api.exception.TextDBException;
+import edu.uci.ics.textdb.api.storage.IDataReader;
 import edu.uci.ics.textdb.plangen.LogicalPlan;
 
 import java.util.List;
@@ -15,21 +17,21 @@ import java.util.List;
  */
 public interface IPlanStore {
 
-    void createPlanStore();
+    void createPlanStore() throws TextDBException;
 
-    void destroyPlanStore();
+    void destroyPlanStore() throws TextDBException;
 
-    void addPlan(String planName, String description, LogicalPlan plan);
+    void addPlan(String planName, String description, LogicalPlan plan) throws TextDBException;
 
-    ITuple getPlan(String planName);
+    ITuple getPlan(String planName) throws TextDBException;
 
-    List<ITuple> getAllPlans();
+    IDataReader getPlanIterator() throws TextDBException;
 
-    void deletePlan(String planName);
+    void deletePlan(String planName) throws TextDBException;
 
-    void updatePlan(String planName, LogicalPlan plan);
+    void updatePlan(String planName, LogicalPlan plan) throws TextDBException;
 
-    void updatePlan(String planName, String description);
+    void updatePlan(String planName, String description) throws TextDBException;
 
-    void updatePlan(String planName, String description, LogicalPlan plan);
+    void updatePlan(String planName, String description, LogicalPlan plan) throws TextDBException;
 }
