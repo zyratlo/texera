@@ -83,6 +83,10 @@ public class QueryPlanRequest {
             try {
                 Method method = operatorBeanClassName.getMethod(GET_PROPERTIES_FUNCTION_NAME);
                 HashMap<String, String> currentOperatorProperty = (HashMap<String, String>) method.invoke(operatorBean);
+                if(currentOperatorProperty == null) {
+                    this.operatorProperties = null;
+                    return false;
+                }
                 this.operatorProperties.put(operatorBean.getOperatorID(), currentOperatorProperty);
             }
             catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
@@ -101,6 +105,11 @@ public class QueryPlanRequest {
      * @return - A boolean to denote the status of LogicalPlan creation
      */
     public boolean createLogicalPlan() {
+        // Checking if the operatorProperties have been aggregated
+        if(this.operatorProperties == null) {
+            return false;
+        }
+
         logicalPlan = new LogicalPlan();
 
         // Adding operatorBeans to the logical plan

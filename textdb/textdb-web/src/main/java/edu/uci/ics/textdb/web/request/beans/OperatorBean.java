@@ -101,6 +101,8 @@ public abstract class OperatorBean {
             basicOperatorProperties.put(OperatorBuilderUtils.LIMIT, this.getLimit());
         if(this.getOffset() != null)
             basicOperatorProperties.put(OperatorBuilderUtils.OFFSET, this.getOffset());
+        if(this.getAttributes() == null)
+            return null;
         basicOperatorProperties.put(OperatorBuilderUtils.ATTRIBUTE_NAMES, this.getAttributes());
         return basicOperatorProperties;
     }

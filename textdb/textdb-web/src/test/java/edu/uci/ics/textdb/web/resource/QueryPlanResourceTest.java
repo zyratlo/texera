@@ -50,6 +50,29 @@ public class QueryPlanResourceTest {
             "    }]\n" +
             "}";
 
+    public static final String faultyQueryPlanRequestString = "{\n" +
+            "    \"operators\": [{\n" +
+            "        \"operator_id\": \"operator1\",\n" +
+            "        \"operator_type\": \"DictionaryMatcher\",\n" +
+            "        \"attributes\": \"attributes\",\n" +
+            "        \"limit\": \"10\",\n" +
+            "        \"offset\": \"100\",\n" +
+            "        \"matching_type\": \"PHRASE_INDEXBASED\"\n" +
+            "    }, {\n" +
+            "\n" +
+            "        \"operator_id\": \"operator2\",\n" +
+            "        \"operator_type\": \"DictionaryMatcher\",\n" +
+            "        \"attributes\": \"attributes\",\n" +
+            "        \"limit\": \"10\",\n" +
+            "        \"offset\": \"100\",\n" +
+            "        \"dictionary\": \"dict2\"\n" +
+            "    }],\n" +
+            "    \"links\": [{\n" +
+            "        \"from\": \"operator1\",\n" +
+            "        \"to\": \"operator2\"    \n" +
+            "    }]\n" +
+            "}";
+
     /**
      * Tests the query plan execution endpoint.
      */
@@ -64,5 +87,12 @@ public class QueryPlanResourceTest {
                 .post(Entity.entity(queryPlanRequestString, MediaType.APPLICATION_JSON));
 
         assertThat(response.getStatus()).isEqualTo(200);
+
+        response = client.target(
+                String.format("http://localhost:%d/queryplan/execute", RULE.getLocalPort()))
+                .request()
+                .post(Entity.entity(faultyQueryPlanRequestString, MediaType.APPLICATION_JSON));
+
+        assertThat(response.getStatus()).isEqualTo(400);
     }
 }

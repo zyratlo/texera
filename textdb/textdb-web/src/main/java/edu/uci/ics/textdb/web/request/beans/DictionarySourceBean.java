@@ -67,6 +67,9 @@ public class DictionarySourceBean extends OperatorBean {
 
     public HashMap<String, String> getOperatorProperties() {
         HashMap<String, String> operatorProperties = super.getOperatorProperties();
+        if(this.getDictionary() == null || this.getMatchingType() == null || this.getDataSource() == null ||
+                operatorProperties == null)
+            return null;
         operatorProperties.put(DictionarySourceBuilder.DICTIONARY, this.getDictionary());
         operatorProperties.put(DictionarySourceBuilder.MATCHING_TYPE, this.getMatchingType().name());
         operatorProperties.put(OperatorBuilderUtils.DATA_DIRECTORY, this.getDataSource());

@@ -53,6 +53,8 @@ public class DictionaryMatcherBean extends OperatorBean {
 
     public HashMap<String, String> getOperatorProperties() {
         HashMap<String, String> operatorProperties = super.getOperatorProperties();
+        if(this.getDictionary() == null || this.getMatchingType() == null || operatorProperties == null)
+            return null;
         operatorProperties.put(DictionaryMatcherBuilder.DICTIONARY, this.getDictionary());
         operatorProperties.put(DictionaryMatcherBuilder.MATCHING_TYPE, this.getMatchingType().name());
         return operatorProperties;
