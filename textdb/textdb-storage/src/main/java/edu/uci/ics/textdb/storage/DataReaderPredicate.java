@@ -14,16 +14,12 @@ public class DataReaderPredicate implements IPredicate {
     private IDataStore dataStore;
     private Query luceneQuery;
     private Analyzer luceneAnalyzer;
-    private boolean isSpanInformationAdded = false;
+    private boolean payloadAdded = false;
 
     public DataReaderPredicate(Query luceneQuery, IDataStore dataStore, Analyzer analyzer) {
         this.dataStore = dataStore;
         this.luceneQuery = luceneQuery;
         this.luceneAnalyzer = analyzer;
-    }
-
-    public void setIsSpanInformationAdded(boolean flag) {
-        isSpanInformationAdded = flag;
     }
 
     public IDataStore getDataStore() {
@@ -38,7 +34,11 @@ public class DataReaderPredicate implements IPredicate {
         return luceneAnalyzer;
     }
 
-    public boolean getIsSpanInformationAdded() {
-        return isSpanInformationAdded;
+    public void setIsPayloadAdded(boolean isPayloadAdded) {
+        this.payloadAdded = isPayloadAdded;
+    }
+    
+    public boolean isPayloadAdded() {
+        return this.payloadAdded;
     }
 }

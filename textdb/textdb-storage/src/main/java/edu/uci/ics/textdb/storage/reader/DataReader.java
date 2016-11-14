@@ -22,7 +22,6 @@ import org.apache.lucene.store.FSDirectory;
 import edu.uci.ics.textdb.api.common.Attribute;
 import edu.uci.ics.textdb.api.common.FieldType;
 import edu.uci.ics.textdb.api.common.IField;
-import edu.uci.ics.textdb.api.common.IPredicate;
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.common.Schema;
 import edu.uci.ics.textdb.api.storage.IDataReader;
@@ -55,10 +54,11 @@ public class DataReader implements IDataReader {
 
     private int limit;
     private int offset;
-    private boolean payloadAdded = true;
+    private boolean payloadAdded;
 
     public DataReader(DataReaderPredicate dataReaderPredicate) {
         predicate = dataReaderPredicate;
+        payloadAdded = dataReaderPredicate.isPayloadAdded();
     }
 
     @Override
@@ -180,12 +180,7 @@ public class DataReader implements IDataReader {
                 }
                 // for each term, go through its postings
                 for (int i = 0; i < termPostings.freq(); i++) {
-                    int tokenPosition = termPostings.nextPosition(); // nextPosition
-                                                                     // needs to
-                                                                     // be
-                                                                     // called
-                                                                     // first
-
+                    int tokenPosition = termPostings.nextPosition(); // nextPosition needs to be called first
                     int charStart = termPostings.startOffset();
                     int charEnd = termPostings.endOffset();
                     String analyzedTermStr = termsEnum.term().utf8ToString();
@@ -217,15 +212,17 @@ public class DataReader implements IDataReader {
         this.offset = offset;
     }
 
-    public boolean isTermVecAdded() {
-        return payloadAdded;
-    }
-
-    public void setTermVecAdded(boolean termVecAdded) {
-        this.payloadAdded = termVecAdded;
-    }
-
     public Schema getOutputSchema() {
         return outputSchema;
     }
+    
+    public static boolean isIndexExist(String directory) {
+        try {
+            return DirectoryReader.indexExists(
+                    FSDirectory.open(Paths.get(directory)));
+        } catch (IOException e) {
+            return false;
+        }
+    }
+    
 }
