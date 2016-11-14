@@ -46,8 +46,12 @@ public class RelationManager implements IRelationManager {
 
     @Override
     public boolean checkTableExistence(String tableName) {
-        // TODO Auto-generated method stub
-        return false;
+        try {
+            String tableDirectory = getTableDirectory(tableName);
+            return DataReader.checkIndexExistence(tableDirectory);
+        } catch (StorageException e) {
+            return false;
+        }
     }
 
     @Override
