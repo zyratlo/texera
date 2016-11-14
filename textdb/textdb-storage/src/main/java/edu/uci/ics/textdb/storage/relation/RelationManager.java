@@ -89,50 +89,61 @@ public class RelationManager implements IRelationManager {
     }
 
     @Override
-    public String getTableDirectory(String tableName) {
+    public String getTableDirectory(String tableName) throws StorageException {
         DataStore collectionCatalogStore = new DataStore(CatalogConstants.COLLECTION_CATALOG_DIRECTORY,
                 CatalogConstants.COLLECTION_CATALOG_SCHEMA);
         DataReaderPredicate scanPredicate = new DataReaderPredicate(new MatchAllDocsQuery(), collectionCatalogStore,
                 LuceneAnalyzerConstants.getStandardAnalyzer());
         scanPredicate.setIsPayloadAdded(false);
         DataReader collectionCatalogReader = new DataReader(scanPredicate);
-        
-        try {
-            collectionCatalogReader.open();
-            
-            ITuple tuple;
-            while ((tuple = collectionCatalogReader.getNextTuple()) != null) {
-                IField nameField = tuple.getField(CatalogConstants.COLLECTION_NAME);
-                if (nameField == null || !nameField.getValue().equals(tableName)) {
-                    continue;
-                }
-                IField directoryField = tuple.getField(CatalogConstants.COLLECTION_DIRECTORY);
-                if (directoryField != null) {
-                    return directoryField.getValue().toString();
-                } else {
-                    return null;
-                }
+
+        collectionCatalogReader.open();
+        ITuple tuple;
+        while ((tuple = collectionCatalogReader.getNextTuple()) != null) {
+            IField nameField = tuple.getField(CatalogConstants.COLLECTION_NAME);
+            if (nameField == null || !nameField.getValue().equals(tableName)) {
+                continue;
             }
-            
-            collectionCatalogReader.close();
-        } catch (DataFlowException e) {
-            return null;
+            IField directoryField = tuple.getField(CatalogConstants.COLLECTION_DIRECTORY);
+            if (directoryField == null) {
+                break;
+            }
+            return directoryField.getValue().toString();
         }
-        return null;
+        collectionCatalogReader.close();
+
+        throw new StorageException(String.format("Directory for table %s not found.", tableName));
     }
 
     @Override
-    public Schema getTableSchema(String tableName) {
-        String tableDirectory = getTableDirectory(tableName);
-        if (tableDirectory == null) {
-            return null;
+    public Schema getTableSchema(String tableName) throws StorageException {
+        DataStore schemaCatalogStore = new DataStore(CatalogConstants.SCHEMA_CATALOG_DIRECTORY,
+                CatalogConstants.SCHEMA_CATALOG_SCHEMA);
+        DataReaderPredicate scanPredicate = new DataReaderPredicate(new MatchAllDocsQuery(), schemaCatalogStore,
+                LuceneAnalyzerConstants.getStandardAnalyzer());
+        scanPredicate.setIsPayloadAdded(false);
+        DataReader schemaCatalogReader = new DataReader(scanPredicate);   
+        
+        schemaCatalogReader.open();
+        ITuple tuple;
+        while ((tuple = schemaCatalogReader.getNextTuple()) != null) {
+            IField nameField = tuple.getField(CatalogConstants.COLLECTION_NAME);
+            if (nameField == null || !nameField.getValue().equals(tableName)) {
+                continue;
+            }
+            IField directoryField = tuple.getField(CatalogConstants.COLLECTION_DIRECTORY);
+            if (directoryField == null) {
+                break;
+            }
+            return directoryField.getValue().toString();
         }
+        schemaCatalogReader.close();
         
         return null;
     }
 
     @Override
-    public String getTableAnalyzer(String tableName) {
+    public String getTableAnalyzer(String tableName) throws StorageException {
         // TODO Auto-generated method stub
         return null;
     }
