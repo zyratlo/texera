@@ -1,5 +1,6 @@
 package edu.uci.ics.textdb.api.plan;
 
+import edu.uci.ics.textdb.api.exception.TextDBException;
 import junit.framework.Assert;
 
 import org.junit.Before;
@@ -28,19 +29,19 @@ public class PlanTest {
         return new ISink() {
 
             @Override
-            public void processTuples() throws Exception {
+            public void processTuples() throws TextDBException {
                 // TODO Auto-generated method stub
 
             }
 
             @Override
-            public void open() throws Exception {
+            public void open() throws TextDBException {
                 // TODO Auto-generated method stub
 
             }
 
             @Override
-            public void close() throws Exception {
+            public void close() throws TextDBException {
                 // TODO Auto-generated method stub
 
             }

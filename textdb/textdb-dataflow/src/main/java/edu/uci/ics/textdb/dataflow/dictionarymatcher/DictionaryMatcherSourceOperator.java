@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import edu.uci.ics.textdb.api.common.Attribute;
 import edu.uci.ics.textdb.api.common.FieldType;
@@ -16,12 +17,12 @@ import edu.uci.ics.textdb.common.constants.DataConstants;
 import edu.uci.ics.textdb.common.constants.DataConstants.KeywordMatchingType;
 import edu.uci.ics.textdb.common.constants.SchemaConstants;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
+import edu.uci.ics.textdb.api.exception.TextDBException;
 import edu.uci.ics.textdb.common.field.Span;
 import edu.uci.ics.textdb.common.utils.Utils;
 import edu.uci.ics.textdb.dataflow.common.DictionaryPredicate;
 import edu.uci.ics.textdb.dataflow.common.KeywordPredicate;
-import edu.uci.ics.textdb.dataflow.keywordmatch.KeywordMatcher;
-import edu.uci.ics.textdb.dataflow.source.IndexBasedSourceOperator;
+import edu.uci.ics.textdb.dataflow.keywordmatch.KeywordMatcherSourceOperator;
 import edu.uci.ics.textdb.dataflow.source.ScanBasedSourceOperator;
 
 /**
@@ -32,7 +33,8 @@ import edu.uci.ics.textdb.dataflow.source.ScanBasedSourceOperator;
 public class DictionaryMatcherSourceOperator implements ISourceOperator {
 
     private ISourceOperator indexSource;
-    private KeywordMatcher keywordMatcher;
+    
+    private KeywordMatcherSourceOperator keywordSource;
 
     private Schema inputSchema;
     private Schema outputSchema;
@@ -75,7 +77,7 @@ public class DictionaryMatcherSourceOperator implements ISourceOperator {
 
             if (predicate.getKeywordMatchingType() == DataConstants.KeywordMatchingType.SUBSTRING_SCANBASED) {
                 // For Substring matching, create a scan source operator.
-                indexSource = new ScanBasedSourceOperator(dataStore, predicate.getAnalyzer());
+                indexSource = new ScanBasedSourceOperator(dataStore);
                 indexSource.open();
 
                 // Substring matching's output schema needs to contains span
@@ -90,18 +92,17 @@ public class DictionaryMatcherSourceOperator implements ISourceOperator {
                 // For other keyword matching types (conjunction and phrase),
                 // create keyword matcher based on index.
                 KeywordPredicate keywordPredicate = new KeywordPredicate(currentDictionaryEntry,
-                        predicate.getAttributeList(), predicate.getAnalyzer(), predicate.getKeywordMatchingType());
+                        Utils.getAttributeNames(predicate.getAttributeList()),
+                        predicate.getAnalyzer(),
+                        predicate.getKeywordMatchingType());
 
-                IndexBasedSourceOperator indexInputOperator = new IndexBasedSourceOperator(
-                        keywordPredicate.generateDataReaderPredicate(dataStore));
-                keywordMatcher = new KeywordMatcher(keywordPredicate);
-                keywordMatcher.setInputOperator(indexInputOperator);
-                keywordMatcher.open();
+                keywordSource = new KeywordMatcherSourceOperator(keywordPredicate, dataStore);
+                keywordSource.open();
 
                 // Other keyword matching types uses a KeywordMatcher, so the
                 // output schema is the same as keywordMatcher's schema
-                inputSchema = indexInputOperator.getOutputSchema();
-                outputSchema = keywordMatcher.getOutputSchema();
+                inputSchema = keywordSource.getOutputSchema();
+                outputSchema = keywordSource.getOutputSchema();
             }
 
         } catch (Exception e) {
@@ -137,7 +138,7 @@ public class DictionaryMatcherSourceOperator implements ISourceOperator {
      * 
      */
     @Override
-    public ITuple getNextTuple() throws Exception {
+    public ITuple getNextTuple() throws TextDBException {
         if (resultCursor >= limit + offset - 1) {
             return null;
         }
@@ -148,7 +149,7 @@ public class DictionaryMatcherSourceOperator implements ISourceOperator {
 
             while (true) {
                 // If there's result from current keywordMatcher, return it.
-                if ((sourceTuple = keywordMatcher.getNextTuple()) != null) {
+                if ((sourceTuple = keywordSource.getNextTuple()) != null) {
                     resultCursor++;
                     if (resultCursor >= offset) {
                         return sourceTuple;
@@ -170,17 +171,14 @@ public class DictionaryMatcherSourceOperator implements ISourceOperator {
                     keywordMatchingType = KeywordMatchingType.CONJUNCTION_INDEXBASED;
                 }
 
-                keywordMatcher.close();
+                keywordSource.close();
 
                 KeywordPredicate keywordPredicate = new KeywordPredicate(currentDictionaryEntry,
-                        predicate.getAttributeList(), predicate.getAnalyzer(), keywordMatchingType);
+                        Utils.getAttributeNames(predicate.getAttributeList()),
+                        predicate.getAnalyzer(), keywordMatchingType);
 
-                IndexBasedSourceOperator indexInputOperator = new IndexBasedSourceOperator(
-                        keywordPredicate.generateDataReaderPredicate(dataStore));
-                keywordMatcher = new KeywordMatcher(keywordPredicate);
-                keywordMatcher.setInputOperator(indexInputOperator);
-
-                keywordMatcher.open();
+                keywordSource = new KeywordMatcherSourceOperator(keywordPredicate, dataStore);
+                keywordSource.open();
             }
         }
         // Substring matching (based on scan)
@@ -223,7 +221,7 @@ public class DictionaryMatcherSourceOperator implements ISourceOperator {
      * Advance the cursor of dictionary. if reach the end of the dictionary,
      * advance the cursor of tuples and reset dictionary
      */
-    private void advanceDictionaryCursor() throws Exception {
+    private void advanceDictionaryCursor() throws TextDBException {
         if ((currentDictionaryEntry = predicate.getNextDictionaryEntry()) != null) {
             return;
         }
@@ -236,7 +234,7 @@ public class DictionaryMatcherSourceOperator implements ISourceOperator {
      * original dataTuple object, if there's a match, return a new dataTuple
      * with span list added
      */
-    private ITuple computeMatchingResult(String key, ITuple sourceTuple) throws Exception {
+    private ITuple computeMatchingResult(String key, ITuple sourceTuple) throws TextDBException {
 
         List<Attribute> attributeList = predicate.getAttributeList();
         List<Span> matchingResults = new ArrayList<>();
@@ -285,8 +283,8 @@ public class DictionaryMatcherSourceOperator implements ISourceOperator {
     @Override
     public void close() throws DataFlowException {
         try {
-            if (keywordMatcher != null) {
-                keywordMatcher.close();
+            if (keywordSource != null) {
+                keywordSource.close();
             }
             if (indexSource != null) {
                 indexSource.close();
