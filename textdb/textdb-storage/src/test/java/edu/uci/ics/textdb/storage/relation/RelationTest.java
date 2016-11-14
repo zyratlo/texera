@@ -10,7 +10,7 @@ import edu.uci.ics.textdb.api.common.Schema;
 import edu.uci.ics.textdb.api.exception.TextDBException;
 import edu.uci.ics.textdb.common.constants.LuceneAnalyzerConstants;
 
-public class CatalogTest {
+public class RelationTest {
     
     RelationManager relationManager;
     
