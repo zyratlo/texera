@@ -21,7 +21,7 @@ public class RelationManager implements IRelationManager {
     private static volatile RelationManager singletonRelationManager = null;
     
     private RelationManager() throws StorageException {
-        if (! catalogExists()) {
+        if (! checkCatalogExistence()) {
             initializeCollectionCatalog();
             initializeSchemaCatalog();
         }
@@ -137,9 +137,9 @@ public class RelationManager implements IRelationManager {
         return null;
     }
     
-    private static boolean catalogExists() {
-        return DataReader.indexExists(CatalogConstants.COLLECTION_CATALOG_DIRECTORY)
-                && DataReader.indexExists(CatalogConstants.SCHEMA_CATALOG_DIRECTORY);
+    private static boolean checkCatalogExistence() {
+        return DataReader.checkIndexExistence(CatalogConstants.COLLECTION_CATALOG_DIRECTORY)
+                && DataReader.checkIndexExistence(CatalogConstants.SCHEMA_CATALOG_DIRECTORY);
     }
     
 
