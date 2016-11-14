@@ -174,8 +174,34 @@ public class RelationManager implements IRelationManager {
 
     @Override
     public String getTableAnalyzer(String tableName) throws StorageException {
-        // TODO Auto-generated method stub
-        return null;
+        DataStore collectionCatalogStore = new DataStore(CatalogConstants.COLLECTION_CATALOG_DIRECTORY,
+                CatalogConstants.COLLECTION_CATALOG_SCHEMA);
+        DataReaderPredicate scanPredicate = new DataReaderPredicate(new MatchAllDocsQuery(), collectionCatalogStore);
+        scanPredicate.setIsPayloadAdded(false);
+        DataReader collectionCatalogReader = new DataReader(scanPredicate);
+
+        collectionCatalogReader.open();
+        ITuple nextTuple;
+        while ((nextTuple = collectionCatalogReader.getNextTuple()) != null) {
+            IField tableNameField = nextTuple.getField(CatalogConstants.COLLECTION_NAME);
+            // field must not be null
+            if (tableNameField == null) {
+                continue;
+            }
+            // table name must be the same (case insensitive)
+            String tableNameString = tableNameField.getValue().toString();
+            if (! tableNameString.toLowerCase().equals(tableName.toLowerCase())) {
+                continue;
+            }
+            IField analyzerField = nextTuple.getField(CatalogConstants.COLLECTION_LUCENE_ANALYZER);
+            if (analyzerField == null) {
+                break;
+            }
+            return analyzerField.getValue().toString();
+        }
+        collectionCatalogReader.close();
+
+        throw new StorageException(String.format("The analyzer for table %s is not found.", tableName));
     }
     
     private static boolean checkCatalogExistence() {
