@@ -14,6 +14,13 @@ import java.util.List;
  */
 public class ProjectionBuilderTest {
 
+    /**
+     * Tests the generation of a ProjectionOperator with the following properties
+     * attributeNames: city, location, content
+     * limit: 10
+     * offset: 6
+     * @throws PlanGenException
+     */
     @Test
     public void testProjectionBuilder() throws PlanGenException{
 
@@ -26,8 +33,14 @@ public class ProjectionBuilderTest {
         ProjectionOperator projectionOperator = ProjectionBuilder.buildOperator(operatorProperties);
         List<String> attributeNamesList = projectionOperator.getPredicate().getProjectionFields();
         Assert.assertEquals(expectedAttributeNamesList.toString(), attributeNamesList.toString());
+        Assert.assertEquals(10, projectionOperator.getLimit());
+        Assert.assertEquals(6, projectionOperator.getOffset());
     }
 
+    /**
+     * Tests the invalid usage of the ProjectionBuilder
+     * @throws PlanGenException
+     */
     @Test(expected = PlanGenException.class)
     public void testInvalidProjectionBuilder() throws PlanGenException {
         HashMap<String, String> operatorProperties = new HashMap<>();
