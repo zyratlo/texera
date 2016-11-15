@@ -36,7 +36,7 @@ public class ProjectionBuilder {
 
         Integer offsetInt = OperatorBuilderUtils.findOffset(operatorProperties);
         if(offsetInt != null) {
-            projectionOperator.setLimit(offsetInt);
+            projectionOperator.setOffset(offsetInt);
         }
 
         return projectionOperator;
