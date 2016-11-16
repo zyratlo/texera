@@ -16,6 +16,7 @@ import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.common.Schema;
 import edu.uci.ics.textdb.api.exception.TextDBException;
 import edu.uci.ics.textdb.api.storage.IDataReader;
+import edu.uci.ics.textdb.api.storage.IDataStore;
 import edu.uci.ics.textdb.api.storage.IRelationManager;
 import edu.uci.ics.textdb.common.constants.LuceneAnalyzerConstants;
 import edu.uci.ics.textdb.common.constants.SchemaConstants;
@@ -70,23 +71,20 @@ public class RelationManager implements IRelationManager {
         }
         
         Schema tableSchema = Utils.getSchemaWithID(schema);
-        
+                
         // write collection catalog
         DataStore collectionCatalogStore = new DataStore(CatalogConstants.COLLECTION_CATALOG_DIRECTORY,
-                CatalogConstants.COLLECTION_CATALOG_SCHEMA);
-        DataWriter collectionCatalogWriter = new DataWriter(collectionCatalogStore, LuceneAnalyzerConstants.getStandardAnalyzer());
-        collectionCatalogWriter.insertTuple(
+                CatalogConstants.COLLECTION_CATALOG_SCHEMA);      
+        insertTupleToDirectory(collectionCatalogStore, LuceneAnalyzerConstants.getStandardAnalyzer(),
                 CatalogConstants.getCollectionCatalogTuple(tableName, indexDirectory, luceneAnalyzer));
-        
+       
         // write schema catalog
         DataStore schemaCatalogStore = new DataStore(CatalogConstants.SCHEMA_CATALOG_DIRECTORY,
                 CatalogConstants.SCHEMA_CATALOG_SCHEMA);
-        DataWriter schemaCatalogWriter = new DataWriter(schemaCatalogStore, LuceneAnalyzerConstants.getStandardAnalyzer());
-
         for (ITuple tuple : CatalogConstants.getSchemaCatalogTuples(tableName, tableSchema)) {
-            schemaCatalogWriter.insertTuple(tuple);
+            insertTupleToDirectory(schemaCatalogStore, LuceneAnalyzerConstants.getStandardAnalyzer(), tuple);
         }
-                
+        
     }
 
     @Override
@@ -97,13 +95,28 @@ public class RelationManager implements IRelationManager {
 
     @Override
     public IDField insertTuple(String tableName, ITuple tuple) throws TextDBException {
+        if (! checkTableExistence(tableName)) {
+            throw new StorageException(String.format("Table %s doesn't exist.", tableName));
+        }
+        
         String tableDirectory = getTableDirectory(tableName);
         Schema tableSchema = getTableSchema(tableName);
         String tableAnalyzerString = getTableAnalyzer(tableName);
         Analyzer luceneAnalyzer = LuceneAnalyzerConstants.getLuceneAnalyzer(tableAnalyzerString);
+
+        return insertTupleToDirectory(new DataStore(tableDirectory, tableSchema), luceneAnalyzer, tuple);
+    }
+    
+    private IDField insertTupleToDirectory(IDataStore dataStore, Analyzer luceneAnalyzer, ITuple tuple) throws TextDBException {
+        String tableDirectory = dataStore.getDataDirectory();
+        Schema tableSchema = dataStore.getSchema();
         
+        if (! DataReader.checkIndexExistence(tableDirectory)) {
+            throw new StorageException(String.format("Index directory %s doesn't exist.", tableDirectory));
+        }
+                
         if (! tableSchema.containsField(SchemaConstants._ID)) {
-            throw new StorageException(String.format("Table %s doesn't have _id field in its schema.", tableName));
+            throw new StorageException(String.format("Table doesn't have _id field in its schema."));
         }
         
         IDField idField;
@@ -129,7 +142,7 @@ public class RelationManager implements IRelationManager {
         DataWriter dataWriter = new DataWriter(new DataStore(tableDirectory, tableSchema), luceneAnalyzer);
         dataWriter.insertTuple(insertionTuple);
 
-        return idField;
+        return idField;    
     }
 
     @Override
