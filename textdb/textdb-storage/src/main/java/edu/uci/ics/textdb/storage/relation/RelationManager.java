@@ -7,7 +7,10 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.index.Term;
 import org.apache.lucene.search.MatchAllDocsQuery;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.TermQuery;
 
 import edu.uci.ics.textdb.api.common.Attribute;
 import edu.uci.ics.textdb.api.common.FieldType;
@@ -87,8 +90,15 @@ public class RelationManager implements IRelationManager {
 
     @Override
     public void deleteTable(String tableName) throws TextDBException {
-        // TODO Auto-generated method stub
+        Query catalogTableNameQuery = new TermQuery(new Term(CatalogConstants.COLLECTION_NAME, tableName));
         
+        DataWriter collectionCatalogWriter = new DataWriter(CatalogConstants.COLLECTION_CATALOG_DATASTORE, 
+                LuceneAnalyzerConstants.getStandardAnalyzer());
+        collectionCatalogWriter.deleteTuple(catalogTableNameQuery);
+        
+        DataWriter schemaCatalogWriter = new DataWriter(CatalogConstants.SCHEMA_CATALOG_DATASTORE,
+                LuceneAnalyzerConstants.getStandardAnalyzer());
+        schemaCatalogWriter.deleteTuple(catalogTableNameQuery);
     }
 
     @Override
@@ -118,12 +128,8 @@ public class RelationManager implements IRelationManager {
         ITuple insertionTuple = tuple;
         // add "_id" to schema, and add ID field to tuple
         if (! insertionSchema.containsField(SchemaConstants._ID)) {
-            insertionSchema = Utils.getSchemaWithID(insertionSchema);
             idField = new IDField(UUID.randomUUID().toString());
-            List<IField> newTupleFields = new ArrayList<>();
-            newTupleFields.add(idField);
-            newTupleFields.addAll(tuple.getFields());
-            insertionTuple = new DataTuple(insertionSchema, newTupleFields.stream().toArray(IField[]::new));
+            insertionTuple = getTupleWithID(tuple, idField);
         } else {
             idField = (IDField) tuple.getField(SchemaConstants._ID);
         }
@@ -139,21 +145,50 @@ public class RelationManager implements IRelationManager {
     }
 
     @Override
-    public void deleteTuple(String tableName, IField idValue) throws TextDBException {
-        // TODO Auto-generated method stub
+    public void deleteTuple(String tableName, IField idValue) throws TextDBException {        
+        String tableDirectory = getTableDirectory(tableName);
+        Schema tableSchema = getTableSchema(tableName);
+        String tableAnalyzerString = getTableAnalyzer(tableName);
+        Analyzer luceneAnalyzer = LuceneAnalyzerConstants.getLuceneAnalyzer(tableAnalyzerString);
         
+        Query tupleIDQuery = new TermQuery(new Term(SchemaConstants._ID, idValue.getValue().toString()));
+        DataWriter tableDataWriter = new DataWriter(new DataStore(tableDirectory, tableSchema), luceneAnalyzer);
+        tableDataWriter.deleteTuple(tupleIDQuery);        
     }
 
     @Override
     public void updateTuple(String tableName, ITuple newTuple, IField idValue) throws TextDBException {
-        // TODO Auto-generated method stub
+        if (getTuple(tableName, idValue) == null) {
+            throw new StorageException(
+                    String.format("Tuple with id %s doesn't exist in table %s.", idValue, tableName));
+        }
+
+        ITuple newTupleWithID = getTupleWithID(newTuple, (IDField) idValue);
+        if (newTupleWithID.getField(SchemaConstants._ID) != (IDField) idValue) {
+            throw new StorageException("New tuple's ID is inconsistent with idValue.");
+        }
         
+        deleteTuple(tableName, idValue);
+        insertTuple(tableName, newTupleWithID);
     }
 
     @Override
     public ITuple getTuple(String tableName, IField idValue) throws TextDBException {
-        // TODO Auto-generated method stub
-        return null;
+        String tableDirectory = getTableDirectory(tableName);
+        Schema tableSchema = getTableSchema(tableName);
+        
+        Query tupleIDQuery = new TermQuery(new Term(SchemaConstants._ID, idValue.getValue().toString()));
+        DataStore dataStore = new DataStore(tableDirectory, tableSchema);
+        
+        DataReaderPredicate dataReaderPredicate = new DataReaderPredicate(tupleIDQuery, dataStore);
+        dataReaderPredicate.setIsPayloadAdded(false);
+        DataReader dataReader = new DataReader(dataReaderPredicate);
+        
+        dataReader.open(); 
+        ITuple tuple = dataReader.getNextTuple();
+        dataReader.close();
+
+        return tuple;
     }
 
     @Override
@@ -300,6 +335,21 @@ public class RelationManager implements IRelationManager {
         return Stream.of(FieldType.values())
                 .filter(typeStr -> typeStr.toString().toLowerCase().equals(attributeTypeStr.toLowerCase()))
                 .findAny().orElse(null);
-    }    
+    }
+    
+    private static ITuple getTupleWithID(ITuple tuple, IDField _id) {
+        ITuple tupleWithID = tuple;
+        
+        Schema tupleSchema = tuple.getSchema();
+        if (! tupleSchema.containsField(SchemaConstants._ID)) {
+            tupleSchema = Utils.getSchemaWithID(tupleSchema);
+            List<IField> newTupleFields = new ArrayList<>();
+            newTupleFields.add(_id);
+            newTupleFields.addAll(tuple.getFields());
+            tupleWithID = new DataTuple(tupleSchema, newTupleFields.stream().toArray(IField[]::new));
+        }
+        
+        return tupleWithID;
+    }
 
 }
