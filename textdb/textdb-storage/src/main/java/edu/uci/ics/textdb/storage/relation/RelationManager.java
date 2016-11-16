@@ -193,8 +193,9 @@ public class RelationManager implements IRelationManager {
 
     @Override
     public IDataReader scanTable(String tableName) throws TextDBException {
-        // TODO Auto-generated method stub
-        return null;
+        DataStore dataStore = new DataStore(getTableDirectory(tableName), getTableSchema(tableName));
+        DataReader dataReader = new DataReader(DataReaderPredicate.getScanPredicate(dataStore));
+        return dataReader;
     }
 
     @Override
