@@ -23,7 +23,6 @@ import edu.uci.ics.textdb.common.constants.SchemaConstants;
 import edu.uci.ics.textdb.common.exception.StorageException;
 import edu.uci.ics.textdb.common.field.DataTuple;
 import edu.uci.ics.textdb.common.field.IDField;
-import edu.uci.ics.textdb.common.field.StringField;
 import edu.uci.ics.textdb.common.utils.Utils;
 import edu.uci.ics.textdb.storage.DataReaderPredicate;
 import edu.uci.ics.textdb.storage.DataStore;
@@ -34,14 +33,13 @@ public class RelationManager implements IRelationManager {
     
     private static volatile RelationManager singletonRelationManager = null;
     
-    private RelationManager() throws StorageException {
+    private RelationManager() throws TextDBException {
         if (! checkCatalogExistence()) {
-            initializeCollectionCatalog();
-            initializeSchemaCatalog();
+            initializeCatalog();
         }
     }
 
-    public static RelationManager getRelationManager() throws StorageException {
+    public static RelationManager getRelationManager() throws TextDBException {
         if (singletonRelationManager == null) {
             synchronized (RelationManager.class) {
                 if (singletonRelationManager == null) {
@@ -110,16 +108,11 @@ public class RelationManager implements IRelationManager {
     private IDField insertTupleToDirectory(IDataStore dataStore, Analyzer luceneAnalyzer, ITuple tuple) throws TextDBException {
         String tableDirectory = dataStore.getDataDirectory();
         Schema tableSchema = dataStore.getSchema();
-        
-        if (! DataReader.checkIndexExistence(tableDirectory)) {
-            throw new StorageException(String.format("Index directory %s doesn't exist.", tableDirectory));
-        }
+        IDField idField;
                 
         if (! tableSchema.containsField(SchemaConstants._ID)) {
-            throw new StorageException(String.format("Table doesn't have _id field in its schema."));
+            tableSchema = Utils.getSchemaWithID(tableSchema);
         }
-        
-        IDField idField;
         
         Schema insertionSchema = tuple.getSchema();
         ITuple insertionTuple = tuple;
@@ -284,32 +277,17 @@ public class RelationManager implements IRelationManager {
                 && DataReader.checkIndexExistence(CatalogConstants.SCHEMA_CATALOG_DIRECTORY);
     }
     
-
-    /*
-     * Write the initial collection catalog to catalog files.
-     */
-    private static void initializeCollectionCatalog() throws StorageException {
-        DataStore collectionCatalogStore = new DataStore(CatalogConstants.COLLECTION_CATALOG_DIRECTORY,
-                CatalogConstants.COLLECTION_CATALOG_SCHEMA);
-        DataWriter collectionCatalogWriter = new DataWriter(collectionCatalogStore, LuceneAnalyzerConstants.getStandardAnalyzer());
-        collectionCatalogWriter.clearData();
-        for (ITuple tuple : CatalogConstants.getInitialCollectionCatalogTuples()) {
-            collectionCatalogWriter.insertTuple(tuple);
-        }
+    private void initializeCatalog() throws TextDBException {
+        createTable(CatalogConstants.COLLECTION_CATALOG, 
+                CatalogConstants.COLLECTION_CATALOG_DIRECTORY, 
+                CatalogConstants.COLLECTION_CATALOG_SCHEMA,
+                LuceneAnalyzerConstants.standardAnalyzerString());
+        createTable(CatalogConstants.SCHEMA_CATALOG,
+                CatalogConstants.SCHEMA_CATALOG_DIRECTORY,
+                CatalogConstants.SCHEMA_CATALOG_SCHEMA,
+                LuceneAnalyzerConstants.standardAnalyzerString());
     }
-
-    /*
-     * Write the initial schema catalog to catalog files.
-     */
-    private static void initializeSchemaCatalog() throws StorageException {
-        DataStore schemaCatalogStore = new DataStore(CatalogConstants.SCHEMA_CATALOG_DIRECTORY,
-                CatalogConstants.SCHEMA_CATALOG_SCHEMA);
-        DataWriter schemaCatalogWriter = new DataWriter(schemaCatalogStore, LuceneAnalyzerConstants.getStandardAnalyzer());
-        schemaCatalogWriter.clearData();
-        for (ITuple tuple : CatalogConstants.getInitialSchemaCatalogTuples()) {
-            schemaCatalogWriter.insertTuple(tuple);
-        }
-    }
+    
     
     /**
      * This function converts a attributeTypeString to FieldType (case insensitive). 

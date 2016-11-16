@@ -2,22 +2,44 @@ package edu.uci.ics.textdb.storage.relation;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import edu.uci.ics.textdb.api.common.Attribute;
 import edu.uci.ics.textdb.api.common.FieldType;
-import edu.uci.ics.textdb.api.common.IField;
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.common.Schema;
-import edu.uci.ics.textdb.common.constants.LuceneAnalyzerConstants;
 import edu.uci.ics.textdb.common.field.DataTuple;
 import edu.uci.ics.textdb.common.field.IntegerField;
 import edu.uci.ics.textdb.common.field.StringField;
+import edu.uci.ics.textdb.storage.DataStore;
 
 /**
  * CatalogConstants stores the schema and the initial tuples of the catalog manager
+ * 
+ * 
+ * ============================================
+ * 
+ * Initial tuples for the collection catalog:
+ * 
+ *  collectionName    |    collectionDirectory    |    luceneAnalyzer
+ * 
+ * collectionCatalog    ../catalog/collection       standardLuceneAnalyzer
+ *   schemaCatalog      ../catalog/schema           standardLuceneAnalyzer
+ *   
+ * ============================================
+ *   
+ *  Initial tuples for the schema catalog. 
+ *    collectionName    |    attributeName    |  attributeType  |  attributePosition
+ *  
+ *   collectionCatalog       collectionName         string                0
+ *   collectionCatalog    collectionDirectory       string                1
+ *   collectionCatalog       luceneAnalyzer         string                2
+ *     schemaCatalog          collectionName        string                0
+ *     schemaCatalog           attributeName        string                1
+ *     schemaCatalog           attributeType        string                2
+ *     schemaCatalog         attributePosition      string                3
+ *     
+ * ============================================
  * 
  * @author Zuozhi Wang
  *
@@ -29,6 +51,11 @@ public class CatalogConstants {
 
     public static final String COLLECTION_CATALOG_DIRECTORY = "../catalog/collection";
     public static final String SCHEMA_CATALOG_DIRECTORY = "../catalog/schema";
+    
+    public static final DataStore COLLECTION_CATALOG_DATASTORE = 
+            new DataStore(CatalogConstants.COLLECTION_CATALOG_DIRECTORY, CatalogConstants.COLLECTION_CATALOG_SCHEMA);
+    public static final DataStore SCHEMA_CATALOG_DATASTORE = 
+            new DataStore(CatalogConstants.SCHEMA_CATALOG_DIRECTORY, CatalogConstants.SCHEMA_CATALOG_SCHEMA);
 
     // Schema for the "collection catalog" table
     public static final String COLLECTION_NAME = "collectionName";
@@ -56,7 +83,7 @@ public class CatalogConstants {
             ATTR_POSITION_ATTR);
 
     /**
-     * Get the initial tuples for the collection catalog:
+     * Initial tuples for the collection catalog:
      * 
      *  collectionName    |    collectionDirectory    |    luceneAnalyzer
      * 
@@ -64,22 +91,9 @@ public class CatalogConstants {
      *   schemaCatalog      ../catalog/schema           standardLuceneAnalyzer
      * 
      */
-    public static List<ITuple> getInitialCollectionCatalogTuples() {
-        String collectionCatalogDirectoryAbsolute = new File(COLLECTION_CATALOG_DIRECTORY).getAbsolutePath();
-        IField[] collectionFields = { new StringField(COLLECTION_CATALOG), new StringField(collectionCatalogDirectoryAbsolute),
-                new StringField(LuceneAnalyzerConstants.standardAnalyzerString()) };
-        
-        String schemaCatalogDirectoryAbsolute = new File(SCHEMA_CATALOG_DIRECTORY).getAbsolutePath();
-        IField[] schemaFields = { new StringField(SCHEMA_CATALOG), new StringField(schemaCatalogDirectoryAbsolute),
-                new StringField(LuceneAnalyzerConstants.standardAnalyzerString()) };
-
-        List<IField[]> fieldsList = Arrays.asList(collectionFields, schemaFields);
-        return fieldsList.stream().map(fields -> new DataTuple(CatalogConstants.COLLECTION_CATALOG_SCHEMA, fields))
-                .collect(Collectors.toList());
-    }
 
     /**
-     * Get the initial tuples for the schema catalog.
+     * Initial tuples for the schema catalog.
      * 
      *    collectionName    |    attributeName    |  attributeType  |  attributePosition
      *  
@@ -92,32 +106,7 @@ public class CatalogConstants {
      *     schemaCatalog         attributePosition      string                3
      * 
      */
-    public static List<ITuple> getInitialSchemaCatalogTuples() {
-        IField[] collectionNameFields = { new StringField(COLLECTION_CATALOG),
-                new StringField(CatalogConstants.COLLECTION_NAME), new StringField("string"), new IntegerField(0) };
-        IField[] collectionDirectoryFields = { new StringField(COLLECTION_CATALOG),
-                new StringField(CatalogConstants.COLLECTION_DIRECTORY), new StringField("string"), new IntegerField(1) };
-        IField[] collectionLuceneAnalyzerFields = { new StringField(COLLECTION_CATALOG),
-                new StringField(CatalogConstants.COLLECTION_LUCENE_ANALYZER), new StringField("string"),
-                new IntegerField(2) };
-
-        IField[] schemaCollectionNameFields = { new StringField(SCHEMA_CATALOG),
-                new StringField(CatalogConstants.COLLECTION_NAME), new StringField("string"), new IntegerField(0) };
-        IField[] schemaAttrNameFields = { new StringField(SCHEMA_CATALOG), new StringField(CatalogConstants.ATTR_NAME),
-                new StringField("string"), new IntegerField(1) };
-        IField[] schemaAttrTypeFields = { new StringField(SCHEMA_CATALOG), new StringField(CatalogConstants.ATTR_TYPE),
-                new StringField("string"), new IntegerField(2) };
-        IField[] schemaAttrPosFields = { new StringField(SCHEMA_CATALOG),
-                new StringField(CatalogConstants.ATTR_POSITION), new StringField("integer"), new IntegerField(3) };
-
-        List<IField[]> fieldsList = Arrays.asList(collectionNameFields, collectionDirectoryFields,
-                collectionLuceneAnalyzerFields, schemaCollectionNameFields, schemaAttrNameFields, schemaAttrTypeFields,
-                schemaAttrPosFields);
-
-        return fieldsList.stream().map(fields -> new DataTuple(CatalogConstants.SCHEMA_CATALOG_SCHEMA, fields))
-                .collect(Collectors.toList());
-    }
-    
+  
     public static ITuple getCollectionCatalogTuple(String tableName, String tableDirectory, String luceneAnalyzerStr) {
         String tableDirectoryAbsolute = new File(tableDirectory).getAbsolutePath();
         return new DataTuple(COLLECTION_CATALOG_SCHEMA, 

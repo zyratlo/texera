@@ -9,6 +9,7 @@ import org.junit.Test;
 import edu.uci.ics.textdb.api.common.Schema;
 import edu.uci.ics.textdb.api.exception.TextDBException;
 import edu.uci.ics.textdb.common.constants.LuceneAnalyzerConstants;
+import edu.uci.ics.textdb.common.utils.Utils;
 
 public class RelationTest {
     
@@ -35,7 +36,7 @@ public class RelationTest {
         Assert.assertEquals(collectionCatalogDirectory, 
                 new File(CatalogConstants.COLLECTION_CATALOG_DIRECTORY).getAbsolutePath());
         Assert.assertEquals(collectionCatalogLuceneAnalyzer, LuceneAnalyzerConstants.standardAnalyzerString());
-        Assert.assertEquals(collectionCatalogSchema, CatalogConstants.COLLECTION_CATALOG_SCHEMA);
+        Assert.assertEquals(collectionCatalogSchema, Utils.getSchemaWithID(CatalogConstants.COLLECTION_CATALOG_SCHEMA));
     }
     
     /*
@@ -53,7 +54,7 @@ public class RelationTest {
         Assert.assertEquals(schemaCatalogDirectory, 
                 new File(CatalogConstants.SCHEMA_CATALOG_DIRECTORY).getAbsolutePath());
         Assert.assertEquals(schemaCatalogLuceneAnalyzer, LuceneAnalyzerConstants.standardAnalyzerString());
-        Assert.assertEquals(schemaCatalogSchema, CatalogConstants.SCHEMA_CATALOG_SCHEMA);  
+        Assert.assertEquals(schemaCatalogSchema, Utils.getSchemaWithID(CatalogConstants.SCHEMA_CATALOG_SCHEMA));  
     }
     
 }
