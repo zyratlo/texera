@@ -124,17 +124,16 @@ public class RelationManager implements IRelationManager {
             tableSchema = Utils.getSchemaWithID(tableSchema);
         }
         
-        Schema insertionSchema = tuple.getSchema();
         ITuple insertionTuple = tuple;
         // add "_id" to schema, and add ID field to tuple
-        if (! insertionSchema.containsField(SchemaConstants._ID)) {
+        if (! insertionTuple.getSchema().containsField(SchemaConstants._ID)) {
             idField = new IDField(UUID.randomUUID().toString());
             insertionTuple = getTupleWithID(tuple, idField);
         } else {
             idField = (IDField) tuple.getField(SchemaConstants._ID);
         }
-        
-        if (! tableSchema.equals(insertionSchema)) {
+
+        if (! tableSchema.equals(insertionTuple.getSchema())) {
             throw new StorageException("Tuple's schema is inconsistent with table schema.");
         }
         
