@@ -2,9 +2,11 @@ package edu.uci.ics.textdb.storage.relation;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.search.MatchAllDocsQuery;
 
 import edu.uci.ics.textdb.api.common.Attribute;
@@ -16,7 +18,12 @@ import edu.uci.ics.textdb.api.exception.TextDBException;
 import edu.uci.ics.textdb.api.storage.IDataReader;
 import edu.uci.ics.textdb.api.storage.IRelationManager;
 import edu.uci.ics.textdb.common.constants.LuceneAnalyzerConstants;
+import edu.uci.ics.textdb.common.constants.SchemaConstants;
 import edu.uci.ics.textdb.common.exception.StorageException;
+import edu.uci.ics.textdb.common.field.DataTuple;
+import edu.uci.ics.textdb.common.field.IDField;
+import edu.uci.ics.textdb.common.field.StringField;
+import edu.uci.ics.textdb.common.utils.Utils;
 import edu.uci.ics.textdb.storage.DataReaderPredicate;
 import edu.uci.ics.textdb.storage.DataStore;
 import edu.uci.ics.textdb.storage.reader.DataReader;
@@ -62,6 +69,8 @@ public class RelationManager implements IRelationManager {
             throw new StorageException(String.format("Table %s already exists.", tableName));
         }
         
+        Schema tableSchema = Utils.getSchemaWithID(schema);
+        
         // write collection catalog
         DataStore collectionCatalogStore = new DataStore(CatalogConstants.COLLECTION_CATALOG_DIRECTORY,
                 CatalogConstants.COLLECTION_CATALOG_SCHEMA);
@@ -74,7 +83,7 @@ public class RelationManager implements IRelationManager {
                 CatalogConstants.SCHEMA_CATALOG_SCHEMA);
         DataWriter schemaCatalogWriter = new DataWriter(schemaCatalogStore, LuceneAnalyzerConstants.getStandardAnalyzer());
 
-        for (ITuple tuple : CatalogConstants.getSchemaCatalogTuples(tableName, schema)) {
+        for (ITuple tuple : CatalogConstants.getSchemaCatalogTuples(tableName, tableSchema)) {
             schemaCatalogWriter.insertTuple(tuple);
         }
                 
@@ -87,9 +96,40 @@ public class RelationManager implements IRelationManager {
     }
 
     @Override
-    public IField insertTuple(String tableName, ITuple tuple) throws TextDBException {
-        // TODO Auto-generated method stub
-        return null;
+    public IDField insertTuple(String tableName, ITuple tuple) throws TextDBException {
+        String tableDirectory = getTableDirectory(tableName);
+        Schema tableSchema = getTableSchema(tableName);
+        String tableAnalyzerString = getTableAnalyzer(tableName);
+        Analyzer luceneAnalyzer = LuceneAnalyzerConstants.getLuceneAnalyzer(tableAnalyzerString);
+        
+        if (! tableSchema.containsField(SchemaConstants._ID)) {
+            throw new StorageException(String.format("Table %s doesn't have _id field in its schema.", tableName));
+        }
+        
+        IDField idField;
+        
+        Schema insertionSchema = tuple.getSchema();
+        ITuple insertionTuple = tuple;
+        // add "_id" to schema, and add ID field to tuple
+        if (! insertionSchema.containsField(SchemaConstants._ID)) {
+            insertionSchema = Utils.getSchemaWithID(insertionSchema);
+            idField = new IDField(UUID.randomUUID().toString());
+            List<IField> newTupleFields = new ArrayList<>();
+            newTupleFields.add(idField);
+            newTupleFields.addAll(tuple.getFields());
+            insertionTuple = new DataTuple(insertionSchema, newTupleFields.stream().toArray(IField[]::new));
+        } else {
+            idField = (IDField) tuple.getField(SchemaConstants._ID);
+        }
+        
+        if (! tableSchema.equals(insertionSchema)) {
+            throw new StorageException("Tuple's schema is inconsistent with table schema.");
+        }
+        
+        DataWriter dataWriter = new DataWriter(new DataStore(tableDirectory, tableSchema), luceneAnalyzer);
+        dataWriter.insertTuple(insertionTuple);
+
+        return idField;
     }
 
     @Override

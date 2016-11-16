@@ -141,6 +141,23 @@ public class Utils {
                 .map(attr -> attr.getFieldName())
                 .collect(Collectors.toList());
     }
+    
+    /**
+     * Create a new schema object, with "_ID" attribute added to the front.
+     * 
+     * @param schema
+     * @return
+     */
+    public static Schema getSchemaWithID(Schema schema) {
+        if (schema.containsField(SchemaConstants._ID)) {
+            return schema;
+        }
+        
+        List<Attribute> attributeList = new ArrayList<>();
+        attributeList.add(SchemaConstants._ID_ATTRIBUTE);
+        attributeList.addAll(schema.getAttributes());
+        return new Schema(attributeList.stream().toArray(Attribute[]::new));      
+    }
 
     /**
      *
