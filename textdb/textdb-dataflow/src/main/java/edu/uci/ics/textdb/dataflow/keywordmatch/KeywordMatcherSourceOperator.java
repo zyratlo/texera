@@ -56,8 +56,8 @@ public class KeywordMatcherSourceOperator extends AbstractSingleInputOperator im
         // generate dataReader
         Query luceneQuery = createLuceneQueryObject();
         DataReaderPredicate dataReaderPredicate = new DataReaderPredicate(
-                luceneQuery, dataStore, this.predicate.getLuceneAnalyzer());
-        dataReaderPredicate.setIsSpanInformationAdded(true);
+                luceneQuery, dataStore);
+        dataReaderPredicate.setIsPayloadAdded(true);
         dataReader = new DataReader(dataReaderPredicate);
         
         // generate KeywordMatcher
@@ -80,6 +80,11 @@ public class KeywordMatcherSourceOperator extends AbstractSingleInputOperator im
     @Override
     protected ITuple computeNextMatchingTuple() throws TextDBException {
         return this.keywordMatcher.getNextTuple();
+    }
+
+    @Override
+    public ITuple processOneInputTuple(ITuple inputTuple) throws TextDBException {
+        return this.keywordMatcher.processOneInputTuple(inputTuple);
     }
 
     @Override

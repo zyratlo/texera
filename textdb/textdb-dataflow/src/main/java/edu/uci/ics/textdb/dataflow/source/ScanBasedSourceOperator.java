@@ -2,9 +2,6 @@ package edu.uci.ics.textdb.dataflow.source;
 
 import edu.uci.ics.textdb.api.exception.TextDBException;
 
-import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.search.MatchAllDocsQuery;
-
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.common.Schema;
 import edu.uci.ics.textdb.api.dataflow.ISourceOperator;
@@ -20,20 +17,19 @@ import edu.uci.ics.textdb.storage.reader.DataReader;
 public class ScanBasedSourceOperator implements ISourceOperator {
 
     private IDataStore dataStore;
-    private Analyzer luceneAnalyzer;
     
     private IDataReader dataReader;
 
-    public ScanBasedSourceOperator(IDataStore dataStore, Analyzer luceneAnalyzer) throws DataFlowException {
+    public ScanBasedSourceOperator(IDataStore dataStore) throws DataFlowException {
         this.dataStore = dataStore;
-        this.luceneAnalyzer = luceneAnalyzer;
     }
 
     @Override
     public void open() throws TextDBException {
         try {
-            DataReaderPredicate predicate = new DataReaderPredicate(
-                    new MatchAllDocsQuery(), dataStore, luceneAnalyzer);
+            DataReaderPredicate predicate = DataReaderPredicate.getScanPredicate(dataStore);
+            // TODO add an option to set if payload is added in the future.
+            predicate.setIsPayloadAdded(false);
             this.dataReader = new DataReader(predicate);
             this.dataReader.open();
         } catch (Exception e) {

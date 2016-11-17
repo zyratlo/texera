@@ -24,7 +24,7 @@ public class DataReaderPredicateTest {
         QueryParser luceneQueryParser = new QueryParser(TestConstants.ATTRIBUTES_PEOPLE[0].getFieldName(),
                 new StandardAnalyzer());
         luceneQuery = luceneQueryParser.parse(DataConstants.SCAN_QUERY);
-        dataReaderPredicate = new DataReaderPredicate(luceneQuery, dataStore, new StandardAnalyzer());
+        dataReaderPredicate = new DataReaderPredicate(luceneQuery, dataStore);
     }
 
     @Test

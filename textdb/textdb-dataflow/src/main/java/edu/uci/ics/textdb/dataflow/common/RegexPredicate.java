@@ -64,8 +64,8 @@ public class RegexPredicate implements IPredicate {
             throw new DataFlowException(e.getMessage(), e);
         }
         
-        DataReaderPredicate predicate = new DataReaderPredicate(luceneQuery, dataStore, luceneAnalyzer);
-        predicate.setIsSpanInformationAdded(false);
+        DataReaderPredicate predicate = new DataReaderPredicate(luceneQuery, dataStore);
+        predicate.setIsPayloadAdded(false);
         return predicate;
     }
     
