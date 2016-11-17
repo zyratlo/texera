@@ -34,7 +34,7 @@ public class RelationTest {
                 relationManager.getTableSchema(CatalogConstants.COLLECTION_CATALOG);
                 
         Assert.assertEquals(collectionCatalogDirectory, 
-                new File(CatalogConstants.COLLECTION_CATALOG_DIRECTORY).getAbsolutePath());
+                new File(CatalogConstants.COLLECTION_CATALOG_DIRECTORY).getCanonicalPath());
         Assert.assertEquals(collectionCatalogLuceneAnalyzer, LuceneAnalyzerConstants.standardAnalyzerString());
         Assert.assertEquals(collectionCatalogSchema, Utils.getSchemaWithID(CatalogConstants.COLLECTION_CATALOG_SCHEMA));
     }
@@ -52,7 +52,7 @@ public class RelationTest {
                 relationManager.getTableSchema(CatalogConstants.SCHEMA_CATALOG);
         
         Assert.assertEquals(schemaCatalogDirectory, 
-                new File(CatalogConstants.SCHEMA_CATALOG_DIRECTORY).getAbsolutePath());
+                new File(CatalogConstants.SCHEMA_CATALOG_DIRECTORY).getCanonicalPath());
         Assert.assertEquals(schemaCatalogLuceneAnalyzer, LuceneAnalyzerConstants.standardAnalyzerString());
         Assert.assertEquals(schemaCatalogSchema, Utils.getSchemaWithID(CatalogConstants.SCHEMA_CATALOG_SCHEMA));  
     }

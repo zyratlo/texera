@@ -1,6 +1,7 @@
 package edu.uci.ics.textdb.storage.relation;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,6 +9,7 @@ import edu.uci.ics.textdb.api.common.Attribute;
 import edu.uci.ics.textdb.api.common.FieldType;
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.common.Schema;
+import edu.uci.ics.textdb.common.exception.StorageException;
 import edu.uci.ics.textdb.common.field.DataTuple;
 import edu.uci.ics.textdb.common.field.IntegerField;
 import edu.uci.ics.textdb.common.field.StringField;
@@ -107,12 +109,18 @@ public class CatalogConstants {
      * 
      */
   
-    public static ITuple getCollectionCatalogTuple(String tableName, String tableDirectory, String luceneAnalyzerStr) {
-        String tableDirectoryAbsolute = new File(tableDirectory).getAbsolutePath();
-        return new DataTuple(COLLECTION_CATALOG_SCHEMA, 
-                new StringField(tableName), 
-                new StringField(tableDirectoryAbsolute),
-                new StringField(luceneAnalyzerStr));
+    public static ITuple getCollectionCatalogTuple(String tableName, String tableDirectory, String luceneAnalyzerStr) 
+            throws StorageException {
+        try {
+            String tableDirectoryAbsolute = new File(tableDirectory).getCanonicalPath();
+            return new DataTuple(COLLECTION_CATALOG_SCHEMA, 
+                    new StringField(tableName), 
+                    new StringField(tableDirectoryAbsolute),
+                    new StringField(luceneAnalyzerStr));
+        } catch (IOException e) {
+            throw new StorageException(String.format("Error occurs when getting the canonical path of %s.", tableDirectory));
+        }
+
     }
     
     public static List<ITuple> getSchemaCatalogTuples(String tableName, Schema tableSchema) {
