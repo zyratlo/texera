@@ -16,8 +16,8 @@ public class LingpipeExample {
 
     public static void main(String[] args) throws Exception {
   
-        String model = "./lingpipe-resources/ne-en-bio-genetag.HmmChunker";
-        String dataFile = "./lingpipe-resources/abstract_100.txt";
+        String model = "./src/main/resources/ne-en-bio-genetag.HmmChunker";
+        String dataFile = "./src/main/resources/abstract_100.txt";
         File modelFile = new File(model);
         System.out.println("Reading chunker from file=" + modelFile);
         Chunker chunker 
@@ -28,7 +28,7 @@ public class LingpipeExample {
             scan = new Scanner(new File(dataFile));
             
         } catch (FileNotFoundException e) {
-            // TODO Auto-generated catch block
+
             e.printStackTrace();
         }
         
@@ -49,6 +49,10 @@ public class LingpipeExample {
                 results++;
             }
             System.out.println("\n");
+        }
+        
+        if(scan != null) {
+            scan.close();
         }
         
         long endTime = System.currentTimeMillis();

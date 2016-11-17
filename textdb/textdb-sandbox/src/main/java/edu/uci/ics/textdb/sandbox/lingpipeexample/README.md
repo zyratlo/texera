@@ -1,5 +1,5 @@
 Step 1 - Models
-You need a already trained model.
+You need a trained model.
 
 Some Lingpipe models are available at 
 http://alias-i.com/lingpipe/web/models.html
