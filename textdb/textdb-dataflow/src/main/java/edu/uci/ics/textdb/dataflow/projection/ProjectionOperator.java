@@ -62,5 +62,7 @@ public class ProjectionOperator extends AbstractSingleInputOperator {
     protected void cleanUp() throws DataFlowException {        
     }
 
-    
+    public ProjectionPredicate getPredicate() {
+        return predicate;
+    }
 }
