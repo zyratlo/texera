@@ -23,14 +23,8 @@ public class LingpipeExample {
         Chunker chunker 
             = (Chunker) AbstractExternalizable.readObject(modelFile);
         
-        Scanner scan = null;
-        try {
-            scan = new Scanner(new File(dataFile));
-            
-        } catch (FileNotFoundException e) {
+        Scanner scan = new Scanner(new File(dataFile));
 
-            e.printStackTrace();
-        }
         
         int results = 0;
         long startTime = System.currentTimeMillis();
