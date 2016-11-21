@@ -107,12 +107,11 @@ public class RelationManager implements IRelationManager {
             throw new StorageException(String.format("Table %s doesn't exist.", tableName));
         }
         
-        String tableDirectory = getTableDirectory(tableName);
-        Schema tableSchema = getTableSchema(tableName);
+        DataStore tableDataStore = getTableDataStore(tableName);
         String tableAnalyzerString = getTableAnalyzer(tableName);
         Analyzer luceneAnalyzer = LuceneAnalyzerConstants.getLuceneAnalyzer(tableAnalyzerString);
 
-        return insertTupleToDirectory(new DataStore(tableDirectory, tableSchema), luceneAnalyzer, tuple);
+        return insertTupleToDirectory(tableDataStore, luceneAnalyzer, tuple);
     }
     
     private IDField insertTupleToDirectory(IDataStore dataStore, Analyzer luceneAnalyzer, ITuple tuple) throws TextDBException {
@@ -145,13 +144,12 @@ public class RelationManager implements IRelationManager {
 
     @Override
     public void deleteTuple(String tableName, IField idValue) throws TextDBException {        
-        String tableDirectory = getTableDirectory(tableName);
-        Schema tableSchema = getTableSchema(tableName);
+        DataStore tableDataStore = getTableDataStore(tableName);
         String tableAnalyzerString = getTableAnalyzer(tableName);
         Analyzer luceneAnalyzer = LuceneAnalyzerConstants.getLuceneAnalyzer(tableAnalyzerString);
         
         Query tupleIDQuery = new TermQuery(new Term(SchemaConstants._ID, idValue.getValue().toString()));
-        DataWriter tableDataWriter = new DataWriter(new DataStore(tableDirectory, tableSchema), luceneAnalyzer);
+        DataWriter tableDataWriter = new DataWriter(tableDataStore, luceneAnalyzer);
         tableDataWriter.deleteTuple(tupleIDQuery);        
     }
 
@@ -173,13 +171,11 @@ public class RelationManager implements IRelationManager {
 
     @Override
     public ITuple getTuple(String tableName, IField idValue) throws TextDBException {
-        String tableDirectory = getTableDirectory(tableName);
-        Schema tableSchema = getTableSchema(tableName);
+        DataStore tableDataStore = getTableDataStore(tableName);
         
         Query tupleIDQuery = new TermQuery(new Term(SchemaConstants._ID, idValue.getValue().toString()));
-        DataStore dataStore = new DataStore(tableDirectory, tableSchema);
         
-        DataReaderPredicate dataReaderPredicate = new DataReaderPredicate(tupleIDQuery, dataStore);
+        DataReaderPredicate dataReaderPredicate = new DataReaderPredicate(tupleIDQuery, tableDataStore);
         dataReaderPredicate.setIsPayloadAdded(false);
         DataReader dataReader = new DataReader(dataReaderPredicate);
         
@@ -192,9 +188,15 @@ public class RelationManager implements IRelationManager {
 
     @Override
     public IDataReader scanTable(String tableName) throws TextDBException {
-        DataStore dataStore = new DataStore(getTableDirectory(tableName), getTableSchema(tableName));
-        DataReader dataReader = new DataReader(DataReaderPredicate.getScanPredicate(dataStore));
+        DataStore tableDataStore = getTableDataStore(tableName);
+        DataReader dataReader = new DataReader(DataReaderPredicate.getScanPredicate(tableDataStore));
         return dataReader;
+    }
+    
+    public DataStore getTableDataStore(String tableName) throws TextDBException {
+        String tableDirectory = getTableDirectory(tableName);
+        Schema tableSchema = getTableSchema(tableName);
+        return new DataStore(tableDirectory, tableSchema);
     }
 
     @Override
