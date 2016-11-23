@@ -34,6 +34,20 @@ var main = function(){
     $('.icon-menu').click(openMenu);
 	
     $('.icon-close').click(closeMenu);
+	
+	$('.menu ul li').on('click', function() {
+		
+		var panelToShow = $(this).attr('rel');
+		var oldPanel = $('.panel.active').attr('id');
+		
+		$('li.active').removeClass('active');
+		$('.panel.active').removeClass('active');
+		
+		if (oldPanel != panelToShow){
+			$(this).addClass('active');
+			$('#' + panelToShow).addClass('active');
+		}		
+	});
 };
 
 $(document).ready(main);
