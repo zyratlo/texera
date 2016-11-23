@@ -46,7 +46,7 @@ body {
   cursor: pointer;
 }
 
-.blank-matcher{
+.blank-operator{
 	border: 0px;
 	height: 50px;
 	cursor: default;
