@@ -64,7 +64,7 @@ public class RelationTest {
      * Create a table and test if table's information can be retrieved successfully.
      */
     @Test
-    public void test3() throws Exception {
+    public void test3() throws Exception {        
         String collectionName = "relation_manager_test_collection_1";
         String collectionDirectory = "./index/test_collection_1/";
         Schema collectionSchema = new Schema(
@@ -74,6 +74,9 @@ public class RelationTest {
         String collectionLuceneAnalyzer = LuceneAnalyzerConstants.standardAnalyzerString();
         
         RelationManager relationManager = RelationManager.getRelationManager();
+        
+        relationManager.deleteTable(collectionName);
+        
         relationManager.createTable(
                 collectionName, collectionDirectory, collectionSchema, collectionLuceneAnalyzer);
         
@@ -130,6 +133,9 @@ public class RelationTest {
         
         // create tables
         for (int i = 0; i < NUM_OF_LOOPS; i++) {
+            // delete previously inserted tables first
+            relationManager.deleteTable(
+                    collectionName + '_' + i);
             relationManager.createTable(
                     collectionName + '_' + i,
                     collectionDirectory + '_' + i, 
