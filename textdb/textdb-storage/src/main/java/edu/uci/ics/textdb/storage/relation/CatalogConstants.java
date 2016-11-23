@@ -84,31 +84,7 @@ public class CatalogConstants {
     public static final Schema SCHEMA_CATALOG_SCHEMA = new Schema(COLLECTION_NAME_ATTR, ATTR_NAME_ATTR, ATTR_TYPE_ATTR,
             ATTR_POSITION_ATTR);
 
-    /**
-     * Initial tuples for the collection catalog:
-     * 
-     *  collectionName    |    collectionDirectory    |    luceneAnalyzer
-     * 
-     * collectionCatalog    ../catalog/collection       standardLuceneAnalyzer
-     *   schemaCatalog      ../catalog/schema           standardLuceneAnalyzer
-     * 
-     */
 
-    /**
-     * Initial tuples for the schema catalog.
-     * 
-     *    collectionName    |    attributeName    |  attributeType  |  attributePosition
-     *  
-     *   collectionCatalog       collectionName         string                0
-     *   collectionCatalog    collectionDirectory       string                1
-     *   collectionCatalog       luceneAnalyzer         string                2
-     *     schemaCatalog          collectionName        string                0
-     *     schemaCatalog           attributeName        string                1
-     *     schemaCatalog           attributeType        string                2
-     *     schemaCatalog         attributePosition      string                3
-     * 
-     */
-  
     public static ITuple getCollectionCatalogTuple(String tableName, String tableDirectory, String luceneAnalyzerStr) 
             throws StorageException {
         try {

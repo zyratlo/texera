@@ -17,12 +17,11 @@ import edu.uci.ics.textdb.api.common.FieldType;
 import edu.uci.ics.textdb.api.common.IField;
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.common.Schema;
-import edu.uci.ics.textdb.api.exception.TextDBException;
 import edu.uci.ics.textdb.api.storage.IDataReader;
 import edu.uci.ics.textdb.api.storage.IDataStore;
-import edu.uci.ics.textdb.api.storage.IRelationManager;
 import edu.uci.ics.textdb.common.constants.LuceneAnalyzerConstants;
 import edu.uci.ics.textdb.common.constants.SchemaConstants;
+import edu.uci.ics.textdb.common.exception.DataFlowException;
 import edu.uci.ics.textdb.common.exception.StorageException;
 import edu.uci.ics.textdb.common.field.DataTuple;
 import edu.uci.ics.textdb.common.field.IDField;
@@ -32,17 +31,17 @@ import edu.uci.ics.textdb.storage.DataStore;
 import edu.uci.ics.textdb.storage.reader.DataReader;
 import edu.uci.ics.textdb.storage.writer.DataWriter;
 
-public class RelationManager implements IRelationManager {
+public class RelationManager {
     
     private static volatile RelationManager singletonRelationManager = null;
     
-    private RelationManager() throws TextDBException {
+    private RelationManager() throws StorageException {
         if (! checkCatalogExistence()) {
             initializeCatalog();
         }
     }
 
-    public static RelationManager getRelationManager() throws TextDBException {
+    public static RelationManager getRelationManager() throws StorageException {
         if (singletonRelationManager == null) {
             synchronized (RelationManager.class) {
                 if (singletonRelationManager == null) {
@@ -53,7 +52,6 @@ public class RelationManager implements IRelationManager {
         return singletonRelationManager;
     }
 
-    @Override
     public boolean checkTableExistence(String tableName) {
         try {
             String tableDirectory = getTableDirectory(tableName);
@@ -63,9 +61,9 @@ public class RelationManager implements IRelationManager {
         }
     }
 
-    @Override
+    // create a new table, tableName must be unique
     public void createTable(String tableName, String indexDirectory, Schema schema, String luceneAnalyzer)
-            throws TextDBException {
+            throws StorageException {
         // table should not exist
         if (checkTableExistence(tableName)) {
             throw new StorageException(String.format("Table %s already exists.", tableName));
@@ -88,8 +86,8 @@ public class RelationManager implements IRelationManager {
         
     }
 
-    @Override
-    public void deleteTable(String tableName) throws TextDBException {
+    // drop a table
+    public void deleteTable(String tableName) throws StorageException {
         Query catalogTableNameQuery = new TermQuery(new Term(CatalogConstants.COLLECTION_NAME, tableName));
         
         DataWriter collectionCatalogWriter = new DataWriter(CatalogConstants.COLLECTION_CATALOG_DATASTORE, 
@@ -101,20 +99,23 @@ public class RelationManager implements IRelationManager {
         schemaCatalogWriter.deleteTuple(catalogTableNameQuery);
     }
 
-    @Override
-    public IDField insertTuple(String tableName, ITuple tuple) throws TextDBException {
+    // insert a tuple to a table, returns the ID field
+    public IDField insertTuple(String tableName, ITuple tuple) throws StorageException {
         if (! checkTableExistence(tableName)) {
             throw new StorageException(String.format("Table %s doesn't exist.", tableName));
         }
-        
-        DataStore tableDataStore = getTableDataStore(tableName);
-        String tableAnalyzerString = getTableAnalyzer(tableName);
-        Analyzer luceneAnalyzer = LuceneAnalyzerConstants.getLuceneAnalyzer(tableAnalyzerString);
+        try {
+            DataStore tableDataStore = getTableDataStore(tableName);
+            String tableAnalyzerString = getTableAnalyzer(tableName);
+            Analyzer luceneAnalyzer = LuceneAnalyzerConstants.getLuceneAnalyzer(tableAnalyzerString);
 
-        return insertTupleToDirectory(tableDataStore, luceneAnalyzer, tuple);
+            return insertTupleToDirectory(tableDataStore, luceneAnalyzer, tuple);
+        } catch (DataFlowException e) {
+            throw new StorageException(e);
+        }
     }
     
-    private IDField insertTupleToDirectory(IDataStore dataStore, Analyzer luceneAnalyzer, ITuple tuple) throws TextDBException {
+    private IDField insertTupleToDirectory(IDataStore dataStore, Analyzer luceneAnalyzer, ITuple tuple) throws StorageException {
         String tableDirectory = dataStore.getDataDirectory();
         Schema tableSchema = dataStore.getSchema();
         IDField idField;
@@ -142,19 +143,23 @@ public class RelationManager implements IRelationManager {
         return idField;    
     }
 
-    @Override
-    public void deleteTuple(String tableName, IField idValue) throws TextDBException {        
-        DataStore tableDataStore = getTableDataStore(tableName);
-        String tableAnalyzerString = getTableAnalyzer(tableName);
-        Analyzer luceneAnalyzer = LuceneAnalyzerConstants.getLuceneAnalyzer(tableAnalyzerString);
-        
-        Query tupleIDQuery = new TermQuery(new Term(SchemaConstants._ID, idValue.getValue().toString()));
-        DataWriter tableDataWriter = new DataWriter(tableDataStore, luceneAnalyzer);
-        tableDataWriter.deleteTuple(tupleIDQuery);        
+    // delete a tuple by its id
+    public void deleteTuple(String tableName, IField idValue) throws StorageException {
+        try {
+            DataStore tableDataStore = getTableDataStore(tableName);
+            String tableAnalyzerString = getTableAnalyzer(tableName);
+            Analyzer luceneAnalyzer = LuceneAnalyzerConstants.getLuceneAnalyzer(tableAnalyzerString);
+            
+            Query tupleIDQuery = new TermQuery(new Term(SchemaConstants._ID, idValue.getValue().toString()));
+            DataWriter tableDataWriter = new DataWriter(tableDataStore, luceneAnalyzer);
+            tableDataWriter.deleteTuple(tupleIDQuery);   
+        } catch (DataFlowException e) {
+            throw new StorageException(e);
+        }   
     }
 
-    @Override
-    public void updateTuple(String tableName, ITuple newTuple, IField idValue) throws TextDBException {
+    // update a tuple by its id
+    public void updateTuple(String tableName, ITuple newTuple, IField idValue) throws StorageException {
         if (getTuple(tableName, idValue) == null) {
             throw new StorageException(
                     String.format("Tuple with id %s doesn't exist in table %s.", idValue, tableName));
@@ -169,8 +174,8 @@ public class RelationManager implements IRelationManager {
         insertTuple(tableName, newTupleWithID);
     }
 
-    @Override
-    public ITuple getTuple(String tableName, IField idValue) throws TextDBException {
+    // get a tuple by its id
+    public ITuple getTuple(String tableName, IField idValue) throws StorageException {
         DataStore tableDataStore = getTableDataStore(tableName);
         
         Query tupleIDQuery = new TermQuery(new Term(SchemaConstants._ID, idValue.getValue().toString()));
@@ -186,20 +191,21 @@ public class RelationManager implements IRelationManager {
         return tuple;
     }
 
-    @Override
-    public IDataReader scanTable(String tableName) throws TextDBException {
+    // get the dataReader to scan a table
+    public IDataReader scanTable(String tableName) throws StorageException {
         DataStore tableDataStore = getTableDataStore(tableName);
         DataReader dataReader = new DataReader(DataReaderPredicate.getScanPredicate(tableDataStore));
         return dataReader;
     }
     
-    public DataStore getTableDataStore(String tableName) throws TextDBException {
+    // get the table's DataStore
+    public DataStore getTableDataStore(String tableName) throws StorageException {
         String tableDirectory = getTableDirectory(tableName);
         Schema tableSchema = getTableSchema(tableName);
         return new DataStore(tableDirectory, tableSchema);
     }
 
-    @Override
+    // get the table's Directory
     public String getTableDirectory(String tableName) throws StorageException {
         DataStore collectionCatalogStore = new DataStore(CatalogConstants.COLLECTION_CATALOG_DIRECTORY,
                 CatalogConstants.COLLECTION_CATALOG_SCHEMA);
@@ -231,7 +237,7 @@ public class RelationManager implements IRelationManager {
         throw new StorageException(String.format("The directory for table %s is not found.", tableName));
     }
 
-    @Override
+    // get the table's schema
     public Schema getTableSchema(String tableName) throws StorageException {
         DataStore schemaCatalogStore = new DataStore(CatalogConstants.SCHEMA_CATALOG_DIRECTORY,
                 CatalogConstants.SCHEMA_CATALOG_SCHEMA);
@@ -277,7 +283,7 @@ public class RelationManager implements IRelationManager {
         return new Schema(collectionSchemaData.stream().toArray(Attribute[]::new));
     }
 
-    @Override
+    // get the table's lucene analyzer
     public String getTableAnalyzer(String tableName) throws StorageException {
         DataStore collectionCatalogStore = new DataStore(CatalogConstants.COLLECTION_CATALOG_DIRECTORY,
                 CatalogConstants.COLLECTION_CATALOG_SCHEMA);
@@ -314,7 +320,7 @@ public class RelationManager implements IRelationManager {
                 && DataReader.checkIndexExistence(CatalogConstants.SCHEMA_CATALOG_DIRECTORY);
     }
     
-    private void initializeCatalog() throws TextDBException {
+    private void initializeCatalog() throws StorageException {
         createTable(CatalogConstants.COLLECTION_CATALOG, 
                 CatalogConstants.COLLECTION_CATALOG_DIRECTORY, 
                 CatalogConstants.COLLECTION_CATALOG_SCHEMA,
