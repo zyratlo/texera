@@ -54,8 +54,8 @@ public class RelationManager {
 
     public boolean checkTableExistence(String tableName) {
         try {
-            String tableDirectory = getTableDirectory(tableName);
-            return DataReader.checkIndexExistence(tableDirectory);
+            getTableDirectory(tableName);
+            return true;
         } catch (StorageException e) {
             return false;
         }
@@ -159,7 +159,7 @@ public class RelationManager {
     }
 
     // update a tuple by its id
-    public void updateTuple(String tableName, ITuple newTuple, IField idValue) throws StorageException {
+    public void updateTuple(String tableName, ITuple newTuple, IDField idValue) throws StorageException {
         if (getTuple(tableName, idValue) == null) {
             throw new StorageException(
                     String.format("Tuple with id %s doesn't exist in table %s.", idValue, tableName));
@@ -175,7 +175,7 @@ public class RelationManager {
     }
 
     // get a tuple by its id
-    public ITuple getTuple(String tableName, IField idValue) throws StorageException {
+    public ITuple getTuple(String tableName, IDField idValue) throws StorageException {
         DataStore tableDataStore = getTableDataStore(tableName);
         
         Query tupleIDQuery = new TermQuery(new Term(SchemaConstants._ID, idValue.getValue().toString()));

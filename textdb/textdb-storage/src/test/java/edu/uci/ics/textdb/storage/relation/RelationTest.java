@@ -8,10 +8,14 @@ import org.junit.Test;
 
 import edu.uci.ics.textdb.api.common.Attribute;
 import edu.uci.ics.textdb.api.common.FieldType;
+import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.common.Schema;
 import edu.uci.ics.textdb.api.exception.TextDBException;
 import edu.uci.ics.textdb.common.constants.LuceneAnalyzerConstants;
 import edu.uci.ics.textdb.common.exception.StorageException;
+import edu.uci.ics.textdb.common.field.DataTuple;
+import edu.uci.ics.textdb.common.field.IDField;
+import edu.uci.ics.textdb.common.field.StringField;
 import edu.uci.ics.textdb.common.utils.Utils;
 
 public class RelationTest {
@@ -68,7 +72,7 @@ public class RelationTest {
         String collectionName = "relation_manager_test_collection_1";
         String collectionDirectory = "./index/test_collection_1/";
         Schema collectionSchema = new Schema(
-                new Attribute("id", FieldType.INTEGER), new Attribute("city", FieldType.STRING),
+                new Attribute("city", FieldType.STRING),
                 new Attribute("description", FieldType.TEXT), new Attribute("tax rate", FieldType.DOUBLE),
                 new Attribute("population", FieldType.INTEGER), new Attribute("record time", FieldType.DATE));
         String collectionLuceneAnalyzer = LuceneAnalyzerConstants.standardAnalyzerString();
@@ -124,11 +128,11 @@ public class RelationTest {
         String collectionName = "relation_manager_test_collection";
         String collectionDirectory = "./index/test_collection";
         Schema collectionSchema = new Schema(
-                new Attribute("id", FieldType.INTEGER), new Attribute("city", FieldType.STRING),
+                new Attribute("city", FieldType.STRING),
                 new Attribute("description", FieldType.TEXT), new Attribute("tax rate", FieldType.DOUBLE),
                 new Attribute("population", FieldType.INTEGER), new Attribute("record time", FieldType.DATE));
         
-        int NUM_OF_LOOPS = 20;
+        int NUM_OF_LOOPS = 10;
         RelationManager relationManager = RelationManager.getRelationManager();
         
         // create tables
@@ -164,6 +168,79 @@ public class RelationTest {
             }
         }
         Assert.assertEquals(NUM_OF_LOOPS, errorCount);
+    }
+    
+    /*
+     * Test inserting a tuple to a table and then delete it 
+     */
+    @Test
+    public void test8() throws Exception {
+        String collectionName = "relation_manager_test_collection";
+        String collectionDirectory = "./index/test_collection";
+        Schema collectionSchema = new Schema(
+                new Attribute("content", FieldType.STRING));
+        
+        RelationManager relationManager = RelationManager.getRelationManager();
+        
+        relationManager.deleteTable(collectionName);
+        relationManager.createTable(
+                collectionName, collectionDirectory, collectionSchema, LuceneAnalyzerConstants.standardAnalyzerString());
+        
+        ITuple insertedTuple = new DataTuple(collectionSchema, new StringField("test"));
+        IDField idField = relationManager.insertTuple(collectionName, insertedTuple);
+        
+        ITuple returnedTuple = relationManager.getTuple(collectionName, idField);
+        
+        Assert.assertEquals(insertedTuple.getField("content").getValue().toString(), 
+                returnedTuple.getField("content").getValue().toString());
+        
+        relationManager.deleteTuple(collectionName, idField);
+        
+        ITuple deletedTuple = relationManager.getTuple(collectionName, idField);
+        // should not reach next line because of exception
+        Assert.assertNull(deletedTuple);
+        
+        relationManager.deleteTable(collectionName);       
+    }
+    
+    /*
+     * Test inserting a tuple to a table, then update it, then delete it 
+     */
+    @Test
+    public void test9() throws Exception {
+        String collectionName = "relation_manager_test_collection";
+        String collectionDirectory = "./index/test_collection";
+        Schema collectionSchema = new Schema(
+                new Attribute("content", FieldType.STRING));
+        
+        RelationManager relationManager = RelationManager.getRelationManager();
+        
+        relationManager.deleteTable(collectionName);
+        relationManager.createTable(
+                collectionName, collectionDirectory, collectionSchema, LuceneAnalyzerConstants.standardAnalyzerString());
+        
+        ITuple insertedTuple = new DataTuple(collectionSchema, new StringField("test"));
+        IDField idField = relationManager.insertTuple(collectionName, insertedTuple);   
+        ITuple returnedTuple = relationManager.getTuple(collectionName, idField);
+        
+        Assert.assertEquals(insertedTuple.getField("content").getValue().toString(), 
+                returnedTuple.getField("content").getValue().toString());
+        
+        
+        ITuple updatedTuple = new DataTuple(collectionSchema, new StringField("testUpdate"));
+        relationManager.updateTuple(collectionName, updatedTuple, idField);
+        ITuple returnedUpdatedTuple = relationManager.getTuple(collectionName, idField);
+        
+        Assert.assertEquals(updatedTuple.getField("content").getValue().toString(), 
+                returnedUpdatedTuple.getField("content").getValue().toString());
+        
+        relationManager.deleteTuple(collectionName, idField);
+        
+        ITuple deletedTuple = relationManager.getTuple(collectionName, idField);
+        // should not reach next line because of exception
+        Assert.assertNull(deletedTuple);
+        
+        relationManager.deleteTable(collectionName);       
     }
     
     
