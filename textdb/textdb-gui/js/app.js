@@ -1,17 +1,20 @@
-
 var openMenu = function(){
 	$('.menu').animate({
-        'left': '0px'
-    }, 200);
-		
+		'left': '0px'
+	}, 200);
+	
 	$('.icon-menu').css({
 		'visibility': 'hidden',
 		'pointer': 'default'
 	});
-		
-    $('body').animate({
-        'left': '285px'
-    }, 200);
+	
+	$('#main-delete').animate({
+		'margin-right': '295px'
+	}, 200);
+	
+	$('body').animate({
+		'left': '285px'
+	}, 200);
 };
 
 var closeMenu = function(){
@@ -19,9 +22,8 @@ var closeMenu = function(){
 		'left': '-285px'
 	}, 200);
 	
-	$('.icon-menu').css({
-		'visibility': 'visible',
-		'pointer': 'pointer'
+	$('#main-delete').animate({'margin-right': '10px'}, 200, function(){
+		$('.icon-menu').css({'visibility': 'visible', 'pointer': 'pointer'});
 	});
 	
 	$('body').animate({
@@ -29,24 +31,27 @@ var closeMenu = function(){
 	}, 200);
 };
 
-var main = function(){
+var selectPanel = function(clickedPanel){
+	var panelToShow = $(clickedPanel).attr('rel');
+	var oldPanel = $('.panel.active').attr('id');
 	
+	$('li.active').removeClass('active');
+	$('.panel.active').removeClass('active');
+	
+	if (oldPanel != panelToShow){
+		$(clickedPanel).addClass('active');
+		$('#' + panelToShow).addClass('active');
+	}	
+}
+
+var main = function(){
+		
     $('.icon-menu').click(openMenu);
 	
     $('.icon-close').click(closeMenu);
 	
-	$('.menu ul li').on('click', function() {
-		
-		var panelToShow = $(this).attr('rel');
-		var oldPanel = $('.panel.active').attr('id');
-		
-		$('li.active').removeClass('active');
-		$('.panel.active').removeClass('active');
-		
-		if (oldPanel != panelToShow){
-			$(this).addClass('active');
-			$('#' + panelToShow).addClass('active');
-		}		
+	$('.menu ul li').on('click', function(){
+		selectPanel(this);
 	});
 };
 
