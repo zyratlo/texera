@@ -1,22 +1,12 @@
 package edu.uci.ics.textdb.textql.querymanager;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
-import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.Callable;
 
 import edu.uci.ics.textdb.plangen.LogicalPlan;
 
@@ -37,10 +27,6 @@ public class QueryManager {
 	private Map<String, Map<String, Object>> nameVsStatement;
 	
 	public QueryManager() {
-		input = null;
-		output = null;
-		parsedStatements = null;
-		nameVsStatement = null;
 	}
 	
 	/**
@@ -48,7 +34,6 @@ public class QueryManager {
 	 * @param inputStream  the new InputStream
 	 */
 	void setInput(InputStream inputStream){
-		input = inputStream;
 	}
 	
 	/**
@@ -57,7 +42,6 @@ public class QueryManager {
 	 * @param f  the File used as input InputStream
 	 */
 	void setInput(File f) throws FileNotFoundException{
-		input = new FileInputStream(f);
 	}
 
 	/**
@@ -66,11 +50,6 @@ public class QueryManager {
 	 * @param inputStream  the new InputStream
 	 */
 	void setInput(String s) throws IOException{
-		PipedOutputStream pos = new PipedOutputStream();
-		PipedInputStream pis = new PipedInputStream(pos);
-		PrintStream ppos = new PrintStream(pos);
-		ppos.print(s);
-		input = pis;
 	}
 	
 	/**
@@ -79,7 +58,6 @@ public class QueryManager {
 	 * @param inputStream  the new InputStream
 	 */
 	void setOutput(OutputStream outputStream) throws IOException{
-		output = outputStream;
 	}
 	
 	/**
@@ -88,8 +66,6 @@ public class QueryManager {
 	 * @throws IOException If an exception occurs while closing Input or Output Streams
 	 */
 	void parse() throws IOException{
-		input.close();
-		output.close();
 	}
 	
 	/**
@@ -98,12 +74,7 @@ public class QueryManager {
 	 * @return The generated LogicalPlan for the view
 	 */
 	LogicalPlan getOutputView(){
-		String[] outputViews = parsedStatements.stream()
-				.filter(s->s.get("statementType").equals("output"))
-				.map(s->s.get("viewName"))
-				.toArray(String[]::new);
-		if(outputViews.length!=1)return null;
-		return getView(outputViews[0]);
+		return null;
 	}
 
 	/**
@@ -111,7 +82,7 @@ public class QueryManager {
 	 * @param viewName	Name of the view to be selected
 	 * @return The generated LogicalPlan for the view
 	 */
-	LogicalPlan getView(String viewName){		 
+	LogicalPlan getView(String viewName){		
 		return null;
 	}
 	
