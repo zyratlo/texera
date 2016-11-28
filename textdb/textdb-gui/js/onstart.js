@@ -19,6 +19,7 @@ var setup = function(){
 	var editOperators = [];
 	
 	var defaultRegex = "zika\s*(virus|fever)";
+	var defaultKeyword = "Zika";
 	var defaultAttributes = "first name, last name";
 	var defaultLimit = 10;
 	var defaultOffset = 5;
@@ -36,6 +37,13 @@ var setup = function(){
 			userInput = defaultRegex;
 		}
 	    extraOperators['regex'] = userInput;
+	  }
+	  else if (panel == 'keyword-panel'){
+		if (userInput == null || userInput == ''){
+			userInput = defaultKeyword;
+		}
+		extraOperators['keyword'] = userInput;
+		extraOperators['matching_type'] = $('#' + panel + ' .matching-type').val();
 	  }
 	  return extraOperators;
 	};
@@ -66,7 +74,26 @@ var setup = function(){
 	function getHtml(attr, attrValue){
 		var resultString = '';
 		var classString = attr.replace(/_/g, '-');
-		resultString += '<input type="text" class="' + classString + '" value="' + attrValue + '">';
+		var resultString = '';
+		var classString = attr.replace(/_/g, '-');
+		if(attr == 'matching_type'){
+			resultString += '<select class="matching-type"><option value="conjunction"';
+			if(attrValue == 'conjunction'){
+				resultString += ' selected';
+			}
+			resultString += '>Conjunction</option><option value="phrase"';
+			if(attrValue == 'phrase'){
+				resultString += ' selected';
+			}
+			resultString += '>Phrase</option><option value="substring"';
+			if(attrValue == 'substring'){
+				resultString += ' selected';
+			}
+			resultString += '>Substring</option></select>';
+		}
+		else{
+			resultString += '<input type="text" class="' + classString + '" value="' + attrValue + '">';
+		}
 		editOperators.push(classString);
 		return resultString;		
 	}
