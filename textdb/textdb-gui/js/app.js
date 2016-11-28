@@ -56,6 +56,8 @@ var main = function(){
 	
     $('.icon-close').click(closeMenu);
 	
+	$('.band').on('click', closeBand);
+	
 	$('.menu ul li').on('click', function(){
 		selectPanel(this);
 	});
