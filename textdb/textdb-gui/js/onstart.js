@@ -5,7 +5,7 @@
 	@Author: Jimmy Wang
 */
 
-// main function
+// main operation (holds all the methods for the buttons and holds the buttons itself)
 var setup = function(){
 	var data = {};
 
@@ -16,10 +16,10 @@ var setup = function(){
 	
 	var operatorI = 0;
 	
-	var defaultRegex = "zika\s*(virus|fever)";
-	var defaultAttributes = "first name, last name";
-	var defaultLimit = 10;
-	var defaultOffset = 5;
+	var DEFAULT_REGEX = "zika\s*(virus|fever)";
+	var DEFAULT_ATTRIBUTES = "first name, last name";
+	var DEFAULT_LIMIT = 10;
+	var DEFAULT_OFFSET = 5;
 	
 	/*
 		Helper Functions
@@ -31,7 +31,7 @@ var setup = function(){
 	  
 	  if (panel == 'regex-panel'){
 		if (userInput == null || userInput == ''){
-			userInput = defaultRegex;
+			userInput = DEFAULT_REGEX;
 		}
 	    extraOperators['regex'] = userInput;
 	  }
@@ -43,17 +43,17 @@ var setup = function(){
 		var result = $('#' + panel + keyword).val();
 		if(keyword == ' .limit'){
 			if (result == null || result == ''){
-				result = defaultLimit;
+				result = DEFAULT_LIMIT;
 			}
 		}
 		else if(keyword == ' .offset'){
 			if (result == null || result == ''){
-				result = defaultOffset;
+				result = DEFAULT_OFFSET;
 			}
 		}
 		else if(keyword == ' .attributes'){
 			if (result == null || result == ''){
-				result = defaultAttributes;
+				result = DEFAULT_ATTRIBUTES;
 			}
 		}
 		return result;
