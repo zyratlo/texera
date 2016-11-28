@@ -129,10 +129,3 @@ button{
 	margin-bottom: 5px;
 	padding-bottom: 5px;
 }
-/* Initial body */
-body {
-  left: 0;
-  margin: 0;
-  overflow: hidden;
-  position: relative;
-}
