@@ -8,10 +8,10 @@ var openMenu = function(){
 		'pointer': 'default'
 	});
 	
-	$('#main-delete').animate({
+	$('.process-query').animate({
 		'margin-right': '295px'
 	}, 200);
-	
+		
 	$('body').animate({
 		'left': '285px'
 	}, 200);
@@ -22,7 +22,7 @@ var closeMenu = function(){
 		'left': '-285px'
 	}, 200);
 	
-	$('#main-delete').animate({'margin-right': '10px'}, 200, function(){
+	$('.process-query').animate({'margin-right': '10px'}, 200, function(){
 		$('.icon-menu').css({'visibility': 'visible', 'pointer': 'pointer'});
 	});
 	
@@ -55,6 +55,8 @@ var main = function(){
     $('.icon-menu').click(openMenu);
 	
     $('.icon-close').click(closeMenu);
+	
+	$('.band').on('click', closeBand);
 	
 	$('.menu ul li').on('click', function(){
 		selectPanel(this);

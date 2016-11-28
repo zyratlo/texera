@@ -123,6 +123,65 @@ var setup = function(){
 		Button functions
 	*/
 	
+	//Process Operators to Server (GUIJSON --> TEXTDBJSON --> Server)
+	var processQuery = function(){
+		var GUIJSON = $('#the-flowchart').flowchart('getData');
+			
+		var TEXTDBJSON = {};
+		var operators = [];
+		var links = [];
+		
+		for(var operatorIndex in GUIJSON.operators){
+			if (GUIJSON.operators.hasOwnProperty(operatorIndex)){
+				var attributes = {};
+				
+				for(var attribute in GUIJSON['operators'][operatorIndex]['properties']['attributes']){
+					if (GUIJSON['operators'][operatorIndex]['properties']['attributes'].hasOwnProperty(attribute)){
+						attributes[attribute] = GUIJSON['operators'][operatorIndex]['properties']['attributes'][attribute];
+					}
+				}
+				operators.push(attributes);
+			}
+		}	
+		
+		for(var link in GUIJSON.links){
+			var destination = {};
+			if (GUIJSON['links'][link].hasOwnProperty("fromOperator")){
+				destination["from"] = GUIJSON['links'][link]['fromOperator'];
+				destination["to"] = GUIJSON['links'][link]['toOperator'];
+				links.push(destination);
+			}
+		}
+		TEXTDBJSON.operators = operators;
+		TEXTDBJSON.links = links;
+		
+		// console.log(operators);
+		// console.log(links)
+		// console.log(data);
+		// console.log(JSON.stringify(data));
+		console.log(JSON.stringify(TEXTDBJSON));
+		console.log(JSON.stringify(GUIJSON));
+		
+		$.ajax({
+			url: "http://localhost:8080/queryplan/execute",
+			type: "POST",
+			data: JSON.stringify(TEXTDBJSON),
+			dataType: "text",
+			contentType: "application/json",
+			success: function(returnedData){
+				console.log("SUCCESS\n");
+				console.log(JSON.stringify(returnedData));
+			},
+			error: function(xhr, status, err){
+				console.log("ERROR");
+				console.log(xhr.status);
+				console.log(JSON.stringify(xhr));
+				console.log(JSON.stringify(status));
+				console.log(JSON.stringify(err));
+			}
+		});
+	};
+	
 	//Attribute Pop-Up Box displays attributes in the popup box for selected operator
 	var displayPopupBox = function(){
 		selectedOperator = $('#the-flowchart').flowchart('getSelectedOperatorId');
@@ -292,6 +351,9 @@ var setup = function(){
 	/*
 		Buttons
 	*/
+	
+	//Process Operator Button. Calls processQuery function
+	$('.process-query').on('click', processQuery);
 
 	//Upon Operator Selection (when operator is clicked/selected) Calls displayPopupBox function
 	$('#the-flowchart').on('click', '.flowchart-operators-layer.unselectable div .flowchart-operator-title', displayPopupBox);
