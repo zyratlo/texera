@@ -53,7 +53,7 @@ public class NameFinderExample {
     	
     	PerformanceMonitor perfMon = new PerformanceMonitor(System.err, "sent");
     	perfMon.start();
-    	while(scan.hasNextLine()){ 
+    	while(scan.hasNextLine()) { 
     		
     		String[] sentence = Tokenize(scan.nextLine());
     		Span Spans[] = nameFinder.find(sentence);

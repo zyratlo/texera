@@ -31,6 +31,7 @@ public class POSTagexample {
     		String input = scan.nextLine();
     		ObjectStream<String> lineStream = new PlainTextByLineStream(
         			new StringReader(input));
+    		
     		String line;
         	while ((line = lineStream.read()) != null) {
          
