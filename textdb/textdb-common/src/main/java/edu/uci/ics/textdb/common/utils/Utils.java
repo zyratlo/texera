@@ -31,6 +31,7 @@ import edu.uci.ics.textdb.common.constants.SchemaConstants;
 import edu.uci.ics.textdb.common.field.DataTuple;
 import edu.uci.ics.textdb.common.field.DateField;
 import edu.uci.ics.textdb.common.field.DoubleField;
+import edu.uci.ics.textdb.common.field.IDField;
 import edu.uci.ics.textdb.common.field.IntegerField;
 import edu.uci.ics.textdb.common.field.ListField;
 import edu.uci.ics.textdb.common.field.Span;
@@ -41,6 +42,8 @@ public class Utils {
     public static IField getField(FieldType fieldType, String fieldValue) throws ParseException {
         IField field = null;
         switch (fieldType) {
+        case _ID_TYPE:
+            field = new IDField(fieldValue);
         case STRING:
             field = new StringField(fieldValue);
             break;
@@ -68,6 +71,8 @@ public class Utils {
     public static IndexableField getLuceneField(FieldType fieldType, String fieldName, Object fieldValue) {
         IndexableField luceneField = null;
         switch (fieldType) {
+        // _ID_TYPE is currently same as STRING
+        case _ID_TYPE:
         case STRING:
             luceneField = new org.apache.lucene.document.StringField(fieldName, (String) fieldValue, Store.YES);
             break;
@@ -140,6 +145,23 @@ public class Utils {
         return Arrays.asList(attributeList).stream()
                 .map(attr -> attr.getFieldName())
                 .collect(Collectors.toList());
+    }
+    
+    /**
+     * Create a new schema object, with "_ID" attribute added to the front.
+     * 
+     * @param schema
+     * @return
+     */
+    public static Schema getSchemaWithID(Schema schema) {
+        if (schema.containsField(SchemaConstants._ID)) {
+            return schema;
+        }
+        
+        List<Attribute> attributeList = new ArrayList<>();
+        attributeList.add(SchemaConstants._ID_ATTRIBUTE);
+        attributeList.addAll(schema.getAttributes());
+        return new Schema(attributeList.stream().toArray(Attribute[]::new));      
     }
 
     /**
