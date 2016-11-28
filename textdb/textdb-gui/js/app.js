@@ -31,6 +31,12 @@ var closeMenu = function(){
 	}, 200);
 };
 
+var closeBand = function(){
+	$('.popup').animate({
+		'bottom': '-570px'
+	}, 200);
+};
+
 var selectPanel = function(clickedPanel){
 	var panelToShow = $(clickedPanel).attr('rel');
 	var oldPanel = $('.panel.active').attr('id');
