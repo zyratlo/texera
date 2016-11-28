@@ -18,7 +18,7 @@ import edu.uci.ics.textdb.common.field.IDField;
 import edu.uci.ics.textdb.common.field.StringField;
 import edu.uci.ics.textdb.common.utils.Utils;
 
-public class RelationTest {
+public class RelationManagerTest {
     
     RelationManager relationManager;
     
