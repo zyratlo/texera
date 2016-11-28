@@ -359,9 +359,9 @@ var setup = function(){
 	$('#the-flowchart').on('click', '.flowchart-operators-layer.unselectable div .flowchart-operator-title', displayPopupBox);
 
 	//Create Operator button. Calls createOperator function
-    $('.create-operator').click(function() {
+	$('.create-operator').click(function() {
 		createOperator(this);
-    });
+	});
 
 	//Edit Operator Button calls editOperator function
 	$('#attributes').on('click', '.edit-operator', editOperator);	

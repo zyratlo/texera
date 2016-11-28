@@ -52,9 +52,9 @@ var selectPanel = function(clickedPanel){
 
 var main = function(){
 		
-    $('.icon-menu').click(openMenu);
+	$('.icon-menu').click(openMenu);
 	
-    $('.icon-close').click(closeMenu);
+	$('.icon-close').click(closeMenu);
 	
 	$('.band').on('click', closeBand);
 	
