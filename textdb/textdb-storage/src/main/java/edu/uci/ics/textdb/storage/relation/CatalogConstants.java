@@ -25,8 +25,8 @@ import edu.uci.ics.textdb.storage.DataStore;
  * 
  *  tableName    |    tableDirectory    |    luceneAnalyzer
  * 
- * tableCatalog    ../catalog/table       standardLuceneAnalyzer
- *   schemaCatalog      ../catalog/schema           standardLuceneAnalyzer
+ * tableCatalog       ../catalog/table       standardLuceneAnalyzer
+ * schemaCatalog      ../catalog/schema      standardLuceneAnalyzer
  *   
  * ============================================
  *   

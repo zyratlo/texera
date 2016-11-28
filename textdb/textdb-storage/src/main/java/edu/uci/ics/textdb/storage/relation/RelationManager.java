@@ -88,6 +88,11 @@ public class RelationManager {
 
     // drop a table
     public void deleteTable(String tableName) throws StorageException {
+        if (tableName.equals(CatalogConstants.TABLE_CATALOG) 
+                || tableName.equals(CatalogConstants.SCHEMA_CATALOG)) {
+            throw new StorageException("Deleting system catalog is prohibited.");
+        }
+        
         Query catalogTableNameQuery = new TermQuery(new Term(CatalogConstants.TABLE_NAME, tableName));
         
         DataWriter tableCatalogWriter = new DataWriter(CatalogConstants.TABLE_CATALOG_DATASTORE, 
