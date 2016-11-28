@@ -162,6 +162,12 @@ public class RelationManager {
             throw new StorageException(e);
         }   
     }
+    
+    public void deleteTuple(String tableName, Query...deletionQueries) throws StorageException {
+        
+    }
+    
+    
 
     // update a tuple by its id
     public void updateTuple(String tableName, ITuple newTuple, IDField idValue) throws StorageException {
