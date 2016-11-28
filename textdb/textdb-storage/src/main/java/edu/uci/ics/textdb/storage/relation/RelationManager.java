@@ -1,11 +1,15 @@
 package edu.uci.ics.textdb.storage.relation;
 
+import java.io.IOException;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import edu.uci.ics.textdb.api.exception.TextDBException;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.MatchAllDocsQuery;
@@ -35,13 +39,13 @@ public class RelationManager {
     
     private static volatile RelationManager singletonRelationManager = null;
     
-    private RelationManager() throws StorageException {
+    private RelationManager() throws StorageException, DataFlowException {
         if (! checkCatalogExistence()) {
             initializeCatalog();
         }
     }
 
-    public static RelationManager getRelationManager() throws StorageException {
+    public static RelationManager getRelationManager() throws StorageException, DataFlowException {
         if (singletonRelationManager == null) {
             synchronized (RelationManager.class) {
                 if (singletonRelationManager == null) {
@@ -63,12 +67,12 @@ public class RelationManager {
 
     // create a new table, tableName must be unique
     public void createTable(String tableName, String indexDirectory, Schema schema, String luceneAnalyzer)
-            throws StorageException {
+            throws StorageException, DataFlowException {
         // table should not exist
         if (checkTableExistence(tableName)) {
             throw new StorageException(String.format("Table %s already exists.", tableName));
         }
-        
+
         Schema tableSchema = Utils.getSchemaWithID(schema);
                 
         // write collection catalog
@@ -83,11 +87,16 @@ public class RelationManager {
         for (ITuple tuple : CatalogConstants.getSchemaCatalogTuples(tableName, tableSchema)) {
             insertTupleToDirectory(schemaCatalogStore, LuceneAnalyzerConstants.getStandardAnalyzer(), tuple);
         }
-        
+
+        DataWriter dataWriter = new DataWriter(new DataStore(indexDirectory, tableSchema), LuceneAnalyzerConstants.getLuceneAnalyzer(luceneAnalyzer));
+        dataWriter.open();
+        dataWriter.close();
     }
 
     // drop a table
-    public void deleteTable(String tableName) throws StorageException {
+    public void deleteTable(String tableName) throws TextDBException {
+        Utils.deleteIndex(getTableDirectory(tableName));
+
         Query catalogTableNameQuery = new TermQuery(new Term(CatalogConstants.COLLECTION_NAME, tableName));
         
         DataWriter collectionCatalogWriter = new DataWriter(CatalogConstants.COLLECTION_CATALOG_DATASTORE, 
@@ -320,8 +329,8 @@ public class RelationManager {
                 && DataReader.checkIndexExistence(CatalogConstants.SCHEMA_CATALOG_DIRECTORY);
     }
     
-    private void initializeCatalog() throws StorageException {
-        createTable(CatalogConstants.COLLECTION_CATALOG, 
+    private void initializeCatalog() throws StorageException, DataFlowException {
+        createTable(CatalogConstants.COLLECTION_CATALOG,
                 CatalogConstants.COLLECTION_CATALOG_DIRECTORY, 
                 CatalogConstants.COLLECTION_CATALOG_SCHEMA,
                 LuceneAnalyzerConstants.standardAnalyzerString());
