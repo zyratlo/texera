@@ -71,11 +71,11 @@ public class RelationManager {
         
         Schema tableSchema = Utils.getSchemaWithID(schema);
                 
-        // write collection catalog
-        DataStore collectionCatalogStore = new DataStore(CatalogConstants.COLLECTION_CATALOG_DIRECTORY,
-                CatalogConstants.COLLECTION_CATALOG_SCHEMA);      
-        insertTupleToDirectory(collectionCatalogStore, LuceneAnalyzerConstants.getStandardAnalyzer(),
-                CatalogConstants.getCollectionCatalogTuple(tableName, indexDirectory, luceneAnalyzer));
+        // write table catalog
+        DataStore tableCatalogStore = new DataStore(CatalogConstants.TABLE_CATALOG_DIRECTORY,
+                CatalogConstants.TABLE_CATALOG_SCHEMA);      
+        insertTupleToDirectory(tableCatalogStore, LuceneAnalyzerConstants.getStandardAnalyzer(),
+                CatalogConstants.getTableCatalogTuple(tableName, indexDirectory, luceneAnalyzer));
        
         // write schema catalog
         DataStore schemaCatalogStore = new DataStore(CatalogConstants.SCHEMA_CATALOG_DIRECTORY,
@@ -88,11 +88,11 @@ public class RelationManager {
 
     // drop a table
     public void deleteTable(String tableName) throws StorageException {
-        Query catalogTableNameQuery = new TermQuery(new Term(CatalogConstants.COLLECTION_NAME, tableName));
+        Query catalogTableNameQuery = new TermQuery(new Term(CatalogConstants.TABLE_NAME, tableName));
         
-        DataWriter collectionCatalogWriter = new DataWriter(CatalogConstants.COLLECTION_CATALOG_DATASTORE, 
+        DataWriter tableCatalogWriter = new DataWriter(CatalogConstants.TABLE_CATALOG_DATASTORE, 
                 LuceneAnalyzerConstants.getStandardAnalyzer());
-        collectionCatalogWriter.deleteTuple(catalogTableNameQuery);
+        tableCatalogWriter.deleteTuple(catalogTableNameQuery);
         
         DataWriter schemaCatalogWriter = new DataWriter(CatalogConstants.SCHEMA_CATALOG_DATASTORE,
                 LuceneAnalyzerConstants.getStandardAnalyzer());
@@ -140,7 +140,7 @@ public class RelationManager {
         DataWriter dataWriter = new DataWriter(new DataStore(tableDirectory, tableSchema), luceneAnalyzer);
         dataWriter.insertTuple(insertionTuple);
 
-        return idField;    
+        return idField;
     }
 
     // delete a tuple by its id
@@ -207,16 +207,16 @@ public class RelationManager {
 
     // get the table's Directory
     public String getTableDirectory(String tableName) throws StorageException {
-        DataStore collectionCatalogStore = new DataStore(CatalogConstants.COLLECTION_CATALOG_DIRECTORY,
-                CatalogConstants.COLLECTION_CATALOG_SCHEMA);
-        DataReaderPredicate scanPredicate = new DataReaderPredicate(new MatchAllDocsQuery(), collectionCatalogStore);
+        DataStore tableCatalogStore = new DataStore(CatalogConstants.TABLE_CATALOG_DIRECTORY,
+                CatalogConstants.TABLE_CATALOG_SCHEMA);
+        DataReaderPredicate scanPredicate = new DataReaderPredicate(new MatchAllDocsQuery(), tableCatalogStore);
         scanPredicate.setIsPayloadAdded(false);
-        DataReader collectionCatalogReader = new DataReader(scanPredicate);
+        DataReader tableCatalogReader = new DataReader(scanPredicate);
 
-        collectionCatalogReader.open();
+        tableCatalogReader.open();
         ITuple nextTuple;
-        while ((nextTuple = collectionCatalogReader.getNextTuple()) != null) {
-            IField tableNameField = nextTuple.getField(CatalogConstants.COLLECTION_NAME);
+        while ((nextTuple = tableCatalogReader.getNextTuple()) != null) {
+            IField tableNameField = nextTuple.getField(CatalogConstants.TABLE_NAME);
             // field must not be null
             if (tableNameField == null) {
                 continue;
@@ -226,13 +226,13 @@ public class RelationManager {
             if (! tableNameString.toLowerCase().equals(tableName.toLowerCase())) {
                 continue;
             }
-            IField directoryField = nextTuple.getField(CatalogConstants.COLLECTION_DIRECTORY);
+            IField directoryField = nextTuple.getField(CatalogConstants.TABLE_DIRECTORY);
             if (directoryField == null) {
                 break;
             }
             return directoryField.getValue().toString();
         }
-        collectionCatalogReader.close();
+        tableCatalogReader.close();
 
         throw new StorageException(String.format("The directory for table %s is not found.", tableName));
     }
@@ -251,7 +251,7 @@ public class RelationManager {
         ITuple nextTuple;
         
         while ((nextTuple = schemaCatalogReader.getNextTuple()) != null) {
-            IField tableNameField = nextTuple.getField(CatalogConstants.COLLECTION_NAME);
+            IField tableNameField = nextTuple.getField(CatalogConstants.TABLE_NAME);
             // field must not be null
             if (tableNameField == null) {
                 continue;
@@ -271,7 +271,7 @@ public class RelationManager {
         }
         
         // convert the unordered list of tuples to an order list of attributes
-        List<Attribute> collectionSchemaData = tableAttributeTuples.stream()
+        List<Attribute> tableSchemaData = tableAttributeTuples.stream()
                 // sort the tuples based on the attributePosition field.
                 .sorted((tuple1, tuple2) -> Integer.compare((int) tuple1.getField(CatalogConstants.ATTR_POSITION).getValue(), 
                         (int) tuple2.getField(CatalogConstants.ATTR_POSITION).getValue()))
@@ -280,21 +280,21 @@ public class RelationManager {
                         convertAttributeType(tuple.getField(CatalogConstants.ATTR_TYPE).getValue().toString())))
                 .collect(Collectors.toList());
         
-        return new Schema(collectionSchemaData.stream().toArray(Attribute[]::new));
+        return new Schema(tableSchemaData.stream().toArray(Attribute[]::new));
     }
 
     // get the table's lucene analyzer
     public String getTableAnalyzer(String tableName) throws StorageException {
-        DataStore collectionCatalogStore = new DataStore(CatalogConstants.COLLECTION_CATALOG_DIRECTORY,
-                CatalogConstants.COLLECTION_CATALOG_SCHEMA);
-        DataReaderPredicate scanPredicate = new DataReaderPredicate(new MatchAllDocsQuery(), collectionCatalogStore);
+        DataStore tableCatalogStore = new DataStore(CatalogConstants.TABLE_CATALOG_DIRECTORY,
+                CatalogConstants.TABLE_CATALOG_SCHEMA);
+        DataReaderPredicate scanPredicate = new DataReaderPredicate(new MatchAllDocsQuery(), tableCatalogStore);
         scanPredicate.setIsPayloadAdded(false);
-        DataReader collectionCatalogReader = new DataReader(scanPredicate);
+        DataReader tableCatalogReader = new DataReader(scanPredicate);
 
-        collectionCatalogReader.open();
+        tableCatalogReader.open();
         ITuple nextTuple;
-        while ((nextTuple = collectionCatalogReader.getNextTuple()) != null) {
-            IField tableNameField = nextTuple.getField(CatalogConstants.COLLECTION_NAME);
+        while ((nextTuple = tableCatalogReader.getNextTuple()) != null) {
+            IField tableNameField = nextTuple.getField(CatalogConstants.TABLE_NAME);
             // field must not be null
             if (tableNameField == null) {
                 continue;
@@ -304,26 +304,26 @@ public class RelationManager {
             if (! tableNameString.toLowerCase().equals(tableName.toLowerCase())) {
                 continue;
             }
-            IField analyzerField = nextTuple.getField(CatalogConstants.COLLECTION_LUCENE_ANALYZER);
+            IField analyzerField = nextTuple.getField(CatalogConstants.TABLE_LUCENE_ANALYZER);
             if (analyzerField == null) {
                 break;
             }
             return analyzerField.getValue().toString();
         }
-        collectionCatalogReader.close();
+        tableCatalogReader.close();
 
         throw new StorageException(String.format("The analyzer for table %s is not found.", tableName));
     }
     
     private static boolean checkCatalogExistence() {
-        return DataReader.checkIndexExistence(CatalogConstants.COLLECTION_CATALOG_DIRECTORY)
+        return DataReader.checkIndexExistence(CatalogConstants.TABLE_CATALOG_DIRECTORY)
                 && DataReader.checkIndexExistence(CatalogConstants.SCHEMA_CATALOG_DIRECTORY);
     }
     
     private void initializeCatalog() throws StorageException {
-        createTable(CatalogConstants.COLLECTION_CATALOG, 
-                CatalogConstants.COLLECTION_CATALOG_DIRECTORY, 
-                CatalogConstants.COLLECTION_CATALOG_SCHEMA,
+        createTable(CatalogConstants.TABLE_CATALOG, 
+                CatalogConstants.TABLE_CATALOG_DIRECTORY, 
+                CatalogConstants.TABLE_CATALOG_SCHEMA,
                 LuceneAnalyzerConstants.standardAnalyzerString());
         createTable(CatalogConstants.SCHEMA_CATALOG,
                 CatalogConstants.SCHEMA_CATALOG_DIRECTORY,

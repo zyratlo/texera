@@ -28,22 +28,22 @@ public class RelationTest {
     }
     
     /*
-     * Test the information about "collection catalog" itself is stored properly.
+     * Test the information about "table catalog" itself is stored properly.
      * 
      */
     @Test
     public void test1() throws Exception {
-        String collectionCatalogDirectory = 
-                relationManager.getTableDirectory(CatalogConstants.COLLECTION_CATALOG);
-        String collectionCatalogLuceneAnalyzer = 
-                relationManager.getTableAnalyzer(CatalogConstants.COLLECTION_CATALOG);
-        Schema collectionCatalogSchema = 
-                relationManager.getTableSchema(CatalogConstants.COLLECTION_CATALOG);
+        String tableCatalogDirectory = 
+                relationManager.getTableDirectory(CatalogConstants.TABLE_CATALOG);
+        String tableCatalogLuceneAnalyzer = 
+                relationManager.getTableAnalyzer(CatalogConstants.TABLE_CATALOG);
+        Schema tableCatalogSchema = 
+                relationManager.getTableSchema(CatalogConstants.TABLE_CATALOG);
                 
-        Assert.assertEquals(collectionCatalogDirectory, 
-                new File(CatalogConstants.COLLECTION_CATALOG_DIRECTORY).getCanonicalPath());
-        Assert.assertEquals(collectionCatalogLuceneAnalyzer, LuceneAnalyzerConstants.standardAnalyzerString());
-        Assert.assertEquals(collectionCatalogSchema, Utils.getSchemaWithID(CatalogConstants.COLLECTION_CATALOG_SCHEMA));
+        Assert.assertEquals(tableCatalogDirectory, 
+                new File(CatalogConstants.TABLE_CATALOG_DIRECTORY).getCanonicalPath());
+        Assert.assertEquals(tableCatalogLuceneAnalyzer, LuceneAnalyzerConstants.standardAnalyzerString());
+        Assert.assertEquals(tableCatalogSchema, Utils.getSchemaWithID(CatalogConstants.TABLE_CATALOG_SCHEMA));
     }
     
     /*
@@ -69,54 +69,54 @@ public class RelationTest {
      */
     @Test
     public void test3() throws Exception {        
-        String collectionName = "relation_manager_test_collection_1";
-        String collectionDirectory = "./index/test_collection_1/";
-        Schema collectionSchema = new Schema(
+        String tableName = "relation_manager_test_table_1";
+        String tableDirectory = "./index/test_table_1/";
+        Schema tableSchema = new Schema(
                 new Attribute("city", FieldType.STRING),
                 new Attribute("description", FieldType.TEXT), new Attribute("tax rate", FieldType.DOUBLE),
                 new Attribute("population", FieldType.INTEGER), new Attribute("record time", FieldType.DATE));
-        String collectionLuceneAnalyzer = LuceneAnalyzerConstants.standardAnalyzerString();
+        String tableLuceneAnalyzer = LuceneAnalyzerConstants.standardAnalyzerString();
         
         RelationManager relationManager = RelationManager.getRelationManager();
         
-        relationManager.deleteTable(collectionName);
+        relationManager.deleteTable(tableName);
         
         relationManager.createTable(
-                collectionName, collectionDirectory, collectionSchema, collectionLuceneAnalyzer);
+                tableName, tableDirectory, tableSchema, tableLuceneAnalyzer);
         
-        Assert.assertEquals(new File(collectionDirectory).getCanonicalPath(), 
-                relationManager.getTableDirectory(collectionName));
-        Assert.assertEquals(Utils.getSchemaWithID(collectionSchema), relationManager.getTableSchema(collectionName));
-        Assert.assertEquals(collectionLuceneAnalyzer, relationManager.getTableAnalyzer(collectionName));
+        Assert.assertEquals(new File(tableDirectory).getCanonicalPath(), 
+                relationManager.getTableDirectory(tableName));
+        Assert.assertEquals(Utils.getSchemaWithID(tableSchema), relationManager.getTableSchema(tableName));
+        Assert.assertEquals(tableLuceneAnalyzer, relationManager.getTableAnalyzer(tableName));
         
-        relationManager.deleteTable(collectionName);
+        relationManager.deleteTable(tableName);
     }
     
     /*
-     * Retrieving the directory of a collection which doesn't exist should result in an exception.
+     * Retrieving the directory of a table which doesn't exist should result in an exception.
      */
     @Test(expected = StorageException.class)
     public void test4() throws Exception {
-        String collectionName = "relation_manager_test_collection_1";
-        RelationManager.getRelationManager().getTableDirectory(collectionName);
+        String tableName = "relation_manager_test_table_1";
+        RelationManager.getRelationManager().getTableDirectory(tableName);
     }
     
     /*
-     * Retrieving the schema of a collection which doesn't exist should result in an exception.
+     * Retrieving the schema of a table which doesn't exist should result in an exception.
      */
     @Test(expected = StorageException.class)
     public void test5() throws Exception {
-        String collectionName = "relation_manager_test_collection_1";
-        RelationManager.getRelationManager().getTableSchema(collectionName);
+        String tableName = "relation_manager_test_table_1";
+        RelationManager.getRelationManager().getTableSchema(tableName);
     }
     
     /*
-     * Retrieving the lucene analyzer of a collection which doesn't exist should result in an exception.
+     * Retrieving the lucene analyzer of a table which doesn't exist should result in an exception.
      */
     @Test(expected = StorageException.class)
     public void test6() throws Exception {
-        String collectionName = "relation_manager_test_collection_1";
-        RelationManager.getRelationManager().getTableAnalyzer(collectionName);
+        String tableName = "relation_manager_test_table_1";
+        RelationManager.getRelationManager().getTableAnalyzer(tableName);
     }
     
 
@@ -125,9 +125,9 @@ public class RelationTest {
      */
     @Test
     public void test7() throws Exception {
-        String collectionName = "relation_manager_test_collection";
-        String collectionDirectory = "./index/test_collection";
-        Schema collectionSchema = new Schema(
+        String tableName = "relation_manager_test_table";
+        String tableDirectory = "./index/test_table";
+        Schema tableSchema = new Schema(
                 new Attribute("city", FieldType.STRING),
                 new Attribute("description", FieldType.TEXT), new Attribute("tax rate", FieldType.DOUBLE),
                 new Attribute("population", FieldType.INTEGER), new Attribute("record time", FieldType.DATE));
@@ -139,30 +139,30 @@ public class RelationTest {
         for (int i = 0; i < NUM_OF_LOOPS; i++) {
             // delete previously inserted tables first
             relationManager.deleteTable(
-                    collectionName + '_' + i);
+                    tableName + '_' + i);
             relationManager.createTable(
-                    collectionName + '_' + i,
-                    collectionDirectory + '_' + i, 
-                    collectionSchema, 
+                    tableName + '_' + i,
+                    tableDirectory + '_' + i, 
+                    tableSchema, 
                     LuceneAnalyzerConstants.standardAnalyzerString());
         }
         // assert tables are correctly created
         for (int i = 0; i < NUM_OF_LOOPS; i++) {
-            Assert.assertEquals(new File(collectionDirectory + '_' + i).getCanonicalPath(), 
-                    relationManager.getTableDirectory(collectionName + '_' + i));
-            Assert.assertEquals(Utils.getSchemaWithID(collectionSchema), relationManager.getTableSchema(collectionName + '_' + i));
+            Assert.assertEquals(new File(tableDirectory + '_' + i).getCanonicalPath(), 
+                    relationManager.getTableDirectory(tableName + '_' + i));
+            Assert.assertEquals(Utils.getSchemaWithID(tableSchema), relationManager.getTableSchema(tableName + '_' + i));
             Assert.assertEquals(LuceneAnalyzerConstants.standardAnalyzerString(), 
-                    relationManager.getTableAnalyzer(collectionName + '_' + i));
+                    relationManager.getTableAnalyzer(tableName + '_' + i));
         }
-        // delete collections
+        // delete tables
         for (int i = 0; i < NUM_OF_LOOPS; i++) {
-            relationManager.deleteTable(collectionName + '_' + i);
+            relationManager.deleteTable(tableName + '_' + i);
         }
-        // assert collections are correctly deleted
+        // assert tables are correctly deleted
         int errorCount = 0;
         for (int i = 0; i < NUM_OF_LOOPS; i++) {
             try {
-                relationManager.getTableDirectory(collectionName + '_' + i);
+                relationManager.getTableDirectory(tableName + '_' + i);
             } catch (StorageException e) {
                 errorCount++;
             }
@@ -175,32 +175,32 @@ public class RelationTest {
      */
     @Test
     public void test8() throws Exception {
-        String collectionName = "relation_manager_test_collection";
-        String collectionDirectory = "./index/test_collection";
-        Schema collectionSchema = new Schema(
+        String tableName = "relation_manager_test_table";
+        String tableDirectory = "./index/test_table";
+        Schema tableSchema = new Schema(
                 new Attribute("content", FieldType.STRING));
         
         RelationManager relationManager = RelationManager.getRelationManager();
         
-        relationManager.deleteTable(collectionName);
+        relationManager.deleteTable(tableName);
         relationManager.createTable(
-                collectionName, collectionDirectory, collectionSchema, LuceneAnalyzerConstants.standardAnalyzerString());
+                tableName, tableDirectory, tableSchema, LuceneAnalyzerConstants.standardAnalyzerString());
         
-        ITuple insertedTuple = new DataTuple(collectionSchema, new StringField("test"));
-        IDField idField = relationManager.insertTuple(collectionName, insertedTuple);
+        ITuple insertedTuple = new DataTuple(tableSchema, new StringField("test"));
+        IDField idField = relationManager.insertTuple(tableName, insertedTuple);
         
-        ITuple returnedTuple = relationManager.getTuple(collectionName, idField);
+        ITuple returnedTuple = relationManager.getTuple(tableName, idField);
         
         Assert.assertEquals(insertedTuple.getField("content").getValue().toString(), 
                 returnedTuple.getField("content").getValue().toString());
         
-        relationManager.deleteTuple(collectionName, idField);
+        relationManager.deleteTuple(tableName, idField);
         
-        ITuple deletedTuple = relationManager.getTuple(collectionName, idField);
+        ITuple deletedTuple = relationManager.getTuple(tableName, idField);
         // should not reach next line because of exception
         Assert.assertNull(deletedTuple);
         
-        relationManager.deleteTable(collectionName);       
+        relationManager.deleteTable(tableName);       
     }
     
     /*
@@ -208,39 +208,39 @@ public class RelationTest {
      */
     @Test
     public void test9() throws Exception {
-        String collectionName = "relation_manager_test_collection";
-        String collectionDirectory = "./index/test_collection";
-        Schema collectionSchema = new Schema(
+        String tableName = "relation_manager_test_table";
+        String tableDirectory = "./index/test_table";
+        Schema tableSchema = new Schema(
                 new Attribute("content", FieldType.STRING));
         
         RelationManager relationManager = RelationManager.getRelationManager();
         
-        relationManager.deleteTable(collectionName);
+        relationManager.deleteTable(tableName);
         relationManager.createTable(
-                collectionName, collectionDirectory, collectionSchema, LuceneAnalyzerConstants.standardAnalyzerString());
+                tableName, tableDirectory, tableSchema, LuceneAnalyzerConstants.standardAnalyzerString());
         
-        ITuple insertedTuple = new DataTuple(collectionSchema, new StringField("test"));
-        IDField idField = relationManager.insertTuple(collectionName, insertedTuple);   
-        ITuple returnedTuple = relationManager.getTuple(collectionName, idField);
+        ITuple insertedTuple = new DataTuple(tableSchema, new StringField("test"));
+        IDField idField = relationManager.insertTuple(tableName, insertedTuple);   
+        ITuple returnedTuple = relationManager.getTuple(tableName, idField);
         
         Assert.assertEquals(insertedTuple.getField("content").getValue().toString(), 
                 returnedTuple.getField("content").getValue().toString());
         
         
-        ITuple updatedTuple = new DataTuple(collectionSchema, new StringField("testUpdate"));
-        relationManager.updateTuple(collectionName, updatedTuple, idField);
-        ITuple returnedUpdatedTuple = relationManager.getTuple(collectionName, idField);
+        ITuple updatedTuple = new DataTuple(tableSchema, new StringField("testUpdate"));
+        relationManager.updateTuple(tableName, updatedTuple, idField);
+        ITuple returnedUpdatedTuple = relationManager.getTuple(tableName, idField);
         
         Assert.assertEquals(updatedTuple.getField("content").getValue().toString(), 
                 returnedUpdatedTuple.getField("content").getValue().toString());
         
-        relationManager.deleteTuple(collectionName, idField);
+        relationManager.deleteTuple(tableName, idField);
         
-        ITuple deletedTuple = relationManager.getTuple(collectionName, idField);
+        ITuple deletedTuple = relationManager.getTuple(tableName, idField);
         // should not reach next line because of exception
         Assert.assertNull(deletedTuple);
         
-        relationManager.deleteTable(collectionName);       
+        relationManager.deleteTable(tableName);       
     }
     
     
