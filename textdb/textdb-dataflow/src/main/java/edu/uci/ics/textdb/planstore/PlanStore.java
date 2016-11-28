@@ -4,35 +4,38 @@ import edu.uci.ics.textdb.api.common.IField;
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.exception.TextDBException;
 import edu.uci.ics.textdb.api.storage.IDataReader;
-import edu.uci.ics.textdb.api.storage.IRelationManager;
 import edu.uci.ics.textdb.common.constants.LuceneAnalyzerConstants;
+import edu.uci.ics.textdb.common.constants.SchemaConstants;
+import edu.uci.ics.textdb.common.exception.DataFlowException;
+import edu.uci.ics.textdb.common.exception.StorageException;
 import edu.uci.ics.textdb.common.field.DataTuple;
+import edu.uci.ics.textdb.common.field.IDField;
 import edu.uci.ics.textdb.common.field.StringField;
+import edu.uci.ics.textdb.common.utils.Utils;
 import edu.uci.ics.textdb.plangen.LogicalPlan;
+import edu.uci.ics.textdb.storage.relation.RelationManager;
 
 import java.io.*;
-import java.nio.file.*;
-import java.nio.file.attribute.BasicFileAttributes;
 
 /**
  * Created by sweetest.sj on 11/13/16.
  */
-public class PlanStore implements IPlanStore {
+public class PlanStore {
     private static PlanStore instance = null;
-    private IRelationManager im = null;
+    private RelationManager im = null;
 
-    private PlanStore() {
+    private PlanStore() throws StorageException, DataFlowException {
+        im = RelationManager.getRelationManager();
         //initialize
     }
 
-    public synchronized static PlanStore getInstance() {
+    public synchronized static PlanStore getInstance() throws StorageException, DataFlowException {
         if (instance == null) {
             instance = new PlanStore();
         }
         return instance;
     }
 
-    @Override
     public void createPlanStore() throws TextDBException {
         if (!im.checkTableExistence(PlanStoreConstants.TABLE_NAME)) {
             im.createTable(PlanStoreConstants.TABLE_NAME,
@@ -47,40 +50,17 @@ public class PlanStore implements IPlanStore {
         }
     }
 
-    @Override
     public void destroyPlanStore() throws TextDBException {
         im.deleteTable(PlanStoreConstants.TABLE_NAME);
 
-        Path directory = Paths.get(PlanStoreConstants.FILES_DIR);
-        if (!Files.exists(directory)) {
-            return;
-        }
-
-        try {
-            Files.walkFileTree(directory, new SimpleFileVisitor<Path>() {
-                @Override
-                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                    Files.delete(file);
-                    return FileVisitResult.CONTINUE;
-                }
-
-                @Override
-                public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-                    Files.delete(dir);
-                    return FileVisitResult.CONTINUE;
-                }
-            });
-        } catch (IOException e) {
-            throw new TextDBException("failed to delete plan files dir", e);
-        }
+        Utils.deleteIndex(PlanStoreConstants.FILES_DIR);
     }
 
-    @Override
-    public void addPlan(String planName, String description, LogicalPlan plan) throws TextDBException {
+    public IDField addPlan(String planName, String description, LogicalPlan plan) throws TextDBException {
         if (planName == null || description == null || plan == null) {
             throw new TextDBException("arguments cannot be null when adding a plan");
         }
-        if (PlanStoreConstants.INVALID_PLAN_NAME.matcher(planName).find()) {
+        if (!PlanStoreConstants.INVALID_PLAN_NAME.matcher(planName).find()) {
             throw new TextDBException("plan name is not valid, it can only contain alphanumeric characters, underscore, and hypen.");
         }
         if (getPlan(planName) != null) {
@@ -93,89 +73,80 @@ public class PlanStore implements IPlanStore {
                 new StringField(description),
                 new StringField(filePath));
 
-        im.insertTuple(PlanStoreConstants.TABLE_NAME, tuple);
+        IDField id = im.insertTuple(PlanStoreConstants.TABLE_NAME, tuple);
         writePlanObject(plan, filePath);
+
+        return id;
     }
 
-    @Override
     public ITuple getPlan(String planName) throws TextDBException {
         IDataReader reader = im.scanTable(PlanStoreConstants.TABLE_NAME);
+        reader.open();
         ITuple inputTuple = null;
 
         while ((inputTuple = reader.getNextTuple()) != null) {
             IField nameField = inputTuple.getField(PlanStoreConstants.NAME);
             if (nameField.getValue().toString().equals(planName)) {
+                reader.close();
                 return inputTuple;
             }
         }
+        reader.close();
         return null;
     }
 
-    @Override
     public IDataReader getPlanIterator() throws TextDBException {
         return im.scanTable(PlanStoreConstants.TABLE_NAME);
     }
 
-    @Override
     public void deletePlan(String planName) throws TextDBException {
-        IDataReader reader = im.scanTable(PlanStoreConstants.TABLE_NAME);
-        ITuple inputTuple = null;
+        ITuple plan = getPlan(planName);
 
-        while ((inputTuple = reader.getNextTuple()) != null) {
-            IField nameField = inputTuple.getField(PlanStoreConstants.NAME);
-            if (nameField.getValue().toString().equals(planName)) {
-                IField idField = inputTuple.getField("_id");
-                im.deleteTuple(PlanStoreConstants.TABLE_NAME, idField);
-
-                IField filePathField = inputTuple.getField(PlanStoreConstants.FILE_PATH);
-                deletePlanObject(filePathField.getValue().toString());
-
-                break;
-            }
+        if (plan == null) {
+            throw new TextDBException("plan with given name does not exist");
         }
+
+        IField idField = plan.getField(SchemaConstants._ID);
+        im.deleteTuple(PlanStoreConstants.TABLE_NAME, idField);
+
+        IField filePathField = plan.getField(PlanStoreConstants.FILE_PATH);
+        deletePlanObject(filePathField.getValue().toString());
     }
 
-    @Override
     public void updatePlan(String planName, LogicalPlan plan) throws TextDBException {
         updatePlanInternal(planName, null, plan);
     }
 
-    @Override
     public void updatePlan(String planName, String description) throws TextDBException {
         updatePlanInternal(planName, description, null);
     }
 
-    @Override
     public void updatePlan(String planName, String description, LogicalPlan plan) throws TextDBException {
         updatePlanInternal(planName, description, plan);
     }
 
     private void updatePlanInternal(String planName, String description, LogicalPlan plan) throws TextDBException {
-        IDataReader reader = im.scanTable(PlanStoreConstants.TABLE_NAME);
-        ITuple inputTuple = null;
+        ITuple tuple = getPlan(planName);
 
-        while ((inputTuple = reader.getNextTuple()) != null) {
-            IField nameField = inputTuple.getField(PlanStoreConstants.NAME);
-            if (nameField.getValue().toString().equals(planName)) {
-                if (description != null) {
-                    IField idField = inputTuple.getField("_id");
-                    IField descriptionField = new StringField(description);
-                    ITuple tuple = new DataTuple(PlanStoreConstants.SCHEMA_PLAN,
-                            new StringField(planName),
-                            descriptionField,
-                            inputTuple.getField(PlanStoreConstants.FILE_PATH));
-                    im.updateTuple(PlanStoreConstants.TABLE_NAME, tuple, idField);
-                }
+        if (tuple == null) {
+            throw new TextDBException("plan with given name does not exist");
+        }
 
-                if (plan != null) {
-                    IField filePathField = inputTuple.getField(PlanStoreConstants.FILE_PATH);
-                    String filePath = filePathField.getValue().toString();
-                    deletePlanObject(filePath);
-                    writePlanObject(plan, filePath);
-                }
+        if (description != null) {
+            IField idField = tuple.getField(SchemaConstants._ID);
+            IField descriptionField = new StringField(description);
+            ITuple newTuple = new DataTuple(PlanStoreConstants.SCHEMA_PLAN,
+                    new StringField(planName),
+                    descriptionField,
+                    tuple.getField(PlanStoreConstants.FILE_PATH));
+            im.updateTuple(PlanStoreConstants.TABLE_NAME, newTuple, (IDField) idField);
+        }
 
-                break;
-            }
+        if (plan != null) {
+            IField filePathField = tuple.getField(PlanStoreConstants.FILE_PATH);
+            String filePath = filePathField.getValue().toString();
+            deletePlanObject(filePath);
+            writePlanObject(plan, filePath);
         }
     }
 
@@ -186,7 +157,7 @@ public class PlanStore implements IPlanStore {
             fis = new FileInputStream(filePath);
             ois = new ObjectInputStream(fis);
             return (LogicalPlan) ois.readObject();
-        } catch(Exception e) {
+        } catch (Exception e) {
             throw new TextDBException("failed to read plan object", e);
         } finally {
             try {

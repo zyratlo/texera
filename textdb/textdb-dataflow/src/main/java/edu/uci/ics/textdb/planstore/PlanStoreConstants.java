@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
 public class PlanStoreConstants {
     public static final String TABLE_NAME = "plan";
 
-    public static final Pattern INVALID_PLAN_NAME = Pattern.compile("[^a-zA-Z0-9\\-_]");
+    public static final Pattern INVALID_PLAN_NAME = Pattern.compile("^[a-zA-Z0-9\\-_]{1,}$");
 
     public static final String INDEX_DIR = "../plan";
     public static final String FILES_DIR = "../plan_files";
