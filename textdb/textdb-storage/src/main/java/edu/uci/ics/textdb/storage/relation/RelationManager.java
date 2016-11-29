@@ -89,12 +89,28 @@ public class RelationManager {
         }
         
         // check lucene analyzer string is valid
+        Analyzer luceneAnalyzer = null;
         try {
-            LuceneAnalyzerConstants.getLuceneAnalyzer(luceneAnalyzerString);
+            luceneAnalyzer = LuceneAnalyzerConstants.getLuceneAnalyzer(luceneAnalyzerString);
         } catch (DataFlowException e) {
             throw new StorageException("Lucene Analyzer String is not valid.");
         }
-                
+        
+        // clear all data in the index directory
+        Schema tableSchema = Utils.getSchemaWithID(schema);
+        DataStore tableDataStore = new DataStore(indexDirectory, tableSchema);
+        new DataWriter(tableDataStore, luceneAnalyzer).clearData();;
+        
+        // write table info to catalog
+        writeTableInfoToCatalog(tableName, indexDirectory, schema, luceneAnalyzerString);
+    }
+    
+    /*
+     * This is a helper function that writes the table information to 
+     *   the table catalog and the schema catalog.
+     */
+    private void writeTableInfoToCatalog(String tableName, String indexDirectory, Schema schema, String luceneAnalyzerString) 
+            throws StorageException {   
         // write table catalog
         DataStore tableCatalogStore = new DataStore(CatalogConstants.TABLE_CATALOG_DIRECTORY,
                 CatalogConstants.TABLE_CATALOG_SCHEMA);
@@ -110,7 +126,6 @@ public class RelationManager {
         for (ITuple tuple : CatalogConstants.getSchemaCatalogTuples(tableName, tableSchema)) {
             insertTupleToDirectory(schemaCatalogStore, LuceneAnalyzerConstants.getStandardAnalyzer(), tuple);
         }
-
     }
 
     /**
@@ -124,6 +139,13 @@ public class RelationManager {
     public void deleteTable(String tableName) throws StorageException {
         if (isSystemCatalog(tableName)) {
             throw new StorageException("Deleting a system catalog table is prohibited.");
+        }
+        
+        // try to clear all data in the table
+        try {
+            new DataWriter(getTableDataStore(tableName), getTableAnalyzer(tableName)).clearData();
+        } catch (StorageException e) {
+            // don't need to do anything if clearing data fails
         }
         
         // generate a query for the table name
@@ -463,12 +485,12 @@ public class RelationManager {
      */
     private void initializeCatalog() throws StorageException {
         // create table catalog
-        createTable(CatalogConstants.TABLE_CATALOG, 
+        writeTableInfoToCatalog(CatalogConstants.TABLE_CATALOG, 
                 CatalogConstants.TABLE_CATALOG_DIRECTORY, 
                 CatalogConstants.TABLE_CATALOG_SCHEMA,
                 LuceneAnalyzerConstants.standardAnalyzerString());
         // create schema catalog
-        createTable(CatalogConstants.SCHEMA_CATALOG,
+        writeTableInfoToCatalog(CatalogConstants.SCHEMA_CATALOG,
                 CatalogConstants.SCHEMA_CATALOG_DIRECTORY,
                 CatalogConstants.SCHEMA_CATALOG_SCHEMA,
                 LuceneAnalyzerConstants.standardAnalyzerString());

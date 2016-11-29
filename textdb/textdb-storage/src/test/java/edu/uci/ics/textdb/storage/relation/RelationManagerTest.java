@@ -4,6 +4,10 @@ import java.io.File;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.index.Term;
+import org.apache.lucene.search.MatchAllDocsQuery;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.TermQuery;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,6 +23,7 @@ import edu.uci.ics.textdb.common.field.DataTuple;
 import edu.uci.ics.textdb.common.field.IDField;
 import edu.uci.ics.textdb.common.field.StringField;
 import edu.uci.ics.textdb.common.utils.Utils;
+import edu.uci.ics.textdb.storage.reader.DataReader;
 
 public class RelationManagerTest {
     
@@ -242,6 +247,87 @@ public class RelationManagerTest {
         Assert.assertNull(deletedTuple);
         
         relationManager.deleteTable(tableName);       
+    }
+    
+    
+    /*
+     * Test inserting multiple tuples to a table, getting them by a query, then deleting them by a query
+     */
+    @Test
+    public void test10() throws Exception {
+        String tableName = "relation_manager_test_table";
+        String tableDirectory = "./index/test_table";
+        Schema tableSchema = new Schema(
+                new Attribute("content", FieldType.STRING), new Attribute("number", FieldType.STRING));
+        
+        RelationManager relationManager = RelationManager.getRelationManager();
+        
+        relationManager.deleteTable(tableName);
+        relationManager.createTable(
+                tableName, tableDirectory, tableSchema, LuceneAnalyzerConstants.standardAnalyzerString());
+        
+        ITuple insertedTuple = new DataTuple(tableSchema, new StringField("test"), new StringField("1"));
+        relationManager.insertTuple(tableName, insertedTuple);
+        
+        ITuple insertedTuple2 = new DataTuple(tableSchema, new StringField("test"), new StringField("2"));
+        IDField idField2 = relationManager.insertTuple(tableName, insertedTuple2);
+        
+        ITuple insertedTuple3 = new DataTuple(tableSchema, new StringField("test"), new StringField("3"));
+        relationManager.insertTuple(tableName, insertedTuple3);
+        
+        // test should match all 3 tuples
+        Query allTupleQuery = new TermQuery(new Term("content", "test"));
+        DataReader allTupleReader = relationManager.getTuples(tableName, allTupleQuery);
+        
+        int tupleCounter = 0;
+        allTupleReader.open();
+        while (allTupleReader.getNextTuple() != null) {
+            tupleCounter++;
+        }
+        allTupleReader.close();
+        
+        Assert.assertEquals(3, tupleCounter);
+        
+        // tuple 2 should be deleted
+        Query tuple2Query = new TermQuery(new Term("number", "2"));
+        relationManager.deleteTuples(tableName, tuple2Query);
+        
+        ITuple deletedTuple = relationManager.getTuple(tableName, idField2);
+        Assert.assertNull(deletedTuple);
+        
+        relationManager.deleteTable(tableName);       
+    }
+    
+    /*
+     * Test deleting "table catalog" table should fail.
+     */
+    @Test(expected = StorageException.class)
+    public void test11() throws Exception {
+        relationManager.deleteTable(CatalogConstants.TABLE_CATALOG);       
+    }
+    
+    /*
+     * Test deleting "schema catalog" table should fail.
+     */
+    @Test(expected = StorageException.class)
+    public void test12() throws Exception {
+        relationManager.deleteTable(CatalogConstants.SCHEMA_CATALOG);       
+    }
+    
+    /*
+     * Test deleting tuples from "table catalog" table should fail.
+     */
+    @Test(expected = StorageException.class)
+    public void test13() throws Exception {
+        relationManager.deleteTuples(CatalogConstants.TABLE_CATALOG, new MatchAllDocsQuery());       
+    }
+    
+    /*
+     * Test deleting tuples from "schema catalog" table should fail.
+     */
+    @Test(expected = StorageException.class)
+    public void test14() throws Exception {
+        relationManager.deleteTuples(CatalogConstants.SCHEMA_CATALOG, new MatchAllDocsQuery());       
     }
     
     
