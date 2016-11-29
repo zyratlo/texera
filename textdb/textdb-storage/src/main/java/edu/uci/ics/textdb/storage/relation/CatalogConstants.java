@@ -13,6 +13,7 @@ import edu.uci.ics.textdb.common.exception.StorageException;
 import edu.uci.ics.textdb.common.field.DataTuple;
 import edu.uci.ics.textdb.common.field.IntegerField;
 import edu.uci.ics.textdb.common.field.StringField;
+import edu.uci.ics.textdb.common.utils.Utils;
 import edu.uci.ics.textdb.storage.DataStore;
 
 /**
@@ -53,11 +54,6 @@ public class CatalogConstants {
 
     public static final String TABLE_CATALOG_DIRECTORY = "../catalog/table";
     public static final String SCHEMA_CATALOG_DIRECTORY = "../catalog/schema";
-    
-    public static final DataStore TABLE_CATALOG_DATASTORE = 
-            new DataStore(CatalogConstants.TABLE_CATALOG_DIRECTORY, CatalogConstants.TABLE_CATALOG_SCHEMA);
-    public static final DataStore SCHEMA_CATALOG_DATASTORE = 
-            new DataStore(CatalogConstants.SCHEMA_CATALOG_DIRECTORY, CatalogConstants.SCHEMA_CATALOG_SCHEMA);
 
     // Schema for the "table catalog" table
     public static final String TABLE_NAME = "tableName";
@@ -71,6 +67,7 @@ public class CatalogConstants {
 
     public static final Schema TABLE_CATALOG_SCHEMA = new Schema(TABLE_NAME_ATTR, TABLE_DIRECTORY_ATTR,
             TABLE_LUCENE_ANALYZER_ATTR);
+    public static final Schema TABLE_CATALOG_SCHEMA_WITH_ID = Utils.getSchemaWithID(TABLE_CATALOG_SCHEMA);
 
     // Schema for "schema catalog" table
     public static final String ATTR_NAME = "attributeName";
@@ -83,8 +80,25 @@ public class CatalogConstants {
 
     public static final Schema SCHEMA_CATALOG_SCHEMA = new Schema(TABLE_NAME_ATTR, ATTR_NAME_ATTR, ATTR_TYPE_ATTR,
             ATTR_POSITION_ATTR);
+    public static final Schema SCHEMA_CATALOG_SCHEMA_WITH_ID = Utils.getSchemaWithID(SCHEMA_CATALOG_SCHEMA);
+
+    
+    // DataStore for table catalog and schema catalog
+    public static final DataStore TABLE_CATALOG_DATASTORE = 
+            new DataStore(TABLE_CATALOG_DIRECTORY, TABLE_CATALOG_SCHEMA_WITH_ID);
+    public static final DataStore SCHEMA_CATALOG_DATASTORE = 
+            new DataStore(SCHEMA_CATALOG_DIRECTORY, SCHEMA_CATALOG_SCHEMA_WITH_ID);
 
 
+    /**
+     * Gets the tuple to be inserted to the table catalog.
+     * 
+     * @param tableName
+     * @param tableDirectory
+     * @param luceneAnalyzerStr
+     * @return
+     * @throws StorageException
+     */
     public static ITuple getTableCatalogTuple(String tableName, String tableDirectory, String luceneAnalyzerStr) 
             throws StorageException {
         try {
@@ -99,6 +113,15 @@ public class CatalogConstants {
 
     }
     
+    /**
+     * Gets the tuples to be inserted to the schema catalog.
+     * 
+     * @param tableName
+     * @param tableDirectory
+     * @param luceneAnalyzerStr
+     * @return
+     * @throws StorageException
+     */
     public static List<ITuple> getSchemaCatalogTuples(String tableName, Schema tableSchema) {
         List<ITuple> schemaCatalogTuples = new ArrayList<>();
         for (int i = 0; i < tableSchema.getAttributes().size(); i++) {

@@ -89,16 +89,11 @@ public class RelationManager {
         }
         
         Schema tableSchema = Utils.getSchemaWithID(schema);
-        DataStore tableDataStore = new DataStore(indexDirectory, tableSchema);
-        Analyzer tableAnalyzer = null;
         try {
-            tableAnalyzer = LuceneAnalyzerConstants.getLuceneAnalyzer(luceneAnalyzer);
+            LuceneAnalyzerConstants.getLuceneAnalyzer(luceneAnalyzer);
         } catch (DataFlowException e) {
             throw new StorageException("Lucene Analyzer String is not valid.");
         }
-        
-        // clear table contents
-        new DataWriter(tableDataStore, tableAnalyzer).clearData();
                 
         // write table catalog
         DataStore tableCatalogStore = new DataStore(CatalogConstants.TABLE_CATALOG_DIRECTORY,
@@ -240,8 +235,14 @@ public class RelationManager {
         }
     }
     
-
-    // update a tuple by its id
+    /**
+     * Update a tuple by its ID.
+     * 
+     * @param tableName
+     * @param newTuple
+     * @param idValue
+     * @throws StorageException
+     */
     public void updateTuple(String tableName, ITuple newTuple, IDField idValue) throws StorageException {
         if (isSystemCatalog(tableName)) {
             throw new StorageException("Updating tuples in a system catalog table is prohibited.");
@@ -251,13 +252,26 @@ public class RelationManager {
                     String.format("Tuple with id %s doesn't exist in table %s.", idValue, tableName));
         }
 
-        ITuple newTupleWithID = getTupleWithID(newTuple, (IDField) idValue);
-        if (newTupleWithID.getField(SchemaConstants._ID) != (IDField) idValue) {
-            throw new StorageException("New tuple's ID is inconsistent with idValue.");
+        // if the newTuple contains the _id field, make sure the ID is consistent.
+        if (newTuple.getSchema().containsField(SchemaConstants._ID)) {
+            if (newTuple.getField(SchemaConstants._ID) != (IDField) idValue) {
+                throw new StorageException("New tuple's ID is inconsistent with idValue.");
+            }
+        } else { // add the original ID to the tuple
+            newTuple = getTupleWithID(newTuple, (IDField) idValue);
         }
         
         deleteTuple(tableName, idValue);
-        insertTuple(tableName, newTupleWithID);
+        
+        DataStore tableDataStore = getTableDataStore(tableName);
+        String tableAnalyzerString = getTableAnalyzer(tableName);
+        Analyzer luceneAnalyzer = null;
+        try {
+            luceneAnalyzer = LuceneAnalyzerConstants.getLuceneAnalyzer(tableAnalyzerString);
+        } catch (DataFlowException e) {
+            throw new StorageException(e);
+        }
+        insertTupleToDirectory(tableDataStore, luceneAnalyzer, newTuple);
     }
 
     
@@ -336,11 +350,13 @@ public class RelationManager {
     public String getTableDirectory(String tableName) throws StorageException {
         // get the tuples with tableName from the table catalog
         Query tableNameQuery = new TermQuery(new Term(CatalogConstants.TABLE_NAME, tableName));
-        DataReader tableDataReader = getTuples(CatalogConstants.TABLE_CATALOG, tableNameQuery);
+        DataReaderPredicate predicate = new DataReaderPredicate(tableNameQuery, CatalogConstants.TABLE_CATALOG_DATASTORE);
+        predicate.setIsPayloadAdded(false);
+        DataReader tableCatalogDataReader = new DataReader(predicate);
         
-        tableDataReader.open();
-        ITuple nextTuple = tableDataReader.getNextTuple();
-        tableDataReader.close();
+        tableCatalogDataReader.open();
+        ITuple nextTuple = tableCatalogDataReader.getNextTuple();
+        tableCatalogDataReader.close();
         
         // if the tuple is not found, then the table name is not found
         if (nextTuple == null) {
@@ -362,13 +378,15 @@ public class RelationManager {
     public Schema getTableSchema(String tableName) throws StorageException {
         // get the tuples with tableName from the schema catalog
         Query tableNameQuery = new TermQuery(new Term(CatalogConstants.TABLE_NAME, tableName));
-        DataReader tableDataReader = getTuples(CatalogConstants.SCHEMA_CATALOG, tableNameQuery);
+        DataReaderPredicate predicate = new DataReaderPredicate(tableNameQuery, CatalogConstants.SCHEMA_CATALOG_DATASTORE);
+        predicate.setIsPayloadAdded(false);
+        DataReader schemaCatalogDataReader = new DataReader(predicate);
         
         // read the tuples into a list
-        tableDataReader.open();    
+        schemaCatalogDataReader.open();    
         List<ITuple> tableAttributeTuples = new ArrayList<>();
         ITuple nextTuple;
-        while ((nextTuple = tableDataReader.getNextTuple()) != null) {
+        while ((nextTuple = schemaCatalogDataReader.getNextTuple()) != null) {
             tableAttributeTuples.add(nextTuple);
         }
 
@@ -402,11 +420,13 @@ public class RelationManager {
     public String getTableAnalyzer(String tableName) throws StorageException {
         // get the tuples with tableName from the table catalog
         Query tableNameQuery = new TermQuery(new Term(CatalogConstants.TABLE_NAME, tableName));
-        DataReader tableDataReader = getTuples(CatalogConstants.TABLE_CATALOG, tableNameQuery);
+        DataReaderPredicate predicate = new DataReaderPredicate(tableNameQuery, CatalogConstants.TABLE_CATALOG_DATASTORE);
+        predicate.setIsPayloadAdded(false);
+        DataReader tableCatalogDataReader = new DataReader(predicate);
         
-        tableDataReader.open();
-        ITuple nextTuple = tableDataReader.getNextTuple();
-        tableDataReader.close();
+        tableCatalogDataReader.open();
+        ITuple nextTuple = tableCatalogDataReader.getNextTuple();
+        tableCatalogDataReader.close();
         
         // if the tuple is not found, then the table name is not found
         if (nextTuple == null) {
