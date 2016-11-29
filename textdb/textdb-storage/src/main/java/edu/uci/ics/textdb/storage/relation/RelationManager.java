@@ -51,16 +51,17 @@ public class RelationManager {
     }
 
     /**
-     * Checks if a table exists by looking it up in the catalog.
+     * Checks if a table exists by looking it up in the catalog 
+     *   and checking the folder in file system.
      * 
      * @param tableName
      * @return
      */
     public boolean checkTableExistence(String tableName) {
         try {
-            getTableDirectory(tableName);
+            String tableDirectory = getTableDirectory(tableName);
             getTableSchema(tableName);
-            return true;
+            return DataReader.checkIndexExistence(tableDirectory);
         } catch (StorageException e) {
             return false;
         }
