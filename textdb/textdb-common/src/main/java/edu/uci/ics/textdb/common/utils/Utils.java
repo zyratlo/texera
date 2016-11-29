@@ -148,7 +148,8 @@ public class Utils {
     }
     
     /**
-     * Create a new schema object, with "_ID" attribute added to the front.
+     * Creates a new schema object, with "_ID" attribute added to the front.
+     * If the schema already contains "_ID" attribute, returns the original schema.
      * 
      * @param schema
      * @return

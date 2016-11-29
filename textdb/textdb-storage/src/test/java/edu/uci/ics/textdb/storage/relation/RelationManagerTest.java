@@ -2,6 +2,8 @@ package edu.uci.ics.textdb.storage.relation;
 
 import java.io.File;
 
+import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,14 +37,14 @@ public class RelationManagerTest {
     public void test1() throws Exception {
         String tableCatalogDirectory = 
                 relationManager.getTableDirectory(CatalogConstants.TABLE_CATALOG);
-        String tableCatalogLuceneAnalyzer = 
+        Analyzer tableCatalogLuceneAnalyzer = 
                 relationManager.getTableAnalyzer(CatalogConstants.TABLE_CATALOG);
         Schema tableCatalogSchema = 
                 relationManager.getTableSchema(CatalogConstants.TABLE_CATALOG);
                 
         Assert.assertEquals(tableCatalogDirectory, 
                 new File(CatalogConstants.TABLE_CATALOG_DIRECTORY).getCanonicalPath());
-        Assert.assertEquals(tableCatalogLuceneAnalyzer, LuceneAnalyzerConstants.standardAnalyzerString());
+        Assert.assertTrue(tableCatalogLuceneAnalyzer instanceof StandardAnalyzer);
         Assert.assertEquals(tableCatalogSchema, Utils.getSchemaWithID(CatalogConstants.TABLE_CATALOG_SCHEMA));
     }
     
@@ -53,14 +55,14 @@ public class RelationManagerTest {
     public void test2() throws Exception {
         String schemaCatalogDirectory = 
                 relationManager.getTableDirectory(CatalogConstants.SCHEMA_CATALOG);
-        String schemaCatalogLuceneAnalyzer = 
+        Analyzer schemaCatalogLuceneAnalyzer = 
                 relationManager.getTableAnalyzer(CatalogConstants.SCHEMA_CATALOG);
         Schema schemaCatalogSchema = 
                 relationManager.getTableSchema(CatalogConstants.SCHEMA_CATALOG);
         
         Assert.assertEquals(schemaCatalogDirectory, 
                 new File(CatalogConstants.SCHEMA_CATALOG_DIRECTORY).getCanonicalPath());
-        Assert.assertEquals(schemaCatalogLuceneAnalyzer, LuceneAnalyzerConstants.standardAnalyzerString());
+        Assert.assertTrue(schemaCatalogLuceneAnalyzer instanceof StandardAnalyzer);
         Assert.assertEquals(schemaCatalogSchema, Utils.getSchemaWithID(CatalogConstants.SCHEMA_CATALOG_SCHEMA));  
     }
     
@@ -75,19 +77,20 @@ public class RelationManagerTest {
                 new Attribute("city", FieldType.STRING),
                 new Attribute("description", FieldType.TEXT), new Attribute("tax rate", FieldType.DOUBLE),
                 new Attribute("population", FieldType.INTEGER), new Attribute("record time", FieldType.DATE));
-        String tableLuceneAnalyzer = LuceneAnalyzerConstants.standardAnalyzerString();
+        String tableLuceneAnalyzerString = LuceneAnalyzerConstants.standardAnalyzerString();
+        Analyzer tableLuceneAnalyzer = LuceneAnalyzerConstants.getLuceneAnalyzer(tableLuceneAnalyzerString);
         
         RelationManager relationManager = RelationManager.getRelationManager();
         
         relationManager.deleteTable(tableName);
         
         relationManager.createTable(
-                tableName, tableDirectory, tableSchema, tableLuceneAnalyzer);
+                tableName, tableDirectory, tableSchema, tableLuceneAnalyzerString);
         
         Assert.assertEquals(new File(tableDirectory).getCanonicalPath(), 
                 relationManager.getTableDirectory(tableName));
         Assert.assertEquals(Utils.getSchemaWithID(tableSchema), relationManager.getTableSchema(tableName));
-        Assert.assertEquals(tableLuceneAnalyzer, relationManager.getTableAnalyzer(tableName));
+        Assert.assertEquals(tableLuceneAnalyzer.getClass(), relationManager.getTableAnalyzer(tableName).getClass());
         
         relationManager.deleteTable(tableName);
     }
@@ -151,8 +154,6 @@ public class RelationManagerTest {
             Assert.assertEquals(new File(tableDirectory + '_' + i).getCanonicalPath(), 
                     relationManager.getTableDirectory(tableName + '_' + i));
             Assert.assertEquals(Utils.getSchemaWithID(tableSchema), relationManager.getTableSchema(tableName + '_' + i));
-            Assert.assertEquals(LuceneAnalyzerConstants.standardAnalyzerString(), 
-                    relationManager.getTableAnalyzer(tableName + '_' + i));
         }
         // delete tables
         for (int i = 0; i < NUM_OF_LOOPS; i++) {
