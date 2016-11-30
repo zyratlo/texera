@@ -5,7 +5,7 @@
 	@Author: Jimmy Wang
 */
 
-// main function
+// main operation (holds all the methods for the buttons and holds the buttons itself)
 var setup = function(){
 	var data = {};
 
@@ -18,8 +18,6 @@ var setup = function(){
 	var selectedOperator = '';
 	var editOperators = [];
 	
-	var defaultRegex = "zika\s*(virus|fever)";
-	var defaultKeyword = "Zika";
 	var defaultDict = "SampleDict1.txt";
 	var defaultFuzzy = "FuzzyWuzzy";
 	var thresholdRatio = 0.8;
@@ -30,9 +28,12 @@ var setup = function(){
 	var defaultAttributeID = "John";
 	var defaultPredicateType = "CharacterDistance";
 	var defaultDistance = 10;
-	var defaultAttributes = "first name, last name";
-	var defaultLimit = 10;
-	var defaultOffset = 5;
+
+	var DEFAULT_KEYWORD = "Zika";
+	var DEFAULT_REGEX = "zika\s*(virus|fever)";
+	var DEFAULT_ATTRIBUTES = "first name, last name";
+	var DEFAULT_LIMIT = 10;
+	var DEFAULT_OFFSET = 5;
 	
 	/*
 		Helper Functions
@@ -44,13 +45,13 @@ var setup = function(){
 	  
 	  if (panel == 'regex-panel'){
 		if (userInput == null || userInput == ''){
-			userInput = defaultRegex;
+			userInput = DEFAULT_REGEX;
 		}
 	    extraOperators['regex'] = userInput;
 	  }
 	  else if (panel == 'keyword-panel'){
 		if (userInput == null || userInput == ''){
-			userInput = defaultKeyword;
+			userInput = DEFAULT_KEYWORD;
 		}
 		extraOperators['keyword'] = userInput;
 		extraOperators['matching_type'] = $('#' + panel + ' .matching-type').val();
@@ -125,17 +126,17 @@ var setup = function(){
 		var result = $('#' + panel + keyword).val();
 		if(keyword == ' .limit'){
 			if (result == null || result == ''){
-				result = defaultLimit;
+				result = DEFAULT_LIMIT;
 			}
 		}
 		else if(keyword == ' .offset'){
 			if (result == null || result == ''){
-				result = defaultOffset;
+				result = DEFAULT_OFFSET;
 			}
 		}
 		else if(keyword == ' .attributes'){
 			if (result == null || result == ''){
-				result = defaultAttributes;
+				result = DEFAULT_ATTRIBUTES;
 			}
 		}
 		return result;
@@ -234,12 +235,12 @@ var setup = function(){
 		var links = [];
 		
 		for(var operatorIndex in GUIJSON.operators){
-			if (GUIJSON.operators.hasOwnProperty(operatorIndex)){
+			if(GUIJSON.operators.hasOwnProperty(operatorIndex) {
 				var attributes = {};
-				
-				for(var attribute in GUIJSON['operators'][operatorIndex]['properties']['attributes']){
-					if (GUIJSON['operators'][operatorIndex]['properties']['attributes'].hasOwnProperty(attribute)){
-						attributes[attribute] = GUIJSON['operators'][operatorIndex]['properties']['attributes'][attribute];
+				var currentOperator = GUIJSON['operators'][operatorIndex];
+				for(var attribute in currentOperator['properties']['attributes']){
+					if (currentOperator['properties']['attributes'].hasOwnProperty(attribute)){
+						attributes[attribute] = currentOperator['properties']['attributes'][attribute];
 					}
 				}
 				operators.push(attributes);
@@ -256,13 +257,9 @@ var setup = function(){
 		}
 		TEXTDBJSON.operators = operators;
 		TEXTDBJSON.links = links;
-		
-		// console.log(operators);
-		// console.log(links)
-		// console.log(data);
-		// console.log(JSON.stringify(data));
-		console.log(JSON.stringify(TEXTDBJSON));
-		console.log(JSON.stringify(GUIJSON));
+	
+		// console.log(JSON.stringify(TEXTDBJSON));
+		// console.log(JSON.stringify(GUIJSON));
 		
 		$.ajax({
 			url: "http://localhost:8080/queryplan/execute",
@@ -276,10 +273,6 @@ var setup = function(){
 			},
 			error: function(xhr, status, err){
 				console.log("ERROR");
-				console.log(xhr.status);
-				console.log(JSON.stringify(xhr));
-				console.log(JSON.stringify(status));
-				console.log(JSON.stringify(err));
 			}
 		});
 	};
