@@ -18,7 +18,7 @@ var setup = function(){
 	var selectedOperator = '';
 	var editOperators = [];
 	
-	var defaultKeyword = "Zika";
+	var DEFAULT_KEYWORD = "Zika";
 	var DEFAULT_REGEX = "zika\s*(virus|fever)";
 	var DEFAULT_ATTRIBUTES = "first name, last name";
 	var DEFAULT_LIMIT = 10;
@@ -40,7 +40,7 @@ var setup = function(){
 	  }
 	  else if (panel == 'keyword-panel'){
 		if (userInput == null || userInput == ''){
-			userInput = defaultKeyword;
+			userInput = DEFAULT_KEYWORD;
 		}
 		extraOperators['keyword'] = userInput;
 		extraOperators['matching_type'] = $('#' + panel + ' .matching-type').val();
