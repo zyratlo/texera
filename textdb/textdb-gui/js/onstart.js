@@ -18,16 +18,16 @@ var setup = function(){
 	var selectedOperator = '';
 	var editOperators = [];
 	
-	var defaultDict = "SampleDict1.txt";
-	var defaultFuzzy = "FuzzyWuzzy";
-	var thresholdRatio = 0.8;
-	var nlpArray = ["noun", "verb", "adjective", "adverb", "ne_all", "number", "location", "person", "organization", "money", "percent", "date", "time"];
-	var defaultNlp = "ne_all";
-	var defaultDataSource = "collection name";
-	var defaultFileSink = "output.txt";
-	var defaultAttributeID = "John";
-	var defaultPredicateType = "CharacterDistance";
-	var defaultDistance = 10;
+	var DEFAULT_DICT = "SampleDict1.txt";
+	var DEFAULT_FUZZY = "FuzzyWuzzy";
+	var THRESHOLD_RATIO = 0.8;
+	var NLP_ARRAY = ["noun", "verb", "adjective", "adverb", "ne_all", "number", "location", "person", "organization", "money", "percent", "date", "time"];
+	var DEFAULT_NLP = "ne_all";
+	var DEFAULT_DATA_SOURCE = "collection name";
+	var DEFAULT_FILE_SINK = "output.txt";
+	var DEFAULT_ATTRIBUTE_ID = "John";
+	var DEFAULT_PREDICATE_TYPE = "CharacterDistance";
+	var DEFAULT_DISTANCE = 10;
 
 	var DEFAULT_KEYWORD = "Zika";
 	var DEFAULT_REGEX = "zika\s*(virus|fever)";
@@ -58,23 +58,23 @@ var setup = function(){
 	  }
 	  else if (panel == 'dictionary-panel'){
 		if (userInput == null || userInput == ''){
-			userInput = defaultDict;
+			userInput = DEFAULT_DICT;
 		}
 		extraOperators['dictionary'] = userInput;
 		extraOperators['matching_type'] = $('#' + panel + ' .matching-type').val();
 	  }
 	  else if (panel == 'fuzzy-panel'){
 		if (userInput == null || userInput == ''){
-			userInput = defaultFuzzy;
+			userInput = DEFAULT_FUZZY;
 		}
 		extraOperators['query'] = userInput;
-		extraOperators['threshold_ratio'] = thresholdRatio;
+		extraOperators['threshold_ratio'] = THRESHOLD_RATIO;
 	  }
 	  else if (panel == 'nlp-panel'){
 		if (userInput == null || userInput == ''){
-			userInput = defaultNlp;
+			userInput = DEFAULT_NLP;
 		}
-		else if(nlpArray.indexOf(userInput.toLowerCase()) == -1){
+		else if(NLP_ARRAY.indexOf(userInput.toLowerCase()) == -1){
 			alert('Please choose an NLP from the following: ["noun", "verb", "adjective", "adverb", "ne_all", "number", "location", "person", "organization", "money", "percent", "date", "time"]');
 			return;
 		}
@@ -88,7 +88,7 @@ var setup = function(){
 		
 		var dataSource = $('#' + panel + ' .data-source').val();
 		if (dataSource == null || dataSource == ''){
-			dataSource = defaultDataSource;
+			dataSource = DEFAULT_DATA_SOURCE;
 		}
 		extraOperators['data_source'] = dataSource;
 		
@@ -96,25 +96,25 @@ var setup = function(){
 	  }
 	  else if (panel == 'file-sink-panel'){
 		if (userInput == null || userInput == ''){
-			userInput = defaultFileSink;
+			userInput = DEFAULT_FILE_SINK;
 		}
 		extraOperators['file_path'] = userInput;
 	  }
 	  else if (panel == 'join-panel'){
 		if (userInput == null || userInput == ''){
-			userInput = defaultAttributeID;
+			userInput = DEFAULT_ATTRIBUTE_ID;
 		}
 		extraOperators['id_attribute'] = userInput;
 		
 		var predicateType = $('#' + panel + ' .predicate-type').val();
 		if (predicateType == null || predicateType == ''){
-			predicateType = defaultPredicateType;
+			predicateType = DEFAULT_PREDICATE_TYPE;
 		}
 		extraOperators['predicate_type'] = predicateType;
 		
 		var distance = $('#' + panel + ' .distance').val();
 		if (distance == null || distance == ''){
-			distance = defaultDistance;
+			distance = DEFAULT_DISTANCE;
 		}
 		extraOperators['distance'] = distance;
 	  }
@@ -404,7 +404,7 @@ var setup = function(){
 			var attr = editOperators[otherOperator].replace(/-/, '_');
 			var result = $('.' + panel + ' .' + editOperators[otherOperator]).val();
 			if(((result == '') || (result == null)) && (attr == 'dictionary')){
-				result = defaultDict;
+				result = DEFAULT_DICT;
 			}
 			operatorData.properties.attributes[attr] = result;
 		}
