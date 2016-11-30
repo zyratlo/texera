@@ -18,6 +18,7 @@ var setup = function(){
 	var selectedOperator = '';
 	var editOperators = [];
 	
+	var DEFAULT_KEYWORD = "Zika";
 	var DEFAULT_REGEX = "zika\s*(virus|fever)";
 	var DEFAULT_ATTRIBUTES = "first name, last name";
 	var DEFAULT_LIMIT = 10;
@@ -36,6 +37,13 @@ var setup = function(){
 			userInput = DEFAULT_REGEX;
 		}
 	    extraOperators['regex'] = userInput;
+	  }
+	  else if (panel == 'keyword-panel'){
+		if (userInput == null || userInput == ''){
+			userInput = DEFAULT_KEYWORD;
+		}
+		extraOperators['keyword'] = userInput;
+		extraOperators['matching_type'] = $('#' + panel + ' .matching-type').val();
 	  }
 	  return extraOperators;
 	};
@@ -66,7 +74,26 @@ var setup = function(){
 	function getHtml(attr, attrValue){
 		var resultString = '';
 		var classString = attr.replace(/_/g, '-');
-		resultString += '<input type="text" class="' + classString + '" value="' + attrValue + '">';
+		var resultString = '';
+		var classString = attr.replace(/_/g, '-');
+		if(attr == 'matching_type'){
+			resultString += '<select class="matching-type"><option value="conjunction"';
+			if(attrValue == 'conjunction'){
+				resultString += ' selected';
+			}
+			resultString += '>Conjunction</option><option value="phrase"';
+			if(attrValue == 'phrase'){
+				resultString += ' selected';
+			}
+			resultString += '>Phrase</option><option value="substring"';
+			if(attrValue == 'substring'){
+				resultString += ' selected';
+			}
+			resultString += '>Substring</option></select>';
+		}
+		else{
+			resultString += '<input type="text" class="' + classString + '" value="' + attrValue + '">';
+		}
 		editOperators.push(classString);
 		return resultString;		
 	}
@@ -122,6 +149,57 @@ var setup = function(){
 	/*
 		Button functions
 	*/
+	
+	//Process Operators to Server (GUIJSON --> TEXTDBJSON --> Server)
+	var processQuery = function(){
+		var GUIJSON = $('#the-flowchart').flowchart('getData');
+			
+		var TEXTDBJSON = {};
+		var operators = [];
+		var links = [];
+		
+		for(var operatorIndex in GUIJSON.operators){
+			if(GUIJSON.operators.hasOwnProperty(operatorIndex) {
+				var attributes = {};
+				var currentOperator = GUIJSON['operators'][operatorIndex];
+				for(var attribute in currentOperator['properties']['attributes']){
+					if (currentOperator['properties']['attributes'].hasOwnProperty(attribute)){
+						attributes[attribute] = currentOperator['properties']['attributes'][attribute];
+					}
+				}
+				operators.push(attributes);
+			}
+		}	
+		
+		for(var link in GUIJSON.links){
+			var destination = {};
+			if (GUIJSON['links'][link].hasOwnProperty("fromOperator")){
+				destination["from"] = GUIJSON['links'][link]['fromOperator'];
+				destination["to"] = GUIJSON['links'][link]['toOperator'];
+				links.push(destination);
+			}
+		}
+		TEXTDBJSON.operators = operators;
+		TEXTDBJSON.links = links;
+	
+		// console.log(JSON.stringify(TEXTDBJSON));
+		// console.log(JSON.stringify(GUIJSON));
+		
+		$.ajax({
+			url: "http://localhost:8080/queryplan/execute",
+			type: "POST",
+			data: JSON.stringify(TEXTDBJSON),
+			dataType: "text",
+			contentType: "application/json",
+			success: function(returnedData){
+				console.log("SUCCESS\n");
+				console.log(JSON.stringify(returnedData));
+			},
+			error: function(xhr, status, err){
+				console.log("ERROR");
+			}
+		});
+	};
 	
 	//Attribute Pop-Up Box displays attributes in the popup box for selected operator
 	var displayPopupBox = function(){
@@ -292,14 +370,17 @@ var setup = function(){
 	/*
 		Buttons
 	*/
+	
+	//Process Operator Button. Calls processQuery function
+	$('.process-query').on('click', processQuery);
 
 	//Upon Operator Selection (when operator is clicked/selected) Calls displayPopupBox function
 	$('#the-flowchart').on('click', '.flowchart-operators-layer.unselectable div .flowchart-operator-title', displayPopupBox);
 
 	//Create Operator button. Calls createOperator function
-    $('.create-operator').click(function() {
+	$('.create-operator').click(function() {
 		createOperator(this);
-    });
+	});
 
 	//Edit Operator Button calls editOperator function
 	$('#attributes').on('click', '.edit-operator', editOperator);	
