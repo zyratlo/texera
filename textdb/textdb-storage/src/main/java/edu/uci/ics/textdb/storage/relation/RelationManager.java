@@ -89,7 +89,7 @@ public class RelationManager {
             throw new StorageException(String.format("Table %s already exists.", tableName));
         }
         
-        // check lucene analyzer string is valid
+        // check if the lucene analyzer string is valid
         Analyzer luceneAnalyzer = null;
         try {
             luceneAnalyzer = LuceneAnalyzerConstants.getLuceneAnalyzer(luceneAnalyzerString);
@@ -138,6 +138,7 @@ public class RelationManager {
      * @throws StorageException
      */
     public void deleteTable(String tableName) throws StorageException {
+        // User can't delete catalog table
         if (isSystemCatalog(tableName)) {
             throw new StorageException("Deleting a system catalog table is prohibited.");
         }
