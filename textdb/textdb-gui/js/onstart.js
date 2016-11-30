@@ -132,12 +132,12 @@ var setup = function(){
 		var links = [];
 		
 		for(var operatorIndex in GUIJSON.operators){
-			if (GUIJSON.operators.hasOwnProperty(operatorIndex)){
+			if(GUIJSON.operators.hasOwnProperty(operatorIndex) {
 				var attributes = {};
-				
-				for(var attribute in GUIJSON['operators'][operatorIndex]['properties']['attributes']){
-					if (GUIJSON['operators'][operatorIndex]['properties']['attributes'].hasOwnProperty(attribute)){
-						attributes[attribute] = GUIJSON['operators'][operatorIndex]['properties']['attributes'][attribute];
+				var currentOperator = GUIJSON['operators'][operatorIndex];
+				for(var attribute in currentOperator['properties']['attributes']){
+					if (currentOperator['properties']['attributes'].hasOwnProperty(attribute)){
+						attributes[attribute] = currentOperator['properties']['attributes'][attribute];
 					}
 				}
 				operators.push(attributes);
@@ -154,13 +154,9 @@ var setup = function(){
 		}
 		TEXTDBJSON.operators = operators;
 		TEXTDBJSON.links = links;
-		
-		// console.log(operators);
-		// console.log(links)
-		// console.log(data);
-		// console.log(JSON.stringify(data));
-		console.log(JSON.stringify(TEXTDBJSON));
-		console.log(JSON.stringify(GUIJSON));
+	
+		// console.log(JSON.stringify(TEXTDBJSON));
+		// console.log(JSON.stringify(GUIJSON));
 		
 		$.ajax({
 			url: "http://localhost:8080/queryplan/execute",
@@ -174,10 +170,6 @@ var setup = function(){
 			},
 			error: function(xhr, status, err){
 				console.log("ERROR");
-				console.log(xhr.status);
-				console.log(JSON.stringify(xhr));
-				console.log(JSON.stringify(status));
-				console.log(JSON.stringify(err));
 			}
 		});
 	};
