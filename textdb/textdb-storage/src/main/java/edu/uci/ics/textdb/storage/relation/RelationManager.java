@@ -151,10 +151,11 @@ public class RelationManager {
         // try to clear all data in the table
         try {
             new DataWriter(getTableDataStore(tableName), getTableAnalyzer(tableName)).clearData();
+            Utils.deleteIndex(getTableDirectory(tableName));
         } catch (StorageException e) {
             // don't need to do anything if clearing data fails
         }
-        
+
         // generate a query for the table name
         Query catalogTableNameQuery = new TermQuery(new Term(CatalogConstants.TABLE_NAME, tableName));
 

@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import edu.uci.ics.textdb.api.exception.TextDBException;
+import edu.uci.ics.textdb.common.exception.StorageException;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
@@ -387,7 +388,7 @@ public class Utils {
         return payload;
     }
 
-    public static void deleteIndex(String indexDir) throws TextDBException {
+    public static void deleteIndex(String indexDir) throws StorageException {
         Path directory = Paths.get(indexDir);
         if (!Files.exists(directory)) {
             return;
@@ -408,7 +409,7 @@ public class Utils {
                 }
             });
         } catch (IOException e) {
-            throw new TextDBException("failed to delete plan files dir", e);
+            throw new StorageException("failed to delete plan files dir", e);
         }
     }
 }
