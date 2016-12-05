@@ -11,6 +11,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -18,7 +19,7 @@ import java.util.List;
  * @author sweetest
  */
 public class PlanStoreTest {
-    private PlanStore planStore;
+    private static PlanStore planStore;
 
     @Before
     public void setUp() throws Exception {
@@ -31,61 +32,96 @@ public class PlanStoreTest {
         planStore.destroyPlanStore();
     }
 
+    public static void assertCorrectPlanExists(String planName, LogicalPlan logicalPlan) throws TextDBException {
+        ITuple res = planStore.getPlan(planName);
+
+        Assert.assertNotNull(res);
+
+        String filePath = res.getField(PlanStoreConstants.FILE_PATH).getValue().toString();
+        LogicalPlan returnedPlan = planStore.readPlanObject(filePath);
+
+        Assert.assertEquals(logicalPlan, returnedPlan);
+    }
+
     @Test
-    public void testPlanStore() throws TextDBException {
+    public void testAddPlan() throws TextDBException {
+        LogicalPlan logicalPlan = LogicalPlanTest.getLogicalPlan1();
+        String planName = "plan";
+
+        planStore.addPlan(planName, "basic regex plan", logicalPlan);
+
+        assertCorrectPlanExists(planName, logicalPlan);
+    }
+
+    @Test
+    public void testUpdatePlan() throws TextDBException {
         LogicalPlan logicalPlan1 = LogicalPlanTest.getLogicalPlan1();
         LogicalPlan logicalPlan2 = LogicalPlanTest.getLogicalPlan2();
-        LogicalPlan logicalPlan3 = LogicalPlanTest.getLogicalPlan3();
+
+        String planName1 = "plan1";
+
+        planStore.addPlan(planName1, "basic regex plan", logicalPlan1);
+
+        planStore.updatePlan(planName1, logicalPlan2);
+
+        assertCorrectPlanExists(planName1, logicalPlan2);
+    }
+
+    @Test
+    public void testDeletePlan() throws TextDBException {
+        LogicalPlan logicalPlan1 = LogicalPlanTest.getLogicalPlan1();
+        LogicalPlan logicalPlan2 = LogicalPlanTest.getLogicalPlan2();
 
         String planName1 = "plan1";
         String planName2 = "plan2";
 
         planStore.addPlan(planName1, "basic regex plan", logicalPlan1);
+        planStore.addPlan(planName2, "nlp and regex plan", logicalPlan2);
 
-        ITuple res1 = planStore.getPlan(planName1);
+        planStore.deletePlan(planName1);
 
-        Assert.assertNotNull(res1);
+        ITuple returnedPlan = planStore.getPlan(planName1);
+        Assert.assertNull(returnedPlan);
+    }
 
-        String filePath = res1.getField(PlanStoreConstants.FILE_PATH).getValue().toString();
-        LogicalPlan returnedPlan1 = planStore.readPlanObject(filePath);
+    @Test
+    public void testPlanIterator() throws TextDBException {
+        LogicalPlan logicalPlan1 = LogicalPlanTest.getLogicalPlan1();
+        LogicalPlan logicalPlan2 = LogicalPlanTest.getLogicalPlan2();
+        LogicalPlan logicalPlan3 = LogicalPlanTest.getLogicalPlan3();
 
-        Assert.assertEquals(logicalPlan1, returnedPlan1);
+        List<LogicalPlan> validPlans = new ArrayList<>();
+        validPlans.add(logicalPlan1);
+        validPlans.add(logicalPlan2);
+        validPlans.add(logicalPlan3);
 
-        planStore.updatePlan(planName1, logicalPlan2);
+        List<LogicalPlan> expectedPlans = new ArrayList<>();
 
-        ITuple res2 = planStore.getPlan(planName1);
+        String planNamePrefix = "plan_";
 
-        Assert.assertNotNull(res2);
-        filePath = res2.getField(PlanStoreConstants.FILE_PATH).getValue().toString();
-        LogicalPlan returnedPlan2 = planStore.readPlanObject(filePath);
+        for (int i = 0; i < 100; i++) {
+            LogicalPlan plan = validPlans.get(i % 3);
+            expectedPlans.add(plan);
+            planStore.addPlan(planNamePrefix + i, "basic plan " + i, plan);
+        }
 
-        Assert.assertNotSame(logicalPlan1, returnedPlan2);
-        Assert.assertEquals(logicalPlan2, returnedPlan2);
-
-        planStore.addPlan(planName2, "more complex plan", logicalPlan3);
 
         IDataReader reader = planStore.getPlanIterator();
         reader.open();
 
         ITuple tuple = null;
-        List<LogicalPlan> returnedPlans = new ArrayList<>();
-        List<LogicalPlan> expectedPlans = new ArrayList<>();
-        expectedPlans.add(logicalPlan2);
-        expectedPlans.add(logicalPlan3);
+        LogicalPlan[] returnedPlans = new LogicalPlan[expectedPlans.size()];
 
         while ((tuple = reader.getNextTuple()) != null) {
-            filePath = tuple.getField(PlanStoreConstants.FILE_PATH).getValue().toString();
+            String planName = tuple.getField(PlanStoreConstants.NAME).getValue().toString();
+            int planIdx = Integer.parseInt(planName.split("_")[1]);
+            String filePath = tuple.getField(PlanStoreConstants.FILE_PATH).getValue().toString();
             LogicalPlan logicalPlan = planStore.readPlanObject(filePath);
-            returnedPlans.add(logicalPlan);
+            returnedPlans[planIdx] = logicalPlan;
         }
         reader.close();
 
-        Assert.assertEquals(expectedPlans, returnedPlans);
-
-        planStore.deletePlan(planName1);
-
-        ITuple plan2 = planStore.getPlan(planName1);
-        Assert.assertNull(plan2);
+        Assert.assertEquals(expectedPlans, Arrays.asList(returnedPlans));
     }
 
     @Test(expected = TextDBException.class)
@@ -116,7 +152,7 @@ public class PlanStoreTest {
         planStore.addPlan(planName, "basic regex plan", logicalPlan);
     }
 
-    @Test(expected = TextDBException.class)
+    @Test
     public void testDeleteNotExistingPlan() throws TextDBException {
         LogicalPlan logicalPlan = LogicalPlanTest.getLogicalPlan1();
 
@@ -125,9 +161,11 @@ public class PlanStoreTest {
         planStore.addPlan(planName, "basic regex plan", logicalPlan);
 
         planStore.deletePlan(planName + planName);
+
+        assertCorrectPlanExists(planName, logicalPlan);
     }
 
-    @Test(expected = TextDBException.class)
+    @Test
     public void testUpdateNotExistingPlan() throws TextDBException {
         LogicalPlan logicalPlan = LogicalPlanTest.getLogicalPlan1();
 
@@ -135,6 +173,22 @@ public class PlanStoreTest {
 
         planStore.addPlan(planName, "basic regex plan", logicalPlan);
 
-        planStore.updatePlan(planName+planName, "basic regex plan", logicalPlan);
+        planStore.updatePlan(planName + planName, "basic regex plan", logicalPlan);
+
+        assertCorrectPlanExists(planName, logicalPlan);
     }
+
+    @Test
+    public void testNotDeletePlanBySubstring() throws TextDBException {
+        LogicalPlan logicalPlan = LogicalPlanTest.getLogicalPlan1();
+
+        String planName = "plan_sub";
+
+        planStore.addPlan(planName, "basic regex plan", logicalPlan);
+
+        planStore.deletePlan(planName.substring(0, 4));
+
+        assertCorrectPlanExists(planName, logicalPlan);
+    }
+
 }

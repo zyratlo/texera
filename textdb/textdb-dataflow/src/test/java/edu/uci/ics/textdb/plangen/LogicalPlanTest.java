@@ -84,6 +84,12 @@ public class LogicalPlanTest {
         }
     };
 
+    /*
+     * It generates a valid logical plan as follows.
+     *
+     * KeywordSource --> RegexMatcher --> FileSink
+     *
+     */
     public static LogicalPlan getLogicalPlan1() throws PlanGenException {
         LogicalPlan logicalPlan = new LogicalPlan();
 
@@ -95,6 +101,14 @@ public class LogicalPlanTest {
         return logicalPlan;
     }
 
+    /*
+     * It generates a valid logical plan as follows.
+     *
+     *                  -> RegexMatcher -->
+     * KeywordSource --<                     >-- Join --> FileSink
+     *                  -> NlpExtractor -->
+     *
+     */
     public static LogicalPlan getLogicalPlan2() throws PlanGenException {
         LogicalPlan logicalPlan = new LogicalPlan();
 
@@ -112,6 +126,16 @@ public class LogicalPlanTest {
         return logicalPlan;
     }
 
+    /*
+     * It generates a valid logical plan as follows.
+     *
+     *                  --> RegexMatcher -->
+     *                  |                    >-- Join1
+     * KeywordSource --< -> NlpExtractor -->          >-- Join2 --> FileSink
+     *                  |                           /
+     *                  --> FuzzyTokenMatcher ----->
+     *
+     */
     public static LogicalPlan getLogicalPlan3() throws PlanGenException {
         LogicalPlan logicalPlan = new LogicalPlan();
 

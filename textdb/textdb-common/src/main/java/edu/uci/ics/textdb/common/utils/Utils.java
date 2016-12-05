@@ -388,7 +388,7 @@ public class Utils {
         return payload;
     }
 
-    public static void deleteIndex(String indexDir) throws StorageException {
+    public static void deleteDirectory(String indexDir) throws StorageException {
         Path directory = Paths.get(indexDir);
         if (!Files.exists(directory)) {
             return;
@@ -409,7 +409,7 @@ public class Utils {
                 }
             });
         } catch (IOException e) {
-            throw new StorageException("failed to delete plan files dir", e);
+            throw new StorageException("failed to delete given directory", e);
         }
     }
 }

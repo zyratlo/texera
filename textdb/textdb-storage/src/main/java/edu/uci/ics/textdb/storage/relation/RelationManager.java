@@ -1,15 +1,11 @@
 package edu.uci.ics.textdb.storage.relation;
 
-import java.io.IOException;
-import java.nio.file.*;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import edu.uci.ics.textdb.api.exception.TextDBException;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.Query;
@@ -37,13 +33,13 @@ public class RelationManager {
     
     private static volatile RelationManager singletonRelationManager = null;
     
-    private RelationManager() throws StorageException, DataFlowException {
+    private RelationManager() throws StorageException {
         if (! checkCatalogExistence()) {
             initializeCatalog();
         }
     }
 
-    public static RelationManager getRelationManager() throws StorageException, DataFlowException {
+    public static RelationManager getRelationManager() throws StorageException {
         if (singletonRelationManager == null) {
             synchronized (RelationManager.class) {
                 if (singletonRelationManager == null) {
@@ -151,7 +147,7 @@ public class RelationManager {
         // try to clear all data in the table
         try {
             new DataWriter(getTableDataStore(tableName), getTableAnalyzer(tableName)).clearData();
-            Utils.deleteIndex(getTableDirectory(tableName));
+            Utils.deleteDirectory(getTableDirectory(tableName));
         } catch (StorageException e) {
             // don't need to do anything if clearing data fails
         }
