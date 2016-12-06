@@ -103,7 +103,7 @@ public class PlanStore {
     }
 
     /**
-     * Retrives a plan by given name from plan store.
+     * Retrieves a plan by given name from plan store.
      *
      * @param planName, the name of the plan.
      * @Return ITuple, the tuple consisting of fields of the plan.
@@ -229,7 +229,7 @@ public class PlanStore {
     }
 
     /**
-     * Retrieves plan object stored in given file path.
+     * Retrieves plan object stored in a given file path.
      *
      * @param filePath, the file path of the plan object.
      * @return LogicalPlan
@@ -254,7 +254,7 @@ public class PlanStore {
     }
 
     /**
-     * Writes the given plan object stored into the given file path.
+     * Writes the given plan object into the given file path.
      *
      * @param plan, the plan object to store.
      * @param filePath, the file path of the plan object.

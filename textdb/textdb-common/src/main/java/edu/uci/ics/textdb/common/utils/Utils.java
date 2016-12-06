@@ -409,7 +409,7 @@ public class Utils {
                 }
             });
         } catch (IOException e) {
-            throw new StorageException("failed to delete given directory", e);
+            throw new StorageException("failed to delete a given directory", e);
         }
     }
 }
