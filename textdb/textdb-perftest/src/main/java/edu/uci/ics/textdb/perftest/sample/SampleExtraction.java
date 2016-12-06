@@ -18,6 +18,7 @@ import edu.uci.ics.textdb.common.constants.LuceneAnalyzerConstants;
 import edu.uci.ics.textdb.common.constants.SchemaConstants;
 import edu.uci.ics.textdb.common.field.DataTuple;
 import edu.uci.ics.textdb.common.field.IntegerField;
+import edu.uci.ics.textdb.common.field.StringField;
 import edu.uci.ics.textdb.common.field.TextField;
 import edu.uci.ics.textdb.common.utils.Utils;
 import edu.uci.ics.textdb.dataflow.common.IJoinPredicate;
@@ -42,9 +43,7 @@ import edu.uci.ics.textdb.storage.DataStore;
 import edu.uci.ics.textdb.storage.writer.DataWriter;
 
 public class SampleExtraction {
-    
-    private static int idCounter = 0;
-    
+        
     public static final String promedFilesDirectory = "./sample-data-files/promed/";
     public static final String promedIndexDirectory = "./index/standard/promed/"; 
     public static final DataStore promedDataStore = new DataStore(promedIndexDirectory, PromedSchema.PROMED_SCHEMA);
@@ -56,12 +55,11 @@ public class SampleExtraction {
         extractPersonLocation();
     }
     
-    public static ITuple parsePromedHTML(String content) {
+    public static ITuple parsePromedHTML(String fileName, String content) {
         try {
             Document parsedDocument = Jsoup.parse(content);
             String mainText = parsedDocument.getElementById("preview").text();
-            ITuple tuple = new DataTuple(PromedSchema.PROMED_SCHEMA, new IntegerField(idCounter), new TextField(mainText));
-            idCounter++;
+            ITuple tuple = new DataTuple(PromedSchema.PROMED_SCHEMA, new StringField(fileName), new TextField(mainText));
             return tuple;
         } catch (Exception e) {
             return null;
@@ -82,7 +80,7 @@ public class SampleExtraction {
                 sb.append(scanner.nextLine());
             }
             scanner.close();
-            ITuple tuple = parsePromedHTML(sb.toString());
+            ITuple tuple = parsePromedHTML(htmlFile.getName(), sb.toString());
             if (tuple != null) {
                 fileTuples.add(tuple);
             }
@@ -129,7 +127,7 @@ public class SampleExtraction {
         Join joinPersonLocation = new Join(null, null, joinPredicatePersonLocation);
         
         ProjectionPredicate projectionPredicateIdAndSpan = new ProjectionPredicate(
-                Arrays.asList(PromedSchema.ID, PromedSchema.CONTENT, SchemaConstants.SPAN_LIST));
+                Arrays.asList(PromedSchema.ID, SchemaConstants.SPAN_LIST));
         ProjectionOperator projectionOperatorIdAndSpan = new ProjectionOperator(projectionPredicateIdAndSpan);
 
         FileSink fileSink = new FileSink( 
