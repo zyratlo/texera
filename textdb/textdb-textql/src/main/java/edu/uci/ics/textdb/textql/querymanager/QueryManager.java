@@ -1,21 +1,18 @@
 package edu.uci.ics.textdb.textql.querymanager;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
-import java.io.PrintStream;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+
 import edu.uci.ics.textdb.plangen.LogicalPlan;
 
 /**
- * Wraps the parser for TextQL generated with JavaCC. This class allows easy interface with with parse and get  
+ * Wraps the parser for TextQL and a translator that generates a QueryPlan.
  * 
  * @author Flavio Bayer
  */
@@ -24,20 +21,18 @@ public class QueryManager {
 	private InputStream input;
 	//OutpuStream used as by the underlying parser to print out results of each parsed statement
 	private OutputStream output;
-	//parsedStatements is a List of statements that have been parsed from the input
-	//each statement is a pair <key,value> for the parameter of the statement
-	//each statement has at least the keys "statementType" and "statementName"(identifier)
+	/** parsedStatements is a List of statements that have been parsed from the input
+	 each statement is a pair <key,value> for the parameter of the statement
+	 each statement has at least the keys "statementType" and "statementName"(identifier)
+	*/
 	private List<Map<String, Object>> parsedStatements;
-	private Map<String, Map<String, Object>> nameVsStatement;
 	
-	public QueryManager() {
-	}
 	
 	/**
 	 * Set the InputStream used during the parsing 
 	 * @param inputStream  the new InputStream
 	 */
-	void setInput(InputStream inputStream){
+	public QueryManager(InputStream inputStream){
 	}
 	
 	/**
@@ -45,7 +40,7 @@ public class QueryManager {
 	 * The content of the file will be used as the whole input
 	 * @param f  the File used as input InputStream
 	 */
-	void setInput(File f) throws FileNotFoundException{
+	public QueryManager(File f) throws FileNotFoundException{
 	}
 
 	/**
@@ -53,7 +48,7 @@ public class QueryManager {
 	 * The content of the string s will be used as the whole input
 	 * @param inputStream  the new InputStream
 	 */
-	void setInput(String s) throws IOException{
+	public QueryManager(String s) throws IOException{
 	}
 	
 	/**
@@ -86,7 +81,7 @@ public class QueryManager {
 	 * @param viewName	Name of the view to be selected
 	 * @return The generated LogicalPlan for the view
 	 */
-	LogicalPlan getView(String viewName){
+	LogicalPlan getView(String viewName){		
 		return null;
 	}
 	
