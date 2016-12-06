@@ -14,15 +14,9 @@
   </properties>
   <dependencies>
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>3.8.1</version>
-      <scope>test</scope>
+        <groupId>edu.uci.ics.textdb</groupId>
+        <artifactId>textdb-dataflow</artifactId>
+        <version>${textdb.version}</version>
     </dependency>
-       <dependency>
-           <groupId>edu.uci.ics.textdb</groupId>
-           <artifactId>textdb-dataflow</artifactId>
-           <version>${textdb.version}</version>
-       </dependency>
   </dependencies>
 </project>
