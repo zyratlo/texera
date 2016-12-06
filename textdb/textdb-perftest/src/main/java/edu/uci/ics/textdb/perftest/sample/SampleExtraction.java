@@ -129,7 +129,7 @@ public class SampleExtraction {
         Join joinPersonLocation = new Join(null, null, joinPredicatePersonLocation);
         
         ProjectionPredicate projectionPredicateIdAndSpan = new ProjectionPredicate(
-                Arrays.asList(PromedSchema.ID, SchemaConstants.SPAN_LIST));
+                Arrays.asList(PromedSchema.ID, PromedSchema.CONTENT, SchemaConstants.SPAN_LIST));
         ProjectionOperator projectionOperatorIdAndSpan = new ProjectionOperator(projectionPredicateIdAndSpan);
 
         FileSink fileSink = new FileSink( 
