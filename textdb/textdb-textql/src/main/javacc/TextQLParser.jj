@@ -1,20 +1,21 @@
+/**
+ * JavaCCcompilation options
+ */
 options {
+  	/**
+  	 * Multiple instances of the parser might be required, thus the parser
+  	 * should not be compiled as static(made up by static methods)
+  	 */
     STATIC = false;
+    /**
+	 * Use Unicode Input since Java's implementation of String, Character and
+	 * console input uses unicode,compiling without using UNICODE_INPUT might
+	 * lead to unexpected results if you are using the wrong encoding.
+	 * Please make sure to provide a source with unicode characters, wrapping
+	 * the input in a Reader if necessary.
+     */
     UNICODE_INPUT = true;
 }
-
-/*
-Compiler Command for JavaCC:
-~:/home/virtualbox
-root: ~/Desktop/textdb/textdb/textdb-textql/src/main/
-JavaCC files: root/javacc
-Java Generated Files: root/java/edu/uci/ics/textdb/textql/languageparser
-
-javacc \
--OUTPUT_DIRECTORY:/home/virtualbox/Desktop/textdb/textdb/textdb-textql/src/main/java/edu/uci/ics/textdb/textql/languageparser \
-/home/virtualbox/Desktop/textdb/textdb/textdb-textql/src/main/javacc/TextQLParser.jj
-
-*/
 
 PARSER_BEGIN(TextQLParser)
 
@@ -26,27 +27,184 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import org.apache.commons.lang3.builder.EqualsBuilder;
 
-public class TextQLParser{    
-    
+/**
+ * Implementation of a parser for the TextQL query language.
+ * Please check TextDb-TextQL/README.md for grammar Specification
+ * 
+ * @author Flavio Bayer
+ */
+public class TextQLParser{
+  
+	/**
+	 * Statement class and subclasses(SelectStatement, CreateViewStatement, EmptyStatement)
+	 * Each Statement class has an id. Subclasses of Statements have specific
+	 * fields related to its function. These classes have no methods, they are
+	 * used only as containers to move data.
+	 * Statement --+ SelectStatement
+	 *             + CreateViewStatement
+	 *             + EmptyStatement
+	 */
+    static public abstract class Statement {
+		public String id;
+      	public Statement() {
+			this(null);
+      	}
+      	public Statement(String id) {
+			this.id = id;
+      	}
+      	@Override
+      	public boolean equals(Object obj) {
+			if (obj == null) { return false; }
+			if (obj.getClass() != this.getClass()) { return false; }
+			Statement kep = (Statement) obj;
+			return new EqualsBuilder()
+						.append(id, kep.id)
+						.isEquals();
+      	}
+    }
+    static public class SelectStatement extends Statement {
+        public Boolean projectAll;
+        public List<String> projectFields;
+        public ExtractPredicate extract;
+        public String from;
+        public Integer limit;
+        public Integer offset;
+      	public SelectStatement() {
+			this(null, null, null, null, null, null, null);
+      	}
+      	public SelectStatement(String id, Boolean projectAll,
+      						List<String> projectFields, ExtractPredicate extract,
+      						String from, Integer limit, Integer offset) {
+			super(id);
+			this.projectAll = projectAll;
+	        this.projectFields = projectFields;
+	        this.extract = extract;
+	        this.from = from;
+	        this.limit = limit;
+	        this.offset = offset;
+      	}
+      	@Override
+      	public boolean equals(Object obj) {
+			if (obj == null) { return false; }
+			if (obj.getClass() != this.getClass()) { return false; }
+			SelectStatement otherSelectStatement = (SelectStatement) obj;
+			return new EqualsBuilder()
+						.appendSuper(super.equals(otherSelectStatement))
+						.append(projectAll, otherSelectStatement.projectAll)
+						.append(projectFields, otherSelectStatement.projectFields)
+						.append(extract, otherSelectStatement.extract)
+						.append(from, otherSelectStatement.from)
+						.append(limit, otherSelectStatement.limit)
+						.append(offset, otherSelectStatement.offset)
+						.isEquals();
+      	}
+    }
+    static public class CreateViewStatement extends Statement {
+        public Statement substatement;
+      	public CreateViewStatement() {
+			this(null, null);
+      	}
+      	public CreateViewStatement(String id, Statement substatement) {
+      	  	super(id);
+	        this.substatement = substatement;
+      	}
+      	@Override
+      	public boolean equals(Object obj) {
+			if (obj == null) { return false; }
+			if (obj.getClass() != this.getClass()) { return false; }
+			CreateViewStatement otherCreateViewStatement = (CreateViewStatement) obj;
+			return new EqualsBuilder()
+						.appendSuper(super.equals(otherCreateViewStatement))
+						.append(substatement, otherCreateViewStatement.substatement)
+						.isEquals();
+      	}
+    }
+    static public class EmptyStatement extends Statement {
+      	public EmptyStatement() {
+			this(null);
+      	}
+      	public EmptyStatement(String id) {
+			super(id);
+      	}
+      	@Override
+      	public boolean equals(Object obj) {
+			if (obj == null) { return false; }
+			if (obj.getClass() != this.getClass()) { return false; }
+			EmptyStatement otherEmptyStatement = (EmptyStatement) obj;
+			return new EqualsBuilder()
+						.appendSuper(super.equals(otherEmptyStatement))
+						.isEquals();
+      	}
+    }
+
+	/**
+	 * ExtractPredicate class and subclasses(KeywordExtractPredicate)
+	 * Subclasses have specific fields related to its extraction functionalities
+	 * These classes have no methods, they are used only as containers
+	 * ExtractPredicate --+ KeywordExtractPredicate
+	 */
+	static public abstract class ExtractPredicate {
+      	@Override
+      	public boolean equals(Object obj) {
+			if (obj == null) { return false; }
+			if (obj.getClass() != getClass()) { return false; }
+			return true;
+      	}
+	}
+	static public class KeywordExtractPredicate extends ExtractPredicate {
+		public List<String> matchFields;
+		public String keyword;
+		public String matchType;
+      	public KeywordExtractPredicate() {
+			this(null, null, null);
+      	}
+      	public KeywordExtractPredicate(List<String> matchFields, String keyword, String matchType) {
+	        this.matchFields = matchFields;
+	        this.keyword = keyword;
+	        this.matchType = matchType;
+      	}
+      	@Override
+      	public boolean equals(Object obj) {
+			if (obj == null) { return false; }
+			if (obj.getClass() != getClass()) { return false; }
+			KeywordExtractPredicate kep = (KeywordExtractPredicate) obj;
+			return new EqualsBuilder()
+						.appendSuper(super.equals(obj))
+						.append(matchFields, kep.matchFields)
+						.append(keyword, kep.keyword)
+						.append(matchType, kep.matchType)
+						.isEquals();
+      	}
+	}
+
+	/**
+	 * Generates a unique deterministic sequence of ids for new statements
+     * The id follows the format "__lidX", where X is an incremental hexadecimal
+     *  integer without padding starting from 0.
+     * e.g. "_lid0", "_lid1", ..., "_lid9", "_lida", ..., "_lidf", "_lid10", ...
+	 * @return The generated id
+	 */
     private int _lid = 0;
-    private String getNewUniqueId(){
-        return "__lid" + Integer.toString(_lid++, 36);
+    private String getNewStatementId(){
+        return "__lid" + Integer.toString(_lid++, 16);
     }
 }
 
 PARSER_END(TextQLParser)
 
 /*
- *	Skip Tokens
+ *	Skipped Tokens
+ *  Simply throw away the matched string, it will be skipped and no token
+ *   will be produced
  */
 SKIP : { " " | "\n" | "\r" | "\t" | "\f" }
-
-/*
- *	Basic Tokens
+/**
+ * Basic Tokens - Reserved Words
  */
 TOKEN : { < CREATE : "CREATE" > }
-TOKEN : { < DICTIONARY : "DICTIONARY" > }
+TOKEN : { < DIRECTORY : "DIRECTORY" > }
 TOKEN : { < VIEW : "VIEW" > }
 TOKEN : { < SELECT : "SELECT" > }
 TOKEN : { < EXTRACT : "EXTRACT" > }
@@ -54,18 +212,26 @@ TOKEN : { < FROM : "FROM" > }
 TOKEN : { < AS : "AS" > }
 TOKEN : { < LIMIT : "LIMIT" > }
 TOKEN : { < OFFSET : "OFFSET" > }
-TOKEN : { < USING : "USING" > }
-TOKEN : { < ON : "ON" > }
 TOKEN : { < JOIN : "JOIN" > }
 TOKEN : { < WHERE : "WHERE" > }
 TOKEN : { < OUTPUT : "OUTPUT" > }
 TOKEN : { < INSERT : "INSERT" > }
 TOKEN : { < INTO : "INTO" > }
 TOKEN : { < VALUES : "VALUES" > }
-TOKEN : { < TO : "TO" > }
-TOKEN : { < ID : "ID" > }
-
-TOKEN : { <LPAREN: "(" > }
+/**
+ *	Basic Tokens - Comparison operators
+ */
+TOKEN : { < ASSIGN: "="> }
+TOKEN : { < LT: "<" > }
+TOKEN : { < GT: ">" > }
+TOKEN : { < EQ: "==" > }
+TOKEN : { < LE: "<=" > }
+TOKEN : { < GE: ">=" > }
+TOKEN : { < NE: "!=" > }
+/**
+ * Basic Tokens - Other 1-Character tokens
+ */
+TOKEN : { < LPAREN: "(" > }
 TOKEN : { < RPAREN: ")" > }
 TOKEN : { < LBRACE: "{" > }
 TOKEN : { < RBRACE: "}" > }
@@ -76,105 +242,260 @@ TOKEN : { < COMMA: "," > }
 TOKEN : { < DOT: "." > }
 TOKEN : { < STAR : "*" > }
 
-TOKEN : { < ASSIGN: "="> }
-TOKEN : { < LT: "<" > }
-TOKEN : { < GT: ">" > }
-TOKEN : { < EQ: "==" > }
-TOKEN : { < LE: "<=" > }
-TOKEN : { < GE: ">=" > }
-TOKEN : { < NE: "!=" > }
+
 
 /*
  *	Literal Tokens
  */
+/**
+ *	NUMBER_LITERAL - Matches a number in decimal format
+ *  The token matched is composed by an optional ('-') character followed by (d [ . [d]])
+ *  or ('.' d), where d is a digit string, and bracket content is optional
+ *  The following strings are matched by this token:
+ *      0
+ *      -0
+ *      12
+ *      123.
+ *      -78.90
+ *      -.789
+ */
 TOKEN : { < NUMBER_LITERAL : ("-")? ((["0"-"9"])+ ("." (["0"-"9"])*)? | "." (["0"-"9"])+) > }
+/**
+ *	STRING_LITERAL - Matches a quoted string(it may contains escaped quotes)
+ *  The token matched is composed by a quote ('"') followed by any character except
+ *  for another quote('"'), unless it is escaped('\"') and ended with a quote('"')
+ *  The following strings are matched by this token:
+ *      ""
+ *      "abc"
+ *      "de f"
+ *      "de\" f"
+ *      "d\"e\"f"
+ *      "de\n f"
+ *      "de\\ f"
+ */    
 TOKEN : { < STRING_LITERAL : "\"" ( "\\" ~[] | ~["\""] )* "\"" > }
+/**
+ *	REGEX_LITERAL - Matches a regex string delimited by forward slashes
+ *                  (it may contains escaped forward slashes)
+ *  The token matched is composed by a forward slash ('/') followed by any
+ *  character except for another forward slash('/'), unless it is escaped('\/')
+ *  and ended with a forward slash('/')
+ *  The following strings are matched by this token:
+ *      //
+ *      /abc/
+ *      /de f/
+ *      /d\/e/
+ *      /d\n/
+ *      /d\/e\/f/
+ *      /"/
+ */   
 TOKEN : { < REGEX_LITERAL : "/" ( "\\" ~[] | ~["/"] )* "/" > }
-TOKEN : { < IDENTIFIER : ["a"-"z"] (["a"-"z","0"-"9"])* > }
+/**
+ *	IDENTIFIER_LITERAL - Matches an identifier string(e.g. for variable names)
+ *  The token matched is composed by a alphabetic character followed by alphanumeric characters.
+ *  For now, the characters must be lower case. 
+ *  The following strings are matched by this token:
+ *      i
+ *      id
+ *      id0
+ *      i0d
+ *  TODO: allow the characters to be upper case
+ */ 
+TOKEN : { < IDENTIFIER_LITERAL : ["a"-"z"](["a"-"z","0"-"9"])*  > }
+
 
 /*
  *	Wrappers for Literal Tokens
+ *	Those are simple methods that convert raw Tokens into formated data
  */
-double numberDouble():
+/**
+ * Consume a NUMBER_LITERAL from input and convert it to Double
+ * Examples of valid input: 0, -0, 12, 123., -78.90, -.789
+ * @throws NumberFormatException if the conversion to Double fails
+ * @return The double representation of the NUMBER_LITERAL
+ */
+double numberLiteralToDouble():
 {
     String numberString;
 }
 {
-    numberString = numberLiteral() { return Double.parseDouble(numberString); }
+    numberString = numberLiteral()
+    {
+    	return Double.parseDouble(numberString);
+    }
 }
-int numberInteger():
+/**
+ * Consume a NUMBER_LITERAL from input and convert it to Integer
+ * Examples of valid input: 0, -0, 12
+ * @throws NumberFormatException if the conversion to Integer fails
+ * @return The integer representation of the NUMBER_LITERAL
+ */
+int numberLiteralToInteger():
 {
     String numberString;
 }
 {
-    numberString = numberLiteral() { return Integer.parseInt(numberString); }
+    numberString = numberLiteral()
+    {
+    	return Integer.parseInt(numberString);
+    }
 }
+/**
+ * Consume a NUMBER_LITERAL from input and convert it to String
+ * Examples of valid input: 0, -0, 12, 123., -78.90, -.789
+ * @return The String representation of the NUMBER_LITERAL
+ */
 String numberLiteral():
 {
     Token token;
 }
 {
-    token = <NUMBER_LITERAL> { return token.image; }
+    token = <NUMBER_LITERAL>
+    {
+    	return token.image;
+    }
 }
-String regexLiteral():
-{
-    Token token;
-}
-{
-    token = <REGEX_LITERAL> { return token.image.substring(1, token.image.length()-1).replace("\\/", "/"); }
-}
+
+/**
+ * Consume a STRING_LITERAL from input and return convert it to String 
+ * Escaped quotes and delimiter quotes are removed
+ * Examples of REGEX_LITERAL and the output String(without delimiter simple-quotes):
+ *      ""        = > '' (empty)
+ *      "abc"     = > 'abc'
+ *      "de f"    = > 'de f'
+ *      "de\" f"  = > 'de" f'
+ *      "d\"e\"f" = > 'd"e"f'
+ *      "de\n f"  = > 'de\n f'
+ *      "de\\f"   = > 'de\\f'
+ * @return The String representation of the STRING_LITERAL
+ */
 String stringLiteral():
 {
     Token token;
 }
 {
-    token = <STRING_LITERAL> { return token.image.substring(1, token.image.length()-1).replace("\\\"", "\""); }
+    token = <STRING_LITERAL>
+    {
+    	String string = token.image;
+    	String unquotedString = string.substring(1, string.length()-1);
+    	String escapedUnquotedString = unquotedString.replace("\\\"", "\"");
+    	return escapedUnquotedString;
+    }
 }
-String identifier():
+/**
+ * Consume a REGEX_LITERAL from input and return convert it to String 
+ * Escaped slashes and delimiter slashes are removed
+ * Examples of REGEX_LITERAL and the output String(without delimiter quotes):
+ *      //         = > "" (empty)
+ *      /abc/      = > "abc"
+ *      /de f/     = > "de f"
+ *      /d\/e/     = > "d/e"
+ *      /d\n/      = > "d\n"
+ *      /d\/e\/f/  = > "d/e/f"
+ *      /"/        = > "\"" (a quote)
+ * @return The String representation of the REGEX_LITERAL
+ */
+String regexLiteral():
 {
     Token token;
 }
 {
-    token = <IDENTIFIER> { return token.image; }
+    token = <REGEX_LITERAL>
+    {
+    	String regex = token.image;
+    	String unslashedRegex = regex.substring(1, regex.length()-1);
+    	String escapedUnslashedRegex = unslashedRegex.replace("\\/", "/");
+    	return escapedUnslashedRegex;
+    }
+}
+/**
+ * Consume a IDENTIFIER_LITERAL from input and convert it to String
+ * Examples: i, id, id0, i0d
+ * @return The String representation of the IDENTIFIER_LITERAL
+ */
+String identifierLiteral():
+{
+    Token token;
+}
+{
+    token = <IDENTIFIER_LITERAL>
+    {
+      return token.image;
+    }
 }
 
 /*
  *	List of (some) Literal Tokens separated by comma
  */
+/**
+ * Consume a list of IDENTIFIER_LITERAL(one or more) from input and convert it to List<String>
+ * Example: "i,id,id0,i0d" (without quote) = > { "i", "id", "id0", "i0d" }
+ * Grammar: <IdentifierLiteral> ("," <IdentifierLiteral>)* 
+ * @return The List<String> representation of the list of IDENTIFIER_LITERAL
+ */
 List<String> identifierList():
 {
-    String identif;
+    String identifier;
     List<String> identifiers = new ArrayList<String>();
 }
 {
-    identif=identifier() { identifiers.add(identif); }
-    ( <COMMA> identif=identifier() { identifiers.add(identif); } )*
-    { return identifiers; }
+    identifier = identifierLiteral() { identifiers.add(identifier); } 
+    (
+    	<COMMA> identifier = identifierLiteral() { identifiers.add(identifier); }
+    )*
+    {
+    	return identifiers;
+    }
 }
 
 
 /*
  *	Statements Declaration
  */
-List<Map<String, Object>> statementsMain(Consumer<Map<String,Object>> statementConsumer) : 
+/**
+ * Consume the whole input and generates a list containing the declared statement
+ * Grammar: (<Statement>)* <EOF>
+ * @param statementConsumer The consumer is called after each statement is parsed
+ * @return The List<Statement> representation of the whole input
+ */
+List<Statement> mainStatementList(Consumer<Statement> statementConsumer) : 
 {
-    List<Map<String, Object>> statements = new ArrayList();
-    Map<String, Object> newStatement;
+    List<Statement> statements = new ArrayList();
+    Statement newStatement;
 }
 {
+  	//Look for zero or more occurrences of Statement
     (
-        newStatement = statement() { statements.add(newStatement); }
-        { if(statementConsumer!=null)statementConsumer.accept(newStatement); }
+      	// Parse one statement
+        newStatement = statement() { statements.add(newStatement); } 
+        {
+          	// Call the statement consumer(if we have one) after each statement is parsed
+        	if(statementConsumer!=null) { 
+        		statementConsumer.accept(newStatement);
+        	}
+    	}
     )*
+    //Consume the End Of File
     <EOF>
-    { return statements; }
+    //Return the list of statements generated
+    {
+    	return statements;
+    }
 }
 
-Map<String, Object> statement() : 
+/**
+ * Consume one statement declaration form the input and generates a Statement
+ * object with the parsed data. The kind of statement can either be either
+ * SelectStatement, CreateViewStatement or EmptyStatement
+ * Grammar: ( <SelectStatement> | <CreateViewStatement> | <EmptyStatement> ) ";"
+ * @return The Statement representation of the next statement declaration
+ */
+Statement statement() : 
 {
-    Map<String, Object> newStatement;
+    Statement newStatement;
 }
 {
+  	// extract one of the types of statement
     (
             newStatement = selectStatement() 
         |
@@ -183,129 +504,195 @@ Map<String, Object> statement() :
             newStatement = emptyStatement()
     )
     <SEMICOLON>
-    { return newStatement; }
+    // return generated Statement
+    {
+    	return newStatement;
+    }
 }
 
-Map<String, Object> selectStatement() : 
+/**
+ * Consume a "CREATE VIEW" statement declaration form the input and generates a CreateViewStatement object with the parsed data
+ * Examples of valid input:
+ * 		CREATE VIEW viewname0 AS <SelectStatement>
+ * 		CREATE VIEW viewname0 AS CREATE VIEW viewname1 AS <SelectStatement>
+ * Grammar: "CREATE" "VIEW" <Identifier>
+	    	"AS" ( <SelectStatement> | <CreateViewStatement> )
+ * @return The CreateViewStatement representation of the next statement declaration
+ */
+CreateViewStatement createViewStatement() : 
 {
-    HashMap<String, Object> statementParameters = new HashMap<String, Object>() {{
-        put("statementType", "select");
-        put("statementName", getNewUniqueId());
-        put("projectAll", null);
-        put("projectFields", null);
-        put("extractCommand", null);
-        put("from", null);
-        put("limit", null);
-        put("offset", null);
-    }};
-    
-    List<String> projectFields;
-    Map<String,Object> extractCmd;
-    String identifier;
-    String from;
-    Integer limit;
-    Integer offset;
-
-}
-{
-    (
-            <SELECT> 
-            ( 
-                    <STAR> { statementParameters.put("projectAll", true);  } 
-                | 
-                    { projectFields = new ArrayList<String>(); }
-                      identifier=identifier() { projectFields.add(identifier); }
-                    ( <COMMA> identifier=identifier() { projectFields.add(identifier); } )*
-                    { statementParameters.put("projectFields", projectFields); }
-            )
-            ( <EXTRACT> extractCmd=extractCommand() { statementParameters.put("extractCommand", extractCmd); } )?
-        |
-            
-            <EXTRACT> extractCmd=extractCommand() { statementParameters.put("extractCommand", extractCmd); } 
-    )
-    <FROM> from=identifier() { statementParameters.put("from", from); }
-    ( <LIMIT> limit=numberInteger() { statementParameters.put("limit", limit); })?
-    ( <OFFSET> offset=numberInteger() { statementParameters.put("offset", offset); } )?
-    { return statementParameters; }
-}
-
-Map<String, Object> createViewStatement() : 
-{
-    HashMap<String, Object> statementParameters = new HashMap<String, Object>() {{
-        put("statementType", "view");
-        put("statementName", null);
-        put("substatement", null);
-    }};
+    CreateViewStatement statementParameters = new CreateViewStatement();
+	Statement substatement;
     String viewName;
-    Map<String, Object> substatement;
 }
 {
-    <CREATE> 
+  	// extract CREATE VIEW viewName AS
+    <CREATE>
     <VIEW>
-    viewName=identifier() { statementParameters.put("statementName", viewName); }
-    <AS> 
+    viewName=identifierLiteral() { statementParameters.id = viewName; }
+    <AS>
+    // extract substatement: either a SelectStatement or another CreateViewStatement
     (
             substatement = selectStatement() 
         |
             substatement = createViewStatement()
-    ) { statementParameters.put("substatement", substatement); }
-    { return statementParameters; }
+    ){ statementParameters.substatement = substatement; }
+    // return generated CreateViewStatement
+    {
+    	return statementParameters;
+    }
 }
 
-Map<String, Object> emptyStatement() : 
+/**
+ * Consume a "SELECT" statement declaration form the input and generates a SelectStatement object with the parsed data
+ * Examples of valid input:
+ * 		SELECT * FROM t
+ * 		SELECT a,b,c FROM t LIMIT 1 OFFSET 8
+ * 		EXTRACT KEYWORDMATCH(g0, "key1") FROM k
+ * 		SELECT a EXTRACT KEYWORDMATCH(g0, "key1") FROM k
+ * 		SELECT * EXTRACT KEYWORDMATCH([h6,h7,k8,k9], "key1", conjunction) FROM k LIMIT 1 OFFSET 8
+ * Grammar: (
+				   	"SELECT" ( "*" | <IdentifierList> ) ("EXTRACT" <ExtractPredicate>)?
+				|
+					"EXTRACT" <ExtractPredicate>
+			)
+		    "FROM" <Identifier>
+		    ("LIMIT" <Number> )?
+		    ("OFFSET" <Number> )?
+ * @return The SelectStatement representation of the next statement declaration
+ */  
+SelectStatement selectStatement() : 
 {
-    HashMap<String, Object> statementParameters = new HashMap<String, Object>() {{
-        put("statementType", "empty");
-        put("statementName", getNewUniqueId());
-    }};
+    SelectStatement statementParameters = new SelectStatement();
+	statementParameters.id = getNewStatementId();
+    List<String> identifiers;
+    String from;
+    Integer limit;
+    Integer offset;
+    ExtractPredicate extract;
 }
 {
-    { return statementParameters; }
+  	//extract SELECT or/and EXTRACT predicate
+    (
+      		//extract SELECT only or SELECT and EXTRACT 
+            (
+              	//extract SELECT
+	            <SELECT> 
+	            ( 
+	                    <STAR> { statementParameters.projectAll = true; } // SELECT *
+	                | 
+	                    identifiers = identifierList() { statementParameters.projectFields = identifiers; } // SELECT a,b,...
+	            )
+				//extract EXTRACT (optional)
+	            (
+	              <EXTRACT> extract = extractPredicate() { statementParameters.extract = extract; } // EXTRACT extractPredicate
+	            )?
+        	)
+        |
+            //extract EXTRACT only
+            <EXTRACT> extract=extractPredicate() { statementParameters.extract = extract; } // EXTRACT only
+    )
+    //extract FROM field
+    <FROM> from = identifierLiteral() { statementParameters.from = from; }
+    //extract LIMIT field(optional)
+    (
+      <LIMIT> limit = numberLiteralToInteger() { statementParameters.limit = limit; }
+    )?
+    //extract OFFSET field(optional)
+    (
+      <OFFSET> offset = numberLiteralToInteger() { statementParameters.offset = offset; }
+    )?
+    // return generated SelectStatement
+    {
+    	return statementParameters;
+    }
 }
 
+/**
+ * Consume an empty statement declaration form the input and generates an EmptyStatement object
+ * Examples of valid input: no input is required
+ * @return The EmptyStatement representation of a new statement
+ */  
+EmptyStatement emptyStatement() : 
+{
+    EmptyStatement statementParameters = new EmptyStatement();
+	statementParameters.id = getNewStatementId();
+}
+{
+  	//EmptyStatement has no data extraction because it is empty
+    {
+    	return statementParameters;
+    }
+}
 
 
 /*
- *	Extract Commands Declaration
+ *	Extract Predicates Declaration
  */
-Map<String, Object> extractCommand() : 
+/**
+ * Consume one extract predicate form the input and generates a ExtractPredicate object with the parsed data
+ * The kind of extract predicate can either be only KeywordExtractPredicate
+ * Grammar: ExtractPredicate := (<KeywordExtractPredicate>)
+ * @return The ExtractPredicate representation of the next extract predicate
+ */
+ExtractPredicate extractPredicate() : 
 {
-    Map<String, Object> extractParameters = new HashMap<String, Object>() {{
-        put("extractType", null);
-    }};
+    ExtractPredicate extractPredicate;
 }
 {
+  	// extract one of the types of ExtractPedicates
     (
-            extractParameters = extractKeywordMatchCommand()
+            extractPredicate = extractKeywordMatchPredicate()
     )
-    { return extractParameters; }
+    // return generated KeywordExtractPredicate
+    {
+    	return extractPredicate;
+    }
 }
 
-Map<String, Object> extractKeywordMatchCommand() : 
+/**
+ * Consume a keyword extract predicate form the input and generates a KeywordExtractPredicate object with the parsed data
+ * Examples of valid input:
+ * 		KEYWORDMATCH(g0, "key1")
+ * 		KEYWORDMATCH([g6,g7,h8,i9], "key")
+ * 		KEYWORDMATCH(g3, "key4", substring)
+ * Grammar: "KEYWORDMATCH("
+		    	( <Identifier> | "[" <IdentifierList> "]")
+		        "," <String>
+		        ("," <Identifier>)?
+		    ")"
+ * @return The KeywordExtractPredicate representation of the next statement declaration
+ */
+KeywordExtractPredicate extractKeywordMatchPredicate() : 
 {
-    HashMap<String, Object> extractParameters = new HashMap<String, Object>() {{
-        put("extractType", null);
-        put("matchFields", null);
-        put("keyword", null);
-        put("matchType", null);
-    }};
+    KeywordExtractPredicate extractPredicate = new KeywordExtractPredicate();
     List<String> matchFields;
     String matchField;
     String keyword;
     String matchType;
 }
 {
-    "KEYWORDMATCH" { extractParameters.put("extractType", "keyword"); }
-    <LPAREN> 
-        ( 
-                matchField=identifier() { matchFields = Arrays.asList(matchField); }
+    "KEYWORDMATCH" 
+    <LPAREN>
+    	//extract the match fields(either a field or list of field)
+        (
+          		// extract the only field
+                matchField = identifierLiteral() { matchFields = Arrays.asList(matchField); }
             | 
-                <LBRACKET> matchFields=identifierList() <RBRACKET>
-        ) { extractParameters.put("matchFields", matchFields); }
-        <COMMA> keyword=stringLiteral() { extractParameters.put("keyword", keyword); } 
-        (<COMMA> matchType=identifier() { extractParameters.put("matchType", matchType); } )?
+          		// extract the list of fields between brackets
+                <LBRACKET> matchFields = identifierList() <RBRACKET>
+        ) { extractPredicate.matchFields = matchFields; }
+        // extract the keyword as a string
+        <COMMA> keyword = stringLiteral() { extractPredicate.keyword = keyword; }
+        // extract the match type as an identifier(optional)
+        (
+        	<COMMA> matchType = identifierLiteral() { extractPredicate.matchType = matchType; }
+        )?
     <RPAREN>
-    { return extractParameters; }
+    // return generated KeywordExtractPredicate
+    {
+    	return extractPredicate;
+    }
 }
 
 
