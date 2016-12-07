@@ -2,6 +2,8 @@ package edu.uci.ics.textdb.common.utils;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -9,6 +11,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import edu.uci.ics.textdb.api.exception.TextDBException;
+import edu.uci.ics.textdb.common.exception.StorageException;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
@@ -31,6 +35,7 @@ import edu.uci.ics.textdb.common.constants.SchemaConstants;
 import edu.uci.ics.textdb.common.field.DataTuple;
 import edu.uci.ics.textdb.common.field.DateField;
 import edu.uci.ics.textdb.common.field.DoubleField;
+import edu.uci.ics.textdb.common.field.IDField;
 import edu.uci.ics.textdb.common.field.IntegerField;
 import edu.uci.ics.textdb.common.field.ListField;
 import edu.uci.ics.textdb.common.field.Span;
@@ -41,6 +46,8 @@ public class Utils {
     public static IField getField(FieldType fieldType, String fieldValue) throws ParseException {
         IField field = null;
         switch (fieldType) {
+        case _ID_TYPE:
+            field = new IDField(fieldValue);
         case STRING:
             field = new StringField(fieldValue);
             break;
@@ -68,6 +75,8 @@ public class Utils {
     public static IndexableField getLuceneField(FieldType fieldType, String fieldName, Object fieldValue) {
         IndexableField luceneField = null;
         switch (fieldType) {
+        // _ID_TYPE is currently same as STRING
+        case _ID_TYPE:
         case STRING:
             luceneField = new org.apache.lucene.document.StringField(fieldName, (String) fieldValue, Store.YES);
             break;
@@ -140,6 +149,24 @@ public class Utils {
         return Arrays.asList(attributeList).stream()
                 .map(attr -> attr.getFieldName())
                 .collect(Collectors.toList());
+    }
+    
+    /**
+     * Creates a new schema object, with "_ID" attribute added to the front.
+     * If the schema already contains "_ID" attribute, returns the original schema.
+     * 
+     * @param schema
+     * @return
+     */
+    public static Schema getSchemaWithID(Schema schema) {
+        if (schema.containsField(SchemaConstants._ID)) {
+            return schema;
+        }
+        
+        List<Attribute> attributeList = new ArrayList<>();
+        attributeList.add(SchemaConstants._ID_ATTRIBUTE);
+        attributeList.addAll(schema.getAttributes());
+        return new Schema(attributeList.stream().toArray(Attribute[]::new));      
     }
 
     /**
@@ -361,4 +388,28 @@ public class Utils {
         return payload;
     }
 
+    public static void deleteDirectory(String indexDir) throws StorageException {
+        Path directory = Paths.get(indexDir);
+        if (!Files.exists(directory)) {
+            return;
+        }
+
+        try {
+            Files.walkFileTree(directory, new SimpleFileVisitor<Path>() {
+                @Override
+                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                    Files.delete(file);
+                    return FileVisitResult.CONTINUE;
+                }
+
+                @Override
+                public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                    Files.delete(dir);
+                    return FileVisitResult.CONTINUE;
+                }
+            });
+        } catch (IOException e) {
+            throw new StorageException("failed to delete a given directory", e);
+        }
+    }
 }

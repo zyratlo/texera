@@ -18,6 +18,9 @@ out/
 
 # Ignoring index folder and data folder
 index
+catalog
+plan/
+plan_files/
 
 # Ignoring Mac OSX specific files
 .DS_Store
