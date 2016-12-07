@@ -8,6 +8,7 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.search.Query;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 
@@ -79,6 +80,19 @@ public class DataWriter implements IDataWriter {
             Document document = getDocument(dataStore.getSchema(), tuple);
             this.luceneIndexWriter.addDocument(document);
             this.dataStore.incrementNumDocuments(1);
+        } catch (IOException e) {
+            throw new StorageException(e.getMessage(), e);
+        } finally {
+            close();
+        }
+    }
+    
+    public void deleteTuple(Query... luceneQuery) throws StorageException {
+        if (this.luceneIndexWriter == null || ! this.luceneIndexWriter.isOpen()) {
+            open();
+        }
+        try {
+            this.luceneIndexWriter.deleteDocuments(luceneQuery);
         } catch (IOException e) {
             throw new StorageException(e.getMessage(), e);
         } finally {

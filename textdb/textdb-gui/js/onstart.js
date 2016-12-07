@@ -5,7 +5,7 @@
 	@Author: Jimmy Wang
 */
 
-// main function
+// main operation (holds all the methods for the buttons and holds the buttons itself)
 var setup = function(){
 	var data = {};
 
@@ -256,13 +256,9 @@ var setup = function(){
 		}
 		TEXTDBJSON.operators = operators;
 		TEXTDBJSON.links = links;
-		
-		// console.log(operators);
-		// console.log(links)
-		// console.log(data);
-		// console.log(JSON.stringify(data));
-		console.log(JSON.stringify(TEXTDBJSON));
-		console.log(JSON.stringify(GUIJSON));
+	
+		// console.log(JSON.stringify(TEXTDBJSON));
+		// console.log(JSON.stringify(GUIJSON));
 		
 		$.ajax({
 			url: "http://localhost:8080/queryplan/execute",
@@ -276,10 +272,6 @@ var setup = function(){
 			},
 			error: function(xhr, status, err){
 				console.log("ERROR");
-				console.log(xhr.status);
-				console.log(JSON.stringify(xhr));
-				console.log(JSON.stringify(status));
-				console.log(JSON.stringify(err));
 			}
 		});
 	};
