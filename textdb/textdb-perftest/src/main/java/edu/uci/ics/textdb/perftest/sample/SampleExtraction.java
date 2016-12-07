@@ -10,14 +10,12 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
 import edu.uci.ics.textdb.api.common.ITuple;
-import edu.uci.ics.textdb.api.dataflow.IOperator;
 import edu.uci.ics.textdb.api.dataflow.ISourceOperator;
 import edu.uci.ics.textdb.api.plan.Plan;
 import edu.uci.ics.textdb.common.constants.DataConstants.KeywordMatchingType;
 import edu.uci.ics.textdb.common.constants.LuceneAnalyzerConstants;
 import edu.uci.ics.textdb.common.constants.SchemaConstants;
 import edu.uci.ics.textdb.common.field.DataTuple;
-import edu.uci.ics.textdb.common.field.IntegerField;
 import edu.uci.ics.textdb.common.field.StringField;
 import edu.uci.ics.textdb.common.field.TextField;
 import edu.uci.ics.textdb.common.utils.Utils;
@@ -26,7 +24,6 @@ import edu.uci.ics.textdb.dataflow.common.JoinDistancePredicate;
 import edu.uci.ics.textdb.dataflow.common.KeywordPredicate;
 import edu.uci.ics.textdb.dataflow.common.RegexPredicate;
 import edu.uci.ics.textdb.dataflow.join.Join;
-import edu.uci.ics.textdb.dataflow.keywordmatch.KeywordMatcher;
 import edu.uci.ics.textdb.dataflow.keywordmatch.KeywordMatcherSourceOperator;
 import edu.uci.ics.textdb.dataflow.nlpextrator.NlpExtractor;
 import edu.uci.ics.textdb.dataflow.nlpextrator.NlpPredicate;
@@ -100,6 +97,15 @@ public class SampleExtraction {
         Engine.getEngine().evaluate(standardIndexPlan);
     }
 
+    /*
+     * This is the DAG of this extraction plan.
+     * 
+     *                        --> Regex (a ... man) --
+     * KeywordSource(zika) ---                        --> Join(distance < 100) --> FileSink.
+     *                        --> NLP (location)    -- 
+     * (search zika on index) 
+     * 
+     */
     public static void extractPersonLocation() throws Exception {
                 
         String keywordZika = "zika";
