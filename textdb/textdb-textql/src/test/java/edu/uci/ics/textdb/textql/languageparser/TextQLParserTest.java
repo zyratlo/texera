@@ -21,7 +21,6 @@ import org.junit.Test;
 
 import edu.uci.ics.textdb.textql.languageparser.TextQLParser.Statement;
 import edu.uci.ics.textdb.textql.languageparser.TextQLParser.SelectStatement;
-import edu.uci.ics.textdb.textql.languageparser.TextQLParser.EmptyStatement;
 import edu.uci.ics.textdb.textql.languageparser.TextQLParser.CreateViewStatement;
 import edu.uci.ics.textdb.textql.languageparser.TextQLParser.ExtractPredicate;
 import edu.uci.ics.textdb.textql.languageparser.TextQLParser.KeywordExtractPredicate;
@@ -56,7 +55,7 @@ public class TextQLParserTest {
         assertException(()->(new TextQLParser(string2InputStream(" a "))).numberLiteral(), ParseException.class);
         assertException(()->(new TextQLParser(string2InputStream(" a 22 "))).numberLiteral(), ParseException.class);
         assertException(()->(new TextQLParser(string2InputStream(" a45 "))).numberLiteral(), ParseException.class);
-        assertException(()->(new TextQLParser(string2InputStream(" A45 "))).numberLiteral(), TokenMgrError.class);
+        assertException(()->(new TextQLParser(string2InputStream(" A45 "))).numberLiteral(), ParseException.class);
         assertException(()->(new TextQLParser(string2InputStream(" FROM45 "))).numberLiteral(), ParseException.class);
         assertException(()->(new TextQLParser(string2InputStream(" \"4\" "))).numberLiteral(), ParseException.class);
         assertException(()->(new TextQLParser(string2InputStream(" /4/ "))).numberLiteral(), ParseException.class);
@@ -84,7 +83,7 @@ public class TextQLParserTest {
         assertException(()->(new TextQLParser(string2InputStream(" a "))).numberLiteralToDouble(), ParseException.class);
         assertException(()->(new TextQLParser(string2InputStream(" a 22 "))).numberLiteralToDouble(), ParseException.class);
         assertException(()->(new TextQLParser(string2InputStream(" a45 "))).numberLiteralToDouble(), ParseException.class);
-        assertException(()->(new TextQLParser(string2InputStream(" A45 "))).numberLiteralToDouble(), TokenMgrError.class);
+        assertException(()->(new TextQLParser(string2InputStream(" A45 "))).numberLiteralToDouble(), ParseException.class);
         assertException(()->(new TextQLParser(string2InputStream(" FROM45 "))).numberLiteralToDouble(), ParseException.class);
         assertException(()->(new TextQLParser(string2InputStream(" \"4\" "))).numberLiteralToDouble(), ParseException.class);
         assertException(()->(new TextQLParser(string2InputStream(" /4/ "))).numberLiteralToDouble(), ParseException.class);
@@ -110,7 +109,7 @@ public class TextQLParserTest {
         assertException(()->(new TextQLParser(string2InputStream(" a "))).numberLiteralToInteger(), ParseException.class);
         assertException(()->(new TextQLParser(string2InputStream(" a 22 "))).numberLiteralToInteger(), ParseException.class);
         assertException(()->(new TextQLParser(string2InputStream(" a45 "))).numberLiteralToInteger(), ParseException.class);
-        assertException(()->(new TextQLParser(string2InputStream(" A45 "))).numberLiteralToInteger(), TokenMgrError.class);
+        assertException(()->(new TextQLParser(string2InputStream(" A45 "))).numberLiteralToInteger(), ParseException.class);
         assertException(()->(new TextQLParser(string2InputStream(" FROM45 "))).numberLiteralToInteger(), ParseException.class);
         assertException(()->(new TextQLParser(string2InputStream(" \"4\" "))).numberLiteralToInteger(), ParseException.class);
         assertException(()->(new TextQLParser(string2InputStream(" /4/ "))).numberLiteralToInteger(), ParseException.class);
@@ -156,10 +155,11 @@ public class TextQLParserTest {
         Assert.assertEquals((new TextQLParser(string2InputStream(" i6i8s7s "))).identifierLiteral(), "i6i8s7s");
         Assert.assertEquals((new TextQLParser(string2InputStream(" j7i\\8s7s "))).identifierLiteral(), "j7i");
         Assert.assertEquals((new TextQLParser(string2InputStream(" k8i\"8s7s "))).identifierLiteral(), "k8i");
-        Assert.assertEquals((new TextQLParser(string2InputStream(" aFROM "))).identifierLiteral(), "a");
+        Assert.assertEquals((new TextQLParser(string2InputStream(" aFROM "))).identifierLiteral(), "aFROM");
+        Assert.assertEquals((new TextQLParser(string2InputStream(" A "))).identifierLiteral(), "A");
+        Assert.assertEquals((new TextQLParser(string2InputStream(" FROMa "))).identifierLiteral(), "FROMa");
+        Assert.assertEquals((new TextQLParser(string2InputStream(" Ed0 "))).identifierLiteral(), "Ed0");
         assertException(()->(new TextQLParser(string2InputStream(" 2df "))).identifierLiteral(), ParseException.class);
-        assertException(()->(new TextQLParser(string2InputStream(" A "))).identifierLiteral(), TokenMgrError.class);
-        assertException(()->(new TextQLParser(string2InputStream(" FROMa "))).identifierLiteral(), ParseException.class);
         assertException(()->(new TextQLParser(string2InputStream(" _a "))).identifierLiteral(), TokenMgrError.class);
     }
     @Test
@@ -173,8 +173,10 @@ public class TextQLParserTest {
         Assert.assertEquals((new TextQLParser(string2InputStream(" i6,i8,s7,s "))).identifierList(), Arrays.asList("i6","i8","s7","s"));
         Assert.assertEquals((new TextQLParser(string2InputStream(" j7i/8s7s/ "))).identifierList(), Arrays.asList("j7i"));
         Assert.assertEquals((new TextQLParser(string2InputStream(" k8i\"8s7s\" "))).identifierList(), Arrays.asList("k8i"));
-        Assert.assertEquals((new TextQLParser(string2InputStream(" aFROM "))).identifierList(), Arrays.asList("a"));
-        Assert.assertEquals((new TextQLParser(string2InputStream(" b7FROM "))).identifierList(), Arrays.asList("b7"));
+        Assert.assertEquals((new TextQLParser(string2InputStream(" aFROM "))).identifierList(), Arrays.asList("aFROM"));
+        Assert.assertEquals((new TextQLParser(string2InputStream(" B7FROM "))).identifierList(), Arrays.asList("B7FROM"));
+        Assert.assertEquals((new TextQLParser(string2InputStream(" A "))).identifierList(), Arrays.asList("A"));
+        Assert.assertEquals((new TextQLParser(string2InputStream(" FROMa "))).identifierList(), Arrays.asList("FROMa"));
         assertException(()->(new TextQLParser(string2InputStream(" j7i,/8s7s/ "))).identifierList(), ParseException.class);
         assertException(()->(new TextQLParser(string2InputStream(" k8i,\"8s7s\" "))).identifierList(), ParseException.class);
         assertException(()->(new TextQLParser(string2InputStream(" k8i,,k9j "))).identifierList(), ParseException.class);
@@ -183,8 +185,6 @@ public class TextQLParserTest {
         assertException(()->(new TextQLParser(string2InputStream(" j7i\\8s7s "))).identifierList(), TokenMgrError.class);
         assertException(()->(new TextQLParser(string2InputStream(" k8i\"8s7s "))).identifierList(), TokenMgrError.class);
         assertException(()->(new TextQLParser(string2InputStream(" 2df "))).identifierList(), ParseException.class);
-        assertException(()->(new TextQLParser(string2InputStream(" A "))).identifierList(), TokenMgrError.class);
-        assertException(()->(new TextQLParser(string2InputStream(" FROMa "))).identifierList(), ParseException.class);
         assertException(()->(new TextQLParser(string2InputStream(" _a "))).identifierList(), TokenMgrError.class);
     }
     @Test
@@ -198,9 +198,6 @@ public class TextQLParserTest {
     
     @Test
     public void testStatement() throws ParseException {
-    	String emptyStatement00 = " ; ";
-    	Statement emptyStatementParameters00 = new TextQLParser.EmptyStatement("__lid0");
-        Assert.assertEquals((new TextQLParser(string2InputStream(emptyStatement00))).statement(), emptyStatementParameters00);
         String selectStatement00 = "SELECT * FROM a;";
         Statement selectStatementParameters00 = new SelectStatement("__lid0", true, null, null, "a", null, null);
     	Assert.assertEquals((new TextQLParser(string2InputStream(selectStatement00))).statement(), selectStatementParameters00);
@@ -243,19 +240,6 @@ public class TextQLParserTest {
     	 * TODO: create some test cases with multiple statements
          */
     } 
-    @Test
-    public void testEmptyStatement() throws ParseException {
-    	Statement emptyStatementParameters = new EmptyStatement("__lid0");
-        Assert.assertEquals((new TextQLParser(string2InputStream(" "))).emptyStatement(), emptyStatementParameters);
-        Assert.assertEquals((new TextQLParser(string2InputStream(" ; \nSELECT "))).emptyStatement(), emptyStatementParameters);
-        Assert.assertEquals((new TextQLParser(string2InputStream(" SELECT * FROM a; "))).emptyStatement(), emptyStatementParameters);
-        Assert.assertEquals((new TextQLParser(string2InputStream(" k8i, "))).emptyStatement(), emptyStatementParameters);
-        Assert.assertEquals((new TextQLParser(string2InputStream(" 2df ; "))).emptyStatement(), emptyStatementParameters);
-        Assert.assertEquals((new TextQLParser(string2InputStream(" FROMa; "))).emptyStatement(), emptyStatementParameters);
-        Assert.assertEquals((new TextQLParser(string2InputStream(" a; "))).emptyStatement(), emptyStatementParameters);
-        Assert.assertEquals((new TextQLParser(string2InputStream(" A; "))).emptyStatement(), emptyStatementParameters);
-        Assert.assertEquals((new TextQLParser(string2InputStream(" _a; "))).emptyStatement(), emptyStatementParameters);
-    }
     
     @Test
     public void testSelectStatement() throws ParseException {

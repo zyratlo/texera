@@ -15,6 +15,10 @@ options {
 	 * the input in a Reader if necessary.
      */
     UNICODE_INPUT = true;
+    /**
+     * The TextQL language is case-insensitive
+     */
+    IGNORE_CASE = true;
 }
 
 PARSER_BEGIN(TextQLParser)
@@ -38,13 +42,12 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 public class TextQLParser{
   
 	/**
-	 * Statement class and subclasses(SelectStatement, CreateViewStatement, EmptyStatement)
+	 * Statement class and subclasses(SelectStatement, CreateViewStatement)
 	 * Each Statement class has an id. Subclasses of Statements have specific
 	 * fields related to its function. These classes have no methods, they are
 	 * used only as containers to move data.
 	 * Statement --+ SelectStatement
 	 *             + CreateViewStatement
-	 *             + EmptyStatement
 	 */
     static public abstract class Statement {
 		public String id;
@@ -118,23 +121,6 @@ public class TextQLParser{
 			return new EqualsBuilder()
 						.appendSuper(super.equals(otherCreateViewStatement))
 						.append(substatement, otherCreateViewStatement.substatement)
-						.isEquals();
-      	}
-    }
-    static public class EmptyStatement extends Statement {
-      	public EmptyStatement() {
-			this(null);
-      	}
-      	public EmptyStatement(String id) {
-			super(id);
-      	}
-      	@Override
-      	public boolean equals(Object obj) {
-			if (obj == null) { return false; }
-			if (obj.getClass() != this.getClass()) { return false; }
-			EmptyStatement otherEmptyStatement = (EmptyStatement) obj;
-			return new EqualsBuilder()
-						.appendSuper(super.equals(otherEmptyStatement))
 						.isEquals();
       	}
     }
@@ -218,6 +204,7 @@ TOKEN : { < OUTPUT : "OUTPUT" > }
 TOKEN : { < INSERT : "INSERT" > }
 TOKEN : { < INTO : "INTO" > }
 TOKEN : { < VALUES : "VALUES" > }
+TOKEN : { < KEYWORDMATCH : "KEYWORDMATCH" > }
 /**
  *	Basic Tokens - Comparison operators
  */
@@ -293,13 +280,11 @@ TOKEN : { < REGEX_LITERAL : "/" ( "\\" ~[] | ~["/"] )* "/" > }
 /**
  *	IDENTIFIER_LITERAL - Matches an identifier string(e.g. for variable names)
  *  The token matched is composed by a alphabetic character followed by alphanumeric characters.
- *  For now, the characters must be lower case. 
  *  The following strings are matched by this token:
  *      i
  *      id
  *      id0
  *      i0d
- *  TODO: allow the characters to be upper case
  */ 
 TOKEN : { < IDENTIFIER_LITERAL : ["a"-"z"](["a"-"z","0"-"9"])*  > }
 
@@ -486,8 +471,8 @@ List<Statement> mainStatementList(Consumer<Statement> statementConsumer) :
 /**
  * Consume one statement declaration form the input and generates a Statement
  * object with the parsed data. The kind of statement can either be either
- * SelectStatement, CreateViewStatement or EmptyStatement
- * Grammar: ( <SelectStatement> | <CreateViewStatement> | <EmptyStatement> ) ";"
+ * SelectStatement or CreateViewStatement
+ * Grammar: ( <SelectStatement> | <CreateViewStatement> ) ";"
  * @return The Statement representation of the next statement declaration
  */
 Statement statement() : 
@@ -500,8 +485,6 @@ Statement statement() :
             newStatement = selectStatement() 
         |
             newStatement = createViewStatement()
-        |
-            newStatement = emptyStatement()
     )
     <SEMICOLON>
     // return generated Statement
@@ -608,23 +591,6 @@ SelectStatement selectStatement() :
     }
 }
 
-/**
- * Consume an empty statement declaration form the input and generates an EmptyStatement object
- * Examples of valid input: no input is required
- * @return The EmptyStatement representation of a new statement
- */  
-EmptyStatement emptyStatement() : 
-{
-    EmptyStatement statementParameters = new EmptyStatement();
-	statementParameters.id = getNewStatementId();
-}
-{
-  	//EmptyStatement has no data extraction because it is empty
-    {
-    	return statementParameters;
-    }
-}
-
 
 /*
  *	Extract Predicates Declaration
@@ -672,7 +638,7 @@ KeywordExtractPredicate extractKeywordMatchPredicate() :
     String matchType;
 }
 {
-    "KEYWORDMATCH" 
+    <KEYWORDMATCH>
     <LPAREN>
     	//extract the match fields(either a field or list of field)
         (

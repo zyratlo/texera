@@ -37,8 +37,8 @@
               <goal>javacc</goal>
             </goals>
             <configuration>
-              <isStatic>false</isStatic>
-              <javaUnicodeEscape>true</javaUnicodeEscape>
+              <sourceDirectory>src/main/javacc</sourceDirectory>
+              <outputDirectory>target/generated-sources/javacc</outputDirectory>
             </configuration>
           </execution>
         </executions>
