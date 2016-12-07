@@ -53,6 +53,7 @@ var setup = function(){
 			}
 			extraOperators['keyword'] = userInput;
 			extraOperators['matching_type'] = $('#' + panel + ' .matching-type').val();
+
 		}
 		else if (panel == 'dictionary-panel'){
 			if (userInput == null || userInput == ''){
