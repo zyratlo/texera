@@ -9,7 +9,7 @@ import edu.uci.ics.textdb.api.dataflow.ISourceOperator;
 import edu.uci.ics.textdb.api.exception.TextDBException;
 
 /*
- * This operator takes a in-memory list of tuples and serves them as a source operator.
+ * This operator takes an in-memory list of tuples and serves them as a source operator.
  * 
  */
 public class TupleStreamSourceOperator implements ISourceOperator {
