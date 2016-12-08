@@ -45,10 +45,14 @@ public class SampleExtraction {
     public static final String promedIndexDirectory = "./index/standard/promed/"; 
     public static final DataStore promedDataStore = new DataStore(promedIndexDirectory, PromedSchema.PROMED_SCHEMA);
     
+    
     public static void main(String[] args) throws Exception {
         
-//         writeSampleIndex();
+        // write the index of data files
+        // index only needs to be written once, after the first run, this function can be commented out
+        writeSampleIndex();
         
+        // perform the extraction task
         extractPersonLocation();
     }
     
@@ -100,11 +104,19 @@ public class SampleExtraction {
     /*
      * This is the DAG of this extraction plan.
      * 
-     *                                               --> Regex (a ... man) --
-     * KeywordSource(zika) --> Projection(content) --                        --> Join(distance < 100) --> FileSink.
-     *                                               --> NLP (location)    -- 
-     * (search zika on index) 
      * 
+     *              KeywordSource (zika)
+     *                       ↓
+     *              Projection (content)
+     *                  ↓          ↓
+     *       regex (a...man)      NLP (location)
+     *                  ↓          ↓     
+     *             Join (distance < 100)
+     *                       ↓
+     *              Projection (spanList)
+     *                       ↓
+     *                    FileSink
+     *                    
      */
     public static void extractPersonLocation() throws Exception {
                 
