@@ -82,7 +82,7 @@ public class FuzzyTokenSourceBean extends OperatorBean {
         if (!(other instanceof FuzzyTokenSourceBean)) return false;
         FuzzyTokenSourceBean fuzzyTokenSourceBean = (FuzzyTokenSourceBean) other;
         return new EqualsBuilder()
-        		.appendSuper(super.equals(fuzzyTokenSourceBean))
+                .appendSuper(super.equals(fuzzyTokenSourceBean))
                 .append(query, fuzzyTokenSourceBean.getQuery())
                 .append(thresholdRatio, fuzzyTokenSourceBean.getThresholdRatio())
                 .append(dataSource, fuzzyTokenSourceBean.getDataSource())
@@ -92,7 +92,7 @@ public class FuzzyTokenSourceBean extends OperatorBean {
     @Override
     public int hashCode() {
         return new HashCodeBuilder(17, 31)
-        		.append(super.toString())
+                .append(super.hashCode())
                 .append(query)
                 .append(thresholdRatio)
                 .append(dataSource)

@@ -68,7 +68,7 @@ public class RegexSourceBean extends OperatorBean {
         if (!(other instanceof RegexSourceBean)) return false;
         RegexSourceBean regexSourceBean = (RegexSourceBean) other;
         return new EqualsBuilder()
-        		.appendSuper(super.equals(regexSourceBean))
+                .appendSuper(super.equals(regexSourceBean))
                 .append(regex, regexSourceBean.getRegex())
                 .append(dataSource, regexSourceBean.getDataSource())
                 .isEquals();
@@ -77,7 +77,7 @@ public class RegexSourceBean extends OperatorBean {
     @Override
     public int hashCode() {
         return new HashCodeBuilder(17, 31)
-        		.append(super.hashCode())
+                .append(super.hashCode())
                 .append(regex)
                 .append(dataSource)
                 .toHashCode();

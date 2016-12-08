@@ -84,7 +84,7 @@ public class DictionarySourceBean extends OperatorBean {
         DictionarySourceBean dictionarySourceBean = (DictionarySourceBean) other;
 
         return new EqualsBuilder()
-        		.appendSuper(super.equals(dictionarySourceBean))
+                .appendSuper(super.equals(dictionarySourceBean))
                 .append(dictionary, dictionarySourceBean.getDictionary())
                 .append(matchingType, dictionarySourceBean.getMatchingType())
                 .append(dataSource, dictionarySourceBean.getDataSource())
@@ -94,7 +94,7 @@ public class DictionarySourceBean extends OperatorBean {
     @Override
     public int hashCode() {
         return new HashCodeBuilder(17, 31)
-        		.append(super.toString())
+                .append(super.hashCode())
                 .append(dictionary)
                 .append(matchingType)
                 .append(dataSource)

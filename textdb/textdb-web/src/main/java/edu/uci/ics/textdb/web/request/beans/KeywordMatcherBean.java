@@ -67,7 +67,7 @@ public class KeywordMatcherBean extends OperatorBean {
         if (!(other instanceof KeywordMatcherBean)) return false;
         KeywordMatcherBean keywordMatcherBean = (KeywordMatcherBean) other;
         return new EqualsBuilder()
-        		.appendSuper(super.equals(keywordMatcherBean))
+                .appendSuper(super.equals(keywordMatcherBean))
                 .append(keyword, keywordMatcherBean.getKeyword())
                 .append(matchingType, keywordMatcherBean.getMatchingType())
                 .isEquals();
@@ -76,7 +76,7 @@ public class KeywordMatcherBean extends OperatorBean {
     @Override
     public int hashCode() {
         return new HashCodeBuilder(17, 31)
-        		.append(super.hashCode())
+                .append(super.hashCode())
                 .append(keyword)
                 .append(matchingType)
                 .toHashCode();

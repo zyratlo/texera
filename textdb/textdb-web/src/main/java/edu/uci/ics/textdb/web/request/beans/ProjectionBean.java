@@ -13,8 +13,8 @@ import java.util.HashMap;
 public class ProjectionBean extends OperatorBean {
     // Properties regarding the projection operator will go here
 	
-	public ProjectionBean() {
-	}
+    public ProjectionBean() {
+    }
 	
     public ProjectionBean(String operatorID, String operatorType, String attributes, String limit, String offset) {
         super(operatorID, operatorType, attributes, limit, offset);

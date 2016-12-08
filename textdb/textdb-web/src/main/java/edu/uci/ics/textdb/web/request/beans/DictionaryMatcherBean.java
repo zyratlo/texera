@@ -68,7 +68,7 @@ public class DictionaryMatcherBean extends OperatorBean {
         DictionaryMatcherBean dictionaryMatcherBean = (DictionaryMatcherBean) other;
 
         return new EqualsBuilder()
-        		.appendSuper(super.equals(dictionaryMatcherBean))
+                .appendSuper(super.equals(dictionaryMatcherBean))
                 .append(dictionary, dictionaryMatcherBean.getDictionary())
                 .append(matchingType, dictionaryMatcherBean.getMatchingType())
                 .isEquals();
@@ -77,7 +77,7 @@ public class DictionaryMatcherBean extends OperatorBean {
     @Override
     public int hashCode() {
         return new HashCodeBuilder(17, 31)
-        		.append(super.toString())
+                .append(super.hashCode())
                 .append(dictionary)
                 .append(matchingType)
                 .toHashCode();

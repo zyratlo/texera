@@ -54,7 +54,7 @@ public class NlpExtractorBean extends OperatorBean {
         if (!(other instanceof NlpExtractorBean)) return false;
         NlpExtractorBean nlpExtractorBean = (NlpExtractorBean) other;
         return new EqualsBuilder()
-        		.appendSuper(super.equals(nlpExtractorBean))
+                .appendSuper(super.equals(nlpExtractorBean))
                 .append(nlpTokenType, nlpExtractorBean.getNlpTokenType())
                 .isEquals();
     }
@@ -62,7 +62,7 @@ public class NlpExtractorBean extends OperatorBean {
     @Override
     public int hashCode() {
         return new HashCodeBuilder(17, 31)
-        		.append(super.hashCode())
+                .append(super.hashCode())
                 .append(nlpTokenType)
                 .toHashCode();
     }

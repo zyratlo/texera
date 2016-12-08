@@ -69,7 +69,7 @@ public class JoinBean extends OperatorBean {
         if (!(other instanceof JoinBean)) return false;
         JoinBean joinBean = (JoinBean) other;
         return new EqualsBuilder()
-        		.appendSuper(super.equals(joinBean))
+                .appendSuper(super.equals(joinBean))
                 .append(idAttribute, joinBean.getIdAttribute())
                 .append(distance, joinBean.getDistance())
                 .isEquals();
@@ -78,7 +78,7 @@ public class JoinBean extends OperatorBean {
     @Override
     public int hashCode() {
         return new HashCodeBuilder(17, 31)
-        		.append(super.hashCode())
+                .append(super.hashCode())
                 .append(idAttribute)
                 .append(distance)
                 .toHashCode();

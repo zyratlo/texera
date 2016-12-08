@@ -64,7 +64,7 @@ public class IndexSinkBean extends OperatorBean {
         if (!(other instanceof IndexSinkBean)) return false;
         IndexSinkBean indexSinkBean = (IndexSinkBean) other;
         return new EqualsBuilder()
-        		.appendSuper(super.equals(indexSinkBean))
+                .appendSuper(super.equals(indexSinkBean))
                 .append(indexPath, indexSinkBean.getIndexPath())
                 .append(indexName, indexSinkBean.getIndexName())
                 .isEquals();
@@ -73,7 +73,7 @@ public class IndexSinkBean extends OperatorBean {
     @Override
     public int hashCode() {
         return new HashCodeBuilder(17, 31)
-        		.append(super.hashCode())
+                .append(super.hashCode())
                 .append(indexPath)
                 .append(indexName)
                 .toHashCode();

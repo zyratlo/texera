@@ -52,7 +52,7 @@ public class FileSinkBean extends OperatorBean {
         if (!(other instanceof FileSinkBean)) return false;
         FileSinkBean fileSinkBean = (FileSinkBean) other;
         return new EqualsBuilder()
-        		.appendSuper(super.equals(fileSinkBean))
+                .appendSuper(super.equals(fileSinkBean))
                 .append(filePath, fileSinkBean.getFilePath())
                 .isEquals();
     }
@@ -60,7 +60,7 @@ public class FileSinkBean extends OperatorBean {
     @Override
     public int hashCode() {
         return new HashCodeBuilder(17, 31)
-        		.append(super.toString())
+                .append(super.hashCode())
                 .append(filePath)
                 .toHashCode();
     }

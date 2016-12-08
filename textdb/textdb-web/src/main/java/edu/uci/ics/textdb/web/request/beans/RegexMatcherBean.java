@@ -53,7 +53,7 @@ public class RegexMatcherBean extends OperatorBean {
         if (!(other instanceof RegexMatcherBean)) return false;
         RegexMatcherBean regexMatcherBean = (RegexMatcherBean) other;
         return new EqualsBuilder()
-        		.appendSuper(super.equals(regexMatcherBean))
+                .appendSuper(super.equals(regexMatcherBean))
                 .append(regex, regexMatcherBean.getRegex())
                 .isEquals();
     }
@@ -61,7 +61,7 @@ public class RegexMatcherBean extends OperatorBean {
     @Override
     public int hashCode() {
         return new HashCodeBuilder(17, 31)
-        		.append(super.hashCode())
+                .append(super.hashCode())
                 .append(regex)
                 .toHashCode();
     }
