@@ -100,9 +100,9 @@ public class SampleExtraction {
     /*
      * This is the DAG of this extraction plan.
      * 
-     *                        --> Regex (a ... man) --
-     * KeywordSource(zika) ---                        --> Join(distance < 100) --> FileSink.
-     *                        --> NLP (location)    -- 
+     *                                               --> Regex (a ... man) --
+     * KeywordSource(zika) --> Projection(content) --                        --> Join(distance < 100) --> FileSink.
+     *                                               --> NLP (location)    -- 
      * (search zika on index) 
      * 
      */
