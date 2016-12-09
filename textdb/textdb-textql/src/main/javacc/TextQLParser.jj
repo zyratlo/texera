@@ -2,10 +2,10 @@
  * JavaCC compilation options
  */
 options {
-    /**
-     * Multiple instances of the parser might be required, thus the parser
-     * should not be compiled as static (made up by static methods)
-     */
+	/**
+	 * Multiple instances of the parser might be required, thus the parser
+	 * should not be compiled as static (made up by static methods)
+	 */
     STATIC = false;
     /**
      * Use Unicode Input since Java's implementation of String, Character and
@@ -41,7 +41,7 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
  * @author Flavio Bayer
  */
 public class TextQLParser{
-
+  
     /**
      * Statement class and subclasses (SelectStatement, CreateViewStatement)
      * Each Statement class has an id attribute. Statement subclasses have
@@ -116,17 +116,17 @@ public class TextQLParser{
     }
     static public class CreateViewStatement extends Statement {
         /**
-         * subStatement is the statement to which the create view statement creates an alias for
+         * innerStatement is the statement to which the create view statement creates an alias for
          * e.g. in "CREATE VIEW v AS SELECT *FROM t; the view with id 'v' will have the
-         * select statement "SELECT *FROM t" as subStatement (in a SlectStatement object)
+         * select statement "SELECT *FROM t" as innerStatement (in a SlectStatement object)
          */
-        public Statement subStatement;
+        public Statement innerStatement;
         public CreateViewStatement() {
             this(null, null);
         }
-        public CreateViewStatement(String id, Statement subStatement) {
+        public CreateViewStatement(String id, Statement innerStatement) {
             super(id);
-            this.subStatement = subStatement;
+            this.innerStatement = innerStatement;
         }
         @Override
         public boolean equals(Object other) {
@@ -135,7 +135,7 @@ public class TextQLParser{
             CreateViewStatement createViweClass = (CreateViewStatement) other;
             return new EqualsBuilder()
                         .appendSuper(super.equals(createViweClass))
-                        .append(subStatement, createViweClass.subStatement)
+                        .append(innerStatement, createViweClass.innerStatement)
                         .isEquals();
         }
     }
@@ -149,10 +149,10 @@ public class TextQLParser{
     static public abstract class ExtractPredicate {
         @Override
         public boolean equals(Object other) {
-            if (other == null) { return false; }
-            if (other.getClass() != getClass()) { return false; }
-            //since ExtractPredicate has no attributes, there's nothing to compare but the class itself
-            return true;
+	        if (other == null) { return false; }
+	        if (other.getClass() != getClass()) { return false; }
+	        //since ExtractPredicate has no attributes, there's nothing to compare but the class itself
+	        return true;
         }
     }
     static public class KeywordExtractPredicate extends ExtractPredicate {
@@ -526,7 +526,7 @@ Statement statement() :
 CreateViewStatement createViewStatement() : 
 {
     CreateViewStatement createViewStatement = new CreateViewStatement();
-    Statement subStatement;
+    Statement innerStatement;
     String viewName;
 }
 {
@@ -537,8 +537,8 @@ CreateViewStatement createViewStatement() :
     <AS>
     // parse inner statement: either a SelectStatement or another CreateViewStatement
     (
-        subStatement = selectStatement()
-    ){ createViewStatement.subStatement = subStatement; }
+        innerStatement = selectStatement()
+    ){ createViewStatement.innerStatement = innerStatement; }
     // return generated CreateViewStatement
     {
         return createViewStatement;

@@ -14,11 +14,11 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 	<dependencies>
-		<dependency>
-			<groupId>edu.uci.ics.textdb</groupId>
-			<artifactId>textdb-dataflow</artifactId>
-			<version>${textdb.version}</version>
-		</dependency>
+        <dependency>
+            <groupId>edu.uci.ics.textdb</groupId>
+            <artifactId>textdb-dataflow</artifactId>
+            <version>${textdb.version}</version>
+        </dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
@@ -41,8 +41,8 @@
 							<goal>javacc</goal>
 						</goals>
 						<configuration>
-							<sourceDirectory>${project.basedir}/src/main/javacc</sourceDirectory>
-							<outputDirectory>${project.build.directory}/generated-sources/javacc</outputDirectory>
+							<sourceDirectory>src/main/javacc</sourceDirectory>
+							<outputDirectory>target/generated-sources/javacc</outputDirectory>
 						</configuration>
 					</execution>
 				</executions>
