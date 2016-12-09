@@ -41,7 +41,7 @@
 							<goal>javacc</goal>
 						</goals>
 						<configuration>
-							<sourceDirectory>${project.basedir}/main/javacc</sourceDirectory>
+							<sourceDirectory>${project.basedir}/src/main/javacc</sourceDirectory>
 							<outputDirectory>${project.build.directory}/generated-sources/javacc</outputDirectory>
 						</configuration>
 					</execution>
