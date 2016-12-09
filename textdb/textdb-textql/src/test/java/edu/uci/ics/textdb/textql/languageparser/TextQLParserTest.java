@@ -11,7 +11,6 @@ import java.io.PipedOutputStream;
 import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.function.Consumer;
@@ -36,30 +35,30 @@ public class TextQLParserTest {
 
     @Test
     public void testNumberLiteral() throws ParseException {
-        Assert.assertEquals((new TextQLParser(string2InputStream(" 0 "))).numberLiteral(), "0");
-        Assert.assertEquals((new TextQLParser(string2InputStream(" 12 "))).numberLiteral(), "12");
-        Assert.assertEquals((new TextQLParser(string2InputStream(" 34566 "))).numberLiteral(), "34566");
-        Assert.assertEquals((new TextQLParser(string2InputStream(" 78.90 "))).numberLiteral(), "78.90");
-        Assert.assertEquals((new TextQLParser(string2InputStream(" 123. "))).numberLiteral(), "123.");
-        Assert.assertEquals((new TextQLParser(string2InputStream(" .456 "))).numberLiteral(), ".456");
-        Assert.assertEquals((new TextQLParser(string2InputStream(" -0 "))).numberLiteral(), "-0");
-        Assert.assertEquals((new TextQLParser(string2InputStream(" -12 "))).numberLiteral(), "-12");
-        Assert.assertEquals((new TextQLParser(string2InputStream(" -34566 "))).numberLiteral(), "-34566");
-        Assert.assertEquals((new TextQLParser(string2InputStream(" -78.90 "))).numberLiteral(), "-78.90");
-        Assert.assertEquals((new TextQLParser(string2InputStream(" -123. "))).numberLiteral(), "-123.");
-        Assert.assertEquals((new TextQLParser(string2InputStream(" -.456 "))).numberLiteral(), "-.456");
-        Assert.assertEquals((new TextQLParser(string2InputStream(" -.789.001 "))).numberLiteral(), "-.789");
-        assertException(()->(new TextQLParser(string2InputStream(" -e "))).numberLiteral(), TokenMgrError.class);
-        assertException(()->(new TextQLParser(string2InputStream(" -e 21"))).numberLiteral(), TokenMgrError.class);
-        assertException(()->(new TextQLParser(string2InputStream(" +4 "))).numberLiteral(), TokenMgrError.class);
-        assertException(()->(new TextQLParser(string2InputStream(" a "))).numberLiteral(), ParseException.class);
-        assertException(()->(new TextQLParser(string2InputStream(" a 22 "))).numberLiteral(), ParseException.class);
-        assertException(()->(new TextQLParser(string2InputStream(" a45 "))).numberLiteral(), ParseException.class);
-        assertException(()->(new TextQLParser(string2InputStream(" A45 "))).numberLiteral(), ParseException.class);
-        assertException(()->(new TextQLParser(string2InputStream(" FROM45 "))).numberLiteral(), ParseException.class);
-        assertException(()->(new TextQLParser(string2InputStream(" \"4\" "))).numberLiteral(), ParseException.class);
-        assertException(()->(new TextQLParser(string2InputStream(" /4/ "))).numberLiteral(), ParseException.class);
-        assertException(()->(new TextQLParser(string2InputStream(" /4 "))).numberLiteral(), TokenMgrError.class);
+        Assert.assertEquals((new TextQLParser(string2InputStream(" 0 "))).numberLiteralToString(), "0");
+        Assert.assertEquals((new TextQLParser(string2InputStream(" 12 "))).numberLiteralToString(), "12");
+        Assert.assertEquals((new TextQLParser(string2InputStream(" 34566 "))).numberLiteralToString(), "34566");
+        Assert.assertEquals((new TextQLParser(string2InputStream(" 78.90 "))).numberLiteralToString(), "78.90");
+        Assert.assertEquals((new TextQLParser(string2InputStream(" 123. "))).numberLiteralToString(), "123.");
+        Assert.assertEquals((new TextQLParser(string2InputStream(" .456 "))).numberLiteralToString(), ".456");
+        Assert.assertEquals((new TextQLParser(string2InputStream(" -0 "))).numberLiteralToString(), "-0");
+        Assert.assertEquals((new TextQLParser(string2InputStream(" -12 "))).numberLiteralToString(), "-12");
+        Assert.assertEquals((new TextQLParser(string2InputStream(" -34566 "))).numberLiteralToString(), "-34566");
+        Assert.assertEquals((new TextQLParser(string2InputStream(" -78.90 "))).numberLiteralToString(), "-78.90");
+        Assert.assertEquals((new TextQLParser(string2InputStream(" -123. "))).numberLiteralToString(), "-123.");
+        Assert.assertEquals((new TextQLParser(string2InputStream(" -.456 "))).numberLiteralToString(), "-.456");
+        Assert.assertEquals((new TextQLParser(string2InputStream(" -.789.001 "))).numberLiteralToString(), "-.789");
+        assertException(()->(new TextQLParser(string2InputStream(" -e "))).numberLiteralToString(), TokenMgrError.class);
+        assertException(()->(new TextQLParser(string2InputStream(" -e 21"))).numberLiteralToString(), TokenMgrError.class);
+        assertException(()->(new TextQLParser(string2InputStream(" +4 "))).numberLiteralToString(), TokenMgrError.class);
+        assertException(()->(new TextQLParser(string2InputStream(" a "))).numberLiteralToString(), ParseException.class);
+        assertException(()->(new TextQLParser(string2InputStream(" a 22 "))).numberLiteralToString(), ParseException.class);
+        assertException(()->(new TextQLParser(string2InputStream(" a45 "))).numberLiteralToString(), ParseException.class);
+        assertException(()->(new TextQLParser(string2InputStream(" A45 "))).numberLiteralToString(), ParseException.class);
+        assertException(()->(new TextQLParser(string2InputStream(" FROM45 "))).numberLiteralToString(), ParseException.class);
+        assertException(()->(new TextQLParser(string2InputStream(" \"4\" "))).numberLiteralToString(), ParseException.class);
+        assertException(()->(new TextQLParser(string2InputStream(" /4/ "))).numberLiteralToString(), ParseException.class);
+        assertException(()->(new TextQLParser(string2InputStream(" /4 "))).numberLiteralToString(), TokenMgrError.class);
         
     }
     
@@ -117,75 +116,75 @@ public class TextQLParserTest {
 
     }
     @Test
-    public void testRegexLiteral() throws ParseException {
-        Assert.assertEquals((new TextQLParser(string2InputStream(" // "))).regexLiteral(), "");
-        Assert.assertEquals((new TextQLParser(string2InputStream(" /abc/ "))).regexLiteral(), "abc");
-        Assert.assertEquals((new TextQLParser(string2InputStream(" /d\\/e/ "))).regexLiteral(), "d/e");
-        Assert.assertEquals((new TextQLParser(string2InputStream(" /d\\/e\\/f/ "))).regexLiteral(), "d/e/f");
-        Assert.assertEquals((new TextQLParser(string2InputStream(" /FROM/ "))).regexLiteral(), "FROM");
-        Assert.assertEquals((new TextQLParser(string2InputStream(" /\"/ "))).regexLiteral(), "\"");
-        Assert.assertEquals((new TextQLParser(string2InputStream(" /\\/ "))).regexLiteral(), "\\");
-        assertException(()->(new TextQLParser(string2InputStream(" /21 "))).regexLiteral(), TokenMgrError.class);
-        assertException(()->(new TextQLParser(string2InputStream(" 2/1/ "))).regexLiteral(), ParseException.class);
-        assertException(()->(new TextQLParser(string2InputStream(" \"4/ "))).regexLiteral(), TokenMgrError.class);
-        assertException(()->(new TextQLParser(string2InputStream(" FROM// "))).regexLiteral(), ParseException.class);
+    public void testregexLiteralToString() throws ParseException {
+        Assert.assertEquals((new TextQLParser(string2InputStream(" // "))).regexLiteralToString(), "");
+        Assert.assertEquals((new TextQLParser(string2InputStream(" /abc/ "))).regexLiteralToString(), "abc");
+        Assert.assertEquals((new TextQLParser(string2InputStream(" /d\\/e/ "))).regexLiteralToString(), "d/e");
+        Assert.assertEquals((new TextQLParser(string2InputStream(" /d\\/e\\/f/ "))).regexLiteralToString(), "d/e/f");
+        Assert.assertEquals((new TextQLParser(string2InputStream(" /FROM/ "))).regexLiteralToString(), "FROM");
+        Assert.assertEquals((new TextQLParser(string2InputStream(" /\"/ "))).regexLiteralToString(), "\"");
+        Assert.assertEquals((new TextQLParser(string2InputStream(" /\\/ "))).regexLiteralToString(), "\\");
+        assertException(()->(new TextQLParser(string2InputStream(" /21 "))).regexLiteralToString(), TokenMgrError.class);
+        assertException(()->(new TextQLParser(string2InputStream(" 2/1/ "))).regexLiteralToString(), ParseException.class);
+        assertException(()->(new TextQLParser(string2InputStream(" \"4/ "))).regexLiteralToString(), TokenMgrError.class);
+        assertException(()->(new TextQLParser(string2InputStream(" FROM// "))).regexLiteralToString(), ParseException.class);
     }
     @Test
-    public void testStringLiteral() throws ParseException {
-        Assert.assertEquals((new TextQLParser(string2InputStream(" \"\" "))).stringLiteral(), "");
-        Assert.assertEquals((new TextQLParser(string2InputStream(" \"abc\" "))).stringLiteral(), "abc");
-        Assert.assertEquals((new TextQLParser(string2InputStream(" \"de f\" "))).stringLiteral(), "de f");
-        Assert.assertEquals((new TextQLParser(string2InputStream(" \"d\\\"e\" "))).stringLiteral(), "d\"e");
-        Assert.assertEquals((new TextQLParser(string2InputStream(" \"d\\\"e\\\"f\" "))).stringLiteral(), "d\"e\"f");
-        Assert.assertEquals((new TextQLParser(string2InputStream(" \"\\\"\" "))).stringLiteral(), "\"");
-        Assert.assertEquals((new TextQLParser(string2InputStream(" \"\\\" "))).stringLiteral(), "\\");
-        assertException(()->(new TextQLParser(string2InputStream(" \"21 "))).stringLiteral(), TokenMgrError.class);
-        assertException(()->(new TextQLParser(string2InputStream(" 'aa' "))).stringLiteral(), TokenMgrError.class);
-        assertException(()->(new TextQLParser(string2InputStream(" 2\"1\" "))).stringLiteral(), ParseException.class);
-        assertException(()->(new TextQLParser(string2InputStream(" 21 "))).stringLiteral(), ParseException.class);
-        assertException(()->(new TextQLParser(string2InputStream(" SELECTa "))).stringLiteral(), ParseException.class);
-        assertException(()->(new TextQLParser(string2InputStream(" abc "))).stringLiteral(), ParseException.class);
+    public void teststringLiteralToString() throws ParseException {
+        Assert.assertEquals((new TextQLParser(string2InputStream(" \"\" "))).stringLiteralToString(), "");
+        Assert.assertEquals((new TextQLParser(string2InputStream(" \"abc\" "))).stringLiteralToString(), "abc");
+        Assert.assertEquals((new TextQLParser(string2InputStream(" \"de f\" "))).stringLiteralToString(), "de f");
+        Assert.assertEquals((new TextQLParser(string2InputStream(" \"d\\\"e\" "))).stringLiteralToString(), "d\"e");
+        Assert.assertEquals((new TextQLParser(string2InputStream(" \"d\\\"e\\\"f\" "))).stringLiteralToString(), "d\"e\"f");
+        Assert.assertEquals((new TextQLParser(string2InputStream(" \"\\\"\" "))).stringLiteralToString(), "\"");
+        Assert.assertEquals((new TextQLParser(string2InputStream(" \"\\\" "))).stringLiteralToString(), "\\");
+        assertException(()->(new TextQLParser(string2InputStream(" \"21 "))).stringLiteralToString(), TokenMgrError.class);
+        assertException(()->(new TextQLParser(string2InputStream(" 'aa' "))).stringLiteralToString(), TokenMgrError.class);
+        assertException(()->(new TextQLParser(string2InputStream(" 2\"1\" "))).stringLiteralToString(), ParseException.class);
+        assertException(()->(new TextQLParser(string2InputStream(" 21 "))).stringLiteralToString(), ParseException.class);
+        assertException(()->(new TextQLParser(string2InputStream(" SELECTa "))).stringLiteralToString(), ParseException.class);
+        assertException(()->(new TextQLParser(string2InputStream(" abc "))).stringLiteralToString(), ParseException.class);
     }
     @Test
     public void testIdentifier() throws ParseException {
-        Assert.assertEquals((new TextQLParser(string2InputStream(" i "))).identifierLiteral(), "i");
-        Assert.assertEquals((new TextQLParser(string2InputStream(" id "))).identifierLiteral(), "id");
-        Assert.assertEquals((new TextQLParser(string2InputStream(" id de "))).identifierLiteral(), "id");
-        Assert.assertEquals((new TextQLParser(string2InputStream(" id0 "))).identifierLiteral(), "id0");
-        Assert.assertEquals((new TextQLParser(string2InputStream(" i6i8s7s "))).identifierLiteral(), "i6i8s7s");
-        Assert.assertEquals((new TextQLParser(string2InputStream(" j7i\\8s7s "))).identifierLiteral(), "j7i");
-        Assert.assertEquals((new TextQLParser(string2InputStream(" k8i\"8s7s "))).identifierLiteral(), "k8i");
-        Assert.assertEquals((new TextQLParser(string2InputStream(" aFROM "))).identifierLiteral(), "aFROM");
-        Assert.assertEquals((new TextQLParser(string2InputStream(" A "))).identifierLiteral(), "A");
-        Assert.assertEquals((new TextQLParser(string2InputStream(" FROMa "))).identifierLiteral(), "FROMa");
-        Assert.assertEquals((new TextQLParser(string2InputStream(" Ed0 "))).identifierLiteral(), "Ed0");
-        assertException(()->(new TextQLParser(string2InputStream(" 2df "))).identifierLiteral(), ParseException.class);
-        assertException(()->(new TextQLParser(string2InputStream(" _a "))).identifierLiteral(), TokenMgrError.class);
+        Assert.assertEquals((new TextQLParser(string2InputStream(" i "))).identifierLiteralToString(), "i");
+        Assert.assertEquals((new TextQLParser(string2InputStream(" id "))).identifierLiteralToString(), "id");
+        Assert.assertEquals((new TextQLParser(string2InputStream(" id de "))).identifierLiteralToString(), "id");
+        Assert.assertEquals((new TextQLParser(string2InputStream(" id0 "))).identifierLiteralToString(), "id0");
+        Assert.assertEquals((new TextQLParser(string2InputStream(" i6i8s7s "))).identifierLiteralToString(), "i6i8s7s");
+        Assert.assertEquals((new TextQLParser(string2InputStream(" j7i\\8s7s "))).identifierLiteralToString(), "j7i");
+        Assert.assertEquals((new TextQLParser(string2InputStream(" k8i\"8s7s "))).identifierLiteralToString(), "k8i");
+        Assert.assertEquals((new TextQLParser(string2InputStream(" aFROM "))).identifierLiteralToString(), "aFROM");
+        Assert.assertEquals((new TextQLParser(string2InputStream(" A "))).identifierLiteralToString(), "A");
+        Assert.assertEquals((new TextQLParser(string2InputStream(" FROMa "))).identifierLiteralToString(), "FROMa");
+        Assert.assertEquals((new TextQLParser(string2InputStream(" Ed0 "))).identifierLiteralToString(), "Ed0");
+        assertException(()->(new TextQLParser(string2InputStream(" 2df "))).identifierLiteralToString(), ParseException.class);
+        assertException(()->(new TextQLParser(string2InputStream(" _a "))).identifierLiteralToString(), TokenMgrError.class);
     }
     @Test
-    public void testIdentifierList() throws ParseException {
-        Assert.assertEquals((new TextQLParser(string2InputStream(" i "))).identifierList(), Arrays.asList("i"));
-        Assert.assertEquals((new TextQLParser(string2InputStream(" id "))).identifierList(), Arrays.asList("id"));
-        Assert.assertEquals((new TextQLParser(string2InputStream(" id de "))).identifierList(), Arrays.asList("id"));
-        Assert.assertEquals((new TextQLParser(string2InputStream(" id,de "))).identifierList(), Arrays.asList("id","de"));
-        Assert.assertEquals((new TextQLParser(string2InputStream(" id0 "))).identifierList(), Arrays.asList("id0"));
-        Assert.assertEquals((new TextQLParser(string2InputStream(" i6i8s7s "))).identifierList(), Arrays.asList("i6i8s7s"));
-        Assert.assertEquals((new TextQLParser(string2InputStream(" i6,i8,s7,s "))).identifierList(), Arrays.asList("i6","i8","s7","s"));
-        Assert.assertEquals((new TextQLParser(string2InputStream(" j7i/8s7s/ "))).identifierList(), Arrays.asList("j7i"));
-        Assert.assertEquals((new TextQLParser(string2InputStream(" k8i\"8s7s\" "))).identifierList(), Arrays.asList("k8i"));
-        Assert.assertEquals((new TextQLParser(string2InputStream(" aFROM "))).identifierList(), Arrays.asList("aFROM"));
-        Assert.assertEquals((new TextQLParser(string2InputStream(" B7FROM "))).identifierList(), Arrays.asList("B7FROM"));
-        Assert.assertEquals((new TextQLParser(string2InputStream(" A "))).identifierList(), Arrays.asList("A"));
-        Assert.assertEquals((new TextQLParser(string2InputStream(" FROMa "))).identifierList(), Arrays.asList("FROMa"));
-        assertException(()->(new TextQLParser(string2InputStream(" j7i,/8s7s/ "))).identifierList(), ParseException.class);
-        assertException(()->(new TextQLParser(string2InputStream(" k8i,\"8s7s\" "))).identifierList(), ParseException.class);
-        assertException(()->(new TextQLParser(string2InputStream(" k8i,,k9j "))).identifierList(), ParseException.class);
-        assertException(()->(new TextQLParser(string2InputStream(" k8i,/8s7s/ "))).identifierList(),ParseException.class);
-        assertException(()->(new TextQLParser(string2InputStream(" k8i, "))).identifierList(), ParseException.class);
-        assertException(()->(new TextQLParser(string2InputStream(" j7i\\8s7s "))).identifierList(), TokenMgrError.class);
-        assertException(()->(new TextQLParser(string2InputStream(" k8i\"8s7s "))).identifierList(), TokenMgrError.class);
-        assertException(()->(new TextQLParser(string2InputStream(" 2df "))).identifierList(), ParseException.class);
-        assertException(()->(new TextQLParser(string2InputStream(" _a "))).identifierList(), TokenMgrError.class);
+    public void testidentifierListToListString() throws ParseException {
+        Assert.assertEquals((new TextQLParser(string2InputStream(" i "))).identifierListToListString(), Arrays.asList("i"));
+        Assert.assertEquals((new TextQLParser(string2InputStream(" id "))).identifierListToListString(), Arrays.asList("id"));
+        Assert.assertEquals((new TextQLParser(string2InputStream(" id de "))).identifierListToListString(), Arrays.asList("id"));
+        Assert.assertEquals((new TextQLParser(string2InputStream(" id,de "))).identifierListToListString(), Arrays.asList("id","de"));
+        Assert.assertEquals((new TextQLParser(string2InputStream(" id0 "))).identifierListToListString(), Arrays.asList("id0"));
+        Assert.assertEquals((new TextQLParser(string2InputStream(" i6i8s7s "))).identifierListToListString(), Arrays.asList("i6i8s7s"));
+        Assert.assertEquals((new TextQLParser(string2InputStream(" i6,i8,s7,s "))).identifierListToListString(), Arrays.asList("i6","i8","s7","s"));
+        Assert.assertEquals((new TextQLParser(string2InputStream(" j7i/8s7s/ "))).identifierListToListString(), Arrays.asList("j7i"));
+        Assert.assertEquals((new TextQLParser(string2InputStream(" k8i\"8s7s\" "))).identifierListToListString(), Arrays.asList("k8i"));
+        Assert.assertEquals((new TextQLParser(string2InputStream(" aFROM "))).identifierListToListString(), Arrays.asList("aFROM"));
+        Assert.assertEquals((new TextQLParser(string2InputStream(" B7FROM "))).identifierListToListString(), Arrays.asList("B7FROM"));
+        Assert.assertEquals((new TextQLParser(string2InputStream(" A "))).identifierListToListString(), Arrays.asList("A"));
+        Assert.assertEquals((new TextQLParser(string2InputStream(" FROMa "))).identifierListToListString(), Arrays.asList("FROMa"));
+        assertException(()->(new TextQLParser(string2InputStream(" j7i,/8s7s/ "))).identifierListToListString(), ParseException.class);
+        assertException(()->(new TextQLParser(string2InputStream(" k8i,\"8s7s\" "))).identifierListToListString(), ParseException.class);
+        assertException(()->(new TextQLParser(string2InputStream(" k8i,,k9j "))).identifierListToListString(), ParseException.class);
+        assertException(()->(new TextQLParser(string2InputStream(" k8i,/8s7s/ "))).identifierListToListString(),ParseException.class);
+        assertException(()->(new TextQLParser(string2InputStream(" k8i, "))).identifierListToListString(), ParseException.class);
+        assertException(()->(new TextQLParser(string2InputStream(" j7i\\8s7s "))).identifierListToListString(), TokenMgrError.class);
+        assertException(()->(new TextQLParser(string2InputStream(" k8i\"8s7s "))).identifierListToListString(), TokenMgrError.class);
+        assertException(()->(new TextQLParser(string2InputStream(" 2df "))).identifierListToListString(), ParseException.class);
+        assertException(()->(new TextQLParser(string2InputStream(" _a "))).identifierListToListString(), TokenMgrError.class);
     }
     @Test
     public void testExtractPredicate() throws ParseException {
@@ -193,45 +192,45 @@ public class TextQLParserTest {
          * TODO: No point of implementing the test for this rule for now since
          * the only thing it's happening is calling extractKeywordMatchPredicate();
          */
-    	//Identifier List
+    	//Identifier identifierListToListString
     }
     
     @Test
     public void testStatement() throws ParseException {
         String selectStatement00 = "SELECT * FROM a;";
-        Statement selectStatementParameters00 = new SelectStatement("__lid0", true, null, null, "a", null, null);
+        Statement selectStatementParameters00 = new SelectStatement("_sid0", true, null, null, "a", null, null);
     	Assert.assertEquals((new TextQLParser(string2InputStream(selectStatement00))).statement(), selectStatementParameters00);
         String selectStatement06 = "SELECT f8, fa, fc, df, ff FROM j;";
-        Statement selectStatementParameters06 = new SelectStatement("__lid0", null, Arrays.asList("f8","fa","fc","df","ff"), null, "j", null, null);
+        Statement selectStatementParameters06 = new SelectStatement("_sid0", null, Arrays.asList("f8","fa","fc","df","ff"), null, "j", null, null);
     	Assert.assertEquals((new TextQLParser(string2InputStream(selectStatement06))).statement(), selectStatementParameters06);
     	String selectStatement13 = "SELECT h, i, j EXTRACT KEYWORDMATCH([h6,h7,k8,k9], \"key5\") FROM q;";
     	ExtractPredicate selectStatementExtract13 = new KeywordExtractPredicate(Arrays.asList("h6","h7","k8","k9"), "key5", null);
-    	Statement selectStatementParameters13 = new SelectStatement("__lid0", null, Arrays.asList("h","i","j"), selectStatementExtract13, "q", null, null);
+    	Statement selectStatementParameters13 = new SelectStatement("_sid0", null, Arrays.asList("h","i","j"), selectStatementExtract13, "q", null, null);
     	Assert.assertEquals((new TextQLParser(string2InputStream(selectStatement13))).statement(), selectStatementParameters13);
     	String selectStatement14 = "EXTRACT KEYWORDMATCH([i6,j7,l8,m9], \"key5\") FROM q;";
     	ExtractPredicate selectStatementExtract14 = new KeywordExtractPredicate(Arrays.asList("i6","j7","l8","m9"), "key5", null);
-    	Statement selectStatementParameters14 = new SelectStatement("__lid0", null, null, selectStatementExtract14, "q", null, null);
+    	Statement selectStatementParameters14 = new SelectStatement("_sid0", null, null, selectStatementExtract14, "q", null, null);
     	Assert.assertEquals((new TextQLParser(string2InputStream(selectStatement14))).statement(), selectStatementParameters14);
         String selectStatement21 = "EXTRACT KEYWORDMATCH([h3,i2,j1,k0], \"key\\\"/\") FROM m LIMIT 4 OFFSET 25 ;";
         ExtractPredicate selectStatementExtract21 = new KeywordExtractPredicate(Arrays.asList("h3","i2","j1","k0"), "key\"/", null);
-        Statement selectStatementParameters21 = new SelectStatement("__lid0", null, null, selectStatementExtract21, "m", 4, 25);
+        Statement selectStatementParameters21 = new SelectStatement("_sid0", null, null, selectStatementExtract21, "m", 4, 25);
     	Assert.assertEquals((new TextQLParser(string2InputStream(selectStatement21))).statement(), selectStatementParameters21);
     	String createViewStatement00 = " CREATE VIEW v0 AS SELECT * FROM a; ";
-    	Statement createViewStatementParameters00 = new CreateViewStatement("v0", new SelectStatement("__lid0", true, null, null, "a", null, null));
+    	Statement createViewStatementParameters00 = new CreateViewStatement("v0", new SelectStatement("_sid0", true, null, null, "a", null, null));
     	Assert.assertEquals((new TextQLParser(string2InputStream(createViewStatement00))).statement(), createViewStatementParameters00);
         String createViewStatement01 = " CREATE VIEW v1 AS SELECT f8, fa, fc, df, ff FROM j LIMIT 1 OFFSET 8; ";
-        Statement createViewStatementParameters01 = new CreateViewStatement("v1", new SelectStatement("__lid0", null, Arrays.asList("f8","fa","fc","df","ff"), null, "j", 1, 8));
+        Statement createViewStatementParameters01 = new CreateViewStatement("v1", new SelectStatement("_sid0", null, Arrays.asList("f8","fa","fc","df","ff"), null, "j", 1, 8));
     	Assert.assertEquals((new TextQLParser(string2InputStream(createViewStatement01))).statement(), createViewStatementParameters01);
         String createViewStatement02 = " CREATE VIEW v2 AS SELECT e EXTRACT KEYWORDMATCH([g4,g5], \"key0\") FROM o ;";
         ExtractPredicate createViewStatementExtract02 = new KeywordExtractPredicate(Arrays.asList("g4","g5"), "key0", null);
-        Statement createViewStatementParameters02 = new CreateViewStatement("v2", new SelectStatement("__lid0", null, Arrays.asList("e"), createViewStatementExtract02, "o", null, null));
+        Statement createViewStatementParameters02 = new CreateViewStatement("v2", new SelectStatement("_sid0", null, Arrays.asList("e"), createViewStatementExtract02, "o", null, null));
     	Assert.assertEquals((new TextQLParser(string2InputStream(createViewStatement02))).statement(), createViewStatementParameters02);
         String createViewStatement03 = " CREATE VIEW v2 AS EXTRACT KEYWORDMATCH([g4,g5], \"key0\", substring) FROM o ;";
         ExtractPredicate createViewStatementExtract03 = new KeywordExtractPredicate(Arrays.asList("g4","g5"), "key0", "substring");
-        Statement createViewStatementParameters03 = new CreateViewStatement("v2", new SelectStatement("__lid0", null, null, createViewStatementExtract03, "o", null, null));
+        Statement createViewStatementParameters03 = new CreateViewStatement("v2", new SelectStatement("_sid0", null, null, createViewStatementExtract03, "o", null, null));
     	Assert.assertEquals((new TextQLParser(string2InputStream(createViewStatement03))).statement(), createViewStatementParameters03);
         String createViewStatement04 = " CREATE VIEW v3 AS CREATE VIEW v4 AS SELECT * FROM a LIMIT 1 OFFSET 2;";
-        Statement createViewStatementParameters04 = new CreateViewStatement("v3", new CreateViewStatement("v4", new SelectStatement("__lid0", true, null, null, "a", 1, 2)));
+        Statement createViewStatementParameters04 = new CreateViewStatement("v3", new CreateViewStatement("v4", new SelectStatement("_sid0", true, null, null, "a", 1, 2)));
     	Assert.assertEquals((new TextQLParser(string2InputStream(createViewStatement04))).statement(), createViewStatementParameters04);
     }
     @Test
@@ -244,61 +243,61 @@ public class TextQLParserTest {
     @Test
     public void testSelectStatement() throws ParseException {
     	String selectStatement00 = "SELECT * FROM a";
-    	Statement selectStatementParameters00 = new SelectStatement("__lid0", true, null, null, "a", null, null);
+    	Statement selectStatementParameters00 = new SelectStatement("_sid0", true, null, null, "a", null, null);
     	Assert.assertEquals((new TextQLParser(string2InputStream(selectStatement00))).selectStatement(), selectStatementParameters00);
         String selectStatement01 = "SELECT * FROM b LIMIT 5";
-        Statement selectStatementParameters01 = new SelectStatement("__lid0", true, null, null, "b", 5, null);
+        Statement selectStatementParameters01 = new SelectStatement("_sid0", true, null, null, "b", 5, null);
     	Assert.assertEquals((new TextQLParser(string2InputStream(selectStatement01))).selectStatement(), selectStatementParameters01);
         String selectStatement02 = "SELECT * FROM c LIMIT 1 OFFSET 8";
-        Statement selectStatementParameters02 = new SelectStatement("__lid0", true, null, null, "c", 1, 8);
+        Statement selectStatementParameters02 = new SelectStatement("_sid0", true, null, null, "c", 1, 8);
     	Assert.assertEquals((new TextQLParser(string2InputStream(selectStatement02))).selectStatement(), selectStatementParameters02);
         String selectStatement03 = "SELECT * FROM d OFFSET 6";
-        Statement selectStatementParameters03 = new SelectStatement("__lid0", true, null, null, "d", null, 6);
+        Statement selectStatementParameters03 = new SelectStatement("_sid0", true, null, null, "d", null, 6);
     	Assert.assertEquals((new TextQLParser(string2InputStream(selectStatement03))).selectStatement(), selectStatementParameters03);
         String selectStatement04 = "SELECT f1 FROM e";
-        Statement selectStatementParameters04 = new SelectStatement("__lid0", null, Arrays.asList("f1"), null, "e", null, null);
+        Statement selectStatementParameters04 = new SelectStatement("_sid0", null, Arrays.asList("f1"), null, "e", null, null);
     	Assert.assertEquals((new TextQLParser(string2InputStream(selectStatement04))).selectStatement(), selectStatementParameters04);
         String selectStatement05 = "SELECT f1, f5 FROM i";
-        Statement selectStatementParameters05 = new SelectStatement("__lid0", null, Arrays.asList("f1","f5"), null, "i", null, null);
+        Statement selectStatementParameters05 = new SelectStatement("_sid0", null, Arrays.asList("f1","f5"), null, "i", null, null);
     	Assert.assertEquals((new TextQLParser(string2InputStream(selectStatement05))).selectStatement(), selectStatementParameters05);
         String selectStatement06 = "SELECT f8, fa, fc, df, ff FROM j";
-        Statement selectStatementParameters06 = new SelectStatement("__lid0", null, Arrays.asList("f8","fa","fc","df","ff"), null, "j", null, null);
+        Statement selectStatementParameters06 = new SelectStatement("_sid0", null, Arrays.asList("f8","fa","fc","df","ff"), null, "j", null, null);
     	Assert.assertEquals((new TextQLParser(string2InputStream(selectStatement06))).selectStatement(), selectStatementParameters06);
         String selectStatement07 = "SELECT a EXTRACT KEYWORDMATCH(g0, \"key1\") FROM k";
-        Statement selectStatementParameters07 = new SelectStatement("__lid0", null, Arrays.asList("a"), new KeywordExtractPredicate(Arrays.asList("g0"), "key1", null), "k", null, null);
+        Statement selectStatementParameters07 = new SelectStatement("_sid0", null, Arrays.asList("a"), new KeywordExtractPredicate(Arrays.asList("g0"), "key1", null), "k", null, null);
     	Assert.assertEquals((new TextQLParser(string2InputStream(selectStatement07))).selectStatement(), selectStatementParameters07);
         String selectStatement08 = "SELECT b EXTRACT KEYWORDMATCH(g1, \"key2\", conjunction) FROM l";
-        Statement selectStatementParameters08 = new SelectStatement("__lid0", null, Arrays.asList("b"), new KeywordExtractPredicate(Arrays.asList("g1"), "key2", "conjunction"), "l", null, null);
+        Statement selectStatementParameters08 = new SelectStatement("_sid0", null, Arrays.asList("b"), new KeywordExtractPredicate(Arrays.asList("g1"), "key2", "conjunction"), "l", null, null);
     	Assert.assertEquals((new TextQLParser(string2InputStream(selectStatement08))).selectStatement(), selectStatementParameters08);
     	String selectStatement10 = "SELECT v EXTRACT KEYWORDMATCH(u, \"keyZ\") FROM t";
-    	Statement selectStatementParameters10 = new SelectStatement("__lid0", null, Arrays.asList("v"), new KeywordExtractPredicate(Arrays.asList("u"), "keyZ", null), "t", null, null);
+    	Statement selectStatementParameters10 = new SelectStatement("_sid0", null, Arrays.asList("v"), new KeywordExtractPredicate(Arrays.asList("u"), "keyZ", null), "t", null, null);
     	Assert.assertEquals((new TextQLParser(string2InputStream(selectStatement10))).selectStatement(), selectStatementParameters10);
     	String selectStatement11 = "SELECT e EXTRACT KEYWORDMATCH([g4], \"key0\") FROM o";
-    	Statement selectStatementParameters11 = new SelectStatement("__lid0", null, Arrays.asList("e"), new KeywordExtractPredicate(Arrays.asList("g4"), "key0", null), "o", null, null);
+    	Statement selectStatementParameters11 = new SelectStatement("_sid0", null, Arrays.asList("e"), new KeywordExtractPredicate(Arrays.asList("g4"), "key0", null), "o", null, null);
     	Assert.assertEquals((new TextQLParser(string2InputStream(selectStatement11))).selectStatement(), selectStatementParameters11);
         String selectStatement12 = "SELECT f EXTRACT KEYWORDMATCH([g6,g7,h8,i9], \"key\") FROM p";
-        Statement selectStatementParameters12 = new SelectStatement("__lid0", null, Arrays.asList("f"), new KeywordExtractPredicate(Arrays.asList("g6","g7","h8","i9"), "key", null), "p", null, null);
+        Statement selectStatementParameters12 = new SelectStatement("_sid0", null, Arrays.asList("f"), new KeywordExtractPredicate(Arrays.asList("g6","g7","h8","i9"), "key", null), "p", null, null);
     	Assert.assertEquals((new TextQLParser(string2InputStream(selectStatement12))).selectStatement(), selectStatementParameters12);
         String selectStatement13 = "SELECT h, i, j EXTRACT KEYWORDMATCH([h6,h7,k8,k9], \"key5\") FROM q";
-        Statement selectStatementParameters13 = new SelectStatement("__lid0", null, Arrays.asList("h","i","j"), new KeywordExtractPredicate(Arrays.asList("h6","h7","k8","k9"), "key5", null), "q", null, null);
+        Statement selectStatementParameters13 = new SelectStatement("_sid0", null, Arrays.asList("h","i","j"), new KeywordExtractPredicate(Arrays.asList("h6","h7","k8","k9"), "key5", null), "q", null, null);
     	Assert.assertEquals((new TextQLParser(string2InputStream(selectStatement13))).selectStatement(), selectStatementParameters13);
         String selectStatement14 = "EXTRACT KEYWORDMATCH([i6,j7,l8,m9], \"key5\") FROM q";
-        Statement selectStatementParameters14 = new SelectStatement("__lid0", null, null, new KeywordExtractPredicate(Arrays.asList("i6","j7","l8","m9"), "key5", null), "q", null, null);
+        Statement selectStatementParameters14 = new SelectStatement("_sid0", null, null, new KeywordExtractPredicate(Arrays.asList("i6","j7","l8","m9"), "key5", null), "q", null, null);
     	Assert.assertEquals((new TextQLParser(string2InputStream(selectStatement14))).selectStatement(), selectStatementParameters14);
         String selectStatement15 = "EXTRACT KEYWORDMATCH(g0, \"key1\") FROM k";
-        Statement selectStatementParameters15 = new SelectStatement("__lid0", null, null, new KeywordExtractPredicate(Arrays.asList("g0"), "key1", null), "k", null, null);
+        Statement selectStatementParameters15 = new SelectStatement("_sid0", null, null, new KeywordExtractPredicate(Arrays.asList("g0"), "key1", null), "k", null, null);
     	Assert.assertEquals((new TextQLParser(string2InputStream(selectStatement15))).selectStatement(), selectStatementParameters15);
         String selectStatement16 = "EXTRACT KEYWORDMATCH(g1, \"key2\", phrase) FROM l";
-        Statement selectStatementParameters16 = new SelectStatement("__lid0", null, null, new KeywordExtractPredicate(Arrays.asList("g1"), "key2", "phrase"), "l", null, null);
+        Statement selectStatementParameters16 = new SelectStatement("_sid0", null, null, new KeywordExtractPredicate(Arrays.asList("g1"), "key2", "phrase"), "l", null, null);
     	Assert.assertEquals((new TextQLParser(string2InputStream(selectStatement16))).selectStatement(), selectStatementParameters16);
         String selectStatement19 = "EXTRACT KEYWORDMATCH([g4], \"key0\") FROM o";
-        Statement selectStatementParameters19 = new SelectStatement("__lid0", null, null, new KeywordExtractPredicate(Arrays.asList("g4"), "key0", null), "o", null, null);
+        Statement selectStatementParameters19 = new SelectStatement("_sid0", null, null, new KeywordExtractPredicate(Arrays.asList("g4"), "key0", null), "o", null, null);
     	Assert.assertEquals((new TextQLParser(string2InputStream(selectStatement19))).selectStatement(), selectStatementParameters19);
     	String selectStatement20 = "EXTRACT KEYWORDMATCH([g6,g7,h8,i9], \"key\") FROM p";
-    	Statement selectStatementParameters20 = new SelectStatement("__lid0", null, null, new KeywordExtractPredicate(Arrays.asList("g6","g7","h8","i9"), "key", null), "p", null, null);
+    	Statement selectStatementParameters20 = new SelectStatement("_sid0", null, null, new KeywordExtractPredicate(Arrays.asList("g6","g7","h8","i9"), "key", null), "p", null, null);
     	Assert.assertEquals((new TextQLParser(string2InputStream(selectStatement20))).selectStatement(), selectStatementParameters20);
     	String selectStatement21 = "EXTRACT KEYWORDMATCH([h3,i2,j1,k0], \"key\\\"/\") FROM m LIMIT 4 OFFSET 25 ";
-    	Statement selectStatementParameters21 = new SelectStatement("__lid0", null, null, new KeywordExtractPredicate(Arrays.asList("h3","i2","j1","k0"), "key\"/", null), "m", 4, 25);
+    	Statement selectStatementParameters21 = new SelectStatement("_sid0", null, null, new KeywordExtractPredicate(Arrays.asList("h3","i2","j1","k0"), "key\"/", null), "m", 4, 25);
     	Assert.assertEquals((new TextQLParser(string2InputStream(selectStatement21))).selectStatement(), selectStatementParameters21);
     	String selectStatement22 = "SELECT FROM a";
     	assertException(()->(new TextQLParser(string2InputStream(selectStatement22))).selectStatement(), ParseException.class);
@@ -375,19 +374,19 @@ public class TextQLParserTest {
     @Test
     public void createViewStatement() throws ParseException {
     	String createViewStatement00 = " CREATE VIEW v0 AS SELECT * FROM a ";
-    	Statement createViewStatementParameters00 = new CreateViewStatement("v0", new SelectStatement("__lid0", true, null, null, "a", null, null));
+    	Statement createViewStatementParameters00 = new CreateViewStatement("v0", new SelectStatement("_sid0", true, null, null, "a", null, null));
     	Assert.assertEquals((new TextQLParser(string2InputStream(createViewStatement00))).createViewStatement(), createViewStatementParameters00);
         String createViewStatement01 = " CREATE VIEW v1 AS SELECT f8, fa, fc, df, ff FROM j LIMIT 1 OFFSET 8 ";
-    	Statement createViewStatementParameters01 = new CreateViewStatement("v1", new SelectStatement("__lid0", null, Arrays.asList("f8","fa","fc","df","ff"), null, "j", 1, 8));
+    	Statement createViewStatementParameters01 = new CreateViewStatement("v1", new SelectStatement("_sid0", null, Arrays.asList("f8","fa","fc","df","ff"), null, "j", 1, 8));
     	Assert.assertEquals((new TextQLParser(string2InputStream(createViewStatement01))).createViewStatement(), createViewStatementParameters01);
         String createViewStatement02 = " CREATE VIEW v2 AS SELECT e EXTRACT KEYWORDMATCH([g4,g5], \"key0\") FROM o ";
-    	Statement createViewStatementParameters02 = new CreateViewStatement("v2", new SelectStatement("__lid0", null, Arrays.asList("e"), new KeywordExtractPredicate(Arrays.asList("g4","g5"), "key0", null), "o", null, null));
+    	Statement createViewStatementParameters02 = new CreateViewStatement("v2", new SelectStatement("_sid0", null, Arrays.asList("e"), new KeywordExtractPredicate(Arrays.asList("g4","g5"), "key0", null), "o", null, null));
     	Assert.assertEquals((new TextQLParser(string2InputStream(createViewStatement02))).createViewStatement(), createViewStatementParameters02);
         String createViewStatement03 = " CREATE VIEW v2 AS EXTRACT KEYWORDMATCH([g4,g5], \"key0\", substring) FROM o ";
-    	Statement createViewStatementParameters03 = new CreateViewStatement("v2", new SelectStatement("__lid0", null, null, new KeywordExtractPredicate(Arrays.asList("g4","g5"), "key0", "substring"), "o", null, null));
+    	Statement createViewStatementParameters03 = new CreateViewStatement("v2", new SelectStatement("_sid0", null, null, new KeywordExtractPredicate(Arrays.asList("g4","g5"), "key0", "substring"), "o", null, null));
     	Assert.assertEquals((new TextQLParser(string2InputStream(createViewStatement03))).createViewStatement(), createViewStatementParameters03);
         String createViewStatement04 = " CREATE VIEW v3 AS CREATE VIEW v4 AS SELECT * FROM a LIMIT 1 OFFSET 2";
-    	Statement createViewStatementParameters04 = new CreateViewStatement("v3", new CreateViewStatement("v4", new SelectStatement("__lid0", true, null, null, "a", 1, 2)));
+    	Statement createViewStatementParameters04 = new CreateViewStatement("v3", new CreateViewStatement("v4", new SelectStatement("_sid0", true, null, null, "a", 1, 2)));
     	Assert.assertEquals((new TextQLParser(string2InputStream(createViewStatement04))).createViewStatement(), createViewStatementParameters04);
     	String createViewStatement05 = " CREATE VIEW v0 AS ";
         assertException(()->(new TextQLParser(string2InputStream(createViewStatement05))).createViewStatement(), ParseException.class);
