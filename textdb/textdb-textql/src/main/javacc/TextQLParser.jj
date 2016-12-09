@@ -115,7 +115,7 @@ public class TextQLParser{
         }
     }
     static public class CreateViewStatement extends Statement {
-        /**
+        /*
          * innerStatement is the statement to which the create view statement creates an alias for
          * e.g. in "CREATE VIEW v AS SELECT *FROM t; the view with id 'v' will have the
          * select statement "SELECT *FROM t" as innerStatement (in a SlectStatement object)
@@ -315,6 +315,22 @@ TOKEN : { < IDENTIFIER_LITERAL : ["a"-"z"](["a"-"z","0"-"9"])*  > }
  *    Those are simple methods that convert raw Tokens into formated data
  */
 /**
+ * Consume a NUMBER_LITERAL from the input and convert it to a String.
+ * Examples of valid input: 0, -0, 12, 123., -78.90, -.789
+ * @return The String representation of the NUMBER_LITERAL
+ */
+String numberLiteralToString():
+{
+    Token token;
+}
+{
+    token = <NUMBER_LITERAL>
+    {
+        // return the matched string
+        return token.image;
+    }
+}
+/**
  * Consume a NUMBER_LITERAL from the input and convert it to a Double.
  * Examples of valid input: 0, -0, 12, 123., -78.90, -.789
  * @throws NumberFormatException if the conversion to Double fails
@@ -327,6 +343,7 @@ double numberLiteralToDouble():
 {
     numberString = numberLiteralToString()
     {
+        // return the matched string converted to double
         return Double.parseDouble(numberString);
     }
 }
@@ -343,25 +360,10 @@ int numberLiteralToInteger():
 {
     numberString = numberLiteralToString()
     {
+        // return the matched string converted to integer
         return Integer.parseInt(numberString);
     }
 }
-/**
- * Consume a NUMBER_LITERAL from the input and convert it to a String.
- * Examples of valid input: 0, -0, 12, 123., -78.90, -.789
- * @return The String representation of the NUMBER_LITERAL
- */
-String numberLiteralToString():
-{
-    Token token;
-}
-{
-    token = <NUMBER_LITERAL>
-    {
-        return token.image;
-    }
-}
-
 /**
  * Consume a STRING_LITERAL from input and return convert it to String 
  * Escaped quotes and delimiter quotes are removed
@@ -382,9 +384,13 @@ String stringLiteralToString():
 {
     token = <STRING_LITERAL>
     {
-        String string = token.image;
+        // get the matched string
+        String string = token.image; 
+        // remove delimiter quotes
         String unquotedString = string.substring(1, string.length()-1);
+        // convert escaped quotes
         String escapedUnquotedString = unquotedString.replace("\\\"", "\"");
+        // return the computed string
         return escapedUnquotedString;
     }
 }
@@ -408,9 +414,13 @@ String regexLiteralToString():
 {
     token = <REGEX_LITERAL>
     {
+        // get the matched string
         String regex = token.image;
-        String unslashedRegex = regex.substring(1, regex.length()-1);
+        // remove delimiter slashes
+        String unslashedRegex = regex.substring(1, regex.length()-1); 
+        // convert escaped slashes
         String escapedUnslashedRegex = unslashedRegex.replace("\\/", "/");
+        // return the computed string
         return escapedUnslashedRegex;
     }
 }
@@ -426,7 +436,8 @@ String identifierLiteralToString():
 {
     token = <IDENTIFIER_LITERAL>
     {
-      return token.image;
+        // return the matched string
+        return token.image;
     }
 }
 
@@ -434,7 +445,7 @@ String identifierLiteralToString():
  *    List of literal tokens separated by commas
  */
 /**
- * Consume a list of IDENTIFIER_LITERAL(one or more) from input and convert it to List<String>
+ * Consume a list of IDENTIFIER_LITERAL (one or more) from input and convert it to List<String>
  * Example: "i,id,id0,i0d" (without quote) = > { "i", "id", "id0", "i0d" }
  * Grammar: <IdentifierLiteral> ("," <IdentifierLiteral>)* 
  * @return The List<String> representation of the list of IDENTIFIER_LITERAL
@@ -460,9 +471,9 @@ List<String> identifierListToListString():
  */
 /**
  * Consume the whole input and generates a list containing the declared statement
- * Grammar: (<Statement>)* <EOF>
+ * Grammar: ( <Statement> )* <EOF>
  * @param statementConsumer The consumer is called after each statement is parsed
- * @return The List<Statement> representation of the whole input
+ * @return The list of statements of the whole input
  */
 List<Statement> mainStatementList(Consumer<Statement> statementConsumer) : 
 {
@@ -470,20 +481,20 @@ List<Statement> mainStatementList(Consumer<Statement> statementConsumer) :
     Statement newStatement;
 }
 {
-    // Look for zero or more occurrences of Statement
+    // look for zero or more occurrences of Statement
     (
-        // Parse one statement
+        // parse one statement
         newStatement = statement() { statements.add(newStatement); } 
         {
-            // Call the statement consumer (if we have one) after each statement is parsed
+            // call the statement consumer (if we have one) after each statement is parsed
             if(statementConsumer!=null) { 
                 statementConsumer.accept(newStatement);
             }
         }
     )*
-    //Consume the End Of File
+    // consume the End Of File
     <EOF>
-    //Return the list of statements generated
+    // return the list of statements generated
     {
         return statements;
     }
@@ -501,7 +512,7 @@ Statement statement() :
     Statement newStatement;
 }
 {
-    // extract one of the types of statement
+    // parse one of the types of statement
     (
             newStatement = selectStatement() 
         |
@@ -521,7 +532,7 @@ Statement statement() :
  *         CREATE VIEW viewname0 AS <SelectStatement>
  * Grammar: "CREATE" "VIEW" <Identifier>
  *          "AS" ( <SelectStatement> )
- * @return The CreateViewStatement representation of the next statement declaration
+ * @return The CreateViewStatement representation of the statement declaration
  */
 CreateViewStatement createViewStatement() : 
 {
@@ -535,7 +546,7 @@ CreateViewStatement createViewStatement() :
     <VIEW>
     viewName = identifierLiteralToString() { createViewStatement.id = viewName; }
     <AS>
-    // parse inner statement: either a SelectStatement or another CreateViewStatement
+    // parse the inner statement (subStatement) as a SelectStatement
     (
         innerStatement = selectStatement()
     ){ createViewStatement.innerStatement = innerStatement; }
@@ -546,23 +557,23 @@ CreateViewStatement createViewStatement() :
 }
 
 /**
- * Consume a "SELECT" statement declaration form the input and generate a
+ * Parse a select statement declaration form the input and generate a
  * SelectStatement object with the parsed data
  * Examples of valid input:
  *         SELECT * FROM t
- *         SELECT a,b,c FROM t LIMIT 1 OFFSET 8
+ *         SELECT a, b, c FROM t LIMIT 1 OFFSET 8
  *         EXTRACT KEYWORDMATCH(g0, "key1") FROM k
- *         SELECT a EXTRACT KEYWORDMATCH(g0, "key1") FROM k
+ *         SELECT a EXTRACT KEYWORDMATCH(field, "key1") FROM k
  *         SELECT * EXTRACT KEYWORDMATCH([h6,h7,k8,k9], "key1", conjunction) FROM k LIMIT 1 OFFSET 8
  * Grammar: (
- *              "SELECT" ( "*" | <identifierListToListString> ) ("EXTRACT" <ExtractPredicate>)?
+ *              "SELECT" ( "*" | <identifierListToListString> ) ( "EXTRACT" <ExtractPredicate> )?
  *            |
  *              "EXTRACT" <ExtractPredicate>
  *          )
  *          "FROM" <Identifier>
  *          ("LIMIT" <Number> )?
  *          ("OFFSET" <Number> )?
- * @return The SelectStatement representation of the next statement declaration
+ * @return The SelectStatement representation of the statement declaration
  */  
 SelectStatement selectStatement() : 
 {
@@ -575,24 +586,24 @@ SelectStatement selectStatement() :
     ExtractPredicate extractPredicate;
 }
 {
-    // parse SELECT clause or/and EXTRACT clause
+    // parse the SELECT clause or/and the EXTRACT clause
     (
-            // parse SELECT clause only or parse SELECT clause and EXTRACT clause
+            // parse only the SELECT clause or parse the SELECT clause and the EXTRACT clause
             (
-                  // parse SELECT clause
+                // parse the SELECT clause
                 <SELECT> 
                 ( 
                         <STAR> { selectStatement.projectAll = true; } // SELECT *
                     | 
                         identifiers = identifierListToListString() { selectStatement.projectedFields = identifiers; } // SELECT a,b,...
                 )
-                // parse EXTRACT clause (optional)
+                // parse the EXTRACT clause (optional)
                 (
                     <EXTRACT> extractPredicate = extractPredicate() { selectStatement.extractPredicate = extractPredicate; } // EXTRACT extractPredicate
                 )?
             )
         |
-            // parse EXTRACT clause only
+            // parse the EXTRACT clause only
             <EXTRACT> extractPredicate = extractPredicate() { selectStatement.extractPredicate = extractPredicate; } // EXTRACT only
     )
     // parse FROM field
@@ -613,13 +624,13 @@ SelectStatement selectStatement() :
 
 
 /*
- * Declaration of extraction predicates rules
+ * Declaration of extract predicates rules
  */
 /**
- * Consume one extract predicate form the input and generate a ExtractPredicate
+ * Parse one extract predicate form the input and generate a ExtractPredicate
  * object with the parsed data
- * The kind of extract predicate can either be only KeywordExtractPredicate
- * Grammar: ExtractPredicate := (<KeywordExtractPredicate>)
+ * The type of extract predicate be only KeywordExtractPredicate
+ * Grammar: ExtractPredicate := ( <KeywordExtractPredicate> )
  * @return The ExtractPredicate representation of the next extract predicate
  */
 ExtractPredicate extractPredicate() : 
@@ -627,7 +638,7 @@ ExtractPredicate extractPredicate() :
     ExtractPredicate extractPredicate;
 }
 {
-    // extract one of the types of ExtractPedicates
+    // parse one type of extract predicate
     (
         extractPredicate = extractKeywordMatchPredicate()
     )
@@ -638,22 +649,22 @@ ExtractPredicate extractPredicate() :
 }
 
 /**
- * Consume a keyword extract predicate form the input and generate a
+ * Parse a keyword extract predicate form the input and generate a
  * KeywordExtractPredicate object with the parsed data
  * Examples of valid input:
- *         KEYWORDMATCH(g0, "key1")
- *         KEYWORDMATCH([g6,g7,h8,i9], "key")
- *         KEYWORDMATCH(g3, "key4", substring)
+ *         KEYWORDMATCH(field0, "keywords")
+ *         KEYWORDMATCH([f1,g2,h4,i9], "new york")
+ *         KEYWORDMATCH(g3, "keyword", substring)
  * Grammar: "KEYWORDMATCH("
- *            ( <Identifier> | "[" <identifierList> "]")
+ *            ( <Identifier> | "[" <identifierList> "]" )
  *            "," <String>
- *            ("," <Identifier>)?
+ *            ( "," <Identifier> )?
  *          ")"
  * @return The KeywordExtractPredicate representation of the next statement declaration
  */
 KeywordExtractPredicate extractKeywordMatchPredicate() : 
 {
-    KeywordExtractPredicate extractPredicate = new KeywordExtractPredicate();
+    KeywordExtractPredicate keywordExtractPredicate = new KeywordExtractPredicate();
     List<String> matchingFields;
     String matchingField;
     String keywords;
@@ -662,24 +673,24 @@ KeywordExtractPredicate extractKeywordMatchPredicate() :
 {
     <KEYWORDMATCH>
     <LPAREN>
-        // parse the match fields(either a field or list of field)
+        // parse the matching fields (either a field or list of field)
         (
-                  // parse only only field identifier
+                // parse only one field identifier
                 matchingField = identifierLiteralToString() { matchingFields = Arrays.asList(matchingField); }
             | 
-                  // parse the list of fields between brackets
+                // parse the list of fields between brackets
                 <LBRACKET> matchingFields = identifierListToListString() <RBRACKET>
-        ) { extractPredicate.matchingFields = matchingFields; }
-        // parse the keyword as a string
-        <COMMA> keywords = stringLiteralToString() { extractPredicate.keywords = keywords; }
-        // parse the match type as an identifier(optional)
+        ) { keywordExtractPredicate.matchingFields = matchingFields; }
+        // parse the keywords as a string
+        <COMMA> keywords = stringLiteralToString() { keywordExtractPredicate.keywords = keywords; }
+        // parse the matching type as an identifier (optional)
         (
-            <COMMA> matchingType = identifierLiteralToString() { extractPredicate.matchingType = matchingType; }
+            <COMMA> matchingType = identifierLiteralToString() { keywordExtractPredicate.matchingType = matchingType; }
         )?
     <RPAREN>
     // return generated KeywordExtractPredicate
     {
-        return extractPredicate;
+        return keywordExtractPredicate;
     }
 }
 
