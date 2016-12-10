@@ -1,5 +1,8 @@
 package edu.uci.ics.textdb.dataflow.sink;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.common.Schema;
 import edu.uci.ics.textdb.api.dataflow.IOperator;
@@ -51,7 +54,7 @@ public class TupleStreamSink implements ISink {
         if (tuple == null) {
             return null;
         }
-        return null;
+        return Utils.removeField(tuple, SchemaConstants._ID, SchemaConstants.PAYLOAD);
     }
 
     @Override
@@ -60,6 +63,15 @@ public class TupleStreamSink implements ISink {
         }
         inputOperator.close();
         isOpen = false;        
+    }
+    
+    public List<ITuple> collectTuples() throws TextDBException {
+        ArrayList<ITuple> results = new ArrayList<>();
+        ITuple tuple;
+        while ((tuple = inputOperator.getNextTuple()) != null) {
+            results.add(Utils.removeField(tuple, SchemaConstants._ID, SchemaConstants.PAYLOAD));
+        }
+        return results;
     }
 
 }
