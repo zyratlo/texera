@@ -404,7 +404,7 @@ public class KeywordMatcherTest {
         expectedList.add(tuple3);
         expectedList.add(tuple4);
 
-        resultList = Utils.removePayload(resultList);
+        resultList = Utils.removeField(resultList, SchemaConstants.PAYLOAD);
 
         Assert.assertEquals(expectedList.size(), 4);
         Assert.assertEquals(resultList.size(), 3);
@@ -466,7 +466,7 @@ public class KeywordMatcherTest {
         expectedList.add(tuple3);
         expectedList.add(tuple4);
 
-        resultList = Utils.removePayload(resultList);
+        resultList = Utils.removeField(resultList, SchemaConstants.PAYLOAD);
 
         Assert.assertEquals(expectedList.size(), 4);
         Assert.assertEquals(resultList.size(), 2);

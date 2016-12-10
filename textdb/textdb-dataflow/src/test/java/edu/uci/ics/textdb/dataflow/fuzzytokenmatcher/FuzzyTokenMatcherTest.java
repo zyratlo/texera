@@ -363,8 +363,9 @@ public class FuzzyTokenMatcherTest {
         expectedResultList.add(tuple3);
         expectedResultList.add(tuple4);
 
-        List<ITuple> results = Utils
-                .removePayload(getQueryResults(query, threshold, attributeList, 2));
+        List<ITuple> results = Utils.removeField(
+                getQueryResults(query, threshold, attributeList, 2), SchemaConstants.PAYLOAD);
+
         Assert.assertEquals(expectedResultList.size(), 4);
         Assert.assertEquals(results.size(), 2);
         Assert.assertTrue(expectedResultList.containsAll(results));
@@ -421,8 +422,8 @@ public class FuzzyTokenMatcherTest {
         expectedResultList.add(tuple3);
         expectedResultList.add(tuple4);
 
-        List<ITuple> results = Utils
-                .removePayload(getQueryResults(query, threshold, attributeList, 2, 1));
+        List<ITuple> results = Utils.removeField(
+                getQueryResults(query, threshold, attributeList, 2, 1), SchemaConstants.PAYLOAD);
         Assert.assertEquals(expectedResultList.size(), 4);
         Assert.assertEquals(results.size(), 2);
         Assert.assertTrue(expectedResultList.containsAll(results));

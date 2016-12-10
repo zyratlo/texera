@@ -774,7 +774,7 @@ public class DictionaryMatcherTest {
         expectedList.add(tuple3);
         expectedList.add(tuple4);
 
-        resultList = Utils.removePayload(resultList);
+        resultList = Utils.removeField(resultList, SchemaConstants.PAYLOAD);
 
         Assert.assertEquals(expectedList.size(), 4);
         Assert.assertEquals(resultList.size(), 1);
