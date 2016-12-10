@@ -457,8 +457,10 @@ public class JoinTest {
 
         query = "this writer writes well";
         double thresholdRatio = 0.25;
-        List<Attribute> textAttributes = attributeList.stream().filter(attr -> attr.getFieldType() != FieldType.TEXT).collect(Collectors.toList());
-        FuzzyTokenPredicate fuzzyPredicateInner = new FuzzyTokenPredicate(query, textAttributes,
+        List<String> textAttributeNames = attributeList.stream()
+                .filter(attr -> attr.getFieldType() != FieldType.TEXT)
+                .map(attr -> attr.getFieldName()).collect(Collectors.toList());
+        FuzzyTokenPredicate fuzzyPredicateInner = new FuzzyTokenPredicate(query, textAttributeNames,
                 analyzer, thresholdRatio);
         FuzzyTokenMatcher fuzzyMatcherInner = new FuzzyTokenMatcher(fuzzyPredicateInner);
         fuzzyMatcherInner.setInputOperator(new IndexBasedSourceOperator(fuzzyPredicateInner.getDataReaderPredicate(dataStoreForInner)));

@@ -18,6 +18,7 @@ import edu.uci.ics.textdb.api.storage.IDataReader;
 import edu.uci.ics.textdb.api.storage.IDataStore;
 import edu.uci.ics.textdb.api.storage.IDataWriter;
 import edu.uci.ics.textdb.common.constants.DataConstants;
+import edu.uci.ics.textdb.common.constants.SchemaConstants;
 import edu.uci.ics.textdb.common.constants.TestConstants;
 import edu.uci.ics.textdb.common.utils.Utils;
 import edu.uci.ics.textdb.storage.reader.DataReader;
@@ -67,8 +68,8 @@ public class DataWriterReaderTest {
     }
 
     public static boolean containsAllResults(List<ITuple> expectedResults, List<ITuple> exactResults) {
-        expectedResults = Utils.removePayload(expectedResults);
-        exactResults = Utils.removePayload(exactResults);
+        expectedResults = Utils.removeField(expectedResults, SchemaConstants.PAYLOAD);
+        exactResults = Utils.removeField(exactResults, SchemaConstants.PAYLOAD);
 
         if (expectedResults.size() != exactResults.size())
             return false;
