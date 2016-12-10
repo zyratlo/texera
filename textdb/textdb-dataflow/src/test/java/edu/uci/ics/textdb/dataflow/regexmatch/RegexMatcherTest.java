@@ -43,7 +43,7 @@ public class RegexMatcherTest {
         List<ITuple> data = TestConstants.getSamplePeopleTuples();
         RegexMatcherTestHelper testHelper = new RegexMatcherTestHelper(TestConstants.SCHEMA_PEOPLE, data);
 
-        testHelper.runTest("g[^\\s]*", TestConstants.FIRST_NAME_ATTR);
+        testHelper.runTest("g[^\\s]*", TestConstants.FIRST_NAME);
         List<ITuple> exactResults = testHelper.getResults();
 
         List<ITuple> expectedResults = new ArrayList<ITuple>();
@@ -76,7 +76,7 @@ public class RegexMatcherTest {
         RegexMatcherTestHelper testHelper = new RegexMatcherTestHelper(RegexTestConstantsCorp.SCHEMA_CORP, data);
 
         String query = "^(https?:\\/\\/)?([\\da-z\\.-]+)\\.([a-z\\.]{2,6})([\\/\\w \\.-]*)*\\/?$";
-        testHelper.runTest(query, RegexTestConstantsCorp.URL_ATTR);
+        testHelper.runTest(query, RegexTestConstantsCorp.URL);
         List<ITuple> exactResults = testHelper.getResults();
 
         List<ITuple> expectedResults = new ArrayList<ITuple>();
@@ -109,7 +109,7 @@ public class RegexMatcherTest {
         RegexMatcherTestHelper testHelper = new RegexMatcherTestHelper(RegexTestConstantsCorp.SCHEMA_CORP, data);
 
         String query = "^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$";
-        testHelper.runTest(query, RegexTestConstantsCorp.IP_ADDRESS_ATTR);
+        testHelper.runTest(query, RegexTestConstantsCorp.IP_ADDRESS);
         List<ITuple> exactResults = testHelper.getResults();
 
         List<ITuple> expectedResults = new ArrayList<ITuple>();
@@ -150,7 +150,7 @@ public class RegexMatcherTest {
         RegexMatcherTestHelper testHelper = new RegexMatcherTestHelper(RegexTestConstantStaff.SCHEMA_STAFF, data);
 
         String query = "^([a-z0-9_\\.-]+)@([\\da-z\\.-]+)\\.([a-z\\.]{2,6})$";
-        testHelper.runTest(query, RegexTestConstantStaff.EMAIL_ATTR);
+        testHelper.runTest(query, RegexTestConstantStaff.EMAIL);
         List<ITuple> exactResults = testHelper.getResults();
 
         List<ITuple> expectedResults = new ArrayList<ITuple>();
@@ -184,7 +184,7 @@ public class RegexMatcherTest {
 
         String regex = "test(er|ing|ed|s)?";
 
-        testHelper.runTest(regex, RegexTestConstantsText.CONTENT_ATTR, true);
+        testHelper.runTest(regex, RegexTestConstantsText.CONTENT, true);
 
         List<ITuple> exactResults = testHelper.getResults();
         List<ITuple> expectedResults = new ArrayList<ITuple>();
@@ -226,7 +226,7 @@ public class RegexMatcherTest {
         RegexMatcherTestHelper testHelper = new RegexMatcherTestHelper(RegexTestConstantsText.SCHEMA_TEXT, data);
 
         String regex = "follow(-| )?up";
-        testHelper.runTest(regex, RegexTestConstantsText.CONTENT_ATTR, true);
+        testHelper.runTest(regex, RegexTestConstantsText.CONTENT, true);
 
         List<ITuple> exactResults = testHelper.getResults();
 
@@ -271,7 +271,7 @@ public class RegexMatcherTest {
         RegexMatcherTestHelper testHelper = new RegexMatcherTestHelper(RegexTestConstantsText.SCHEMA_TEXT, data);
 
         String regex = "([a-zA-Z])+o[a-z]a[a-z]o";
-        testHelper.runTest(regex, RegexTestConstantsText.CONTENT_ATTR, true);
+        testHelper.runTest(regex, RegexTestConstantsText.CONTENT, true);
 
         List<ITuple> exactResults = testHelper.getResults();
 
@@ -314,7 +314,7 @@ public class RegexMatcherTest {
         RegexMatcherTestHelper testHelper = new RegexMatcherTestHelper(RegexTestConstantsText.SCHEMA_TEXT, data);
 
         String regex = "\\[(.)?\\]";
-        testHelper.runTest(regex, RegexTestConstantsText.CONTENT_ATTR, true);
+        testHelper.runTest(regex, RegexTestConstantsText.CONTENT, true);
 
         List<ITuple> exactResults = testHelper.getResults();
         List<ITuple> expectedResults = new ArrayList<ITuple>();
@@ -340,7 +340,7 @@ public class RegexMatcherTest {
         RegexMatcherTestHelper testHelper = new RegexMatcherTestHelper(RegexTestConstantsText.SCHEMA_TEXT, data);
 
         String regex = "patient";
-        testHelper.runTest(regex, RegexTestConstantsText.CONTENT_ATTR, true, 2);
+        testHelper.runTest(regex, RegexTestConstantsText.CONTENT, true, 2);
 
         List<ITuple> exactResultsWithLimit = testHelper.getResults();
         List<ITuple> expectedResults = new ArrayList<ITuple>();
@@ -382,7 +382,7 @@ public class RegexMatcherTest {
         RegexMatcherTestHelper testHelper = new RegexMatcherTestHelper(RegexTestConstantsText.SCHEMA_TEXT, data);
 
         String regex = "patient";
-        testHelper.runTest(regex, RegexTestConstantsText.CONTENT_ATTR, true, 2, 1);
+        testHelper.runTest(regex, RegexTestConstantsText.CONTENT, true, 2, 1);
 
         List<ITuple> exactResultsWithLimitOffset = testHelper.getResults();
         List<ITuple> expectedResults = new ArrayList<ITuple>();
@@ -425,7 +425,7 @@ public class RegexMatcherTest {
     // RegexMatcherTestHelper(RegexTestConstantsText.SCHEMA_TEXT, data);
     //
     // String regex = "(T|t)he";
-    // testHelper.runTest(regex, RegexTestConstantsText.CONTENT_ATTR, true);
+    // testHelper.runTest(regex, RegexTestConstantsText.CONTENT, true);
     //
     // List<ITuple> exactResults = testHelper.getResults();
     // List<ITuple> expectedResults = new ArrayList<ITuple>();
