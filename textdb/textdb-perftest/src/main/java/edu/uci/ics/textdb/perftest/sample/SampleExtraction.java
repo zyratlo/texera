@@ -1,8 +1,10 @@
 package edu.uci.ics.textdb.perftest.sample;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Scanner;
 
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
@@ -147,9 +149,12 @@ public class SampleExtraction {
         ProjectionPredicate projectionPredicateIdAndSpan = new ProjectionPredicate(
                 Arrays.asList(PromedSchema.ID, SchemaConstants.SPAN_LIST));
         ProjectionOperator projectionOperatorIdAndSpan = new ProjectionOperator(projectionPredicateIdAndSpan);
-
+         
+        SimpleDateFormat sdf = new SimpleDateFormat("MM-dd-yyyy-HH-mm-ss");
         FileSink fileSink = new FileSink( 
-                new File("./sample-data-files/person-location-result-"+PerfTestUtils.formatTime(System.currentTimeMillis())+".txt"));
+                new File("./sample-data-files/person-location-result-" 
+                		+ sdf.format(new Date(System.currentTimeMillis())).toString() + ".txt"));
+
         fileSink.setToStringFunction((tuple -> Utils.getTupleString(tuple)));
         
         
