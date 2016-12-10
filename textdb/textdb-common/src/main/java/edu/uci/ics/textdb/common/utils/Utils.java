@@ -191,6 +191,20 @@ public class Utils {
         Schema newSchema = new Schema(attributes.toArray(new Attribute[attributes.size()]));
         return newSchema;
     }
+    
+    /**
+     * Removes one or more attributes from the schema and returns the new schema.
+     * 
+     * @param schema
+     * @param attributeName
+     * @return
+     */
+    public static Schema removeAttributeFromSchema(Schema schema, String... attributeName) {
+        List<String> attributeNameList = Arrays.asList(attributeName);
+        return new Schema(schema.getAttributes().stream()
+                .filter(attr -> (! attributeNameList.contains(attr.getFieldName())))
+                .toArray(Attribute[]::new));
+    }
 
     /**
      * Tokenizes the query string using the given analyser
