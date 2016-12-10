@@ -1,7 +1,7 @@
 /**
  * Implementation of a parser for the TextQL query language.
  * Please check README.md for grammar specification and usage.
- * The parser generate statements objects from the parsed data.
+ * The parser generates statements objects from the parsed data.
  * 
  * @author Flavio Bayer
  */
@@ -86,9 +86,8 @@ public class TextQLParser{
          */
         public List<String> projectedFields;
         
-        
         /**
-         * Predicate for used for data extraction such as keyword match in "KEYWORDMATCH(a,"word")"
+         * Predicate used for data extraction such as keyword match in "KEYWORDMATCH(a,"word")"
          */
         public ExtractPredicate extractPredicate;
 
@@ -140,7 +139,7 @@ public class TextQLParser{
     }
     static public class CreateViewStatement extends Statement {
         /**
-         * The { @link Statement } to which the create view statement creates an alias for,
+         * The { @link Statement } for which the create view statement creates an alias,
          * e.g., in "CREATE VIEW v AS SELECT *FROM t; the view with id 'v' will have the
          * select statement "SELECT * FROM t" as subStatement (in a SelectStatement object)
          */
@@ -187,7 +186,7 @@ public class TextQLParser{
         public List<String> matchingFields;
         
         /**
-         * The the keyword(s) used for a keyword search
+         * The keyword(s) used for a keyword search
          */
         public String keywords;
         
@@ -219,7 +218,7 @@ public class TextQLParser{
     }
 
     /**
-     * Generate an unique deterministic sequence of IDs for new statements.
+     * Generate a unique deterministic sequence of IDs for new statements.
      * The id follows the format "_sidX", where X is an incremental hexadecimal
      * integer without padding starting from 0.
      * e.g., "_lid0", "_lid1", ..., "_lid9", "_lida", ..., "_lidf", "_lid10", ...
@@ -233,9 +232,10 @@ public class TextQLParser{
 
 PARSER_END(TextQLParser)
 
+
 /*
- *    Skipped Tokens
- *  The following are tokens that should be ignored/skipped.
+ * Skipped Tokens
+ * The following are tokens that should be ignored/skipped.
  */
 SKIP : { " " | "\n" | "\r" | "\t" | "\f" }
 /**
@@ -282,9 +282,8 @@ TOKEN : { < DOT: "." > }
 TOKEN : { < STAR : "*" > }
 
 
-
 /*
- *    Literal Tokens
+ * Literal Tokens
  */
 /**
  *    NUMBER_LITERAL - Matches a number in decimal format.
@@ -299,10 +298,11 @@ TOKEN : { < STAR : "*" > }
  *      -78.90
  *      -.789
  */
+
 TOKEN : { < NUMBER_LITERAL : ("-")? ((["0"-"9"])+ ("." (["0"-"9"])*)? | "." (["0"-"9"])+) > }
 /**
- *    STRING_LITERAL - Matches a quoted string (it may contains escaped quotes).
- *  The matched token consists of a a quote ('"') followed by any character except
+ *    STRING_LITERAL - Matches a quoted string (it may contain escaped quotes).
+ *  The matched token consists of a quote ('"') followed by any character except
  *  for another quote('"'), unless it is escaped('\"') and ended with a quote('"').
  *  The following are matching examples
  *      ""
@@ -314,6 +314,7 @@ TOKEN : { < NUMBER_LITERAL : ("-")? ((["0"-"9"])+ ("." (["0"-"9"])*)? | "." (["0
  *      "de\\ f"
  */    
 TOKEN : { < STRING_LITERAL : "\"" ( "\\" ~[] | ~["\""] )* "\"" > }
+
 /**
  *    REGEX_LITERAL - Matches a regex string delimited by forward slashes
  *                  (it may contain escaped forward slashes)
@@ -330,6 +331,7 @@ TOKEN : { < STRING_LITERAL : "\"" ( "\\" ~[] | ~["\""] )* "\"" > }
  *      /"/
  */   
 TOKEN : { < REGEX_LITERAL : "/" ( "\\" ~[] | ~["/"] )* "/" > }
+
 /**
  *    IDENTIFIER_LITERAL - Matches an identifier string(e.g., for variable names).
  *  The token matched is composed by an alphabetic character followed by
@@ -344,8 +346,8 @@ TOKEN : { < IDENTIFIER_LITERAL : ["a"-"z"](["a"-"z","0"-"9"])*  > }
 
 
 /*
- *    Wrappers for literal tokens
- *    Those are simple methods that convert raw Tokens into formated data
+ * Wrappers for literal tokens
+ * Those are simple methods that convert raw Tokens into formated data
  */
 /**
  * Consume a NUMBER_LITERAL from the input and convert it to a String.
