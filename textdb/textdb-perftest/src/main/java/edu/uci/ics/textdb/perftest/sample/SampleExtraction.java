@@ -136,7 +136,7 @@ public class SampleExtraction {
         ProjectionOperator projectionOperatorIdAndContent2 = new ProjectionOperator(projectionPredicateIdAndContent);
 
         String regexPerson = "\\b(A|a|(an)|(An)) .{1,40} ((woman)|(man))\\b";
-        RegexPredicate regexPredicatePerson = new RegexPredicate(regexPerson, Arrays.asList(PromedSchema.CONTENT_ATTR),
+        RegexPredicate regexPredicatePerson = new RegexPredicate(regexPerson, Arrays.asList(PromedSchema.CONTENT),
                 LuceneAnalyzerConstants.getNGramAnalyzer(3));
         RegexMatcher regexMatcherPerson = new RegexMatcher(regexPredicatePerson);
         
