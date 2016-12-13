@@ -21,6 +21,7 @@ import edu.uci.ics.textdb.api.storage.IDataWriter;
 import edu.uci.ics.textdb.common.constants.DataConstants;
 import edu.uci.ics.textdb.common.constants.SchemaConstants;
 import edu.uci.ics.textdb.common.constants.TestConstants;
+import edu.uci.ics.textdb.common.constants.DataConstants.KeywordMatchingType;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
 import edu.uci.ics.textdb.common.field.DataTuple;
 import edu.uci.ics.textdb.common.field.DateField;
@@ -43,57 +44,21 @@ import edu.uci.ics.textdb.storage.writer.DataWriter;
 
 public class SubstringMatcherTest {
 
-    private IDataWriter dataWriter;
-    private DataStore dataStore;
-    private Analyzer luceneAnalyzer;
-
+    public static final String PEOPLE_TABLE = KeywordTestHelper.PEOPLE_TABLE;
+    public static final String MEDLINE_TABLE = KeywordTestHelper.MEDLINE_TABLE;
+    
+    public static final KeywordMatchingType substring = KeywordMatchingType.SUBSTRING_SCANBASED;
+    
     @Before
     public void setUp() throws Exception {
-        dataStore = new DataStore(DataConstants.INDEX_DIR, TestConstants.SCHEMA_PEOPLE);
-        luceneAnalyzer = new StandardAnalyzer();
-        dataWriter = new DataWriter(dataStore, luceneAnalyzer);
-        dataWriter.clearData();
-        for (ITuple tuple : TestConstants.getSamplePeopleTuples()) {
-            dataWriter.insertTuple(tuple);
-        }
+        KeywordTestHelper.writeTestTables();
     }
 
     @After
     public void cleanUp() throws Exception {
-        dataWriter.clearData();
+        KeywordTestHelper.deleteTestTables();
     }
 
-    /**
-     * For a given string query & list of attributes it gets a list of results
-     * buildMultiQueryOnAttributeList flag decides if the query is formed as a
-     * boolean Query on all attribute or all records are scanned
-     * 
-     * @param query
-     * @param attributeList
-     * @return List<ITuple>
-     * @throws DataFlowException
-     * @throws ParseException
-     */
-
-    public List<ITuple> getPeopleQueryResults(String query, ArrayList<Attribute> attributeList)
-            throws TextDBException, ParseException {
-
-        KeywordPredicate keywordPredicate = new KeywordPredicate(query, 
-                Utils.getAttributeNames(attributeList), luceneAnalyzer,
-                DataConstants.KeywordMatchingType.SUBSTRING_SCANBASED);
-        
-        KeywordMatcherSourceOperator keywordSource = new KeywordMatcherSourceOperator(keywordPredicate, dataStore);
-        keywordSource.open();
-
-        List<ITuple> results = new ArrayList<>();
-        ITuple nextTuple = null;
- 
-        while ((nextTuple = keywordSource.getNextTuple()) != null) {
-            results.add(nextTuple);
-        }
-
-        return results;
-    }
 
     /**
      * Verifies Substring Matcher where Query phrase does not exist in any
@@ -105,13 +70,13 @@ public class SubstringMatcherTest {
     public void testSubstringMatcher() throws Exception {
         // Prepare Query
         String query = "brad and angelina";
-        ArrayList<Attribute> attributeList = new ArrayList<>();
-        attributeList.add(TestConstants.FIRST_NAME_ATTR);
-        attributeList.add(TestConstants.LAST_NAME_ATTR);
-        attributeList.add(TestConstants.DESCRIPTION_ATTR);
+        ArrayList<String> attributeNames = new ArrayList<>();
+        attributeNames.add(TestConstants.FIRST_NAME);
+        attributeNames.add(TestConstants.LAST_NAME);
+        attributeNames.add(TestConstants.DESCRIPTION);
 
         // Perform Query
-        List<ITuple> results = getPeopleQueryResults(query, attributeList);
+        List<ITuple> results = KeywordTestHelper.getScanSourceResults(PEOPLE_TABLE, query, attributeNames, substring, Integer.MAX_VALUE, 0);
 
         // Perform Check
         Assert.assertEquals(0, results.size());
@@ -127,10 +92,10 @@ public class SubstringMatcherTest {
     public void testSubstringForStringField() throws Exception {
         // Prepare Query
         String query = "short and lin";
-        ArrayList<Attribute> attributeList = new ArrayList<>();
-        attributeList.add(TestConstants.FIRST_NAME_ATTR);
-        attributeList.add(TestConstants.LAST_NAME_ATTR);
-        attributeList.add(TestConstants.DESCRIPTION_ATTR);
+        ArrayList<String> attributeNames = new ArrayList<>();
+        attributeNames.add(TestConstants.FIRST_NAME);
+        attributeNames.add(TestConstants.LAST_NAME);
+        attributeNames.add(TestConstants.DESCRIPTION);
 
         // Prepare expected result list
         List<Span> list = new ArrayList<Span>();
@@ -152,7 +117,7 @@ public class SubstringMatcherTest {
         expectedResultList.add(tuple1);
 
         // Perform Query
-        List<ITuple> resultList = getPeopleQueryResults(query, attributeList);
+        List<ITuple> resultList = KeywordTestHelper.getScanSourceResults(PEOPLE_TABLE, query, attributeNames, substring, Integer.MAX_VALUE, 0);
 
         // Perform Check
         boolean contains = TestUtils.equals(expectedResultList, resultList);
@@ -169,10 +134,10 @@ public class SubstringMatcherTest {
     public void testCombinedSpanInMultipleFieldsQuery() throws Exception {
         // Prepare Query
         String query = " lin ";
-        ArrayList<Attribute> attributeList = new ArrayList<>();
-        attributeList.add(TestConstants.FIRST_NAME_ATTR);
-        attributeList.add(TestConstants.LAST_NAME_ATTR);
-        attributeList.add(TestConstants.DESCRIPTION_ATTR);
+        ArrayList<String> attributeNames = new ArrayList<>();
+        attributeNames.add(TestConstants.FIRST_NAME);
+        attributeNames.add(TestConstants.LAST_NAME);
+        attributeNames.add(TestConstants.DESCRIPTION);
 
         // Prepare expected result list
         List<Span> list = new ArrayList<>();
@@ -195,7 +160,7 @@ public class SubstringMatcherTest {
         expectedResultList.add(tuple1);
 
         // Perform Query
-        List<ITuple> resultList = getPeopleQueryResults(query, attributeList);
+        List<ITuple> resultList = KeywordTestHelper.getScanSourceResults(PEOPLE_TABLE, query, attributeNames, substring, Integer.MAX_VALUE, 0);
 
         // Perform Check
         boolean contains = TestUtils.equals(expectedResultList, resultList);
@@ -212,10 +177,10 @@ public class SubstringMatcherTest {
     public void testSubstringWithStopwordQuery() throws Exception {
         // Prepare Query
         String query = "is";
-        ArrayList<Attribute> attributeList = new ArrayList<>();
-        attributeList.add(TestConstants.FIRST_NAME_ATTR);
-        attributeList.add(TestConstants.LAST_NAME_ATTR);
-        attributeList.add(TestConstants.DESCRIPTION_ATTR);
+        ArrayList<String> attributeNames = new ArrayList<>();
+        attributeNames.add(TestConstants.FIRST_NAME);
+        attributeNames.add(TestConstants.LAST_NAME);
+        attributeNames.add(TestConstants.DESCRIPTION);
 
         // Prepare expected result list
         List<Span> list = new ArrayList<>();
@@ -240,7 +205,7 @@ public class SubstringMatcherTest {
         expectedResultList.add(tuple1);
 
         // Perform Query
-        List<ITuple> resultList = getPeopleQueryResults(query, attributeList);
+        List<ITuple> resultList = KeywordTestHelper.getScanSourceResults(PEOPLE_TABLE, query, attributeNames, substring, Integer.MAX_VALUE, 0);
 
         // Perform Check
         boolean contains = TestUtils.equals(expectedResultList, resultList);
