@@ -89,7 +89,7 @@ public class ProjectionOperatorTest {
         List<ITuple> expectedResults = Arrays.asList(tuple1, tuple2, tuple3, tuple4, tuple5, tuple6);
         List<ITuple> returnedResults = getProjectionResults(new ScanBasedSourceOperator(dataStore), projectionFields);
         
-        Assert.assertTrue(TestUtils.containsAllResults(expectedResults, returnedResults));
+        Assert.assertTrue(TestUtils.equals(expectedResults, returnedResults));
     }
     
     @Test
@@ -115,7 +115,7 @@ public class ProjectionOperatorTest {
         List<ITuple> expectedResults = Arrays.asList(tuple1, tuple2, tuple3, tuple4, tuple5, tuple6);
         List<ITuple> returnedResults = getProjectionResults(new ScanBasedSourceOperator(dataStore), projectionFields);
         
-        Assert.assertTrue(TestUtils.containsAllResults(expectedResults, returnedResults));
+        Assert.assertTrue(TestUtils.equals(expectedResults, returnedResults));
     }
 
 }

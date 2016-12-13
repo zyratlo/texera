@@ -2,6 +2,8 @@ package edu.uci.ics.textdb.common.utils;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -10,6 +12,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import edu.uci.ics.textdb.api.exception.TextDBException;
+import edu.uci.ics.textdb.common.exception.StorageException;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
@@ -341,8 +345,8 @@ public class Utils {
      * @param removeFields
      * @return
      */
-    public static List<ITuple> removeField(List<ITuple> tupleList, String... removeFields) {
-        List<ITuple> newTuples = tupleList.stream().map(tuple -> removeField(tuple, removeFields))
+    public static List<ITuple> removeFields(List<ITuple> tupleList, String... removeFields) {
+        List<ITuple> newTuples = tupleList.stream().map(tuple -> removeFields(tuple, removeFields))
                 .collect(Collectors.toList());
         return newTuples;
     }
@@ -354,7 +358,7 @@ public class Utils {
      * @param removeFields
      * @return
      */
-    public static ITuple removeField(ITuple tuple, String... removeFields) {
+    public static ITuple removeFields(ITuple tuple, String... removeFields) {
         List<String> removeFieldList = Arrays.asList(removeFields);
         List<Integer> removedFeidsIndex = removeFieldList.stream()
                 .map(fieldName -> tuple.getSchema().getIndex(fieldName)).collect(Collectors.toList());
@@ -413,4 +417,28 @@ public class Utils {
         return payload;
     }
 
+    public static void deleteDirectory(String indexDir) throws StorageException {
+        Path directory = Paths.get(indexDir);
+        if (!Files.exists(directory)) {
+            return;
+        }
+
+        try {
+            Files.walkFileTree(directory, new SimpleFileVisitor<Path>() {
+                @Override
+                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                    Files.delete(file);
+                    return FileVisitResult.CONTINUE;
+                }
+
+                @Override
+                public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                    Files.delete(dir);
+                    return FileVisitResult.CONTINUE;
+                }
+            });
+        } catch (IOException e) {
+            throw new StorageException("failed to delete a given directory", e);
+        }
+    }
 }

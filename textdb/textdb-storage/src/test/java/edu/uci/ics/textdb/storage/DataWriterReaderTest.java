@@ -68,8 +68,8 @@ public class DataWriterReaderTest {
     }
 
     public static boolean containsAllResults(List<ITuple> expectedResults, List<ITuple> exactResults) {
-        expectedResults = Utils.removeField(expectedResults, SchemaConstants.PAYLOAD);
-        exactResults = Utils.removeField(exactResults, SchemaConstants.PAYLOAD);
+        expectedResults = Utils.removeFields(expectedResults, SchemaConstants.PAYLOAD);
+        exactResults = Utils.removeFields(exactResults, SchemaConstants.PAYLOAD);
 
         if (expectedResults.size() != exactResults.size())
             return false;
