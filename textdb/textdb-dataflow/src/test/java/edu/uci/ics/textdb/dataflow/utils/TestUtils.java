@@ -37,11 +37,11 @@ public class TestUtils {
      * @param containsTupleList
      * @return
      */
-    public static boolean contains(List<ITuple> tupleList, List<ITuple> containsTupleList) {
+    public static boolean containsAll(List<ITuple> tupleList, List<ITuple> containsTupleList) {
         tupleList = Utils.removeFields(tupleList, SchemaConstants._ID, SchemaConstants.PAYLOAD);
         containsTupleList = Utils.removeFields(containsTupleList, SchemaConstants._ID, SchemaConstants.PAYLOAD);
         
-        return tupleList.contains(containsTupleList);
+        return tupleList.containsAll(containsTupleList);
     }
     
     /**
