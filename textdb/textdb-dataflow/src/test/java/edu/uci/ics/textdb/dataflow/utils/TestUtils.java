@@ -24,8 +24,8 @@ public class TestUtils {
      * @return
      */
     public static boolean contains(List<ITuple> tupleList, ITuple containsTuple) {
-        tupleList = Utils.removeFields(tupleList, SchemaConstants.PAYLOAD, SchemaConstants.PAYLOAD);
-        containsTuple = Utils.removeFields(containsTuple, SchemaConstants.PAYLOAD, SchemaConstants.PAYLOAD);
+        tupleList = Utils.removeFields(tupleList, SchemaConstants._ID, SchemaConstants.PAYLOAD);
+        containsTuple = Utils.removeFields(containsTuple, SchemaConstants._ID, SchemaConstants.PAYLOAD);
         
         return tupleList.contains(containsTuple);
     }
@@ -38,8 +38,8 @@ public class TestUtils {
      * @return
      */
     public static boolean contains(List<ITuple> tupleList, List<ITuple> containsTupleList) {
-        tupleList = Utils.removeFields(tupleList, SchemaConstants.PAYLOAD, SchemaConstants.PAYLOAD);
-        containsTupleList = Utils.removeFields(containsTupleList, SchemaConstants.PAYLOAD, SchemaConstants.PAYLOAD);
+        tupleList = Utils.removeFields(tupleList, SchemaConstants._ID, SchemaConstants.PAYLOAD);
+        containsTupleList = Utils.removeFields(containsTupleList, SchemaConstants._ID, SchemaConstants.PAYLOAD);
         
         return tupleList.contains(containsTupleList);
     }
@@ -52,8 +52,8 @@ public class TestUtils {
      * @return
      */
     public static boolean equals(List<ITuple> expectedResults, List<ITuple> exactResults) {
-        expectedResults = Utils.removeFields(expectedResults, SchemaConstants.PAYLOAD, SchemaConstants.PAYLOAD);
-        exactResults = Utils.removeFields(exactResults, SchemaConstants.PAYLOAD, SchemaConstants.PAYLOAD);
+        expectedResults = Utils.removeFields(expectedResults, SchemaConstants._ID, SchemaConstants.PAYLOAD);
+        exactResults = Utils.removeFields(exactResults, SchemaConstants._ID, SchemaConstants.PAYLOAD);
 
         if (expectedResults.size() != exactResults.size())
             return false;
