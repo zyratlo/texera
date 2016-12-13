@@ -42,7 +42,7 @@ import edu.uci.ics.textdb.storage.writer.DataWriter;
  *
  */
 
-public class PhraseMatcherTest {
+public class KeywordPhraseTest {
 
     public static final String PEOPLE_TABLE = KeywordTestHelper.PEOPLE_TABLE;
     public static final String MEDLINE_TABLE = KeywordTestHelper.MEDLINE_TABLE;

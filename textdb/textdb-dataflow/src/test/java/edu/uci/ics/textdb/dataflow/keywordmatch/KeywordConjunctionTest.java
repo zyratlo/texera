@@ -33,7 +33,7 @@ import edu.uci.ics.textdb.dataflow.utils.TestUtils;
  * @author Prakul
  *
  */
-public class KeywordMatcherTest {
+public class KeywordConjunctionTest {
 
     public static final String PEOPLE_TABLE = KeywordTestHelper.PEOPLE_TABLE;
     public static final String MEDLINE_TABLE = KeywordTestHelper.MEDLINE_TABLE;
