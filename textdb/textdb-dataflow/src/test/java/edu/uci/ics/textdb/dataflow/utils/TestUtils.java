@@ -19,6 +19,8 @@ public class TestUtils {
     /**
      * Returns if the tupleList contains a tuple.
      * 
+     * _ID and PAYLOAD fields are ignored in the comparison, because they are not relevant.
+     * 
      * @param tupleList
      * @param containsTuple
      * @return
@@ -33,6 +35,8 @@ public class TestUtils {
     /**
      * Returns if the tupleList contains a list of tuples.
      * 
+     * _ID and PAYLOAD fields are ignored in the comparison, because they are not relevant.
+     * 
      * @param tupleList
      * @param containsTupleList
      * @return
@@ -46,6 +50,8 @@ public class TestUtils {
     
     /**
      * Returns if the two tuple lists are equivalent (order doesn't matter)
+     * 
+     * _ID and PAYLOAD fields are ignored in the comparison, because they are not relevant.
      * 
      * @param expectedResults
      * @param exactResults
