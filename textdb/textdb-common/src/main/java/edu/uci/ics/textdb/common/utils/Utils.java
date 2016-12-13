@@ -331,7 +331,7 @@ public class Utils {
      * @param removeFields
      * @return
      */
-    public static List<ITuple> removeField(List<ITuple> tupleList, String... removeFields) {
+    public static List<ITuple> removeFields(List<ITuple> tupleList, String... removeFields) {
         List<ITuple> newTuples = tupleList.stream().map(tuple -> removeField(tuple, removeFields))
                 .collect(Collectors.toList());
         return newTuples;

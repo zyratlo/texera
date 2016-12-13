@@ -285,7 +285,7 @@ public class NlpExtractorTest {
         attributes.add(attribute1);
         attributes.add(attribute2);
 
-        List<ITuple> returnedResults = Utils.removeField(
+        List<ITuple> returnedResults = Utils.removeFields(
                 getQueryResults(sourceOperator, attributes, NlpPredicate.NlpTokenType.NE_ALL), SchemaConstants.PAYLOAD);
         List<ITuple> expectedResults = NlpExtractorTestConstants.getTest9ResultTuples();
 
@@ -316,7 +316,7 @@ public class NlpExtractorTest {
         Attribute attribute2 = NlpExtractorTestConstants.SENTENCE_TWO_ATTR;
         List<Attribute> attributes = Arrays.asList(attribute1, attribute2);
         
-        List<ITuple> returnedResults = Utils.removeField(
+        List<ITuple> returnedResults = Utils.removeFields(
                 getQueryResults(sourceOperator, attributes, NlpPredicate.NlpTokenType.NE_ALL), SchemaConstants.PAYLOAD);
         
         List<ITuple> expectedResults = NlpExtractorTestConstants.getTest11ResultTuple();  
