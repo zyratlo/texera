@@ -11,6 +11,12 @@ import edu.uci.ics.textdb.api.exception.TextDBException;
 import edu.uci.ics.textdb.common.constants.SchemaConstants;
 import edu.uci.ics.textdb.common.utils.Utils;
 
+/**
+ * TupleStreamSink is a sink that can be used by the caller to get tuples one by one.
+ * 
+ * @author Zuozhi Wang
+ *
+ */
 public class TupleStreamSink implements ISink {
     
     private IOperator inputOperator;
@@ -54,7 +60,7 @@ public class TupleStreamSink implements ISink {
         if (tuple == null) {
             return null;
         }
-        return Utils.removeField(tuple, SchemaConstants._ID, SchemaConstants.PAYLOAD);
+        return Utils.removeFields(tuple, SchemaConstants._ID, SchemaConstants.PAYLOAD);
     }
 
     @Override
@@ -69,7 +75,7 @@ public class TupleStreamSink implements ISink {
         ArrayList<ITuple> results = new ArrayList<>();
         ITuple tuple;
         while ((tuple = inputOperator.getNextTuple()) != null) {
-            results.add(Utils.removeField(tuple, SchemaConstants._ID, SchemaConstants.PAYLOAD));
+            results.add(Utils.removeFields(tuple, SchemaConstants._ID, SchemaConstants.PAYLOAD));
         }
         return results;
     }
