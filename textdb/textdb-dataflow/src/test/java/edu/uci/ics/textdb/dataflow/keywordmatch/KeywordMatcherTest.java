@@ -170,7 +170,7 @@ public class KeywordMatcherTest {
         List<ITuple> resultList = getPeopleQueryResults(query, attributeList);
 
         // check the results
-        boolean contains = TestUtils.containsAllResults(expectedResultList, resultList);
+        boolean contains = TestUtils.equals(expectedResultList, resultList);
         Assert.assertTrue(contains);
     }
 
@@ -220,7 +220,7 @@ public class KeywordMatcherTest {
         List<ITuple> resultList = getPeopleQueryResults(query, attributeList);
 
         // check the results
-        boolean contains = TestUtils.containsAllResults(expectedResultList, resultList);
+        boolean contains = TestUtils.equals(expectedResultList, resultList);
         Assert.assertTrue(contains);
     }
 
@@ -262,7 +262,7 @@ public class KeywordMatcherTest {
         List<ITuple> resultList = getPeopleQueryResults(query, attributeList);
 
         // check the results
-        boolean contains = TestUtils.containsAllResults(expectedResultList, resultList);
+        boolean contains = TestUtils.equals(expectedResultList, resultList);
         Assert.assertTrue(contains);
     }
 
@@ -312,7 +312,7 @@ public class KeywordMatcherTest {
         List<ITuple> resultList = getPeopleQueryResults(query, attributeList);
 
         // check the results
-        boolean contains = TestUtils.containsAllResults(expectedResultList, resultList);
+        boolean contains = TestUtils.equals(expectedResultList, resultList);
         Assert.assertTrue(contains);
     }
 
@@ -404,7 +404,7 @@ public class KeywordMatcherTest {
         expectedList.add(tuple3);
         expectedList.add(tuple4);
 
-        resultList = Utils.removePayload(resultList);
+        resultList = Utils.removeFields(resultList, SchemaConstants.PAYLOAD);
 
         Assert.assertEquals(expectedList.size(), 4);
         Assert.assertEquals(resultList.size(), 3);
@@ -466,7 +466,7 @@ public class KeywordMatcherTest {
         expectedList.add(tuple3);
         expectedList.add(tuple4);
 
-        resultList = Utils.removePayload(resultList);
+        resultList = Utils.removeFields(resultList, SchemaConstants.PAYLOAD);
 
         Assert.assertEquals(expectedList.size(), 4);
         Assert.assertEquals(resultList.size(), 2);
