@@ -66,7 +66,7 @@ public class ScanBasedSourceOperatorTest {
             numTuples++;
         }
         Assert.assertEquals(actualTuples.size(), numTuples);
-        boolean contains = TestUtils.containsAllResults(actualTuples, returnedTuples);
+        boolean contains = TestUtils.equals(actualTuples, returnedTuples);
         Assert.assertTrue(contains);
         scanBasedSourceOperator.close();
     }
