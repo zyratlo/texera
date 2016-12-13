@@ -332,7 +332,7 @@ public class Utils {
      * @return
      */
     public static List<ITuple> removeFields(List<ITuple> tupleList, String... removeFields) {
-        List<ITuple> newTuples = tupleList.stream().map(tuple -> removeField(tuple, removeFields))
+        List<ITuple> newTuples = tupleList.stream().map(tuple -> removeFields(tuple, removeFields))
                 .collect(Collectors.toList());
         return newTuples;
     }
@@ -344,7 +344,7 @@ public class Utils {
      * @param removeFields
      * @return
      */
-    public static ITuple removeField(ITuple tuple, String... removeFields) {
+    public static ITuple removeFields(ITuple tuple, String... removeFields) {
         List<String> removeFieldList = Arrays.asList(removeFields);
         List<Integer> removedFeidsIndex = removeFieldList.stream()
                 .map(fieldName -> tuple.getSchema().getIndex(fieldName)).collect(Collectors.toList());

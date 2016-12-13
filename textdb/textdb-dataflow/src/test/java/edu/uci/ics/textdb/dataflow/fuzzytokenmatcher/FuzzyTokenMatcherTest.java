@@ -150,7 +150,7 @@ public class FuzzyTokenMatcherTest {
         expectedResultList.add(tuple4);
 
         List<ITuple> results = getQueryResults(query, threshold, attributeNames);
-        boolean contains = TestUtils.containsAllResults(expectedResultList, results);
+        boolean contains = TestUtils.equals(expectedResultList, results);
         Assert.assertTrue(contains);
     }
 
@@ -199,7 +199,7 @@ public class FuzzyTokenMatcherTest {
         expectedResultList.add(tuple4);
 
         List<ITuple> results = getQueryResults(query, threshold, attributeNames);
-        boolean contains = TestUtils.containsAllResults(expectedResultList, results);
+        boolean contains = TestUtils.equals(expectedResultList, results);
         Assert.assertTrue(contains);
     }
 
@@ -259,7 +259,7 @@ public class FuzzyTokenMatcherTest {
         expectedResultList.add(tuple4);
 
         List<ITuple> results = getQueryResults(query, threshold, attributeNames);
-        boolean contains = TestUtils.containsAllResults(expectedResultList, results);
+        boolean contains = TestUtils.equals(expectedResultList, results);
         Assert.assertTrue(contains);
     }
 
@@ -308,7 +308,7 @@ public class FuzzyTokenMatcherTest {
         expectedResultList.add(tuple4);
 
         List<ITuple> results = getQueryResults(query, threshold, attributeNames);
-        boolean contains = TestUtils.containsAllResults(expectedResultList, results);
+        boolean contains = TestUtils.equals(expectedResultList, results);
         Assert.assertTrue(contains);
     }
     
