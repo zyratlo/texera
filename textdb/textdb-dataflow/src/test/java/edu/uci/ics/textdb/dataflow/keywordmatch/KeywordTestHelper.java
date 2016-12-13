@@ -74,8 +74,8 @@ public class KeywordTestHelper {
                     matchingType, Integer.MAX_VALUE, 0);
             
             if (scanSourceResults.size() == keywordSourceResults.size() &&
-                    TestUtils.contains(allResults, scanSourceResults) && 
-                    TestUtils.contains(allResults, keywordSourceResults)) {
+                    TestUtils.containsAll(allResults, scanSourceResults) && 
+                    TestUtils.containsAll(allResults, keywordSourceResults)) {
                 return scanSourceResults;
             } else {
                 throw new DataFlowException("results from scanSource and keywordSource are inconsistent");

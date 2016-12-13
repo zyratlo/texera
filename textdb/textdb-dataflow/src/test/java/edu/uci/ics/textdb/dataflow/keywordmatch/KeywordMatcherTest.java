@@ -347,7 +347,7 @@ public class KeywordMatcherTest {
 
         Assert.assertEquals(expectedList.size(), 4);
         Assert.assertEquals(resultList.size(), 3);
-        Assert.assertTrue(expectedList.containsAll(resultList));
+        Assert.assertTrue(TestUtils.containsAll(expectedList, resultList));
     }
 
     @Test
@@ -409,6 +409,6 @@ public class KeywordMatcherTest {
 
         Assert.assertEquals(expectedList.size(), 4);
         Assert.assertEquals(resultList.size(), 2);
-        Assert.assertTrue(expectedList.containsAll(resultList));
+        Assert.assertTrue(TestUtils.containsAll(expectedList, resultList));
     }
 }
