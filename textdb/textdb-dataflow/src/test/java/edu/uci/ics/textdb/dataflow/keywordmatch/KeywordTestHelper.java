@@ -52,20 +52,35 @@ public class KeywordTestHelper {
     public static List<ITuple> getQueryResults(String tableName, String keywordQuery, List<String> attributeNames,
             KeywordMatchingType matchingType, int limit, int offset) throws TextDBException {
         
+        // results from a scan on the table followed by a keyword match
         List<ITuple> scanSourceResults = getScanSourceResults(tableName, keywordQuery, attributeNames,
                 matchingType, limit, offset);
+        // results from index-based keyword search on the table
         List<ITuple> keywordSourceResults = getKeywordSourceResults(tableName, keywordQuery, attributeNames,
                 matchingType, limit, offset);
         
+        // if limit and offset are not relevant, the results from scan source and keyword source must be the same
         if (limit == Integer.MAX_VALUE && offset == 0) {
-            if (! TestUtils.equals(scanSourceResults, keywordSourceResults)) {
-                throw new DataFlowException("results from scanSource and keywordSource are not the same");
-            } else {
+            if (TestUtils.equals(scanSourceResults, keywordSourceResults)) {
                 return scanSourceResults;
+            } else {
+                throw new DataFlowException("results from scanSource and keywordSource are inconsistent");
             }
         }
-        
-        return null;
+        // if limit and offset are relevant, then the results can be different (since the order doesn't matter)
+        // in this case, we get all the results and test if the whole result set contains both results
+        else {
+            List<ITuple> allResults = getKeywordSourceResults(tableName, keywordQuery, attributeNames,
+                    matchingType, Integer.MAX_VALUE, 0);
+            
+            if (scanSourceResults.size() == keywordSourceResults.size() &&
+                    TestUtils.contains(allResults, scanSourceResults) && 
+                    TestUtils.contains(allResults, keywordSourceResults)) {
+                return scanSourceResults;
+            } else {
+                throw new DataFlowException("results from scanSource and keywordSource are inconsistent");
+            }   
+        }
     }
     
     public static List<ITuple> getScanSourceResults(String tableName, String keywordQuery, List<String> attributeNames,
