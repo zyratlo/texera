@@ -8,8 +8,10 @@ import edu.uci.ics.textdb.api.exception.TextDBException;
 import edu.uci.ics.textdb.common.constants.DataConstants.KeywordMatchingType;
 import edu.uci.ics.textdb.common.constants.LuceneAnalyzerConstants;
 import edu.uci.ics.textdb.common.constants.TestConstants;
+import edu.uci.ics.textdb.common.exception.DataFlowException;
 import edu.uci.ics.textdb.dataflow.common.KeywordPredicate;
 import edu.uci.ics.textdb.dataflow.source.ScanBasedSourceOperator;
+import edu.uci.ics.textdb.dataflow.utils.TestUtils;
 import edu.uci.ics.textdb.storage.relation.RelationManager;
 
 public class KeywordTestHelper {
@@ -49,6 +51,20 @@ public class KeywordTestHelper {
     
     public static List<ITuple> getQueryResults(String tableName, String keywordQuery, List<String> attributeNames,
             KeywordMatchingType matchingType, int limit, int offset) throws TextDBException {
+        
+        List<ITuple> scanSourceResults = getScanSourceResults(tableName, keywordQuery, attributeNames,
+                matchingType, limit, offset);
+        List<ITuple> keywordSourceResults = getKeywordSourceResults(tableName, keywordQuery, attributeNames,
+                matchingType, limit, offset);
+        
+        if (limit == Integer.MAX_VALUE && offset == 0) {
+            if (! TestUtils.equals(scanSourceResults, keywordSourceResults)) {
+                throw new DataFlowException("results from scanSource and keywordSource are not the same");
+            } else {
+                return scanSourceResults;
+            }
+        }
+        
         return null;
     }
     
@@ -60,24 +76,43 @@ public class KeywordTestHelper {
         KeywordPredicate keywordPredicate = new KeywordPredicate(
                 keywordQuery, attributeNames, LuceneAnalyzerConstants.getStandardAnalyzer(), matchingType);
         KeywordMatcher keywordMatcher = new KeywordMatcher(keywordPredicate);
-        
         keywordMatcher.setLimit(limit);
         keywordMatcher.setOffset(offset);
         
-        keywordMatcher.open();
+        keywordMatcher.setInputOperator(scanSource);
         
         ITuple tuple;
         List<ITuple> results = new ArrayList<>();
         
+        keywordMatcher.open();
         while ((tuple = keywordMatcher.getNextTuple()) != null) {
-        }
+            results.add(tuple);
+        }  
+        keywordMatcher.close();
         
-        return null;
+        return results;
     }
     
     public static List<ITuple> getKeywordSourceResults(String tableName, String keywordQuery, List<String> attributeNames,
             KeywordMatchingType matchingType, int limit, int offset) throws TextDBException {
-        return null;
+        RelationManager relationManager = RelationManager.getRelationManager();
+        KeywordPredicate keywordPredicate = new KeywordPredicate(
+                keywordQuery, attributeNames, LuceneAnalyzerConstants.getStandardAnalyzer(), matchingType);
+        KeywordMatcherSourceOperator keywordSource = new KeywordMatcherSourceOperator(
+                keywordPredicate, relationManager.getTableDataStore(tableName));
+        keywordSource.setLimit(limit);
+        keywordSource.setOffset(offset);
+        
+        ITuple tuple;
+        List<ITuple> results = new ArrayList<>();
+        
+        keywordSource.open();
+        while ((tuple = keywordSource.getNextTuple()) != null) {
+            results.add(tuple);
+        }
+        keywordSource.close();
+        
+        return results;
     }
 
 }
