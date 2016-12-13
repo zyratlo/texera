@@ -167,7 +167,7 @@ public class PhraseMatcherTest {
         List<ITuple> resultList = getPeopleQueryResults(query, attributeList);
 
         // Perform Check
-        boolean contains = TestUtils.containsAllResults(expectedResultList, resultList);
+        boolean contains = TestUtils.equals(expectedResultList, resultList);
         Assert.assertTrue(contains);
     }
 
@@ -213,7 +213,7 @@ public class PhraseMatcherTest {
         List<ITuple> resultList = getPeopleQueryResults(query, attributeList);
 
         // Perform Check
-        boolean contains = TestUtils.containsAllResults(expectedResultList, resultList);
+        boolean contains = TestUtils.equals(expectedResultList, resultList);
         Assert.assertTrue(contains);
     }
 
@@ -256,7 +256,7 @@ public class PhraseMatcherTest {
         List<ITuple> resultList = getPeopleQueryResults(query, attributeList);
 
         // Perform Check
-        boolean contains = TestUtils.containsAllResults(expectedResultList, resultList);
+        boolean contains = TestUtils.equals(expectedResultList, resultList);
         Assert.assertTrue(contains);
     }
 
@@ -299,7 +299,7 @@ public class PhraseMatcherTest {
         List<ITuple> resultList = getPeopleQueryResults(query, attributeList);
 
         // Perform Check
-        boolean contains = TestUtils.containsAllResults(expectedResultList, resultList);
+        boolean contains = TestUtils.equals(expectedResultList, resultList);
         Assert.assertTrue(contains);
     }
 
@@ -369,7 +369,7 @@ public class PhraseMatcherTest {
             results.add(nextTuple);
         }
         // Perform Check
-        boolean contains = TestUtils.containsAllResults(expectedResultList, results);
+        boolean contains = TestUtils.equals(expectedResultList, results);
         Assert.assertTrue(contains);
     }
 
@@ -435,7 +435,7 @@ public class PhraseMatcherTest {
             results.add(nextTuple);
         }
         // Perform Check
-        boolean contains = TestUtils.containsAllResults(expectedResultList, results);
+        boolean contains = TestUtils.equals(expectedResultList, results);
         Assert.assertTrue(contains);
     }
 
@@ -511,7 +511,7 @@ public class PhraseMatcherTest {
             results.add(nextTuple);
         }
         // Perform Check
-        boolean contains = TestUtils.containsAllResults(expectedResultList, results);
+        boolean contains = TestUtils.equals(expectedResultList, results);
         Assert.assertTrue(contains);
     }
 

@@ -155,7 +155,7 @@ public class SubstringMatcherTest {
         List<ITuple> resultList = getPeopleQueryResults(query, attributeList);
 
         // Perform Check
-        boolean contains = TestUtils.containsAllResults(expectedResultList, resultList);
+        boolean contains = TestUtils.equals(expectedResultList, resultList);
         Assert.assertTrue(contains);
     }
 
@@ -198,7 +198,7 @@ public class SubstringMatcherTest {
         List<ITuple> resultList = getPeopleQueryResults(query, attributeList);
 
         // Perform Check
-        boolean contains = TestUtils.containsAllResults(expectedResultList, resultList);
+        boolean contains = TestUtils.equals(expectedResultList, resultList);
         Assert.assertTrue(contains);
     }
 
@@ -243,7 +243,7 @@ public class SubstringMatcherTest {
         List<ITuple> resultList = getPeopleQueryResults(query, attributeList);
 
         // Perform Check
-        boolean contains = TestUtils.containsAllResults(expectedResultList, resultList);
+        boolean contains = TestUtils.equals(expectedResultList, resultList);
         Assert.assertTrue(contains);
     }
 
