@@ -9,6 +9,7 @@ import org.junit.Test;
 import edu.uci.ics.textdb.api.common.IField;
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.common.Schema;
+import edu.uci.ics.textdb.common.constants.SchemaConstants;
 import edu.uci.ics.textdb.common.constants.TestConstants;
 import edu.uci.ics.textdb.common.field.DataTuple;
 import edu.uci.ics.textdb.common.field.ListField;
@@ -369,7 +370,7 @@ public class RegexMatcherTest {
         fields.add(spanField);
         expectedResults.add(new DataTuple(spanSchema, fields.toArray(new IField[fields.size()])));
 
-        exactResultsWithLimit = Utils.removePayload(exactResultsWithLimit);
+        exactResultsWithLimit = Utils.removeFields(exactResultsWithLimit, SchemaConstants.PAYLOAD);
         Assert.assertTrue(expectedResults.containsAll(exactResultsWithLimit));
         Assert.assertEquals(expectedResults.size(), 3);
         Assert.assertEquals(exactResultsWithLimit.size(), 2);
@@ -411,7 +412,7 @@ public class RegexMatcherTest {
         fields.add(spanField);
         expectedResults.add(new DataTuple(spanSchema, fields.toArray(new IField[fields.size()])));
 
-        exactResultsWithLimitOffset = Utils.removePayload(exactResultsWithLimitOffset);
+        exactResultsWithLimitOffset = Utils.removeFields(exactResultsWithLimitOffset, SchemaConstants.PAYLOAD);
         Assert.assertTrue(expectedResults.containsAll(exactResultsWithLimitOffset));
         Assert.assertEquals(expectedResults.size(), 3);
         Assert.assertEquals(exactResultsWithLimitOffset.size(), 2);

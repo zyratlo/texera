@@ -17,6 +17,7 @@ import edu.uci.ics.textdb.api.dataflow.ISourceOperator;
 import edu.uci.ics.textdb.api.storage.IDataStore;
 import edu.uci.ics.textdb.api.storage.IDataWriter;
 import edu.uci.ics.textdb.common.constants.DataConstants;
+import edu.uci.ics.textdb.common.constants.SchemaConstants;
 import edu.uci.ics.textdb.common.utils.Utils;
 import edu.uci.ics.textdb.dataflow.nlpextrator.NlpExtractor;
 import edu.uci.ics.textdb.dataflow.nlpextrator.NlpPredicate;
@@ -284,8 +285,8 @@ public class NlpExtractorTest {
         attributes.add(attribute1);
         attributes.add(attribute2);
 
-        List<ITuple> returnedResults = Utils
-                .removePayload(getQueryResults(sourceOperator, attributes, NlpPredicate.NlpTokenType.NE_ALL));
+        List<ITuple> returnedResults = Utils.removeFields(
+                getQueryResults(sourceOperator, attributes, NlpPredicate.NlpTokenType.NE_ALL), SchemaConstants.PAYLOAD);
         List<ITuple> expectedResults = NlpExtractorTestConstants.getTest9ResultTuples();
 
         boolean contains = TestUtils.containsAllResults(expectedResults, returnedResults);
@@ -315,7 +316,9 @@ public class NlpExtractorTest {
         Attribute attribute2 = NlpExtractorTestConstants.SENTENCE_TWO_ATTR;
         List<Attribute> attributes = Arrays.asList(attribute1, attribute2);
         
-        List<ITuple> returnedResults = Utils.removePayload(getQueryResults(sourceOperator, attributes, NlpPredicate.NlpTokenType.NE_ALL));        
+        List<ITuple> returnedResults = Utils.removeFields(
+                getQueryResults(sourceOperator, attributes, NlpPredicate.NlpTokenType.NE_ALL), SchemaConstants.PAYLOAD);
+        
         List<ITuple> expectedResults = NlpExtractorTestConstants.getTest11ResultTuple();  
         boolean contains = TestUtils.containsAllResults(expectedResults, returnedResults);
         Assert.assertTrue(contains);

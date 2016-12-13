@@ -13,6 +13,7 @@ import org.apache.lucene.queryparser.classic.ParseException;
 import edu.uci.ics.textdb.api.common.Attribute;
 import edu.uci.ics.textdb.api.common.IField;
 import edu.uci.ics.textdb.api.common.ITuple;
+import edu.uci.ics.textdb.common.constants.SchemaConstants;
 import edu.uci.ics.textdb.common.utils.Utils;
 
 /**
@@ -40,8 +41,8 @@ public class TestUtils {
     }
 
     public static boolean containsAllResults(List<ITuple> expectedResults, List<ITuple> exactResults) {
-        expectedResults = Utils.removePayload(expectedResults);
-        exactResults = Utils.removePayload(exactResults);
+        expectedResults = Utils.removeFields(expectedResults, SchemaConstants.PAYLOAD);
+        exactResults = Utils.removeFields(exactResults, SchemaConstants.PAYLOAD);
 
         if (expectedResults.size() != exactResults.size())
             return false;
