@@ -393,7 +393,7 @@ public class JoinTest {
         List<ITuple> expectedResult = new ArrayList<>(1);
         expectedResult.add(expectedTuple);
 
-        boolean contains = TestUtils.containsAllResults(expectedResult, resultList);
+        boolean contains = TestUtils.equals(expectedResult, resultList);
 
         Assert.assertEquals(1, resultList.size());
         Assert.assertTrue(contains);
@@ -525,7 +525,7 @@ public class JoinTest {
         List<ITuple> expectedResult = new ArrayList<>(1);
         expectedResult.add(expectedTuple);
 
-        boolean contains = TestUtils.containsAllResults(expectedResult, resultList);
+        boolean contains = TestUtils.equals(expectedResult, resultList);
 
         Assert.assertEquals(1, resultList.size());
         Assert.assertTrue(contains);
@@ -612,7 +612,7 @@ public class JoinTest {
         List<ITuple> expectedResult = new ArrayList<>(1);
         expectedResult.add(expectedTuple);
 
-        boolean contains = TestUtils.containsAllResults(expectedResult, resultList);
+        boolean contains = TestUtils.equals(expectedResult, resultList);
 
         Assert.assertEquals(1, resultList.size());
         Assert.assertTrue(contains);
@@ -692,7 +692,7 @@ public class JoinTest {
         List<ITuple> expectedResult = new ArrayList<>(1);
         expectedResult.add(expectedTuple);
 
-        boolean contains = TestUtils.containsAllResults(expectedResult, resultList);
+        boolean contains = TestUtils.equals(expectedResult, resultList);
 
         Assert.assertEquals(1, resultList.size());
         Assert.assertTrue(contains);
@@ -837,7 +837,7 @@ public class JoinTest {
         List<ITuple> expectedResult = new ArrayList<>(1);
         expectedResult.add(expectedTuple);
 
-        boolean contains = TestUtils.containsAllResults(expectedResult, resultList);
+        boolean contains = TestUtils.equals(expectedResult, resultList);
 
         Assert.assertEquals(1, resultList.size());
         Assert.assertTrue(contains);
@@ -942,7 +942,7 @@ public class JoinTest {
         List<ITuple> expectedResult = new ArrayList<>(1);
         expectedResult.add(expectedTuple);
 
-        boolean contains = TestUtils.containsAllResults(expectedResult, resultList);
+        boolean contains = TestUtils.equals(expectedResult, resultList);
 
         Assert.assertEquals(1, resultList.size());
         Assert.assertTrue(contains);
@@ -1118,7 +1118,7 @@ public class JoinTest {
         List<ITuple> expectedResult = new ArrayList<>(1);
         expectedResult.add(expectedTuple);
 
-        boolean contains = TestUtils.containsAllResults(expectedResult, resultList);
+        boolean contains = TestUtils.equals(expectedResult, resultList);
 
         Assert.assertEquals(1, resultList.size());
         Assert.assertTrue(contains);
@@ -1292,7 +1292,7 @@ public class JoinTest {
         List<ITuple> expectedResult = new ArrayList<>(1);
         expectedResult.add(expectedTuple);
 
-        boolean contains = TestUtils.containsAllResults(expectedResult, resultList);
+        boolean contains = TestUtils.equals(expectedResult, resultList);
 
         Assert.assertEquals(1, resultList.size());
         Assert.assertTrue(contains);
@@ -1428,7 +1428,7 @@ public class JoinTest {
         expectedResult.add(expectedTuple3);
         expectedResult.add(expectedTuple4);
 
-        boolean contains = TestUtils.containsAllResults(expectedResult, resultList);
+        boolean contains = TestUtils.equals(expectedResult, resultList);
 
         Assert.assertEquals(4, resultList.size());
         Assert.assertTrue(contains);
@@ -1560,7 +1560,7 @@ public class JoinTest {
         expectedResult.add(expectedTuple4);
         expectedResult.add(expectedTuple5);
 
-        boolean contains = TestUtils.containsAllResults(expectedResult, resultList);
+        boolean contains = TestUtils.equals(expectedResult, resultList);
 
         Assert.assertEquals(5, resultList.size());
         Assert.assertTrue(contains);
@@ -1636,7 +1636,7 @@ public class JoinTest {
         expectedResult.add(expectedTuple2);
         expectedResult.add(expectedTuple3);
 
-        boolean contains = TestUtils.containsAllResults(expectedResult, resultList);
+        boolean contains = TestUtils.equals(expectedResult, resultList);
 
         Assert.assertEquals(3, resultList.size());
         Assert.assertTrue(contains);
@@ -1731,7 +1731,7 @@ public class JoinTest {
         expectedResult.add(expectedTuple4);
         expectedResult.add(expectedTuple5);
 
-        boolean contains = TestUtils.containsAllResults(expectedResult, resultList);
+        boolean contains = TestUtils.equals(expectedResult, resultList);
 
         Assert.assertEquals(5, resultList.size());
         Assert.assertTrue(contains);
@@ -1830,7 +1830,7 @@ public class JoinTest {
         List<ITuple> expectedResult = new ArrayList<>(1);
         expectedResult.add(expectedTuple1);
 
-        boolean contains = TestUtils.containsAllResults(expectedResult, resultList);
+        boolean contains = TestUtils.equals(expectedResult, resultList);
 
         Assert.assertEquals(1, resultList.size());
         Assert.assertTrue(contains);
@@ -1906,7 +1906,7 @@ public class JoinTest {
         expectedResult.add(expectedTuple2);
         expectedResult.add(expectedTuple3);
 
-        boolean contains = TestUtils.containsAllResults(expectedResult, resultList);
+        boolean contains = TestUtils.equals(expectedResult, resultList);
 
         Assert.assertEquals(3, resultList.size());
         Assert.assertTrue(contains);

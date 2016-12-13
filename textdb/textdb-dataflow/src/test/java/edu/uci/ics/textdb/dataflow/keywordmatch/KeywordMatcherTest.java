@@ -170,7 +170,7 @@ public class KeywordMatcherTest {
         List<ITuple> resultList = getPeopleQueryResults(query, attributeList);
 
         // check the results
-        boolean contains = TestUtils.containsAllResults(expectedResultList, resultList);
+        boolean contains = TestUtils.equals(expectedResultList, resultList);
         Assert.assertTrue(contains);
     }
 
@@ -220,7 +220,7 @@ public class KeywordMatcherTest {
         List<ITuple> resultList = getPeopleQueryResults(query, attributeList);
 
         // check the results
-        boolean contains = TestUtils.containsAllResults(expectedResultList, resultList);
+        boolean contains = TestUtils.equals(expectedResultList, resultList);
         Assert.assertTrue(contains);
     }
 
@@ -262,7 +262,7 @@ public class KeywordMatcherTest {
         List<ITuple> resultList = getPeopleQueryResults(query, attributeList);
 
         // check the results
-        boolean contains = TestUtils.containsAllResults(expectedResultList, resultList);
+        boolean contains = TestUtils.equals(expectedResultList, resultList);
         Assert.assertTrue(contains);
     }
 
@@ -312,7 +312,7 @@ public class KeywordMatcherTest {
         List<ITuple> resultList = getPeopleQueryResults(query, attributeList);
 
         // check the results
-        boolean contains = TestUtils.containsAllResults(expectedResultList, resultList);
+        boolean contains = TestUtils.equals(expectedResultList, resultList);
         Assert.assertTrue(contains);
     }
 

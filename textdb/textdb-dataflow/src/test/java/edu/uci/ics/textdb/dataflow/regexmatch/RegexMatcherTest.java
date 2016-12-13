@@ -65,7 +65,7 @@ public class RegexMatcherTest {
         fields.add(spanField);
         expectedResults.add(new DataTuple(spanSchema, fields.toArray(new IField[fields.size()])));
 
-        Assert.assertTrue(TestUtils.containsAllResults(expectedResults, exactResults));
+        Assert.assertTrue(TestUtils.equals(expectedResults, exactResults));
 
         testHelper.cleanUp();
     }
@@ -98,7 +98,7 @@ public class RegexMatcherTest {
         fields.add(spanField);
         expectedResults.add(new DataTuple(spanSchema, fields.toArray(new IField[fields.size()])));
 
-        Assert.assertTrue(TestUtils.containsAllResults(expectedResults, exactResults));
+        Assert.assertTrue(TestUtils.equals(expectedResults, exactResults));
 
         testHelper.cleanUp();
     }
@@ -139,7 +139,7 @@ public class RegexMatcherTest {
         fields.add(spanField);
         expectedResults.add(new DataTuple(spanSchema, fields.toArray(new IField[fields.size()])));
 
-        Assert.assertTrue(TestUtils.containsAllResults(expectedResults, exactResults));
+        Assert.assertTrue(TestUtils.equals(expectedResults, exactResults));
 
         testHelper.cleanUp();
     }
@@ -172,7 +172,7 @@ public class RegexMatcherTest {
         fields.add(spanField);
         expectedResults.add(new DataTuple(spanSchema, fields.toArray(new IField[fields.size()])));
 
-        Assert.assertTrue(TestUtils.containsAllResults(expectedResults, exactResults));
+        Assert.assertTrue(TestUtils.equals(expectedResults, exactResults));
 
         testHelper.cleanUp();
     }
@@ -215,7 +215,7 @@ public class RegexMatcherTest {
         fields.add(spanField);
         expectedResults.add(new DataTuple(spanSchema, fields.toArray(new IField[fields.size()])));
 
-        Assert.assertTrue(TestUtils.containsAllResults(expectedResults, exactResults));
+        Assert.assertTrue(TestUtils.equals(expectedResults, exactResults));
 
         testHelper.cleanUp();
     }
@@ -260,7 +260,7 @@ public class RegexMatcherTest {
         fields.add(spanField);
         expectedResults.add(new DataTuple(spanSchema, fields.toArray(new IField[fields.size()])));
 
-        Assert.assertTrue(TestUtils.containsAllResults(expectedResults, exactResults));
+        Assert.assertTrue(TestUtils.equals(expectedResults, exactResults));
 
         testHelper.cleanUp();
     }
@@ -303,7 +303,7 @@ public class RegexMatcherTest {
         fields.add(spanField);
         expectedResults.add(new DataTuple(spanSchema, fields.toArray(new IField[fields.size()])));
 
-        Assert.assertTrue(TestUtils.containsAllResults(expectedResults, exactResults));
+        Assert.assertTrue(TestUtils.equals(expectedResults, exactResults));
 
         testHelper.cleanUp();
     }
@@ -329,7 +329,7 @@ public class RegexMatcherTest {
         fields.add(spanField);
         expectedResults.add(new DataTuple(spanSchema, fields.toArray(new IField[fields.size()])));
 
-        Assert.assertTrue(TestUtils.containsAllResults(expectedResults, exactResults));
+        Assert.assertTrue(TestUtils.equals(expectedResults, exactResults));
 
         testHelper.cleanUp();
     }

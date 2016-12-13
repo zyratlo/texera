@@ -98,7 +98,7 @@ public class NlpExtractorTest {
         List<ITuple> returnedResults = getQueryResults(sourceOperator, attributes, NlpPredicate.NlpTokenType.NE_ALL);
 
         List<ITuple> expectedResults = NlpExtractorTestConstants.getTest1ResultTuples();
-        boolean contains = TestUtils.containsAllResults(expectedResults, returnedResults);
+        boolean contains = TestUtils.equals(expectedResults, returnedResults);
         Assert.assertTrue(contains);
     }
 
@@ -119,7 +119,7 @@ public class NlpExtractorTest {
         List<ITuple> returnedResults = getQueryResults(sourceOperator, attributes, NlpPredicate.NlpTokenType.NE_ALL);
         List<ITuple> expectedResults = NlpExtractorTestConstants.getTest2ResultTuples();
 
-        boolean contains = TestUtils.containsAllResults(expectedResults, returnedResults);
+        boolean contains = TestUtils.equals(expectedResults, returnedResults);
         Assert.assertTrue(contains);
 
     }
@@ -142,7 +142,7 @@ public class NlpExtractorTest {
         List<ITuple> returnedResults = getQueryResults(sourceOperator, attributes, NlpPredicate.NlpTokenType.NE_ALL);
         List<ITuple> expectedResults = NlpExtractorTestConstants.getTest3ResultTuples();
 
-        boolean contains = TestUtils.containsAllResults(expectedResults, returnedResults);
+        boolean contains = TestUtils.equals(expectedResults, returnedResults);
 
         Assert.assertTrue(contains);
     }
@@ -171,7 +171,7 @@ public class NlpExtractorTest {
         List<ITuple> returnedResults = getQueryResults(sourceOperator, attributes, NlpPredicate.NlpTokenType.NE_ALL);
         List<ITuple> expectedResults = NlpExtractorTestConstants.getTest4ResultTuples();
 
-        boolean contains = TestUtils.containsAllResults(expectedResults, returnedResults);
+        boolean contains = TestUtils.equals(expectedResults, returnedResults);
 
         Assert.assertTrue(contains);
     }
@@ -197,7 +197,7 @@ public class NlpExtractorTest {
 
         List<ITuple> expectedResults = NlpExtractorTestConstants.getTest5ResultTuples();
 
-        boolean contains = TestUtils.containsAllResults(expectedResults, returnedResults);
+        boolean contains = TestUtils.equals(expectedResults, returnedResults);
 
         Assert.assertTrue(contains);
     }
@@ -227,7 +227,7 @@ public class NlpExtractorTest {
 
         List<ITuple> expectedResults = NlpExtractorTestConstants.getTest6ResultTuples();
 
-        boolean contains = TestUtils.containsAllResults(expectedResults, returnedResults);
+        boolean contains = TestUtils.equals(expectedResults, returnedResults);
 
         Assert.assertTrue(contains);
     }
@@ -251,7 +251,7 @@ public class NlpExtractorTest {
 
         List<ITuple> expectedResults = NlpExtractorTestConstants.getTest7ResultTuples();
 
-        boolean contains = TestUtils.containsAllResults(expectedResults, returnedResults);
+        boolean contains = TestUtils.equals(expectedResults, returnedResults);
 
         Assert.assertTrue(contains);
     }
@@ -269,7 +269,7 @@ public class NlpExtractorTest {
         List<ITuple> returnedResults = getQueryResults(sourceOperator, attributes, NlpPredicate.NlpTokenType.Money);
         List<ITuple> expectedResults = NlpExtractorTestConstants.getTest8ResultTuples();
 
-        boolean contains = TestUtils.containsAllResults(expectedResults, returnedResults);
+        boolean contains = TestUtils.equals(expectedResults, returnedResults);
         Assert.assertTrue(contains);
     }
 
@@ -289,7 +289,7 @@ public class NlpExtractorTest {
                 getQueryResults(sourceOperator, attributes, NlpPredicate.NlpTokenType.NE_ALL), SchemaConstants.PAYLOAD);
         List<ITuple> expectedResults = NlpExtractorTestConstants.getTest9ResultTuples();
 
-        boolean contains = TestUtils.containsAllResults(expectedResults, returnedResults);
+        boolean contains = TestUtils.equals(expectedResults, returnedResults);
         Assert.assertTrue(contains);
     }
     
@@ -303,7 +303,7 @@ public class NlpExtractorTest {
         
         List<ITuple> returnedResults = getQueryResults(sourceOperator, attributes, NlpPredicate.NlpTokenType.NE_ALL);
         List<ITuple> expectedResults = NlpExtractorTestConstants.getTest10ResultTuples();
-        boolean contains = TestUtils.containsAllResults(expectedResults, returnedResults);
+        boolean contains = TestUtils.equals(expectedResults, returnedResults);
         Assert.assertTrue(contains);
     }
     
@@ -320,7 +320,7 @@ public class NlpExtractorTest {
                 getQueryResults(sourceOperator, attributes, NlpPredicate.NlpTokenType.NE_ALL), SchemaConstants.PAYLOAD);
         
         List<ITuple> expectedResults = NlpExtractorTestConstants.getTest11ResultTuple();  
-        boolean contains = TestUtils.containsAllResults(expectedResults, returnedResults);
+        boolean contains = TestUtils.equals(expectedResults, returnedResults);
         Assert.assertTrue(contains);
     }
     
