@@ -65,20 +65,20 @@ public class FuzzyTokenMatcherTest {
         dataWriter.clearData();
     }
 
-    public List<ITuple> getQueryResults(String query, double threshold, ArrayList<Attribute> attributeList)
+    public List<ITuple> getQueryResults(String query, double threshold, ArrayList<String> attributeNames)
             throws TextDBException, ParseException {
-        return getQueryResults(query, threshold, attributeList, Integer.MAX_VALUE, 0);
+        return getQueryResults(query, threshold, attributeNames, Integer.MAX_VALUE, 0);
     }
 
-    public List<ITuple> getQueryResults(String query, double threshold, ArrayList<Attribute> attributeList,
+    public List<ITuple> getQueryResults(String query, double threshold, ArrayList<String> attributeNames,
             int limit) throws TextDBException, ParseException {
-        return getQueryResults(query, threshold, attributeList, limit, 0);
+        return getQueryResults(query, threshold, attributeNames, limit, 0);
     }
 
-    public List<ITuple> getQueryResults(String query, double threshold, ArrayList<Attribute> attributeList,
+    public List<ITuple> getQueryResults(String query, double threshold, ArrayList<String> attributeNames,
             int limit, int offset) throws TextDBException, ParseException {
 
-        FuzzyTokenPredicate predicate = new FuzzyTokenPredicate(query, attributeList, analyzer, threshold);
+        FuzzyTokenPredicate predicate = new FuzzyTokenPredicate(query, attributeNames, analyzer, threshold);
         fuzzyTokenMatcher = new FuzzyTokenMatcher(predicate);
         fuzzyTokenMatcher.setInputOperator(new IndexBasedSourceOperator(predicate.getDataReaderPredicate(dataStore)));
         fuzzyTokenMatcher.open();
@@ -98,9 +98,9 @@ public class FuzzyTokenMatcherTest {
     public void TestFuzzyTokenMatcherWithNoResults() throws Exception {
         String query = "Twelve Angry Men Cafe";
         double threshold = 0.5; // The ratio of tokens that need to be matched
-        ArrayList<Attribute> attributeList = new ArrayList<>();
-        attributeList.add(TestConstants.DESCRIPTION_ATTR);
-        List<ITuple> results = getQueryResults(query, threshold, attributeList);
+        ArrayList<String> attributeNames = new ArrayList<>();
+        attributeNames.add(TestConstants.DESCRIPTION);
+        List<ITuple> results = getQueryResults(query, threshold, attributeNames);
         
         Assert.assertEquals(0, results.size());
     }
@@ -109,8 +109,8 @@ public class FuzzyTokenMatcherTest {
     public void TestFuzzyTokenMatcherWithThresholdVariation() throws Exception {
         String query = "Twelve Angry Men Cafe";
         double threshold = 0.25;
-        ArrayList<Attribute> attributeList = new ArrayList<>();
-        attributeList.add(TestConstants.DESCRIPTION_ATTR);
+        ArrayList<String> attributeNames = new ArrayList<>();
+        attributeNames.add(TestConstants.DESCRIPTION);
 
         Schema spanSchema = Utils.createSpanSchema(TestConstants.SCHEMA_PEOPLE);
 
@@ -149,8 +149,8 @@ public class FuzzyTokenMatcherTest {
         expectedResultList.add(tuple3);
         expectedResultList.add(tuple4);
 
-        List<ITuple> results = getQueryResults(query, threshold, attributeList);
-        boolean contains = TestUtils.containsAllResults(expectedResultList, results);
+        List<ITuple> results = getQueryResults(query, threshold, attributeNames);
+        boolean contains = TestUtils.equals(expectedResultList, results);
         Assert.assertTrue(contains);
     }
 
@@ -158,8 +158,8 @@ public class FuzzyTokenMatcherTest {
     public void TestFuzzyTokenMatcherWithLargeTokens() throws Exception {
         String query = "Twelve Angry Men Came Cafe Have Coffee Eat Chocolate Burger Fries SandWidch Cool Food Drinks American drama film elements film noir adapted teleplay same name Reginald Rose Written Rose directed  Sidney Lumet trial film tells story jury made deliberate guilt acquittal defendant basis reasonable doubt United States verdict most criminal ";
         double threshold = 0.02;
-        ArrayList<Attribute> attributeList = new ArrayList<>();
-        attributeList.add(TestConstants.DESCRIPTION_ATTR);
+        ArrayList<String> attributeNames = new ArrayList<>();
+        attributeNames.add(TestConstants.DESCRIPTION);
 
         Schema spanSchema = Utils.createSpanSchema(TestConstants.SCHEMA_PEOPLE);
 
@@ -198,8 +198,8 @@ public class FuzzyTokenMatcherTest {
         expectedResultList.add(tuple3);
         expectedResultList.add(tuple4);
 
-        List<ITuple> results = getQueryResults(query, threshold, attributeList);
-        boolean contains = TestUtils.containsAllResults(expectedResultList, results);
+        List<ITuple> results = getQueryResults(query, threshold, attributeNames);
+        boolean contains = TestUtils.equals(expectedResultList, results);
         Assert.assertTrue(contains);
     }
 
@@ -207,9 +207,9 @@ public class FuzzyTokenMatcherTest {
     public void TestFuzzyTokenMatcherForStringField() throws Exception {
         String query = "tom hanks";
         double threshold = 1; // The ratio of tokens that need to be matched
-        ArrayList<Attribute> attributeList = new ArrayList<>();
-        attributeList.add(TestConstants.FIRST_NAME_ATTR);
-        List<ITuple> results = getQueryResults(query, threshold, attributeList);
+        ArrayList<String> attributeNames = new ArrayList<>();
+        attributeNames.add(TestConstants.FIRST_NAME);
+        List<ITuple> results = getQueryResults(query, threshold, attributeNames);
 
         Assert.assertEquals(0, results.size());
     }
@@ -218,8 +218,8 @@ public class FuzzyTokenMatcherTest {
     public void TestFuzzyTokenMatcher1() throws Exception {
         String query = "Twelve Angry Men";
         double threshold = 0.5; // The ratio of tokens that need to be matched
-        ArrayList<Attribute> attributeList = new ArrayList<>();
-        attributeList.add(TestConstants.DESCRIPTION_ATTR);
+        ArrayList<String> attributeNames = new ArrayList<>();
+        attributeNames.add(TestConstants.DESCRIPTION);
 
         Schema spanSchema = Utils.createSpanSchema(TestConstants.SCHEMA_PEOPLE);
 
@@ -258,8 +258,8 @@ public class FuzzyTokenMatcherTest {
         expectedResultList.add(tuple3);
         expectedResultList.add(tuple4);
 
-        List<ITuple> results = getQueryResults(query, threshold, attributeList);
-        boolean contains = TestUtils.containsAllResults(expectedResultList, results);
+        List<ITuple> results = getQueryResults(query, threshold, attributeNames);
+        boolean contains = TestUtils.equals(expectedResultList, results);
         Assert.assertTrue(contains);
     }
 
@@ -267,8 +267,8 @@ public class FuzzyTokenMatcherTest {
     public void TestFuzzyTokenMatcher2() throws Exception {
         String query = "Twelve Angry Men";
         double threshold = 0.5; // The ratio of tokens that need to be matched
-        ArrayList<Attribute> attributeList = new ArrayList<>();
-        attributeList.add(TestConstants.DESCRIPTION_ATTR);
+        ArrayList<String> attributeNames = new ArrayList<>();
+        attributeNames.add(TestConstants.DESCRIPTION);
 
         Schema spanSchema = Utils.createSpanSchema(TestConstants.SCHEMA_PEOPLE);
 
@@ -307,8 +307,8 @@ public class FuzzyTokenMatcherTest {
         expectedResultList.add(tuple3);
         expectedResultList.add(tuple4);
 
-        List<ITuple> results = getQueryResults(query, threshold, attributeList);
-        boolean contains = TestUtils.containsAllResults(expectedResultList, results);
+        List<ITuple> results = getQueryResults(query, threshold, attributeNames);
+        boolean contains = TestUtils.equals(expectedResultList, results);
         Assert.assertTrue(contains);
     }
     
@@ -316,8 +316,8 @@ public class FuzzyTokenMatcherTest {
     public void TestFuzzyTokenMatcherWithLimit() throws Exception {
         String query = "Twelve Angry Men";
         double threshold = 0.5; // The ratio of tokens that need to be matched
-        ArrayList<Attribute> attributeList = new ArrayList<>();
-        attributeList.add(TestConstants.DESCRIPTION_ATTR);
+        ArrayList<String> attributeNames = new ArrayList<>();
+        attributeNames.add(TestConstants.DESCRIPTION);
 
         Attribute[] schemaAttributes = new Attribute[TestConstants.ATTRIBUTES_PEOPLE.length + 1];
         for (int count = 0; count < schemaAttributes.length - 1; count++) {
@@ -363,8 +363,8 @@ public class FuzzyTokenMatcherTest {
         expectedResultList.add(tuple3);
         expectedResultList.add(tuple4);
 
-        List<ITuple> results = Utils
-                .removePayload(getQueryResults(query, threshold, attributeList, 2));
+        List<ITuple> results = Utils.removeFields(
+                getQueryResults(query, threshold, attributeNames, 2), SchemaConstants.PAYLOAD);
         Assert.assertEquals(expectedResultList.size(), 4);
         Assert.assertEquals(results.size(), 2);
         Assert.assertTrue(expectedResultList.containsAll(results));
@@ -374,8 +374,8 @@ public class FuzzyTokenMatcherTest {
     public void TestFuzzyTokenMatcherWithLimitOffset() throws Exception {
         String query = "Twelve Angry Men";
         double threshold = 0.5; // The ratio of tokens that need to be matched
-        ArrayList<Attribute> attributeList = new ArrayList<>();
-        attributeList.add(TestConstants.DESCRIPTION_ATTR);
+        ArrayList<String> attributeNames = new ArrayList<>();
+        attributeNames.add(TestConstants.DESCRIPTION);
 
         Attribute[] schemaAttributes = new Attribute[TestConstants.ATTRIBUTES_PEOPLE.length + 1];
         for (int count = 0; count < schemaAttributes.length - 1; count++) {
@@ -421,8 +421,9 @@ public class FuzzyTokenMatcherTest {
         expectedResultList.add(tuple3);
         expectedResultList.add(tuple4);
 
-        List<ITuple> results = Utils
-                .removePayload(getQueryResults(query, threshold, attributeList, 2, 1));
+        List<ITuple> results = Utils.removeFields(
+                getQueryResults(query, threshold, attributeNames, 2, 1), SchemaConstants.PAYLOAD);
+
         Assert.assertEquals(expectedResultList.size(), 4);
         Assert.assertEquals(results.size(), 2);
         Assert.assertTrue(expectedResultList.containsAll(results));

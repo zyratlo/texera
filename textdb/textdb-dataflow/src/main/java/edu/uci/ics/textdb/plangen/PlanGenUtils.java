@@ -15,6 +15,7 @@ import edu.uci.ics.textdb.plangen.operatorbuilder.JoinBuilder;
 import edu.uci.ics.textdb.plangen.operatorbuilder.KeywordMatcherBuilder;
 import edu.uci.ics.textdb.plangen.operatorbuilder.KeywordSourceBuilder;
 import edu.uci.ics.textdb.plangen.operatorbuilder.NlpExtractorBuilder;
+import edu.uci.ics.textdb.plangen.operatorbuilder.ProjectionBuilder;
 import edu.uci.ics.textdb.plangen.operatorbuilder.RegexMatcherBuilder;
 
 /**
@@ -40,6 +41,7 @@ public class PlanGenUtils {
         operatorBuilderMap.put("DictionarySource".toLowerCase(), DictionarySourceBuilder::buildSourceOperator);
         operatorBuilderMap.put("FileSink".toLowerCase(), FileSinkBuilder::buildSink);
         operatorBuilderMap.put("Join".toLowerCase(), JoinBuilder::buildOperator);
+        operatorBuilderMap.put("Projection".toLowerCase(), ProjectionBuilder::buildOperator);
     }
     
     public static IOperator buildOperator(String operatorType, Map<String, String> operatorProperties) throws PlanGenException {
