@@ -54,6 +54,13 @@ public class FileSink extends AbstractSink {
         printWriter.write(toStringFunction.convertToString(nextTuple));
     }
     
+    //Overloading this function to implement processing multiple tuples
+    protected void processOneTuple(ITuple nextTuple, boolean multiple) {
+    	//To Do: need code to process multiple tuples
+        printWriter.write(toStringFunction.convertToString(nextTuple));
+    }
+
+    
     public File getFile() {
         return this.file;
     }

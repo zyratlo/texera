@@ -33,6 +33,11 @@ public class PlanTest {
                 // TODO Auto-generated method stub
 
             }
+            
+            public void processTuples(boolean multiple) throws TextDBException {
+                // TODO Auto-generated method stub
+
+            }
 
             @Override
             public void open() throws TextDBException {
