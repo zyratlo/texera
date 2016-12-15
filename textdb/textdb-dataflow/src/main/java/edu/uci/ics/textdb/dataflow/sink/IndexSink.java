@@ -35,16 +35,6 @@ public class IndexSink extends AbstractSink {
     protected void processOneTuple(ITuple nextTuple) throws TextDBException {
         dataWriter.insertTuple(nextTuple);
     }
-    
-    //Overloading to process multiple cases.
-    protected void processOneTuple(ITuple nextTuple, boolean multiple) throws TextDBException {
-    	if (true == multiple ){
-    		dataWriter.insertTuples(nextTuple);
-    	}
-    	else{
-    		dataWriter.insertTuple(nextTuple);
-    	}
-    }
 
     public void close() throws TextDBException {
         if (this.dataWriter != null) {
