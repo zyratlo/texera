@@ -15,6 +15,11 @@ import opennlp.tools.tokenize.TokenizerModel;
 import opennlp.tools.util.InvalidFormatException;
 import opennlp.tools.util.Span;
 
+/**
+ * 
+ * See README file for more details
+ *
+ */
 public class NameFinderExample {
    
     public static String[] Tokenize(String sentence) throws InvalidFormatException, IOException {
