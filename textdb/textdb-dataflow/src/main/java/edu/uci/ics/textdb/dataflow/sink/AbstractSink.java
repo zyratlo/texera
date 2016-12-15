@@ -35,20 +35,27 @@ public abstract class AbstractSink implements ISink {
     }
 
     @Override
-    public void processTuples() throws TextDBException {
+    
+    public void processTuples( ) throws TextDBException {
         ITuple nextTuple;
-
+        boolean multiple = true;
+        if (( nextTuple = inputOperator.getNextTuple()) != null)
+        		processOneTuple(nextTuple);
+        
         while ((nextTuple = inputOperator.getNextTuple()) != null) {
-            processOneTuple(nextTuple);
+            processOneTuple(nextTuple, multiple);
         }
     }
+
 
     /**
      *
      * @param nextTuple
      *            A tuple that needs to be processed during each iteration
+     *            Overloading the processOneTuple to process multiple cases
      */
     protected abstract void processOneTuple(ITuple nextTuple) throws TextDBException;
+    protected abstract void processOneTuple(ITuple nextTuple, boolean multiple) throws TextDBException;
 
     @Override
     public void close() throws TextDBException {
