@@ -48,7 +48,7 @@ import junit.framework.Assert;
  * @author sripadks
  *
  */
-public class JoinTest {
+public class JoinDistanceTest2 {
     private KeywordMatcherSourceOperator keywordSourceOuter;
     private KeywordMatcherSourceOperator keywordSourceInner;
     private IDataWriter dataWriterForOuter;
@@ -751,8 +751,8 @@ public class JoinTest {
     // attributes (hence different schemas) barring the attribute join has to
     // be performed upon (for this case, threshold condition is satisfied).
     // e.g. Schema1: {ID, Author, Pages, Review}
-    //		Schema2: {ID, Title, Pages, Review}
-    // 		Join Attribute: Review
+    //      Schema2: {ID, Title, Pages, Review}
+    //      Join Attribute: Review
     // Test result: Join should result in a list with a single tuple which has
     // the attributes common to both the tuples and the joined span.
     @Test
@@ -952,10 +952,10 @@ public class JoinTest {
     // join is performed upon) has different field values (assume threshold
     // condition is satisfied).
     // e.g. Schema1: {ID, Author, Title, Pages, Review}
-    //		Values1: { 2,      A,     B,     5,    ABC}
-    //		Schema2: {ID, Author, Title, Pages, Review}
-    //		Values2: { 2,      A,     B,     5,     AB}
-    //		Join Attribute: Review
+    //      Values1: { 2,      A,     B,     5,    ABC}
+    //      Schema2: {ID, Author, Title, Pages, Review}
+    //      Values2: { 2,      A,     B,     5,     AB}
+    //      Join Attribute: Review
     // Test result: An empty list is returned.
     @Test
     public void testJoinAttributeFieldsAreDifferent() throws Exception {
@@ -1237,9 +1237,9 @@ public class JoinTest {
     // list of multiple tuples should match with the ID of the single tuple) and
     // spans are within the threshold.
     // e.g.
-    // ID: 			1 		  2 		3		  4
+    // ID:          1         2         3         4
     // Tuples: [<67, 73>][<67, 73>][<67, 73>][<67, 73>]
-    // ID: 		   2
+    // ID:         2
     // Tuple: [<62, 66>]
     // threshold = 12
     // [      ] [ ] [ ] [ ]
@@ -1303,9 +1303,9 @@ public class JoinTest {
     // list of multiple tuples should match with the ID of the single tuple) and
     // none of the spans are not within threshold.
     // e.g.
-    // ID: 			1		  2		    3		  4
+    // ID:          1         2         3         4
     // Tuples: [<67, 73>][<67, 73>][<67, 73>][<67, 73>]
-    // ID: 		   2
+    // ID:         2
     // Tuple: [<62, 66>]
     // threshold = 4
     // [ ] [ ] [ ] [ ]
@@ -1334,9 +1334,9 @@ public class JoinTest {
     // This case tests for the scenario when both the operators' have multiple
     // tuples and some of tuples IDs match and spans are within threshold.
     // e.g.
-    // ID: 			1		  2		    3		  4
+    // ID:          1         2         3         4
     // Tuples: [<67, 73>][<67, 73>][<67, 73>][<67, 73>]
-    // ID: 			2 		   4
+    // ID:          2          4
     // Tuples: [<62, 66>] [<62, 66>]
     // threshold = 12
     // [       ]            [      ] [ ] [ ]
@@ -1438,9 +1438,9 @@ public class JoinTest {
     // tuples and some of tuples IDs match, but none of spans are within
     // threshold.
     // e.g.
-    // ID: 			1		  2		    3		  4
+    // ID:          1         2         3         4
     // Tuples: [<67, 73>][<67, 73>][<67, 73>][<67, 73>]
-    // ID: 			2  		   4
+    // ID:          2          4
     // Tuples: [<62, 66>] [<62, 66>]
     // threshold = 4
     // [     ]        [      ]       [      ] [ ]
@@ -1576,7 +1576,7 @@ public class JoinTest {
      */
     @Test
     public void testForLimitWhenLimitIsLesserThanActualNumberOfResults() throws Exception{
-    	bookTuple1 = setupTuplesList(1, 5);
+        bookTuple1 = setupTuplesList(1, 5);
         writeTuples(bookTuple1, bookTuple1);
 
         String query = "typical";
@@ -1651,7 +1651,7 @@ public class JoinTest {
      */
     @Test
     public void testForLimitWhenLimitIsGreaterThanActualNumberOfResults() throws Exception{
-    	bookTuple1 = setupTuplesList(1, 5);
+        bookTuple1 = setupTuplesList(1, 5);
         writeTuples(bookTuple1, bookTuple1);
 
         String query = "typical";
@@ -1744,7 +1744,7 @@ public class JoinTest {
      */
     @Test
     public void testForLimitWhenLimitIsZero() throws Exception{
-    	bookTuple1 = setupTuplesList(1, 5);
+        bookTuple1 = setupTuplesList(1, 5);
         writeTuples(bookTuple1, bookTuple1);
 
         String query = "typical";
@@ -1766,7 +1766,7 @@ public class JoinTest {
      */
     @Test
     public void testForLimitWhenLimitIsZeroAndHasOffset() throws Exception{
-    	bookTuple1 = setupTuplesList(1, 5);
+        bookTuple1 = setupTuplesList(1, 5);
         writeTuples(bookTuple1, bookTuple1);
 
         String query = "typical";
@@ -1920,7 +1920,7 @@ public class JoinTest {
      */
     @Test
     public void testOffsetGreaterThanNumberOfResults() throws Exception{
-    	bookTuple1 = setupTuplesList(1, 5);
+        bookTuple1 = setupTuplesList(1, 5);
         writeTuples(bookTuple1, bookTuple1);
 
         String query = "typical";
@@ -1944,7 +1944,7 @@ public class JoinTest {
      */
     @Test(expected = DataFlowException.class)
     public void testWhenOpenOrCloseIsCalledTwiceAndTryToGetNextTupleWhenClosed() throws Exception {
-    	bookTuple1 = setupTuplesList(1, 5);
+        bookTuple1 = setupTuplesList(1, 5);
         writeTuples(bookTuple1, bookTuple1);
 
         String query = "typical";
