@@ -81,28 +81,12 @@ public class DataWriter implements IDataWriter {
             this.luceneIndexWriter.addDocument(document);
             this.dataStore.incrementNumDocuments(1);
         } catch (IOException e) {
-            
             throw new StorageException(e.getMessage(), e);
         } finally {
-        	close();
+            close();
         }
     }
     
-    public void insertTuples(ITuple tuple) throws StorageException {
-        if (this.luceneIndexWriter == null || ! this.luceneIndexWriter.isOpen()) {
-            open();
-        }
-        try {
-            Document document = getDocument(dataStore.getSchema(), tuple);
-            this.luceneIndexWriter.addDocument(document);
-            this.dataStore.incrementNumDocuments(1);
-        } catch (IOException e) {
-            close();
-            throw new StorageException(e.getMessage(), e);
-        } finally {
-
-        }
-    }
     public void deleteTuple(Query... luceneQuery) throws StorageException {
         if (this.luceneIndexWriter == null || ! this.luceneIndexWriter.isOpen()) {
             open();
@@ -110,10 +94,9 @@ public class DataWriter implements IDataWriter {
         try {
             this.luceneIndexWriter.deleteDocuments(luceneQuery);
         } catch (IOException e) {
-            
             throw new StorageException(e.getMessage(), e);
         } finally {
-        	close();
+            close();
         }
     }
 

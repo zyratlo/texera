@@ -20,11 +20,6 @@ public class AbstractSinkTest {
             protected void processOneTuple(ITuple nextTuple) {
 
             }
-            
-            protected void processOneTuple(ITuple nextTuple, boolean multiple){
-            	
-            }
-            
         };
         sink.setInputOperator(childOperator);
     }
