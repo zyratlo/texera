@@ -1,20 +1,40 @@
 package edu.uci.ics.textdb.sandbox.OpenNLPexample;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.StringReader;
+import java.io.InputStream;
 import java.util.Scanner;
 
 import opennlp.tools.cmdline.PerformanceMonitor;
 import opennlp.tools.cmdline.postag.POSModelLoader;
 import opennlp.tools.postag.POSModel;
-import opennlp.tools.postag.POSSample;
 import opennlp.tools.postag.POSTaggerME;
-import opennlp.tools.tokenize.WhitespaceTokenizer;
-import opennlp.tools.util.ObjectStream;
-import opennlp.tools.util.PlainTextByLineStream;
+import opennlp.tools.tokenize.Tokenizer;
+import opennlp.tools.tokenize.TokenizerME;
+import opennlp.tools.tokenize.TokenizerModel;
+import opennlp.tools.util.InvalidFormatException;
 
+/**
+ * 
+ *  See README file for more details.
+ *
+ */
 public class POSTagexample {
+
+	public static String[] Tokenize(String sentence) throws InvalidFormatException, IOException {
+    	InputStream is = new FileInputStream("./src/main/resources/en-token.bin");
+     
+    	TokenizerModel model = new TokenizerModel(is);
+     
+    	Tokenizer tokenizer = new TokenizerME(model);
+    	
+    	String tokens[] = tokenizer.tokenize(sentence);
+     
+    	is.close();
+    	
+    	return tokens;
+	}
 	
     public static void main(String[] args) throws IOException {
     	
@@ -26,26 +46,28 @@ public class POSTagexample {
     	String dataFile = "./src/main/resources/abstract_100.txt";
     	Scanner scan = new Scanner(new File(dataFile));
     	
+    	int counter = 0;
     	perfMon.start();
     	while(scan.hasNextLine()) {
     		String input = scan.nextLine();
-    		ObjectStream<String> lineStream = new PlainTextByLineStream(
-        			new StringReader(input));
+    		String[] sentence = Tokenize(input);
     		
-    		String line;
-        	while ((line = lineStream.read()) != null) {
-         
-        		String whitespaceTokenizerLine[] = WhitespaceTokenizer.INSTANCE
-        				.tokenize(line);
-        		String[] tags = tagger.tag(whitespaceTokenizerLine);
-         
-        		POSSample sample = new POSSample(whitespaceTokenizerLine, tags);
-        		System.out.println(sample.toString());
-         
-        		perfMon.incrementCounter();
+        	String[] tags = tagger.tag(sentence);
+        	perfMon.incrementCounter();
+        		
+        	for (int i = 0; i < sentence.length; i++) {
+        		String word = sentence[i];
+        		String pos = tags[i];
+        		//filter out useless results
+        		if(!word.equals(pos) && !pos.equals("``") && !pos.equals("''")) {
+        			counter++;
+        			System.out.println("word: " + sentence[i] + " pos: " + tags[i]);
+        		}
         	}
+        	
     	}
-    	
+    	 
+    	System.out.println("Total Number of Results: " + counter);
     	perfMon.stopAndPrintFinalResult();
     	scan.close();
     }

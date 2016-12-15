@@ -45,12 +45,14 @@ public class NameFinderExample {
     	
     	PerformanceMonitor perfMon = new PerformanceMonitor(System.err, "sent");
     	perfMon.start();
+    	 
     	while(scan.hasNextLine()) { 
     		
     		String[] sentence = Tokenize(scan.nextLine());
     		Span Spans[] = nameFinder.find(sentence);
     		perfMon.incrementCounter();
     		
+    		//Print out the tokens of the sentence
     		if(Spans.length != 0) {
     			
     			for(String s: sentence) {
@@ -60,6 +62,7 @@ public class NameFinderExample {
     			System.out.println("/n");
     		}
     		
+    		//Print out the offset of each 
     		for(Span s: Spans) {
     			System.out.println(s.toString());
     			for(int i = s.getStart(); i < s.getEnd(); i++)
@@ -70,6 +73,7 @@ public class NameFinderExample {
     			System.out.println();
     		
     	}
+     
     	perfMon.stopAndPrintFinalResult();
     	scan.close();
     
