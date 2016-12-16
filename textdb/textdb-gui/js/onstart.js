@@ -41,8 +41,6 @@ var setup = function(){
 		var resultFrame = $('<div class="result-frame"><div class="result-box"><div class="result-box-band">Return Result<div class="result-frame-close"><img src="img/close-icon.png"></div></div><div class="return-result"></div></div></div>');
 		$('body').append(resultFrame);
 		
-		// $('.return-result').text(JSON.stringify(message));
-		
 		var node = new PrettyJSON.view.Node({
 			el:$('.return-result'),
 			data:message
@@ -312,13 +310,6 @@ var setup = function(){
 		TEXTDBJSON.operators = operators;
 		TEXTDBJSON.links = links;
 		
-		// console.log(operators);
-		// console.log(links)
-		// console.log(data);
-		// console.log(JSON.stringify(data));
-		console.log(JSON.stringify(TEXTDBJSON));
-		console.log(JSON.stringify(GUIJSON));
-		
 		$.ajax({
 			url: "http://localhost:8080/queryplan/execute",
 			type: "POST",
@@ -331,10 +322,7 @@ var setup = function(){
 				createResultFrame(returnedData);
 			},
 			error: function(xhr, status, err){
-				console.log("ERROR");
-				console.log(xhr.status);
 				console.log(JSON.stringify(xhr));
-				console.log(JSON.stringify(status));
 				console.log(JSON.stringify(err));
 				createResultFrame(dummyJSON);
 			}

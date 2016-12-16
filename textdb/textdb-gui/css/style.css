@@ -176,7 +176,7 @@ button{
 	border: 1px solid black;
 }
 
-/* Black box after processing query */
+/* Result Frame and Result Box after processing query */
 .result-frame{
 	top: 0;
 	left: 0;
