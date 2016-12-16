@@ -18,8 +18,17 @@ var setup = function(){
 	var selectedOperator = '';
 	var editOperators = [];
 	
-	var DEFAULT_KEYWORD = "Zika";
 	var DEFAULT_REGEX = "zika\s*(virus|fever)";
+	var DEFAULT_KEYWORD = "Zika";
+	var DEFAULT_DICT = "SampleDict1.txt";
+	var DEFAULT_FUZZY = "FuzzyWuzzy";
+	var THRESHOLD_RATIO = 0.8;
+	var DEFAULT_NLP = "ne_all";
+	var DEFAULT_DATA_SOURCE = "collection name";
+	var DEFAULT_FILE_SINK = "output.txt";
+	var DEFAULT_ATTRIBUTE_ID = "John";
+	var DEFAULT_PREDICATE_TYPE = "CharacterDistance";
+	var DEFAULT_DISTANCE = 10;
 	var DEFAULT_ATTRIBUTES = "first name, last name";
 	var DEFAULT_LIMIT = 10;
 	var DEFAULT_OFFSET = 5;
@@ -30,22 +39,78 @@ var setup = function(){
 	
 	//Create Operator Helper Function 
 	function getExtraOperators(userInput, panel){
-	  var extraOperators = {};
-	  
-	  if (panel == 'regex-panel'){
-		if (userInput == null || userInput == ''){
-			userInput = DEFAULT_REGEX;
+		var extraOperators = {};
+		  
+		if (panel == 'regex-panel'){
+			if (userInput == null || userInput == ''){
+				userInput = DEFAULT_REGEX;
+			}
+			extraOperators['regex'] = userInput;
 		}
-	    extraOperators['regex'] = userInput;
-	  }
-	  else if (panel == 'keyword-panel'){
-		if (userInput == null || userInput == ''){
-			userInput = DEFAULT_KEYWORD;
+		else if (panel == 'keyword-panel'){
+			if (userInput == null || userInput == ''){
+				userInput = DEFAULT_KEYWORD;
+			}
+			extraOperators['keyword'] = userInput;
+			extraOperators['matching_type'] = $('#' + panel + ' .matching-type').val();
+
 		}
-		extraOperators['keyword'] = userInput;
-		extraOperators['matching_type'] = $('#' + panel + ' .matching-type').val();
-	  }
-	  return extraOperators;
+		else if (panel == 'dictionary-panel'){
+			if (userInput == null || userInput == ''){
+				userInput = DEFAULT_DICT;
+			}
+			extraOperators['dictionary'] = userInput;
+			extraOperators['matching_type'] = $('#' + panel + ' .matching-type').val();
+		}
+		else if (panel == 'fuzzy-panel'){
+			if (userInput == null || userInput == ''){
+				userInput = DEFAULT_FUZZY;
+			}
+			extraOperators['query'] = userInput;
+			extraOperators['threshold_ratio'] = THRESHOLD_RATIO;
+		}
+		else if (panel == 'nlp-panel'){
+			extraOperators['nlp_type'] =  $('#' + panel + ' .nlp-type').val();;
+		}
+		else if (panel == 'keyword-source-panel'){
+			if (userInput == null || userInput == ''){
+				userInput = DEFAULT_KEYWORD;
+			}
+			extraOperators['keyword'] = userInput;
+			
+			var dataSource = $('#' + panel + ' .data-source').val();
+			if (dataSource == null || dataSource == ''){
+				dataSource = DEFAULT_DATA_SOURCE;
+			}
+			extraOperators['data_source'] = dataSource;
+			
+			extraOperators['matching_type'] = $('#' + panel + ' .matching-type').val();
+		}
+		else if (panel == 'file-sink-panel'){
+			if (userInput == null || userInput == ''){
+				userInput = DEFAULT_FILE_SINK;
+			}
+			extraOperators['file_path'] = userInput;
+		}
+		else if (panel == 'join-panel'){
+			if (userInput == null || userInput == ''){
+				userInput = DEFAULT_ATTRIBUTE_ID;
+			}
+			extraOperators['id_attribute'] = userInput;
+			
+			var predicateType = $('#' + panel + ' .predicate-type').val();
+			if (predicateType == null || predicateType == ''){
+				predicateType = DEFAULT_PREDICATE_TYPE;
+			}
+			extraOperators['predicate_type'] = predicateType;
+			
+			var distance = $('#' + panel + ' .distance').val();
+			if (distance == null || distance == ''){
+				distance = DEFAULT_DISTANCE;
+			}
+			extraOperators['distance'] = distance;
+		}
+		return extraOperators;
 	};
 	
 	//Create Operator Helper Function 
@@ -74,22 +139,32 @@ var setup = function(){
 	function getHtml(attr, attrValue){
 		var resultString = '';
 		var classString = attr.replace(/_/g, '-');
-		var resultString = '';
-		var classString = attr.replace(/_/g, '-');
 		if(attr == 'matching_type'){
-			resultString += '<select class="matching-type"><option value="conjunction"';
-			if(attrValue == 'conjunction'){
-				resultString += ' selected';
+			var matchingTypeArray = ["conjunction", "phrase", "substring"];
+			resultString += '<select class="matching-type"><option value="' + attrValue + '" selected>' + attrValue + '</option>';
+			
+			//indexOf is not supported in IE6,7,8
+			matchingTypeArray.splice(matchingTypeArray.indexOf(attrValue),1);
+			
+			for(var index in matchingTypeArray){
+				resultString += '<option value="' + matchingTypeArray[index] + '">' + matchingTypeArray[index] + '</option>';
 			}
-			resultString += '>Conjunction</option><option value="phrase"';
-			if(attrValue == 'phrase'){
-				resultString += ' selected';
+			resultString += '</select>';
+		}
+		else if(attr == 'nlp_type'){
+			var nlpArray = ["noun", "verb", "adjective", "adverb", "ne_all", "number", "location", "person", "organization", "money", "percent", "date", "time"];
+			resultString += '<select class="nlp-type"><option value="' + attrValue + '" selected>' + attrValue + '</option>';
+			
+			//indexOf is not supported in IE6,7,8
+			nlpArray.splice(nlpArray.indexOf(attrValue),1);
+			
+			for(var index in nlpArray){
+				resultString += '<option value="' + nlpArray[index] + '">' + nlpArray[index] + '</option>';
 			}
-			resultString += '>Phrase</option><option value="substring"';
-			if(attrValue == 'substring'){
-				resultString += ' selected';
-			}
-			resultString += '>Substring</option></select>';
+			resultString += '</select>';
+		}
+		else if(attr == 'dictionary'){
+			resultString += '<input type="file" class="dictionary" placeholder="Enter File">';
 		}
 		else{
 			resultString += '<input type="text" class="' + classString + '" value="' + attrValue + '">';
@@ -159,12 +234,12 @@ var setup = function(){
 		var links = [];
 		
 		for(var operatorIndex in GUIJSON.operators){
-			if(GUIJSON.operators.hasOwnProperty(operatorIndex) {
+			var currentOperator = GUIJSON['operators']
+			if (currentOperator.hasOwnProperty(operatorIndex)){
 				var attributes = {};
-				var currentOperator = GUIJSON['operators'][operatorIndex];
-				for(var attribute in currentOperator['properties']['attributes']){
-					if (currentOperator['properties']['attributes'].hasOwnProperty(attribute)){
-						attributes[attribute] = currentOperator['properties']['attributes'][attribute];
+				for(var attribute in currentOperator[operatorIndex]['properties']['attributes']){
+					if (currentOperator[operatorIndex]['properties']['attributes'].hasOwnProperty(attribute)){
+						attributes[attribute] = currentOperator[operatorIndex]['properties']['attributes'][attribute];
 					}
 				}
 				operators.push(attributes);
@@ -173,9 +248,10 @@ var setup = function(){
 		
 		for(var link in GUIJSON.links){
 			var destination = {};
-			if (GUIJSON['links'][link].hasOwnProperty("fromOperator")){
-				destination["from"] = GUIJSON['links'][link]['fromOperator'];
-				destination["to"] = GUIJSON['links'][link]['toOperator'];
+			var currentLink = GUIJSON['links']
+			if (currentLink[link].hasOwnProperty("fromOperator")){
+				destination["from"] = currentLink[link]['fromOperator'];
+				destination["to"] = currentLink[link]['toOperator'];
 				links.push(destination);
 			}
 		}
@@ -328,7 +404,7 @@ var setup = function(){
 			var attr = editOperators[otherOperator].replace(/-/, '_');
 			var result = $('.' + panel + ' .' + editOperators[otherOperator]).val();
 			if(((result == '') || (result == null)) && (attr == 'dictionary')){
-				result = defaultDict;
+				result = DEFAULT_DICT;
 			}
 			operatorData.properties.attributes[attr] = result;
 		}
