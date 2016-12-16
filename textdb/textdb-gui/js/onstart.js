@@ -242,7 +242,7 @@ var setup = function(){
 		var operators = [];
 		var links = [];
 		
-		var dummyJSON = {
+		var DUMMYJSON = {
 			glossary: {
 				title: 'example glossary',
 				GlossDiv: {
