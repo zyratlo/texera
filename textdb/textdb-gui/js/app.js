@@ -31,7 +31,7 @@ var closeMenu = function(){
 	}, 200);
 };
 
-var closeBlackBox = function(closeButton){
+var closeResultFrame = function(closeButton){
 	$(closeButton).parent().parent().parent().remove();
 };
 
@@ -60,8 +60,8 @@ var main = function(){
 	
 	$('.icon-close').click(closeMenu);
 	
-	$('body').on('click', '.black-box .result-box .result-box-band .black-box-close', function() {
-		closeBlackBox(this);
+	$('body').on('click', '.result-frame .result-box .result-box-band .result-frame-close', function() {
+		closeResultFrame(this);
 	});
 	
 	$('.attributes-band').on('click', closeBand);

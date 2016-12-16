@@ -37,9 +37,9 @@ var setup = function(){
 		Helper Functions
 	*/
 	//Process Query Helper Function
-	function createBlackBox(message){
-		var blackBox = $('<div class="black-box"><div class="result-box"><div class="result-box-band">Return Result<div class="black-box-close"><img src="img/close-icon.png"></div></div><div class="return-result"></div></div></div>');
-		$('body').append(blackBox);
+	function createResultFrame(message){
+		var resultFrame = $('<div class="result-frame"><div class="result-box"><div class="result-box-band">Return Result<div class="result-frame-close"><img src="img/close-icon.png"></div></div><div class="return-result"></div></div></div>');
+		$('body').append(resultFrame);
 		
 		// $('.return-result').text(JSON.stringify(message));
 		
@@ -328,7 +328,7 @@ var setup = function(){
 			success: function(returnedData){
 				console.log("SUCCESS\n");
 				console.log(JSON.stringify(returnedData));
-				createBlackBox(returnedData);
+				createResultFrame(returnedData);
 			},
 			error: function(xhr, status, err){
 				console.log("ERROR");
@@ -336,7 +336,7 @@ var setup = function(){
 				console.log(JSON.stringify(xhr));
 				console.log(JSON.stringify(status));
 				console.log(JSON.stringify(err));
-				createBlackBox(dummyJSON);
+				createResultFrame(dummyJSON);
 			}
 		});
 	};

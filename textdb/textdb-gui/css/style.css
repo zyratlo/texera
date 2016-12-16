@@ -177,7 +177,7 @@ button{
 }
 
 /* Black box after processing query */
-.black-box{
+.result-frame{
 	top: 0;
 	left: 0;
 	height: 100%;
@@ -213,7 +213,7 @@ button{
 	cursor: pointer;
 }
 
-.black-box-close {
+.result-frame-close {
 	padding: 0px;
 	cursor: pointer;
 	float: right;
