@@ -324,7 +324,7 @@ var setup = function(){
 			error: function(xhr, status, err){
 				console.log(JSON.stringify(xhr));
 				console.log(JSON.stringify(err));
-				createResultFrame(dummyJSON);
+				createResultFrame(DUMMYJSON);
 			}
 		});
 	};
