@@ -5,8 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.uci.ics.textdb.api.exception.TextDBException;
-import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.junit.After;
 import org.junit.Assert;
@@ -17,11 +15,9 @@ import edu.uci.ics.textdb.api.common.Attribute;
 import edu.uci.ics.textdb.api.common.IField;
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.common.Schema;
-import edu.uci.ics.textdb.api.storage.IDataWriter;
-import edu.uci.ics.textdb.common.constants.DataConstants;
+import edu.uci.ics.textdb.common.constants.DataConstants.KeywordMatchingType;
 import edu.uci.ics.textdb.common.constants.SchemaConstants;
 import edu.uci.ics.textdb.common.constants.TestConstants;
-import edu.uci.ics.textdb.common.exception.DataFlowException;
 import edu.uci.ics.textdb.common.field.DataTuple;
 import edu.uci.ics.textdb.common.field.DateField;
 import edu.uci.ics.textdb.common.field.DoubleField;
@@ -31,85 +27,28 @@ import edu.uci.ics.textdb.common.field.Span;
 import edu.uci.ics.textdb.common.field.StringField;
 import edu.uci.ics.textdb.common.field.TextField;
 import edu.uci.ics.textdb.common.utils.Utils;
-import edu.uci.ics.textdb.dataflow.common.KeywordPredicate;
 import edu.uci.ics.textdb.dataflow.utils.TestUtils;
-import edu.uci.ics.textdb.storage.DataStore;
-import edu.uci.ics.textdb.storage.writer.DataWriter;
 
 /**
  * @author Prakul
  *
  */
+public class KeywordConjunctionTest {
 
-public class KeywordMatcherTest {
-
-    private IDataWriter dataWriter;
-    private DataStore dataStore;
-    private Analyzer analyzer;
-
+    public static final String PEOPLE_TABLE = KeywordTestHelper.PEOPLE_TABLE;
+    public static final String MEDLINE_TABLE = KeywordTestHelper.MEDLINE_TABLE;
+    
+    public static final KeywordMatchingType conjunction = KeywordMatchingType.CONJUNCTION_INDEXBASED;
+    
     @Before
     public void setUp() throws Exception {
-        dataStore = new DataStore(DataConstants.INDEX_DIR, TestConstants.SCHEMA_PEOPLE);
-        analyzer = new StandardAnalyzer();
-        dataWriter = new DataWriter(dataStore, analyzer);
-        dataWriter.clearData();
-        for (ITuple tuple : TestConstants.getSamplePeopleTuples()) {
-            dataWriter.insertTuple(tuple);
-        }
+        KeywordTestHelper.writeTestTables();
     }
 
     @After
     public void cleanUp() throws Exception {
-        dataWriter.clearData();
+        KeywordTestHelper.deleteTestTables();
     }
-
-    /**
-     * For a given string query & list of attributes it gets a list of results
-     * buildMultiQueryOnAttributeList flag decides if the query is formed as a
-     * boolean Query on all attribute or all records are scanned
-     * 
-     * @param query
-     * @param attributeList
-     * @return List<ITuple>
-     * @throws DataFlowException
-     * @throws ParseException
-     */
-
-    public List<ITuple> getPeopleQueryResults(String query, ArrayList<Attribute> attributeList)
-            throws TextDBException, ParseException {
-
-        return getPeopleQueryResults(query, attributeList, Integer.MAX_VALUE, 0);
-    }
-
-    public List<ITuple> getPeopleQueryResults(String query, ArrayList<Attribute> attributeList, int limit)
-            throws TextDBException, ParseException {
-
-        return getPeopleQueryResults(query, attributeList, limit, 0);
-    }
-
-    public List<ITuple> getPeopleQueryResults(String query, ArrayList<Attribute> attributeList, int limit, int offset)
-            throws TextDBException, ParseException {
-
-        KeywordPredicate keywordPredicate = new KeywordPredicate(query,
-                Utils.getAttributeNames(attributeList), analyzer,
-                DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED);
-
-        KeywordMatcherSourceOperator keywordSource = new KeywordMatcherSourceOperator(keywordPredicate, dataStore);
-
-        keywordSource.open();
-        keywordSource.setLimit(limit);
-        keywordSource.setOffset(offset);
-
-        List<ITuple> results = new ArrayList<>();
-        ITuple nextTuple = null;
-
-        while ((nextTuple = keywordSource.getNextTuple()) != null) {
-            results.add(nextTuple);
-        }
-
-        return results;
-    }
-
 
     /**
      * Verifies Keyword Matcher on a multi-word string. Since both tokens in Query
@@ -122,13 +61,13 @@ public class KeywordMatcherTest {
     public void testKeywordMatcher() throws Exception {
         // Prepare the query
         String query = "short TAll";
-        ArrayList<Attribute> attributeList = new ArrayList<>();
-        attributeList.add(TestConstants.FIRST_NAME_ATTR);
-        attributeList.add(TestConstants.LAST_NAME_ATTR);
-        attributeList.add(TestConstants.DESCRIPTION_ATTR);
+        ArrayList<String> attributeNames = new ArrayList<>();
+        attributeNames.add(TestConstants.FIRST_NAME);
+        attributeNames.add(TestConstants.LAST_NAME);
+        attributeNames.add(TestConstants.DESCRIPTION);
 
         // Perform the query
-        List<ITuple> results = getPeopleQueryResults(query, attributeList);
+        List<ITuple> results = KeywordTestHelper.getQueryResults(PEOPLE_TABLE, query, attributeNames, conjunction);
 
         // check the results
         Assert.assertEquals(0, results.size());
@@ -144,10 +83,10 @@ public class KeywordMatcherTest {
     public void testSingleWordQueryInStringField() throws Exception {
         // Prepare the query
         String query = "bruce";
-        ArrayList<Attribute> attributeList = new ArrayList<>();
-        attributeList.add(TestConstants.FIRST_NAME_ATTR);
-        attributeList.add(TestConstants.LAST_NAME_ATTR);
-        attributeList.add(TestConstants.DESCRIPTION_ATTR);
+        ArrayList<String> attributeNames = new ArrayList<>();
+        attributeNames.add(TestConstants.FIRST_NAME);
+        attributeNames.add(TestConstants.LAST_NAME);
+        attributeNames.add(TestConstants.DESCRIPTION);
 
         // Prepare the expected result list
         List<Span> list = new ArrayList<>();
@@ -167,7 +106,7 @@ public class KeywordMatcherTest {
         expectedResultList.add(tuple1);
 
         // Perform the query
-        List<ITuple> resultList = getPeopleQueryResults(query, attributeList);
+        List<ITuple> resultList = KeywordTestHelper.getQueryResults(PEOPLE_TABLE, query, attributeNames, conjunction);
 
         // check the results
         boolean contains = TestUtils.equals(expectedResultList, resultList);
@@ -184,10 +123,10 @@ public class KeywordMatcherTest {
     public void testSingleWordQueryInTextField() throws Exception {
         // Prepare the query
         String query = "TaLL";
-        ArrayList<Attribute> attributeList = new ArrayList<>();
-        attributeList.add(TestConstants.FIRST_NAME_ATTR);
-        attributeList.add(TestConstants.LAST_NAME_ATTR);
-        attributeList.add(TestConstants.DESCRIPTION_ATTR);
+        ArrayList<String> attributeNames = new ArrayList<>();
+        attributeNames.add(TestConstants.FIRST_NAME);
+        attributeNames.add(TestConstants.LAST_NAME);
+        attributeNames.add(TestConstants.DESCRIPTION);
 
         // Prepare the expected result list
         List<Span> list = new ArrayList<>();
@@ -217,7 +156,7 @@ public class KeywordMatcherTest {
         expectedResultList.add(tuple2);
 
         // Perform the query
-        List<ITuple> resultList = getPeopleQueryResults(query, attributeList);
+        List<ITuple> resultList = KeywordTestHelper.getQueryResults(PEOPLE_TABLE, query, attributeNames, conjunction);
 
         // check the results
         boolean contains = TestUtils.equals(expectedResultList, resultList);
@@ -234,10 +173,10 @@ public class KeywordMatcherTest {
     public void testMultipleWordsQuery() throws Exception {
         // Prepare the query
         String query = "george lin lin";
-        ArrayList<Attribute> attributeList = new ArrayList<>();
-        attributeList.add(TestConstants.FIRST_NAME_ATTR);
-        attributeList.add(TestConstants.LAST_NAME_ATTR);
-        attributeList.add(TestConstants.DESCRIPTION_ATTR);
+        ArrayList<String> attributeNames = new ArrayList<>();
+        attributeNames.add(TestConstants.FIRST_NAME);
+        attributeNames.add(TestConstants.LAST_NAME);
+        attributeNames.add(TestConstants.DESCRIPTION);
 
         // Prepare the expected result list
         List<Span> list = new ArrayList<Span>();
@@ -259,7 +198,7 @@ public class KeywordMatcherTest {
         expectedResultList.add(tuple1);
 
         // Perform the query
-        List<ITuple> resultList = getPeopleQueryResults(query, attributeList);
+        List<ITuple> resultList = KeywordTestHelper.getQueryResults(PEOPLE_TABLE, query, attributeNames, conjunction);
 
         // check the results
         boolean contains = TestUtils.equals(expectedResultList, resultList);
@@ -276,10 +215,10 @@ public class KeywordMatcherTest {
     public void testWordInMultipleFieldsQuery() throws Exception {
         // Prepare the query
         String query = "lin clooney";
-        ArrayList<Attribute> attributeList = new ArrayList<>();
-        attributeList.add(TestConstants.FIRST_NAME_ATTR);
-        attributeList.add(TestConstants.LAST_NAME_ATTR);
-        attributeList.add(TestConstants.DESCRIPTION_ATTR);
+        ArrayList<String> attributeNames = new ArrayList<>();
+        attributeNames.add(TestConstants.FIRST_NAME);
+        attributeNames.add(TestConstants.LAST_NAME);
+        attributeNames.add(TestConstants.DESCRIPTION);
 
         // Prepare the expected result list
         List<Span> list = new ArrayList<>();
@@ -309,7 +248,7 @@ public class KeywordMatcherTest {
         expectedResultList.add(tuple1);
 
         // Perform the query
-        List<ITuple> resultList = getPeopleQueryResults(query, attributeList);
+        List<ITuple> resultList = KeywordTestHelper.getQueryResults(PEOPLE_TABLE, query, attributeNames, conjunction);
 
         // check the results
         boolean contains = TestUtils.equals(expectedResultList, resultList);
@@ -336,13 +275,13 @@ public class KeywordMatcherTest {
     public void testQueryWordsFoundInMultipleFields() throws Exception {
         // Prepare the query
         String query = "george clooney";
-        ArrayList<Attribute> attributeList = new ArrayList<>();
-        attributeList.add(TestConstants.FIRST_NAME_ATTR);
-        attributeList.add(TestConstants.LAST_NAME_ATTR);
-        attributeList.add(TestConstants.DESCRIPTION_ATTR);
+        ArrayList<String> attributeNames = new ArrayList<>();
+        attributeNames.add(TestConstants.FIRST_NAME);
+        attributeNames.add(TestConstants.LAST_NAME);
+        attributeNames.add(TestConstants.DESCRIPTION);
 
         // Perform the query
-        List<ITuple> resultList = getPeopleQueryResults(query, attributeList);
+        List<ITuple> resultList = KeywordTestHelper.getQueryResults(PEOPLE_TABLE, query, attributeNames, conjunction);
 
         // Check the results
         Assert.assertEquals(0, resultList.size());
@@ -352,10 +291,10 @@ public class KeywordMatcherTest {
     @Test
     public void testMatchingWithLimit() throws TextDBException, ParseException, java.text.ParseException {
         String query = "angry";
-        ArrayList<Attribute> attributeList = new ArrayList<>();
-        attributeList.add(TestConstants.FIRST_NAME_ATTR);
-        attributeList.add(TestConstants.LAST_NAME_ATTR);
-        attributeList.add(TestConstants.DESCRIPTION_ATTR);
+        ArrayList<String> attributeNames = new ArrayList<>();
+        attributeNames.add(TestConstants.FIRST_NAME);
+        attributeNames.add(TestConstants.LAST_NAME);
+        attributeNames.add(TestConstants.DESCRIPTION);
 
         Attribute[] schemaAttributes = new Attribute[TestConstants.ATTRIBUTES_PEOPLE.length + 1];
         for (int count = 0; count < schemaAttributes.length - 1; count++) {
@@ -363,7 +302,7 @@ public class KeywordMatcherTest {
         }
         schemaAttributes[schemaAttributes.length - 1] = SchemaConstants.SPAN_LIST_ATTRIBUTE;
 
-        List<ITuple> resultList = getPeopleQueryResults(query, attributeList, 3);
+        List<ITuple> resultList = KeywordTestHelper.getQueryResults(PEOPLE_TABLE, query, attributeNames, conjunction, 3, 0);
         List<ITuple> expectedList = new ArrayList<>();
 
         Span span1 = new Span("description", 5, 10, "angry", "Angry", 1);
@@ -408,16 +347,16 @@ public class KeywordMatcherTest {
 
         Assert.assertEquals(expectedList.size(), 4);
         Assert.assertEquals(resultList.size(), 3);
-        Assert.assertTrue(expectedList.containsAll(resultList));
+        Assert.assertTrue(TestUtils.containsAll(expectedList, resultList));
     }
 
     @Test
     public void testMatchingWithLimitOffset() throws TextDBException, ParseException, java.text.ParseException {
         String query = "angry";
-        ArrayList<Attribute> attributeList = new ArrayList<>();
-        attributeList.add(TestConstants.FIRST_NAME_ATTR);
-        attributeList.add(TestConstants.LAST_NAME_ATTR);
-        attributeList.add(TestConstants.DESCRIPTION_ATTR);
+        ArrayList<String> attributeNames = new ArrayList<>();
+        attributeNames.add(TestConstants.FIRST_NAME);
+        attributeNames.add(TestConstants.LAST_NAME);
+        attributeNames.add(TestConstants.DESCRIPTION);
 
         Attribute[] schemaAttributes = new Attribute[TestConstants.ATTRIBUTES_PEOPLE.length + 1];
         for (int count = 0; count < schemaAttributes.length - 1; count++) {
@@ -425,7 +364,7 @@ public class KeywordMatcherTest {
         }
         schemaAttributes[schemaAttributes.length - 1] = SchemaConstants.SPAN_LIST_ATTRIBUTE;
 
-        List<ITuple> resultList = getPeopleQueryResults(query, attributeList, 3, 2);
+        List<ITuple> resultList = KeywordTestHelper.getQueryResults(PEOPLE_TABLE, query, attributeNames, conjunction, 3, 2);
         List<ITuple> expectedList = new ArrayList<>();
 
         Span span1 = new Span("description", 5, 10, "angry", "Angry", 1);
@@ -470,6 +409,6 @@ public class KeywordMatcherTest {
 
         Assert.assertEquals(expectedList.size(), 4);
         Assert.assertEquals(resultList.size(), 2);
-        Assert.assertTrue(expectedList.containsAll(resultList));
+        Assert.assertTrue(TestUtils.containsAll(expectedList, resultList));
     }
 }
