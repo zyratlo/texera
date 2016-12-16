@@ -28,7 +28,7 @@ public class NameFinderExample {
     	TokenizerModel model = new TokenizerModel(is);
      
     	Tokenizer tokenizer = new TokenizerME(model);
-     
+    	 
     	String tokens[] = tokenizer.tokenize(sentence);
      
     	is.close();
@@ -47,10 +47,9 @@ public class NameFinderExample {
     	is.close();
      
     	NameFinderME nameFinder = new NameFinderME(model);
-    	
+    	int counter = 0;
     	PerformanceMonitor perfMon = new PerformanceMonitor(System.err, "sent");
-    	perfMon.start();
-    	 
+    	perfMon.start(); 
     	while(scan.hasNextLine()) { 
     		
     		String[] sentence = Tokenize(scan.nextLine());
@@ -61,7 +60,7 @@ public class NameFinderExample {
     		if(Spans.length != 0) {
     			
     			for(String s: sentence) {
-    				 
+    				  
     				System.out.print("["+ s + "] ");
     			}
     			System.out.println("/n");
@@ -70,16 +69,20 @@ public class NameFinderExample {
     		//Print out the offset of each 
     		for(Span s: Spans) {
     			System.out.println(s.toString());
-    			for(int i = s.getStart(); i < s.getEnd(); i++)
+    			for(int i = s.getStart(); i < s.getEnd(); i++) {
+    				 
     				System.out.println(sentence[i]);	
+    				counter++;
+    			}
     		}	
     		
     		if(Spans.length != 0)
     			System.out.println();
     		
     	}
-     
+ 
     	perfMon.stopAndPrintFinalResult();
+    	System.out.println("Number of Results: " + counter);
     	scan.close();
     
     }
