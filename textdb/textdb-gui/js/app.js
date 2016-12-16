@@ -31,6 +31,10 @@ var closeMenu = function(){
 	}, 200);
 };
 
+var closeBlackBox = function(closeButton){
+	$(closeButton).parent().parent().parent().remove();
+};
+
 var closeBand = function(){
 	$('.popup').animate({
 		'bottom': '-570px'
@@ -56,8 +60,12 @@ var main = function(){
 	
 	$('.icon-close').click(closeMenu);
 	
-	$('.band').on('click', closeBand);
-		
+	$('body').on('click', '.black-box .result-box .result-box-band .black-box-close', function() {
+		closeBlackBox(this);
+	});
+	
+	$('.attributes-band').on('click', closeBand);
+	
 	$('.menu ul li').on('click', function(){
 		selectPanel(this);
 	});

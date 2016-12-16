@@ -36,6 +36,18 @@ var setup = function(){
 	/*
 		Helper Functions
 	*/
+	//Process Query Helper Function
+	function createBlackBox(message){
+		var blackBox = $('<div class="black-box"><div class="result-box"><div class="result-box-band">Return Result<div class="black-box-close"><img src="img/close-icon.png"></div></div><div class="return-result"></div></div></div>');
+		$('body').append(blackBox);
+		
+		// $('.return-result').text(JSON.stringify(message));
+		
+		var node = new PrettyJSON.view.Node({
+			el:$('.return-result'),
+			data:message
+		});
+	}
 	
 	//Create Operator Helper Function 
 	function getExtraOperators(userInput, panel){
@@ -53,7 +65,6 @@ var setup = function(){
 			}
 			extraOperators['keyword'] = userInput;
 			extraOperators['matching_type'] = $('#' + panel + ' .matching-type').val();
-
 		}
 		else if (panel == 'dictionary-panel'){
 			if (userInput == null || userInput == ''){
@@ -257,9 +268,13 @@ var setup = function(){
 		}
 		TEXTDBJSON.operators = operators;
 		TEXTDBJSON.links = links;
-	
-		// console.log(JSON.stringify(TEXTDBJSON));
-		// console.log(JSON.stringify(GUIJSON));
+		
+		// console.log(operators);
+		// console.log(links)
+		// console.log(data);
+		// console.log(JSON.stringify(data));
+		console.log(JSON.stringify(TEXTDBJSON));
+		console.log(JSON.stringify(GUIJSON));
 		
 		$.ajax({
 			url: "http://localhost:8080/queryplan/execute",
@@ -270,9 +285,15 @@ var setup = function(){
 			success: function(returnedData){
 				console.log("SUCCESS\n");
 				console.log(JSON.stringify(returnedData));
+				createBlackBox(returnedData);
 			},
 			error: function(xhr, status, err){
 				console.log("ERROR");
+				console.log(xhr.status);
+				console.log(JSON.stringify(xhr));
+				console.log(JSON.stringify(status));
+				console.log(JSON.stringify(err));
+				createBlackBox(xhr);
 			}
 		});
 	};
@@ -300,7 +321,7 @@ var setup = function(){
 		var deleteButton = $('<button class="delete-operator">Delete</button>');
         $('#attributes').append(deleteButton);
 		
-		$('.band').html('Attributes for <em>' + title + '</em>');
+		$('.attributes-band').html('Attributes for <em>' + title + '</em>');
 	};	
 	
 	//Create Operator to send to flowchart.js and display on flowchart
@@ -418,7 +439,7 @@ var setup = function(){
 		output = data['operators'][selectedOperator]['properties']['attributes'];
 
 		var title = data['operators'][selectedOperator]['properties']['title'];
-		$('.band').html('Attributes for <em>' + title + '</em>');
+		$('.attributes-band').html('Attributes for <em>' + title + '</em>');
 
 		$('#attributes').text(getPopupText(output));
 		$('#attributes').html($('#attributes').text());
@@ -437,7 +458,7 @@ var setup = function(){
 			'visibility': 'hidden'
 		});
 		
-		$('.band').text('Attributes');
+		$('.attributes-band').text('Attributes');
 		
 		$('#the-flowchart').flowchart('deleteSelected');
 		data = $('#the-flowchart').flowchart('getData');
