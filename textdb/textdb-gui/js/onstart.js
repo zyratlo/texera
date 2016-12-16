@@ -244,6 +244,49 @@ var setup = function(){
 		var operators = [];
 		var links = [];
 		
+		var dummyJSON = {
+			glossary: {
+				title: 'example glossary',
+				GlossDiv: {
+					title: 'S',
+					GlossList: {
+						GlossEntry: {
+							ID: 'SGML',
+							SortAs: 'SGML',
+							GlossTerm: 'Standard Generalized Markup Language',
+							Acronym: 'SGML',
+							Abbrev: 'ISO 8879:1986',
+							GlossDef: {
+								para: 'A meta-markup language, used to create markup languages such as DocBook.',
+								GlossSeeAlso: ['GML', 'XML']
+							},
+							GlossSee: 'markup'
+						}
+					}
+				}
+			},
+			glossary2: {
+				title: 'example glossary',
+				GlossDiv: {
+					title: 'S',
+					GlossList: {
+						GlossEntry: {
+							ID: 'SGML',
+							SortAs: 'SGML',
+							GlossTerm: 'Standard Generalized Markup Language',
+							Acronym: 'SGML',
+							Abbrev: 'ISO 8879:1986',
+							GlossDef: {
+								para: 'A meta-markup language, used to create markup languages such as DocBook.',
+								GlossSeeAlso: ['GML', 'XML']
+							},
+							GlossSee: 'markup'
+						}
+					}
+				}
+			}
+		}
+		
 		for(var operatorIndex in GUIJSON.operators){
 			var currentOperator = GUIJSON['operators']
 			if (currentOperator.hasOwnProperty(operatorIndex)){
@@ -293,7 +336,7 @@ var setup = function(){
 				console.log(JSON.stringify(xhr));
 				console.log(JSON.stringify(status));
 				console.log(JSON.stringify(err));
-				createBlackBox(xhr);
+				createBlackBox(dummyJSON);
 			}
 		});
 	};
