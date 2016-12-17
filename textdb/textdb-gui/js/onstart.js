@@ -36,6 +36,16 @@ var setup = function(){
 	/*
 		Helper Functions
 	*/
+	//Helper Function for Process Queries that displays the results after hitting "Process Query"
+	function createResultFrame(message){
+		var resultFrame = $('<div class="result-frame"><div class="result-box"><div class="result-box-band">Return Result<div class="result-frame-close"><img src="img/close-icon.png"></div></div><div class="return-result"></div></div></div>');
+		$('body').append(resultFrame);
+		
+		var node = new PrettyJSON.view.Node({
+			el:$('.return-result'),
+			data:message
+		});
+	}
 	
 	//Create Operator Helper Function 
 	function getExtraOperators(userInput, panel){
@@ -53,7 +63,6 @@ var setup = function(){
 			}
 			extraOperators['keyword'] = userInput;
 			extraOperators['matching_type'] = $('#' + panel + ' .matching-type').val();
-
 		}
 		else if (panel == 'dictionary-panel'){
 			if (userInput == null || userInput == ''){
@@ -233,6 +242,49 @@ var setup = function(){
 		var operators = [];
 		var links = [];
 		
+		var DUMMYJSON = {
+			glossary: {
+				title: 'example glossary',
+				GlossDiv: {
+					title: 'S',
+					GlossList: {
+						GlossEntry: {
+							ID: 'SGML',
+							SortAs: 'SGML',
+							GlossTerm: 'Standard Generalized Markup Language',
+							Acronym: 'SGML',
+							Abbrev: 'ISO 8879:1986',
+							GlossDef: {
+								para: 'A meta-markup language, used to create markup languages such as DocBook.',
+								GlossSeeAlso: ['GML', 'XML']
+							},
+							GlossSee: 'markup'
+						}
+					}
+				}
+			},
+			glossary2: {
+				title: 'example glossary',
+				GlossDiv: {
+					title: 'S',
+					GlossList: {
+						GlossEntry: {
+							ID: 'SGML',
+							SortAs: 'SGML',
+							GlossTerm: 'Standard Generalized Markup Language',
+							Acronym: 'SGML',
+							Abbrev: 'ISO 8879:1986',
+							GlossDef: {
+								para: 'A meta-markup language, used to create markup languages such as DocBook.',
+								GlossSeeAlso: ['GML', 'XML']
+							},
+							GlossSee: 'markup'
+						}
+					}
+				}
+			}
+		}
+		
 		for(var operatorIndex in GUIJSON.operators){
 			var currentOperator = GUIJSON['operators']
 			if (currentOperator.hasOwnProperty(operatorIndex)){
@@ -257,9 +309,6 @@ var setup = function(){
 		}
 		TEXTDBJSON.operators = operators;
 		TEXTDBJSON.links = links;
-	
-		// console.log(JSON.stringify(TEXTDBJSON));
-		// console.log(JSON.stringify(GUIJSON));
 		
 		$.ajax({
 			url: "http://localhost:8080/queryplan/execute",
@@ -270,9 +319,12 @@ var setup = function(){
 			success: function(returnedData){
 				console.log("SUCCESS\n");
 				console.log(JSON.stringify(returnedData));
+				createResultFrame(returnedData);
 			},
 			error: function(xhr, status, err){
-				console.log("ERROR");
+				console.log(JSON.stringify(xhr));
+				console.log(JSON.stringify(err));
+				createResultFrame(DUMMYJSON);
 			}
 		});
 	};
@@ -300,7 +352,7 @@ var setup = function(){
 		var deleteButton = $('<button class="delete-operator">Delete</button>');
         $('#attributes').append(deleteButton);
 		
-		$('.band').html('Attributes for <em>' + title + '</em>');
+		$('.attributes-band').html('Attributes for <em>' + title + '</em>');
 	};	
 	
 	//Create Operator to send to flowchart.js and display on flowchart
@@ -418,7 +470,7 @@ var setup = function(){
 		output = data['operators'][selectedOperator]['properties']['attributes'];
 
 		var title = data['operators'][selectedOperator]['properties']['title'];
-		$('.band').html('Attributes for <em>' + title + '</em>');
+		$('.attributes-band').html('Attributes for <em>' + title + '</em>');
 
 		$('#attributes').text(getPopupText(output));
 		$('#attributes').html($('#attributes').text());
@@ -437,7 +489,7 @@ var setup = function(){
 			'visibility': 'hidden'
 		});
 		
-		$('.band').text('Attributes');
+		$('.attributes-band').text('Attributes');
 		
 		$('#the-flowchart').flowchart('deleteSelected');
 		data = $('#the-flowchart').flowchart('getData');
