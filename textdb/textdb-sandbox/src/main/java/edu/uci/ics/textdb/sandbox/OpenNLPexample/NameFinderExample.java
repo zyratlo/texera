@@ -53,11 +53,11 @@ public class NameFinderExample {
     	while(scan.hasNextLine()) { 
     		
     		String[] sentence = Tokenize(scan.nextLine());
-    		Span Spans[] = nameFinder.find(sentence);
+    		Span[] spans = nameFinder.find(sentence);
     		perfMon.incrementCounter();
     		
     		//Print out the tokens of the sentence
-    		if(Spans.length != 0) {
+    		if(spans.length != 0) {
     			
     			for(String s: sentence) {
     				  
@@ -67,7 +67,7 @@ public class NameFinderExample {
     		}
     		
     		//Print out the offset of each 
-    		for(Span s: Spans) {
+    		for(Span s: spans) {
     			System.out.println(s.toString());
     			for(int i = s.getStart(); i < s.getEnd(); i++) {
     				 
@@ -76,7 +76,7 @@ public class NameFinderExample {
     			}
     		}	
     		
-    		if(Spans.length != 0)
+    		if(spans.length != 0)
     			System.out.println();
     		
     	}
