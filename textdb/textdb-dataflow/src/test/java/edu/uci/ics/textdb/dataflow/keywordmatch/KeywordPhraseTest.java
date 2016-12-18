@@ -271,6 +271,7 @@ public class KeywordPhraseTest {
         for (ITuple tuple : keywordTestConstants.getSampleMedlineRecord()) {
             MedDataWriter.insertTuple(tuple);
         }
+        MedDataWriter.close();
         // Prepare Query
         String query = "skin rash";
         ArrayList<String> attributeNames = new ArrayList<>();
@@ -330,6 +331,7 @@ public class KeywordPhraseTest {
         for (ITuple tuple : keywordTestConstants.getSampleMedlineRecord()) {
             MedDataWriter.insertTuple(tuple);
         }
+        MedDataWriter.close();
         // Prepare Query
         String query = "x-ray";
         ArrayList<String> attributeNames = new ArrayList<>();
@@ -384,6 +386,7 @@ public class KeywordPhraseTest {
         for (ITuple tuple : keywordTestConstants.getSampleMedlineRecord()) {
             MedDataWriter.insertTuple(tuple);
         }
+        MedDataWriter.close();
         // Prepare Query
         String query = "gain weight";
         ArrayList<String> attributeNames = new ArrayList<>();

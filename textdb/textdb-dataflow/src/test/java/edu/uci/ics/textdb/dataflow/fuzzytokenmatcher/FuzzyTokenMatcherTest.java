@@ -58,6 +58,7 @@ public class FuzzyTokenMatcherTest {
         for (ITuple tuple : TestConstants.getSamplePeopleTuples()) {
             dataWriter.insertTuple(tuple);
         }
+        ((DataWriter) dataWriter).close();
     }
 
     @After

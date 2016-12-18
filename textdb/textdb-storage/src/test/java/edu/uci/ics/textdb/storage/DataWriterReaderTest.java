@@ -50,6 +50,7 @@ public class DataWriterReaderTest {
         for (ITuple tuple : actualTuples) {
             dataWriter.insertTuple(tuple);
         }
+        ((DataWriter) dataWriter).close();
         
         Assert.assertEquals(dataStore.getNumDocuments(), actualTuples.size());
         

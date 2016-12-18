@@ -49,6 +49,7 @@ public class IndexBasedSourceOperatorTest {
         for (ITuple tuple : TestConstants.getSamplePeopleTuples()) {
             dataWriter.insertTuple(tuple);
         }
+        ((DataWriter)dataWriter).close();
     }
 
     @After

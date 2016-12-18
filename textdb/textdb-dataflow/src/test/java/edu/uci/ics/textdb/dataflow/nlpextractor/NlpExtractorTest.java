@@ -372,6 +372,7 @@ public class NlpExtractorTest {
         for (ITuple tuple : data) {
             dataWriter.insertTuple(tuple);
         }
+        ((DataWriter) dataWriter).close();
 
         ISourceOperator sourceOperator = new ScanBasedSourceOperator(dataStore);
         return sourceOperator;

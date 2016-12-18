@@ -217,6 +217,7 @@ public class RelationManager {
         
         DataWriter dataWriter = new DataWriter(new DataStore(tableDirectory, tableSchema), luceneAnalyzer);
         dataWriter.insertTuple(tuple);
+        dataWriter.close();
     }
 
     /**
