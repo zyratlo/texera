@@ -82,6 +82,10 @@ public class Join implements IOperator {
         this.innerOperator = innerOperator;
         this.joinPredicate = joinPredicate;
     }
+    
+    public Join(IJoinPredicate joinPredicate) {
+        this.joinPredicate = joinPredicate;
+    }
 
     @Override
     public void open() throws TextDBException {
@@ -250,29 +254,21 @@ public class Join implements IOperator {
         this.innerOperator = innerInputOperator;
     }
     
+    public IOperator getInnerInputOperator() {
+        return this.innerOperator;
+    }
+    
     public void setOuterInputOperator(IOperator outerInputOperator) {
         this.outerOperator = outerInputOperator;
     }
+    
+    public IOperator getOuterInputOperator() {
+        return this.outerOperator;
+    }    
 
     @Override
     public Schema getOutputSchema() {
         return outputSchema;
-    }
-    
-    public IOperator getOuterOperator() {
-        return outerOperator;
-    }
-
-    public void setOuterOperator(IOperator outerOperator) {
-        this.outerOperator = outerOperator;
-    }
-
-    public IOperator getInnerOperator() {
-        return innerOperator;
-    }
-
-    public void setInnerOperator(IOperator innerOperator) {
-        this.innerOperator = innerOperator;
     }
 
     public void setLimit(int limit) {

@@ -342,7 +342,7 @@ public class LogicalPlan implements Serializable {
         // handles Join operator differently
         if (dest instanceof Join) {
             Join join = (Join) dest;
-            if (join.getInnerOperator() == null) {
+            if (join.getInnerInputOperator() == null) {
                 join.setInnerInputOperator(src);
             } else {
                 join.setOuterInputOperator(src);

@@ -204,10 +204,10 @@ public class LogicalPlanTest {
         IOperator join = ((FileSink) fileSink).getInputOperator();
         Assert.assertTrue(join instanceof Join);
 
-        IOperator joinInput1 = ((Join) join).getInnerOperator();
+        IOperator joinInput1 = ((Join) join).getInnerInputOperator();
         Assert.assertTrue(joinInput1 instanceof RegexMatcher);
 
-        IOperator joinInput2 = ((Join) join).getOuterOperator();
+        IOperator joinInput2 = ((Join) join).getOuterInputOperator();
         Assert.assertTrue(joinInput2 instanceof NlpExtractor);
 
         IOperator connectorOut1 = ((RegexMatcher) joinInput1).getInputOperator();
@@ -256,16 +256,16 @@ public class LogicalPlanTest {
         IOperator join2 = ((FileSink) fileSink).getInputOperator();
         Assert.assertTrue(join2 instanceof Join);
 
-        IOperator join2Input1 = ((Join) join2).getInnerOperator();
+        IOperator join2Input1 = ((Join) join2).getInnerInputOperator();
         Assert.assertTrue(join2Input1 instanceof Join);
 
-        IOperator join2Input2 = ((Join) join2).getOuterOperator();
+        IOperator join2Input2 = ((Join) join2).getOuterInputOperator();
         Assert.assertTrue(join2Input2 instanceof FuzzyTokenMatcher);
 
-        IOperator join1Input1 = ((Join) join2Input1).getInnerOperator();
+        IOperator join1Input1 = ((Join) join2Input1).getInnerInputOperator();
         Assert.assertTrue(join1Input1 instanceof RegexMatcher);
 
-        IOperator join1Input2 = ((Join) join2Input1).getOuterOperator();
+        IOperator join1Input2 = ((Join) join2Input1).getOuterInputOperator();
         Assert.assertTrue(join1Input2 instanceof NlpExtractor);
 
         IOperator connectorOut1 = ((RegexMatcher) join1Input1).getInputOperator();
