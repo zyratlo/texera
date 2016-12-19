@@ -72,6 +72,7 @@ public class SampleExtraction {
     public static void writeSampleIndex() throws Exception {
         // clear the directory
         new DataWriter(promedDataStore, LuceneAnalyzerConstants.getStandardAnalyzer()).clearData();
+        new DataWriter(promedDataStore, LuceneAnalyzerConstants.getStandardAnalyzer()).close();
         
         File sourceFileFolder = new File(promedFilesDirectory);
         ArrayList<ITuple> fileTuples = new ArrayList<>();

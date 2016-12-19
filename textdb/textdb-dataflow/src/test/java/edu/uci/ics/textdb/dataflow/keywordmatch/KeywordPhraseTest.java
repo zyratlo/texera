@@ -267,6 +267,7 @@ public class KeywordPhraseTest {
         DataStore medDataStore = new DataStore("../index/test", keywordTestConstants.SCHEMA_MEDLINE);
         Analyzer MedAnalyzer = new StandardAnalyzer();
         DataWriter MedDataWriter = new DataWriter(medDataStore, MedAnalyzer);
+        MedDataWriter.open();
         MedDataWriter.clearData();
         for (ITuple tuple : keywordTestConstants.getSampleMedlineRecord()) {
             MedDataWriter.insertTuple(tuple);
@@ -324,14 +325,15 @@ public class KeywordPhraseTest {
      */
     @Test
     public void testWordInMultipleFieldsQueryWithStopWords4() throws Exception {
-        DataStore medDataStore = new DataStore("../index/test", keywordTestConstants.SCHEMA_MEDLINE);
-        Analyzer medAnalyzer = new StandardAnalyzer();
-        DataWriter medDataWriter = new DataWriter(medDataStore, medAnalyzer);
-        medDataWriter.clearData();
+        DataStore MedDataStore = new DataStore("../index/test", keywordTestConstants.SCHEMA_MEDLINE);
+        Analyzer MedAnalyzer = new StandardAnalyzer();
+        DataWriter MedDataWriter = new DataWriter(MedDataStore, MedAnalyzer);
+        MedDataWriter.open();
+        MedDataWriter.clearData();
         for (ITuple tuple : keywordTestConstants.getSampleMedlineRecord()) {
-            medDataWriter.insertTuple(tuple);
+            MedDataWriter.insertTuple(tuple);
         }
-        medDataWriter.close();
+        MedDataWriter.close();
         // Prepare Query
         String query = "x-ray";
         ArrayList<String> attributeNames = new ArrayList<>();
@@ -382,6 +384,7 @@ public class KeywordPhraseTest {
         DataStore medDataStore = new DataStore("../index/test", keywordTestConstants.SCHEMA_MEDLINE);
         Analyzer MedAnalyzer = new StandardAnalyzer();
         DataWriter MedDataWriter = new DataWriter(medDataStore, MedAnalyzer);
+        MedDataWriter.open();
         MedDataWriter.clearData();
         for (ITuple tuple : keywordTestConstants.getSampleMedlineRecord()) {
             MedDataWriter.insertTuple(tuple);
