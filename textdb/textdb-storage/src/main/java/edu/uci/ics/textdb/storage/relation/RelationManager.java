@@ -116,18 +116,22 @@ public class RelationManager {
         // write table catalog
         DataStore tableCatalogStore = new DataStore(CatalogConstants.TABLE_CATALOG_DIRECTORY,
                 CatalogConstants.TABLE_CATALOG_SCHEMA);
+        DataWriter dataWriter = new DataWriter(tableCatalogStore, LuceneAnalyzerConstants.getStandardAnalyzer());
         insertTupleToDirectory(tableCatalogStore, LuceneAnalyzerConstants.getStandardAnalyzer(),
-                CatalogConstants.getTableCatalogTuple(tableName, indexDirectory, luceneAnalyzerString));
+                CatalogConstants.getTableCatalogTuple(tableName, indexDirectory, luceneAnalyzerString), dataWriter);
+        dataWriter.close();
+        dataWriter = null;
        
         // write schema catalog
         Schema tableSchema = Utils.getSchemaWithID(schema);
-
         DataStore schemaCatalogStore = new DataStore(CatalogConstants.SCHEMA_CATALOG_DIRECTORY,
                 CatalogConstants.SCHEMA_CATALOG_SCHEMA);
+        dataWriter = new DataWriter(schemaCatalogStore, LuceneAnalyzerConstants.getStandardAnalyzer());
         // each attribute in the table schema will be one row in schema catalog
         for (ITuple tuple : CatalogConstants.getSchemaCatalogTuples(tableName, tableSchema)) {
-            insertTupleToDirectory(schemaCatalogStore, LuceneAnalyzerConstants.getStandardAnalyzer(), tuple);
+            insertTupleToDirectory(schemaCatalogStore, LuceneAnalyzerConstants.getStandardAnalyzer(), tuple,dataWriter);
         }
+        dataWriter.close();
     }
 
     /**
@@ -159,11 +163,13 @@ public class RelationManager {
         DataWriter tableCatalogWriter = new DataWriter(CatalogConstants.TABLE_CATALOG_DATASTORE, 
                 LuceneAnalyzerConstants.getStandardAnalyzer());
         tableCatalogWriter.deleteTuple(catalogTableNameQuery);
+        tableCatalogWriter.close();
         
         // delete the table from schema catalog
         DataWriter schemaCatalogWriter = new DataWriter(CatalogConstants.SCHEMA_CATALOG_DATASTORE,
                 LuceneAnalyzerConstants.getStandardAnalyzer());
         schemaCatalogWriter.deleteTuple(catalogTableNameQuery);
+        schemaCatalogWriter.close();
     }
 
     /**
@@ -200,14 +206,16 @@ public class RelationManager {
         ITuple tupleWithID = getTupleWithID(tuple, idField);
         
         // insert the tuple with ID to the directory
-        insertTupleToDirectory(tableDataStore, luceneAnalyzer, tupleWithID);
+        DataWriter dataWriter = new DataWriter(tableDataStore,luceneAnalyzer);
+        insertTupleToDirectory(tableDataStore, luceneAnalyzer, tupleWithID, dataWriter);
+        dataWriter.close();
         
         return idField;
     }
         
     // this is a helper function to insert a tuple to a directory
     // the caller must make sure the table schema is consistent with tuple's schema
-    private void insertTupleToDirectory(IDataStore dataStore, Analyzer luceneAnalyzer, ITuple tuple) throws StorageException {
+    private void insertTupleToDirectory(IDataStore dataStore, Analyzer luceneAnalyzer, ITuple tuple, DataWriter dataWriter) throws StorageException {
         String tableDirectory = dataStore.getDataDirectory();
         Schema tableSchema = dataStore.getSchema();                       
 
@@ -215,9 +223,9 @@ public class RelationManager {
             throw new StorageException("Tuple's schema is inconsistent with table schema.");
         }
         
-        DataWriter dataWriter = new DataWriter(new DataStore(tableDirectory, tableSchema), luceneAnalyzer);
+//        DataWriter dataWriter = new DataWriter(new DataStore(tableDirectory, tableSchema), luceneAnalyzer);
         dataWriter.insertTuple(tuple);
-        dataWriter.close();
+//        dataWriter.close();
     }
 
     /**
@@ -240,7 +248,8 @@ public class RelationManager {
         // constructs a query of the ID field and delete it
         Query tupleIDQuery = new TermQuery(new Term(SchemaConstants._ID, idValue.getValue().toString()));
         DataWriter tableDataWriter = new DataWriter(tableDataStore, luceneAnalyzer);
-        tableDataWriter.deleteTuple(tupleIDQuery);    
+        tableDataWriter.deleteTuple(tupleIDQuery);
+        tableDataWriter.close();
     }
     
     /**
@@ -260,6 +269,7 @@ public class RelationManager {
         
         DataWriter tableDataWriter = new DataWriter(tableDataStore, luceneAnalyzer);
         tableDataWriter.deleteTuple(deletionQuery);
+        tableDataWriter.close();
     }
     
     /**
@@ -294,7 +304,9 @@ public class RelationManager {
         // insert the new tuple to the directory
         DataStore tableDataStore = getTableDataStore(tableName);
         Analyzer luceneAnalyzer = getTableAnalyzer(tableName);
-        insertTupleToDirectory(tableDataStore, luceneAnalyzer, newTuple);
+        DataWriter dataWriter = new DataWriter(tableDataStore, luceneAnalyzer);
+        insertTupleToDirectory(tableDataStore, luceneAnalyzer, newTuple, dataWriter);
+        dataWriter.close();
     }
 
     

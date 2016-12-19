@@ -325,13 +325,13 @@ public class KeywordPhraseTest {
     @Test
     public void testWordInMultipleFieldsQueryWithStopWords4() throws Exception {
         DataStore medDataStore = new DataStore("../index/test", keywordTestConstants.SCHEMA_MEDLINE);
-        Analyzer MedAnalyzer = new StandardAnalyzer();
-        DataWriter MedDataWriter = new DataWriter(medDataStore, MedAnalyzer);
-        MedDataWriter.clearData();
+        Analyzer medAnalyzer = new StandardAnalyzer();
+        DataWriter medDataWriter = new DataWriter(medDataStore, medAnalyzer);
+        medDataWriter.clearData();
         for (ITuple tuple : keywordTestConstants.getSampleMedlineRecord()) {
-            MedDataWriter.insertTuple(tuple);
+            medDataWriter.insertTuple(tuple);
         }
-        MedDataWriter.close();
+        medDataWriter.close();
         // Prepare Query
         String query = "x-ray";
         ArrayList<String> attributeNames = new ArrayList<>();

@@ -25,7 +25,7 @@ import edu.uci.ics.textdb.storage.reader.DataReader;
 import edu.uci.ics.textdb.storage.writer.DataWriter;
 
 public class DataWriterReaderTest {
-    private IDataWriter dataWriter;
+    private DataWriter dataWriter;
     private IDataReader dataReader;
     private IDataStore dataStore;
     private DataReaderPredicate dataReaderPredicate;
@@ -50,7 +50,7 @@ public class DataWriterReaderTest {
         for (ITuple tuple : actualTuples) {
             dataWriter.insertTuple(tuple);
         }
-        ((DataWriter) dataWriter).close();
+        dataWriter.close();
         
         Assert.assertEquals(dataStore.getNumDocuments(), actualTuples.size());
         

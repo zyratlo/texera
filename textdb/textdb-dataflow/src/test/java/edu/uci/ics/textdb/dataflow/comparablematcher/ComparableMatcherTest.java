@@ -32,7 +32,7 @@ import java.util.List;
  */
 public class ComparableMatcherTest {
 
-    private IDataWriter dataWriter;
+    private DataWriter dataWriter;
     private DataStore dataStore;
     private Analyzer analyzer;
 
@@ -50,7 +50,7 @@ public class ComparableMatcherTest {
         for (ITuple tuple : TestConstants.getSamplePeopleTuples()) {
             dataWriter.insertTuple(tuple);
         }
-        ((DataWriter) dataWriter).close();
+        dataWriter.close();
     }
 
     @After

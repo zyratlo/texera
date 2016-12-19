@@ -30,7 +30,7 @@ import edu.uci.ics.textdb.storage.writer.DataWriter;
  */
 public class ScanBasedSourceOperatorTest {
 
-    private IDataWriter dataWriter;
+    private DataWriter dataWriter;
     private ScanBasedSourceOperator scanBasedSourceOperator;
     private IDataStore dataStore;
     private Analyzer luceneAnalyzer;
@@ -45,7 +45,7 @@ public class ScanBasedSourceOperatorTest {
         for (ITuple tuple : TestConstants.getSamplePeopleTuples()) {
             dataWriter.insertTuple(tuple);
         }
-        ((DataWriter)dataWriter).close();
+        dataWriter.close();
         
         scanBasedSourceOperator = new ScanBasedSourceOperator(dataStore);
     }

@@ -45,7 +45,7 @@ import edu.uci.ics.textdb.storage.writer.DataWriter;
 public class FuzzyTokenMatcherTest {
 
     private FuzzyTokenMatcher fuzzyTokenMatcher;
-    private IDataWriter dataWriter;
+    private DataWriter dataWriter;
     private DataStore dataStore;
     private Analyzer analyzer;
 
@@ -58,7 +58,7 @@ public class FuzzyTokenMatcherTest {
         for (ITuple tuple : TestConstants.getSamplePeopleTuples()) {
             dataWriter.insertTuple(tuple);
         }
-        ((DataWriter) dataWriter).close();
+        dataWriter.close();
     }
 
     @After

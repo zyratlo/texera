@@ -32,7 +32,7 @@ import edu.uci.ics.textdb.storage.writer.DataWriter;
 public class NlpExtractorTest {
     private NlpExtractor nlpExtractor;
 
-    private IDataWriter dataWriter;
+    private DataWriter dataWriter;
     private IDataStore dataStore;
 
     private Analyzer analyzer;
@@ -372,7 +372,7 @@ public class NlpExtractorTest {
         for (ITuple tuple : data) {
             dataWriter.insertTuple(tuple);
         }
-        ((DataWriter) dataWriter).close();
+        dataWriter.close();
 
         ISourceOperator sourceOperator = new ScanBasedSourceOperator(dataStore);
         return sourceOperator;
