@@ -41,8 +41,8 @@ public class RegexMatcherTestHelper {
                 .withTokenizer(NGramTokenizerFactory.class, new String[] { "minGramSize", "3", "maxGramSize", "3" })
                 .build();
         dataWriter = new DataWriter(dataStore, luceneAnalyzer);
-        dataWriter.open();
         dataWriter.clearData();
+        dataWriter.open();
         for (ITuple tuple : data) {
             dataWriter.insertTuple(tuple);
         }
@@ -91,9 +91,7 @@ public class RegexMatcherTestHelper {
     }
 
     public void cleanUp() throws Exception {
-    	dataWriter.open();
         dataWriter.clearData();
-        dataWriter.close();
     }
 
 }

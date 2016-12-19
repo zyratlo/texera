@@ -39,9 +39,7 @@ public class NlpExtractorTest {
 
     @After
     public void cleanUp() throws Exception {
-    	dataWriter.open();
         dataWriter.clearData();
-        dataWriter.close();
     }
 
     /**
@@ -370,8 +368,9 @@ public class NlpExtractorTest {
         dataStore = new DataStore(DataConstants.INDEX_DIR, schema);
         analyzer = new StandardAnalyzer();
         dataWriter = new DataWriter(dataStore, analyzer);
-        dataWriter.open();
+        
         dataWriter.clearData();
+        dataWriter.open();
         for (ITuple tuple : data) {
             dataWriter.insertTuple(tuple);
         }

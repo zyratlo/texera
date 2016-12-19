@@ -45,8 +45,9 @@ public class IndexBasedSourceOperatorTest {
         dataStore = new DataStore(DataConstants.INDEX_DIR, TestConstants.SCHEMA_PEOPLE);
         luceneAnalyzer = new StandardAnalyzer();
         dataWriter = new DataWriter(dataStore, luceneAnalyzer);
-        dataWriter.open();
+        
         dataWriter.clearData();
+        dataWriter.open();
         for (ITuple tuple : TestConstants.getSamplePeopleTuples()) {
             dataWriter.insertTuple(tuple);
         }
@@ -55,9 +56,7 @@ public class IndexBasedSourceOperatorTest {
 
     @After
     public void cleanUp() throws Exception {
-    	dataWriter.open();
         dataWriter.clearData();
-        dataWriter.close();
     }
 
     public void constructIndexBasedSourceOperator(String query) throws ParseException {

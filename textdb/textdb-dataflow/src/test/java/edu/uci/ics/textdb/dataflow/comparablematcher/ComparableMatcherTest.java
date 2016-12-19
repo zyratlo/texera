@@ -46,8 +46,9 @@ public class ComparableMatcherTest {
         dataStore = new DataStore(DataConstants.INDEX_DIR, TestConstants.SCHEMA_PEOPLE);
         analyzer = new StandardAnalyzer();
         dataWriter = new DataWriter(dataStore, analyzer);
-        dataWriter.open();
+        
         dataWriter.clearData();
+        dataWriter.open();
         for (ITuple tuple : TestConstants.getSamplePeopleTuples()) {
             dataWriter.insertTuple(tuple);
         }
@@ -56,9 +57,7 @@ public class ComparableMatcherTest {
 
     @After
     public void cleanUp() throws Exception {
-    	dataWriter.open();
         dataWriter.clearData();
-        dataWriter.close();
     }
 
     public List<ITuple> getDoubleQueryResults(double threshold, Attribute attribute, NumberMatchingType matchingType)

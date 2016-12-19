@@ -47,8 +47,8 @@ public class DataWriterReaderTest {
     public void testReadWriteData() throws Exception {
         List<ITuple> actualTuples = TestConstants.getSamplePeopleTuples();
         
-        dataWriter.open();
         dataWriter.clearData();
+        dataWriter.open();
         for (ITuple tuple : actualTuples) {
             dataWriter.insertTuple(tuple);
         }

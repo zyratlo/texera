@@ -100,8 +100,7 @@ public class RelationManager {
         // clear all data in the index directory
         Schema tableSchema = Utils.getSchemaWithID(schema);
         DataStore tableDataStore = new DataStore(indexDirectory, tableSchema);
-        new DataWriter(tableDataStore, luceneAnalyzer).clearData();;
-        new DataWriter(tableDataStore, luceneAnalyzer).close();
+        new DataWriter(tableDataStore, luceneAnalyzer).clearData();
         
         // write table info to catalog
         writeTableInfoToCatalog(tableName, indexDirectory, schema, luceneAnalyzerString);
@@ -152,7 +151,6 @@ public class RelationManager {
         // try to clear all data in the table
         try {
             new DataWriter(getTableDataStore(tableName), getTableAnalyzer(tableName)).clearData();
-            new DataWriter(getTableDataStore(tableName), getTableAnalyzer(tableName)).close();
             Utils.deleteDirectory(getTableDirectory(tableName));
         } catch (StorageException e) {
             // don't need to do anything if clearing data fails

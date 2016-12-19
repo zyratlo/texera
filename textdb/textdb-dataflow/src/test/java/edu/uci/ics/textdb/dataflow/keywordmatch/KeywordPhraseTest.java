@@ -267,8 +267,8 @@ public class KeywordPhraseTest {
         DataStore medDataStore = new DataStore("../index/test", keywordTestConstants.SCHEMA_MEDLINE);
         Analyzer MedAnalyzer = new StandardAnalyzer();
         DataWriter MedDataWriter = new DataWriter(medDataStore, MedAnalyzer);
-        MedDataWriter.open();
         MedDataWriter.clearData();
+        MedDataWriter.open();
         for (ITuple tuple : keywordTestConstants.getSampleMedlineRecord()) {
             MedDataWriter.insertTuple(tuple);
         }
@@ -328,8 +328,8 @@ public class KeywordPhraseTest {
         DataStore MedDataStore = new DataStore("../index/test", keywordTestConstants.SCHEMA_MEDLINE);
         Analyzer MedAnalyzer = new StandardAnalyzer();
         DataWriter MedDataWriter = new DataWriter(MedDataStore, MedAnalyzer);
-        MedDataWriter.open();
         MedDataWriter.clearData();
+        MedDataWriter.open();
         for (ITuple tuple : keywordTestConstants.getSampleMedlineRecord()) {
             MedDataWriter.insertTuple(tuple);
         }
@@ -384,8 +384,8 @@ public class KeywordPhraseTest {
         DataStore medDataStore = new DataStore("../index/test", keywordTestConstants.SCHEMA_MEDLINE);
         Analyzer MedAnalyzer = new StandardAnalyzer();
         DataWriter MedDataWriter = new DataWriter(medDataStore, MedAnalyzer);
-        MedDataWriter.open();
         MedDataWriter.clearData();
+        MedDataWriter.open();
         for (ITuple tuple : keywordTestConstants.getSampleMedlineRecord()) {
             MedDataWriter.insertTuple(tuple);
         }

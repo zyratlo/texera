@@ -104,13 +104,8 @@ public class JoinTest {
         dataStoreForInner = new DataStore(DataConstants.INDEX_DIR + "/join_test_dir_2", bookSchema);
         dataWriterForInner = new DataWriter(dataStoreForInner, analyzer);
         
-        dataWriterForOuter.open();
         dataWriterForOuter.clearData();
-        dataWriterForOuter.close();
-        
-        dataWriterForInner.open();
         dataWriterForInner.clearData();
-        dataWriterForInner.close();
     }
 
     // A helper method to get join result. Called from each test case
@@ -328,13 +323,8 @@ public class JoinTest {
     // This method cleans up after each test.
     @After
     public void cleanUp() throws Exception {
-    	dataWriterForOuter.open();
         dataWriterForOuter.clearData();
-        dataWriterForOuter.close();
-        
-        dataWriterForInner.open();
         dataWriterForInner.clearData();
-        dataWriterForInner.close();
     }
 
     // This case tests for scenario when the IDs of the documents don't match.
@@ -741,8 +731,9 @@ public class JoinTest {
         // supply the new schema.
         DataStore dataStore = new DataStore(DataConstants.INDEX_DIR + "/join_test_dir_2", schema);
         DataWriter dataWriter = new DataWriter(dataStore, analyzer);
-        dataWriter.open();
+        
         dataWriter.clearData();
+        dataWriter.open();
         for (ITuple tuple : bookTuple) {
             dataWriter.insertTuple(tuple);
         }
@@ -807,15 +798,15 @@ public class JoinTest {
         dataStoreForInner = new DataStore(DataConstants.INDEX_DIR + "/join_test_dir_2", bookSchema2);
         dataWriterForInner = new DataWriter(dataStoreForInner, analyzer);
         
-        dataWriterForOuter.open();
         dataWriterForOuter.clearData();
+        dataWriterForOuter.open();
         for (ITuple tuple : bookTuple1) {
             dataWriterForOuter.insertTuple(tuple);
         }
         dataWriterForOuter.close();
         
-        dataWriterForInner.open();
         dataWriterForInner.clearData();
+        dataWriterForInner.open();        
         for (ITuple tuple : bookTuple2) {
             dataWriterForInner.insertTuple(tuple);
         }
@@ -914,15 +905,15 @@ public class JoinTest {
         dataStoreForInner = new DataStore(DataConstants.INDEX_DIR + "/join_test_dir_2", bookSchema);
         dataWriterForInner = new DataWriter(dataStoreForInner, analyzer);
         
-        dataWriterForOuter.open();
         dataWriterForOuter.clearData();
+        dataWriterForOuter.open();
         for (ITuple tuple : bookTuple1) {
             dataWriterForOuter.insertTuple(tuple);
         }
         dataWriterForOuter.close();
  
-        dataWriterForInner.open();
         dataWriterForInner.clearData();
+        dataWriterForInner.open();
         for (ITuple tuple : bookTuple2) {
             dataWriterForInner.insertTuple(tuple);
         }
@@ -1017,15 +1008,15 @@ public class JoinTest {
         dataStoreForInner = new DataStore(DataConstants.INDEX_DIR + "/join_test_dir_2", bookSchema);
         dataWriterForInner = new DataWriter(dataStoreForInner, analyzer);
         
-        dataWriterForOuter.open();
         dataWriterForOuter.clearData();
+        dataWriterForOuter.open();
         for (ITuple tuple : bookTuple1) {
             dataWriterForOuter.insertTuple(tuple);
         }
         dataWriterForOuter.close();
         
-        dataWriterForInner.open();
         dataWriterForInner.clearData();
+        dataWriterForInner.open();
         for (ITuple tuple : bookTuple2) {
             dataWriterForInner.insertTuple(tuple);
         }
@@ -1100,15 +1091,15 @@ public class JoinTest {
         dataStoreForInner = new DataStore(DataConstants.INDEX_DIR + "/join_test_dir_2", bookSchema2);
         dataWriterForInner = new DataWriter(dataStoreForInner, analyzer);
         
-        dataWriterForOuter.open();
         dataWriterForOuter.clearData();
+        dataWriterForOuter.open();
         for (ITuple tuple : bookTuple1) {
             dataWriterForOuter.insertTuple(tuple);
         }
         dataWriterForOuter.close();
         
-        dataWriterForInner.open();
         dataWriterForInner.clearData();
+        dataWriterForInner.open();
         for (ITuple tuple : bookTuple2) {
             dataWriterForInner.insertTuple(tuple);
         }
@@ -1210,15 +1201,15 @@ public class JoinTest {
         dataStoreForInner = new DataStore(DataConstants.INDEX_DIR + "/join_test_dir_2", bookSchema2);
         dataWriterForInner = new DataWriter(dataStoreForInner, analyzer);
         
-        dataWriterForOuter.open();
         dataWriterForOuter.clearData();
+        dataWriterForOuter.open();
         for (ITuple tuple : bookTuple1) {
             dataWriterForOuter.insertTuple(tuple);
         }
         dataWriterForOuter.close();
         
-        dataWriterForInner.open();
         dataWriterForInner.clearData();
+        dataWriterForInner.open();
         for (ITuple tuple : bookTuple2) {
             dataWriterForInner.insertTuple(tuple);
         }
