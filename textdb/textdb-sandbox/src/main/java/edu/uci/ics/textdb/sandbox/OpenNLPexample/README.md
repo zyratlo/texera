@@ -1,6 +1,7 @@
 Please find trained Models here http://opennlp.sourceforge.net/models-1.5/
 
 Step 1 - Tokenization 
+
 	- Download the model en-token.bin
 	- Load model:
 		InputStream is = new FileInputStream(token_model);

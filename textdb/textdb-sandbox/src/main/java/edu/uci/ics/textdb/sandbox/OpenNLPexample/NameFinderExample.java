@@ -17,6 +17,8 @@ import opennlp.tools.util.Span;
 
 /**
  * 
+ * This class does location NER tag extraction from abstract_100.txt.
+ * 
  * See README file for more details
  *
  */

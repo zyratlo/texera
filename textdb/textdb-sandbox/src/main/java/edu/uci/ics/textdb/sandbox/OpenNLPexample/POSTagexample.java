@@ -16,7 +16,7 @@ import opennlp.tools.tokenize.TokenizerModel;
 import opennlp.tools.util.InvalidFormatException;
 
 /**
- * 
+ * This class does part of speech extraction from abstract_100.txt.
  *  See README file for more details.
  *
  */
