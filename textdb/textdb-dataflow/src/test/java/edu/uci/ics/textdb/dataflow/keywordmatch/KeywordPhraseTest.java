@@ -270,7 +270,7 @@ public class KeywordPhraseTest {
         MedDataWriter.clearData();
         MedDataWriter.open();
         for (ITuple tuple : keywordTestConstants.getSampleMedlineRecord()) {
-        	MedDataWriter.insertTuple(tuple);
+            MedDataWriter.insertTuple(tuple);
         }
         MedDataWriter.close();
         // Prepare Query
