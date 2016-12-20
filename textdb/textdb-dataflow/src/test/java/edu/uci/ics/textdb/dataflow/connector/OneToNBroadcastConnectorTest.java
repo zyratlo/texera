@@ -35,7 +35,7 @@ import junit.framework.Assert;
 public class OneToNBroadcastConnectorTest {
     
     private IDataStore dataStore;
-    private IDataWriter dataWriter;
+    private DataWriter dataWriter;
     private Analyzer luceneAnalyzer;
 
     @Before
@@ -44,9 +44,11 @@ public class OneToNBroadcastConnectorTest {
         luceneAnalyzer = new StandardAnalyzer();
         dataWriter = new DataWriter(dataStore, luceneAnalyzer);
         dataWriter.clearData();
+        dataWriter.open();
         for (ITuple tuple : TestConstants.getSamplePeopleTuples()) {
             dataWriter.insertTuple(tuple);
         }
+        dataWriter.close();
     }
     
     @After

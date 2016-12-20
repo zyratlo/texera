@@ -31,7 +31,7 @@ import edu.uci.ics.textdb.storage.writer.DataWriter;
 public class ProjectionOperatorTest {
     
     private IDataStore dataStore;
-    private IDataWriter dataWriter;
+    private DataWriter dataWriter;
     private Analyzer luceneAnalyzer;
 
     @Before
@@ -40,9 +40,11 @@ public class ProjectionOperatorTest {
         luceneAnalyzer = new StandardAnalyzer();
         dataWriter = new DataWriter(dataStore, luceneAnalyzer);
         dataWriter.clearData();
+        dataWriter.open();
         for (ITuple tuple : TestConstants.getSamplePeopleTuples()) {
             dataWriter.insertTuple(tuple);
         }
+        dataWriter.close();
     }
     
     @After

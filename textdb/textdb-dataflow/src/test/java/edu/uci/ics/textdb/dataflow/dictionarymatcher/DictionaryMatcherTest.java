@@ -46,7 +46,7 @@ import edu.uci.ics.textdb.storage.writer.DataWriter;
 public class DictionaryMatcherTest {
 
     private DataStore dataStore;
-    private IDataWriter dataWriter;
+    private DataWriter dataWriter;
     private Analyzer luceneAnalyzer;
 
     @Before
@@ -55,14 +55,17 @@ public class DictionaryMatcherTest {
         dataStore = new DataStore(DataConstants.INDEX_DIR, TestConstants.SCHEMA_PEOPLE);
         luceneAnalyzer = new StandardAnalyzer();
         dataWriter = new DataWriter(dataStore, luceneAnalyzer);
+        
         dataWriter.clearData();
+        dataWriter.open();
         for (ITuple tuple : TestConstants.getSamplePeopleTuples()) {
             dataWriter.insertTuple(tuple);
         }
+        dataWriter.close();
     }
 
     @After
-    public void cleanUp() throws Exception {
+    public void cleanUp() throws Exception {    	
         dataWriter.clearData();
     }
 

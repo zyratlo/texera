@@ -25,7 +25,7 @@ import edu.uci.ics.textdb.storage.reader.DataReader;
 import edu.uci.ics.textdb.storage.writer.DataWriter;
 
 public class DataWriterReaderTest {
-    private IDataWriter dataWriter;
+    private DataWriter dataWriter;
     private IDataReader dataReader;
     private IDataStore dataStore;
     private DataReaderPredicate dataReaderPredicate;
@@ -45,11 +45,14 @@ public class DataWriterReaderTest {
 
     @Test
     public void testReadWriteData() throws Exception {
-        dataWriter.clearData();
         List<ITuple> actualTuples = TestConstants.getSamplePeopleTuples();
+        
+        dataWriter.clearData();
+        dataWriter.open();
         for (ITuple tuple : actualTuples) {
             dataWriter.insertTuple(tuple);
         }
+        dataWriter.close();
         
         Assert.assertEquals(dataStore.getNumDocuments(), actualTuples.size());
         

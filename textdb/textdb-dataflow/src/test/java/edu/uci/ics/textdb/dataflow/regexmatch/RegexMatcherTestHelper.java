@@ -26,7 +26,7 @@ import edu.uci.ics.textdb.storage.writer.DataWriter;
 public class RegexMatcherTestHelper {
 
     RegexMatcher regexMatcher;
-    IDataWriter dataWriter;
+    DataWriter dataWriter;
     IDataStore dataStore;
 
     List<ITuple> results;
@@ -42,9 +42,11 @@ public class RegexMatcherTestHelper {
                 .build();
         dataWriter = new DataWriter(dataStore, luceneAnalyzer);
         dataWriter.clearData();
+        dataWriter.open();
         for (ITuple tuple : data) {
             dataWriter.insertTuple(tuple);
         }
+        dataWriter.close();
         results = new ArrayList<ITuple>();
     }
 
