@@ -129,7 +129,7 @@ public class RelationManager {
         // each attribute in the table schema will be one row in schema catalog
         dataWriter.open();
         for (ITuple tuple : CatalogConstants.getSchemaCatalogTuples(tableName, tableSchema)) {
-            insertTupleToDirectory(schemaCatalogStore, tuple,dataWriter);
+        	insertTupleToDirectory(schemaCatalogStore, tuple, dataWriter);
         }
         dataWriter.close();
     }

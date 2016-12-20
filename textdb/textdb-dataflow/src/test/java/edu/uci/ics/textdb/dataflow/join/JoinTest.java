@@ -136,7 +136,7 @@ public class JoinTest {
         } else {
         	dataWriterForOuter.open();
             for (ITuple tuple : outerTuple) {
-                dataWriterForOuter.insertTuple(tuple);
+            	dataWriterForOuter.insertTuple(tuple);
             }
             dataWriterForOuter.close();
         }
@@ -145,7 +145,7 @@ public class JoinTest {
         }
         dataWriterForInner.open();
         for (ITuple tuple : innerTuple) {
-            dataWriterForInner.insertTuple(tuple);
+        	dataWriterForInner.insertTuple(tuple);
         }
         dataWriterForInner.close();
     }

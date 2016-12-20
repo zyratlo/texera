@@ -270,7 +270,7 @@ public class KeywordPhraseTest {
         MedDataWriter.clearData();
         MedDataWriter.open();
         for (ITuple tuple : keywordTestConstants.getSampleMedlineRecord()) {
-            MedDataWriter.insertTuple(tuple);
+        	MedDataWriter.insertTuple(tuple);
         }
         MedDataWriter.close();
         // Prepare Query
@@ -325,9 +325,9 @@ public class KeywordPhraseTest {
      */
     @Test
     public void testWordInMultipleFieldsQueryWithStopWords4() throws Exception {
-        DataStore MedDataStore = new DataStore("../index/test", keywordTestConstants.SCHEMA_MEDLINE);
+        DataStore medDataStore = new DataStore("../index/test", keywordTestConstants.SCHEMA_MEDLINE);
         Analyzer MedAnalyzer = new StandardAnalyzer();
-        DataWriter MedDataWriter = new DataWriter(MedDataStore, MedAnalyzer);
+        DataWriter MedDataWriter = new DataWriter(medDataStore, MedAnalyzer);
         MedDataWriter.clearData();
         MedDataWriter.open();
         for (ITuple tuple : keywordTestConstants.getSampleMedlineRecord()) {
