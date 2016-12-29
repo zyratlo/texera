@@ -3,18 +3,20 @@ package edu.uci.ics.textdb.dataflow.join;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.IntStream;
 
 import org.apache.lucene.search.MatchAllDocsQuery;
 
+import edu.uci.ics.textdb.api.common.Attribute;
 import edu.uci.ics.textdb.api.common.IField;
 import edu.uci.ics.textdb.api.common.ITuple;
+import edu.uci.ics.textdb.api.common.Schema;
 import edu.uci.ics.textdb.api.dataflow.IOperator;
 import edu.uci.ics.textdb.api.exception.TextDBException;
 import edu.uci.ics.textdb.common.constants.LuceneAnalyzerConstants;
 import edu.uci.ics.textdb.common.constants.DataConstants.KeywordMatchingType;
 import edu.uci.ics.textdb.common.exception.StorageException;
 import edu.uci.ics.textdb.common.field.DataTuple;
+import edu.uci.ics.textdb.common.utils.Utils;
 import edu.uci.ics.textdb.dataflow.common.JoinDistancePredicate;
 import edu.uci.ics.textdb.dataflow.common.KeywordPredicate;
 import edu.uci.ics.textdb.dataflow.keywordmatch.KeywordMatcherSourceOperator;
@@ -108,16 +110,30 @@ public class JoinDistanceHelper {
         return results;
     }
     
+    /**
+     * Alter a field of a tuple. The schema will also be changed accordingly.
+     * 
+     * @param originalTuple
+     * @param fieldIndex
+     * @param newField
+     * @return
+     */
     public static ITuple alterField(ITuple originalTuple, int fieldIndex, IField newField) {
+        List<Attribute> originalAttributes = originalTuple.getSchema().getAttributes();
+        List<Attribute> newAttributes = new ArrayList<>();
         List<IField> newFields = new ArrayList<>();
-        for (int i = 0; i < originalTuple.getFields().size(); i++) {
+        for (int i = 0; i < originalAttributes.size(); i++) {
             if (i == fieldIndex) {
+                newAttributes.add(new Attribute(originalAttributes.get(i).getFieldName(), 
+                        Utils.getFieldType(newField)));
                 newFields.add(newField);
             } else {
+                newAttributes.add(originalAttributes.get(i));
                 newFields.add(originalTuple.getField(i));
             }
         }
-        return new DataTuple(originalTuple.getSchema(), newFields.stream().toArray(IField[]::new));
+        return new DataTuple(new Schema(newAttributes.stream().toArray(Attribute[]::new)), 
+                newFields.stream().toArray(IField[]::new));
     }
 
 }

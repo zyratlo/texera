@@ -1,15 +1,11 @@
 package edu.uci.ics.textdb.dataflow.join;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.junit.After;
 import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -18,11 +14,7 @@ import edu.uci.ics.textdb.api.common.FieldType;
 import edu.uci.ics.textdb.api.common.IField;
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.common.Schema;
-import edu.uci.ics.textdb.api.dataflow.IOperator;
 import edu.uci.ics.textdb.api.exception.TextDBException;
-import edu.uci.ics.textdb.api.storage.IDataStore;
-import edu.uci.ics.textdb.api.storage.IDataWriter;
-import edu.uci.ics.textdb.common.constants.DataConstants;
 import edu.uci.ics.textdb.common.constants.LuceneAnalyzerConstants;
 import edu.uci.ics.textdb.common.constants.SchemaConstants;
 import edu.uci.ics.textdb.common.constants.DataConstants.KeywordMatchingType;
@@ -35,9 +27,7 @@ import edu.uci.ics.textdb.common.field.StringField;
 import edu.uci.ics.textdb.common.field.TextField;
 import edu.uci.ics.textdb.common.utils.Utils;
 import edu.uci.ics.textdb.dataflow.common.FuzzyTokenPredicate;
-import edu.uci.ics.textdb.dataflow.common.IJoinPredicate;
 import edu.uci.ics.textdb.dataflow.common.JoinDistancePredicate;
-import edu.uci.ics.textdb.dataflow.common.KeywordPredicate;
 import edu.uci.ics.textdb.dataflow.fuzzytokenmatcher.FuzzyTokenMatcher;
 import edu.uci.ics.textdb.dataflow.keywordmatch.KeywordMatcherSourceOperator;
 import edu.uci.ics.textdb.dataflow.projection.ProjectionOperator;
@@ -46,7 +36,6 @@ import edu.uci.ics.textdb.dataflow.source.IndexBasedSourceOperator;
 import edu.uci.ics.textdb.dataflow.utils.TestUtils;
 import edu.uci.ics.textdb.storage.DataStore;
 import edu.uci.ics.textdb.storage.relation.RelationManager;
-import edu.uci.ics.textdb.storage.writer.DataWriter;
 import junit.framework.Assert;
 
 /**
@@ -120,8 +109,8 @@ public class JoinDistanceTest {
     // [<11, 33>]
     @Test
     public void testIdsMatchFieldsMatchSpanWithinThreshold() throws Exception {
-        JoinDistanceHelper.insertToOuter(JoinTestConstants.bookGroup1.get(1));
-        JoinDistanceHelper.insertToInner(JoinTestConstants.bookGroup1.get(1));
+        JoinDistanceHelper.insertToOuter(JoinTestConstants.bookGroup1.get(0));
+        JoinDistanceHelper.insertToInner(JoinTestConstants.bookGroup1.get(0));
                 
         KeywordMatcherSourceOperator keywordSourceOuter = 
                 JoinDistanceHelper.getKeywordSource(BOOK_TABLE_OUTER, "special", conjunction);
@@ -131,7 +120,7 @@ public class JoinDistanceTest {
         List<ITuple> resultList = JoinDistanceHelper.getJoinDistanceResults(keywordSourceOuter, keywordSourceInner, 
                 JoinTestConstants.ID, JoinTestConstants.REVIEW, 20, Integer.MAX_VALUE, 0);
         
-        Schema spanSchema = Utils.createSpanSchema(JoinTestConstants.BOOK_SCHEMA);
+        Schema resultSchema = Utils.createSpanSchema(JoinTestConstants.BOOK_SCHEMA);
         List<Span> spanList = new ArrayList<>();
 
         Span span1 = new Span(JoinTestConstants.REVIEW, 11, 33, "special_writer", "special kind of " + "writer");
@@ -144,7 +133,7 @@ public class JoinDistanceTest {
                         + "hilariously so), and pop science writer Mary Roach is " + "always up to the task."),
                 new ListField<>(spanList) };
         
-        ITuple expectedTuple = new DataTuple(spanSchema, book1);
+        ITuple expectedTuple = new DataTuple(resultSchema, book1);
         List<ITuple> expectedResult = new ArrayList<>();
         expectedResult.add(expectedTuple);
 
@@ -165,8 +154,8 @@ public class JoinDistanceTest {
     // Test result: An empty list is returned.
     @Test
     public void testIdsMatchFieldsMatchSpanExceedThreshold() throws Exception {
-        JoinDistanceHelper.insertToOuter(JoinTestConstants.bookGroup1.get(1));
-        JoinDistanceHelper.insertToInner(JoinTestConstants.bookGroup1.get(1));
+        JoinDistanceHelper.insertToOuter(JoinTestConstants.bookGroup1.get(0));
+        JoinDistanceHelper.insertToInner(JoinTestConstants.bookGroup1.get(0));
                 
         KeywordMatcherSourceOperator keywordSourceOuter = 
                 JoinDistanceHelper.getKeywordSource(BOOK_TABLE_OUTER, "special", conjunction);
@@ -185,8 +174,8 @@ public class JoinDistanceTest {
     // Test result: Join should return an empty list.
     @Test
     public void testOneOfTheOperatorResultIsEmpty() throws Exception {
-        JoinDistanceHelper.insertToOuter(JoinTestConstants.bookGroup1.get(1));
-        JoinDistanceHelper.insertToInner(JoinTestConstants.bookGroup1.get(1));
+        JoinDistanceHelper.insertToOuter(JoinTestConstants.bookGroup1.get(0));
+        JoinDistanceHelper.insertToInner(JoinTestConstants.bookGroup1.get(0));
         
         KeywordMatcherSourceOperator keywordSourceOuter = 
                 JoinDistanceHelper.getKeywordSource(BOOK_TABLE_OUTER, "special", conjunction);
@@ -205,8 +194,8 @@ public class JoinDistanceTest {
     // Test result: DataFlowException is thrown
     @Test(expected = DataFlowException.class)
     public void testOneOfTheOperatorResultContainsNoSpan() throws Exception {
-        JoinDistanceHelper.insertToOuter(JoinTestConstants.bookGroup1.get(1));
-        JoinDistanceHelper.insertToInner(JoinTestConstants.bookGroup1.get(1));
+        JoinDistanceHelper.insertToOuter(JoinTestConstants.bookGroup1.get(0));
+        JoinDistanceHelper.insertToInner(JoinTestConstants.bookGroup1.get(0));
         
         KeywordMatcherSourceOperator keywordSourceOuter = 
                 JoinDistanceHelper.getKeywordSource(BOOK_TABLE_OUTER, "special", conjunction);
@@ -248,8 +237,8 @@ public class JoinDistanceTest {
     // [<3, 33>]
     @Test
     public void testOneSpanEncompassesOtherAndDifferenceLessThanThreshold() throws Exception {
-        JoinDistanceHelper.insertToOuter(JoinTestConstants.bookGroup1.get(1));
-        JoinDistanceHelper.insertToInner(JoinTestConstants.bookGroup1.get(1));
+        JoinDistanceHelper.insertToOuter(JoinTestConstants.bookGroup1.get(0));
+        JoinDistanceHelper.insertToInner(JoinTestConstants.bookGroup1.get(0));
         
         KeywordMatcherSourceOperator keywordSourceOuter = 
                 JoinDistanceHelper.getKeywordSource(BOOK_TABLE_OUTER, "special", conjunction);
@@ -260,7 +249,7 @@ public class JoinDistanceTest {
                 JoinTestConstants.ID, JoinTestConstants.REVIEW, 20, Integer.MAX_VALUE, 0);
         
         
-        Schema spanSchema = Utils.createSpanSchema(JoinTestConstants.BOOK_SCHEMA);
+        Schema resultSchema = Utils.createSpanSchema(JoinTestConstants.BOOK_SCHEMA);
         List<Span> spanList = new ArrayList<>();
 
         Span span1 = new Span(JoinTestConstants.REVIEW, 3, 33, "special_takes a special " + "kind of writer",
@@ -274,7 +263,7 @@ public class JoinDistanceTest {
                         + "hilariously so), and pop science writer Mary Roach is " + "always up to the task."),
                 new ListField<>(spanList) };
         
-        ITuple expectedTuple = new DataTuple(spanSchema, book1);
+        ITuple expectedTuple = new DataTuple(resultSchema, book1);
         List<ITuple> expectedResult = new ArrayList<>();
         expectedResult.add(expectedTuple);
 
@@ -296,8 +285,8 @@ public class JoinDistanceTest {
     // Test result: Join should return an empty list.
     @Test
     public void testOneSpanEncompassesOtherAndDifferenceGreaterThanThreshold() throws Exception {
-        JoinDistanceHelper.insertToOuter(JoinTestConstants.bookGroup1.get(1));
-        JoinDistanceHelper.insertToInner(JoinTestConstants.bookGroup1.get(1));
+        JoinDistanceHelper.insertToOuter(JoinTestConstants.bookGroup1.get(0));
+        JoinDistanceHelper.insertToInner(JoinTestConstants.bookGroup1.get(0));
         
         KeywordMatcherSourceOperator keywordSourceOuter = 
                 JoinDistanceHelper.getKeywordSource(BOOK_TABLE_OUTER, "special", conjunction);
@@ -330,8 +319,8 @@ public class JoinDistanceTest {
     // [<75, 109>]
     @Test
     public void testSpansOverlapAndWithinThreshold() throws Exception {
-        JoinDistanceHelper.insertToOuter(JoinTestConstants.bookGroup1.get(1));
-        JoinDistanceHelper.insertToInner(JoinTestConstants.bookGroup1.get(1));
+        JoinDistanceHelper.insertToOuter(JoinTestConstants.bookGroup1.get(0));
+        JoinDistanceHelper.insertToInner(JoinTestConstants.bookGroup1.get(0));
         
         KeywordMatcherSourceOperator keywordSourceOuter = 
                 JoinDistanceHelper.getKeywordSource(BOOK_TABLE_OUTER, "gastrointestinal tract", phrase);
@@ -341,7 +330,7 @@ public class JoinDistanceTest {
         List<ITuple> resultList = JoinDistanceHelper.getJoinDistanceResults(keywordSourceOuter, keywordSourceInner, 
                 JoinTestConstants.ID, JoinTestConstants.REVIEW, 20, Integer.MAX_VALUE, 0);
         
-        Schema spanSchema = Utils.createSpanSchema(JoinTestConstants.BOOK_SCHEMA);
+        Schema resultSchema = Utils.createSpanSchema(JoinTestConstants.BOOK_SCHEMA);
         List<Span> spanList = new ArrayList<>();
 
         Span span1 = new Span(JoinTestConstants.REVIEW, 75, 109, "gastrointestinal tract_" + "tract interesting",
@@ -354,7 +343,7 @@ public class JoinDistanceTest {
                         + "gastrointestinal tract interesting (sometimes "
                         + "hilariously so), and pop science writer Mary Roach is " + "always up to the task."),
                 new ListField<>(spanList) };
-        ITuple expectedTuple = new DataTuple(spanSchema, book1);
+        ITuple expectedTuple = new DataTuple(resultSchema, book1);
         List<ITuple> expectedResult = new ArrayList<>();
         expectedResult.add(expectedTuple);
 
@@ -376,8 +365,8 @@ public class JoinDistanceTest {
     // Test result: Join should return an empty list.
     @Test
     public void testSpansOverlapAndExceedThreshold() throws Exception {
-        JoinDistanceHelper.insertToOuter(JoinTestConstants.bookGroup1.get(1));
-        JoinDistanceHelper.insertToInner(JoinTestConstants.bookGroup1.get(1));
+        JoinDistanceHelper.insertToOuter(JoinTestConstants.bookGroup1.get(0));
+        JoinDistanceHelper.insertToInner(JoinTestConstants.bookGroup1.get(0));
         
         KeywordMatcherSourceOperator keywordSourceOuter = 
                 JoinDistanceHelper.getKeywordSource(BOOK_TABLE_OUTER, "takes a special", phrase);
@@ -404,8 +393,8 @@ public class JoinDistanceTest {
     // [<11, 18>]
     @Test
     public void testBothTheSpansAreSame() throws Exception {
-        JoinDistanceHelper.insertToOuter(JoinTestConstants.bookGroup1.get(1));
-        JoinDistanceHelper.insertToInner(JoinTestConstants.bookGroup1.get(1));
+        JoinDistanceHelper.insertToOuter(JoinTestConstants.bookGroup1.get(0));
+        JoinDistanceHelper.insertToInner(JoinTestConstants.bookGroup1.get(0));
         
         KeywordMatcherSourceOperator keywordSourceOuter = 
                 JoinDistanceHelper.getKeywordSource(BOOK_TABLE_OUTER, "special", conjunction);
@@ -415,7 +404,7 @@ public class JoinDistanceTest {
         List<ITuple> resultList = JoinDistanceHelper.getJoinDistanceResults(keywordSourceOuter, keywordSourceInner, 
                 JoinTestConstants.ID, JoinTestConstants.REVIEW, 20, Integer.MAX_VALUE, 0);
         
-        Schema spanSchema = Utils.createSpanSchema(JoinTestConstants.BOOK_SCHEMA);
+        Schema resultSchema = Utils.createSpanSchema(JoinTestConstants.BOOK_SCHEMA);
         List<Span> spanList = new ArrayList<>();
 
         Span span1 = new Span(JoinTestConstants.REVIEW, 11, 18, "special_special", "special");
@@ -427,7 +416,7 @@ public class JoinDistanceTest {
                         + "gastrointestinal tract interesting (sometimes "
                         + "hilariously so), and pop science writer Mary Roach is " + "always up to the task."),
                 new ListField<>(spanList) };
-        ITuple expectedTuple = new DataTuple(spanSchema, book1);
+        ITuple expectedTuple = new DataTuple(resultSchema, book1);
         List<ITuple> expectedResult = new ArrayList<>();
         expectedResult.add(expectedTuple);
 
@@ -441,8 +430,8 @@ public class JoinDistanceTest {
     // Test result: DataFlowException is thrown
     @Test(expected = DataFlowException.class)
     public void testIDFieldDoesNotExist() throws Exception {
-        JoinDistanceHelper.insertToOuter(JoinTestConstants.bookGroup1.get(1));
-        JoinDistanceHelper.insertToInner(JoinTestConstants.bookGroup1.get(1));
+        JoinDistanceHelper.insertToOuter(JoinTestConstants.bookGroup1.get(0));
+        JoinDistanceHelper.insertToInner(JoinTestConstants.bookGroup1.get(0));
                 
         KeywordMatcherSourceOperator keywordSourceOuter = 
                 JoinDistanceHelper.getKeywordSource(BOOK_TABLE_OUTER, "special", conjunction);
@@ -471,8 +460,8 @@ public class JoinDistanceTest {
     // the attributes common to both the tuples and the joined span.
     @Test
     public void testAttributesAndFieldsIntersection() throws TextDBException {
-        JoinDistanceHelper.insertToOuter(JoinTestConstants.bookGroup1.get(1));
-        JoinDistanceHelper.insertToInner(JoinTestConstants.bookGroup1.get(1));
+        JoinDistanceHelper.insertToOuter(JoinTestConstants.bookGroup1.get(0));
+        JoinDistanceHelper.insertToInner(JoinTestConstants.bookGroup1.get(0));
                 
         KeywordMatcherSourceOperator keywordSourceOuter = 
                 JoinDistanceHelper.getKeywordSource(BOOK_TABLE_OUTER, "special", conjunction);
@@ -531,7 +520,7 @@ public class JoinDistanceTest {
      */
     @Test
     public void testWhenAttributeFieldsAreDifferent() throws Exception {
-        ITuple originalTuple = JoinTestConstants.bookGroup1.get(1);
+        ITuple originalTuple = JoinTestConstants.bookGroup1.get(0);
         ITuple alteredTuple = JoinDistanceHelper.alterField(originalTuple, 2, new StringField("C"));
         
         JoinDistanceHelper.insertToOuter(originalTuple);
@@ -557,7 +546,7 @@ public class JoinDistanceTest {
                         + "hilariously so), and pop science writer Mary Roach is " + "always up to the task."),
                 new ListField<>(spanList) };
         ITuple expectedTuple = new DataTuple(resultSchema, book);
-        List<ITuple> expectedResult = new ArrayList<>(1);
+        List<ITuple> expectedResult = new ArrayList<>();
         expectedResult.add(expectedTuple);
 
         Assert.assertEquals(1, resultList.size());
@@ -575,7 +564,7 @@ public class JoinDistanceTest {
     // Test result: An empty list is returned.
     @Test
     public void testJoinAttributeFieldsAreDifferent() throws Exception {
-        ITuple originalTuple = JoinTestConstants.bookGroup1.get(1);
+        ITuple originalTuple = JoinTestConstants.bookGroup1.get(0);
         
         // the sentence in altered tuple is incomplete, while the keyword "writer" is still in there
         ITuple alteredTuple = JoinDistanceHelper.alterField(originalTuple, 4, 
@@ -594,9 +583,765 @@ public class JoinDistanceTest {
 
         Assert.assertEquals(0, resultList.size());
     }
+    
+    // This case tests for the scenario when an attribute (not the one join is
+    // performed upon) has same name and same respective field value but has
+    // different field types.
+    // Test result: The attribute and the respective field in question is
+    // dropped from the result tuple.
+    @Test
+    public void testWhenAttributeOfSameNameAreDifferent() throws Exception {
+        ITuple originalTuple = JoinTestConstants.bookGroup1.get(0);
+        JoinDistanceHelper.insertToOuter(originalTuple);
 
+        // create a table for the altered tuple (since the schema is different)
+        String BOOK_TABLE_SPECIAL = "jointest_book_special";
+        
+        Schema alteredSchema = new Schema(JoinTestConstants.BOOK_SCHEMA.getAttributes().stream()
+                .map(attr -> attr.getFieldName() != JoinTestConstants.AUTHOR ? attr : 
+                        new Attribute(JoinTestConstants.AUTHOR, FieldType.TEXT)).toArray(Attribute[]::new));
+        
+        RelationManager relationManager = RelationManager.getRelationManager();
+        relationManager.deleteTable(BOOK_TABLE_SPECIAL);
+        relationManager.createTable(BOOK_TABLE_SPECIAL, "../index/jointest/book_special/", 
+                alteredSchema, LuceneAnalyzerConstants.standardAnalyzerString());
+              
+        // the type of the "author" field is changed from STRING to TEXT
+        // alterField function will take care of the changes of the tuple's schema
+        ITuple alteredTuple = JoinDistanceHelper.alterField(originalTuple, 1, 
+                new TextField(originalTuple.getField(1).getValue().toString()));
+        
+        relationManager.insertTuple(BOOK_TABLE_SPECIAL, alteredTuple);
+                        
+        KeywordMatcherSourceOperator keywordSourceOuter = 
+                JoinDistanceHelper.getKeywordSource(BOOK_TABLE_OUTER, "special", conjunction);
+        KeywordMatcherSourceOperator keywordSourceInner = 
+                JoinDistanceHelper.getKeywordSource(BOOK_TABLE_SPECIAL, "writer", conjunction);
+        
+        List<ITuple> resultList = JoinDistanceHelper.getJoinDistanceResults(keywordSourceOuter, keywordSourceInner, 
+                JoinTestConstants.ID, JoinTestConstants.REVIEW, 20, Integer.MAX_VALUE, 0);
+        
+        Schema resultSchema = new Schema(JoinTestConstants.ID_ATTR, JoinTestConstants.TITLE_ATTR,
+                JoinTestConstants.PAGES_ATTR, JoinTestConstants.REVIEW_ATTR, SchemaConstants.SPAN_LIST_ATTRIBUTE);
+
+        List<Span> spanList = new ArrayList<>();
+        Span span1 = new Span(JoinTestConstants.REVIEW, 11, 33, "special_writer", "special kind of " + "writer");
+        spanList.add(span1);
+
+        IField[] book = { new IntegerField(52), new StringField("Grunt: The Curious Science of Humans at War"), new IntegerField(288),
+                new TextField("It takes a special kind " + "of writer to make topics ranging from death to our "
+                        + "gastrointestinal tract interesting (sometimes "
+                        + "hilariously so), and pop science writer Mary Roach is " + "always up to the task."),
+                new ListField<>(spanList) };
+        ITuple expectedTuple = new DataTuple(resultSchema, book);
+        List<ITuple> expectedResult = new ArrayList<>();
+        expectedResult.add(expectedTuple);
+
+        Assert.assertEquals(1, resultList.size());
+        Assert.assertTrue(TestUtils.equals(expectedResult, resultList));
+        
+        relationManager.deleteTable(BOOK_TABLE_SPECIAL);
+    }
+
+    /*
+     * This case tests for the scenario when an attribute (the one join is
+     * performed upon) has same name, but different field types.
+     * 
+     * Attributes must have same name and type to be considered equal.
+     * 
+     * In this case, since it's the attribute to be joined is not the same,
+     * an exception is thrown to warn user that join cannot be performed.
+     * 
+     * Test result: DataFlowException is thrown.
+     * 
+     */
+    @Test(expected = DataFlowException.class)
+    public void testJoinAttributeOfSameNameHaveDifferentFieldType() throws Exception {
+        ITuple originalTuple = JoinTestConstants.bookGroup1.get(0);
+        JoinDistanceHelper.insertToOuter(originalTuple);
+
+        // create a table for the altered tuple (since the schema is different)
+        String BOOK_TABLE_SPECIAL = "jointest_book_special";
+        
+        Schema alteredSchema = new Schema(JoinTestConstants.BOOK_SCHEMA.getAttributes().stream()
+                .map(attr -> attr.getFieldName() != JoinTestConstants.REVIEW ? attr : 
+                        new Attribute(JoinTestConstants.REVIEW, FieldType.STRING)).toArray(Attribute[]::new));
+        
+        RelationManager relationManager = RelationManager.getRelationManager();
+        relationManager.deleteTable(BOOK_TABLE_SPECIAL);
+        relationManager.createTable(BOOK_TABLE_SPECIAL, "../index/jointest/book_special/", 
+                alteredSchema, LuceneAnalyzerConstants.standardAnalyzerString());
+              
+        // the type of the "author" field is changed from STRING to TEXT
+        // alterField function will take care of the changes of the tuple's schema
+        ITuple alteredTuple = JoinDistanceHelper.alterField(originalTuple, 4, 
+                new StringField(originalTuple.getField(4).getValue().toString()));
+        
+        relationManager.insertTuple(BOOK_TABLE_SPECIAL, alteredTuple);
+                        
+        KeywordMatcherSourceOperator keywordSourceOuter = 
+                JoinDistanceHelper.getKeywordSource(BOOK_TABLE_OUTER, "special", conjunction);
+        KeywordMatcherSourceOperator keywordSourceInner = 
+                JoinDistanceHelper.getKeywordSource(BOOK_TABLE_SPECIAL, "writer", conjunction);
+        
+        JoinDistanceHelper.getJoinDistanceResults(keywordSourceOuter, keywordSourceInner, 
+                JoinTestConstants.ID, JoinTestConstants.REVIEW, 20, Integer.MAX_VALUE, 0);
+        
+        relationManager.deleteTable(BOOK_TABLE_SPECIAL);
+    }
+    
+    // --------------------<END of single tuple test cases>--------------------
+
+    // This case tests for the scenario when both the operators' have multiple
+    // tuples and none of the tuples have same ID (multi-tuple version of the
+    // case when IDs don't match).
+    // Test result: Join should result in an empty list.
+    @Test
+    public void testMultiTupleIdsDontMatch() throws Exception {
+        List<ITuple> outerTuples = JoinTestConstants.bookGroup1;
+        List<ITuple> innerTuples = JoinTestConstants.bookGroup2;
+        
+        JoinDistanceHelper.insertToOuter(outerTuples);
+        JoinDistanceHelper.insertToInner(innerTuples);
+        
+        KeywordMatcherSourceOperator keywordSourceOuter = 
+                JoinDistanceHelper.getKeywordSource(BOOK_TABLE_OUTER, "review", conjunction);
+        KeywordMatcherSourceOperator keywordSourceInner = 
+                JoinDistanceHelper.getKeywordSource(BOOK_TABLE_INNER, "book", conjunction);
+        
+        List<ITuple> resultList = JoinDistanceHelper.getJoinDistanceResults(keywordSourceOuter, keywordSourceInner, 
+                JoinTestConstants.ID, JoinTestConstants.REVIEW, 20, Integer.MAX_VALUE, 0);
+
+        Assert.assertEquals(0, resultList.size());
+    }
+
+    // This case tests for the scenario when one of the operators' has multiple
+    // tuples and the other has a single tuple (ID of one of the tuple's in the
+    // list of multiple tuples should match with the ID of the single tuple) and
+    // spans are within the threshold.
+    // e.g.
+    // ID:          1         2         3         4
+    // Tuples: [<67, 73>][<67, 73>][<67, 73>][<67, 73>]
+    // ID:         2
+    // Tuple: [<62, 66>]
+    // threshold = 12
+    // [      ] [ ] [ ] [ ]
+    //       [      ]
+    // <----->
+    //        <-----> (ID match, within threshold)
+    // Test result: Join should result in a list with a single tuple with the
+    // matched ID and the corresponding joined spans.
+    // Tuple: [<62, 73>]
+    @Test
+    public void testMultipleTuplesAndSingleTupleSpanWithinThreshold() throws Exception {
+        List<ITuple> outerTuples = JoinTestConstants.bookGroup1;
+        List<ITuple> innerTuples = JoinTestConstants.bookGroup1.subList(4, 5);
+        
+        JoinDistanceHelper.insertToOuter(outerTuples);
+        JoinDistanceHelper.insertToInner(innerTuples);
+        
+        KeywordMatcherSourceOperator keywordSourceOuter = 
+                JoinDistanceHelper.getKeywordSource(BOOK_TABLE_OUTER, "review", conjunction);
+        KeywordMatcherSourceOperator keywordSourceInner = 
+                JoinDistanceHelper.getKeywordSource(BOOK_TABLE_INNER, "book", conjunction);
+        
+        List<ITuple> resultList = JoinDistanceHelper.getJoinDistanceResults(keywordSourceOuter, keywordSourceInner, 
+                JoinTestConstants.ID, JoinTestConstants.REVIEW, 20, Integer.MAX_VALUE, 0);
+        
+        Schema resultSchema = Utils.createSpanSchema(JoinTestConstants.BOOK_SCHEMA);
+        List<Span> spanList = new ArrayList<>();
+
+        Span span1 = new Span(JoinTestConstants.REVIEW, 0, 16, "review_book", "Review of a " + "Book");
+        spanList.add(span1);
+        Span span2 = new Span(JoinTestConstants.REVIEW, 62, 73, "review_book", "book review");
+        spanList.add(span2);
+        Span span3 = new Span(JoinTestConstants.REVIEW, 235, 246, "review_book", "book review");
+        spanList.add(span3);
+
+        IField[] book1 = { new IntegerField(55), new StringField("Matti Friedman"),
+                new StringField("Pumpkinflowers: A Soldier's " + "Story"), new IntegerField(256),
+                new TextField("Review of a Book. This is a typical " + "review. This is a test. A book review "
+                        + "test. A test to test queries without " + "actually using actual review. From "
+                        + "here onwards, we can pretend this to " + "be actually a review even if it is not "
+                        + "your typical book review."),
+                new ListField<>(spanList) };
+        
+        ITuple expectedTuple = new DataTuple(resultSchema, book1);
+        List<ITuple> expectedResult = new ArrayList<>();
+        expectedResult.add(expectedTuple);
+
+        Assert.assertEquals(1, resultList.size());
+        Assert.assertTrue(TestUtils.equals(expectedResult, resultList));
+    }
+    
+    // This case tests for the scenario when one of the operators' has multiple
+    // tuples and the other has a single tuple (ID of one of the tuple's in the
+    // list of multiple tuples should match with the ID of the single tuple) and
+    // none of the spans are not within threshold.
+    // e.g.
+    // ID:          1         2         3         4
+    // Tuples: [<67, 73>][<67, 73>][<67, 73>][<67, 73>]
+    // ID:         2
+    // Tuple: [<62, 66>]
+    // threshold = 4
+    // [ ] [ ] [ ] [ ]
+    //      [ ]
+    // <--->
+    // <--> (ID match, beyond threshold)
+    // Test result: Join should result in an empty list.
+    @Test
+    public void testMultipleTuplesAndSingleTupleSpanExceedThreshold() throws Exception {
+        List<ITuple> outerTuples = JoinTestConstants.bookGroup1;
+        List<ITuple> innerTuples = JoinTestConstants.bookGroup1.subList(4, 5);
+        
+        JoinDistanceHelper.insertToOuter(outerTuples);
+        JoinDistanceHelper.insertToInner(innerTuples);
+        
+        KeywordMatcherSourceOperator keywordSourceOuter = 
+                JoinDistanceHelper.getKeywordSource(BOOK_TABLE_OUTER, "review", conjunction);
+        KeywordMatcherSourceOperator keywordSourceInner = 
+                JoinDistanceHelper.getKeywordSource(BOOK_TABLE_INNER, "book", conjunction);
+        
+        List<ITuple> resultList = JoinDistanceHelper.getJoinDistanceResults(keywordSourceOuter, keywordSourceInner, 
+                JoinTestConstants.ID, JoinTestConstants.REVIEW, 4, Integer.MAX_VALUE, 0);
+
+        Assert.assertEquals(0, resultList.size());
+    }
+    
+    // This case tests for the scenario when both the operators' have multiple
+    // tuples and some of tuples IDs match and spans are within threshold.
+    // e.g.
+    // ID:          1         2         3         4
+    // Tuples: [<67, 73>][<67, 73>][<67, 73>][<67, 73>]
+    // ID:          2          4
+    // Tuples: [<62, 66>] [<62, 66>]
+    // threshold = 12
+    // [       ]            [      ] [ ] [ ]
+    //       [      ] [       ] [ ] [ ] [ ]
+    // <-----> <---->
+    //                <-----> <---->(ID match, within threshold)
+    // Test result: Join should result in a list containing tuples with spans.
+    // The number of tuples is equal to the number of tuples with both ID match
+    // and span within threshold.
+    // [<62, 73>][<62, 73>]
+    @Test
+    public void testBothOperatorsMultipleTuplesSpanWithinThreshold() throws Exception {
+        List<ITuple> outerTuples = new ArrayList<>();
+        outerTuples.add(JoinTestConstants.bookGroup1.get(3));
+        outerTuples.add(JoinTestConstants.bookGroup2.get(2));
+        outerTuples.add(JoinTestConstants.bookGroup2.get(4));
+        
+        List<ITuple> innerTuples = new ArrayList<>();
+        innerTuples.addAll(JoinTestConstants.bookGroup1);
+        innerTuples.addAll(JoinTestConstants.bookGroup2);
+        
+        JoinDistanceHelper.insertToOuter(outerTuples);
+        JoinDistanceHelper.insertToInner(innerTuples);
+           
+        KeywordMatcherSourceOperator keywordSourceOuter = 
+                JoinDistanceHelper.getKeywordSource(BOOK_TABLE_OUTER, "review", conjunction);
+        KeywordMatcherSourceOperator keywordSourceInner = 
+                JoinDistanceHelper.getKeywordSource(BOOK_TABLE_INNER, "book", conjunction);
+        
+        List<ITuple> resultList = JoinDistanceHelper.getJoinDistanceResults(keywordSourceOuter, keywordSourceInner, 
+                JoinTestConstants.ID, JoinTestConstants.REVIEW, 12, Integer.MAX_VALUE, 0);
+
+        Schema resultSchema = Utils.createSpanSchema(JoinTestConstants.BOOK_SCHEMA);
+        List<Span> spanList = new ArrayList<>();
+
+        Span span1 = new Span(JoinTestConstants.REVIEW, 0, 16, "review_book", "Review of a " + "Book");
+        spanList.add(span1);
+        Span span2 = new Span(JoinTestConstants.REVIEW, 62, 73, "review_book", "book review");
+        spanList.add(span2);
+        Span span3 = new Span(JoinTestConstants.REVIEW, 235, 246, "review_book", "book review");
+        spanList.add(span3);
+
+        IField[] book1 = { new IntegerField(54), new StringField("Andria Williams"),
+                new StringField("The Longest Night: A Novel"), new IntegerField(400),
+                new TextField("Review of a Book. This is a typical " + "review. This is a test. A book review "
+                        + "test. A test to test queries without " + "actually using actual review. From "
+                        + "here onwards, we can pretend this to " + "be actually a review even if it is not "
+                        + "your typical book review."),
+                new ListField<>(spanList) };
+
+        IField[] book2 = { new IntegerField(65), new StringField("Sharon Guskin"),
+                new StringField("The Forgetting Time: A Novel"), new IntegerField(368),
+                new TextField("Review of a Book. This is a typical " + "review. This is a test. A book review "
+                        + "test. A test to test queries without " + "actually using actual review. From "
+                        + "here onwards, we can pretend this to " + "be actually a review even if it is not "
+                        + "your typical book review."),
+                new ListField<>(spanList) };
+
+        IField[] book3 = { new IntegerField(63), new StringField("Paul Kalanithi"),
+                new StringField("When Breath Becomes Air"), new IntegerField(256),
+                new TextField("Review of a Book. This is a typical " + "review. This is a test. A book review "
+                        + "test. A test to test queries without " + "actually using actual review. From "
+                        + "here onwards, we can pretend this to " + "be actually a review even if it is not "
+                        + "your typical book review."),
+                new ListField<>(spanList) };
+
+        ITuple expectedTuple1 = new DataTuple(resultSchema, book1);
+        ITuple expectedTuple2 = new DataTuple(resultSchema, book2);
+        ITuple expectedTuple3 = new DataTuple(resultSchema, book3);
+        List<ITuple> expectedResult = new ArrayList<>();
+        expectedResult.add(expectedTuple1);
+        expectedResult.add(expectedTuple2);
+        expectedResult.add(expectedTuple3);
+        
+        Assert.assertEquals(3, resultList.size());
+        Assert.assertTrue(TestUtils.equals(expectedResult, resultList));
+    }
     
     
     
+    // This case tests for the scenario when both the operators' have multiple
+    // tuples and some of tuples IDs match, but none of spans are within
+    // threshold.
+    // e.g.
+    // ID:          1         2         3         4
+    // Tuples: [<67, 73>][<67, 73>][<67, 73>][<67, 73>]
+    // ID:          2          4
+    // Tuples: [<62, 66>] [<62, 66>]
+    // threshold = 4
+    // [     ]        [      ]       [      ] [ ]
+    // [ ] [ ] [       ]      [       ] [ ]
+    //         <-----> <---->
+    //                        <-----> <---->(ID match, beyond threshold)
+    // Test result: Join should result in an empty list.
+    @Test
+    public void testBothOperatorsMultipleTuplesSpanExceedThreshold() throws Exception {
+        List<ITuple> outerTuples = new ArrayList<>();
+        outerTuples.add(JoinTestConstants.bookGroup1.get(3));
+        outerTuples.add(JoinTestConstants.bookGroup2.get(2));
+        outerTuples.add(JoinTestConstants.bookGroup2.get(4));
+        
+        List<ITuple> innerTuples = new ArrayList<>();
+        innerTuples.addAll(JoinTestConstants.bookGroup1);
+        innerTuples.addAll(JoinTestConstants.bookGroup2);
+        
+        JoinDistanceHelper.insertToOuter(outerTuples);
+        JoinDistanceHelper.insertToInner(innerTuples);
+           
+        KeywordMatcherSourceOperator keywordSourceOuter = 
+                JoinDistanceHelper.getKeywordSource(BOOK_TABLE_OUTER, "review", conjunction);
+        KeywordMatcherSourceOperator keywordSourceInner = 
+                JoinDistanceHelper.getKeywordSource(BOOK_TABLE_INNER, "book", conjunction);
+        
+        List<ITuple> resultList = JoinDistanceHelper.getJoinDistanceResults(keywordSourceOuter, keywordSourceInner, 
+                JoinTestConstants.ID, JoinTestConstants.REVIEW, 4, Integer.MAX_VALUE, 0);
+        Assert.assertEquals(0, resultList.size());
+    }
+    
+    // This case tests for the scenario when the query has results over multiple
+    // fields and join has to be performed only on the field mentioned in the
+    // attribute.
+    // Test result: Join should return only those tuples which satisfy all the
+    // constraints.
+    @Test
+    public void testQueryHasResultsOverMultipleFields() throws Exception {
+        List<ITuple> outerTuples = JoinTestConstants.bookGroup1.subList(1, 5);
+        List<ITuple> innerTuples = JoinTestConstants.bookGroup1.subList(1, 5);
+        
+        JoinDistanceHelper.insertToOuter(outerTuples);
+        JoinDistanceHelper.insertToInner(innerTuples);
+           
+        KeywordMatcherSourceOperator keywordSourceOuter = 
+                JoinDistanceHelper.getKeywordSource(BOOK_TABLE_OUTER, "typical", conjunction);
+        KeywordMatcherSourceOperator keywordSourceInner = 
+                JoinDistanceHelper.getKeywordSource(BOOK_TABLE_INNER, "actually", conjunction);
+        
+        List<ITuple> resultList = JoinDistanceHelper.getJoinDistanceResults(keywordSourceOuter, keywordSourceInner, 
+                JoinTestConstants.ID, JoinTestConstants.REVIEW, 90, Integer.MAX_VALUE, 0);
+
+        Schema resultSchema = Utils.createSpanSchema(JoinTestConstants.BOOK_SCHEMA);
+        List<Span> spanList = new ArrayList<>();
+
+        Span span1 = new Span(JoinTestConstants.REVIEW, 28, 119, "typical_actually", "typical review. "
+                + "This is a test. A book review test. " + "A test to test queries without actually");
+        spanList.add(span1);
+        Span span2 = new Span(JoinTestConstants.REVIEW, 186, 234, "typical_actually",
+                "actually a review " + "even if it is not your typical");
+        spanList.add(span2);
+        
+        IField[] book1 = { new IntegerField(51), new StringField("author unknown"), new StringField("typical"),
+                new IntegerField(300),
+                new TextField("Review of a Book. This is a typical " + "review. This is a test. A book review "
+                        + "test. A test to test queries without " + "actually using actual review. From "
+                        + "here onwards, we can pretend this to " + "be actually a review even if it is not "
+                        + "your typical book review."),
+                new ListField<>(spanList) };
+
+        IField[] book2 = { new IntegerField(53), new StringField("Noah Hawley"), new StringField("Before the Fall"),
+                new IntegerField(400),
+                new TextField("Review of a Book. This is a typical " + "review. This is a test. A book review "
+                        + "test. A test to test queries without " + "actually using actual review. From "
+                        + "here onwards, we can pretend this to " + "be actually a review even if it is not "
+                        + "your typical book review."),
+                new ListField<>(spanList) };
+
+        IField[] book3 = { new IntegerField(54), new StringField("Andria Williams"),
+                new StringField("The Longest Night: A Novel"), new IntegerField(400),
+                new TextField("Review of a Book. This is a typical " + "review. This is a test. A book review "
+                        + "test. A test to test queries without " + "actually using actual review. From "
+                        + "here onwards, we can pretend this to " + "be actually a review even if it is not "
+                        + "your typical book review."),
+                new ListField<>(spanList) };
+
+        IField[] book4 = { new IntegerField(55), new StringField("Matti Friedman"),
+                new StringField("Pumpkinflowers: A Soldier's " + "Story"), new IntegerField(256),
+                new TextField("Review of a Book. This is a typical " + "review. This is a test. A book review "
+                        + "test. A test to test queries without " + "actually using actual review. From "
+                        + "here onwards, we can pretend this to " + "be actually a review even if it is not "
+                        + "your typical book review."),
+                new ListField<>(spanList) };
+
+        ITuple expectedTuple1 = new DataTuple(resultSchema, book1);
+        ITuple expectedTuple2 = new DataTuple(resultSchema, book2);
+        ITuple expectedTuple3 = new DataTuple(resultSchema, book3);
+        ITuple expectedTuple4 = new DataTuple(resultSchema, book4);
+        List<ITuple> expectedResult = new ArrayList<>();
+        expectedResult.add(expectedTuple1);
+        expectedResult.add(expectedTuple2);
+        expectedResult.add(expectedTuple3);
+        expectedResult.add(expectedTuple4);
+        
+        Assert.assertEquals(4, resultList.size());
+        Assert.assertTrue(TestUtils.equals(expectedResult, resultList));
+    }
+    
+    // ---------------------<Limit and offset test cases.>---------------------
+
+    /*
+     * This case tests for the scenario when limit is some integer greater than
+     * 0 and less than the actual number of results and offset is 0 and join 
+     * is performed.
+     * Test result: A list of tuples with number of tuples equal to limit.
+     */
+    @Test
+    public void testForLimitWhenLimitIsLesserThanActualNumberOfResults() throws Exception{
+        List<ITuple> outerTuples = JoinTestConstants.bookGroup1.subList(1, 5);
+        List<ITuple> innerTuples = JoinTestConstants.bookGroup1.subList(1, 5);
+        
+        JoinDistanceHelper.insertToOuter(outerTuples);
+        JoinDistanceHelper.insertToInner(innerTuples);
+           
+        KeywordMatcherSourceOperator keywordSourceOuter = 
+                JoinDistanceHelper.getKeywordSource(BOOK_TABLE_OUTER, "typical", conjunction);
+        KeywordMatcherSourceOperator keywordSourceInner = 
+                JoinDistanceHelper.getKeywordSource(BOOK_TABLE_INNER, "actually", conjunction);
+        
+        List<ITuple> resultList = JoinDistanceHelper.getJoinDistanceResults(keywordSourceOuter, keywordSourceInner, 
+                JoinTestConstants.ID, JoinTestConstants.REVIEW, 90, 3, 0);
+
+        Schema resultSchema = Utils.createSpanSchema(JoinTestConstants.BOOK_SCHEMA);
+        List<Span> spanList = new ArrayList<>();
+        
+        Span span1 = new Span(JoinTestConstants.REVIEW, 28, 119, "typical_actually", "typical review. "
+                + "This is a test. A book review test. " + "A test to test queries without actually");
+        spanList.add(span1);
+        Span span2 = new Span(JoinTestConstants.REVIEW, 186, 234, "typical_actually",
+                "actually a review " + "even if it is not your typical");
+        spanList.add(span2);
+
+        IField[] book1 = { new IntegerField(51), new StringField("author unknown"), new StringField("typical"),
+                new IntegerField(300),
+                new TextField("Review of a Book. This is a typical " + "review. This is a test. A book review "
+                        + "test. A test to test queries without " + "actually using actual review. From "
+                        + "here onwards, we can pretend this to " + "be actually a review even if it is not "
+                        + "your typical book review."),
+                new ListField<>(spanList) };
+        
+        IField[] book2 = { new IntegerField(53), new StringField("Noah Hawley"),
+                new StringField("Before the Fall"), new IntegerField(400),
+                new TextField("Review of a Book. This is a typical " + "review. This is a test. A book review "
+                        + "test. A test to test queries without " + "actually using actual review. From "
+                        + "here onwards, we can pretend this to " + "be actually a review even if it is not "
+                        + "your typical book review."),
+                new ListField<>(spanList) };
+
+        IField[] book3 = { new IntegerField(54), new StringField("Andria Williams"),
+                new StringField("The Longest Night: A Novel"), new IntegerField(400),
+                new TextField("Review of a Book. This is a typical " + "review. This is a test. A book review "
+                        + "test. A test to test queries without " + "actually using actual review. From "
+                        + "here onwards, we can pretend this to " + "be actually a review even if it is not "
+                        + "your typical book review."),
+                new ListField<>(spanList) };
+        
+        IField[] book4 = { new IntegerField(55), new StringField("Matti Friedman"),
+                new StringField("Pumpkinflowers: A Soldier's " + "Story"), new IntegerField(256),
+                new TextField("Review of a Book. This is a typical " + "review. This is a test. A book review "
+                        + "test. A test to test queries without " + "actually using actual review. From "
+                        + "here onwards, we can pretend this to " + "be actually a review even if it is not "
+                        + "your typical book review."),
+                new ListField<>(spanList) };
+
+        ITuple expectedTuple1 = new DataTuple(resultSchema, book1);
+        ITuple expectedTuple2 = new DataTuple(resultSchema, book2);
+        ITuple expectedTuple3 = new DataTuple(resultSchema, book3);
+        ITuple expectedTuple4 = new DataTuple(resultSchema, book4);
+        List<ITuple> expectedResult = new ArrayList<>(3);
+        expectedResult.add(expectedTuple1);
+        expectedResult.add(expectedTuple2);
+        expectedResult.add(expectedTuple3);
+        expectedResult.add(expectedTuple4);
+        
+        Assert.assertEquals(3, resultList.size());
+        Assert.assertTrue(TestUtils.containsAll(expectedResult, resultList));
+    }
+
+    /*
+     * This case tests for the scenario when limit is some integer greater than
+     * 0 and greater than the actual number of results and offset is 0 and join
+     * is performed.
+     * Test result: A list of tuples with number of tuples equal to the maximum
+     * number of tuples operator can generate (which is lesser than limit.)
+     */
+    @Test
+    public void testForLimitWhenLimitIsGreaterThanActualNumberOfResults() throws Exception{
+        List<ITuple> outerTuples = JoinTestConstants.bookGroup1.subList(1, 5);
+        List<ITuple> innerTuples = JoinTestConstants.bookGroup1.subList(1, 5);
+        
+        JoinDistanceHelper.insertToOuter(outerTuples);
+        JoinDistanceHelper.insertToInner(innerTuples);
+           
+        KeywordMatcherSourceOperator keywordSourceOuter = 
+                JoinDistanceHelper.getKeywordSource(BOOK_TABLE_OUTER, "typical", conjunction);
+        KeywordMatcherSourceOperator keywordSourceInner = 
+                JoinDistanceHelper.getKeywordSource(BOOK_TABLE_INNER, "actually", conjunction);
+        
+        List<ITuple> resultList = JoinDistanceHelper.getJoinDistanceResults(keywordSourceOuter, keywordSourceInner, 
+                JoinTestConstants.ID, JoinTestConstants.REVIEW, 90, 10, 0);
+
+        Schema resultSchema = Utils.createSpanSchema(JoinTestConstants.BOOK_SCHEMA);
+        List<Span> spanList = new ArrayList<>();
+
+        Span span1 = new Span(JoinTestConstants.REVIEW, 28, 119, "typical_actually", "typical review. "
+                + "This is a test. A book review test. " + "A test to test queries without actually");
+        spanList.add(span1);
+        Span span2 = new Span(JoinTestConstants.REVIEW, 186, 234, "typical_actually",
+                "actually a review " + "even if it is not your typical");
+        spanList.add(span2);
+
+        IField[] book1 = { new IntegerField(51), new StringField("author unknown"), new StringField("typical"),
+                new IntegerField(300),
+                new TextField("Review of a Book. This is a typical " + "review. This is a test. A book review "
+                        + "test. A test to test queries without " + "actually using actual review. From "
+                        + "here onwards, we can pretend this to " + "be actually a review even if it is not "
+                        + "your typical book review."),
+                new ListField<>(spanList) };
+
+        IField[] book2 = { new IntegerField(53), new StringField("Noah Hawley"), new StringField("Before the Fall"),
+                new IntegerField(400),
+                new TextField("Review of a Book. This is a typical " + "review. This is a test. A book review "
+                        + "test. A test to test queries without " + "actually using actual review. From "
+                        + "here onwards, we can pretend this to " + "be actually a review even if it is not "
+                        + "your typical book review."),
+                new ListField<>(spanList) };
+
+        IField[] book3 = { new IntegerField(54), new StringField("Andria Williams"),
+                new StringField("The Longest Night: A Novel"), new IntegerField(400),
+                new TextField("Review of a Book. This is a typical " + "review. This is a test. A book review "
+                        + "test. A test to test queries without " + "actually using actual review. From "
+                        + "here onwards, we can pretend this to " + "be actually a review even if it is not "
+                        + "your typical book review."),
+                new ListField<>(spanList) };
+
+        IField[] book4 = { new IntegerField(55), new StringField("Matti Friedman"),
+                new StringField("Pumpkinflowers: A Soldier's " + "Story"), new IntegerField(256),
+                new TextField("Review of a Book. This is a typical " + "review. This is a test. A book review "
+                        + "test. A test to test queries without " + "actually using actual review. From "
+                        + "here onwards, we can pretend this to " + "be actually a review even if it is not "
+                        + "your typical book review."),
+                new ListField<>(spanList) };
+
+        ITuple expectedTuple1 = new DataTuple(resultSchema, book1);
+        ITuple expectedTuple2 = new DataTuple(resultSchema, book2);
+        ITuple expectedTuple3 = new DataTuple(resultSchema, book3);
+        ITuple expectedTuple4 = new DataTuple(resultSchema, book4);
+        List<ITuple> expectedResult = new ArrayList<>(5);
+        expectedResult.add(expectedTuple1);
+        expectedResult.add(expectedTuple2);
+        expectedResult.add(expectedTuple3);
+        expectedResult.add(expectedTuple4);
+
+        boolean contains = TestUtils.equals(expectedResult, resultList);
+
+        Assert.assertEquals(4, resultList.size());
+        Assert.assertTrue(contains);
+    }
+
+    /*
+     * This case tests for the scenario when limit is 0 and offset is 0 and 
+     * join is performed.
+     * Test result: An empty list.
+     */
+    @Test
+    public void testForLimitWhenLimitIsZero() throws Exception{
+        List<ITuple> outerTuples = JoinTestConstants.bookGroup1.subList(1, 5);
+        List<ITuple> innerTuples = JoinTestConstants.bookGroup1.subList(1, 5);
+        
+        JoinDistanceHelper.insertToOuter(outerTuples);
+        JoinDistanceHelper.insertToInner(innerTuples);
+           
+        KeywordMatcherSourceOperator keywordSourceOuter = 
+                JoinDistanceHelper.getKeywordSource(BOOK_TABLE_OUTER, "typical", conjunction);
+        KeywordMatcherSourceOperator keywordSourceInner = 
+                JoinDistanceHelper.getKeywordSource(BOOK_TABLE_INNER, "actually", conjunction);
+        
+        List<ITuple> resultList = JoinDistanceHelper.getJoinDistanceResults(keywordSourceOuter, keywordSourceInner, 
+                JoinTestConstants.ID, JoinTestConstants.REVIEW, 90, 0, 0);
+
+        Assert.assertEquals(0, resultList.size());
+    }
+
+    /*
+     * This case tests for the scenario when limit is 0 and offset is some 
+     * integer greater than 0 and less than the actual number of results and 
+     * join is performed.
+     * Test result: An empty list.
+     */
+    @Test
+    public void testForLimitWhenLimitIsZeroAndHasOffset() throws Exception{
+        List<ITuple> outerTuples = JoinTestConstants.bookGroup1.subList(1, 5);
+        List<ITuple> innerTuples = JoinTestConstants.bookGroup1.subList(1, 5);
+        
+        JoinDistanceHelper.insertToOuter(outerTuples);
+        JoinDistanceHelper.insertToInner(innerTuples);
+           
+        KeywordMatcherSourceOperator keywordSourceOuter = 
+                JoinDistanceHelper.getKeywordSource(BOOK_TABLE_OUTER, "typical", conjunction);
+        KeywordMatcherSourceOperator keywordSourceInner = 
+                JoinDistanceHelper.getKeywordSource(BOOK_TABLE_INNER, "actually", conjunction);
+        
+        List<ITuple> resultList = JoinDistanceHelper.getJoinDistanceResults(keywordSourceOuter, keywordSourceInner, 
+                JoinTestConstants.ID, JoinTestConstants.REVIEW, 90, 0, 2);
+
+        Assert.assertEquals(0, resultList.size());
+    }
+
+    /*
+     * This case tests for the scenario when limit is some integer greater than
+     * 0 and less than the actual number of results and offset is some integer
+     * greater than 0 and less than actual number of results and join is 
+     * performed.
+     * Test result: A list of tuples with number of tuples equal to limit 
+     * starting from the set offset.
+     */
+    @Test
+    public void testForLimitWhenLimitIsLesserThanActualNumberOfResultsAndHasOffset() throws Exception {
+        List<ITuple> outerTuples = JoinTestConstants.bookGroup1.subList(1, 5);
+        List<ITuple> innerTuples = JoinTestConstants.bookGroup1.subList(1, 5);
+        
+        JoinDistanceHelper.insertToOuter(outerTuples);
+        JoinDistanceHelper.insertToInner(innerTuples);
+           
+        KeywordMatcherSourceOperator keywordSourceOuter = 
+                JoinDistanceHelper.getKeywordSource(BOOK_TABLE_OUTER, "typical", conjunction);
+        KeywordMatcherSourceOperator keywordSourceInner = 
+                JoinDistanceHelper.getKeywordSource(BOOK_TABLE_INNER, "actually", conjunction);
+        
+        List<ITuple> resultList = JoinDistanceHelper.getJoinDistanceResults(keywordSourceOuter, keywordSourceInner, 
+                JoinTestConstants.ID, JoinTestConstants.REVIEW, 90, 1, 2);
+
+        Schema resultSchema = Utils.createSpanSchema(JoinTestConstants.BOOK_SCHEMA);
+        List<Span> spanList = new ArrayList<>();
+
+        Span span1 = new Span(JoinTestConstants.REVIEW, 28, 119, "typical_actually", "typical review. "
+                + "This is a test. A book review test. " + "A test to test queries without actually");
+        spanList.add(span1);
+        Span span2 = new Span(JoinTestConstants.REVIEW, 186, 234, "typical_actually",
+                "actually a review " + "even if it is not your typical");
+        spanList.add(span2);
+
+        IField[] book1 = { new IntegerField(54), new StringField("Andria Williams"),
+                new StringField("The Longest Night: A Novel"), new IntegerField(400),
+                new TextField("Review of a Book. This is a typical " + "review. This is a test. A book review "
+                        + "test. A test to test queries without " + "actually using actual review. From "
+                        + "here onwards, we can pretend this to " + "be actually a review even if it is not "
+                        + "your typical book review."),
+                new ListField<>(spanList) };
+
+        ITuple expectedTuple1 = new DataTuple(resultSchema, book1);
+        List<ITuple> expectedResult = new ArrayList<>(1);
+        expectedResult.add(expectedTuple1);
+
+        boolean contains = TestUtils.equals(expectedResult, resultList);
+
+        Assert.assertEquals(1, resultList.size());
+        Assert.assertTrue(contains);
+    }
+
+
+    /*
+     * This case tests for the scenario when offset is some integer greater 
+     * than 0 and greater than the actual number of results and join is 
+     * performed.
+     * Test result: An empty list.
+     */
+    @Test
+    public void testOffsetGreaterThanNumberOfResults() throws Exception{
+        List<ITuple> outerTuples = JoinTestConstants.bookGroup1.subList(1, 5);
+        List<ITuple> innerTuples = JoinTestConstants.bookGroup1.subList(1, 5);
+        
+        JoinDistanceHelper.insertToOuter(outerTuples);
+        JoinDistanceHelper.insertToInner(innerTuples);
+           
+        KeywordMatcherSourceOperator keywordSourceOuter = 
+                JoinDistanceHelper.getKeywordSource(BOOK_TABLE_OUTER, "typical", conjunction);
+        KeywordMatcherSourceOperator keywordSourceInner = 
+                JoinDistanceHelper.getKeywordSource(BOOK_TABLE_INNER, "actually", conjunction);
+        
+        List<ITuple> resultList = JoinDistanceHelper.getJoinDistanceResults(keywordSourceOuter, keywordSourceInner, 
+                JoinTestConstants.ID, JoinTestConstants.REVIEW, 90, 1, 10);
+
+        Assert.assertEquals(0, resultList.size());
+    }
+
+    // ------------------------<Test cases for cursor.>------------------------
+    /*
+     * This case tests for the scenario when open and/or close is called twice 
+     * and also when getNextTuple() is called when operator is closed.
+     * Test result: Opening or closing the operator twice shouldn't result in 
+     * any noticeable difference in operation. But, calling getNetTuple() when 
+     * operator is closed should throw an exception.
+     */
+    @Test(expected = DataFlowException.class)
+    public void testWhenOpenOrCloseIsCalledTwiceAndTryToGetNextTupleWhenClosed() throws Exception {
+        List<ITuple> outerTuples = JoinTestConstants.bookGroup1.subList(1, 5);
+        List<ITuple> innerTuples = JoinTestConstants.bookGroup1.subList(1, 5);
+        
+        JoinDistanceHelper.insertToOuter(outerTuples);
+        JoinDistanceHelper.insertToInner(innerTuples);
+           
+        KeywordMatcherSourceOperator keywordSourceOuter = 
+                JoinDistanceHelper.getKeywordSource(BOOK_TABLE_OUTER, "typical", conjunction);
+        KeywordMatcherSourceOperator keywordSourceInner = 
+                JoinDistanceHelper.getKeywordSource(BOOK_TABLE_INNER, "actually", conjunction);
+
+        JoinDistancePredicate distancePredicate = new JoinDistancePredicate(
+                JoinTestConstants.ID, JoinTestConstants.REVIEW, 90);
+        
+        Join join = new Join(distancePredicate);
+        join.setOuterInputOperator(keywordSourceOuter);
+        join.setInnerInputOperator(keywordSourceInner);
+        
+        ITuple tuple;
+        List<ITuple> resultList = new ArrayList<>();
+        
+        join.open();
+        join.open();
+        while ((tuple = join.getNextTuple()) != null) {
+            resultList.add(tuple);
+        }
+        join.close();
+        join.close();
+
+        Assert.assertEquals(4, resultList.size());
+        
+        // this line should throw an exception because operator is already closed
+        if ((tuple = join.getNextTuple()) != null) {
+            resultList.add(tuple);
+        }
+    }
 
 }

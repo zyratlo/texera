@@ -5,7 +5,6 @@ import java.util.List;
 
 import edu.uci.ics.textdb.api.common.Attribute;
 import edu.uci.ics.textdb.api.common.FieldType;
-import edu.uci.ics.textdb.api.common.IField;
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.common.Schema;
 import edu.uci.ics.textdb.common.field.DataTuple;
@@ -29,7 +28,13 @@ public class JoinTestConstants {
     
     public static final Schema BOOK_SCHEMA = new Schema(ID_ATTR, AUTHOR_ATTR, TITLE_ATTR, PAGES_ATTR, REVIEW_ATTR);
        
-    public static List<ITuple> bookGroup1 = Arrays.asList(           
+    public static final List<ITuple> bookGroup1 = Arrays.asList(     
+            new DataTuple(BOOK_SCHEMA,
+                    new IntegerField(52), new StringField("Mary Roach"),
+                    new StringField("Grunt: The Curious Science of Humans at War"), new IntegerField(288),
+                    new TextField("It takes a special kind " + "of writer to make topics ranging from death to our "
+                            + "gastrointestinal tract interesting (sometimes "
+                            + "hilariously so), and pop science writer Mary Roach is " + "always up to the task.")),
             new DataTuple(BOOK_SCHEMA,               
                     new IntegerField(51), new StringField("author unknown"),
                     new StringField("typical"), new IntegerField(300),
@@ -37,12 +42,6 @@ public class JoinTestConstants {
                             + "review. This is a test. A book review " + "test. A test to test queries without "
                             + "actually using actual review. From " + "here onwards, we can pretend this to "
                             + "be actually a review even if it is not " + "your typical book review.")),
-            new DataTuple(BOOK_SCHEMA,
-                    new IntegerField(52), new StringField("Mary Roach"),
-                    new StringField("Grunt: The Curious Science of Humans at War"), new IntegerField(288),
-                    new TextField("It takes a special kind " + "of writer to make topics ranging from death to our "
-                            + "gastrointestinal tract interesting (sometimes "
-                            + "hilariously so), and pop science writer Mary Roach is " + "always up to the task.")),
             new DataTuple(BOOK_SCHEMA,
                     new IntegerField(53), new StringField("Noah Hawley"),
                     new StringField("Before the Fall"), new IntegerField(400),
@@ -65,7 +64,7 @@ public class JoinTestConstants {
                             + "actually using actual review. From " + "here onwards, we can pretend this to "
                             + "be actually a review even if it is not " + "your typical book review.")));
     
-    public static List<ITuple> bookGroup2 = Arrays.asList(
+    public static final List<ITuple> bookGroup2 = Arrays.asList(
             new DataTuple(BOOK_SCHEMA,
                     new IntegerField(61), new StringField("book author"),
                     new StringField("actually typical"), new IntegerField(700),

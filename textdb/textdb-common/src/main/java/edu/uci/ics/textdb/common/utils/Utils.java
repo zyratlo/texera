@@ -115,6 +115,32 @@ public class Utils {
         }
         return luceneField;
     }
+    
+    /**
+     * Returns the FieldType of a field object.
+     * 
+     * @param field
+     * @return
+     */
+    public static FieldType getFieldType(IField field) {
+        if (field instanceof DateField) {
+            return FieldType.DATE;
+        } else if (field instanceof DoubleField) {
+            return FieldType.DOUBLE;
+        } else if (field instanceof IDField) {
+            return FieldType._ID_TYPE;
+        } else if (field instanceof IntegerField) {
+            return FieldType.INTEGER;
+        } else if (field instanceof ListField) {
+            return FieldType.LIST;
+        } else if (field instanceof StringField) {
+            return FieldType.STRING;
+        } else if (field instanceof TextField) {
+            return FieldType.TEXT;
+        } else {
+            throw new RuntimeException("no existing type mapping of this field object");
+        }
+    }
 
     /**
      * @about Creating a new span tuple from span schema, field list
