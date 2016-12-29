@@ -1164,10 +1164,8 @@ public class JoinDistanceTest {
         expectedResult.add(expectedTuple3);
         expectedResult.add(expectedTuple4);
 
-        boolean contains = TestUtils.equals(expectedResult, resultList);
-
         Assert.assertEquals(4, resultList.size());
-        Assert.assertTrue(contains);
+        Assert.assertTrue(TestUtils.equals(expectedResult, resultList));
     }
 
     /*
@@ -1265,10 +1263,8 @@ public class JoinDistanceTest {
         List<ITuple> expectedResult = new ArrayList<>(1);
         expectedResult.add(expectedTuple1);
 
-        boolean contains = TestUtils.equals(expectedResult, resultList);
-
         Assert.assertEquals(1, resultList.size());
-        Assert.assertTrue(contains);
+        Assert.assertTrue(TestUtils.equals(expectedResult, resultList));
     }
 
 
