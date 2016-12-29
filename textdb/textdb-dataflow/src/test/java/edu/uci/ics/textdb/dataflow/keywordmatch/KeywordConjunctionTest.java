@@ -40,14 +40,14 @@ public class KeywordConjunctionTest {
     
     public static final KeywordMatchingType conjunction = KeywordMatchingType.CONJUNCTION_INDEXBASED;
     
+    @Before
     public void setUp() throws Exception {
         KeywordTestHelper.writeTestTables();
-        System.out.println("before called");
     }
 
+    @After
     public void cleanUp() throws Exception {
         KeywordTestHelper.deleteTestTables();
-        System.out.println("after called");
     }
 
     /**
