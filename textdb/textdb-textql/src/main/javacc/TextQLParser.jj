@@ -414,12 +414,12 @@ CreateViewStatement createViewStatement() :
     // parse CREATE VIEW viewName AS
     <CREATE>
     <VIEW>
-    viewName = identifierLiteralToString() { createViewStatement.id = viewName; }
+    viewName = identifierLiteralToString() { createViewStatement.setId(viewName); }
     <AS>
     // parse the inner statement (subStatement) which is a SelectStatement
     (
         subStatement = selectStatement()
-    ){ createViewStatement.subStatement = subStatement; }
+    ){ createViewStatement.setSubStatement(subStatement); }
     // return generated CreateViewStatement
     {
         return createViewStatement;
@@ -448,7 +448,6 @@ CreateViewStatement createViewStatement() :
 SelectStatement selectStatement() : 
 {
     SelectStatement selectStatement = new SelectStatement();
-    selectStatement.id = getNewStatementId();
     List<String> identifiers;
     String fromClause;
     Integer limitClause;
@@ -456,6 +455,7 @@ SelectStatement selectStatement() :
     ExtractPredicate extractPredicate;
 }
 {
+    { selectStatement.setId(getNewStatementId()); }
     // parse the SELECT clause or/and the EXTRACT clause
     (
             // parse the SELECT clause only, or parse the SELECT clause and the EXTRACT clause
@@ -463,34 +463,34 @@ SelectStatement selectStatement() :
                 // parse the SELECT clause
                 <SELECT> 
                 ( 
-                        <STAR> { selectStatement.projectAll = true; } // SELECT *
+                        <STAR> { selectStatement.setProjectAll(true); } // SELECT *
                     | 
                         identifiers = identifierListToListString() // SELECT a,b,...
-                            { selectStatement.projectedFields = identifiers; } 
+                            { selectStatement.setProjectedFields(identifiers); } 
                 )
                 // parse the EXTRACT clause (optional)
                 (
                     <EXTRACT> extractPredicate = extractPredicate() // EXTRACT extractPredicate
-                        { selectStatement.extractPredicate = extractPredicate; } 
+                        { selectStatement.setExtractPredicate(extractPredicate); } 
                 )?
             )
         |
             // parse the EXTRACT clause only
             <EXTRACT> extractPredicate = extractPredicate() // EXTRACT only
-                { selectStatement.extractPredicate = extractPredicate; } 
+                { selectStatement.setExtractPredicate(extractPredicate); } 
     )
     // parse FROM field
     <FROM> fromClause = identifierLiteralToString()
-        { selectStatement.fromClause = fromClause; }
+        { selectStatement.setFromClause(fromClause); }
     // parse LIMIT field(optional)
     (
       <LIMIT> limitClause = numberLiteralToInteger()
-        { selectStatement.limitClause = limitClause; }
+        { selectStatement.setLimitClause(limitClause); }
     )?
     // parse OFFSET field(optional)
     (
       <OFFSET> offsetClause = numberLiteralToInteger()
-        { selectStatement.offsetClause = offsetClause; }
+        { selectStatement.setOffsetClause(offsetClause); }
     )?
     // return generated SelectStatement
     {
@@ -556,12 +556,12 @@ KeywordExtractPredicate extractKeywordMatchPredicate() :
             | 
                 // parse the list of fields between brackets
                 <LBRACKET> matchingFields = identifierListToListString() <RBRACKET>
-        ) { keywordExtractPredicate.matchingFields = matchingFields; }
+        ) { keywordExtractPredicate.setMatchingFields(matchingFields); }
         // parse the keywords as a string
-        <COMMA> keywords = stringLiteralToString() { keywordExtractPredicate.keywords = keywords; }
+        <COMMA> keywords = stringLiteralToString() { keywordExtractPredicate.setKeywords(keywords); }
         // parse the matching type as an identifier (optional)
         (
-            <COMMA> matchingType = identifierLiteralToString() { keywordExtractPredicate.matchingType = matchingType; }
+            <COMMA> matchingType = identifierLiteralToString() { keywordExtractPredicate.setMatchingType(matchingType); }
         )?
     <RPAREN>
     // return generated KeywordExtractPredicate
