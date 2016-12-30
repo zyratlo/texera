@@ -5,6 +5,7 @@ import java.util.List;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
 import edu.uci.ics.textdb.textql.statements.predicates.ExtractPredicate;
+import edu.uci.ics.textdb.textql.statements.predicates.SelectPredicate;
 
 /**
  * Object Representation of a parsed "SELECT ... FROM ..." statement.
@@ -15,15 +16,9 @@ import edu.uci.ics.textdb.textql.statements.predicates.ExtractPredicate;
 public class SelectStatement extends Statement {
     
     /**
-     * Set to true when '*' is used as the fields to be projected, as in "SELECT * FROM ..."
+     * Predicate used for projection of the fields to be returned such as in "SELECT *".
      */
-    private Boolean projectAll;
-    
-    /**
-     * The { @link List } of fields to be projected if it is specified as
-     * in "SELECT a, b, c FROM ..."
-     */
-    private List<String> projectedFields;
+    private SelectPredicate selectPredicate;
     
     /**
      * Predicate used for data extraction such as keyword match in "KEYWORDMATCH(a,"word")".
@@ -51,61 +46,43 @@ public class SelectStatement extends Statement {
      * @param id The id of the statement.
      */
     public SelectStatement() {
-        this(null, null, null, null, null, null, null);
+        this(null, null, null, null, null, null);
     }
 
     /**
      * Create a { @code CreateViewStatement } with the given parameters.
      * @param id The ID of this statement.
-     * @param projectAll If all the fields are to be projected.
-     * @param projectedFields List of fields to be projected.
+     * @param selectPredicate The predicate for result projection.
      * @param extractPredicate The predicate for data extraction.
      * @param fromClause The ID of the source view.
      * @param limitClause The value of the limit clause.
      * @param offsetClauseThe value of the offset clause.
      */
-    public SelectStatement(String id, Boolean projectAll,
-            List<String> projectedFields, ExtractPredicate extractPredicate,
+    public SelectStatement(String id, SelectPredicate selectPredicate, ExtractPredicate extractPredicate,
             String fromClause, Integer limitClause, Integer offsetClause) {
         super(id);
-        this.projectAll = projectAll;
-        this.projectedFields = projectedFields;
+        this.selectPredicate = selectPredicate;
         this.extractPredicate = extractPredicate;
         this.fromClause = fromClause;
         this.limitClause = limitClause;
         this.offsetClause = offsetClause;
     }
     
+    
     /**
-     * Check whether all the fields are to be projected or not.
-     * @return If all the fields are to be projected.
+     * Get the select predicate.
+     * @return The select predicate.
      */
-    public Boolean getProjectAll() {
-        return projectAll;
+    public SelectPredicate getSelectPredicate() {
+        return selectPredicate;
     }
     
     /**
-     * Set whether all the fields are to be projected or not.
-     * @param projectAll If all the fields are to be projected.
+     * Set the select predicate.
+     * @param selectPredicate The select predicate to be set.
      */
-    public void setProjectAll(Boolean projectAll) {
-        this.projectAll = projectAll;
-    }
-    
-    /**
-     * Get the list of field names to be projected.
-     * @return A list of field names to be projected
-     */
-    public List<String> getProjectedFields() {
-        return projectedFields;
-    }
-    
-    /**
-     * Set the list of field names to be projected.
-     * @param projectedFields The list of field names to be projected.
-     */
-    public void setProjectedFields(List<String> projectedFields) {
-        this.projectedFields = projectedFields;
+    public void setSelectPredicate(SelectPredicate selectPredicate) {
+        this.selectPredicate = selectPredicate;
     }
 
     /**
@@ -171,7 +148,8 @@ public class SelectStatement extends Statement {
     public void setOffsetClause(Integer offsetClause) {
         this.offsetClause = offsetClause;
     }
-    
+
+
     @Override
     public boolean equals(Object other) {
         if (other == null) { return false; }
@@ -179,8 +157,7 @@ public class SelectStatement extends Statement {
         SelectStatement selectStatement = (SelectStatement) other;
         return new EqualsBuilder()
                     .appendSuper(super.equals(selectStatement))
-                    .append(projectAll, selectStatement.projectAll)
-                    .append(projectedFields, selectStatement.projectedFields)
+                    .append(selectPredicate, selectStatement.selectPredicate)
                     .append(extractPredicate, selectStatement.extractPredicate)
                     .append(fromClause, selectStatement.fromClause)
                     .append(limitClause, selectStatement.limitClause)
