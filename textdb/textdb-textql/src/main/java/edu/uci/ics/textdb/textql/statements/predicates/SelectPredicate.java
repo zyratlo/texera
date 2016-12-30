@@ -19,7 +19,7 @@ public abstract class SelectPredicate {
      */
     public abstract OperatorBean getOperatorBean(String selectOperatorId);
     
-    
+
     @Override
     public boolean equals(Object other) {
         if (other == null) { return false; }
