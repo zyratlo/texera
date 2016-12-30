@@ -4,6 +4,9 @@ import java.util.List;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
+import edu.uci.ics.textdb.web.request.beans.OperatorBean;
+import edu.uci.ics.textdb.web.request.beans.ProjectionBean;
+
 /**
  * Object representation of a "SELECT a, b, c, ..." predicate inside a { @code SelectExtractStatement },
  * were "a, b, c, ..." is a list of field names
@@ -41,6 +44,19 @@ public class SelectSomeFieldsPredicate extends SelectPredicate {
      */
     public void setProjectedFields(List<String> projectedFields) {
         this.projectedFields = projectedFields;
+    }
+    
+    
+    /**
+     * Return this operator converted to an { @code OperatorBean }.
+     * @param selectOperatorId The ID of the OperatorBean to be created.
+     */
+    public OperatorBean getOperatorBean(String selectOperatorId) {
+        ProjectionBean projectionBean = new ProjectionBean();
+        projectionBean.setOperatorID(selectOperatorId);
+        projectionBean.setOperatorType("Projection");
+        projectionBean.setAttributes(String.join(",", this.getProjectedFields()));
+        return projectionBean;
     }
     
 
