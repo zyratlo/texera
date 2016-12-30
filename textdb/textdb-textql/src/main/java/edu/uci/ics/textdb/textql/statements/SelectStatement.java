@@ -1,5 +1,7 @@
 package edu.uci.ics.textdb.textql.statements;
 
+import java.util.List;
+
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
 import edu.uci.ics.textdb.textql.statements.predicates.ExtractPredicate;
@@ -66,6 +68,7 @@ public class SelectStatement extends Statement {
         this.offsetClause = offsetClause;
     }
     
+    
     /**
      * Get the select predicate.
      * @return The select predicate.
@@ -81,7 +84,7 @@ public class SelectStatement extends Statement {
     public void setSelectPredicate(SelectPredicate selectPredicate) {
         this.selectPredicate = selectPredicate;
     }
-    
+
     /**
      * Get the extract predicate.
      * @return The extract predicate.

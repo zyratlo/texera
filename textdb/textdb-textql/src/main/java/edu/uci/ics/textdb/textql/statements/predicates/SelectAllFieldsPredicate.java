@@ -6,13 +6,13 @@ package edu.uci.ics.textdb.textql.statements.predicates;
  * @author Flavio Bayer
  *
  */
-public class SelectAllPredicate extends SelectPredicate {
+public class SelectAllFieldsPredicate extends SelectPredicate {
 
     @Override
     public boolean equals(Object other) {
         if (other == null) { return false; }
         if (other.getClass() != getClass()) { return false; }
-        SelectAllPredicate selectAllPredicate = (SelectAllPredicate) other;
+        SelectAllFieldsPredicate selectAllPredicate = (SelectAllFieldsPredicate) other;
         return super.equals(selectAllPredicate);
     }
 }
