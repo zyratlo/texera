@@ -11,7 +11,7 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
  * @author Flavio Bayer
  *
  */
-public class SelectFieldsPredicate extends SelectPredicate {
+public class SelectSomeFieldsPredicate extends SelectPredicate {
 
     /**
      * The { @link List } of fields to be projected if it is specified as
@@ -23,7 +23,7 @@ public class SelectFieldsPredicate extends SelectPredicate {
      * Create a { @code Statement } with the given list of field names to be projected.
      * @param projectedFields The list of field names to be projected.
      */
-    public SelectFieldsPredicate(List<String> projectedFields){
+    public SelectSomeFieldsPredicate(List<String> projectedFields){
         this.projectedFields = projectedFields;
     }
     
@@ -48,7 +48,7 @@ public class SelectFieldsPredicate extends SelectPredicate {
     public boolean equals(Object other) {
         if (other == null) { return false; }
         if (other.getClass() != getClass()) { return false; }
-        SelectFieldsPredicate selectFieldsPredicate = (SelectFieldsPredicate) other;
+        SelectSomeFieldsPredicate selectFieldsPredicate = (SelectSomeFieldsPredicate) other;
         return new EqualsBuilder()
                 .appendSuper(super.equals(selectFieldsPredicate))
                 .append(projectedFields, selectFieldsPredicate.projectedFields)
