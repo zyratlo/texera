@@ -152,8 +152,7 @@ public class SelectExtractStatement extends Statement {
     public void setOffsetClause(Integer offsetClause) {
         this.offsetClause = offsetClause;
     }
-    
-    
+        
     /**
      * Return the ID to which a { @code LinkBean } should be connected in order to connect to the input 
      * of this operator when converted to beans.

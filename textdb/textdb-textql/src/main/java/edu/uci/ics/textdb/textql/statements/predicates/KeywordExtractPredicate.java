@@ -6,7 +6,6 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 
 import edu.uci.ics.textdb.web.request.beans.KeywordMatcherBean;
 
-
 /**
  * Object representation of a "KEYWORDEXTRACT(...)" predicate inside a { @code SelectExtractStatement }.
  * 
@@ -100,7 +99,7 @@ public class KeywordExtractPredicate extends ExtractPredicate {
         this.matchingType = matchingType;
     }
     
-    
+  
     /**
      * Return this operator converted to a { @code KeywordMatcherBean }.
      * @param extractionOperatorId The ID of the OperatorBean to be created.
@@ -119,6 +118,7 @@ public class KeywordExtractPredicate extends ExtractPredicate {
         if (other.getClass() != getClass()) { return false; }
         KeywordExtractPredicate keywordExtractPredicate = (KeywordExtractPredicate) other;
         return new EqualsBuilder()
+                .appendSuper(super.equals(keywordExtractPredicate))
                 .append(matchingFields, keywordExtractPredicate.matchingFields)
                 .append(keywords, keywordExtractPredicate.keywords)
                 .append(matchingType, keywordExtractPredicate.matchingType)
