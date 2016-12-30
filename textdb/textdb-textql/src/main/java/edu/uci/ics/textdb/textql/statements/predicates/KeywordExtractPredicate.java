@@ -16,17 +16,17 @@ public class KeywordExtractPredicate extends ExtractPredicate {
     /**
      * The { @link List } of fields on which the keyword search should be performed.
      */
-    public List<String> matchingFields;
+    private List<String> matchingFields;
     
     /**
      * The keyword(s) used for a keyword search.
      */
-    public String keywords;
+    private String keywords;
     
     /**
      * The type of matching to be performed during the keyword search.
      */ 
-    public String matchingType;
+    private String matchingType;
     
     
     /**
@@ -34,7 +34,7 @@ public class KeywordExtractPredicate extends ExtractPredicate {
      * @param id The id of this statement.
      */
     public KeywordExtractPredicate() {
-        this(null, null, null);
+      this(null, null, null);
     }
 
     /**
@@ -48,7 +48,56 @@ public class KeywordExtractPredicate extends ExtractPredicate {
         this.keywords = keywords;
         this.matchingType = matchingType;
     }
-        
+    
+    
+    /**
+     * Get the list of names of fields to be matched during extraction.
+     * @return The list of names of fields to be matched during extraction.
+     */
+    public List<String> getMatchingFields() {
+        return matchingFields;
+    }
+
+    /**
+     * Set the list of names of fields to be matched during extraction.
+     * @param matchingFields The list of names of fields to be matched during extraction.
+     */
+    public void setMatchingFields(List<String> matchingFields) {
+        this.matchingFields = matchingFields;
+    }
+
+    /**
+     * Get the keyword(s) to look for during extraction.
+     * @return The keyword(s) to look for during extraction.
+     */
+    public String getKeywords() {
+        return keywords;
+    }
+
+    /**
+     * Set the keyword(s) to look for during extraction.
+     * @param keywords The keyword(s) to look for during extraction.
+     */
+    public void setKeywords(String keywords) {
+        this.keywords = keywords;
+    }
+
+    /**
+     * Get the matching type of the extraction.
+     * @return The matching type of the extraction.
+     */
+    public String getMatchingType() {
+        return matchingType;
+    }
+
+    /**
+     * Set the matching type of the extraction.
+     * @param matchingType The matching type of the extraction.
+     */
+    public void setMatchingType(String matchingType) {
+        this.matchingType = matchingType;
+    }
+    
 
     @Override
     public boolean equals(Object other) {
@@ -56,7 +105,7 @@ public class KeywordExtractPredicate extends ExtractPredicate {
         if (other.getClass() != getClass()) { return false; }
         KeywordExtractPredicate keywordExtractPredicate = (KeywordExtractPredicate) other;
         return new EqualsBuilder()
-                .appendSuper(super.equals(other))
+                .appendSuper(super.equals(keywordExtractPredicate))
                 .append(matchingFields, keywordExtractPredicate.matchingFields)
                 .append(keywords, keywordExtractPredicate.keywords)
                 .append(matchingType, keywordExtractPredicate.matchingType)

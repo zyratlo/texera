@@ -16,7 +16,7 @@ public class CreateViewStatement extends Statement {
      * select statement "SELECT * FROM t" as sub-statement (in a SelectStatement
      * object).
      */
-    public Statement subStatement;
+    private Statement subStatement;
       
     /**
      * Create a { @code CreateViewStatement } with the parameters set to { @code null }
@@ -28,13 +28,29 @@ public class CreateViewStatement extends Statement {
     /**
      * Create a { @code CreateViewStatement } with the given parameters.
      * @param id The ID of this statement.
-     * @param subStatement The sub-statement of this statement.
+     * @param subStatement The subStatement of this statement.
      */
     public CreateViewStatement(String id, Statement subStatement) {
         super(id);
         this.subStatement = subStatement;
     }
     
+    
+    /**
+     * Get the sub-statement of this statement.
+     * @return The sub-statement of this statement.
+     */
+    public Statement getSubStatement() {
+        return subStatement;
+    }
+    
+    /**
+     * Set the sub-statement of the statement.
+     * @param subStatement The new sub-statement to set.
+     */
+    public void setSubStatement(Statement subStatement) {
+        this.subStatement = subStatement;
+    }
     
     @Override
     public boolean equals(Object obj) {

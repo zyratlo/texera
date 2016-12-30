@@ -18,7 +18,7 @@ public abstract class Statement {
     /**
      * The { @code String } identifier of each Statement object.
      */
-    public String id;
+    private String id;
     
     /**
      * Create a { @code Statement } with all the parameters set to { @code null }.
@@ -26,6 +26,7 @@ public abstract class Statement {
     public Statement() {
 
     }
+    
     
     /**
      * Create a { @code Statement } with the given ID.
