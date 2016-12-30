@@ -46,6 +46,9 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import edu.uci.ics.textdb.textql.statements.Statement;
 import edu.uci.ics.textdb.textql.statements.SelectStatement;
 import edu.uci.ics.textdb.textql.statements.CreateViewStatement;
+import edu.uci.ics.textdb.textql.statements.predicates.SelectPredicate;
+import edu.uci.ics.textdb.textql.statements.predicates.SelectAllPredicate;
+import edu.uci.ics.textdb.textql.statements.predicates.SelectFieldsPredicate;
 import edu.uci.ics.textdb.textql.statements.predicates.ExtractPredicate;
 import edu.uci.ics.textdb.textql.statements.predicates.KeywordExtractPredicate;
 
@@ -453,6 +456,7 @@ SelectStatement selectStatement() :
     Integer limitClause;
     Integer offsetClause;
     ExtractPredicate extractPredicate;
+    SelectPredicate selectPredicate;
 }
 {
     { selectStatement.setId(getNewStatementId()); }
@@ -463,11 +467,12 @@ SelectStatement selectStatement() :
                 // parse the SELECT clause
                 <SELECT> 
                 ( 
-                        <STAR> { selectStatement.setProjectAll(true); } // SELECT *
+                        <STAR> { selectPredicate = new SelectAllPredicate(); } // SELECT *
                     | 
                         identifiers = identifierListToListString() // SELECT a,b,...
-                            { selectStatement.setProjectedFields(identifiers); } 
+                            { selectPredicate = new SelectFieldsPredicate(identifiers); } 
                 )
+                    { selectStatement.setSelectPredicate(selectPredicate); }
                 // parse the EXTRACT clause (optional)
                 (
                     <EXTRACT> extractPredicate = extractPredicate() // EXTRACT extractPredicate
