@@ -4,10 +4,10 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 
 
 /**
- * Statement class and subclasses(SelectStatement, CreateViewStatement)
+ * Statement class and subclasses(SelectExtractStatement, CreateViewStatement)
  * Each Statement class has an ID. Subclasses of Statements have specific
  * fields related to its function.
- * Statement --+ SelectStatement
+ * Statement --+ SelectExtractStatement
  *             + CreateViewStatement
  *             
  * @author Flavio Bayer

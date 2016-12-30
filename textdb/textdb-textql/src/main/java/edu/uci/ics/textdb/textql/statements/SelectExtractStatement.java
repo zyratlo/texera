@@ -11,7 +11,7 @@ import edu.uci.ics.textdb.textql.statements.predicates.SelectPredicate;
  * @author Flavio Bayer
  *
  */
-public class SelectStatement extends Statement {
+public class SelectExtractStatement extends Statement {
     
     /**
      * Predicate used for projection of the fields to be returned such as in "SELECT *".
@@ -43,7 +43,7 @@ public class SelectStatement extends Statement {
      * Create a { @code CreateViewStatement } with all the parameters set to { @code null }.
      * @param id The id of the statement.
      */
-    public SelectStatement() {
+    public SelectExtractStatement() {
         this(null, null, null, null, null, null);
     }
 
@@ -56,7 +56,7 @@ public class SelectStatement extends Statement {
      * @param limitClause The value of the limit clause.
      * @param offsetClauseThe value of the offset clause.
      */
-    public SelectStatement(String id, SelectPredicate selectPredicate, ExtractPredicate extractPredicate,
+    public SelectExtractStatement(String id, SelectPredicate selectPredicate, ExtractPredicate extractPredicate,
             String fromClause, Integer limitClause, Integer offsetClause) {
         super(id);
         this.selectPredicate = selectPredicate;
@@ -150,14 +150,14 @@ public class SelectStatement extends Statement {
     public boolean equals(Object other) {
         if (other == null) { return false; }
         if (other.getClass() != this.getClass()) { return false; }
-        SelectStatement selectStatement = (SelectStatement) other;
+        SelectExtractStatement selectExtractStatement = (SelectExtractStatement) other;
         return new EqualsBuilder()
-                    .appendSuper(super.equals(selectStatement))
-                    .append(selectPredicate, selectStatement.selectPredicate)
-                    .append(extractPredicate, selectStatement.extractPredicate)
-                    .append(fromClause, selectStatement.fromClause)
-                    .append(limitClause, selectStatement.limitClause)
-                    .append(offsetClause, selectStatement.offsetClause)
+                    .appendSuper(super.equals(selectExtractStatement))
+                    .append(selectPredicate, selectExtractStatement.selectPredicate)
+                    .append(extractPredicate, selectExtractStatement.extractPredicate)
+                    .append(fromClause, selectExtractStatement.fromClause)
+                    .append(limitClause, selectExtractStatement.limitClause)
+                    .append(offsetClause, selectExtractStatement.offsetClause)
                     .isEquals();
     }
     
