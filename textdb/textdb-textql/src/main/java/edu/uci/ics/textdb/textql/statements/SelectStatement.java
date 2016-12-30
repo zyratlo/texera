@@ -148,7 +148,8 @@ public class SelectStatement extends Statement {
     public void setOffsetClause(Integer offsetClause) {
         this.offsetClause = offsetClause;
     }
-    
+
+
     @Override
     public boolean equals(Object other) {
         if (other == null) { return false; }
