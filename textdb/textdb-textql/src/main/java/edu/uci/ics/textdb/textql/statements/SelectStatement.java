@@ -80,7 +80,7 @@ public class SelectStatement extends Statement {
      * Check whether all the fields are to be projected or not.
      * @return If all the fields are to be projected.
      */
-    public Boolean isProjectAll() {
+    public Boolean getProjectAll() {
         return projectAll;
     }
     
