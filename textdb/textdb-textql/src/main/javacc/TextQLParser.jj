@@ -44,7 +44,7 @@ import java.util.function.Consumer;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
 import edu.uci.ics.textdb.textql.statements.Statement;
-import edu.uci.ics.textdb.textql.statements.SelectStatement;
+import edu.uci.ics.textdb.textql.statements.SelectExtractStatement;
 import edu.uci.ics.textdb.textql.statements.CreateViewStatement;
 import edu.uci.ics.textdb.textql.statements.predicates.SelectPredicate;
 import edu.uci.ics.textdb.textql.statements.predicates.SelectAllFieldsPredicate;
@@ -376,8 +376,8 @@ List<Statement> mainStatementList(Consumer<Statement> statementConsumer) :
 /**
  * Consume one statement declaration from the input and generate a Statement
  * object with the parsed data. The type of statement can be either
- * SelectStatement or CreateViewStatement
- * Grammar: ( <SelectStatement> | <CreateViewStatement> ) ";"
+ * SelectExtractStatement or CreateViewStatement
+ * Grammar: ( <SelectExtractStatement> | <CreateViewStatement> ) ";"
  * @return The Statement representation of the next statement declaration
  */
 Statement statement() : 
@@ -387,7 +387,7 @@ Statement statement() :
 {
     // parse one of the types of statement
     (
-            newStatement = selectStatement() 
+            newStatement = selectExtractStatement() 
         |
             newStatement = createViewStatement()
     )
@@ -402,9 +402,9 @@ Statement statement() :
  * Consume a "CREATE VIEW" statement declaration from the input and generate a
  * CreateViewStatement object with the parsed data.
  * Examples of valid input:
- *         CREATE VIEW viewname0 AS <SelectStatement>
+ *         CREATE VIEW viewname0 AS <SelectExtractStatement>
  * Grammar: "CREATE" "VIEW" <Identifier>
- *          "AS" ( <SelectStatement> )
+ *          "AS" ( <SelectExtractStatement> )
  * @return The CreateViewStatement representation of the statement declaration
  */
 CreateViewStatement createViewStatement() : 
@@ -419,9 +419,9 @@ CreateViewStatement createViewStatement() :
     <VIEW>
     viewName = identifierLiteralToString() { createViewStatement.setId(viewName); }
     <AS>
-    // parse the inner statement (subStatement) which is a SelectStatement
+    // parse the inner statement (subStatement) which is a SelectExtractStatement
     (
-        subStatement = selectStatement()
+        subStatement = selectExtractStatement()
     ){ createViewStatement.setSubStatement(subStatement); }
     // return generated CreateViewStatement
     {
@@ -431,7 +431,7 @@ CreateViewStatement createViewStatement() :
 
 /**
  * Parse a select statement declaration from the input and generate a
- * SelectStatement object with the parsed data.
+ * SelectExtractStatement object with the parsed data.
  * Examples of valid input:
  *         SELECT * FROM t
  *         SELECT a, b, c FROM t LIMIT 1 OFFSET 8
@@ -446,11 +446,11 @@ CreateViewStatement createViewStatement() :
  *          "FROM" <Identifier>
  *          ("LIMIT" <Number> )?
  *          ("OFFSET" <Number> )?
- * @return The SelectStatement representation of the statement declaration
+ * @return The SelectExtractStatement representation of the statement declaration
  */  
-SelectStatement selectStatement() : 
+SelectExtractStatement selectExtractStatement() : 
 {
-    SelectStatement selectStatement = new SelectStatement();
+    SelectExtractStatement selectExtractStatement = new SelectExtractStatement();
     List<String> identifiers;
     String fromClause;
     Integer limitClause;
@@ -459,7 +459,7 @@ SelectStatement selectStatement() :
     SelectPredicate selectPredicate;
 }
 {
-    { selectStatement.setId(getNewStatementId()); }
+    { selectExtractStatement.setId(getNewStatementId()); }
     // parse the SELECT clause or/and the EXTRACT clause
     (
             // parse the SELECT clause only, or parse the SELECT clause and the EXTRACT clause
@@ -472,34 +472,34 @@ SelectStatement selectStatement() :
                         identifiers = identifierListToListString() // SELECT a,b,...
                             { selectPredicate = new SelectSomeFieldsPredicate(identifiers); } 
                 )
-                    { selectStatement.setSelectPredicate(selectPredicate); }
+                    { selectExtractStatement.setSelectPredicate(selectPredicate); }
                 // parse the EXTRACT clause (optional)
                 (
                     <EXTRACT> extractPredicate = extractPredicate() // EXTRACT extractPredicate
-                        { selectStatement.setExtractPredicate(extractPredicate); } 
+                        { selectExtractStatement.setExtractPredicate(extractPredicate); } 
                 )?
             )
         |
             // parse the EXTRACT clause only
             <EXTRACT> extractPredicate = extractPredicate() // EXTRACT only
-                { selectStatement.setExtractPredicate(extractPredicate); } 
+                { selectExtractStatement.setExtractPredicate(extractPredicate); } 
     )
     // parse FROM field
     <FROM> fromClause = identifierLiteralToString()
-        { selectStatement.setFromClause(fromClause); }
+        { selectExtractStatement.setFromClause(fromClause); }
     // parse LIMIT field(optional)
     (
       <LIMIT> limitClause = numberLiteralToInteger()
-        { selectStatement.setLimitClause(limitClause); }
+        { selectExtractStatement.setLimitClause(limitClause); }
     )?
     // parse OFFSET field(optional)
     (
       <OFFSET> offsetClause = numberLiteralToInteger()
-        { selectStatement.setOffsetClause(offsetClause); }
+        { selectExtractStatement.setOffsetClause(offsetClause); }
     )?
-    // return generated SelectStatement
+    // return generated SelectExtractStatement
     {
-        return selectStatement;
+        return selectExtractStatement;
     }
 }
 

@@ -13,7 +13,7 @@ public class CreateViewStatement extends Statement {
     /**
      * The statement to which the { @code CreateViewStatement } creates an alias for.
      * e.g. in "CREATE VIEW v AS SELECT * FROM t"; the view with ID 'v' will have the
-     * select statement "SELECT * FROM t" as sub-statement (in a SelectStatement
+     * select statement "SELECT * FROM t" as sub-statement (in a SlectExtractStatement
      * object).
      */
     private Statement subStatement;
