@@ -45,7 +45,7 @@ public class SelectSomeFieldsPredicate extends SelectPredicate {
     public void setProjectedFields(List<String> projectedFields) {
         this.projectedFields = projectedFields;
     }
-    
+
     
     /**
      * Return this operator converted to an { @code OperatorBean }.
@@ -58,8 +58,8 @@ public class SelectSomeFieldsPredicate extends SelectPredicate {
         projectionBean.setAttributes(String.join(",", this.getProjectedFields()));
         return projectionBean;
     }
-    
 
+    
     @Override
     public boolean equals(Object other) {
         if (other == null) { return false; }
