@@ -342,7 +342,6 @@ public class TextQLParserTest {
         ExtractPredicate SelectStatementExtract14 = new KeywordExtractPredicate(Arrays.asList("i6"), "key5", null);
         //Statement SelectStatementParameters14 = new SelectStatement("_sid0", null, SelectStatementExtract14, "q", null, null);
 
-
         SelectPredicate cfreateViewStatementSelect00 = new SelectAllFieldsPredicate();
         //Statement createViewStatementSelect00 = new SelectStatement("_sid0", , null, "a", null, null);
         //Statement createViewStatementParameters00 = new CreateViewStatement("v0", createViewStatementSelect00);

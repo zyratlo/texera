@@ -110,7 +110,7 @@ public class KeywordExtractPredicate extends ExtractPredicate {
         return new KeywordMatcherBean(extractionOperatorId, "KeywordMatcher", matchingFieldsAsString,
                     null, null, this.keywords, this.matchingType);
     }
-    
+  
 
     @Override
     public boolean equals(Object other) {
