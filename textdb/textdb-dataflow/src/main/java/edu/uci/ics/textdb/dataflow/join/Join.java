@@ -64,25 +64,13 @@ public class Join implements IOperator {
     private int resultCursor = -1;
     private int limit = Integer.MAX_VALUE;
     private int offset = 0;
-
-    /**
-     * This constructor is used to set the operators whose output is to be
-     * compared and joined and the predicate which specifies the fields and
-     * constraints over which join happens.
-     * 
-     * @param outer
-     *            is the outer operator producing the tuples
-     * @param inner
-     *            is the inner operator producing the tuples
-     * @param joinPredicate
-     *            is the predicate over which the join is made
-     */
-    public Join(IOperator outerOperator, IOperator innerOperator, IJoinPredicate joinPredicate) {
-        this.outerOperator = outerOperator;
-        this.innerOperator = innerOperator;
-        this.joinPredicate = joinPredicate;
-    }
     
+    /**
+     * Constructs a Join operator using a predicate which specifies the fields and
+     *   constraints over which join happens.
+     * 
+     * @param joinPredicate
+     */
     public Join(IJoinPredicate joinPredicate) {
         this.joinPredicate = joinPredicate;
     }

@@ -140,7 +140,7 @@ public class SampleExtraction {
         NlpExtractor nlpExtractorLocation = new NlpExtractor(nlpPredicateLocation);
 
         IJoinPredicate joinPredicatePersonLocation = new JoinDistancePredicate(PromedSchema.ID, PromedSchema.CONTENT, 100);
-        Join joinPersonLocation = new Join(null, null, joinPredicatePersonLocation);
+        Join joinPersonLocation = new Join(joinPredicatePersonLocation);
         
         ProjectionPredicate projectionPredicateIdAndSpan = new ProjectionPredicate(
                 Arrays.asList(PromedSchema.ID, SchemaConstants.SPAN_LIST));
