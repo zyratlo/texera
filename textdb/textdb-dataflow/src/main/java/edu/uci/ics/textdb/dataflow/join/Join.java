@@ -81,6 +81,13 @@ public class Join implements IOperator {
         	return;
         }
         
+        if (innerOperator == null) {
+            throw new DataFlowException("Inner Input Operator is not set.");
+        }
+        if (outerOperator == null) {
+            throw new DataFlowException("Outer Input Operator is not set.");
+        }
+        
         // generate output schema from schema of inner and outer operator
         innerOperator.open();
         Schema innerOperatorSchema = innerOperator.getOutputSchema();

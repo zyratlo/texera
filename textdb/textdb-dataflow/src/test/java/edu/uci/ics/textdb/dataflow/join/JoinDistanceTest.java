@@ -39,6 +39,12 @@ import edu.uci.ics.textdb.storage.relation.RelationManager;
 import junit.framework.Assert;
 
 /**
+ * JoinDistanceTest tests the Join Operator and the JoinDistancePredicate.
+ * 
+ * The test classes are organized as the following:
+ *   JoinDistanceTest   includes (only) the main test logic.
+ *   JoinDistanceHelper includes helper functions and wrapper functions.
+ *   JoinTestConstants  includes the schema and data that Join tests use.
  * 
  * @author sripadks
  * @author Zuozhi Wang
@@ -52,26 +58,45 @@ public class JoinDistanceTest {
     public static final KeywordMatchingType conjunction = KeywordMatchingType.CONJUNCTION_INDEXBASED;
     public static final KeywordMatchingType phrase = KeywordMatchingType.PHRASE_INDEXBASED;
 
-    // writes the test tables before ALL tests
+    
+    /*
+     * The annotators @BeforeClass and @AfterClass are used instead of @Before and @After.
+     * 
+     * The difference is that:
+     *   @Before and @After are executed before and after EACH test case.
+     *   @BeforeClass and @AfterClass are executed once before ALL the test begin and ALL the test have finished.
+     * 
+     * We don't want to create and delete the tables on every test case, 
+     *   therefore BeforeClass and AfterClass are better options.
+     *   
+     */
     @BeforeClass
     public static void setup() throws TextDBException {
+        // writes the test tables before ALL tests
         JoinDistanceHelper.createTestTables();
     }
     
-    // deletes the test tables after ALL tests
     @AfterClass
     public static void cleanUp() throws TextDBException {
+        // deletes the test tables after ALL tests
         JoinDistanceHelper.deleteTestTables();
     }
     
-    // clear the test tables after EACH test
+    /*
+     * The @After annotation is used here because we want to clear the data in two tables after EVERY test case. 
+     * This is because different test cases write different data in to the test tables, 
+     *   and they need to be cleared before the next test case begins.
+     */
     @After
     public void clearTables() throws TextDBException {
+        // clear the test tables after EACH test
         JoinDistanceHelper.clearTestTables();
     }
     
-    // This case tests for scenario when the IDs of the documents don't match.
-    // Test result: The list of result returned is empty.
+    /*
+     * This case tests for scenario when the IDs of the documents don't match.
+     * Test result: The list of result returned is empty.
+     */
     @Test
     public void testIdsDontMatch() throws Exception {        
         JoinDistanceHelper.insertToOuter(JoinTestConstants.bookGroup1);
@@ -89,24 +114,27 @@ public class JoinDistanceTest {
         Assert.assertEquals(0, resultList.size());
     }
     
-    // This case tests for the scenario when the IDs of the documents match,
-    // fields to join match and the difference of keyword spans is within
-    // the given span threshold.
-    // e.g.
-    // [<11, 18>]
-    // [<27, 33>]
-    // threshold = 20
-    // [           ]
-    //          [          ]
-    // <-------->
-    //             <-------> (within threshold)
-    // Test result: The list contains a tuple with all the fields and a span
-    // list consisting of the joined span. The joined span is made up of the
-    // field name, start and stop index (computed as <min(span1 spanStartIndex,
-    // span2 spanStartIndex), max(span1 spanEndIndex, span2 spanEndIndex)>)
-    // key (combination of span1 key and span2 key) and value (combination of
-    // span1 value and span2 value).
-    // [<11, 33>]
+
+    /*
+     * This case tests for the scenario when the IDs of the documents match,
+     * fields to join match and the difference of keyword spans
+     *  is withinthe given span threshold.
+     *  e.g.
+     *  [<11, 18>]
+     *  [<27, 33>]
+     *  threshold = 20
+     *  [           ]
+     *          [          ]
+     *  <-------->
+     *           <-------> (within threshold)
+     * Test result: The list contains a tuple with all the fields and a span
+     * list consisting of the joined span. The joined span is made up of the
+     * field name, start and stop index (computed as <min(span1 spanStartIndex,
+     * span2 spanStartIndex), max(span1 spanEndIndex, span2 spanEndIndex)>)
+     * key (combination of span1 key and span2 key) and value (combination of
+     * span1 value and span2 value).
+     * [<11, 33>]
+     */
     @Test
     public void testIdsMatchFieldsMatchSpanWithinThreshold() throws Exception {
         JoinDistanceHelper.insertToOuter(JoinTestConstants.bookGroup1.get(0));

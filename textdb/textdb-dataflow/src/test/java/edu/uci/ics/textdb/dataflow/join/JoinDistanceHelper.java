@@ -38,6 +38,11 @@ public class JoinDistanceHelper {
                 JoinTestConstants.BOOK_SCHEMA, LuceneAnalyzerConstants.standardAnalyzerString());         
     }
     
+    /**
+     * Inserts one or multiple tuples to the outer test table.
+     * @param tuples
+     * @throws StorageException
+     */
     public static void insertToOuter(ITuple... tuples) throws StorageException {
         RelationManager relationManager = RelationManager.getRelationManager();
         for (int i = 0; i < tuples.length; i++) {
@@ -45,6 +50,11 @@ public class JoinDistanceHelper {
         }
     }
     
+    /**
+     * Inserts a list of tuples to the outer test table.
+     * @param tuples
+     * @throws StorageException
+     */
     public static void insertToOuter(List<ITuple> tuples) throws StorageException {
         RelationManager relationManager = RelationManager.getRelationManager();
         for (ITuple tuple: tuples) {
@@ -52,6 +62,11 @@ public class JoinDistanceHelper {
         }
     } 
     
+    /**
+     * Inserts one or multiple tuples to the inner test table.
+     * @param tuples
+     * @throws StorageException
+     */
     public static void insertToInner(ITuple... tuples) throws StorageException {
         RelationManager relationManager = RelationManager.getRelationManager();
         for (int i = 0; i < tuples.length; i++) {
@@ -59,6 +74,11 @@ public class JoinDistanceHelper {
         }
     }
     
+    /**
+     * Inserts a list of tuples to the inner test table.
+     * @param tuples
+     * @throws StorageException
+     */
     public static void insertToInner(List<ITuple> tuples) throws StorageException {
         RelationManager relationManager = RelationManager.getRelationManager();
         for (ITuple tuple: tuples) {
@@ -66,18 +86,35 @@ public class JoinDistanceHelper {
         }
     } 
     
+    /**
+     * Clears the data of the inner and outer test tables.
+     * @throws TextDBException
+     */
     public static void clearTestTables() throws TextDBException {
         RelationManager relationManager = RelationManager.getRelationManager();
         relationManager.deleteTuples(BOOK_TABLE_OUTER, new MatchAllDocsQuery());
         relationManager.deleteTuples(BOOK_TABLE_INNER, new MatchAllDocsQuery());      
     }
     
+    /**
+     * Deletes the two test tables: inner and outer.
+     * @throws TextDBException
+     */
     public static void deleteTestTables() throws TextDBException {
         RelationManager relationManager = RelationManager.getRelationManager();
         relationManager.deleteTable(BOOK_TABLE_OUTER);
         relationManager.deleteTable(BOOK_TABLE_INNER);
     }
     
+    /**
+     * Provides a KeywordMatcherSourceOperator for a test table given a keyword.
+     * ( KeywordMatcher is used in most of Join test cases )
+     * @param tableName
+     * @param query
+     * @param matchingType
+     * @return
+     * @throws TextDBException
+     */
     public static KeywordMatcherSourceOperator getKeywordSource(String tableName, String query, 
             KeywordMatchingType matchingType) throws TextDBException {
         DataStore tableDataStore = RelationManager.getRelationManager().getTableDataStore(tableName);
@@ -88,6 +125,20 @@ public class JoinDistanceHelper {
         return keywordSource;
     }
     
+    /**
+     * Wraps the logic of creating a Join Operator, getting all the results,
+     *   and returning the result tuples in a list.
+     * 
+     * @param outerOp
+     * @param innerOp
+     * @param idAttrName
+     * @param joinAttrName
+     * @param threshold
+     * @param limit
+     * @param offset
+     * @return
+     * @throws TextDBException
+     */
     public static List<ITuple> getJoinDistanceResults(IOperator outerOp, IOperator innerOp,
             String idAttrName, String joinAttrName, int threshold, int limit, int offset) throws TextDBException {
         JoinDistancePredicate distancePredicate = new JoinDistancePredicate(
@@ -111,8 +162,7 @@ public class JoinDistanceHelper {
     }
     
     /**
-     * Alter a field of a tuple. The schema will also be changed accordingly.
-     * 
+     * Alter a field of a tuple. ( The schema will also be changed accordingly. )
      * @param originalTuple
      * @param fieldIndex
      * @param newField
