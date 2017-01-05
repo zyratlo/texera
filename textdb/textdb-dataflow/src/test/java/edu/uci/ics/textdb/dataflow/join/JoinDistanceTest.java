@@ -95,7 +95,7 @@ public class JoinDistanceTest {
     
     /*
      * This case tests for scenario when the IDs of the documents don't match.
-     * Test result: The list of result returned is empty.
+     * Test result: The list of results returned is empty.
      */
     @Test
     public void testIdsDontMatch() throws Exception {        
