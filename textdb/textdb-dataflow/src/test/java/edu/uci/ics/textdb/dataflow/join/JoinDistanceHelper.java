@@ -120,7 +120,7 @@ public class JoinDistanceHelper {
         DataStore tableDataStore = RelationManager.getRelationManager().getTableDataStore(tableName);
         KeywordPredicate keywordPredicate = new KeywordPredicate(query, 
                 Arrays.asList(JoinTestConstants.AUTHOR, JoinTestConstants.TITLE, JoinTestConstants.REVIEW),
-                LuceneAnalyzerConstants.getStandardAnalyzer(), matchingType);
+                RelationManager.getRelationManager().getTableAnalyzer(tableName), matchingType);
         KeywordMatcherSourceOperator keywordSource = new KeywordMatcherSourceOperator(keywordPredicate, tableDataStore);
         return keywordSource;
     }
