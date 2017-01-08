@@ -14,23 +14,32 @@ import edu.uci.ics.textdb.dataflow.source.ScanBasedSourceOperator;
 import edu.uci.ics.textdb.dataflow.utils.TestUtils;
 import edu.uci.ics.textdb.storage.relation.RelationManager;
 
+/**
+ * A helper class for functions that used in multiple keyword matcher tests.
+ * This class contains functions that: 
+ *   creates and writes test tables,
+ *   deletes test tables
+ *   gets the results from a keyword matcher
+ * @author Zuozhi Wang
+ *
+ */
 public class KeywordTestHelper {
     
-    public static final String PEOPLE_TABLE = "keywordtest_people";
-    public static final String MEDLINE_TABLE = "keywordtest_medline";
+    public static final String PEOPLE_TABLE = "keyword_test_people";
+    public static final String MEDLINE_TABLE = "keyword_test_medline";
     
     public static void writeTestTables() throws TextDBException {
         RelationManager relationManager = RelationManager.getRelationManager();
         
         // create the people table and write tuples
-        relationManager.createTable(PEOPLE_TABLE, "../index/keywordtest/people/", 
+        relationManager.createTable(PEOPLE_TABLE, "../index/test_tables/" + PEOPLE_TABLE, 
                 TestConstants.SCHEMA_PEOPLE, LuceneAnalyzerConstants.standardAnalyzerString());        
         for (ITuple tuple : TestConstants.getSamplePeopleTuples()) {
             relationManager.insertTuple(PEOPLE_TABLE, tuple);
         }
         
         // create the medline table and write tuples
-        relationManager.createTable(MEDLINE_TABLE, "../index/keywordtest/medline/",
+        relationManager.createTable(MEDLINE_TABLE, "../index/test_tables/" + MEDLINE_TABLE,
                 keywordTestConstants.SCHEMA_MEDLINE, LuceneAnalyzerConstants.standardAnalyzerString());       
         for (ITuple tuple : keywordTestConstants.getSampleMedlineRecord()) {
             relationManager.insertTuple(MEDLINE_TABLE, tuple);
