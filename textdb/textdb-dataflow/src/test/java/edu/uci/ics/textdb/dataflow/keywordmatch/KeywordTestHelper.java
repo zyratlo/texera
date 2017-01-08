@@ -86,11 +86,12 @@ public class KeywordTestHelper {
     
     public static List<ITuple> getScanSourceResults(String tableName, String keywordQuery, List<String> attributeNames,
             KeywordMatchingType matchingType, int limit, int offset) throws TextDBException {
+        RelationManager relationManager = RelationManager.getRelationManager();
         
         ScanBasedSourceOperator scanSource = new ScanBasedSourceOperator(tableName);
         
         KeywordPredicate keywordPredicate = new KeywordPredicate(
-                keywordQuery, attributeNames, LuceneAnalyzerConstants.getStandardAnalyzer(), matchingType);
+                keywordQuery, attributeNames, relationManager.getTableAnalyzer(tableName), matchingType);
         KeywordMatcher keywordMatcher = new KeywordMatcher(keywordPredicate);
         keywordMatcher.setLimit(limit);
         keywordMatcher.setOffset(offset);
@@ -113,7 +114,7 @@ public class KeywordTestHelper {
             KeywordMatchingType matchingType, int limit, int offset) throws TextDBException {
         RelationManager relationManager = RelationManager.getRelationManager();
         KeywordPredicate keywordPredicate = new KeywordPredicate(
-                keywordQuery, attributeNames, LuceneAnalyzerConstants.getStandardAnalyzer(), matchingType);
+                keywordQuery, attributeNames, relationManager.getTableAnalyzer(tableName), matchingType);
         KeywordMatcherSourceOperator keywordSource = new KeywordMatcherSourceOperator(
                 keywordPredicate, relationManager.getTableDataStore(tableName));
         keywordSource.setLimit(limit);
