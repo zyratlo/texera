@@ -623,7 +623,7 @@ public class JoinDistanceTest {
         JoinDistanceHelper.insertToOuter(originalTuple);
 
         // create a table for the altered tuple (since the schema is different)
-        String BOOK_TABLE_SPECIAL = "jointest_book_special";
+        String BOOK_TABLE_SPECIAL = "join_test_book_special";
         
         Schema alteredSchema = new Schema(JoinTestConstants.BOOK_SCHEMA.getAttributes().stream()
                 .map(attr -> attr.getFieldName() != JoinTestConstants.AUTHOR ? attr : 
@@ -631,7 +631,7 @@ public class JoinDistanceTest {
         
         RelationManager relationManager = RelationManager.getRelationManager();
         relationManager.deleteTable(BOOK_TABLE_SPECIAL);
-        relationManager.createTable(BOOK_TABLE_SPECIAL, "../index/jointest/book_special/", 
+        relationManager.createTable(BOOK_TABLE_SPECIAL, "../index/test_tables/" + BOOK_TABLE_SPECIAL, 
                 alteredSchema, LuceneAnalyzerConstants.standardAnalyzerString());
               
         // the type of the "author" field is changed from STRING to TEXT
@@ -689,7 +689,7 @@ public class JoinDistanceTest {
         JoinDistanceHelper.insertToOuter(originalTuple);
 
         // create a table for the altered tuple (since the schema is different)
-        String BOOK_TABLE_SPECIAL = "jointest_book_special";
+        String BOOK_TABLE_SPECIAL = "join_test_book_special";
         
         Schema alteredSchema = new Schema(JoinTestConstants.BOOK_SCHEMA.getAttributes().stream()
                 .map(attr -> attr.getFieldName() != JoinTestConstants.REVIEW ? attr : 
@@ -697,7 +697,7 @@ public class JoinDistanceTest {
         
         RelationManager relationManager = RelationManager.getRelationManager();
         relationManager.deleteTable(BOOK_TABLE_SPECIAL);
-        relationManager.createTable(BOOK_TABLE_SPECIAL, "../index/jointest/book_special/", 
+        relationManager.createTable(BOOK_TABLE_SPECIAL, "../index/test_tables/" + BOOK_TABLE_SPECIAL, 
                 alteredSchema, LuceneAnalyzerConstants.standardAnalyzerString());
               
         // the type of the "author" field is changed from STRING to TEXT

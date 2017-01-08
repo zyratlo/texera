@@ -25,16 +25,16 @@ import edu.uci.ics.textdb.storage.relation.RelationManager;
 
 public class JoinDistanceHelper {
     
-    public static final String BOOK_TABLE_OUTER = "jointest_book_outer";
-    public static final String BOOK_TABLE_INNER = "jointest_book_inner";
+    public static final String BOOK_TABLE_OUTER = "join_test_book_outer";
+    public static final String BOOK_TABLE_INNER = "join_test_book_inner";
     
     public static void createTestTables() throws TextDBException {
         RelationManager relationManager = RelationManager.getRelationManager();
         
         // create the two book tables
-        relationManager.createTable(BOOK_TABLE_OUTER, "../index/jointest/book_outer/", 
+        relationManager.createTable(BOOK_TABLE_OUTER, "../index/test_tables/" + BOOK_TABLE_OUTER, 
                 JoinTestConstants.BOOK_SCHEMA, LuceneAnalyzerConstants.standardAnalyzerString());     
-        relationManager.createTable(BOOK_TABLE_INNER, "../index/jointest/book_inner/", 
+        relationManager.createTable(BOOK_TABLE_INNER, "../index/test_tables/" + BOOK_TABLE_INNER, 
                 JoinTestConstants.BOOK_SCHEMA, LuceneAnalyzerConstants.standardAnalyzerString());         
     }
     
