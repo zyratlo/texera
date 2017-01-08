@@ -33,7 +33,7 @@ public class OneToNBroadcastConnectorTest {
         RelationManager relationManager = RelationManager.getRelationManager();
         
         // create the people table and write tuples
-        relationManager.createTable(PEOPLE_TABLE, "../index/keywordtest/people/", 
+        relationManager.createTable(PEOPLE_TABLE, "../index/one_to_n_connector_test/people/", 
                 TestConstants.SCHEMA_PEOPLE, LuceneAnalyzerConstants.standardAnalyzerString());        
         for (ITuple tuple : TestConstants.getSamplePeopleTuples()) {
             relationManager.insertTuple(PEOPLE_TABLE, tuple);
