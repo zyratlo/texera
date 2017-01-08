@@ -39,7 +39,7 @@ import edu.uci.ics.textdb.storage.writer.DataWriter;
 
 /**
  * @author Parag Saraogi
- *
+ * @author Zuozhi Wang
  */
 
 public class FuzzyTokenMatcherTest {
