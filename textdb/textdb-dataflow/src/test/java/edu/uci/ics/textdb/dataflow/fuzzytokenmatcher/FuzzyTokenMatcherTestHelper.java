@@ -53,23 +53,20 @@ public class FuzzyTokenMatcherTestHelper {
     /*
      * Gets the query results from FuzzyTokenMatcher (without limit and offset).
      */
-    public static List<ITuple> getQueryResults(String tableName, String query, double threshold, List<String> attributeNames,
-            KeywordMatchingType matchingType) throws TextDBException {
-        return getQueryResults(tableName, query, threshold, attributeNames, matchingType, Integer.MAX_VALUE, 0);
+    public static List<ITuple> getQueryResults(String tableName, String query, double threshold, List<String> attributeNames) throws TextDBException {
+        return getQueryResults(tableName, query, threshold, attributeNames, Integer.MAX_VALUE, 0);
     }
     
     /*
      * Gets the query results from FuzzyTokenMatcher (with limit and offset options)
      */
     public static List<ITuple> getQueryResults(String tableName, String query, double threshold, List<String> attributeNames,
-            KeywordMatchingType matchingType, int limit, int offset) throws TextDBException {
+            int limit, int offset) throws TextDBException {
         
         // results from a scan on the table followed by a fuzzy token matcher
-        List<ITuple> scanSourceResults = getScanSourceResults(tableName, query, threshold, attributeNames,
-                matchingType, limit, offset);
+        List<ITuple> scanSourceResults = getScanSourceResults(tableName, query, threshold, attributeNames, limit, offset);
         // results from index-based look-ups on the table
-        List<ITuple> fuzzyTokenSourceResults = getFuzzyTokenSourceResults(tableName, query, threshold, attributeNames,
-                matchingType, limit, offset);
+        List<ITuple> fuzzyTokenSourceResults = getFuzzyTokenSourceResults(tableName, query, threshold, attributeNames, limit, offset);
         
         // if limit and offset are not relevant, the results from scan source and keyword source must be the same
         if (limit == Integer.MAX_VALUE && offset == 0) {
@@ -83,7 +80,7 @@ public class FuzzyTokenMatcherTestHelper {
         // in this case, we get all the results and test if the whole result set contains both results
         else {
             List<ITuple> allResults = getFuzzyTokenSourceResults(tableName, query, threshold, attributeNames,
-                    matchingType, Integer.MAX_VALUE, 0);
+                    Integer.MAX_VALUE, 0);
             
             if (scanSourceResults.size() == fuzzyTokenSourceResults.size() &&
                     TestUtils.containsAll(allResults, scanSourceResults) && 
@@ -99,7 +96,7 @@ public class FuzzyTokenMatcherTestHelper {
      * Gets the query results by scanning the table and passing the data into a FuzzyTokenMatcher.
      */
     public static List<ITuple> getScanSourceResults(String tableName, String query, double threshold, List<String> attributeNames,
-            KeywordMatchingType matchingType, int limit, int offset) throws TextDBException {
+            int limit, int offset) throws TextDBException {
                 
         ScanBasedSourceOperator scanSource = new ScanBasedSourceOperator(tableName); 
         FuzzyTokenPredicate fuzzyTokenPredicate = new FuzzyTokenPredicate(
@@ -127,7 +124,7 @@ public class FuzzyTokenMatcherTestHelper {
      * Gets the query results by using a FuzzyTokenMatcherSourceOperator (which performs index-based lookups on the table)
      */
     public static List<ITuple> getFuzzyTokenSourceResults(String tableName, String query, double threshold, List<String> attributeNames,
-            KeywordMatchingType matchingType, int limit, int offset) throws TextDBException {
+            int limit, int offset) throws TextDBException {
         
         FuzzyTokenPredicate fuzzyTokenPredicate = new FuzzyTokenPredicate(
                 query, attributeNames, RelationManager.getRelationManager().getTableAnalyzer(tableName), threshold);

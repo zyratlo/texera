@@ -5,21 +5,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import edu.uci.ics.textdb.api.exception.TextDBException;
-import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.apache.lucene.queryparser.classic.ParseException;
-import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import edu.uci.ics.textdb.api.common.Attribute;
 import edu.uci.ics.textdb.api.common.IField;
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.common.Schema;
-import edu.uci.ics.textdb.api.storage.IDataWriter;
-import edu.uci.ics.textdb.common.constants.DataConstants;
 import edu.uci.ics.textdb.common.constants.SchemaConstants;
 import edu.uci.ics.textdb.common.constants.TestConstants;
 import edu.uci.ics.textdb.common.field.DataTuple;
@@ -31,11 +25,7 @@ import edu.uci.ics.textdb.common.field.Span;
 import edu.uci.ics.textdb.common.field.StringField;
 import edu.uci.ics.textdb.common.field.TextField;
 import edu.uci.ics.textdb.common.utils.Utils;
-import edu.uci.ics.textdb.dataflow.common.FuzzyTokenPredicate;
-import edu.uci.ics.textdb.dataflow.source.IndexBasedSourceOperator;
 import edu.uci.ics.textdb.dataflow.utils.TestUtils;
-import edu.uci.ics.textdb.storage.DataStore;
-import edu.uci.ics.textdb.storage.writer.DataWriter;
 
 /**
  * @author Parag Saraogi
@@ -43,58 +33,17 @@ import edu.uci.ics.textdb.storage.writer.DataWriter;
  */
 
 public class FuzzyTokenMatcherTest {
+    
+    public static final String PEOPLE_TABLE = FuzzyTokenMatcherTestHelper.PEOPLE_TABLE;
 
-    private FuzzyTokenMatcher fuzzyTokenMatcher;
-    private DataWriter dataWriter;
-    private DataStore dataStore;
-    private Analyzer analyzer;
-
-    @Before
-    public void setUp() throws Exception {
-        dataStore = new DataStore(DataConstants.INDEX_DIR, TestConstants.SCHEMA_PEOPLE);
-        analyzer = new StandardAnalyzer();
-        dataWriter = new DataWriter(dataStore, analyzer);
-        
-        dataWriter.clearData();
-        dataWriter.open();
-        for (ITuple tuple : TestConstants.getSamplePeopleTuples()) {
-            dataWriter.insertTuple(tuple);
-        }
-        dataWriter.close();
+    @BeforeClass
+    public static void setUp() throws Exception {
+        FuzzyTokenMatcherTestHelper.writeTestTables();
     }
 
-    @After
-    public void cleanUp() throws Exception {
-        dataWriter.clearData();
-    }
-
-    public List<ITuple> getQueryResults(String query, double threshold, ArrayList<String> attributeNames)
-            throws TextDBException, ParseException {
-        return getQueryResults(query, threshold, attributeNames, Integer.MAX_VALUE, 0);
-    }
-
-    public List<ITuple> getQueryResults(String query, double threshold, ArrayList<String> attributeNames,
-            int limit) throws TextDBException, ParseException {
-        return getQueryResults(query, threshold, attributeNames, limit, 0);
-    }
-
-    public List<ITuple> getQueryResults(String query, double threshold, ArrayList<String> attributeNames,
-            int limit, int offset) throws TextDBException, ParseException {
-
-        FuzzyTokenPredicate predicate = new FuzzyTokenPredicate(query, attributeNames, analyzer, threshold);
-        fuzzyTokenMatcher = new FuzzyTokenMatcher(predicate);
-        fuzzyTokenMatcher.setInputOperator(new IndexBasedSourceOperator(predicate.getDataReaderPredicate(dataStore)));
-        fuzzyTokenMatcher.open();
-        fuzzyTokenMatcher.setLimit(limit);
-        fuzzyTokenMatcher.setOffset(offset);
-
-        List<ITuple> results = new ArrayList<>();
-        ITuple nextTuple = null;
-        while ((nextTuple = fuzzyTokenMatcher.getNextTuple()) != null) {
-            results.add(nextTuple);
-        }
-
-        return results;
+    @AfterClass
+    public static void cleanUp() throws Exception {
+        FuzzyTokenMatcherTestHelper.deleteTestTables();
     }
 
     @Test
@@ -103,7 +52,7 @@ public class FuzzyTokenMatcherTest {
         double threshold = 0.5; // The ratio of tokens that need to be matched
         ArrayList<String> attributeNames = new ArrayList<>();
         attributeNames.add(TestConstants.DESCRIPTION);
-        List<ITuple> results = getQueryResults(query, threshold, attributeNames);
+        List<ITuple> results = FuzzyTokenMatcherTestHelper.getQueryResults(PEOPLE_TABLE, query, threshold, attributeNames);
         
         Assert.assertEquals(0, results.size());
     }
@@ -152,7 +101,7 @@ public class FuzzyTokenMatcherTest {
         expectedResultList.add(tuple3);
         expectedResultList.add(tuple4);
 
-        List<ITuple> results = getQueryResults(query, threshold, attributeNames);
+        List<ITuple> results = FuzzyTokenMatcherTestHelper.getQueryResults(PEOPLE_TABLE, query, threshold, attributeNames);
         boolean contains = TestUtils.equals(expectedResultList, results);
         Assert.assertTrue(contains);
     }
@@ -201,7 +150,7 @@ public class FuzzyTokenMatcherTest {
         expectedResultList.add(tuple3);
         expectedResultList.add(tuple4);
 
-        List<ITuple> results = getQueryResults(query, threshold, attributeNames);
+        List<ITuple> results = FuzzyTokenMatcherTestHelper.getQueryResults(PEOPLE_TABLE, query, threshold, attributeNames);
         boolean contains = TestUtils.equals(expectedResultList, results);
         Assert.assertTrue(contains);
     }
@@ -212,7 +161,7 @@ public class FuzzyTokenMatcherTest {
         double threshold = 1; // The ratio of tokens that need to be matched
         ArrayList<String> attributeNames = new ArrayList<>();
         attributeNames.add(TestConstants.FIRST_NAME);
-        List<ITuple> results = getQueryResults(query, threshold, attributeNames);
+        List<ITuple> results = FuzzyTokenMatcherTestHelper.getQueryResults(PEOPLE_TABLE, query, threshold, attributeNames);
 
         Assert.assertEquals(0, results.size());
     }
@@ -261,7 +210,7 @@ public class FuzzyTokenMatcherTest {
         expectedResultList.add(tuple3);
         expectedResultList.add(tuple4);
 
-        List<ITuple> results = getQueryResults(query, threshold, attributeNames);
+        List<ITuple> results = FuzzyTokenMatcherTestHelper.getQueryResults(PEOPLE_TABLE, query, threshold, attributeNames);
         boolean contains = TestUtils.equals(expectedResultList, results);
         Assert.assertTrue(contains);
     }
@@ -310,7 +259,7 @@ public class FuzzyTokenMatcherTest {
         expectedResultList.add(tuple3);
         expectedResultList.add(tuple4);
 
-        List<ITuple> results = getQueryResults(query, threshold, attributeNames);
+        List<ITuple> results = FuzzyTokenMatcherTestHelper.getQueryResults(PEOPLE_TABLE, query, threshold, attributeNames);
         boolean contains = TestUtils.equals(expectedResultList, results);
         Assert.assertTrue(contains);
     }
@@ -367,10 +316,10 @@ public class FuzzyTokenMatcherTest {
         expectedResultList.add(tuple4);
 
         List<ITuple> results = Utils.removeFields(
-                getQueryResults(query, threshold, attributeNames, 2), SchemaConstants.PAYLOAD);
+                FuzzyTokenMatcherTestHelper.getQueryResults(PEOPLE_TABLE, query, threshold, attributeNames, 2, 0), SchemaConstants.PAYLOAD);
         Assert.assertEquals(expectedResultList.size(), 4);
         Assert.assertEquals(results.size(), 2);
-        Assert.assertTrue(expectedResultList.containsAll(results));
+        Assert.assertTrue(TestUtils.containsAll(expectedResultList, results));
     }
 
     @Test
@@ -425,10 +374,10 @@ public class FuzzyTokenMatcherTest {
         expectedResultList.add(tuple4);
 
         List<ITuple> results = Utils.removeFields(
-                getQueryResults(query, threshold, attributeNames, 2, 1), SchemaConstants.PAYLOAD);
+                FuzzyTokenMatcherTestHelper.getQueryResults(PEOPLE_TABLE, query, threshold, attributeNames, 2, 1), SchemaConstants.PAYLOAD);
 
         Assert.assertEquals(expectedResultList.size(), 4);
         Assert.assertEquals(results.size(), 2);
-        Assert.assertTrue(expectedResultList.containsAll(results));
+        Assert.assertTrue(TestUtils.containsAll(expectedResultList, results));
     }
 }
