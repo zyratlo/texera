@@ -19,13 +19,13 @@ import edu.uci.ics.textdb.storage.relation.RelationManager;
 
 public class DictionaryMatcherTestHelper {
     
-    public static final String PEOPLE_TABLE = "dicttest_people";
+    public static final String PEOPLE_TABLE = "dictionary_test_people";
     
     public static void writeTestTables() throws TextDBException {
         RelationManager relationManager = RelationManager.getRelationManager();
         
         // create the people table and write tuples
-        relationManager.createTable(PEOPLE_TABLE, "../index/dicttest/people/", 
+        relationManager.createTable(PEOPLE_TABLE, "../index/test_tables/" + PEOPLE_TABLE, 
                 TestConstants.SCHEMA_PEOPLE, LuceneAnalyzerConstants.standardAnalyzerString());        
         for (ITuple tuple : TestConstants.getSamplePeopleTuples()) {
             relationManager.insertTuple(PEOPLE_TABLE, tuple);
