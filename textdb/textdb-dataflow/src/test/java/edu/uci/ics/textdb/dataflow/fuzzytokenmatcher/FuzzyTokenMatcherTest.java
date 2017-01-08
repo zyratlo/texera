@@ -31,7 +31,6 @@ import edu.uci.ics.textdb.dataflow.utils.TestUtils;
  * @author Parag Saraogi
  * @author Zuozhi Wang
  */
-
 public class FuzzyTokenMatcherTest {
     
     public static final String PEOPLE_TABLE = FuzzyTokenMatcherTestHelper.PEOPLE_TABLE;
