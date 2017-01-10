@@ -34,7 +34,7 @@ public class FuzzyTokenMatcherSourceOperator extends AbstractSingleInputOperator
         this.dataStore = relationManager.getTableDataStore(tableName);
 
         // generate dataReader
-        Query luceneQuery = createLuceneQueryObject();
+        Query luceneQuery = createLuceneQueryObject(this.predicate);
         DataReaderPredicate dataReaderPredicate = new DataReaderPredicate(
                 luceneQuery, dataStore);
         dataReaderPredicate.setIsPayloadAdded(true);
@@ -66,21 +66,21 @@ public class FuzzyTokenMatcherSourceOperator extends AbstractSingleInputOperator
     protected void cleanUp() throws TextDBException {        
     }
     
-    private Query createLuceneQueryObject() throws DataFlowException {
+    public static Query createLuceneQueryObject(FuzzyTokenPredicate predicate) throws DataFlowException {
         try {
             /*
              * By default the boolean query takes 1024 # of clauses as the max
              * limit. Since our input query has no limitaion on the number of
              * tokens, we have to put a check.
              */
-            if (this.predicate.getThreshold() > 1024)
-                BooleanQuery.setMaxClauseCount(this.predicate.getThreshold()  + 1);
+            if (predicate.getThreshold() > 1024)
+                BooleanQuery.setMaxClauseCount(predicate.getThreshold()  + 1);
             BooleanQuery.Builder builder = new BooleanQuery.Builder();
-            builder.setMinimumNumberShouldMatch(this.predicate.getThreshold());
+            builder.setMinimumNumberShouldMatch(predicate.getThreshold());
             MultiFieldQueryParser qp = new MultiFieldQueryParser(
-                    this.predicate.getAttributeNames().stream().toArray(String[]::new),
-                    this.predicate.getLuceneAnalyzer());
-            for (String s : this.predicate.getQueryTokens()) {
+                    predicate.getAttributeNames().stream().toArray(String[]::new),
+                    predicate.getLuceneAnalyzer());
+            for (String s : predicate.getQueryTokens()) {
                 builder.add(qp.parse(s), Occur.SHOULD);
             }
             return builder.build();
