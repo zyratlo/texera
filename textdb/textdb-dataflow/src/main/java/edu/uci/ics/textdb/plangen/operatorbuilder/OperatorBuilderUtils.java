@@ -105,45 +105,6 @@ public class OperatorBuilderUtils {
     }
 
     /**
-     * This function finds properties related to constructing the attributes in
-     * operatorProperties, and converts them to a list of attributes.
-     * 
-     * It currently needs the following properties from operatorProperties: 
-     *   attributeNames: a list of attributes' names (separated by comma)
-     *   attributeTypes: a list of attributes' types corresponding to attribute names (separated by comma)
-     *   
-     * Here's a sample JSON representation of these properties:
-     * 
-     * {
-     *   "attributeNames" : "attribute1Name, attribute2Name, attribute3Name",
-     *   "attributeTypes" : "attribute1Type, attribute2Type, attribute3Type"
-     * }
-     * 
-     * TODO: this function should be deleted after all attributeLists are changed to attributeNames
-     * 
-     * @param operatorProperties
-     * @return a list of attributes
-     * @throws PlanGenException
-     */
-    public static List<Attribute> constructAttributeList(Map<String, String> operatorProperties) throws PlanGenException {
-        String attributeNamesStr = getRequiredProperty(ATTRIBUTE_NAMES, operatorProperties);
-        String attributeTypesStr = getRequiredProperty(ATTRIBUTE_TYPES, operatorProperties);
-
-        List<String> attributeNames = splitStringByComma(attributeNamesStr);
-        List<String> attributeTypes = splitStringByComma(attributeTypesStr);
-
-        PlanGenUtils.planGenAssert(attributeNames.size() == attributeTypes.size(), "attribute names and attribute types are not coherent");
-        PlanGenUtils.planGenAssert(attributeTypes.stream().allMatch(typeStr -> PlanGenUtils.isValidAttributeType(typeStr))
-                ,"attribute type is not valid");
-
-        List<Attribute> attributeList = IntStream.range(0, attributeNames.size()) // for each index in the list
-                .mapToObj(i -> constructAttribute(attributeNames.get(i), attributeTypes.get(i))) // construct an attribute
-                .collect(Collectors.toList());
-
-        return attributeList;
-    }
-    
-    /**
      * This function finds properties related to constructing the attribute names in
      * operatorProperties, and converts them to a list of attribute names.
      * 

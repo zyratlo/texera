@@ -136,7 +136,7 @@ public class SampleExtraction {
                 LuceneAnalyzerConstants.getNGramAnalyzer(3));
         RegexMatcher regexMatcherPerson = new RegexMatcher(regexPredicatePerson);
         
-        NlpPredicate nlpPredicateLocation = new NlpPredicate(NlpPredicate.NlpTokenType.Location, Arrays.asList(PromedSchema.CONTENT_ATTR));
+        NlpPredicate nlpPredicateLocation = new NlpPredicate(NlpPredicate.NlpTokenType.Location, Arrays.asList(PromedSchema.CONTENT));
         NlpExtractor nlpExtractorLocation = new NlpExtractor(nlpPredicateLocation);
 
         IJoinPredicate joinPredicatePersonLocation = new JoinDistancePredicate(PromedSchema.ID, PromedSchema.CONTENT, 100);
