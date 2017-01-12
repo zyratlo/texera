@@ -15,10 +15,10 @@ import edu.uci.ics.textdb.storage.relation.RelationManager;
 
 /**
  * A helper class for FuzzyTokenMatcher's test cases.
- * It includes the following functions: 
- *   creates and writes data to the test tables, 
- *   delets the test tables
- *   gets the query result from FuzzyTokenMatcher
+ * It includes functions that : 
+ *   create and write data to the test tables, 
+ *   delete the test tables
+ *   get the query result from FuzzyTokenMatcher
  *   
  * @author Zuozhi Wang
  *
@@ -67,7 +67,7 @@ public class FuzzyTokenMatcherTestHelper {
         // results from index-based look-ups on the table
         List<ITuple> fuzzyTokenSourceResults = getFuzzyTokenSourceResults(tableName, query, threshold, attributeNames, limit, offset);
         
-        // if limit and offset are not relevant, the results from scan source and keyword source must be the same
+        // if limit and offset are not relevant, the results from scan source and fuzzy token source must be the same
         if (limit == Integer.MAX_VALUE && offset == 0) {
             if (TestUtils.equals(scanSourceResults, fuzzyTokenSourceResults)) {
                 return scanSourceResults;

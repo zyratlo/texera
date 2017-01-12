@@ -40,7 +40,7 @@ public class FuzzyTokenMatcherSourceOperator extends AbstractSingleInputOperator
         dataReaderPredicate.setIsPayloadAdded(true);
         dataReader = new DataReader(dataReaderPredicate);
         
-        // generate KeywordMatcher
+        // generate FuzzyTokenMatcher
         fuzzyTokenMatcher = new FuzzyTokenMatcher(predicate);
         fuzzyTokenMatcher.setInputOperator(dataReader);
         
