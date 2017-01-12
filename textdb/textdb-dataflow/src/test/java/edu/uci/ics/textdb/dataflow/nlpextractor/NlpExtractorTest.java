@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.search.MatchAllDocsQuery;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -13,25 +11,16 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import edu.uci.ics.textdb.api.common.Attribute;
 import edu.uci.ics.textdb.api.common.ITuple;
-import edu.uci.ics.textdb.api.common.Schema;
-import edu.uci.ics.textdb.api.dataflow.ISourceOperator;
 import edu.uci.ics.textdb.api.exception.TextDBException;
-import edu.uci.ics.textdb.api.storage.IDataStore;
-import edu.uci.ics.textdb.api.storage.IDataWriter;
-import edu.uci.ics.textdb.common.constants.DataConstants;
 import edu.uci.ics.textdb.common.constants.LuceneAnalyzerConstants;
 import edu.uci.ics.textdb.common.constants.SchemaConstants;
-import edu.uci.ics.textdb.common.constants.TestConstants;
 import edu.uci.ics.textdb.common.utils.Utils;
 import edu.uci.ics.textdb.dataflow.nlpextrator.NlpExtractor;
 import edu.uci.ics.textdb.dataflow.nlpextrator.NlpPredicate;
 import edu.uci.ics.textdb.dataflow.source.ScanBasedSourceOperator;
 import edu.uci.ics.textdb.dataflow.utils.TestUtils;
-import edu.uci.ics.textdb.storage.DataStore;
 import edu.uci.ics.textdb.storage.relation.RelationManager;
-import edu.uci.ics.textdb.storage.writer.DataWriter;
 
 /**
  * @author Feng [sam0227]
@@ -74,17 +63,17 @@ public class NlpExtractorTest {
      * @about Using NlpExtractor to get all returned results from
      *        NLP_TEST_TABLE, return as a list of tuples
      */
-    public List<ITuple> getQueryResults(String tableName, List<Attribute> attributes,
+    public List<ITuple> getQueryResults(String tableName, List<String> attributeNames,
             NlpPredicate.NlpTokenType nlpTokenType) throws Exception {
-        return getQueryResults(tableName, attributes, nlpTokenType, Integer.MAX_VALUE, 0);
+        return getQueryResults(tableName, attributeNames, nlpTokenType, Integer.MAX_VALUE, 0);
     }
     
-    public List<ITuple> getQueryResults(String tableName, List<Attribute> attributes,
+    public List<ITuple> getQueryResults(String tableName, List<String> attributeNames,
             NlpPredicate.NlpTokenType nlpTokenType, int limit, int offset) throws Exception {
         
         ScanBasedSourceOperator scanSource = new ScanBasedSourceOperator(tableName);
 
-        NlpPredicate nlpPredicate = new NlpPredicate(nlpTokenType, attributes);
+        NlpPredicate nlpPredicate = new NlpPredicate(nlpTokenType, attributeNames);
         NlpExtractor nlpExtractor = new NlpExtractor(nlpPredicate);
         nlpExtractor.setInputOperator(scanSource);
 
@@ -116,11 +105,11 @@ public class NlpExtractorTest {
             RelationManager.getRelationManager().insertTuple(ONE_SENTENCE_TABLE, tuple);
         }
 
-        Attribute attribute1 = NlpExtractorTestConstants.SENTENCE_ONE_ATTR;
-        List<Attribute> attributes = new ArrayList<>();
-        attributes.add(attribute1);
+        String attribute1 = NlpExtractorTestConstants.SENTENCE_ONE;
+        List<String> attributeNames = new ArrayList<>();
+        attributeNames.add(attribute1);
 
-        List<ITuple> returnedResults = getQueryResults(ONE_SENTENCE_TABLE, attributes, NlpPredicate.NlpTokenType.NE_ALL);
+        List<ITuple> returnedResults = getQueryResults(ONE_SENTENCE_TABLE, attributeNames, NlpPredicate.NlpTokenType.NE_ALL);
 
         List<ITuple> expectedResults = NlpExtractorTestConstants.getTest1ResultTuples();
         boolean contains = TestUtils.equals(expectedResults, returnedResults);
@@ -139,11 +128,11 @@ public class NlpExtractorTest {
             RelationManager.getRelationManager().insertTuple(ONE_SENTENCE_TABLE, tuple);
         }
         
-        Attribute attribute1 = NlpExtractorTestConstants.SENTENCE_ONE_ATTR;
-        List<Attribute> attributes = new ArrayList<>();
-        attributes.add(attribute1);
+        String attribute1 = NlpExtractorTestConstants.SENTENCE_ONE;
+        List<String> attributeNames = new ArrayList<>();
+        attributeNames.add(attribute1);
 
-        List<ITuple> returnedResults = getQueryResults(ONE_SENTENCE_TABLE, attributes, NlpPredicate.NlpTokenType.NE_ALL);
+        List<ITuple> returnedResults = getQueryResults(ONE_SENTENCE_TABLE, attributeNames, NlpPredicate.NlpTokenType.NE_ALL);
         List<ITuple> expectedResults = NlpExtractorTestConstants.getTest2ResultTuples();
 
         boolean contains = TestUtils.equals(expectedResults, returnedResults);
@@ -164,11 +153,11 @@ public class NlpExtractorTest {
             RelationManager.getRelationManager().insertTuple(ONE_SENTENCE_TABLE, tuple);
         }
         
-        Attribute attribute1 = NlpExtractorTestConstants.SENTENCE_ONE_ATTR;
-        List<Attribute> attributes = new ArrayList<>();
-        attributes.add(attribute1);
+        String attribute1 = NlpExtractorTestConstants.SENTENCE_ONE;
+        List<String> attributeNames = new ArrayList<>();
+        attributeNames.add(attribute1);
 
-        List<ITuple> returnedResults = getQueryResults(ONE_SENTENCE_TABLE, attributes, NlpPredicate.NlpTokenType.NE_ALL);
+        List<ITuple> returnedResults = getQueryResults(ONE_SENTENCE_TABLE, attributeNames, NlpPredicate.NlpTokenType.NE_ALL);
         List<ITuple> expectedResults = NlpExtractorTestConstants.getTest3ResultTuples();
 
         boolean contains = TestUtils.equals(expectedResults, returnedResults);
@@ -192,14 +181,14 @@ public class NlpExtractorTest {
             RelationManager.getRelationManager().insertTuple(TWO_SENTENCE_TABLE, tuple);
         }
         
-        Attribute attribute1 = NlpExtractorTestConstants.SENTENCE_ONE_ATTR;
-        Attribute attribute2 = NlpExtractorTestConstants.SENTENCE_TWO_ATTR;
+        String attribute1 = NlpExtractorTestConstants.SENTENCE_ONE;
+        String attribute2 = NlpExtractorTestConstants.SENTENCE_TWO;
 
-        List<Attribute> attributes = new ArrayList<>();
-        attributes.add(attribute1);
-        attributes.add(attribute2);
+        List<String> attributeNames = new ArrayList<>();
+        attributeNames.add(attribute1);
+        attributeNames.add(attribute2);
 
-        List<ITuple> returnedResults = getQueryResults(TWO_SENTENCE_TABLE, attributes, NlpPredicate.NlpTokenType.NE_ALL);
+        List<ITuple> returnedResults = getQueryResults(TWO_SENTENCE_TABLE, attributeNames, NlpPredicate.NlpTokenType.NE_ALL);
         List<ITuple> expectedResults = NlpExtractorTestConstants.getTest4ResultTuples();
 
         boolean contains = TestUtils.equals(expectedResults, returnedResults);
@@ -222,11 +211,11 @@ public class NlpExtractorTest {
             RelationManager.getRelationManager().insertTuple(TWO_SENTENCE_TABLE, tuple);
         }
         
-        Attribute attribute = NlpExtractorTestConstants.SENTENCE_TWO_ATTR;
-        List<Attribute> attributes = new ArrayList<>();
-        attributes.add(attribute);
+        String attribute = NlpExtractorTestConstants.SENTENCE_TWO;
+        List<String> attributeNames = new ArrayList<>();
+        attributeNames.add(attribute);
 
-        List<ITuple> returnedResults = getQueryResults(TWO_SENTENCE_TABLE, attributes, NlpPredicate.NlpTokenType.NE_ALL);
+        List<ITuple> returnedResults = getQueryResults(TWO_SENTENCE_TABLE, attributeNames, NlpPredicate.NlpTokenType.NE_ALL);
 
         List<ITuple> expectedResults = NlpExtractorTestConstants.getTest5ResultTuples();
 
@@ -250,14 +239,14 @@ public class NlpExtractorTest {
             RelationManager.getRelationManager().insertTuple(TWO_SENTENCE_TABLE, tuple);
         }
 
-        Attribute attribute1 = NlpExtractorTestConstants.SENTENCE_ONE_ATTR;
-        Attribute attribute2 = NlpExtractorTestConstants.SENTENCE_TWO_ATTR;
+        String attribute1 = NlpExtractorTestConstants.SENTENCE_ONE;
+        String attribute2 = NlpExtractorTestConstants.SENTENCE_TWO;
 
-        List<Attribute> attributes = new ArrayList<>();
-        attributes.add(attribute1);
-        attributes.add(attribute2);
+        List<String> attributeNames = new ArrayList<>();
+        attributeNames.add(attribute1);
+        attributeNames.add(attribute2);
 
-        List<ITuple> returnedResults = getQueryResults(TWO_SENTENCE_TABLE, attributes,
+        List<ITuple> returnedResults = getQueryResults(TWO_SENTENCE_TABLE, attributeNames,
                 NlpPredicate.NlpTokenType.Organization);
 
         List<ITuple> expectedResults = NlpExtractorTestConstants.getTest6ResultTuples();
@@ -279,12 +268,12 @@ public class NlpExtractorTest {
             RelationManager.getRelationManager().insertTuple(ONE_SENTENCE_TABLE, tuple);
         }
 
-        Attribute attribute1 = NlpExtractorTestConstants.SENTENCE_ONE_ATTR;
+        String attribute1 = NlpExtractorTestConstants.SENTENCE_ONE;
 
-        List<Attribute> attributes = new ArrayList<>();
-        attributes.add(attribute1);
+        List<String> attributeNames = new ArrayList<>();
+        attributeNames.add(attribute1);
 
-        List<ITuple> returnedResults = getQueryResults(ONE_SENTENCE_TABLE, attributes, NlpPredicate.NlpTokenType.Adjective);
+        List<ITuple> returnedResults = getQueryResults(ONE_SENTENCE_TABLE, attributeNames, NlpPredicate.NlpTokenType.Adjective);
 
         List<ITuple> expectedResults = NlpExtractorTestConstants.getTest7ResultTuples();
 
@@ -300,12 +289,12 @@ public class NlpExtractorTest {
             RelationManager.getRelationManager().insertTuple(ONE_SENTENCE_TABLE, tuple);
         }
 
-        Attribute attribute1 = NlpExtractorTestConstants.SENTENCE_ONE_ATTR;
+        String attribute1 = NlpExtractorTestConstants.SENTENCE_ONE;
 
-        List<Attribute> attributes = new ArrayList<>();
-        attributes.add(attribute1);
+        List<String> attributeNames = new ArrayList<>();
+        attributeNames.add(attribute1);
 
-        List<ITuple> returnedResults = getQueryResults(ONE_SENTENCE_TABLE, attributes, NlpPredicate.NlpTokenType.Money);
+        List<ITuple> returnedResults = getQueryResults(ONE_SENTENCE_TABLE, attributeNames, NlpPredicate.NlpTokenType.Money);
         List<ITuple> expectedResults = NlpExtractorTestConstants.getTest8ResultTuples();
 
         boolean contains = TestUtils.equals(expectedResults, returnedResults);
@@ -319,15 +308,15 @@ public class NlpExtractorTest {
             RelationManager.getRelationManager().insertTuple(TWO_SENTENCE_TABLE, tuple);
         }
 
-        Attribute attribute1 = NlpExtractorTestConstants.SENTENCE_ONE_ATTR;
-        Attribute attribute2 = NlpExtractorTestConstants.SENTENCE_TWO_ATTR;
+        String attribute1 = NlpExtractorTestConstants.SENTENCE_ONE;
+        String attribute2 = NlpExtractorTestConstants.SENTENCE_TWO;
 
-        List<Attribute> attributes = new ArrayList<>();
-        attributes.add(attribute1);
-        attributes.add(attribute2);
+        List<String> attributeNames = new ArrayList<>();
+        attributeNames.add(attribute1);
+        attributeNames.add(attribute2);
 
         List<ITuple> returnedResults = Utils.removeFields(
-                getQueryResults(TWO_SENTENCE_TABLE, attributes, NlpPredicate.NlpTokenType.NE_ALL), SchemaConstants.PAYLOAD);
+                getQueryResults(TWO_SENTENCE_TABLE, attributeNames, NlpPredicate.NlpTokenType.NE_ALL), SchemaConstants.PAYLOAD);
         List<ITuple> expectedResults = NlpExtractorTestConstants.getTest9ResultTuples();
 
         boolean contains = TestUtils.equals(expectedResults, returnedResults);
@@ -341,10 +330,10 @@ public class NlpExtractorTest {
             RelationManager.getRelationManager().insertTuple(ONE_SENTENCE_TABLE, tuple);
         }
         
-        Attribute attribute1 = NlpExtractorTestConstants.SENTENCE_ONE_ATTR;
-        List<Attribute> attributes = Arrays.asList(attribute1);
+        String attribute1 = NlpExtractorTestConstants.SENTENCE_ONE;
+        List<String> attributeNames = Arrays.asList(attribute1);
         
-        List<ITuple> returnedResults = getQueryResults(ONE_SENTENCE_TABLE, attributes, NlpPredicate.NlpTokenType.NE_ALL);
+        List<ITuple> returnedResults = getQueryResults(ONE_SENTENCE_TABLE, attributeNames, NlpPredicate.NlpTokenType.NE_ALL);
         List<ITuple> expectedResults = NlpExtractorTestConstants.getTest10ResultTuples();
         boolean contains = TestUtils.equals(expectedResults, returnedResults);
         Assert.assertTrue(contains);
@@ -357,12 +346,12 @@ public class NlpExtractorTest {
             RelationManager.getRelationManager().insertTuple(TWO_SENTENCE_TABLE, tuple);
         }
         
-        Attribute attribute1 = NlpExtractorTestConstants.SENTENCE_ONE_ATTR;
-        Attribute attribute2 = NlpExtractorTestConstants.SENTENCE_TWO_ATTR;
-        List<Attribute> attributes = Arrays.asList(attribute1, attribute2);
+        String attribute1 = NlpExtractorTestConstants.SENTENCE_ONE;
+        String attribute2 = NlpExtractorTestConstants.SENTENCE_TWO;
+        List<String> attributeNames = Arrays.asList(attribute1, attribute2);
         
         List<ITuple> returnedResults = Utils.removeFields(
-                getQueryResults(TWO_SENTENCE_TABLE, attributes, NlpPredicate.NlpTokenType.NE_ALL), SchemaConstants.PAYLOAD);
+                getQueryResults(TWO_SENTENCE_TABLE, attributeNames, NlpPredicate.NlpTokenType.NE_ALL), SchemaConstants.PAYLOAD);
         
         List<ITuple> expectedResults = NlpExtractorTestConstants.getTest11ResultTuple();  
         boolean contains = TestUtils.equals(expectedResults, returnedResults);
@@ -375,10 +364,10 @@ public class NlpExtractorTest {
             RelationManager.getRelationManager().insertTuple(ONE_SENTENCE_TABLE, tuple);
         }
         
-        Attribute attribute1 = NlpExtractorTestConstants.SENTENCE_ONE_ATTR;
-        List<Attribute> attributes = Arrays.asList(attribute1);
+        String attribute1 = NlpExtractorTestConstants.SENTENCE_ONE;
+        List<String> attributeNames = Arrays.asList(attribute1);
         
-        List<ITuple> returnedResults = getQueryResults(ONE_SENTENCE_TABLE, attributes, NlpPredicate.NlpTokenType.NE_ALL, 3, 0);
+        List<ITuple> returnedResults = getQueryResults(ONE_SENTENCE_TABLE, attributeNames, NlpPredicate.NlpTokenType.NE_ALL, 3, 0);
         List<ITuple> expectedResults = NlpExtractorTestConstants.getTest10ResultTuples();
         
         // ExpectedResults is the array containing all the matches.
@@ -394,10 +383,10 @@ public class NlpExtractorTest {
             RelationManager.getRelationManager().insertTuple(ONE_SENTENCE_TABLE, tuple);
         }
         
-        Attribute attribute1 = NlpExtractorTestConstants.SENTENCE_ONE_ATTR;
-        List<Attribute> attributes = Arrays.asList(attribute1);
+        String attribute1 = NlpExtractorTestConstants.SENTENCE_ONE;
+        List<String> attributeNames = Arrays.asList(attribute1);
         
-        List<ITuple> returnedResults = getQueryResults(ONE_SENTENCE_TABLE, attributes, NlpPredicate.NlpTokenType.NE_ALL, 2, 2);
+        List<ITuple> returnedResults = getQueryResults(ONE_SENTENCE_TABLE, attributeNames, NlpPredicate.NlpTokenType.NE_ALL, 2, 2);
         List<ITuple> expectedResults = NlpExtractorTestConstants.getTest10ResultTuples();
         
         Assert.assertEquals(returnedResults.size(), 2);

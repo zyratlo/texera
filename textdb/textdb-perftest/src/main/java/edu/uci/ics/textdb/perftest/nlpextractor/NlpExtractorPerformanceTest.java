@@ -102,11 +102,11 @@ public class NlpExtractorPerformanceTest {
      */
     public static void matchNLP(IDataStore dataStore, NlpPredicate.NlpTokenType tokenType, Analyzer analyzer) throws Exception {
 
-        List<Attribute> attributeList = Arrays.asList(MedlineIndexWriter.ABSTRACT_ATTR);
+        List<String> attributeNames = Arrays.asList(MedlineIndexWriter.ABSTRACT);
 
         ISourceOperator sourceOperator = new ScanBasedSourceOperator(dataStore);
 
-        NlpPredicate nlpPredicate = new NlpPredicate(tokenType, attributeList);
+        NlpPredicate nlpPredicate = new NlpPredicate(tokenType, attributeNames);
         NlpExtractor nlpExtractor = new NlpExtractor(nlpPredicate);
         nlpExtractor.setInputOperator(sourceOperator);
 

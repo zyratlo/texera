@@ -1,12 +1,9 @@
 package edu.uci.ics.textdb.plangen.operatorbuilder;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import edu.uci.ics.textdb.api.common.Attribute;
-import edu.uci.ics.textdb.common.exception.DataFlowException;
 import edu.uci.ics.textdb.common.exception.PlanGenException;
 import edu.uci.ics.textdb.dataflow.nlpextrator.NlpExtractor;
 import edu.uci.ics.textdb.dataflow.nlpextrator.NlpPredicate;
@@ -37,10 +34,10 @@ public class NlpExtractorBuilder {
         PlanGenUtils.planGenAssert(isValidNlpType(nlpTypeStr), "invalid NlpType");
 
         // generate attribute list
-        List<Attribute> attributeList = OperatorBuilderUtils.constructAttributeList(operatorProperties);
+        List<String> attributeNames = OperatorBuilderUtils.constructAttributeNames(operatorProperties);
 
         // build NlpExtractor
-        NlpPredicate predicate = new NlpPredicate(convertToNlpType(nlpTypeStr), attributeList);
+        NlpPredicate predicate = new NlpPredicate(convertToNlpType(nlpTypeStr), attributeNames);
         NlpExtractor operator = new NlpExtractor(predicate);
 
         // set limit and offset
