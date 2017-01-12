@@ -7,8 +7,6 @@ import java.util.List;
 
 import org.junit.Test;
 
-import edu.uci.ics.textdb.api.common.Attribute;
-import edu.uci.ics.textdb.api.common.FieldType;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
 import edu.uci.ics.textdb.common.exception.PlanGenException;
 import edu.uci.ics.textdb.dataflow.nlpextrator.NlpExtractor;
@@ -32,14 +30,12 @@ public class NlpExtractorBuilderTest {
         HashMap<String, String> operatorProperties = new HashMap<>();
         operatorProperties.put(NlpExtractorBuilder.NLP_TYPE, "location");
         operatorProperties.put(OperatorBuilderUtils.ATTRIBUTE_NAMES, "content");
-        operatorProperties.put(OperatorBuilderUtils.ATTRIBUTE_TYPES, "TEXT");
         
         NlpExtractor operator = NlpExtractorBuilder.buildOperator(operatorProperties);
         
         Assert.assertEquals(nlpType, operator.getPredicate().getNlpTokenType());
-        List<Attribute> attrList = Arrays.asList(
-                new Attribute("content", FieldType.TEXT));
-        Assert.assertEquals(attrList.toString(), operator.getPredicate().getAttributeList().toString());
+        List<String> attrNames = Arrays.asList("content");
+        Assert.assertEquals(attrNames, operator.getPredicate().getAttributeNames());
         Assert.assertEquals(Integer.MAX_VALUE, operator.getLimit());
         Assert.assertEquals(0, operator.getOffset());    
     }
@@ -59,14 +55,12 @@ public class NlpExtractorBuilderTest {
         HashMap<String, String> operatorProperties = new HashMap<>();
         operatorProperties.put(NlpExtractorBuilder.NLP_TYPE, "nE_AlL");
         operatorProperties.put(OperatorBuilderUtils.ATTRIBUTE_NAMES, "content");
-        operatorProperties.put(OperatorBuilderUtils.ATTRIBUTE_TYPES, "TEXT");
         
         NlpExtractor operator = NlpExtractorBuilder.buildOperator(operatorProperties);
         
         Assert.assertEquals(nlpType, operator.getPredicate().getNlpTokenType());
-        List<Attribute> attrList = Arrays.asList(
-                new Attribute("content", FieldType.TEXT));
-        Assert.assertEquals(attrList.toString(), operator.getPredicate().getAttributeList().toString());
+        List<String> attrList = Arrays.asList("content");
+        Assert.assertEquals(attrList, operator.getPredicate().getAttributeNames());
         Assert.assertEquals(Integer.MAX_VALUE, operator.getLimit());
         Assert.assertEquals(0, operator.getOffset());    
     }
