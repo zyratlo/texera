@@ -15,11 +15,11 @@ import edu.uci.ics.textdb.dataflow.utils.TestUtils;
 import edu.uci.ics.textdb.storage.relation.RelationManager;
 
 /**
- * A helper class for functions that used in multiple keyword matcher tests.
+ * A helper class for functions that are used in multiple keyword matcher tests.
  * This class contains functions that: 
- *   creates and writes test tables,
- *   deletes test tables
- *   gets the results from a keyword matcher
+ *   create and write test tables,
+ *   delete test tables
+ *   get the results from a keyword matcher
  * @author Zuozhi Wang
  *
  */
