@@ -6,9 +6,9 @@ import java.util.List;
 
 import edu.uci.ics.textdb.api.exception.TextDBException;
 import org.apache.lucene.queryparser.classic.ParseException;
-import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import edu.uci.ics.textdb.api.common.Attribute;
@@ -40,13 +40,13 @@ public class KeywordConjunctionTest {
     
     public static final KeywordMatchingType conjunction = KeywordMatchingType.CONJUNCTION_INDEXBASED;
     
-    @Before
-    public void setUp() throws Exception {
+    @BeforeClass
+    public static void setUp() throws Exception {
         KeywordTestHelper.writeTestTables();
     }
 
-    @After
-    public void cleanUp() throws Exception {
+    @AfterClass
+    public static void cleanUp() throws Exception {
         KeywordTestHelper.deleteTestTables();
     }
 
