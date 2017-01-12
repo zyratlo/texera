@@ -69,12 +69,11 @@ public class RegexMatcherPerformanceTest {
             if (file.getName().startsWith(".")) {
                 continue;
             }
-            DataStore dataStore = new DataStore(PerfTestUtils.getTrigramIndexPath(file.getName()),
-                    MedlineIndexWriter.SCHEMA_MEDLINE);
+            String tableName = file.getName().replace(".txt", "");
 
             PerfTestUtils.createFile(PerfTestUtils.getResultPath(csvFile), HEADER);
             fileWriter = new FileWriter(PerfTestUtils.getResultPath(csvFile),true);
-            matchRegex(regexQueries, dataStore);
+            matchRegex(regexQueries, tableName);
             fileWriter.append("\n");
             fileWriter.append(currentTime + delimiter);
             fileWriter.append(file.getName() + delimiter);
@@ -90,7 +89,7 @@ public class RegexMatcherPerformanceTest {
     /*
      *         This function does match for a list of regex queries
      */
-    public static void matchRegex(List<String> regexes, DataStore dataStore) throws TextDBException, IOException {
+    public static void matchRegex(List<String> regexes, String tableName) throws TextDBException, IOException {
 
         List<String> attributeNames = Arrays.asList(MedlineIndexWriter.ABSTRACT);
         
@@ -99,21 +98,17 @@ public class RegexMatcherPerformanceTest {
 	        // case index.
 	        Analyzer luceneAnalyzer = LuceneAnalyzerConstants.getNGramAnalyzer(3);
 	        RegexPredicate regexPredicate = new RegexPredicate(regex, attributeNames, luceneAnalyzer);
-	        IndexBasedSourceOperator indexInputOperator = new IndexBasedSourceOperator(
-	                regexPredicate.generateDataReaderPredicate(dataStore));
-	
-	        RegexMatcher regexMatcher = new RegexMatcher(regexPredicate);
-	        regexMatcher.setInputOperator(indexInputOperator);
+	        RegexMatcherSourceOperator regexSource = new RegexMatcherSourceOperator(regexPredicate, tableName);
 	
 	        long startMatchTime = System.currentTimeMillis();
-	        regexMatcher.open();
+	        regexSource.open();
 	        int counter = 0;
 	        ITuple nextTuple = null;
-	        while ((nextTuple = regexMatcher.getNextTuple()) != null) {
+	        while ((nextTuple = regexSource.getNextTuple()) != null) {
 	            List<Span> spanList = ((ListField<Span>) nextTuple.getField(SchemaConstants.SPAN_LIST)).getValue();
 	            counter += spanList.size();
 	        }
-	        regexMatcher.close();
+	        regexSource.close();
 	        long endMatchTime = System.currentTimeMillis();
 	        double matchTime = (endMatchTime - startMatchTime) / 1000.0;
 	        totalMatchingTime += matchTime;

@@ -10,7 +10,6 @@ import java.util.List;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 
-import edu.uci.ics.textdb.api.common.Attribute;
 import edu.uci.ics.textdb.api.common.IDictionary;
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.common.constants.DataConstants;
@@ -23,7 +22,7 @@ import edu.uci.ics.textdb.dataflow.common.DictionaryPredicate;
 import edu.uci.ics.textdb.dataflow.dictionarymatcher.DictionaryMatcherSourceOperator;
 import edu.uci.ics.textdb.perftest.medline.MedlineIndexWriter;
 import edu.uci.ics.textdb.perftest.utils.PerfTestUtils;
-import edu.uci.ics.textdb.storage.DataStore;
+import edu.uci.ics.textdb.storage.relation.RelationManager;
 
 /**
  * @author Hailey Pan
@@ -74,15 +73,14 @@ public class DictionaryMatcherPerformanceTest {
             if (file.getName().startsWith(".")) {
                 continue;
             }
-            DataStore dataStore = new DataStore(PerfTestUtils.getIndexPath(file.getName()),
-                    MedlineIndexWriter.SCHEMA_MEDLINE);
+            String tableName = file.getName().replace(".txt", "");
 
             csvWriter(conjunctionCsv, file.getName(), queryFileName, dictionary,
-                    DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED, dataStore);
+                    DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED, tableName);
             csvWriter(phraseCsv, file.getName(), queryFileName, dictionary,
-                    DataConstants.KeywordMatchingType.PHRASE_INDEXBASED, dataStore);
+                    DataConstants.KeywordMatchingType.PHRASE_INDEXBASED, tableName);
             csvWriter(scanCsv, file.getName(), queryFileName, dictionary,
-                    DataConstants.KeywordMatchingType.SUBSTRING_SCANBASED, dataStore);
+                    DataConstants.KeywordMatchingType.SUBSTRING_SCANBASED, tableName);
         }
     }
 
@@ -100,7 +98,7 @@ public class DictionaryMatcherPerformanceTest {
      * 
      */
     public static void csvWriter(String resultFile, String recordNum, String queryFileName,
-            ArrayList<String> dictionary, KeywordMatchingType opType, DataStore dataStore) throws Exception {
+            ArrayList<String> dictionary, KeywordMatchingType opType, String tableName) throws Exception {
 
         PerfTestUtils.createFile(PerfTestUtils.getResultPath(resultFile), HEADER);
         FileWriter fileWriter = new FileWriter(PerfTestUtils.getResultPath(resultFile), true);
@@ -109,7 +107,7 @@ public class DictionaryMatcherPerformanceTest {
         fileWriter.append(recordNum + commaDelimiter);
         fileWriter.append(queryFileName + commaDelimiter);
         fileWriter.append(Integer.toString(dictionary.size()) + commaDelimiter);
-        match(dictionary, opType, new StandardAnalyzer(), dataStore);
+        match(dictionary, opType, new StandardAnalyzer(), tableName);
         fileWriter.append(String.format("%.4f", matchTime) + commaDelimiter);
         fileWriter.append(Integer.toString(resultCount));
         fileWriter.flush();
@@ -120,14 +118,14 @@ public class DictionaryMatcherPerformanceTest {
      * This function does match for a dictionary
      */
     public static void match(ArrayList<String> queryList, KeywordMatchingType opType, Analyzer luceneAnalyzer,
-            DataStore dataStore) throws Exception {
+            String tableName) throws Exception {
         List<String> attributeNames = Arrays.asList(MedlineIndexWriter.ABSTRACT);
 
         IDictionary dictionary = new Dictionary(queryList);
         DictionaryPredicate dictionaryPredicate = new DictionaryPredicate(dictionary, attributeNames, luceneAnalyzer,
                 opType);
         DictionaryMatcherSourceOperator dictionaryMatcher = new DictionaryMatcherSourceOperator(dictionaryPredicate,
-                dataStore);
+                RelationManager.getRelationManager().getTableDataStore(tableName));
 
         long startMatchTime = System.currentTimeMillis();
         dictionaryMatcher.open();
