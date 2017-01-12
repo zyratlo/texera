@@ -91,8 +91,8 @@ public class FuzzyTokenMatcher extends AbstractSingleInputOperator {
             FieldType fieldType = this.inputSchema.getAttribute(fieldName).getFieldType();   
             
             // types other than TEXT and STRING: throw Exception for now
-            if (fieldType != FieldType.TEXT) {
-                throw new DataFlowException("FuzzyTokenMatcher: Fields other than TEXT are not supported");
+            if (fieldType != FieldType.TEXT && fieldType != FieldType.STRING) {
+                throw new DataFlowException("FuzzyTokenMatcher: Fields other than TEXT or STRING are not supported");
             }
             
             List<Span> fieldSpans = 

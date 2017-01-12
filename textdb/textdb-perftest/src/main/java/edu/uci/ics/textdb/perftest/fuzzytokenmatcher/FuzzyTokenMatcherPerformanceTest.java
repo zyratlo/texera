@@ -19,9 +19,12 @@ import edu.uci.ics.textdb.common.field.ListField;
 import edu.uci.ics.textdb.common.field.Span;
 import edu.uci.ics.textdb.dataflow.common.FuzzyTokenPredicate;
 import edu.uci.ics.textdb.dataflow.fuzzytokenmatcher.FuzzyTokenMatcher;
+import edu.uci.ics.textdb.dataflow.fuzzytokenmatcher.FuzzyTokenMatcherSourceOperator;
 import edu.uci.ics.textdb.dataflow.source.IndexBasedSourceOperator;
+import edu.uci.ics.textdb.dataflow.source.ScanBasedSourceOperator;
 import edu.uci.ics.textdb.perftest.medline.MedlineIndexWriter;
 import edu.uci.ics.textdb.perftest.utils.PerfTestUtils;
+import edu.uci.ics.textdb.storage.DataReaderPredicate;
 import edu.uci.ics.textdb.storage.DataStore;
 
 /**
@@ -124,9 +127,8 @@ public class FuzzyTokenMatcherPerformanceTest {
             FuzzyTokenPredicate predicate = new FuzzyTokenPredicate(query, attributeNames, luceneAnalyzer,
                     threshold);
             FuzzyTokenMatcher fuzzyTokenMatcher = new FuzzyTokenMatcher(predicate);
-
             IndexBasedSourceOperator indexSource = new IndexBasedSourceOperator(
-                    predicate.getDataReaderPredicate(dataStore));
+                    new DataReaderPredicate(FuzzyTokenMatcherSourceOperator.createLuceneQueryObject(predicate), dataStore));
 
             fuzzyTokenMatcher.setInputOperator(indexSource);
 
