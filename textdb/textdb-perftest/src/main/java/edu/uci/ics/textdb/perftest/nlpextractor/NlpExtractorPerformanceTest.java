@@ -7,15 +7,9 @@ import java.util.List;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.apache.lucene.queryparser.classic.QueryParser;
-import org.apache.lucene.search.Query;
 
-import edu.uci.ics.textdb.api.common.Attribute;
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.dataflow.ISourceOperator;
-import edu.uci.ics.textdb.api.storage.IDataReader;
-import edu.uci.ics.textdb.api.storage.IDataStore;
-import edu.uci.ics.textdb.common.constants.DataConstants;
 import edu.uci.ics.textdb.common.constants.SchemaConstants;
 import edu.uci.ics.textdb.common.field.ListField;
 import edu.uci.ics.textdb.common.field.Span;
@@ -24,9 +18,6 @@ import edu.uci.ics.textdb.dataflow.nlpextrator.NlpPredicate;
 import edu.uci.ics.textdb.dataflow.source.ScanBasedSourceOperator;
 import edu.uci.ics.textdb.perftest.medline.MedlineIndexWriter;
 import edu.uci.ics.textdb.perftest.utils.*;
-import edu.uci.ics.textdb.storage.DataReaderPredicate;
-import edu.uci.ics.textdb.storage.DataStore;
-import edu.uci.ics.textdb.storage.reader.DataReader;
 
 /**
  * @author Hailey Pan
@@ -75,18 +66,18 @@ public class NlpExtractorPerformanceTest {
             if (file.getName().startsWith(".")) {
                 continue;
             }
-            DataStore dataStore = new DataStore(PerfTestUtils.getIndexPath(file.getName()),
-                    MedlineIndexWriter.SCHEMA_MEDLINE);
+            String tableName = file.getName().replace(".txt", "");
+
             PerfTestUtils.createFile(PerfTestUtils.getResultPath(csvFile), HEADER);
             FileWriter fileWriter = new FileWriter(PerfTestUtils.getResultPath(csvFile), true);
             fileWriter.append(newLine);
             fileWriter.append(currentTime + delimiter);
             fileWriter.append(file.getName() + delimiter);
-            matchNLP(dataStore, NlpPredicate.NlpTokenType.NE_ALL, new StandardAnalyzer());
-            matchNLP(dataStore, NlpPredicate.NlpTokenType.Adjective, new StandardAnalyzer());
-            matchNLP(dataStore, NlpPredicate.NlpTokenType.Adverb, new StandardAnalyzer());
-            matchNLP(dataStore, NlpPredicate.NlpTokenType.Noun, new StandardAnalyzer());
-            matchNLP(dataStore, NlpPredicate.NlpTokenType.Verb, new StandardAnalyzer());
+            matchNLP(tableName, NlpPredicate.NlpTokenType.NE_ALL, new StandardAnalyzer());
+            matchNLP(tableName, NlpPredicate.NlpTokenType.Adjective, new StandardAnalyzer());
+            matchNLP(tableName, NlpPredicate.NlpTokenType.Adverb, new StandardAnalyzer());
+            matchNLP(tableName, NlpPredicate.NlpTokenType.Noun, new StandardAnalyzer());
+            matchNLP(tableName, NlpPredicate.NlpTokenType.Verb, new StandardAnalyzer());
             fileWriter.append(String.format("%.4f", totalMatchingTime / numOfNlpType));
             fileWriter.append(delimiter);
             fileWriter.append(String.format("%.2f", totalResults * 0.1 / numOfNlpType ));
@@ -100,11 +91,11 @@ public class NlpExtractorPerformanceTest {
     /*
      * This function does match based on tokenType
      */
-    public static void matchNLP(IDataStore dataStore, NlpPredicate.NlpTokenType tokenType, Analyzer analyzer) throws Exception {
+    public static void matchNLP(String tableName, NlpPredicate.NlpTokenType tokenType, Analyzer analyzer) throws Exception {
 
         List<String> attributeNames = Arrays.asList(MedlineIndexWriter.ABSTRACT);
 
-        ISourceOperator sourceOperator = new ScanBasedSourceOperator(dataStore);
+        ISourceOperator sourceOperator = new ScanBasedSourceOperator(tableName);
 
         NlpPredicate nlpPredicate = new NlpPredicate(tokenType, attributeNames);
         NlpExtractor nlpExtractor = new NlpExtractor(nlpPredicate);
