@@ -28,13 +28,11 @@ import edu.uci.ics.textdb.common.field.TextField;
 import edu.uci.ics.textdb.common.utils.Utils;
 import edu.uci.ics.textdb.dataflow.common.FuzzyTokenPredicate;
 import edu.uci.ics.textdb.dataflow.common.JoinDistancePredicate;
-import edu.uci.ics.textdb.dataflow.fuzzytokenmatcher.FuzzyTokenMatcher;
+import edu.uci.ics.textdb.dataflow.fuzzytokenmatcher.FuzzyTokenMatcherSourceOperator;
 import edu.uci.ics.textdb.dataflow.keywordmatch.KeywordMatcherSourceOperator;
 import edu.uci.ics.textdb.dataflow.projection.ProjectionOperator;
 import edu.uci.ics.textdb.dataflow.projection.ProjectionPredicate;
-import edu.uci.ics.textdb.dataflow.source.IndexBasedSourceOperator;
 import edu.uci.ics.textdb.dataflow.utils.TestUtils;
-import edu.uci.ics.textdb.storage.DataStore;
 import edu.uci.ics.textdb.storage.relation.RelationManager;
 import junit.framework.Assert;
 
@@ -235,12 +233,8 @@ public class JoinDistanceTest {
                 .map(attr -> attr.getFieldName()).collect(Collectors.toList());
         FuzzyTokenPredicate fuzzyPredicateInner = new FuzzyTokenPredicate(fuzzyTokenQuery, textAttributeNames,
                 LuceneAnalyzerConstants.getStandardAnalyzer(), thresholdRatio);
-        FuzzyTokenMatcher fuzzyMatcherInner = new FuzzyTokenMatcher(fuzzyPredicateInner);
+        FuzzyTokenMatcherSourceOperator fuzzyMatcherInner = new FuzzyTokenMatcherSourceOperator(fuzzyPredicateInner, BOOK_TABLE_INNER);
         
-        DataStore innerDataStore = RelationManager.getRelationManager().getTableDataStore(BOOK_TABLE_INNER);
-        fuzzyMatcherInner.setInputOperator(
-                new IndexBasedSourceOperator(fuzzyPredicateInner.getDataReaderPredicate(innerDataStore)));
-
         ProjectionPredicate removeSpanListPredicate = new ProjectionPredicate(
                 JoinTestConstants.BOOK_SCHEMA.getAttributeNames());
         ProjectionOperator removeSpanListProjection = new ProjectionOperator(removeSpanListPredicate);

@@ -5,52 +5,45 @@ import java.util.Arrays;
 import java.util.List;
 
 import edu.uci.ics.textdb.api.exception.TextDBException;
-import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import edu.uci.ics.textdb.api.common.IField;
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.common.Schema;
 import edu.uci.ics.textdb.api.dataflow.IOperator;
-import edu.uci.ics.textdb.api.storage.IDataStore;
-import edu.uci.ics.textdb.api.storage.IDataWriter;
-import edu.uci.ics.textdb.common.constants.DataConstants;
+import edu.uci.ics.textdb.common.constants.LuceneAnalyzerConstants;
 import edu.uci.ics.textdb.common.constants.TestConstants;
 import edu.uci.ics.textdb.common.field.DataTuple;
 import edu.uci.ics.textdb.common.field.StringField;
 import edu.uci.ics.textdb.common.field.TextField;
 import edu.uci.ics.textdb.dataflow.source.ScanBasedSourceOperator;
 import edu.uci.ics.textdb.dataflow.utils.TestUtils;
-import edu.uci.ics.textdb.storage.DataStore;
-import edu.uci.ics.textdb.storage.writer.DataWriter;
+import edu.uci.ics.textdb.storage.relation.RelationManager;
 
 public class ProjectionOperatorTest {
     
-    private IDataStore dataStore;
-    private DataWriter dataWriter;
-    private Analyzer luceneAnalyzer;
-
-    @Before
-    public void setUp() throws Exception {
-        dataStore = new DataStore(DataConstants.INDEX_DIR, TestConstants.SCHEMA_PEOPLE);
-        luceneAnalyzer = new StandardAnalyzer();
-        dataWriter = new DataWriter(dataStore, luceneAnalyzer);
-        dataWriter.clearData();
-        dataWriter.open();
+    public static final String PEOPLE_TABLE = "projection_test_people";
+    
+    @BeforeClass
+    public static void setUp() throws Exception {
+        RelationManager relationManager = RelationManager.getRelationManager();
+        
+        // create the people table and write tuples
+        relationManager.createTable(PEOPLE_TABLE, "../index/test_tables/" + PEOPLE_TABLE, 
+                TestConstants.SCHEMA_PEOPLE, LuceneAnalyzerConstants.standardAnalyzerString());        
         for (ITuple tuple : TestConstants.getSamplePeopleTuples()) {
-            dataWriter.insertTuple(tuple);
+            relationManager.insertTuple(PEOPLE_TABLE, tuple);
         }
-        dataWriter.close();
     }
     
-    @After
-    public void cleanUp() throws Exception {
-        dataWriter.clearData();
-    }
+    @AfterClass
+    public static void cleanUp() throws Exception {
+        RelationManager relationManager = RelationManager.getRelationManager();
+        relationManager.deleteTable(PEOPLE_TABLE);
+    }   
     
     public List<ITuple> getProjectionResults(IOperator inputOperator, List<String> projectionFields) throws TextDBException {
         ProjectionPredicate projectionPredicate = new ProjectionPredicate(projectionFields);
@@ -89,7 +82,7 @@ public class ProjectionOperatorTest {
         ITuple tuple6 = new DataTuple(projectionSchema, fields6);
         
         List<ITuple> expectedResults = Arrays.asList(tuple1, tuple2, tuple3, tuple4, tuple5, tuple6);
-        List<ITuple> returnedResults = getProjectionResults(new ScanBasedSourceOperator(dataStore), projectionFields);
+        List<ITuple> returnedResults = getProjectionResults(new ScanBasedSourceOperator(PEOPLE_TABLE), projectionFields);
         
         Assert.assertTrue(TestUtils.equals(expectedResults, returnedResults));
     }
@@ -115,7 +108,7 @@ public class ProjectionOperatorTest {
         ITuple tuple6 = new DataTuple(projectionSchema, fields6);
         
         List<ITuple> expectedResults = Arrays.asList(tuple1, tuple2, tuple3, tuple4, tuple5, tuple6);
-        List<ITuple> returnedResults = getProjectionResults(new ScanBasedSourceOperator(dataStore), projectionFields);
+        List<ITuple> returnedResults = getProjectionResults(new ScanBasedSourceOperator(PEOPLE_TABLE), projectionFields);
         
         Assert.assertTrue(TestUtils.equals(expectedResults, returnedResults));
     }
