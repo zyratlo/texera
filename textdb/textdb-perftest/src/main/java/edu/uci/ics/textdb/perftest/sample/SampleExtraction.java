@@ -119,7 +119,7 @@ public class SampleExtraction {
                 new StandardAnalyzer(), KeywordMatchingType.CONJUNCTION_INDEXBASED);
         
         KeywordMatcherSourceOperator keywordSource = new KeywordMatcherSourceOperator(
-                keywordPredicateZika, RelationManager.getRelationManager().getTableDataStore(PROMED_SAMPLE_TABLE));
+                keywordPredicateZika, PROMED_SAMPLE_TABLE);
         
         ProjectionPredicate projectionPredicateIdAndContent = new ProjectionPredicate(
                 Arrays.asList(PromedSchema.ID, PromedSchema.CONTENT));

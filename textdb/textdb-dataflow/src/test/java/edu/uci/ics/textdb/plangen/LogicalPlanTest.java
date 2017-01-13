@@ -4,12 +4,19 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 import org.json.JSONObject;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
+import edu.uci.ics.textdb.api.common.Attribute;
+import edu.uci.ics.textdb.api.common.FieldType;
+import edu.uci.ics.textdb.api.common.Schema;
 import edu.uci.ics.textdb.api.dataflow.IOperator;
 import edu.uci.ics.textdb.api.dataflow.ISink;
 import edu.uci.ics.textdb.api.plan.Plan;
+import edu.uci.ics.textdb.common.constants.LuceneAnalyzerConstants;
 import edu.uci.ics.textdb.common.exception.PlanGenException;
+import edu.uci.ics.textdb.common.exception.StorageException;
 import edu.uci.ics.textdb.dataflow.connector.OneToNBroadcastConnector;
 import edu.uci.ics.textdb.dataflow.connector.OneToNBroadcastConnector.ConnectorOutputOperator;
 import edu.uci.ics.textdb.dataflow.fuzzytokenmatcher.FuzzyTokenMatcher;
@@ -25,10 +32,29 @@ import edu.uci.ics.textdb.plangen.operatorbuilder.KeywordMatcherBuilder;
 import edu.uci.ics.textdb.plangen.operatorbuilder.NlpExtractorBuilder;
 import edu.uci.ics.textdb.plangen.operatorbuilder.OperatorBuilderUtils;
 import edu.uci.ics.textdb.plangen.operatorbuilder.RegexMatcherBuilder;
+import edu.uci.ics.textdb.storage.relation.RelationManager;
 import junit.framework.Assert;
 
 public class LogicalPlanTest {
-
+    
+    public static final String TEST_TABLE = "logical_plan_test_table";
+    
+    public static final Schema TEST_SCHEMA = new Schema(
+            new Attribute("city", FieldType.STRING), new Attribute("location", FieldType.STRING),
+            new Attribute("content", FieldType.TEXT));
+    
+    @BeforeClass
+    public static void setUp() throws StorageException {
+        RelationManager.getRelationManager().createTable(
+                TEST_TABLE, "../index/test_tables/"+TEST_TABLE,
+                TEST_SCHEMA, LuceneAnalyzerConstants.standardAnalyzerString());
+    }
+    
+    @AfterClass
+    public static void cleanUp() throws StorageException {
+        RelationManager.getRelationManager().deleteTable(TEST_TABLE);
+    }
+    
     public static HashMap<String, String> keywordSourceProperties = new HashMap<String, String>() {
         {
             JSONObject schemaJsonJSONObject = new JSONObject();
@@ -39,8 +65,7 @@ public class LogicalPlanTest {
             put(KeywordMatcherBuilder.MATCHING_TYPE, "PHRASE_INDEXBASED");
             put(OperatorBuilderUtils.ATTRIBUTE_NAMES, "city, location, content");
             put(OperatorBuilderUtils.ATTRIBUTE_TYPES, "STRING, STRING, TEXT");
-            put(OperatorBuilderUtils.DATA_DIRECTORY, "./index");
-            put(OperatorBuilderUtils.SCHEMA, schemaJsonJSONObject.toString());
+            put(OperatorBuilderUtils.DATA_SOURCE, TEST_TABLE);
         }
     };
 

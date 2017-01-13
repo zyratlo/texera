@@ -3,7 +3,6 @@ package edu.uci.ics.textdb.plangen.operatorbuilder;
 import java.util.List;
 import java.util.Map;
 
-import edu.uci.ics.textdb.api.common.Attribute;
 import edu.uci.ics.textdb.common.constants.DataConstants.KeywordMatchingType;
 import edu.uci.ics.textdb.common.constants.LuceneAnalyzerConstants;
 import edu.uci.ics.textdb.common.exception.PlanGenException;
@@ -11,7 +10,6 @@ import edu.uci.ics.textdb.dataflow.common.Dictionary;
 import edu.uci.ics.textdb.dataflow.common.DictionaryPredicate;
 import edu.uci.ics.textdb.dataflow.dictionarymatcher.DictionaryMatcherSourceOperator;
 import edu.uci.ics.textdb.plangen.PlanGenUtils;
-import edu.uci.ics.textdb.storage.DataStore;
 
 /**
  * DictionarySourceBuilder provides a static function that builds a DictionaryMatcherSourceOperator.
@@ -37,6 +35,7 @@ public class DictionarySourceBuilder {
     public static DictionaryMatcherSourceOperator buildSourceOperator(Map<String, String> operatorProperties) throws PlanGenException {
         String dictionaryStr = OperatorBuilderUtils.getRequiredProperty(DICTIONARY, operatorProperties);
         String matchingTypeStr = OperatorBuilderUtils.getRequiredProperty(MATCHING_TYPE, operatorProperties);
+        String tableNameStr = OperatorBuilderUtils.getRequiredProperty(OperatorBuilderUtils.DATA_SOURCE, operatorProperties);
 
         // check if dictionary is empty       
         PlanGenUtils.planGenAssert(!dictionaryStr.trim().isEmpty(), "dictionary is empty");
@@ -54,10 +53,8 @@ public class DictionarySourceBuilder {
         
         DictionaryPredicate predicate = new DictionaryPredicate(
                 dictionary, attributeNames, LuceneAnalyzerConstants.getStandardAnalyzer(), matchingType);
-        
-        DataStore dataStore = OperatorBuilderUtils.constructDataStore(operatorProperties);
-        
-        DictionaryMatcherSourceOperator sourceOperator = new DictionaryMatcherSourceOperator(predicate, dataStore);
+                
+        DictionaryMatcherSourceOperator sourceOperator = new DictionaryMatcherSourceOperator(predicate, tableNameStr);
                 
         return sourceOperator;
     }

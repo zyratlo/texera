@@ -144,7 +144,7 @@ public class DictionaryMatcherTestHelper {
         DictionaryPredicate dictiaonryPredicate = new DictionaryPredicate(
                 dictionary, attributeNames, luceneAnalyzer, matchingType);
         DictionaryMatcherSourceOperator dictionarySource = new DictionaryMatcherSourceOperator(
-                dictiaonryPredicate, relationManager.getTableDataStore(tableName));
+                dictiaonryPredicate, tableName);
 
         dictionarySource.setLimit(limit);
         dictionarySource.setOffset(offset);

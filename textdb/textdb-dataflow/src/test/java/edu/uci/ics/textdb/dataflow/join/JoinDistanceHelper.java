@@ -117,11 +117,10 @@ public class JoinDistanceHelper {
      */
     public static KeywordMatcherSourceOperator getKeywordSource(String tableName, String query, 
             KeywordMatchingType matchingType) throws TextDBException {
-        DataStore tableDataStore = RelationManager.getRelationManager().getTableDataStore(tableName);
         KeywordPredicate keywordPredicate = new KeywordPredicate(query, 
                 Arrays.asList(JoinTestConstants.AUTHOR, JoinTestConstants.TITLE, JoinTestConstants.REVIEW),
                 RelationManager.getRelationManager().getTableAnalyzer(tableName), matchingType);
-        KeywordMatcherSourceOperator keywordSource = new KeywordMatcherSourceOperator(keywordPredicate, tableDataStore);
+        KeywordMatcherSourceOperator keywordSource = new KeywordMatcherSourceOperator(keywordPredicate, tableName);
         return keywordSource;
     }
     

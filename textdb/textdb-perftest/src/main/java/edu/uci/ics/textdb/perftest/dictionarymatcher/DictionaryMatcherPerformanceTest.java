@@ -125,7 +125,7 @@ public class DictionaryMatcherPerformanceTest {
         DictionaryPredicate dictionaryPredicate = new DictionaryPredicate(dictionary, attributeNames, luceneAnalyzer,
                 opType);
         DictionaryMatcherSourceOperator dictionaryMatcher = new DictionaryMatcherSourceOperator(dictionaryPredicate,
-                RelationManager.getRelationManager().getTableDataStore(tableName));
+                tableName);
 
         long startMatchTime = System.currentTimeMillis();
         dictionaryMatcher.open();
