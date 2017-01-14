@@ -55,22 +55,22 @@ public class KeywordConjunctionTest {
         System.out.println("******************************End\n");
     }
     
-    /////////////////////////////////
-    
     @BeforeClass
     public static void setUp() throws Exception {
         KeywordTestHelper.writeTestTables();
-  //      KeywordTestHelper.writeTestTablesChinese();
     }
 
     @AfterClass
     public static void cleanUp() throws Exception {
         KeywordTestHelper.deleteTestTables();
-    //    KeywordTestHelper.deleteTestTablesChinese();
     }
     
-    
-////////////////////////////////////
+    /**
+     * Verifies GetNextTuple of Keyword Matcher and single word queries in Text
+     * Field using Chinese.
+     * 
+     * @throws Exception
+     */
     @Test
     public void testSingleWordQueryInTextFieldChinese() throws Exception {
         // Prepare the query
@@ -111,8 +111,6 @@ public class KeywordConjunctionTest {
         List<ITuple> resultList = KeywordTestHelper.getQueryResultsChinese(CHINESE_TABLE, query, attributeNames, 
                 conjunction, Integer.MAX_VALUE, 0);
         
-        printListTupleResults(expectedResultList);
-        printListTupleResults(resultList);
         // check the results
         
         boolean contains = TestUtils.equals(expectedResultList, resultList);
