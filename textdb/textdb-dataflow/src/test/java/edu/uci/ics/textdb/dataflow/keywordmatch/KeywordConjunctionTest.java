@@ -37,18 +37,88 @@ public class KeywordConjunctionTest {
 
     public static final String PEOPLE_TABLE = KeywordTestHelper.PEOPLE_TABLE;
     public static final String MEDLINE_TABLE = KeywordTestHelper.MEDLINE_TABLE;
+    public static final String CHINESE_TABLE = KeywordTestHelper.CHINESE_TABLE;
     
     public static final KeywordMatchingType conjunction = KeywordMatchingType.CONJUNCTION_INDEXBASED;
+    
+    private void printListTupleResults(List<ITuple> results) {
+        System.out.println("******************************Start\n");
+        System.out.println("Print list of tuples!");
+        for (ITuple result : results) {
+            List<Span> a = ((ListField<Span>) result.getField("spanList")).getValue();
+            for (Span i : a) {
+                System.out.printf("start: %d, end: %d, fieldName: %s, key: %s, value: %s\n", i.getStart(), i.getEnd(),
+                        i.getFieldName(), i.getKey(), i.getValue());
+            }
+        }
+        System.out.println();
+        System.out.println("******************************End\n");
+    }
+    
+    /////////////////////////////////
     
     @BeforeClass
     public static void setUp() throws Exception {
         KeywordTestHelper.writeTestTables();
+  //      KeywordTestHelper.writeTestTablesChinese();
     }
 
     @AfterClass
     public static void cleanUp() throws Exception {
         KeywordTestHelper.deleteTestTables();
+    //    KeywordTestHelper.deleteTestTablesChinese();
     }
+    
+    
+////////////////////////////////////
+    @Test
+    public void testSingleWordQueryInTextFieldChinese() throws Exception {
+        // Prepare the query
+        String query = "北京大学";
+        ArrayList<String> attributeNames = new ArrayList<>();
+        attributeNames.add(TestConstants.FIRST_NAME);
+        attributeNames.add(TestConstants.LAST_NAME);
+        attributeNames.add(TestConstants.DESCRIPTION);
+        
+     // Prepare the expected result list
+        List<Span> list = new ArrayList<>();
+        Span span = new Span("description", 0, 4, "北京大学", "北京大学", 0);
+        list.add(span);
+        Attribute[] schemaAttributes = new Attribute[TestConstants.ATTRIBUTES_PEOPLE.length + 1];
+
+        for (int count = 0; count < schemaAttributes.length - 1; count++) {
+            schemaAttributes[count] = TestConstants.ATTRIBUTES_PEOPLE[count];
+        }
+
+        schemaAttributes[schemaAttributes.length - 1] = SchemaConstants.SPAN_LIST_ATTRIBUTE;
+
+        IField[] fields1 = { new StringField("无忌"), new StringField("长孙"), new IntegerField(46),
+                new DoubleField(5.50), new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-14-1970")),
+                new TextField("北京大学电气工程学院"), new ListField<>(list) };
+
+        IField[] fields2 = { new StringField("孔明"), new StringField("洛克贝尔"),
+                new IntegerField(42), new DoubleField(5.99),
+                new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-13-1974")), new TextField("北京大学计算机学院"),
+                new ListField<>(list) };
+        ITuple tuple1 = new DataTuple(new Schema(schemaAttributes), fields1);
+        ITuple tuple2 = new DataTuple(new Schema(schemaAttributes), fields2);
+
+        List<ITuple> expectedResultList = new ArrayList<>();
+        expectedResultList.add(tuple1);
+        expectedResultList.add(tuple2);
+
+        // Perform the query
+        List<ITuple> resultList = KeywordTestHelper.getQueryResultsChinese(CHINESE_TABLE, query, attributeNames, 
+                conjunction, Integer.MAX_VALUE, 0);
+        
+        printListTupleResults(expectedResultList);
+        printListTupleResults(resultList);
+        // check the results
+        
+        boolean contains = TestUtils.equals(expectedResultList, resultList);
+        Assert.assertTrue(contains);
+    }
+    
 
     /**
      * Verifies Keyword Matcher on a multi-word string. Since both tokens in Query

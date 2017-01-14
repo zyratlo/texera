@@ -17,6 +17,7 @@ import edu.uci.ics.textdb.common.field.DataTuple;
 import edu.uci.ics.textdb.common.field.DateField;
 import edu.uci.ics.textdb.common.field.DoubleField;
 import edu.uci.ics.textdb.common.field.IntegerField;
+import edu.uci.ics.textdb.common.field.ListField;
 import edu.uci.ics.textdb.common.field.StringField;
 import edu.uci.ics.textdb.common.field.TextField;
 
@@ -67,15 +68,23 @@ public class TestConstants {
             IField[] fields6 = { new StringField("Mary brown"), new StringField("Lake Forest"),
                     new IntegerField(42), new DoubleField(5.99),
                     new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-13-1974")), new TextField("Short angry") };
-
+            IField[] fields7 = { new StringField("无忌"), new StringField("长孙"), new IntegerField(46),
+                    new DoubleField(5.50), new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-14-1970")),
+                    new TextField("北京大学电气工程学院") };
+            IField[] fields8 = { new StringField("孔明"), new StringField("洛克贝尔"),
+                    new IntegerField(42), new DoubleField(5.99),
+                    new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-13-1974")), new TextField("北京大学计算机学院") };
+           
             ITuple tuple1 = new DataTuple(SCHEMA_PEOPLE, fields1);
             ITuple tuple2 = new DataTuple(SCHEMA_PEOPLE, fields2);
             ITuple tuple3 = new DataTuple(SCHEMA_PEOPLE, fields3);
             ITuple tuple4 = new DataTuple(SCHEMA_PEOPLE, fields4);
             ITuple tuple5 = new DataTuple(SCHEMA_PEOPLE, fields5);
             ITuple tuple6 = new DataTuple(SCHEMA_PEOPLE, fields6);
-
-            return Arrays.asList(tuple1, tuple2, tuple3, tuple4, tuple5, tuple6);   
+            ITuple tuple7 = new DataTuple(SCHEMA_PEOPLE, fields7);
+            ITuple tuple8 = new DataTuple(SCHEMA_PEOPLE, fields8);
+            
+            return Arrays.asList(tuple1, tuple2, tuple3, tuple4, tuple5, tuple6, tuple7, tuple8);   
         } catch (ParseException e) {
             // exception should not happen because we know the data is correct
             e.printStackTrace();
