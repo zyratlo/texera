@@ -8,6 +8,7 @@ import edu.uci.ics.textdb.api.exception.TextDBException;
 import edu.uci.ics.textdb.common.constants.DataConstants.KeywordMatchingType;
 import edu.uci.ics.textdb.common.constants.LuceneAnalyzerConstants;
 import edu.uci.ics.textdb.common.constants.TestConstants;
+import edu.uci.ics.textdb.common.constants.TestConstantsChinese;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
 import edu.uci.ics.textdb.dataflow.common.KeywordPredicate;
 import edu.uci.ics.textdb.dataflow.source.ScanBasedSourceOperator;
@@ -48,9 +49,9 @@ public class KeywordTestHelper {
         
      // create the chinese table and write tuples
         relationManager.createTable(CHINESE_TABLE, "../index/test_tables/" + CHINESE_TABLE, 
-                TestConstants.SCHEMA_PEOPLE, LuceneAnalyzerConstants.chineseAnalyzerString());
+                TestConstantsChinese.SCHEMA_PEOPLE, LuceneAnalyzerConstants.chineseAnalyzerString());
                 //.standardAnalyzerString());        
-        for (ITuple tuple : TestConstants.getSamplePeopleTuples()) {
+        for (ITuple tuple : TestConstantsChinese.getSamplePeopleTuples()) {
             relationManager.insertTuple(CHINESE_TABLE, tuple);
         } 
     }
