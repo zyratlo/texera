@@ -21,7 +21,7 @@ import junit.framework.Assert;
 
 public class DictionarySourceBuilderTest {
     
-    public static final String TEST_TABLE = "dict_source_buidler_test_table";
+    public static final String TEST_TABLE = "dictionary_source_buidler_test_table";
     
     public static final Schema TEST_SCHEMA = new Schema(
             new Attribute("city", FieldType.STRING), new Attribute("location", FieldType.STRING),
