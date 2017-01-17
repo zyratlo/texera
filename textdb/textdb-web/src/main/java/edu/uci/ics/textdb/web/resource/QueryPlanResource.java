@@ -37,9 +37,7 @@ public class QueryPlanResource {
         boolean createLogicalPlanFlag = queryPlanRequest.createLogicalPlan();        
 
         ObjectMapper objectMapper = new ObjectMapper();
-        if(aggregatePropertiesFlag && createLogicalPlanFlag) {
-            Engine.getEngine().evaluate(queryPlanRequest.getLogicalPlan().buildQueryPlan());
-            
+        if(aggregatePropertiesFlag && createLogicalPlanFlag) {            
             // Temporary sample response when the operator properties aggregation works correctly
             SampleResponse sampleResponse = new SampleResponse(0, "Successful");
             return Response.status(200)
