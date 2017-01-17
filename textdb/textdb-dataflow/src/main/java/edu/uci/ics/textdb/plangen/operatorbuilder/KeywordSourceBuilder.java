@@ -2,18 +2,15 @@ package edu.uci.ics.textdb.plangen.operatorbuilder;
 
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
-import edu.uci.ics.textdb.api.common.Attribute;
 import edu.uci.ics.textdb.common.constants.DataConstants.KeywordMatchingType;
 import edu.uci.ics.textdb.common.constants.LuceneAnalyzerConstants;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
 import edu.uci.ics.textdb.common.exception.PlanGenException;
-import edu.uci.ics.textdb.common.utils.Utils;
+import edu.uci.ics.textdb.common.exception.StorageException;
 import edu.uci.ics.textdb.dataflow.common.KeywordPredicate;
 import edu.uci.ics.textdb.dataflow.keywordmatch.KeywordMatcherSourceOperator;
 import edu.uci.ics.textdb.plangen.PlanGenUtils;
-import edu.uci.ics.textdb.storage.DataStore;
 
 /**
  * KeywordSourceBuilder provides a static function that builds a KeywordMatcherSourceOperator.
@@ -38,6 +35,8 @@ public class KeywordSourceBuilder {
                 KeywordMatcherBuilder.KEYWORD, operatorProperties);
         String matchingTypeStr = OperatorBuilderUtils.getRequiredProperty(
                 KeywordMatcherBuilder.MATCHING_TYPE, operatorProperties);
+        String tableNameStr = OperatorBuilderUtils.getRequiredProperty(
+                OperatorBuilderUtils.DATA_SOURCE, operatorProperties);
 
         // check if the keyword is empty
         PlanGenUtils.planGenAssert(!keyword.trim().isEmpty(), "the keyword is empty");
@@ -55,12 +54,10 @@ public class KeywordSourceBuilder {
         keywordPredicate = new KeywordPredicate(keyword, attributeNames,
                 LuceneAnalyzerConstants.getStandardAnalyzer(), matchingType);  
         
-        DataStore dataStore = OperatorBuilderUtils.constructDataStore(operatorProperties);
-
         KeywordMatcherSourceOperator sourceOperator;
         try {
-            sourceOperator = new KeywordMatcherSourceOperator(keywordPredicate, dataStore);
-        } catch (DataFlowException e) {
+            sourceOperator = new KeywordMatcherSourceOperator(keywordPredicate, tableNameStr);
+        } catch (DataFlowException | StorageException e) {
             throw new PlanGenException(e.getMessage(), e);
         }
    
