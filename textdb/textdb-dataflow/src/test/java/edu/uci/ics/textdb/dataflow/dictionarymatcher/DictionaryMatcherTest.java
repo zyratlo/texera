@@ -141,16 +141,13 @@ public class DictionaryMatcherTest {
         List<Span> list = new ArrayList<Span>();
         Span span = new Span("firstName", 0, 2, "孔明", "孔明");
         list.add(span);
-        Attribute[] schemaAttributes = new Attribute[TestConstantsChinese.ATTRIBUTES_PEOPLE.length + 1];
-        for (int count = 0; count < schemaAttributes.length - 1; count++) {
-            schemaAttributes[count] = TestConstantsChinese.ATTRIBUTES_PEOPLE[count];
-        }
-        schemaAttributes[schemaAttributes.length - 1] = SchemaConstants.SPAN_LIST_ATTRIBUTE;
+
+        Schema resultSchema = Utils.addAttributeToSchema(TestConstantsChinese.SCHEMA_PEOPLE, SchemaConstants.SPAN_LIST_ATTRIBUTE);
 
         IField[] fields1 = { new StringField("孔明"), new StringField("洛克贝尔"), new IntegerField(42),
                 new DoubleField(5.99), new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-13-1974")),
                 new TextField("北京大学计算机学院"), new ListField<Span>(list) };
-        ITuple tuple1 = new DataTuple(new Schema(schemaAttributes), fields1);
+        ITuple tuple1 = new DataTuple(resultSchema, fields1);
         List<ITuple> expectedResults = new ArrayList<ITuple>();
         expectedResults.add(tuple1);
         List<String> attributeNames = Arrays.asList(TestConstantsChinese.FIRST_NAME, TestConstantsChinese.LAST_NAME,
