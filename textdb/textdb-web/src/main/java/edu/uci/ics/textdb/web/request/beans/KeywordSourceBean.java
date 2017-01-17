@@ -72,7 +72,7 @@ public class KeywordSourceBean extends OperatorBean {
             return null;
         operatorProperties.put(KeywordMatcherBuilder.KEYWORD, this.getKeyword());
         operatorProperties.put(KeywordMatcherBuilder.MATCHING_TYPE, this.getMatchingType());
-        operatorProperties.put(OperatorBuilderUtils.DATA_DIRECTORY, this.getDataSource());
+        operatorProperties.put(OperatorBuilderUtils.DATA_SOURCE, this.getDataSource());
         return operatorProperties;
     }
 

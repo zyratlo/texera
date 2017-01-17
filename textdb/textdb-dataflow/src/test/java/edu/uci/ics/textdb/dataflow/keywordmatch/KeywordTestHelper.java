@@ -124,7 +124,7 @@ public class KeywordTestHelper {
         KeywordPredicate keywordPredicate = new KeywordPredicate(
                 keywordQuery, attributeNames, relationManager.getTableAnalyzer(tableName), matchingType);
         KeywordMatcherSourceOperator keywordSource = new KeywordMatcherSourceOperator(
-                keywordPredicate, relationManager.getTableDataStore(tableName));
+                keywordPredicate, tableName);
         keywordSource.setLimit(limit);
         keywordSource.setOffset(offset);
         

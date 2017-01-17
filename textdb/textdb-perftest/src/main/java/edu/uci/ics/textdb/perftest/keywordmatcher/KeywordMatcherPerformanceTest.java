@@ -144,7 +144,7 @@ public class KeywordMatcherPerformanceTest {
                     opType);
 
             KeywordMatcherSourceOperator keywordSource = new KeywordMatcherSourceOperator(
-                    keywordPredicate, RelationManager.getRelationManager().getTableDataStore(tableName));
+                    keywordPredicate, tableName);
 
             long startMatchTime = System.currentTimeMillis();
             keywordSource.open();
