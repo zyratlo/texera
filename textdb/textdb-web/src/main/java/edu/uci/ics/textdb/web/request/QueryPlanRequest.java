@@ -75,7 +75,7 @@ public class QueryPlanRequest {
         return operatorProperties;
     }
 
-    public LogicalPlan getLogicalPlan() {
+    private LogicalPlan getLogicalPlan() {
         return logicalPlan;
     }
 
