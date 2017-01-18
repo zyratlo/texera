@@ -32,6 +32,10 @@ public class TupleStreamSink implements ISink {
     public void setInputOperator(IOperator inputOperator) {
         this.inputOperator = inputOperator;
     }
+    
+    public IOperator getInputOperator() {
+        return this.inputOperator;
+    }
 
     @Override
     public Schema getOutputSchema() {
