@@ -1,8 +1,6 @@
 package edu.uci.ics.textdb.web.resource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import edu.uci.ics.textdb.engine.Engine;
 import edu.uci.ics.textdb.web.request.QueryPlanRequest;
 import edu.uci.ics.textdb.web.response.SampleResponse;
 
@@ -34,10 +32,10 @@ public class QueryPlanResource {
     public Response executeQueryPlan(QueryPlanRequest queryPlanRequest) throws Exception {
         // Aggregating all the operator properties, and creating a logical plan object
         boolean aggregatePropertiesFlag = queryPlanRequest.aggregateOperatorProperties();
-        boolean createLogicalPlanFlag = queryPlanRequest.createLogicalPlan();        
+        boolean createLogicalPlanFlag = queryPlanRequest.createLogicalPlan();
 
         ObjectMapper objectMapper = new ObjectMapper();
-        if(aggregatePropertiesFlag && createLogicalPlanFlag) {            
+        if(aggregatePropertiesFlag && createLogicalPlanFlag) {
             // Temporary sample response when the operator properties aggregation works correctly
             SampleResponse sampleResponse = new SampleResponse(0, "Successful");
             return Response.status(200)
@@ -48,7 +46,7 @@ public class QueryPlanResource {
                     .header("Access-Control-Max-Age", "1728000")
                     .build();
         }
-        else {            
+        else {
             // Temporary sample response when the operator properties aggregation does not function
             SampleResponse sampleResponse = new SampleResponse(1, "Unsuccessful");
             return Response.status(400)
