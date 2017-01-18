@@ -71,7 +71,7 @@ public class TupleStreamSink implements ISink {
         isOpen = false;        
     }
     
-    public List<ITuple> collectTuples() throws TextDBException {
+    public List<ITuple> collectAllTuples() throws TextDBException {
         ArrayList<ITuple> results = new ArrayList<>();
         ITuple tuple;
         while ((tuple = inputOperator.getNextTuple()) != null) {

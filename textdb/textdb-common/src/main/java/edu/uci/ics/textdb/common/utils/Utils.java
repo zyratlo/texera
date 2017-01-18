@@ -231,9 +231,8 @@ public class Utils {
      * @return
      */
     public static Schema removeAttributeFromSchema(Schema schema, String... attributeName) {
-        List<String> attributeNameList = Arrays.asList(attributeName);
         return new Schema(schema.getAttributes().stream()
-                .filter(attr -> (! attributeNameList.contains(attr.getFieldName())))
+                .filter(attr -> (! Arrays.asList(attributeName).contains(attr.getFieldName())))
                 .toArray(Attribute[]::new));
     }
 
