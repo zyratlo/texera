@@ -31,7 +31,7 @@ var setup = function(){
 	var DEFAULT_DISTANCE = 10;
 	var DEFAULT_ATTRIBUTES = "first name, last name";
 	var DEFAULT_LIMIT = 10;
-	var DEFAULT_OFFSET = 5;
+	var DEFAULT_OFFSET = 0;
 	
 	/*
 		Helper Functions
@@ -100,6 +100,9 @@ var setup = function(){
 				userInput = DEFAULT_FILE_SINK;
 			}
 			extraOperators['file_path'] = userInput;
+		}
+		else if (panel == 'tuple-stream-sink-panel'){
+			// no attribute
 		}
 		else if (panel == 'join-panel'){
 			if (userInput == null || userInput == ''){
@@ -309,6 +312,8 @@ var setup = function(){
 		}
 		TEXTDBJSON.operators = operators;
 		TEXTDBJSON.links = links;
+
+		console.log(JSON.stringify(TEXTDBJSON));
 		
 		$.ajax({
 			url: "http://localhost:8080/queryplan/execute",
