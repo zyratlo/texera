@@ -48,7 +48,10 @@ public class QueryPlanResource {
             Plan plan = queryPlanRequest.getLogicalPlan().buildQueryPlan();
             if (plan.getRoot() instanceof TupleStreamSink) {
                 TupleStreamSink sink = (TupleStreamSink) plan.getRoot();
+                
+                sink.open();
                 List<ITuple> results = sink.collectAllTuples();
+                sink.close();
                 
                 SampleResponse sampleResponse = new SampleResponse(0, Utils.getTupleListString(results));
                 return Response.status(200)
