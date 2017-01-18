@@ -9,7 +9,6 @@ import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.pipeline.Annotation;
 import edu.stanford.nlp.pipeline.StanfordCoreNLP;
 import edu.stanford.nlp.util.CoreMap;
-import edu.uci.ics.textdb.api.common.Attribute;
 import edu.uci.ics.textdb.api.common.IField;
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.common.Schema;
@@ -82,10 +81,9 @@ public class NlpExtractor extends AbstractSingleInputOperator {
     @Override
     public ITuple processOneInputTuple(ITuple inputTuple) throws TextDBException {
         List<Span> matchingResults = new ArrayList<>();
-        for (Attribute attribute : predicate.getAttributeList()) {
-            String fieldName = attribute.getFieldName();
-            IField field = inputTuple.getField(fieldName);
-            matchingResults.addAll(extractNlpSpans(field, fieldName));
+        for (String attributeName : predicate.getAttributeNames()) {
+            IField field = inputTuple.getField(attributeName);
+            matchingResults.addAll(extractNlpSpans(field, attributeName));
         }
 
         if (matchingResults.isEmpty()) {

@@ -12,7 +12,6 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
 import edu.uci.ics.textdb.api.common.ITuple;
-import edu.uci.ics.textdb.api.dataflow.ISourceOperator;
 import edu.uci.ics.textdb.api.plan.Plan;
 import edu.uci.ics.textdb.common.constants.DataConstants.KeywordMatchingType;
 import edu.uci.ics.textdb.common.constants.LuceneAnalyzerConstants;
@@ -33,19 +32,16 @@ import edu.uci.ics.textdb.dataflow.projection.ProjectionOperator;
 import edu.uci.ics.textdb.dataflow.projection.ProjectionPredicate;
 import edu.uci.ics.textdb.dataflow.regexmatch.RegexMatcher;
 import edu.uci.ics.textdb.dataflow.sink.FileSink;
-import edu.uci.ics.textdb.dataflow.sink.IndexSink;
-import edu.uci.ics.textdb.dataflow.source.TupleStreamSourceOperator;
 import edu.uci.ics.textdb.engine.Engine;
 import edu.uci.ics.textdb.perftest.promed.PromedSchema;
-import edu.uci.ics.textdb.perftest.utils.PerfTestUtils;
-import edu.uci.ics.textdb.storage.DataStore;
-import edu.uci.ics.textdb.storage.writer.DataWriter;
+import edu.uci.ics.textdb.storage.relation.RelationManager;
 
 public class SampleExtraction {
+    
+    public static final String PROMED_SAMPLE_TABLE = "sample_extraction_promed";
         
     public static final String promedFilesDirectory = "./sample-data-files/promed/";
     public static final String promedIndexDirectory = "./index/standard/promed/"; 
-    public static final DataStore promedDataStore = new DataStore(promedIndexDirectory, PromedSchema.PROMED_SCHEMA);
     
     
     public static void main(String[] args) throws Exception {
@@ -69,11 +65,8 @@ public class SampleExtraction {
         }
     }
 
-    
     public static void writeSampleIndex() throws Exception {
-        // clear the directory
-        new DataWriter(promedDataStore, LuceneAnalyzerConstants.getStandardAnalyzer()).clearData();
-        
+        // parse the original file
         File sourceFileFolder = new File(promedFilesDirectory);
         ArrayList<ITuple> fileTuples = new ArrayList<>();
         for (File htmlFile : sourceFileFolder.listFiles()) {
@@ -88,19 +81,18 @@ public class SampleExtraction {
                 fileTuples.add(tuple);
             }
         }
-
-        ISourceOperator fileSource = new TupleStreamSourceOperator(fileTuples,
-                PromedSchema.PROMED_SCHEMA);
-
-        IndexSink standardIndexSink = new IndexSink(promedIndexDirectory, PromedSchema.PROMED_SCHEMA,
-                new StandardAnalyzer(), false);
-        standardIndexSink.setInputOperator(fileSource);
-        Plan standardIndexPlan = new Plan(standardIndexSink);
-
-        Engine engine = Engine.getEngine();
-        engine.evaluate(standardIndexPlan);
-
-        Engine.getEngine().evaluate(standardIndexPlan);
+        
+        // write tuples into the table
+        RelationManager relationManager = RelationManager.getRelationManager();
+        
+        relationManager.deleteTable(PROMED_SAMPLE_TABLE);
+        relationManager.createTable(PROMED_SAMPLE_TABLE, promedIndexDirectory, 
+                PromedSchema.PROMED_SCHEMA, LuceneAnalyzerConstants.standardAnalyzerString());
+        
+        for (ITuple tuple : fileTuples) {
+            relationManager.insertTuple(PROMED_SAMPLE_TABLE, tuple);
+        }
+        
     }
 
     /*
@@ -127,7 +119,7 @@ public class SampleExtraction {
                 new StandardAnalyzer(), KeywordMatchingType.CONJUNCTION_INDEXBASED);
         
         KeywordMatcherSourceOperator keywordSource = new KeywordMatcherSourceOperator(
-                keywordPredicateZika, promedDataStore);
+                keywordPredicateZika, PROMED_SAMPLE_TABLE);
         
         ProjectionPredicate projectionPredicateIdAndContent = new ProjectionPredicate(
                 Arrays.asList(PromedSchema.ID, PromedSchema.CONTENT));
@@ -140,11 +132,11 @@ public class SampleExtraction {
                 LuceneAnalyzerConstants.getNGramAnalyzer(3));
         RegexMatcher regexMatcherPerson = new RegexMatcher(regexPredicatePerson);
         
-        NlpPredicate nlpPredicateLocation = new NlpPredicate(NlpPredicate.NlpTokenType.Location, Arrays.asList(PromedSchema.CONTENT_ATTR));
+        NlpPredicate nlpPredicateLocation = new NlpPredicate(NlpPredicate.NlpTokenType.Location, Arrays.asList(PromedSchema.CONTENT));
         NlpExtractor nlpExtractorLocation = new NlpExtractor(nlpPredicateLocation);
 
         IJoinPredicate joinPredicatePersonLocation = new JoinDistancePredicate(PromedSchema.ID, PromedSchema.CONTENT, 100);
-        Join joinPersonLocation = new Join(null, null, joinPredicatePersonLocation);
+        Join joinPersonLocation = new Join(joinPredicatePersonLocation);
         
         ProjectionPredicate projectionPredicateIdAndSpan = new ProjectionPredicate(
                 Arrays.asList(PromedSchema.ID, SchemaConstants.SPAN_LIST));

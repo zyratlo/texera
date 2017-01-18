@@ -3,23 +3,18 @@ package edu.uci.ics.textdb.dataflow.comparablematcher;
 import edu.uci.ics.textdb.api.common.Attribute;
 import edu.uci.ics.textdb.api.common.IField;
 import edu.uci.ics.textdb.api.common.ITuple;
-import edu.uci.ics.textdb.api.storage.IDataStore;
-import edu.uci.ics.textdb.api.storage.IDataWriter;
 import edu.uci.ics.textdb.common.constants.DataConstants;
+import edu.uci.ics.textdb.common.constants.LuceneAnalyzerConstants;
 import edu.uci.ics.textdb.common.constants.DataConstants.NumberMatchingType;
 import edu.uci.ics.textdb.common.constants.TestConstants;
-import edu.uci.ics.textdb.common.exception.DataFlowException;
 import edu.uci.ics.textdb.api.exception.TextDBException;
 import edu.uci.ics.textdb.common.field.*;
 import edu.uci.ics.textdb.dataflow.source.ScanBasedSourceOperator;
 import edu.uci.ics.textdb.dataflow.utils.TestUtils;
-import edu.uci.ics.textdb.storage.DataStore;
-import edu.uci.ics.textdb.storage.writer.DataWriter;
-import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.junit.After;
+import edu.uci.ics.textdb.storage.relation.RelationManager;
+import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.text.SimpleDateFormat;
@@ -31,30 +26,25 @@ import java.util.List;
  * Created by sweetest.sj on 10/4/16.
  */
 public class ComparableMatcherTest {
+    
+    public static final String PEOPLE_TABLE = "comparable_test_people";
 
-    private IDataWriter dataWriter;
-    private DataStore dataStore;
-    private Analyzer analyzer;
-
-    private ScanBasedSourceOperator getScanSourceOperator(IDataStore dataStore) throws DataFlowException {
-        ScanBasedSourceOperator scanSource = new ScanBasedSourceOperator(dataStore);
-        return scanSource;
-    }
-
-    @Before
-    public void setUp() throws Exception {
-        dataStore = new DataStore(DataConstants.INDEX_DIR, TestConstants.SCHEMA_PEOPLE);
-        analyzer = new StandardAnalyzer();
-        dataWriter = new DataWriter(dataStore, analyzer);
-        dataWriter.clearData();
+    @BeforeClass
+    public static void setUp() throws TextDBException {
+        RelationManager relationManager = RelationManager.getRelationManager();
+        
+        // create the people table and write tuples
+        relationManager.createTable(PEOPLE_TABLE, "../index/test_tables/" + PEOPLE_TABLE, 
+                TestConstants.SCHEMA_PEOPLE, LuceneAnalyzerConstants.standardAnalyzerString());        
         for (ITuple tuple : TestConstants.getSamplePeopleTuples()) {
-            dataWriter.insertTuple(tuple);
+            relationManager.insertTuple(PEOPLE_TABLE, tuple);
         }
     }
 
-    @After
-    public void cleanUp() throws Exception {
-        dataWriter.clearData();
+    @AfterClass
+    public static void cleanUp() throws TextDBException {
+        RelationManager relationManager = RelationManager.getRelationManager();
+        relationManager.deleteTable(PEOPLE_TABLE);
     }
 
     public List<ITuple> getDoubleQueryResults(double threshold, Attribute attribute, NumberMatchingType matchingType)
@@ -84,16 +74,16 @@ public class ComparableMatcherTest {
         return getQueryResults(comparableMatcher);
     }
 
-    public void setDefaultMatcherConfig(ComparableMatcher comparableMatcher) throws TextDBException {
+    public void setDefaultMatcherConfig(ComparableMatcher<?> comparableMatcher) throws TextDBException {
         // Perform the query
-        ScanBasedSourceOperator sourceOperator = getScanSourceOperator(dataStore);
+        ScanBasedSourceOperator sourceOperator = new ScanBasedSourceOperator(PEOPLE_TABLE);
         comparableMatcher.setInputOperator(sourceOperator);
         comparableMatcher.open();
         comparableMatcher.setLimit(Integer.MAX_VALUE);
         comparableMatcher.setOffset(0);
     }
 
-    public List<ITuple> getQueryResults(ComparableMatcher comparableMatcher) throws TextDBException {
+    public List<ITuple> getQueryResults(ComparableMatcher<?> comparableMatcher) throws TextDBException {
         List<ITuple> returnedResults = new ArrayList<>();
         ITuple nextTuple = null;
 

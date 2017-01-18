@@ -8,21 +8,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.uci.ics.textdb.api.exception.TextDBException;
-import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import edu.uci.ics.textdb.api.common.ITuple;
-import edu.uci.ics.textdb.api.storage.IDataStore;
-import edu.uci.ics.textdb.api.storage.IDataWriter;
-import edu.uci.ics.textdb.common.constants.DataConstants;
+import edu.uci.ics.textdb.common.constants.LuceneAnalyzerConstants;
 import edu.uci.ics.textdb.common.constants.TestConstants;
 import edu.uci.ics.textdb.dataflow.utils.TestUtils;
-import edu.uci.ics.textdb.storage.DataStore;
-import edu.uci.ics.textdb.storage.writer.DataWriter;
+import edu.uci.ics.textdb.storage.relation.RelationManager;
 
 /**
  * @author sandeepreddy602
@@ -30,33 +25,31 @@ import edu.uci.ics.textdb.storage.writer.DataWriter;
  */
 public class ScanBasedSourceOperatorTest {
 
-    private IDataWriter dataWriter;
-    private ScanBasedSourceOperator scanBasedSourceOperator;
-    private IDataStore dataStore;
-    private Analyzer luceneAnalyzer;
-
-    @Before
-    public void setUp() throws Exception {
-        dataStore = new DataStore(DataConstants.INDEX_DIR, TestConstants.SCHEMA_PEOPLE);
-        luceneAnalyzer = new StandardAnalyzer();
+    public static final String PEOPLE_TABLE = "scan_source_test_people";
+    
+    @BeforeClass
+    public static void setUp() throws TextDBException {
+        RelationManager relationManager = RelationManager.getRelationManager();
         
-        dataWriter = new DataWriter(dataStore, luceneAnalyzer);
-        dataWriter.clearData();
+        // create the people table and write tuples
+        relationManager.createTable(PEOPLE_TABLE, "../index/test_tables/" + PEOPLE_TABLE, 
+                TestConstants.SCHEMA_PEOPLE, LuceneAnalyzerConstants.standardAnalyzerString());        
         for (ITuple tuple : TestConstants.getSamplePeopleTuples()) {
-            dataWriter.insertTuple(tuple);
-        }
-        
-        scanBasedSourceOperator = new ScanBasedSourceOperator(dataStore);
+            relationManager.insertTuple(PEOPLE_TABLE, tuple);
+        }        
     }
 
-    @After
-    public void cleanUp() throws Exception {
-        dataWriter.clearData();
+    @AfterClass
+    public static void cleanUp() throws Exception {
+        RelationManager relationManager = RelationManager.getRelationManager();
+        relationManager.deleteTable(PEOPLE_TABLE);
     }
 
     @Test
     public void testFlow() throws TextDBException, ParseException {
         List<ITuple> actualTuples = TestConstants.getSamplePeopleTuples();
+        
+        ScanBasedSourceOperator scanBasedSourceOperator = new ScanBasedSourceOperator(PEOPLE_TABLE);
         scanBasedSourceOperator.open();
         ITuple nextTuple = null;
         int numTuples = 0;
