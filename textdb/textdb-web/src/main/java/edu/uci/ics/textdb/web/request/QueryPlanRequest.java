@@ -71,11 +71,11 @@ public class QueryPlanRequest {
         this.operatorLinkBeans = operatorLinkBeans;
     }
 
-    private HashMap<String, HashMap<String, String>> getOperatorProperties() {
+    public HashMap<String, HashMap<String, String>> getOperatorProperties() {
         return operatorProperties;
     }
 
-    private LogicalPlan getLogicalPlan() {
+    public LogicalPlan getLogicalPlan() {
         return logicalPlan;
     }
 
@@ -100,6 +100,7 @@ public class QueryPlanRequest {
             }
             catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
                 // If any exception arises a NULL HashMap is raised
+                e.printStackTrace();
                 this.operatorProperties = null;
                 return false;
             }
@@ -129,6 +130,7 @@ public class QueryPlanRequest {
             }
             catch(PlanGenException e) {
                 // If a PlanGenException occurs the logical plan object is assigned to NULL, and a false value is returned
+                e.printStackTrace();
                 this.logicalPlan = null;
                 return false;
             }
