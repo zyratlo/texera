@@ -18,9 +18,9 @@ import edu.uci.ics.textdb.common.field.StringField;
 import edu.uci.ics.textdb.common.field.TextField;
 
 /**
- * @author Qinhua Huang Including this class in src/main/java since it is
- *         required by other projects Keeping it in src/test/java doesn't make
- *         it available to the other projects
+ * @author sandeepreddy602
+ * @author Qinhua Huang
+ *         Chinese data constant, used by unit test for Chinese.
  */
 public class TestConstantsChinese {
     // Sample Fields

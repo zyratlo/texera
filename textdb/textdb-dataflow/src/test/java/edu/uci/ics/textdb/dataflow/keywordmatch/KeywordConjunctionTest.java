@@ -460,7 +460,7 @@ public class KeywordConjunctionTest {
         expectedResultList.add(tuple2);
 
         // Perform the query
-        List<ITuple> resultList = KeywordTestHelper.getQueryResultsChinese(CHINESE_TABLE, query, attributeNames, 
+        List<ITuple> resultList = KeywordTestHelper.getQueryResults(CHINESE_TABLE, query, attributeNames, 
                 conjunction, Integer.MAX_VALUE, 0);
         
         // check the results
@@ -508,7 +508,7 @@ public class KeywordConjunctionTest {
         expectedResultList.add(tuple1);
 
         // Perform the query
-        List<ITuple> resultList = KeywordTestHelper.getQueryResultsChinese(CHINESE_TABLE, query, attributeNames, 
+        List<ITuple> resultList = KeywordTestHelper.getQueryResults(CHINESE_TABLE, query, attributeNames, 
                 conjunction, Integer.MAX_VALUE, 0);
 
         // check the results

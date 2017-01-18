@@ -22,6 +22,7 @@ import edu.uci.ics.textdb.storage.relation.RelationManager;
  *   delete test tables
  *   get the results from a keyword matcher
  * @author Zuozhi Wang
+ * @author Qinhua Huang
  *
  */
 public class KeywordTestHelper {
@@ -151,91 +152,4 @@ public class KeywordTestHelper {
         return results;
     }
     
-    /*
-     * Chinese test used functions.
-     */
-    
-    public static List<ITuple> getQueryResultsChinese(String tableName, String keywordQuery, List<String> attributeNames,
-            KeywordMatchingType matchingType, int limit, int offset) throws TextDBException {
-
-        // results from a scan on the table followed by a keyword match
-        List<ITuple> scanSourceResults = getScanSourceResultsChinese(tableName, keywordQuery, attributeNames,
-                matchingType, limit, offset);
-        // results from index-based keyword search on the table
-        List<ITuple> keywordSourceResults = getKeywordSourceResultsChinese(tableName, keywordQuery, attributeNames,
-                matchingType, limit, offset);
-        
-        // if limit and offset are not relevant, the results from scan source and keyword source must be the same
-        if (limit == Integer.MAX_VALUE && offset == 0) {
-            if (TestUtils.equals(scanSourceResults, keywordSourceResults)) {
-                return scanSourceResults;
-            } else {
-                throw new DataFlowException("results from scanSource and keywordSource are inconsistent");
-            }
-        }
-        // if limit and offset are relevant, then the results can be different (since the order doesn't matter)
-        // in this case, we get all the results and test if the whole result set contains both results
-        else {
-            List<ITuple> allResults = getKeywordSourceResultsChinese(tableName, keywordQuery, attributeNames,
-                    matchingType, Integer.MAX_VALUE, 0);
-            
-            if (scanSourceResults.size() == keywordSourceResults.size() &&
-                    TestUtils.containsAll(allResults, scanSourceResults) && 
-                    TestUtils.containsAll(allResults, keywordSourceResults)) {
-                return scanSourceResults;
-            } else {
-                throw new DataFlowException("results from scanSource and keywordSource are inconsistent");
-            }   
-        }
-        
-    }
-    
-    public static List<ITuple> getScanSourceResultsChinese(String tableName, String keywordQuery, List<String> attributeNames,
-            KeywordMatchingType matchingType, int limit, int offset) throws TextDBException {
-        
-        ScanBasedSourceOperator scanSource = new ScanBasedSourceOperator(tableName);
-        
-        KeywordPredicate keywordPredicate = new KeywordPredicate(
-                keywordQuery, attributeNames, LuceneAnalyzerConstants.getLuceneAnalyzer("smartchinese"), matchingType);
-        KeywordMatcher keywordMatcher = new KeywordMatcher(keywordPredicate);
-        keywordMatcher.setLimit(limit);
-        keywordMatcher.setOffset(offset);
-        
-        keywordMatcher.setInputOperator(scanSource);
-        
-        ITuple tuple;
-        List<ITuple> results = new ArrayList<>();
-        
-        keywordMatcher.open();
-        while ((tuple = keywordMatcher.getNextTuple()) != null) {
-            results.add(tuple);
-        }  
-        keywordMatcher.close();
-        
-        return results;
-    }
-    
-    public static List<ITuple> getKeywordSourceResultsChinese(String tableName, String keywordQuery, List<String> attributeNames,
-            KeywordMatchingType matchingType, int limit, int offset) throws TextDBException {
-        RelationManager relationManager = RelationManager.getRelationManager();
-        KeywordPredicate keywordPredicate = new KeywordPredicate(
-                keywordQuery, attributeNames, LuceneAnalyzerConstants.getLuceneAnalyzer("smartchinese"), matchingType);
-        KeywordMatcherSourceOperator keywordSource = new KeywordMatcherSourceOperator(
-                keywordPredicate, relationManager.getTableDataStore(tableName));
-        keywordSource.setLimit(limit);
-        keywordSource.setOffset(offset);
-        
-        ITuple tuple;
-        List<ITuple> results = new ArrayList<>();
-        
-        keywordSource.open();
-        while ((tuple = keywordSource.getNextTuple()) != null) {
-            results.add(tuple);
-        }
-        keywordSource.close();
-        
-        return results;
-    }
-
-
 }

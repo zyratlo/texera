@@ -29,7 +29,6 @@ import edu.uci.ics.textdb.common.field.StringField;
 import edu.uci.ics.textdb.common.field.TextField;
 import edu.uci.ics.textdb.common.utils.Utils;
 import edu.uci.ics.textdb.dataflow.common.Dictionary;
-import edu.uci.ics.textdb.dataflow.keywordmatch.KeywordTestHelper;
 import edu.uci.ics.textdb.dataflow.utils.TestUtils;
 
 /**
@@ -72,10 +71,9 @@ public class DictionaryMatcherTest {
     }
     
     /**
-     * Scenario S1C:verifies GetNextTuple of Dictionary
+     * Scenario :verifies GetNextTuple of Dictionary
      * 
-     * checking if Dictionary returns all the strings given by the user
-     * Test in Chinese
+     * Verifies GetNextTuple of Dictionary with all Chinese characters.
      */
     @Test
     public void testGetNextOfDictionaryItemChinese() throws Exception {
@@ -91,7 +89,7 @@ public class DictionaryMatcherTest {
     }
 
     /**
-     * Scenario S-2:verifies GetNextTuple of DictionaryMatcher and single word
+     * Scenario :verifies GetNextTuple of DictionaryMatcher and single word
      * queries in String Field using SCANOPERATOR
      */
 
@@ -126,8 +124,8 @@ public class DictionaryMatcherTest {
     }
 
     /**
-     * Scenario S-2C:verifies GetNextTuple of DictionaryMatcher and single word
-     * queries in String Field using SCANOPERATOR
+     * Scenario: verifies GetNextTuple of DictionaryMatcher and single word
+     * queries in String Field using SUBSTRING_SCANBASED
      * Test in Chinese.
      */
 
@@ -150,7 +148,7 @@ public class DictionaryMatcherTest {
         ITuple tuple1 = new DataTuple(resultSchema, fields1);
         List<ITuple> expectedResults = new ArrayList<ITuple>();
         expectedResults.add(tuple1);
-        List<String> attributeNames = Arrays.asList(TestConstantsChinese.FIRST_NAME, TestConstantsChinese.LAST_NAME,
+        List<String> attributeNames = Arrays.asList(TestConstants.FIRST_NAME, TestConstantsChinese.LAST_NAME,
                 TestConstantsChinese.DESCRIPTION);
 
         List<ITuple> returnedResults = DictionaryMatcherTestHelper.getQueryResults(CHINESE_TABLE, dictionary, attributeNames, KeywordMatchingType.SUBSTRING_SCANBASED);
@@ -159,7 +157,7 @@ public class DictionaryMatcherTest {
     }
     
     /**
-     * Scenario S-3:verifies GetNextTuple of DictionaryMatcher and multiple word
+     * Scenario: verifies GetNextTuple of DictionaryMatcher and multiple word
      * queries in String Field using KEYWORDOPERATOR
      */
 
@@ -202,7 +200,7 @@ public class DictionaryMatcherTest {
     }
     
     /**
-     * Scenario S-3C:verifies GetNextTuple of DictionaryMatcher and multiple word
+     * Scenario: verifies GetNextTuple of DictionaryMatcher and multiple word
      * queries in String Field using KEYWORDOPERATOR
      * Test in Chinese.
      */
@@ -246,7 +244,7 @@ public class DictionaryMatcherTest {
     }
 
     /**
-     * Scenario S-4:verifies GetNextTuple of DictionaryMatcher and multiple word
+     * Scenario: verifies GetNextTuple of DictionaryMatcher and multiple word
      * queries in String Field using PHRASEOPERATOR
      */
 
@@ -289,9 +287,8 @@ public class DictionaryMatcherTest {
     }
     
     /**
-     * Scenario S-4C:verifies GetNextTuple of DictionaryMatcher and multiple word
-     * queries in String Field using PHRASEOPERATOR
-     * Test in Chinese.
+     * Scenario: verifies GetNextTuple of DictionaryMatcher and multiple word
+     * queries in String Field using PHRASE_INDEXBASED in Chinese.
      */
 
     @Test
@@ -374,8 +371,8 @@ public class DictionaryMatcherTest {
     }
     
     /**
-     * Scenario S-5C:verifies GetNextTuple of DictionaryMatcher and single word
-     * queries in Text Field using SCANOPERATOR
+     * Scenario: verifies GetNextTuple of DictionaryMatcher and single word
+     * queries in Text Field using SCANOPERATOR in Chinese.
      */
 
     @Test
@@ -421,7 +418,7 @@ public class DictionaryMatcherTest {
     }
 
     /**
-     * Scenario S-6:verifies GetNextTuple of DictionaryMatcher and single word
+     * Scenario: verifies GetNextTuple of DictionaryMatcher and single word
      * queries in Text Field using KEYWORD OPERATOR
      */
 
@@ -462,9 +459,8 @@ public class DictionaryMatcherTest {
     }
     
     /**
-     * Scenario S-6C:verifies GetNextTuple of DictionaryMatcher and single word
-     * queries in Text Field using KEYWORD OPERATOR
-     * Test in Chinese.
+     * Scenario: verifies GetNextTuple of DictionaryMatcher and single word
+     * queries in Text Field using KEYWORD OPERATOR in Chinese
      */
 
     @Test
@@ -545,9 +541,8 @@ public class DictionaryMatcherTest {
     }
     
     /**
-     * Scenario S-7C:verifies GetNextTuple of DictionaryMatcher and single word
-     * queries in Text Field using PHRASE OPERATOR
-     * Test in Chinese.
+     * Scenario: verifies GetNextTuple of DictionaryMatcher and single word
+     * queries in Text Field using PHRASE OPERATOR in Chinese.
      */
 
     @Test
@@ -623,9 +618,8 @@ public class DictionaryMatcherTest {
     }
     
     /**
-     * Scenario S-8C:verifies ITuple returned by DictionaryMatcher and multiple
-     * word queries using SCAN OPERATOR
-     * Test in Chinese.
+     * Scenario: verifies ITuple returned by DictionaryMatcher and multiple
+     * word queries using SCAN OPERATOR in Chinese
      */
 
     @Test
@@ -695,7 +689,7 @@ public class DictionaryMatcherTest {
     }
     
     /**
-     * Scenario S-9C:verifies ITuple returned by DictionaryMatcher and multiple
+     * Scenario: verifies ITuple returned by DictionaryMatcher and multiple
      * word queries using KEYWORD OPERATOR
      */
 
@@ -768,8 +762,7 @@ public class DictionaryMatcherTest {
     
     /**
      * Scenario S-10C:verifies ITuple returned by DictionaryMatcher and multiple
-     * word queries using PHRASE OPERATOR
-     * Test in Chinese
+     * word queries using PHRASE OPERATOR in Chinese
      */
 
     @Test
@@ -806,7 +799,7 @@ public class DictionaryMatcherTest {
 
     /**
      * Scenario S-11:verifies: data source has multiple attributes, and an
-     * entity can appear in all the fields and multiple times using SCAN
+     * entity can appear in all the fields and multiple times using SUBSTRING_SCANBASE
      * OPERATOR.
      */
 
