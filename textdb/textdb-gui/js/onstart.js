@@ -398,7 +398,7 @@ var setup = function(){
 		operatorData.properties.attributes['offset'] = userOffset;
 		
 		if(operatorName == "Join"){
-			operatorData.properties.inputs.input_1['multiple'] = true;
+			operatorData.properties.inputs['input_2'] = {label: 'Input 2'};
 		}
 
 		operatorI++;
