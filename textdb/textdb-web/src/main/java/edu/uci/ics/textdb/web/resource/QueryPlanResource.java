@@ -53,7 +53,7 @@ public class QueryPlanResource {
                 List<ITuple> results = sink.collectAllTuples();
                 sink.close();
                 
-                SampleResponse sampleResponse = new SampleResponse(0, Utils.getTupleListString(results));
+                SampleResponse sampleResponse = new SampleResponse(0, Utils.getTupleListJSON(results));
                 return Response.status(200)
                         .entity(objectMapper.writeValueAsString(sampleResponse))
                         .header("Access-Control-Allow-Origin", "*")
