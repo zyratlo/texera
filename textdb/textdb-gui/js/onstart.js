@@ -323,8 +323,10 @@ var setup = function(){
 			contentType: "application/json",
 			success: function(returnedData){
 				console.log("SUCCESS\n");
-				console.log(JSON.stringify(returnedData));
-				createResultFrame(returnedData);
+
+				console.log(returnedData);
+
+				createResultFrame(JSON.parse(returnedData));
 			},
 			error: function(xhr, status, err){
 				console.log(JSON.stringify(xhr));

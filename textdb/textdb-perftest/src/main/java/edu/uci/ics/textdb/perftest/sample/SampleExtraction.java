@@ -38,7 +38,7 @@ import edu.uci.ics.textdb.storage.relation.RelationManager;
 
 public class SampleExtraction {
     
-    public static final String PROMED_SAMPLE_TABLE = "sample_extraction_promed";
+    public static final String PROMED_SAMPLE_TABLE = "sample";
         
     public static final String promedFilesDirectory = "./sample-data-files/promed/";
     public static final String promedIndexDirectory = "./index/standard/promed/"; 
@@ -51,7 +51,7 @@ public class SampleExtraction {
         writeSampleIndex();
         
         // perform the extraction task
-        extractPersonLocation();
+//        extractPersonLocation();
     }
     
     public static ITuple parsePromedHTML(String fileName, String content) {

@@ -287,6 +287,80 @@ public class Utils {
 
         return result;
     }
+    
+    
+    public static String getTupleListJSON(List<ITuple> tupleList) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("[");
+        for (ITuple tuple : tupleList) {
+            sb.append(getTupleJSON(tuple));
+            sb.append(",");
+        }
+        // remove the last comma
+        if (! tupleList.isEmpty()) {
+            sb.setLength(sb.length() - 1);
+        }
+        return sb.toString();
+    }
+    
+    public static String getTupleJSON(ITuple tuple) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("{");
+        Schema schema  = tuple.getSchema();
+        for (String attrName : schema.getAttributeNames()) {
+            if (attrName.equals(SchemaConstants.SPAN_LIST)) {
+                sb.append("\"");
+                sb.append(attrName);
+                sb.append("\"");
+                sb.append(":");
+                sb.append(getSpanListJSON(((ListField<Span>) tuple.getField(SchemaConstants.SPAN_LIST)).getValue()));
+            } else {
+                sb.append("\"");
+                sb.append(attrName);
+                sb.append("\"");
+                sb.append(":");
+                sb.append("\"");
+                sb.append(tuple.getField(attrName).toString());
+                sb.append("\"");
+            }
+            sb.append(",");
+        }
+        if (! schema.getAttributes().isEmpty()) {
+            sb.setLength(sb.length() - 1);
+        }
+        sb.append("}");
+        return sb.toString();
+    }
+    
+    public static String getSpanListJSON(List<Span> spanList) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("[");
+        for (Span span : spanList) {
+            sb.append("\"");
+            sb.append(span);
+            sb.append("\"");
+        }
+        if (! spanList.isEmpty()) {
+            sb.setLength(sb.length() - 1);
+        }
+        sb.append("]");
+        return sb.toString();
+    }
+    
+    public static String getSpanJSON(Span span) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("{");
+        
+        sb.append("\"field\": " + "\"" + span.getFieldName()  + "\"" + ",");
+        sb.append("\"start\": " + "\"" + span.getStart() + "\"" + ",");
+        sb.append("\"end\":   " + "\"" + span.getEnd() + "\"" + ",");
+        sb.append("\"key\":   " + "\"" + span.getKey() + "\"" + ",");
+        sb.append("\"value\": " + "\"" + span.getValue() + "\"" + ",");
+        sb.append("\"token offset\": " + "\"" + span.getTokenOffset());
+        
+        sb.append("}");
+        return sb.toString();
+    }
 
     public static String getTupleListString(List<ITuple> tupleList) {
         StringBuilder sb = new StringBuilder();
