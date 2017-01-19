@@ -71,7 +71,7 @@ public class DictionaryMatcherTest {
     }
     
     /**
-     * Scenario :verifies GetNextTuple of Dictionary
+     * Scenario: verifies GetNextTuple of Dictionary
      * 
      * Verifies GetNextTuple of Dictionary with all Chinese characters.
      */
@@ -89,7 +89,7 @@ public class DictionaryMatcherTest {
     }
 
     /**
-     * Scenario :verifies GetNextTuple of DictionaryMatcher and single word
+     * Scenario: verifies GetNextTuple of DictionaryMatcher and single word
      * queries in String Field using SCANOPERATOR
      */
 

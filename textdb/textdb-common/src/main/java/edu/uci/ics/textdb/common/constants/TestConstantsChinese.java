@@ -20,7 +20,7 @@ import edu.uci.ics.textdb.common.field.TextField;
 /**
  * @author sandeepreddy602
  * @author Qinhua Huang
- *         Chinese data constant, used by unit test for Chinese.
+ *         Chinese data constants, used by Chinese unit tests.
  */
 public class TestConstantsChinese {
     // Sample Fields
