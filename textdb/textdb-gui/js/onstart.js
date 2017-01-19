@@ -376,13 +376,11 @@ var setup = function(){
 				inputs: {
 					input_1: {
 						label: 'Input (:i)',
-						multiple: true
 					}
 				},
 				outputs: {
 					output_1: {
 						label: 'Output (:i)',
-						multiple: true
 					}
 				},
 				attributes: {
@@ -398,6 +396,10 @@ var setup = function(){
 		operatorData.properties.attributes['attributes'] = userAttributes;
 		operatorData.properties.attributes['limit'] = userLimit;
 		operatorData.properties.attributes['offset'] = userOffset;
+		
+		if(operatorName == "Join"){
+			operatorData.properties.inputs.input_1['multiple'] = true;
+		}
 
 		operatorI++;
 
@@ -440,12 +442,12 @@ var setup = function(){
 				title: (operatorName),
 				inputs: {
 					input_1: {
-						label: 'Input 1',
+						label: 'Input (:i)',
 					}
 				},
 				outputs: {
 					output_1: {
-						label: 'Output 1',
+						label: 'Output (:i)',
 					}
 				},
 				attributes: {
