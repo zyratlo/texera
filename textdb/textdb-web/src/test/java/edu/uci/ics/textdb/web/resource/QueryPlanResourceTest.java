@@ -1,5 +1,9 @@
 package edu.uci.ics.textdb.web.resource;
 
+import edu.uci.ics.textdb.api.common.Attribute;
+import edu.uci.ics.textdb.api.common.FieldType;
+import edu.uci.ics.textdb.api.common.Schema;
+import edu.uci.ics.textdb.storage.relation.RelationManager;
 import edu.uci.ics.textdb.web.TextdbWebApplication;
 import edu.uci.ics.textdb.web.TextdbWebConfiguration;
 import io.dropwizard.client.JerseyClientBuilder;
@@ -7,6 +11,8 @@ import io.dropwizard.testing.ResourceHelpers;
 import io.dropwizard.testing.junit.DropwizardAppRule;
 import org.glassfish.jersey.client.ClientProperties;
 import org.glassfish.jersey.message.internal.MediaTypes;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 
@@ -28,21 +34,20 @@ public class QueryPlanResourceTest {
     public static final String queryPlanRequestString = "{\n" +
             "    \"operators\": [{\n" +
             "        \"operator_id\": \"operator1\",\n" +
-            "        \"operator_type\": \"DictionaryMatcher\",\n" +
+            "        \"operator_type\": \"DictionarySource\",\n" +
             "        \"attributes\": \"attributes\",\n" +
             "        \"limit\": \"10\",\n" +
             "        \"offset\": \"100\",\n" +
+            "        \"data_source\": \"query_plan_resource_test_table\",\n" +
             "        \"dictionary\": \"dict1\",\n" +
             "        \"matching_type\": \"PHRASE_INDEXBASED\"\n" +
             "    }, {\n" +
             "\n" +
             "        \"operator_id\": \"operator2\",\n" +
-            "        \"operator_type\": \"DictionaryMatcher\",\n" +
+            "        \"operator_type\": \"TupleStreamSink\",\n" +
             "        \"attributes\": \"attributes\",\n" +
             "        \"limit\": \"10\",\n" +
-            "        \"offset\": \"100\",\n" +
-            "        \"dictionary\": \"dict2\",\n" +
-            "        \"matching_type\": \"PHRASE_INDEXBASED\"\n" +
+            "        \"offset\": \"100\"\n" +
             "    }],\n" +
             "    \"links\": [{\n" +
             "        \"from\": \"operator1\",\n" +
@@ -72,6 +77,19 @@ public class QueryPlanResourceTest {
             "        \"to\": \"operator2\"    \n" +
             "    }]\n" +
             "}";
+    
+    public static final String TEST_TABLE = "query_plan_resource_test_table";
+    
+    @BeforeClass
+    public static void setUp() throws Exception {
+        RelationManager.getRelationManager().createTable(TEST_TABLE, "../index/" + TEST_TABLE, 
+                new Schema(new Attribute("attributes", FieldType.TEXT)), "standard");
+    }
+    
+    @AfterClass
+    public static void cleanUp() throws Exception {
+        RelationManager.getRelationManager().deleteTable(TEST_TABLE);
+    }
 
     /**
      * Tests the query plan execution endpoint.
