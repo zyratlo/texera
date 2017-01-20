@@ -17,6 +17,7 @@ import edu.uci.ics.textdb.common.constants.DataConstants.KeywordMatchingType;
 import edu.uci.ics.textdb.common.exception.StorageException;
 import edu.uci.ics.textdb.common.field.DataTuple;
 import edu.uci.ics.textdb.common.utils.Utils;
+import edu.uci.ics.textdb.dataflow.common.IJoinPredicate;
 import edu.uci.ics.textdb.dataflow.common.JoinDistancePredicate;
 import edu.uci.ics.textdb.dataflow.common.KeywordPredicate;
 import edu.uci.ics.textdb.dataflow.keywordmatch.KeywordMatcherSourceOperator;
@@ -139,10 +140,8 @@ public class JoinDistanceHelper {
      * @throws TextDBException
      */
     public static List<ITuple> getJoinDistanceResults(IOperator outerOp, IOperator innerOp,
-            String idAttrName, String joinAttrName, int threshold, int limit, int offset) throws TextDBException {
-        JoinDistancePredicate distancePredicate = new JoinDistancePredicate(
-                idAttrName, joinAttrName, threshold);
-        Join join = new Join(distancePredicate);
+            IJoinPredicate joinPredicate, int limit, int offset) throws TextDBException {
+        Join join = new Join(joinPredicate);
         join.setInnerInputOperator(innerOp);
         join.setOuterInputOperator(outerOp);
         join.setLimit(limit);
