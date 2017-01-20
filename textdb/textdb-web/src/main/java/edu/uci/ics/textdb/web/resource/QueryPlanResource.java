@@ -1,16 +1,8 @@
 package edu.uci.ics.textdb.web.resource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import edu.uci.ics.textdb.api.common.ITuple;
-import edu.uci.ics.textdb.api.plan.Plan;
-import edu.uci.ics.textdb.common.utils.Utils;
-import edu.uci.ics.textdb.dataflow.sink.TupleStreamSink;
-import edu.uci.ics.textdb.engine.Engine;
 import edu.uci.ics.textdb.web.request.QueryPlanRequest;
 import edu.uci.ics.textdb.web.response.SampleResponse;
-
-import java.util.List;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -43,42 +35,26 @@ public class QueryPlanResource {
         boolean createLogicalPlanFlag = queryPlanRequest.createLogicalPlan();
 
         ObjectMapper objectMapper = new ObjectMapper();
-        
-        // if the plan is successfully built
         if(aggregatePropertiesFlag && createLogicalPlanFlag) {
-            // generate the physical plan
-            Plan plan = queryPlanRequest.getLogicalPlan().buildQueryPlan();
-            
-            // if the sink is TupleStreamSink, send the response back to front-end
-            if (plan.getRoot() instanceof TupleStreamSink) {
-                TupleStreamSink sink = (TupleStreamSink) plan.getRoot();
-                
-                // get all the results and send them to front-end
-                // returning all the results at once is a **temporary** solution
-                // TODO: in the future, request some number of results at a time
-                sink.open();
-                List<ITuple> results = sink.collectAllTuples();
-                sink.close();
-                
-                SampleResponse sampleResponse = new SampleResponse(0, Utils.getTupleListString(results));
-                return Response.status(200)
-                        .entity(objectMapper.writeValueAsString(sampleResponse))
-                        .build();
-                
-            } else {
-                // if the sink is not TupleStreamSink, execute the plan directly
-                Engine.getEngine().evaluate(plan);    
-                SampleResponse sampleResponse = new SampleResponse(0, "Plan Successfully Executed");
-                return Response.status(200)
-                        .entity(objectMapper.writeValueAsString(sampleResponse))
-                        .build();
-            }  
+            // Temporary sample response when the operator properties aggregation works correctly
+            SampleResponse sampleResponse = new SampleResponse(0, "Successful");
+            return Response.status(200)
+                    .entity(objectMapper.writeValueAsString(sampleResponse))
+                    .header("Access-Control-Allow-Origin", "*")
+                    .header("Access-Control-Allow-Methods", "OPTIONS,GET,PUT,POST,DELETE,HEAD")
+                    .header("Access-Control-Allow-Headers", "X-Requested-With,Content-Type,Accept,Origin")
+                    .header("Access-Control-Max-Age", "1728000")
+                    .build();
         }
         else {
             // Temporary sample response when the operator properties aggregation does not function
             SampleResponse sampleResponse = new SampleResponse(1, "Unsuccessful");
             return Response.status(400)
                     .entity(objectMapper.writeValueAsString(sampleResponse))
+                    .header("Access-Control-Allow-Origin", "*")
+                    .header("Access-Control-Allow-Methods", "OPTIONS,GET,PUT,POST,DELETE,HEAD")
+                    .header("Access-Control-Allow-Headers", "X-Requested-With,Content-Type,Accept,Origin")
+                    .header("Access-Control-Max-Age", "1728000")
                     .build();
         }
     }
