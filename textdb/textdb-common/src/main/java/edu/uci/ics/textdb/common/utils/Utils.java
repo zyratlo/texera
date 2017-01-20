@@ -26,6 +26,10 @@ import org.apache.lucene.document.DateTools.Resolution;
 import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.index.IndexOptions;
 import org.apache.lucene.index.IndexableField;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.json.JSONStringer;
+import org.json.JSONWriter;
 
 import edu.uci.ics.textdb.api.common.Attribute;
 import edu.uci.ics.textdb.api.common.FieldType;
@@ -289,77 +293,52 @@ public class Utils {
     }
     
     
-    public static String getTupleListJSON(List<ITuple> tupleList) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("[");
+    public static JSONArray getTupleListJSON(List<ITuple> tupleList) {
+        JSONArray jsonArray = new JSONArray();
+        
         for (ITuple tuple : tupleList) {
-            sb.append(getTupleJSON(tuple));
-            sb.append(",");
+            jsonArray.put(getTupleJSON(tuple));
         }
-        // remove the last comma
-        if (! tupleList.isEmpty()) {
-            sb.setLength(sb.length() - 1);
-        }
-        return sb.toString();
+        
+        return jsonArray;
     }
     
-    public static String getTupleJSON(ITuple tuple) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("{");
-        Schema schema  = tuple.getSchema();
-        for (String attrName : schema.getAttributeNames()) {
-            if (attrName.equals(SchemaConstants.SPAN_LIST)) {
-                sb.append("\"");
-                sb.append(attrName);
-                sb.append("\"");
-                sb.append(":");
-                sb.append(getSpanListJSON(((ListField<Span>) tuple.getField(SchemaConstants.SPAN_LIST)).getValue()));
+    public static JSONObject getTupleJSON(ITuple tuple) {
+        JSONObject jsonObject = new JSONObject();
+        
+        for (String attrName : tuple.getSchema().getAttributeNames()) {
+            if (attrName.equalsIgnoreCase(SchemaConstants.SPAN_LIST)) {
+                List<Span> spanList = ((ListField<Span>) tuple.getField(SchemaConstants.SPAN_LIST)).getValue();
+                jsonObject.put(attrName, getSpanListJSON(spanList));
             } else {
-                sb.append("\"");
-                sb.append(attrName);
-                sb.append("\"");
-                sb.append(":");
-                sb.append("\"");
-                sb.append(tuple.getField(attrName).toString());
-                sb.append("\"");
+                jsonObject.put(attrName, tuple.getField(attrName).getValue().toString());
             }
-            sb.append(",");
         }
-        if (! schema.getAttributes().isEmpty()) {
-            sb.setLength(sb.length() - 1);
-        }
-        sb.append("}");
-        return sb.toString();
+        
+        return jsonObject;
     }
     
-    public static String getSpanListJSON(List<Span> spanList) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("[");
+    public static JSONArray getSpanListJSON(List<Span> spanList) {
+        JSONArray jsonArray = new JSONArray();
+        
         for (Span span : spanList) {
-            sb.append("\"");
-            sb.append(span);
-            sb.append("\"");
+            jsonArray.put(getSpanJSON(span));
         }
-        if (! spanList.isEmpty()) {
-            sb.setLength(sb.length() - 1);
-        }
-        sb.append("]");
-        return sb.toString();
+        
+        return jsonArray;
     }
     
-    public static String getSpanJSON(Span span) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("{");
+    public static JSONObject getSpanJSON(Span span) {
+        JSONObject jsonObject = new JSONObject();
         
-        sb.append("\"field\": " + "\"" + span.getFieldName()  + "\"" + ",");
-        sb.append("\"start\": " + "\"" + span.getStart() + "\"" + ",");
-        sb.append("\"end\":   " + "\"" + span.getEnd() + "\"" + ",");
-        sb.append("\"key\":   " + "\"" + span.getKey() + "\"" + ",");
-        sb.append("\"value\": " + "\"" + span.getValue() + "\"" + ",");
-        sb.append("\"token offset\": " + "\"" + span.getTokenOffset());
-        
-        sb.append("}");
-        return sb.toString();
+        jsonObject.put("key", span.getKey());
+        jsonObject.put("value", span.getValue());
+        jsonObject.put("field", span.getFieldName());
+        jsonObject.put("start", span.getStart());
+        jsonObject.put("end", span.getEnd());
+        jsonObject.put("token offset", span.getTokenOffset());
+
+        return jsonObject;
     }
 
     public static String getTupleListString(List<ITuple> tupleList) {

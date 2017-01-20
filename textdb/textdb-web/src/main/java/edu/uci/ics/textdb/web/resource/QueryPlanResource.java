@@ -60,7 +60,7 @@ public class QueryPlanResource {
                 List<ITuple> results = sink.collectAllTuples();
                 sink.close();
                 
-                SampleResponse sampleResponse = new SampleResponse(0, Utils.getTupleListJSON(results));
+                SampleResponse sampleResponse = new SampleResponse(0, Utils.getTupleListJSON(results).toString());
                 return Response.status(200)
                         .entity(objectMapper.writeValueAsString(sampleResponse))
                         .build();
