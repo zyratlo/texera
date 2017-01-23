@@ -40,6 +40,7 @@ public class QueryPlanRequest {
         put("Projection", ProjectionBean.class);
         put("RegexMatcher", RegexMatcherBean.class);
         put("RegexSource", RegexSourceBean.class);
+        put("TupleStreamSink", TupleStreamSinkBean.class);
     }};
 
     public QueryPlanRequest() {
