@@ -11,7 +11,8 @@ var setup = function(){
 
 	// Apply the plugin on a standard, empty div...
 	$('#the-flowchart').flowchart({
-		data: data
+		data: data,
+		multipleLinksOnOutput: true
 	});
 	
 	var operatorI = 0;
@@ -381,12 +382,12 @@ var setup = function(){
 				title: (operatorName),
 				inputs: {
 					input_1: {
-						label: 'Input 1',
+						label: 'Input (:i)',
 					}
 				},
 				outputs: {
 					output_1: {
-						label: 'Output 1',
+						label: 'Output (:i)',
 					}
 				},
 				attributes: {
@@ -402,6 +403,10 @@ var setup = function(){
 		operatorData.properties.attributes['attributes'] = userAttributes;
 		operatorData.properties.attributes['limit'] = userLimit;
 		operatorData.properties.attributes['offset'] = userOffset;
+		
+		if(operatorName == "Join"){
+			operatorData.properties.inputs['input_2'] = {label: 'Input 2'};
+		}
 
 		operatorI++;
 
@@ -444,12 +449,12 @@ var setup = function(){
 				title: (operatorName),
 				inputs: {
 					input_1: {
-						label: 'Input 1',
+						label: 'Input (:i)',
 					}
 				},
 				outputs: {
 					output_1: {
-						label: 'Output 1',
+						label: 'Output (:i)',
 					}
 				},
 				attributes: {
@@ -466,10 +471,10 @@ var setup = function(){
 				result = DEFAULT_DICT;
 			}
 			operatorData.properties.attributes[attr] = result;
-		}
-      
-		$('#the-flowchart').flowchart('deleteSelected');
-		$('#the-flowchart').flowchart('createOperator', operatorId, operatorData);
+		}	
+		
+		$('#the-flowchart').flowchart('setOperatorData', operatorId, operatorData);
+		
 		$('#the-flowchart').flowchart('selectOperator', operatorId);
 		selectedOperator = $('#the-flowchart').flowchart('getSelectedOperatorId');
 
