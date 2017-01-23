@@ -104,7 +104,7 @@ var setup = function(){
 			extraOperators['file_path'] = userInput;
 		}
 		else if (panel == 'tuple-stream-sink-panel'){
-			// no attribute
+			// no property
 		}
 		else if (panel == 'join-panel'){
 			if (userInput == null || userInput == ''){

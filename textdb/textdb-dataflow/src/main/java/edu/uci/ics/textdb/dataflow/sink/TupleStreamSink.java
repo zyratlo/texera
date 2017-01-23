@@ -25,7 +25,15 @@ public class TupleStreamSink implements ISink {
     private Schema outputSchema;
     
     private boolean isOpen = false;;
-    
+
+    /**
+     * TupleStreamSink is a sink that can be used to
+     *   collect tuples to an in-memory list.
+     *
+     * TupleStreamSink removes the _id attribute and payload attribute
+     *   from the schema and each tuple.
+     *
+     */
     public TupleStreamSink() {
     }
     
@@ -74,7 +82,13 @@ public class TupleStreamSink implements ISink {
         inputOperator.close();
         isOpen = false;        
     }
-    
+
+    /**
+     * Collects ALL the tuples to an in-memory list.
+     *
+     * @return a list of tuples
+     * @throws TextDBException
+     */
     public List<ITuple> collectAllTuples() throws TextDBException {
         ArrayList<ITuple> results = new ArrayList<>();
         ITuple tuple;
