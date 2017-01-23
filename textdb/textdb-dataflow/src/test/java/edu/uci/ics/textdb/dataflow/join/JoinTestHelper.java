@@ -4,6 +4,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import edu.uci.ics.textdb.common.exception.DataFlowException;
+import edu.uci.ics.textdb.dataflow.common.RegexPredicate;
+import edu.uci.ics.textdb.dataflow.regexmatch.RegexMatcher;
+import edu.uci.ics.textdb.dataflow.source.ScanBasedSourceOperator;
 import org.apache.lucene.search.MatchAllDocsQuery;
 
 import edu.uci.ics.textdb.api.common.Attribute;
@@ -24,10 +28,13 @@ import edu.uci.ics.textdb.dataflow.keywordmatch.KeywordMatcherSourceOperator;
 import edu.uci.ics.textdb.storage.DataStore;
 import edu.uci.ics.textdb.storage.relation.RelationManager;
 
-public class JoinDistanceHelper {
+public class JoinTestHelper {
     
     public static final String BOOK_TABLE_OUTER = "join_test_book_outer";
     public static final String BOOK_TABLE_INNER = "join_test_book_inner";
+    
+    public static final String NEWS_TABLE_OUTER = "join_test_news_outer";
+    public static final String NEWS_TABLE_INNER = "join_test_news_inner";
     
     public static void createTestTables() throws TextDBException {
         RelationManager relationManager = RelationManager.getRelationManager();
@@ -36,7 +43,16 @@ public class JoinDistanceHelper {
         relationManager.createTable(BOOK_TABLE_OUTER, "../index/test_tables/" + BOOK_TABLE_OUTER, 
                 JoinTestConstants.BOOK_SCHEMA, LuceneAnalyzerConstants.standardAnalyzerString());     
         relationManager.createTable(BOOK_TABLE_INNER, "../index/test_tables/" + BOOK_TABLE_INNER, 
-                JoinTestConstants.BOOK_SCHEMA, LuceneAnalyzerConstants.standardAnalyzerString());         
+                JoinTestConstants.BOOK_SCHEMA, LuceneAnalyzerConstants.standardAnalyzerString());
+        // data for two book tables are written in each test cases
+    
+        // create the news table
+        relationManager.createTable(NEWS_TABLE_OUTER, "../index/test_tables/" + NEWS_TABLE_OUTER,
+                JoinTestConstants.NEWS_SCHEMA, LuceneAnalyzerConstants.standardAnalyzerString());
+
+        relationManager.createTable(NEWS_TABLE_INNER, "../index/test_tables/" + NEWS_TABLE_INNER,
+                JoinTestConstants.NEWS_SCHEMA, LuceneAnalyzerConstants.standardAnalyzerString());
+    
     }
     
     /**
@@ -98,13 +114,15 @@ public class JoinDistanceHelper {
     }
     
     /**
-     * Deletes the two test tables: inner and outer.
+     * Deletes all test tables
      * @throws TextDBException
      */
     public static void deleteTestTables() throws TextDBException {
         RelationManager relationManager = RelationManager.getRelationManager();
         relationManager.deleteTable(BOOK_TABLE_OUTER);
         relationManager.deleteTable(BOOK_TABLE_INNER);
+        relationManager.deleteTable(NEWS_TABLE_OUTER);
+        relationManager.deleteTable(NEWS_TABLE_INNER);
     }
     
     /**
@@ -124,6 +142,20 @@ public class JoinDistanceHelper {
         KeywordMatcherSourceOperator keywordSource = new KeywordMatcherSourceOperator(keywordPredicate, tableName);
         return keywordSource;
     }
+
+    public static RegexMatcher getRegexMatcher(String tableName, String query, String attrName) {
+        try {
+            ScanBasedSourceOperator scanBasedSourceOperator = new ScanBasedSourceOperator(tableName);
+            RegexMatcher regexMatcher = new RegexMatcher(new RegexPredicate(query, Arrays.asList(attrName),
+                    LuceneAnalyzerConstants.getLuceneAnalyzer(LuceneAnalyzerConstants.nGramAnalyzerString(3))));
+            regexMatcher.setInputOperator(scanBasedSourceOperator);
+            return regexMatcher;
+        } catch (DataFlowException | StorageException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     
     /**
      * Wraps the logic of creating a Join Operator, getting all the results,
@@ -131,9 +163,7 @@ public class JoinDistanceHelper {
      * 
      * @param outerOp
      * @param innerOp
-     * @param idAttrName
-     * @param joinAttrName
-     * @param threshold
+     * @param joinPredicate
      * @param limit
      * @param offset
      * @return

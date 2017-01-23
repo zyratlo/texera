@@ -50,8 +50,8 @@ import junit.framework.Assert;
  */
 public class JoinDistanceTest {
     
-    public static final String BOOK_TABLE_OUTER = JoinDistanceHelper.BOOK_TABLE_OUTER;
-    public static final String BOOK_TABLE_INNER = JoinDistanceHelper.BOOK_TABLE_INNER;
+    public static final String BOOK_TABLE_OUTER = JoinTestHelper.BOOK_TABLE_OUTER;
+    public static final String BOOK_TABLE_INNER = JoinTestHelper.BOOK_TABLE_INNER;
     
     public static final KeywordMatchingType conjunction = KeywordMatchingType.CONJUNCTION_INDEXBASED;
     public static final KeywordMatchingType phrase = KeywordMatchingType.PHRASE_INDEXBASED;
@@ -71,13 +71,13 @@ public class JoinDistanceTest {
     @BeforeClass
     public static void setup() throws TextDBException {
         // writes the test tables before ALL tests
-        JoinDistanceHelper.createTestTables();
+        JoinTestHelper.createTestTables();
     }
     
     @AfterClass
     public static void cleanUp() throws TextDBException {
         // deletes the test tables after ALL tests
-        JoinDistanceHelper.deleteTestTables();
+        JoinTestHelper.deleteTestTables();
     }
     
     /*
@@ -88,7 +88,7 @@ public class JoinDistanceTest {
     @After
     public void clearTables() throws TextDBException {
         // clear the test tables after EACH test
-        JoinDistanceHelper.clearTestTables();
+        JoinTestHelper.clearTestTables();
     }
     
     /*
@@ -97,16 +97,16 @@ public class JoinDistanceTest {
      */
     @Test
     public void testIdsDontMatch() throws Exception {        
-        JoinDistanceHelper.insertToOuter(JoinTestConstants.bookGroup1);
-        JoinDistanceHelper.insertToInner(JoinTestConstants.bookGroup2);
+        JoinTestHelper.insertToOuter(JoinTestConstants.bookGroup1);
+        JoinTestHelper.insertToInner(JoinTestConstants.bookGroup2);
         
         String query = "special";
         KeywordMatcherSourceOperator keywordSourceOuter = 
-                JoinDistanceHelper.getKeywordSource(BOOK_TABLE_OUTER, query, conjunction);
+                JoinTestHelper.getKeywordSource(BOOK_TABLE_OUTER, query, conjunction);
         KeywordMatcherSourceOperator keywordSourceInner = 
-                JoinDistanceHelper.getKeywordSource(BOOK_TABLE_INNER, query, conjunction);
+                JoinTestHelper.getKeywordSource(BOOK_TABLE_INNER, query, conjunction);
 
-        List<ITuple> resultList = JoinDistanceHelper.getJoinDistanceResults(keywordSourceOuter, keywordSourceInner, 
+        List<ITuple> resultList = JoinTestHelper.getJoinDistanceResults(keywordSourceOuter, keywordSourceInner, 
                 new JoinDistancePredicate(JoinTestConstants.ID, JoinTestConstants.REVIEW, 10), Integer.MAX_VALUE, 0);
         
         Assert.assertEquals(0, resultList.size());
@@ -135,15 +135,15 @@ public class JoinDistanceTest {
      */
     @Test
     public void testIdsMatchFieldsMatchSpanWithinThreshold() throws Exception {
-        JoinDistanceHelper.insertToOuter(JoinTestConstants.bookGroup1.get(0));
-        JoinDistanceHelper.insertToInner(JoinTestConstants.bookGroup1.get(0));
+        JoinTestHelper.insertToOuter(JoinTestConstants.bookGroup1.get(0));
+        JoinTestHelper.insertToInner(JoinTestConstants.bookGroup1.get(0));
                 
         KeywordMatcherSourceOperator keywordSourceOuter = 
-                JoinDistanceHelper.getKeywordSource(BOOK_TABLE_OUTER, "special", conjunction);
+                JoinTestHelper.getKeywordSource(BOOK_TABLE_OUTER, "special", conjunction);
         KeywordMatcherSourceOperator keywordSourceInner = 
-                JoinDistanceHelper.getKeywordSource(BOOK_TABLE_INNER, "writer", conjunction);
+                JoinTestHelper.getKeywordSource(BOOK_TABLE_INNER, "writer", conjunction);
         
-        List<ITuple> resultList = JoinDistanceHelper.getJoinDistanceResults(keywordSourceOuter, keywordSourceInner, 
+        List<ITuple> resultList = JoinTestHelper.getJoinDistanceResults(keywordSourceOuter, keywordSourceInner, 
                 new JoinDistancePredicate(JoinTestConstants.ID, JoinTestConstants.REVIEW, 20), Integer.MAX_VALUE, 0);
         
         Schema resultSchema = Utils.createSpanSchema(JoinTestConstants.BOOK_SCHEMA);
@@ -180,15 +180,15 @@ public class JoinDistanceTest {
     // Test result: An empty list is returned.
     @Test
     public void testIdsMatchFieldsMatchSpanExceedThreshold() throws Exception {
-        JoinDistanceHelper.insertToOuter(JoinTestConstants.bookGroup1.get(0));
-        JoinDistanceHelper.insertToInner(JoinTestConstants.bookGroup1.get(0));
+        JoinTestHelper.insertToOuter(JoinTestConstants.bookGroup1.get(0));
+        JoinTestHelper.insertToInner(JoinTestConstants.bookGroup1.get(0));
                 
         KeywordMatcherSourceOperator keywordSourceOuter = 
-                JoinDistanceHelper.getKeywordSource(BOOK_TABLE_OUTER, "special", conjunction);
+                JoinTestHelper.getKeywordSource(BOOK_TABLE_OUTER, "special", conjunction);
         KeywordMatcherSourceOperator keywordSourceInner = 
-                JoinDistanceHelper.getKeywordSource(BOOK_TABLE_INNER, "topics", conjunction);
+                JoinTestHelper.getKeywordSource(BOOK_TABLE_INNER, "topics", conjunction);
         
-        List<ITuple> resultList = JoinDistanceHelper.getJoinDistanceResults(keywordSourceOuter, keywordSourceInner, 
+        List<ITuple> resultList = JoinTestHelper.getJoinDistanceResults(keywordSourceOuter, keywordSourceInner, 
                 new JoinDistancePredicate(JoinTestConstants.ID, JoinTestConstants.REVIEW, 20), Integer.MAX_VALUE, 0);
 
         Assert.assertEquals(0, resultList.size());
@@ -200,15 +200,15 @@ public class JoinDistanceTest {
     // Test result: Join should return an empty list.
     @Test
     public void testOneOfTheOperatorResultIsEmpty() throws Exception {
-        JoinDistanceHelper.insertToOuter(JoinTestConstants.bookGroup1.get(0));
-        JoinDistanceHelper.insertToInner(JoinTestConstants.bookGroup1.get(0));
+        JoinTestHelper.insertToOuter(JoinTestConstants.bookGroup1.get(0));
+        JoinTestHelper.insertToInner(JoinTestConstants.bookGroup1.get(0));
         
         KeywordMatcherSourceOperator keywordSourceOuter = 
-                JoinDistanceHelper.getKeywordSource(BOOK_TABLE_OUTER, "special", conjunction);
+                JoinTestHelper.getKeywordSource(BOOK_TABLE_OUTER, "special", conjunction);
         KeywordMatcherSourceOperator keywordSourceInner = 
-                JoinDistanceHelper.getKeywordSource(BOOK_TABLE_INNER, "book", conjunction);
+                JoinTestHelper.getKeywordSource(BOOK_TABLE_INNER, "book", conjunction);
  
-        List<ITuple> resultList = JoinDistanceHelper.getJoinDistanceResults(keywordSourceOuter, keywordSourceInner, 
+        List<ITuple> resultList = JoinTestHelper.getJoinDistanceResults(keywordSourceOuter, keywordSourceInner, 
                 new JoinDistancePredicate(JoinTestConstants.ID, JoinTestConstants.REVIEW, 20), Integer.MAX_VALUE, 0);
         
         Assert.assertEquals(0, resultList.size());
@@ -220,11 +220,11 @@ public class JoinDistanceTest {
     // Test result: DataFlowException is thrown
     @Test(expected = DataFlowException.class)
     public void testOneOfTheOperatorResultContainsNoSpan() throws Exception {
-        JoinDistanceHelper.insertToOuter(JoinTestConstants.bookGroup1.get(0));
-        JoinDistanceHelper.insertToInner(JoinTestConstants.bookGroup1.get(0));
+        JoinTestHelper.insertToOuter(JoinTestConstants.bookGroup1.get(0));
+        JoinTestHelper.insertToInner(JoinTestConstants.bookGroup1.get(0));
         
         KeywordMatcherSourceOperator keywordSourceOuter = 
-                JoinDistanceHelper.getKeywordSource(BOOK_TABLE_OUTER, "special", conjunction);
+                JoinTestHelper.getKeywordSource(BOOK_TABLE_OUTER, "special", conjunction);
 
         String fuzzyTokenQuery = "this writer writes well";
         double thresholdRatio = 0.25;
@@ -240,7 +240,7 @@ public class JoinDistanceTest {
         ProjectionOperator removeSpanListProjection = new ProjectionOperator(removeSpanListPredicate);
         removeSpanListProjection.setInputOperator(fuzzyMatcherInner);
         
-        JoinDistanceHelper.getJoinDistanceResults(keywordSourceOuter, removeSpanListProjection, 
+        JoinTestHelper.getJoinDistanceResults(keywordSourceOuter, removeSpanListProjection, 
                 new JoinDistancePredicate(JoinTestConstants.ID, JoinTestConstants.REVIEW, 20), Integer.MAX_VALUE, 0);       
     }
     
@@ -259,15 +259,15 @@ public class JoinDistanceTest {
     // [<3, 33>]
     @Test
     public void testOneSpanEncompassesOtherAndDifferenceLessThanThreshold() throws Exception {
-        JoinDistanceHelper.insertToOuter(JoinTestConstants.bookGroup1.get(0));
-        JoinDistanceHelper.insertToInner(JoinTestConstants.bookGroup1.get(0));
+        JoinTestHelper.insertToOuter(JoinTestConstants.bookGroup1.get(0));
+        JoinTestHelper.insertToInner(JoinTestConstants.bookGroup1.get(0));
         
         KeywordMatcherSourceOperator keywordSourceOuter = 
-                JoinDistanceHelper.getKeywordSource(BOOK_TABLE_OUTER, "special", conjunction);
+                JoinTestHelper.getKeywordSource(BOOK_TABLE_OUTER, "special", conjunction);
         KeywordMatcherSourceOperator keywordSourceInner = 
-                JoinDistanceHelper.getKeywordSource(BOOK_TABLE_INNER, "takes a special kind of writer", phrase);
+                JoinTestHelper.getKeywordSource(BOOK_TABLE_INNER, "takes a special kind of writer", phrase);
  
-        List<ITuple> resultList = JoinDistanceHelper.getJoinDistanceResults(keywordSourceOuter, keywordSourceInner, 
+        List<ITuple> resultList = JoinTestHelper.getJoinDistanceResults(keywordSourceOuter, keywordSourceInner, 
                 new JoinDistancePredicate(JoinTestConstants.ID, JoinTestConstants.REVIEW, 20), Integer.MAX_VALUE, 0);
         
         
@@ -307,15 +307,15 @@ public class JoinDistanceTest {
     // Test result: Join should return an empty list.
     @Test
     public void testOneSpanEncompassesOtherAndDifferenceGreaterThanThreshold() throws Exception {
-        JoinDistanceHelper.insertToOuter(JoinTestConstants.bookGroup1.get(0));
-        JoinDistanceHelper.insertToInner(JoinTestConstants.bookGroup1.get(0));
+        JoinTestHelper.insertToOuter(JoinTestConstants.bookGroup1.get(0));
+        JoinTestHelper.insertToInner(JoinTestConstants.bookGroup1.get(0));
         
         KeywordMatcherSourceOperator keywordSourceOuter = 
-                JoinDistanceHelper.getKeywordSource(BOOK_TABLE_OUTER, "special", conjunction);
+                JoinTestHelper.getKeywordSource(BOOK_TABLE_OUTER, "special", conjunction);
         KeywordMatcherSourceOperator keywordSourceInner = 
-                JoinDistanceHelper.getKeywordSource(BOOK_TABLE_INNER, "takes a special kind of writer", phrase);
+                JoinTestHelper.getKeywordSource(BOOK_TABLE_INNER, "takes a special kind of writer", phrase);
  
-        List<ITuple> resultList = JoinDistanceHelper.getJoinDistanceResults(keywordSourceOuter, keywordSourceInner, 
+        List<ITuple> resultList = JoinTestHelper.getJoinDistanceResults(keywordSourceOuter, keywordSourceInner, 
                 new JoinDistancePredicate(JoinTestConstants.ID, JoinTestConstants.REVIEW, 10), Integer.MAX_VALUE, 0);
         
         Assert.assertEquals(0, resultList.size());
@@ -341,15 +341,15 @@ public class JoinDistanceTest {
     // [<75, 109>]
     @Test
     public void testSpansOverlapAndWithinThreshold() throws Exception {
-        JoinDistanceHelper.insertToOuter(JoinTestConstants.bookGroup1.get(0));
-        JoinDistanceHelper.insertToInner(JoinTestConstants.bookGroup1.get(0));
+        JoinTestHelper.insertToOuter(JoinTestConstants.bookGroup1.get(0));
+        JoinTestHelper.insertToInner(JoinTestConstants.bookGroup1.get(0));
         
         KeywordMatcherSourceOperator keywordSourceOuter = 
-                JoinDistanceHelper.getKeywordSource(BOOK_TABLE_OUTER, "gastrointestinal tract", phrase);
+                JoinTestHelper.getKeywordSource(BOOK_TABLE_OUTER, "gastrointestinal tract", phrase);
         KeywordMatcherSourceOperator keywordSourceInner = 
-                JoinDistanceHelper.getKeywordSource(BOOK_TABLE_INNER, "tract interesting", phrase);
+                JoinTestHelper.getKeywordSource(BOOK_TABLE_INNER, "tract interesting", phrase);
  
-        List<ITuple> resultList = JoinDistanceHelper.getJoinDistanceResults(keywordSourceOuter, keywordSourceInner, 
+        List<ITuple> resultList = JoinTestHelper.getJoinDistanceResults(keywordSourceOuter, keywordSourceInner, 
                 new JoinDistancePredicate(JoinTestConstants.ID, JoinTestConstants.REVIEW, 20), Integer.MAX_VALUE, 0);
         
         Schema resultSchema = Utils.createSpanSchema(JoinTestConstants.BOOK_SCHEMA);
@@ -387,15 +387,15 @@ public class JoinDistanceTest {
     // Test result: Join should return an empty list.
     @Test
     public void testSpansOverlapAndExceedThreshold() throws Exception {
-        JoinDistanceHelper.insertToOuter(JoinTestConstants.bookGroup1.get(0));
-        JoinDistanceHelper.insertToInner(JoinTestConstants.bookGroup1.get(0));
+        JoinTestHelper.insertToOuter(JoinTestConstants.bookGroup1.get(0));
+        JoinTestHelper.insertToInner(JoinTestConstants.bookGroup1.get(0));
         
         KeywordMatcherSourceOperator keywordSourceOuter = 
-                JoinDistanceHelper.getKeywordSource(BOOK_TABLE_OUTER, "takes a special", phrase);
+                JoinTestHelper.getKeywordSource(BOOK_TABLE_OUTER, "takes a special", phrase);
         KeywordMatcherSourceOperator keywordSourceInner = 
-                JoinDistanceHelper.getKeywordSource(BOOK_TABLE_INNER, "special kind of writer", phrase);
+                JoinTestHelper.getKeywordSource(BOOK_TABLE_INNER, "special kind of writer", phrase);
  
-        List<ITuple> resultList = JoinDistanceHelper.getJoinDistanceResults(keywordSourceOuter, keywordSourceInner, 
+        List<ITuple> resultList = JoinTestHelper.getJoinDistanceResults(keywordSourceOuter, keywordSourceInner, 
                 new JoinDistancePredicate(JoinTestConstants.ID, JoinTestConstants.REVIEW, 10), Integer.MAX_VALUE, 0);
 
         Assert.assertEquals(0, resultList.size());
@@ -415,15 +415,15 @@ public class JoinDistanceTest {
     // [<11, 18>]
     @Test
     public void testBothTheSpansAreSame() throws Exception {
-        JoinDistanceHelper.insertToOuter(JoinTestConstants.bookGroup1.get(0));
-        JoinDistanceHelper.insertToInner(JoinTestConstants.bookGroup1.get(0));
+        JoinTestHelper.insertToOuter(JoinTestConstants.bookGroup1.get(0));
+        JoinTestHelper.insertToInner(JoinTestConstants.bookGroup1.get(0));
         
         KeywordMatcherSourceOperator keywordSourceOuter = 
-                JoinDistanceHelper.getKeywordSource(BOOK_TABLE_OUTER, "special", conjunction);
+                JoinTestHelper.getKeywordSource(BOOK_TABLE_OUTER, "special", conjunction);
         KeywordMatcherSourceOperator keywordSourceInner = 
-                JoinDistanceHelper.getKeywordSource(BOOK_TABLE_INNER, "special", conjunction);
+                JoinTestHelper.getKeywordSource(BOOK_TABLE_INNER, "special", conjunction);
  
-        List<ITuple> resultList = JoinDistanceHelper.getJoinDistanceResults(keywordSourceOuter, keywordSourceInner, 
+        List<ITuple> resultList = JoinTestHelper.getJoinDistanceResults(keywordSourceOuter, keywordSourceInner, 
                 new JoinDistancePredicate(JoinTestConstants.ID, JoinTestConstants.REVIEW, 20), Integer.MAX_VALUE, 0);
         
         Schema resultSchema = Utils.createSpanSchema(JoinTestConstants.BOOK_SCHEMA);
@@ -452,13 +452,13 @@ public class JoinDistanceTest {
     // Test result: DataFlowException is thrown
     @Test(expected = DataFlowException.class)
     public void testIDFieldDoesNotExist() throws Exception {
-        JoinDistanceHelper.insertToOuter(JoinTestConstants.bookGroup1.get(0));
-        JoinDistanceHelper.insertToInner(JoinTestConstants.bookGroup1.get(0));
+        JoinTestHelper.insertToOuter(JoinTestConstants.bookGroup1.get(0));
+        JoinTestHelper.insertToInner(JoinTestConstants.bookGroup1.get(0));
                 
         KeywordMatcherSourceOperator keywordSourceOuter = 
-                JoinDistanceHelper.getKeywordSource(BOOK_TABLE_OUTER, "special", conjunction);
+                JoinTestHelper.getKeywordSource(BOOK_TABLE_OUTER, "special", conjunction);
         KeywordMatcherSourceOperator keywordSourceInner = 
-                JoinDistanceHelper.getKeywordSource(BOOK_TABLE_INNER, "writer", conjunction);
+                JoinTestHelper.getKeywordSource(BOOK_TABLE_INNER, "writer", conjunction);
         
         ProjectionPredicate projectionPredicate = new ProjectionPredicate(
                 Utils.createSpanSchema(JoinTestConstants.BOOK_SCHEMA).getAttributeNames().stream()
@@ -466,7 +466,7 @@ public class JoinDistanceTest {
         ProjectionOperator removeIDProject = new ProjectionOperator(projectionPredicate);
         removeIDProject.setInputOperator(keywordSourceInner);
         
-        JoinDistanceHelper.getJoinDistanceResults(keywordSourceOuter, removeIDProject, 
+        JoinTestHelper.getJoinDistanceResults(keywordSourceOuter, removeIDProject, 
                 new JoinDistancePredicate(JoinTestConstants.ID, JoinTestConstants.REVIEW, 20), Integer.MAX_VALUE, 0);
     }
     
@@ -482,13 +482,13 @@ public class JoinDistanceTest {
     // the attributes common to both the tuples and the joined span.
     @Test
     public void testAttributesAndFieldsIntersection() throws TextDBException {
-        JoinDistanceHelper.insertToOuter(JoinTestConstants.bookGroup1.get(0));
-        JoinDistanceHelper.insertToInner(JoinTestConstants.bookGroup1.get(0));
+        JoinTestHelper.insertToOuter(JoinTestConstants.bookGroup1.get(0));
+        JoinTestHelper.insertToInner(JoinTestConstants.bookGroup1.get(0));
                 
         KeywordMatcherSourceOperator keywordSourceOuter = 
-                JoinDistanceHelper.getKeywordSource(BOOK_TABLE_OUTER, "special", conjunction);
+                JoinTestHelper.getKeywordSource(BOOK_TABLE_OUTER, "special", conjunction);
         KeywordMatcherSourceOperator keywordSourceInner = 
-                JoinDistanceHelper.getKeywordSource(BOOK_TABLE_INNER, "writer", conjunction);
+                JoinTestHelper.getKeywordSource(BOOK_TABLE_INNER, "writer", conjunction);
         
         ProjectionPredicate projectionPredicateOuter = new ProjectionPredicate(
                 Utils.createSpanSchema(JoinTestConstants.BOOK_SCHEMA).getAttributeNames().stream()
@@ -502,7 +502,7 @@ public class JoinDistanceTest {
         ProjectionOperator projectionInner = new ProjectionOperator(projectionPredicateInner);
         projectionInner.setInputOperator(keywordSourceInner);
         
-        List<ITuple> resultList = JoinDistanceHelper.getJoinDistanceResults(projectionOuter, projectionInner, 
+        List<ITuple> resultList = JoinTestHelper.getJoinDistanceResults(projectionOuter, projectionInner, 
                 new JoinDistancePredicate(JoinTestConstants.ID, JoinTestConstants.REVIEW, 20), Integer.MAX_VALUE, 0);
         
         Schema resultSchema = new Schema(JoinTestConstants.ID_ATTR, JoinTestConstants.PAGES_ATTR, 
@@ -543,17 +543,17 @@ public class JoinDistanceTest {
     @Test
     public void testWhenAttributeFieldsAreDifferent() throws Exception {
         ITuple originalTuple = JoinTestConstants.bookGroup1.get(0);
-        ITuple alteredTuple = JoinDistanceHelper.alterField(originalTuple, 2, new StringField("C"));
+        ITuple alteredTuple = JoinTestHelper.alterField(originalTuple, 2, new StringField("C"));
         
-        JoinDistanceHelper.insertToOuter(originalTuple);
-        JoinDistanceHelper.insertToInner(alteredTuple);
+        JoinTestHelper.insertToOuter(originalTuple);
+        JoinTestHelper.insertToInner(alteredTuple);
                 
         KeywordMatcherSourceOperator keywordSourceOuter = 
-                JoinDistanceHelper.getKeywordSource(BOOK_TABLE_OUTER, "special", conjunction);
+                JoinTestHelper.getKeywordSource(BOOK_TABLE_OUTER, "special", conjunction);
         KeywordMatcherSourceOperator keywordSourceInner = 
-                JoinDistanceHelper.getKeywordSource(BOOK_TABLE_INNER, "writer", conjunction);
+                JoinTestHelper.getKeywordSource(BOOK_TABLE_INNER, "writer", conjunction);
         
-        List<ITuple> resultList = JoinDistanceHelper.getJoinDistanceResults(keywordSourceOuter, keywordSourceInner, 
+        List<ITuple> resultList = JoinTestHelper.getJoinDistanceResults(keywordSourceOuter, keywordSourceInner, 
                 new JoinDistancePredicate(JoinTestConstants.ID, JoinTestConstants.REVIEW, 20), Integer.MAX_VALUE, 0);
         
         Schema resultSchema = Utils.addAttributeToSchema(JoinTestConstants.BOOK_SCHEMA, SchemaConstants.SPAN_LIST_ATTRIBUTE);
@@ -589,18 +589,18 @@ public class JoinDistanceTest {
         ITuple originalTuple = JoinTestConstants.bookGroup1.get(0);
         
         // the sentence in altered tuple is incomplete, while the keyword "writer" is still in there
-        ITuple alteredTuple = JoinDistanceHelper.alterField(originalTuple, 4, 
+        ITuple alteredTuple = JoinTestHelper.alterField(originalTuple, 4, 
                 new TextField("It takes a special kind of writer to make topics ranging from death to our "));
         
-        JoinDistanceHelper.insertToOuter(originalTuple);
-        JoinDistanceHelper.insertToInner(alteredTuple);
+        JoinTestHelper.insertToOuter(originalTuple);
+        JoinTestHelper.insertToInner(alteredTuple);
                 
         KeywordMatcherSourceOperator keywordSourceOuter = 
-                JoinDistanceHelper.getKeywordSource(BOOK_TABLE_OUTER, "special", conjunction);
+                JoinTestHelper.getKeywordSource(BOOK_TABLE_OUTER, "special", conjunction);
         KeywordMatcherSourceOperator keywordSourceInner = 
-                JoinDistanceHelper.getKeywordSource(BOOK_TABLE_INNER, "writer", conjunction);
+                JoinTestHelper.getKeywordSource(BOOK_TABLE_INNER, "writer", conjunction);
         
-        List<ITuple> resultList = JoinDistanceHelper.getJoinDistanceResults(keywordSourceOuter, keywordSourceInner, 
+        List<ITuple> resultList = JoinTestHelper.getJoinDistanceResults(keywordSourceOuter, keywordSourceInner, 
                 new JoinDistancePredicate(JoinTestConstants.ID, JoinTestConstants.REVIEW, 20), Integer.MAX_VALUE, 0);
 
         Assert.assertEquals(0, resultList.size());
@@ -614,7 +614,7 @@ public class JoinDistanceTest {
     @Test
     public void testWhenAttributeOfSameNameAreDifferent() throws Exception {
         ITuple originalTuple = JoinTestConstants.bookGroup1.get(0);
-        JoinDistanceHelper.insertToOuter(originalTuple);
+        JoinTestHelper.insertToOuter(originalTuple);
 
         // create a table for the altered tuple (since the schema is different)
         String BOOK_TABLE_SPECIAL = "join_test_book_special";
@@ -630,17 +630,17 @@ public class JoinDistanceTest {
               
         // the type of the "author" field is changed from STRING to TEXT
         // alterField function will take care of the changes of the tuple's schema
-        ITuple alteredTuple = JoinDistanceHelper.alterField(originalTuple, 1, 
+        ITuple alteredTuple = JoinTestHelper.alterField(originalTuple, 1, 
                 new TextField(originalTuple.getField(1).getValue().toString()));
         
         relationManager.insertTuple(BOOK_TABLE_SPECIAL, alteredTuple);
                         
         KeywordMatcherSourceOperator keywordSourceOuter = 
-                JoinDistanceHelper.getKeywordSource(BOOK_TABLE_OUTER, "special", conjunction);
+                JoinTestHelper.getKeywordSource(BOOK_TABLE_OUTER, "special", conjunction);
         KeywordMatcherSourceOperator keywordSourceInner = 
-                JoinDistanceHelper.getKeywordSource(BOOK_TABLE_SPECIAL, "writer", conjunction);
+                JoinTestHelper.getKeywordSource(BOOK_TABLE_SPECIAL, "writer", conjunction);
         
-        List<ITuple> resultList = JoinDistanceHelper.getJoinDistanceResults(keywordSourceOuter, keywordSourceInner, 
+        List<ITuple> resultList = JoinTestHelper.getJoinDistanceResults(keywordSourceOuter, keywordSourceInner, 
                 new JoinDistancePredicate(JoinTestConstants.ID, JoinTestConstants.REVIEW, 20), Integer.MAX_VALUE, 0);
         
         Schema resultSchema = new Schema(JoinTestConstants.ID_ATTR, JoinTestConstants.TITLE_ATTR,
@@ -680,7 +680,7 @@ public class JoinDistanceTest {
     @Test(expected = DataFlowException.class)
     public void testJoinAttributeOfSameNameHaveDifferentFieldType() throws Exception {
         ITuple originalTuple = JoinTestConstants.bookGroup1.get(0);
-        JoinDistanceHelper.insertToOuter(originalTuple);
+        JoinTestHelper.insertToOuter(originalTuple);
 
         // create a table for the altered tuple (since the schema is different)
         String BOOK_TABLE_SPECIAL = "join_test_book_special";
@@ -696,17 +696,17 @@ public class JoinDistanceTest {
               
         // the type of the "author" field is changed from STRING to TEXT
         // alterField function will take care of the changes of the tuple's schema
-        ITuple alteredTuple = JoinDistanceHelper.alterField(originalTuple, 4, 
+        ITuple alteredTuple = JoinTestHelper.alterField(originalTuple, 4, 
                 new StringField(originalTuple.getField(4).getValue().toString()));
         
         relationManager.insertTuple(BOOK_TABLE_SPECIAL, alteredTuple);
                         
         KeywordMatcherSourceOperator keywordSourceOuter = 
-                JoinDistanceHelper.getKeywordSource(BOOK_TABLE_OUTER, "special", conjunction);
+                JoinTestHelper.getKeywordSource(BOOK_TABLE_OUTER, "special", conjunction);
         KeywordMatcherSourceOperator keywordSourceInner = 
-                JoinDistanceHelper.getKeywordSource(BOOK_TABLE_SPECIAL, "writer", conjunction);
+                JoinTestHelper.getKeywordSource(BOOK_TABLE_SPECIAL, "writer", conjunction);
         
-        JoinDistanceHelper.getJoinDistanceResults(keywordSourceOuter, keywordSourceInner, 
+        JoinTestHelper.getJoinDistanceResults(keywordSourceOuter, keywordSourceInner, 
                 new JoinDistancePredicate(JoinTestConstants.ID, JoinTestConstants.REVIEW, 20), Integer.MAX_VALUE, 0);
         
         relationManager.deleteTable(BOOK_TABLE_SPECIAL);
@@ -723,15 +723,15 @@ public class JoinDistanceTest {
         List<ITuple> outerTuples = JoinTestConstants.bookGroup1;
         List<ITuple> innerTuples = JoinTestConstants.bookGroup2;
         
-        JoinDistanceHelper.insertToOuter(outerTuples);
-        JoinDistanceHelper.insertToInner(innerTuples);
+        JoinTestHelper.insertToOuter(outerTuples);
+        JoinTestHelper.insertToInner(innerTuples);
         
         KeywordMatcherSourceOperator keywordSourceOuter = 
-                JoinDistanceHelper.getKeywordSource(BOOK_TABLE_OUTER, "review", conjunction);
+                JoinTestHelper.getKeywordSource(BOOK_TABLE_OUTER, "review", conjunction);
         KeywordMatcherSourceOperator keywordSourceInner = 
-                JoinDistanceHelper.getKeywordSource(BOOK_TABLE_INNER, "book", conjunction);
+                JoinTestHelper.getKeywordSource(BOOK_TABLE_INNER, "book", conjunction);
         
-        List<ITuple> resultList = JoinDistanceHelper.getJoinDistanceResults(keywordSourceOuter, keywordSourceInner, 
+        List<ITuple> resultList = JoinTestHelper.getJoinDistanceResults(keywordSourceOuter, keywordSourceInner, 
                 new JoinDistancePredicate(JoinTestConstants.ID, JoinTestConstants.REVIEW, 20), Integer.MAX_VALUE, 0);
 
         Assert.assertEquals(0, resultList.size());
@@ -759,15 +759,15 @@ public class JoinDistanceTest {
         List<ITuple> outerTuples = JoinTestConstants.bookGroup1;
         List<ITuple> innerTuples = JoinTestConstants.bookGroup1.subList(4, 5);
         
-        JoinDistanceHelper.insertToOuter(outerTuples);
-        JoinDistanceHelper.insertToInner(innerTuples);
+        JoinTestHelper.insertToOuter(outerTuples);
+        JoinTestHelper.insertToInner(innerTuples);
         
         KeywordMatcherSourceOperator keywordSourceOuter = 
-                JoinDistanceHelper.getKeywordSource(BOOK_TABLE_OUTER, "review", conjunction);
+                JoinTestHelper.getKeywordSource(BOOK_TABLE_OUTER, "review", conjunction);
         KeywordMatcherSourceOperator keywordSourceInner = 
-                JoinDistanceHelper.getKeywordSource(BOOK_TABLE_INNER, "book", conjunction);
+                JoinTestHelper.getKeywordSource(BOOK_TABLE_INNER, "book", conjunction);
         
-        List<ITuple> resultList = JoinDistanceHelper.getJoinDistanceResults(keywordSourceOuter, keywordSourceInner, 
+        List<ITuple> resultList = JoinTestHelper.getJoinDistanceResults(keywordSourceOuter, keywordSourceInner, 
                 new JoinDistancePredicate(JoinTestConstants.ID, JoinTestConstants.REVIEW, 20), Integer.MAX_VALUE, 0);
         
         Schema resultSchema = Utils.createSpanSchema(JoinTestConstants.BOOK_SCHEMA);
@@ -816,15 +816,15 @@ public class JoinDistanceTest {
         List<ITuple> outerTuples = JoinTestConstants.bookGroup1;
         List<ITuple> innerTuples = JoinTestConstants.bookGroup1.subList(4, 5);
         
-        JoinDistanceHelper.insertToOuter(outerTuples);
-        JoinDistanceHelper.insertToInner(innerTuples);
+        JoinTestHelper.insertToOuter(outerTuples);
+        JoinTestHelper.insertToInner(innerTuples);
         
         KeywordMatcherSourceOperator keywordSourceOuter = 
-                JoinDistanceHelper.getKeywordSource(BOOK_TABLE_OUTER, "review", conjunction);
+                JoinTestHelper.getKeywordSource(BOOK_TABLE_OUTER, "review", conjunction);
         KeywordMatcherSourceOperator keywordSourceInner = 
-                JoinDistanceHelper.getKeywordSource(BOOK_TABLE_INNER, "book", conjunction);
+                JoinTestHelper.getKeywordSource(BOOK_TABLE_INNER, "book", conjunction);
         
-        List<ITuple> resultList = JoinDistanceHelper.getJoinDistanceResults(keywordSourceOuter, keywordSourceInner, 
+        List<ITuple> resultList = JoinTestHelper.getJoinDistanceResults(keywordSourceOuter, keywordSourceInner, 
                 new JoinDistancePredicate(JoinTestConstants.ID, JoinTestConstants.REVIEW, 4), Integer.MAX_VALUE, 0);
 
         Assert.assertEquals(0, resultList.size());
@@ -857,15 +857,15 @@ public class JoinDistanceTest {
         innerTuples.addAll(JoinTestConstants.bookGroup1);
         innerTuples.addAll(JoinTestConstants.bookGroup2);
         
-        JoinDistanceHelper.insertToOuter(outerTuples);
-        JoinDistanceHelper.insertToInner(innerTuples);
+        JoinTestHelper.insertToOuter(outerTuples);
+        JoinTestHelper.insertToInner(innerTuples);
            
         KeywordMatcherSourceOperator keywordSourceOuter = 
-                JoinDistanceHelper.getKeywordSource(BOOK_TABLE_OUTER, "review", conjunction);
+                JoinTestHelper.getKeywordSource(BOOK_TABLE_OUTER, "review", conjunction);
         KeywordMatcherSourceOperator keywordSourceInner = 
-                JoinDistanceHelper.getKeywordSource(BOOK_TABLE_INNER, "book", conjunction);
+                JoinTestHelper.getKeywordSource(BOOK_TABLE_INNER, "book", conjunction);
         
-        List<ITuple> resultList = JoinDistanceHelper.getJoinDistanceResults(keywordSourceOuter, keywordSourceInner, 
+        List<ITuple> resultList = JoinTestHelper.getJoinDistanceResults(keywordSourceOuter, keywordSourceInner, 
                 new JoinDistancePredicate(JoinTestConstants.ID, JoinTestConstants.REVIEW, 12), Integer.MAX_VALUE, 0);
 
         Schema resultSchema = Utils.createSpanSchema(JoinTestConstants.BOOK_SCHEMA);
@@ -941,15 +941,15 @@ public class JoinDistanceTest {
         innerTuples.addAll(JoinTestConstants.bookGroup1);
         innerTuples.addAll(JoinTestConstants.bookGroup2);
         
-        JoinDistanceHelper.insertToOuter(outerTuples);
-        JoinDistanceHelper.insertToInner(innerTuples);
+        JoinTestHelper.insertToOuter(outerTuples);
+        JoinTestHelper.insertToInner(innerTuples);
            
         KeywordMatcherSourceOperator keywordSourceOuter = 
-                JoinDistanceHelper.getKeywordSource(BOOK_TABLE_OUTER, "review", conjunction);
+                JoinTestHelper.getKeywordSource(BOOK_TABLE_OUTER, "review", conjunction);
         KeywordMatcherSourceOperator keywordSourceInner = 
-                JoinDistanceHelper.getKeywordSource(BOOK_TABLE_INNER, "book", conjunction);
+                JoinTestHelper.getKeywordSource(BOOK_TABLE_INNER, "book", conjunction);
         
-        List<ITuple> resultList = JoinDistanceHelper.getJoinDistanceResults(keywordSourceOuter, keywordSourceInner, 
+        List<ITuple> resultList = JoinTestHelper.getJoinDistanceResults(keywordSourceOuter, keywordSourceInner, 
                 new JoinDistancePredicate(JoinTestConstants.ID, JoinTestConstants.REVIEW, 4), Integer.MAX_VALUE, 0);
         Assert.assertEquals(0, resultList.size());
     }
@@ -964,15 +964,15 @@ public class JoinDistanceTest {
         List<ITuple> outerTuples = JoinTestConstants.bookGroup1.subList(1, 5);
         List<ITuple> innerTuples = JoinTestConstants.bookGroup1.subList(1, 5);
         
-        JoinDistanceHelper.insertToOuter(outerTuples);
-        JoinDistanceHelper.insertToInner(innerTuples);
+        JoinTestHelper.insertToOuter(outerTuples);
+        JoinTestHelper.insertToInner(innerTuples);
            
         KeywordMatcherSourceOperator keywordSourceOuter = 
-                JoinDistanceHelper.getKeywordSource(BOOK_TABLE_OUTER, "typical", conjunction);
+                JoinTestHelper.getKeywordSource(BOOK_TABLE_OUTER, "typical", conjunction);
         KeywordMatcherSourceOperator keywordSourceInner = 
-                JoinDistanceHelper.getKeywordSource(BOOK_TABLE_INNER, "actually", conjunction);
+                JoinTestHelper.getKeywordSource(BOOK_TABLE_INNER, "actually", conjunction);
         
-        List<ITuple> resultList = JoinDistanceHelper.getJoinDistanceResults(keywordSourceOuter, keywordSourceInner, 
+        List<ITuple> resultList = JoinTestHelper.getJoinDistanceResults(keywordSourceOuter, keywordSourceInner, 
                 new JoinDistancePredicate(JoinTestConstants.ID, JoinTestConstants.REVIEW, 90), Integer.MAX_VALUE, 0);
 
         Schema resultSchema = Utils.createSpanSchema(JoinTestConstants.BOOK_SCHEMA);
@@ -1044,15 +1044,15 @@ public class JoinDistanceTest {
         List<ITuple> outerTuples = JoinTestConstants.bookGroup1.subList(1, 5);
         List<ITuple> innerTuples = JoinTestConstants.bookGroup1.subList(1, 5);
         
-        JoinDistanceHelper.insertToOuter(outerTuples);
-        JoinDistanceHelper.insertToInner(innerTuples);
+        JoinTestHelper.insertToOuter(outerTuples);
+        JoinTestHelper.insertToInner(innerTuples);
            
         KeywordMatcherSourceOperator keywordSourceOuter = 
-                JoinDistanceHelper.getKeywordSource(BOOK_TABLE_OUTER, "typical", conjunction);
+                JoinTestHelper.getKeywordSource(BOOK_TABLE_OUTER, "typical", conjunction);
         KeywordMatcherSourceOperator keywordSourceInner = 
-                JoinDistanceHelper.getKeywordSource(BOOK_TABLE_INNER, "actually", conjunction);
+                JoinTestHelper.getKeywordSource(BOOK_TABLE_INNER, "actually", conjunction);
         
-        List<ITuple> resultList = JoinDistanceHelper.getJoinDistanceResults(keywordSourceOuter, keywordSourceInner, 
+        List<ITuple> resultList = JoinTestHelper.getJoinDistanceResults(keywordSourceOuter, keywordSourceInner, 
                 new JoinDistancePredicate(JoinTestConstants.ID, JoinTestConstants.REVIEW, 90), 3, 0);
 
         Schema resultSchema = Utils.createSpanSchema(JoinTestConstants.BOOK_SCHEMA);
@@ -1123,15 +1123,15 @@ public class JoinDistanceTest {
         List<ITuple> outerTuples = JoinTestConstants.bookGroup1.subList(1, 5);
         List<ITuple> innerTuples = JoinTestConstants.bookGroup1.subList(1, 5);
         
-        JoinDistanceHelper.insertToOuter(outerTuples);
-        JoinDistanceHelper.insertToInner(innerTuples);
+        JoinTestHelper.insertToOuter(outerTuples);
+        JoinTestHelper.insertToInner(innerTuples);
            
         KeywordMatcherSourceOperator keywordSourceOuter = 
-                JoinDistanceHelper.getKeywordSource(BOOK_TABLE_OUTER, "typical", conjunction);
+                JoinTestHelper.getKeywordSource(BOOK_TABLE_OUTER, "typical", conjunction);
         KeywordMatcherSourceOperator keywordSourceInner = 
-                JoinDistanceHelper.getKeywordSource(BOOK_TABLE_INNER, "actually", conjunction);
+                JoinTestHelper.getKeywordSource(BOOK_TABLE_INNER, "actually", conjunction);
         
-        List<ITuple> resultList = JoinDistanceHelper.getJoinDistanceResults(keywordSourceOuter, keywordSourceInner, 
+        List<ITuple> resultList = JoinTestHelper.getJoinDistanceResults(keywordSourceOuter, keywordSourceInner, 
                 new JoinDistancePredicate(JoinTestConstants.ID, JoinTestConstants.REVIEW, 90), 10, 0);
 
         Schema resultSchema = Utils.createSpanSchema(JoinTestConstants.BOOK_SCHEMA);
@@ -1200,15 +1200,15 @@ public class JoinDistanceTest {
         List<ITuple> outerTuples = JoinTestConstants.bookGroup1.subList(1, 5);
         List<ITuple> innerTuples = JoinTestConstants.bookGroup1.subList(1, 5);
         
-        JoinDistanceHelper.insertToOuter(outerTuples);
-        JoinDistanceHelper.insertToInner(innerTuples);
+        JoinTestHelper.insertToOuter(outerTuples);
+        JoinTestHelper.insertToInner(innerTuples);
            
         KeywordMatcherSourceOperator keywordSourceOuter = 
-                JoinDistanceHelper.getKeywordSource(BOOK_TABLE_OUTER, "typical", conjunction);
+                JoinTestHelper.getKeywordSource(BOOK_TABLE_OUTER, "typical", conjunction);
         KeywordMatcherSourceOperator keywordSourceInner = 
-                JoinDistanceHelper.getKeywordSource(BOOK_TABLE_INNER, "actually", conjunction);
+                JoinTestHelper.getKeywordSource(BOOK_TABLE_INNER, "actually", conjunction);
         
-        List<ITuple> resultList = JoinDistanceHelper.getJoinDistanceResults(keywordSourceOuter, keywordSourceInner, 
+        List<ITuple> resultList = JoinTestHelper.getJoinDistanceResults(keywordSourceOuter, keywordSourceInner, 
                 new JoinDistancePredicate(JoinTestConstants.ID, JoinTestConstants.REVIEW, 90), 0, 0);
 
         Assert.assertEquals(0, resultList.size());
@@ -1225,15 +1225,15 @@ public class JoinDistanceTest {
         List<ITuple> outerTuples = JoinTestConstants.bookGroup1.subList(1, 5);
         List<ITuple> innerTuples = JoinTestConstants.bookGroup1.subList(1, 5);
         
-        JoinDistanceHelper.insertToOuter(outerTuples);
-        JoinDistanceHelper.insertToInner(innerTuples);
+        JoinTestHelper.insertToOuter(outerTuples);
+        JoinTestHelper.insertToInner(innerTuples);
            
         KeywordMatcherSourceOperator keywordSourceOuter = 
-                JoinDistanceHelper.getKeywordSource(BOOK_TABLE_OUTER, "typical", conjunction);
+                JoinTestHelper.getKeywordSource(BOOK_TABLE_OUTER, "typical", conjunction);
         KeywordMatcherSourceOperator keywordSourceInner = 
-                JoinDistanceHelper.getKeywordSource(BOOK_TABLE_INNER, "actually", conjunction);
+                JoinTestHelper.getKeywordSource(BOOK_TABLE_INNER, "actually", conjunction);
         
-        List<ITuple> resultList = JoinDistanceHelper.getJoinDistanceResults(keywordSourceOuter, keywordSourceInner, 
+        List<ITuple> resultList = JoinTestHelper.getJoinDistanceResults(keywordSourceOuter, keywordSourceInner, 
                 new JoinDistancePredicate(JoinTestConstants.ID, JoinTestConstants.REVIEW, 90), 0, 2);
 
         Assert.assertEquals(0, resultList.size());
@@ -1252,15 +1252,15 @@ public class JoinDistanceTest {
         List<ITuple> outerTuples = JoinTestConstants.bookGroup1.subList(1, 5);
         List<ITuple> innerTuples = JoinTestConstants.bookGroup1.subList(1, 5);
         
-        JoinDistanceHelper.insertToOuter(outerTuples);
-        JoinDistanceHelper.insertToInner(innerTuples);
+        JoinTestHelper.insertToOuter(outerTuples);
+        JoinTestHelper.insertToInner(innerTuples);
            
         KeywordMatcherSourceOperator keywordSourceOuter = 
-                JoinDistanceHelper.getKeywordSource(BOOK_TABLE_OUTER, "typical", conjunction);
+                JoinTestHelper.getKeywordSource(BOOK_TABLE_OUTER, "typical", conjunction);
         KeywordMatcherSourceOperator keywordSourceInner = 
-                JoinDistanceHelper.getKeywordSource(BOOK_TABLE_INNER, "actually", conjunction);
+                JoinTestHelper.getKeywordSource(BOOK_TABLE_INNER, "actually", conjunction);
         
-        List<ITuple> resultList = JoinDistanceHelper.getJoinDistanceResults(keywordSourceOuter, keywordSourceInner, 
+        List<ITuple> resultList = JoinTestHelper.getJoinDistanceResults(keywordSourceOuter, keywordSourceInner, 
                 new JoinDistancePredicate(JoinTestConstants.ID, JoinTestConstants.REVIEW, 90), 1, 2);
 
         Schema resultSchema = Utils.createSpanSchema(JoinTestConstants.BOOK_SCHEMA);
@@ -1301,15 +1301,15 @@ public class JoinDistanceTest {
         List<ITuple> outerTuples = JoinTestConstants.bookGroup1.subList(1, 5);
         List<ITuple> innerTuples = JoinTestConstants.bookGroup1.subList(1, 5);
         
-        JoinDistanceHelper.insertToOuter(outerTuples);
-        JoinDistanceHelper.insertToInner(innerTuples);
+        JoinTestHelper.insertToOuter(outerTuples);
+        JoinTestHelper.insertToInner(innerTuples);
            
         KeywordMatcherSourceOperator keywordSourceOuter = 
-                JoinDistanceHelper.getKeywordSource(BOOK_TABLE_OUTER, "typical", conjunction);
+                JoinTestHelper.getKeywordSource(BOOK_TABLE_OUTER, "typical", conjunction);
         KeywordMatcherSourceOperator keywordSourceInner = 
-                JoinDistanceHelper.getKeywordSource(BOOK_TABLE_INNER, "actually", conjunction);
+                JoinTestHelper.getKeywordSource(BOOK_TABLE_INNER, "actually", conjunction);
         
-        List<ITuple> resultList = JoinDistanceHelper.getJoinDistanceResults(keywordSourceOuter, keywordSourceInner, 
+        List<ITuple> resultList = JoinTestHelper.getJoinDistanceResults(keywordSourceOuter, keywordSourceInner, 
                 new JoinDistancePredicate(JoinTestConstants.ID, JoinTestConstants.REVIEW, 90), 1, 10);
 
         Assert.assertEquals(0, resultList.size());
@@ -1328,13 +1328,13 @@ public class JoinDistanceTest {
         List<ITuple> outerTuples = JoinTestConstants.bookGroup1.subList(1, 5);
         List<ITuple> innerTuples = JoinTestConstants.bookGroup1.subList(1, 5);
         
-        JoinDistanceHelper.insertToOuter(outerTuples);
-        JoinDistanceHelper.insertToInner(innerTuples);
+        JoinTestHelper.insertToOuter(outerTuples);
+        JoinTestHelper.insertToInner(innerTuples);
            
         KeywordMatcherSourceOperator keywordSourceOuter = 
-                JoinDistanceHelper.getKeywordSource(BOOK_TABLE_OUTER, "typical", conjunction);
+                JoinTestHelper.getKeywordSource(BOOK_TABLE_OUTER, "typical", conjunction);
         KeywordMatcherSourceOperator keywordSourceInner = 
-                JoinDistanceHelper.getKeywordSource(BOOK_TABLE_INNER, "actually", conjunction);
+                JoinTestHelper.getKeywordSource(BOOK_TABLE_INNER, "actually", conjunction);
 
         JoinDistancePredicate distancePredicate = new JoinDistancePredicate(
                 JoinTestConstants.ID, JoinTestConstants.REVIEW, 90);

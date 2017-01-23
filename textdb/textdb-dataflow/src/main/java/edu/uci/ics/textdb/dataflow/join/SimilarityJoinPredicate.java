@@ -28,6 +28,25 @@ public class SimilarityJoinPredicate implements IJoinPredicate {
     Double similarity;
     String joinAttributeName;
     
+    /**
+     * The output schema of Similarity Join will be the combination of inner and outer schema.
+     *   (except the _id, spanList and payload field)
+     *   
+     * Example of a same-table, different-tuple join
+     * table_schema,   inner_tuple,             outer_tuple
+     *   _id:          random_id                random_id
+     *   content:      "join"                   "john"
+     *   spanList:     (0, 4, "join", content)  (0, 4, "john", content)
+     *   payload:      payload_inner            payload_outer
+     *   
+     * result_schema,      result_tuple
+     *   _id:              new_random_id
+     *   inner_content:    "join"
+     *   outer_content:    "john"
+     *   spanList:         [(0, 4, "join", inner_content)  (0, 4, "john", outer_content)]
+     *   payload:          [payload_inner, payload_outer]
+     *   
+     */
     public SimilarityJoinPredicate(String joinAttributeName, Double similarity) {
         if (similarity > 1) {
             similarity = 1.0;
