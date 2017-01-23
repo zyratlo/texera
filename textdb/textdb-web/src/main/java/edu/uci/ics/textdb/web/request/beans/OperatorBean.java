@@ -30,8 +30,10 @@ import java.util.HashMap;
         @JsonSubTypes.Type(value=NlpExtractorBean.class, name="NlpExtractor"),
         @JsonSubTypes.Type(value=ProjectionBean.class, name="Projection"),
         @JsonSubTypes.Type(value=RegexMatcherBean.class, name="RegexMatcher"),
-        @JsonSubTypes.Type(value=RegexSourceBean.class, name="RegexSource")
+        @JsonSubTypes.Type(value=RegexSourceBean.class, name="RegexSource"),
+        @JsonSubTypes.Type(value=TupleStreamSinkBean.class, name="TupleStreamSink")
 })
+
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public abstract class OperatorBean {
     @JsonProperty("operator_id")

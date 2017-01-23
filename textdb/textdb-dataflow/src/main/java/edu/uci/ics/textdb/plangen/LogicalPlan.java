@@ -265,10 +265,12 @@ public class LogicalPlan implements Serializable {
      */
     private void checkOperatorOutputArity() throws PlanGenException {
         for (String vertex : adjacencyList.keySet()) {
+            String vertexType = operatorTypeMap.get(vertex);
+            
             int actualOutputArity = adjacencyList.get(vertex).size();
-            int expectedOutputArity = OperatorArityConstants.getFixedOutputArity(operatorTypeMap.get(vertex));
-
-            if (vertex.toLowerCase().contains("sink")) {
+            int expectedOutputArity = OperatorArityConstants.getFixedOutputArity(vertexType);
+            
+            if (vertexType.toLowerCase().contains("sink")) {
                 PlanGenUtils.planGenAssert(
                         actualOutputArity == expectedOutputArity,
                         String.format("Sink %s should have %d output links, got %d.", vertex, expectedOutputArity, actualOutputArity));
