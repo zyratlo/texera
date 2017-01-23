@@ -97,8 +97,8 @@ public class JoinDistanceTest {
      */
     @Test
     public void testIdsDontMatch() throws Exception {        
-        JoinTestHelper.insertToOuter(JoinTestConstants.bookGroup1);
-        JoinTestHelper.insertToInner(JoinTestConstants.bookGroup2);
+        JoinTestHelper.insertToTable(BOOK_TABLE_OUTER, JoinTestConstants.bookGroup1);
+        JoinTestHelper.insertToTable(BOOK_TABLE_INNER, JoinTestConstants.bookGroup2);
         
         String query = "special";
         KeywordMatcherSourceOperator keywordSourceOuter = 
@@ -135,8 +135,8 @@ public class JoinDistanceTest {
      */
     @Test
     public void testIdsMatchFieldsMatchSpanWithinThreshold() throws Exception {
-        JoinTestHelper.insertToOuter(JoinTestConstants.bookGroup1.get(0));
-        JoinTestHelper.insertToInner(JoinTestConstants.bookGroup1.get(0));
+        JoinTestHelper.insertToTable(BOOK_TABLE_OUTER, JoinTestConstants.bookGroup1.get(0));
+        JoinTestHelper.insertToTable(BOOK_TABLE_INNER, JoinTestConstants.bookGroup1.get(0));
                 
         KeywordMatcherSourceOperator keywordSourceOuter = 
                 JoinTestHelper.getKeywordSource(BOOK_TABLE_OUTER, "special", conjunction);
@@ -180,8 +180,8 @@ public class JoinDistanceTest {
     // Test result: An empty list is returned.
     @Test
     public void testIdsMatchFieldsMatchSpanExceedThreshold() throws Exception {
-        JoinTestHelper.insertToOuter(JoinTestConstants.bookGroup1.get(0));
-        JoinTestHelper.insertToInner(JoinTestConstants.bookGroup1.get(0));
+        JoinTestHelper.insertToTable(BOOK_TABLE_OUTER, JoinTestConstants.bookGroup1.get(0));
+        JoinTestHelper.insertToTable(BOOK_TABLE_INNER, JoinTestConstants.bookGroup1.get(0));
                 
         KeywordMatcherSourceOperator keywordSourceOuter = 
                 JoinTestHelper.getKeywordSource(BOOK_TABLE_OUTER, "special", conjunction);
@@ -200,8 +200,8 @@ public class JoinDistanceTest {
     // Test result: Join should return an empty list.
     @Test
     public void testOneOfTheOperatorResultIsEmpty() throws Exception {
-        JoinTestHelper.insertToOuter(JoinTestConstants.bookGroup1.get(0));
-        JoinTestHelper.insertToInner(JoinTestConstants.bookGroup1.get(0));
+        JoinTestHelper.insertToTable(BOOK_TABLE_OUTER, JoinTestConstants.bookGroup1.get(0));
+        JoinTestHelper.insertToTable(BOOK_TABLE_INNER, JoinTestConstants.bookGroup1.get(0));
         
         KeywordMatcherSourceOperator keywordSourceOuter = 
                 JoinTestHelper.getKeywordSource(BOOK_TABLE_OUTER, "special", conjunction);
@@ -220,8 +220,8 @@ public class JoinDistanceTest {
     // Test result: DataFlowException is thrown
     @Test(expected = DataFlowException.class)
     public void testOneOfTheOperatorResultContainsNoSpan() throws Exception {
-        JoinTestHelper.insertToOuter(JoinTestConstants.bookGroup1.get(0));
-        JoinTestHelper.insertToInner(JoinTestConstants.bookGroup1.get(0));
+        JoinTestHelper.insertToTable(BOOK_TABLE_OUTER, JoinTestConstants.bookGroup1.get(0));
+        JoinTestHelper.insertToTable(BOOK_TABLE_INNER, JoinTestConstants.bookGroup1.get(0));
         
         KeywordMatcherSourceOperator keywordSourceOuter = 
                 JoinTestHelper.getKeywordSource(BOOK_TABLE_OUTER, "special", conjunction);
@@ -230,7 +230,7 @@ public class JoinDistanceTest {
         double thresholdRatio = 0.25;
         List<String> textAttributeNames = JoinTestConstants.BOOK_SCHEMA.getAttributes().stream()
                 .filter(attr -> attr.getFieldType() != FieldType.TEXT)
-                .map(attr -> attr.getFieldName()).collect(Collectors.toList());
+                .map(Attribute::getFieldName).collect(Collectors.toList());
         FuzzyTokenPredicate fuzzyPredicateInner = new FuzzyTokenPredicate(fuzzyTokenQuery, textAttributeNames,
                 LuceneAnalyzerConstants.getStandardAnalyzer(), thresholdRatio);
         FuzzyTokenMatcherSourceOperator fuzzyMatcherInner = new FuzzyTokenMatcherSourceOperator(fuzzyPredicateInner, BOOK_TABLE_INNER);
@@ -259,8 +259,8 @@ public class JoinDistanceTest {
     // [<3, 33>]
     @Test
     public void testOneSpanEncompassesOtherAndDifferenceLessThanThreshold() throws Exception {
-        JoinTestHelper.insertToOuter(JoinTestConstants.bookGroup1.get(0));
-        JoinTestHelper.insertToInner(JoinTestConstants.bookGroup1.get(0));
+        JoinTestHelper.insertToTable(BOOK_TABLE_OUTER, JoinTestConstants.bookGroup1.get(0));
+        JoinTestHelper.insertToTable(BOOK_TABLE_INNER, JoinTestConstants.bookGroup1.get(0));
         
         KeywordMatcherSourceOperator keywordSourceOuter = 
                 JoinTestHelper.getKeywordSource(BOOK_TABLE_OUTER, "special", conjunction);
@@ -307,8 +307,8 @@ public class JoinDistanceTest {
     // Test result: Join should return an empty list.
     @Test
     public void testOneSpanEncompassesOtherAndDifferenceGreaterThanThreshold() throws Exception {
-        JoinTestHelper.insertToOuter(JoinTestConstants.bookGroup1.get(0));
-        JoinTestHelper.insertToInner(JoinTestConstants.bookGroup1.get(0));
+        JoinTestHelper.insertToTable(BOOK_TABLE_OUTER, JoinTestConstants.bookGroup1.get(0));
+        JoinTestHelper.insertToTable(BOOK_TABLE_INNER, JoinTestConstants.bookGroup1.get(0));
         
         KeywordMatcherSourceOperator keywordSourceOuter = 
                 JoinTestHelper.getKeywordSource(BOOK_TABLE_OUTER, "special", conjunction);
@@ -341,8 +341,8 @@ public class JoinDistanceTest {
     // [<75, 109>]
     @Test
     public void testSpansOverlapAndWithinThreshold() throws Exception {
-        JoinTestHelper.insertToOuter(JoinTestConstants.bookGroup1.get(0));
-        JoinTestHelper.insertToInner(JoinTestConstants.bookGroup1.get(0));
+        JoinTestHelper.insertToTable(BOOK_TABLE_OUTER, JoinTestConstants.bookGroup1.get(0));
+        JoinTestHelper.insertToTable(BOOK_TABLE_INNER, JoinTestConstants.bookGroup1.get(0));
         
         KeywordMatcherSourceOperator keywordSourceOuter = 
                 JoinTestHelper.getKeywordSource(BOOK_TABLE_OUTER, "gastrointestinal tract", phrase);
@@ -387,8 +387,8 @@ public class JoinDistanceTest {
     // Test result: Join should return an empty list.
     @Test
     public void testSpansOverlapAndExceedThreshold() throws Exception {
-        JoinTestHelper.insertToOuter(JoinTestConstants.bookGroup1.get(0));
-        JoinTestHelper.insertToInner(JoinTestConstants.bookGroup1.get(0));
+        JoinTestHelper.insertToTable(BOOK_TABLE_OUTER, JoinTestConstants.bookGroup1.get(0));
+        JoinTestHelper.insertToTable(BOOK_TABLE_INNER, JoinTestConstants.bookGroup1.get(0));
         
         KeywordMatcherSourceOperator keywordSourceOuter = 
                 JoinTestHelper.getKeywordSource(BOOK_TABLE_OUTER, "takes a special", phrase);
@@ -415,8 +415,8 @@ public class JoinDistanceTest {
     // [<11, 18>]
     @Test
     public void testBothTheSpansAreSame() throws Exception {
-        JoinTestHelper.insertToOuter(JoinTestConstants.bookGroup1.get(0));
-        JoinTestHelper.insertToInner(JoinTestConstants.bookGroup1.get(0));
+        JoinTestHelper.insertToTable(BOOK_TABLE_OUTER, JoinTestConstants.bookGroup1.get(0));
+        JoinTestHelper.insertToTable(BOOK_TABLE_INNER, JoinTestConstants.bookGroup1.get(0));
         
         KeywordMatcherSourceOperator keywordSourceOuter = 
                 JoinTestHelper.getKeywordSource(BOOK_TABLE_OUTER, "special", conjunction);
@@ -452,8 +452,8 @@ public class JoinDistanceTest {
     // Test result: DataFlowException is thrown
     @Test(expected = DataFlowException.class)
     public void testIDFieldDoesNotExist() throws Exception {
-        JoinTestHelper.insertToOuter(JoinTestConstants.bookGroup1.get(0));
-        JoinTestHelper.insertToInner(JoinTestConstants.bookGroup1.get(0));
+        JoinTestHelper.insertToTable(BOOK_TABLE_OUTER, JoinTestConstants.bookGroup1.get(0));
+        JoinTestHelper.insertToTable(BOOK_TABLE_INNER, JoinTestConstants.bookGroup1.get(0));
                 
         KeywordMatcherSourceOperator keywordSourceOuter = 
                 JoinTestHelper.getKeywordSource(BOOK_TABLE_OUTER, "special", conjunction);
@@ -482,8 +482,8 @@ public class JoinDistanceTest {
     // the attributes common to both the tuples and the joined span.
     @Test
     public void testAttributesAndFieldsIntersection() throws TextDBException {
-        JoinTestHelper.insertToOuter(JoinTestConstants.bookGroup1.get(0));
-        JoinTestHelper.insertToInner(JoinTestConstants.bookGroup1.get(0));
+        JoinTestHelper.insertToTable(BOOK_TABLE_OUTER, JoinTestConstants.bookGroup1.get(0));
+        JoinTestHelper.insertToTable(BOOK_TABLE_INNER, JoinTestConstants.bookGroup1.get(0));
                 
         KeywordMatcherSourceOperator keywordSourceOuter = 
                 JoinTestHelper.getKeywordSource(BOOK_TABLE_OUTER, "special", conjunction);
@@ -545,8 +545,8 @@ public class JoinDistanceTest {
         ITuple originalTuple = JoinTestConstants.bookGroup1.get(0);
         ITuple alteredTuple = JoinTestHelper.alterField(originalTuple, 2, new StringField("C"));
         
-        JoinTestHelper.insertToOuter(originalTuple);
-        JoinTestHelper.insertToInner(alteredTuple);
+        JoinTestHelper.insertToTable(BOOK_TABLE_OUTER, originalTuple);
+        JoinTestHelper.insertToTable(BOOK_TABLE_INNER, alteredTuple);
                 
         KeywordMatcherSourceOperator keywordSourceOuter = 
                 JoinTestHelper.getKeywordSource(BOOK_TABLE_OUTER, "special", conjunction);
@@ -592,8 +592,8 @@ public class JoinDistanceTest {
         ITuple alteredTuple = JoinTestHelper.alterField(originalTuple, 4, 
                 new TextField("It takes a special kind of writer to make topics ranging from death to our "));
         
-        JoinTestHelper.insertToOuter(originalTuple);
-        JoinTestHelper.insertToInner(alteredTuple);
+        JoinTestHelper.insertToTable(BOOK_TABLE_OUTER, originalTuple);
+        JoinTestHelper.insertToTable(BOOK_TABLE_INNER, alteredTuple);
                 
         KeywordMatcherSourceOperator keywordSourceOuter = 
                 JoinTestHelper.getKeywordSource(BOOK_TABLE_OUTER, "special", conjunction);
@@ -614,13 +614,13 @@ public class JoinDistanceTest {
     @Test
     public void testWhenAttributeOfSameNameAreDifferent() throws Exception {
         ITuple originalTuple = JoinTestConstants.bookGroup1.get(0);
-        JoinTestHelper.insertToOuter(originalTuple);
+        JoinTestHelper.insertToTable(BOOK_TABLE_OUTER, originalTuple);
 
         // create a table for the altered tuple (since the schema is different)
         String BOOK_TABLE_SPECIAL = "join_test_book_special";
         
         Schema alteredSchema = new Schema(JoinTestConstants.BOOK_SCHEMA.getAttributes().stream()
-                .map(attr -> attr.getFieldName() != JoinTestConstants.AUTHOR ? attr : 
+                .map(attr -> ! attr.getFieldName().equals(JoinTestConstants.AUTHOR) ? attr :
                         new Attribute(JoinTestConstants.AUTHOR, FieldType.TEXT)).toArray(Attribute[]::new));
         
         RelationManager relationManager = RelationManager.getRelationManager();
@@ -680,13 +680,13 @@ public class JoinDistanceTest {
     @Test(expected = DataFlowException.class)
     public void testJoinAttributeOfSameNameHaveDifferentFieldType() throws Exception {
         ITuple originalTuple = JoinTestConstants.bookGroup1.get(0);
-        JoinTestHelper.insertToOuter(originalTuple);
+        JoinTestHelper.insertToTable(BOOK_TABLE_OUTER, originalTuple);
 
         // create a table for the altered tuple (since the schema is different)
         String BOOK_TABLE_SPECIAL = "join_test_book_special";
         
         Schema alteredSchema = new Schema(JoinTestConstants.BOOK_SCHEMA.getAttributes().stream()
-                .map(attr -> attr.getFieldName() != JoinTestConstants.REVIEW ? attr : 
+                .map(attr -> ! attr.getFieldName().equals(JoinTestConstants.REVIEW) ? attr :
                         new Attribute(JoinTestConstants.REVIEW, FieldType.STRING)).toArray(Attribute[]::new));
         
         RelationManager relationManager = RelationManager.getRelationManager();
@@ -723,8 +723,8 @@ public class JoinDistanceTest {
         List<ITuple> outerTuples = JoinTestConstants.bookGroup1;
         List<ITuple> innerTuples = JoinTestConstants.bookGroup2;
         
-        JoinTestHelper.insertToOuter(outerTuples);
-        JoinTestHelper.insertToInner(innerTuples);
+        JoinTestHelper.insertToTable(BOOK_TABLE_OUTER, outerTuples);
+        JoinTestHelper.insertToTable(BOOK_TABLE_INNER, innerTuples);
         
         KeywordMatcherSourceOperator keywordSourceOuter = 
                 JoinTestHelper.getKeywordSource(BOOK_TABLE_OUTER, "review", conjunction);
@@ -759,8 +759,8 @@ public class JoinDistanceTest {
         List<ITuple> outerTuples = JoinTestConstants.bookGroup1;
         List<ITuple> innerTuples = JoinTestConstants.bookGroup1.subList(4, 5);
         
-        JoinTestHelper.insertToOuter(outerTuples);
-        JoinTestHelper.insertToInner(innerTuples);
+        JoinTestHelper.insertToTable(BOOK_TABLE_OUTER, outerTuples);
+        JoinTestHelper.insertToTable(BOOK_TABLE_INNER, innerTuples);
         
         KeywordMatcherSourceOperator keywordSourceOuter = 
                 JoinTestHelper.getKeywordSource(BOOK_TABLE_OUTER, "review", conjunction);
@@ -816,8 +816,8 @@ public class JoinDistanceTest {
         List<ITuple> outerTuples = JoinTestConstants.bookGroup1;
         List<ITuple> innerTuples = JoinTestConstants.bookGroup1.subList(4, 5);
         
-        JoinTestHelper.insertToOuter(outerTuples);
-        JoinTestHelper.insertToInner(innerTuples);
+        JoinTestHelper.insertToTable(BOOK_TABLE_OUTER, outerTuples);
+        JoinTestHelper.insertToTable(BOOK_TABLE_INNER, innerTuples);
         
         KeywordMatcherSourceOperator keywordSourceOuter = 
                 JoinTestHelper.getKeywordSource(BOOK_TABLE_OUTER, "review", conjunction);
@@ -857,8 +857,8 @@ public class JoinDistanceTest {
         innerTuples.addAll(JoinTestConstants.bookGroup1);
         innerTuples.addAll(JoinTestConstants.bookGroup2);
         
-        JoinTestHelper.insertToOuter(outerTuples);
-        JoinTestHelper.insertToInner(innerTuples);
+        JoinTestHelper.insertToTable(BOOK_TABLE_OUTER, outerTuples);
+        JoinTestHelper.insertToTable(BOOK_TABLE_INNER, innerTuples);
            
         KeywordMatcherSourceOperator keywordSourceOuter = 
                 JoinTestHelper.getKeywordSource(BOOK_TABLE_OUTER, "review", conjunction);
@@ -941,8 +941,8 @@ public class JoinDistanceTest {
         innerTuples.addAll(JoinTestConstants.bookGroup1);
         innerTuples.addAll(JoinTestConstants.bookGroup2);
         
-        JoinTestHelper.insertToOuter(outerTuples);
-        JoinTestHelper.insertToInner(innerTuples);
+        JoinTestHelper.insertToTable(BOOK_TABLE_OUTER, outerTuples);
+        JoinTestHelper.insertToTable(BOOK_TABLE_INNER, innerTuples);
            
         KeywordMatcherSourceOperator keywordSourceOuter = 
                 JoinTestHelper.getKeywordSource(BOOK_TABLE_OUTER, "review", conjunction);
@@ -964,8 +964,8 @@ public class JoinDistanceTest {
         List<ITuple> outerTuples = JoinTestConstants.bookGroup1.subList(1, 5);
         List<ITuple> innerTuples = JoinTestConstants.bookGroup1.subList(1, 5);
         
-        JoinTestHelper.insertToOuter(outerTuples);
-        JoinTestHelper.insertToInner(innerTuples);
+        JoinTestHelper.insertToTable(BOOK_TABLE_OUTER, outerTuples);
+        JoinTestHelper.insertToTable(BOOK_TABLE_INNER, innerTuples);
            
         KeywordMatcherSourceOperator keywordSourceOuter = 
                 JoinTestHelper.getKeywordSource(BOOK_TABLE_OUTER, "typical", conjunction);
@@ -1044,8 +1044,8 @@ public class JoinDistanceTest {
         List<ITuple> outerTuples = JoinTestConstants.bookGroup1.subList(1, 5);
         List<ITuple> innerTuples = JoinTestConstants.bookGroup1.subList(1, 5);
         
-        JoinTestHelper.insertToOuter(outerTuples);
-        JoinTestHelper.insertToInner(innerTuples);
+        JoinTestHelper.insertToTable(BOOK_TABLE_OUTER, outerTuples);
+        JoinTestHelper.insertToTable(BOOK_TABLE_INNER, innerTuples);
            
         KeywordMatcherSourceOperator keywordSourceOuter = 
                 JoinTestHelper.getKeywordSource(BOOK_TABLE_OUTER, "typical", conjunction);
@@ -1123,8 +1123,8 @@ public class JoinDistanceTest {
         List<ITuple> outerTuples = JoinTestConstants.bookGroup1.subList(1, 5);
         List<ITuple> innerTuples = JoinTestConstants.bookGroup1.subList(1, 5);
         
-        JoinTestHelper.insertToOuter(outerTuples);
-        JoinTestHelper.insertToInner(innerTuples);
+        JoinTestHelper.insertToTable(BOOK_TABLE_OUTER, outerTuples);
+        JoinTestHelper.insertToTable(BOOK_TABLE_INNER, innerTuples);
            
         KeywordMatcherSourceOperator keywordSourceOuter = 
                 JoinTestHelper.getKeywordSource(BOOK_TABLE_OUTER, "typical", conjunction);
@@ -1200,8 +1200,8 @@ public class JoinDistanceTest {
         List<ITuple> outerTuples = JoinTestConstants.bookGroup1.subList(1, 5);
         List<ITuple> innerTuples = JoinTestConstants.bookGroup1.subList(1, 5);
         
-        JoinTestHelper.insertToOuter(outerTuples);
-        JoinTestHelper.insertToInner(innerTuples);
+        JoinTestHelper.insertToTable(BOOK_TABLE_OUTER, outerTuples);
+        JoinTestHelper.insertToTable(BOOK_TABLE_INNER, innerTuples);
            
         KeywordMatcherSourceOperator keywordSourceOuter = 
                 JoinTestHelper.getKeywordSource(BOOK_TABLE_OUTER, "typical", conjunction);
@@ -1225,8 +1225,8 @@ public class JoinDistanceTest {
         List<ITuple> outerTuples = JoinTestConstants.bookGroup1.subList(1, 5);
         List<ITuple> innerTuples = JoinTestConstants.bookGroup1.subList(1, 5);
         
-        JoinTestHelper.insertToOuter(outerTuples);
-        JoinTestHelper.insertToInner(innerTuples);
+        JoinTestHelper.insertToTable(BOOK_TABLE_OUTER, outerTuples);
+        JoinTestHelper.insertToTable(BOOK_TABLE_INNER, innerTuples);
            
         KeywordMatcherSourceOperator keywordSourceOuter = 
                 JoinTestHelper.getKeywordSource(BOOK_TABLE_OUTER, "typical", conjunction);
@@ -1252,8 +1252,8 @@ public class JoinDistanceTest {
         List<ITuple> outerTuples = JoinTestConstants.bookGroup1.subList(1, 5);
         List<ITuple> innerTuples = JoinTestConstants.bookGroup1.subList(1, 5);
         
-        JoinTestHelper.insertToOuter(outerTuples);
-        JoinTestHelper.insertToInner(innerTuples);
+        JoinTestHelper.insertToTable(BOOK_TABLE_OUTER, outerTuples);
+        JoinTestHelper.insertToTable(BOOK_TABLE_INNER, innerTuples);
            
         KeywordMatcherSourceOperator keywordSourceOuter = 
                 JoinTestHelper.getKeywordSource(BOOK_TABLE_OUTER, "typical", conjunction);
@@ -1301,8 +1301,8 @@ public class JoinDistanceTest {
         List<ITuple> outerTuples = JoinTestConstants.bookGroup1.subList(1, 5);
         List<ITuple> innerTuples = JoinTestConstants.bookGroup1.subList(1, 5);
         
-        JoinTestHelper.insertToOuter(outerTuples);
-        JoinTestHelper.insertToInner(innerTuples);
+        JoinTestHelper.insertToTable(BOOK_TABLE_OUTER, outerTuples);
+        JoinTestHelper.insertToTable(BOOK_TABLE_INNER, innerTuples);
            
         KeywordMatcherSourceOperator keywordSourceOuter = 
                 JoinTestHelper.getKeywordSource(BOOK_TABLE_OUTER, "typical", conjunction);
@@ -1328,8 +1328,8 @@ public class JoinDistanceTest {
         List<ITuple> outerTuples = JoinTestConstants.bookGroup1.subList(1, 5);
         List<ITuple> innerTuples = JoinTestConstants.bookGroup1.subList(1, 5);
         
-        JoinTestHelper.insertToOuter(outerTuples);
-        JoinTestHelper.insertToInner(innerTuples);
+        JoinTestHelper.insertToTable(BOOK_TABLE_OUTER, outerTuples);
+        JoinTestHelper.insertToTable(BOOK_TABLE_INNER, innerTuples);
            
         KeywordMatcherSourceOperator keywordSourceOuter = 
                 JoinTestHelper.getKeywordSource(BOOK_TABLE_OUTER, "typical", conjunction);

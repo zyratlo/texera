@@ -125,11 +125,11 @@ public class Join implements IOperator {
     	if (cursor == CLOSED) {
             throw new DataFlowException(ErrorMessages.OPERATOR_NOT_OPENED);
         }
-    	
+
         if (resultCursor >= limit + offset - 1 || limit == 0){
             return null;
         }
-        
+
         try {
             ITuple resultTuple = null;
             while (true) {
@@ -176,7 +176,7 @@ public class Join implements IOperator {
                     shouldIGetOuterOperatorNextTuple = true;
                 }
             }
-            
+
             nextTuple = joinPredicate.joinTuples(outerTuple, innerTuple, outputSchema);
         }
         

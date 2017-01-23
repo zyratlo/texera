@@ -1,9 +1,6 @@
 package edu.uci.ics.textdb.dataflow.join;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import edu.uci.ics.textdb.api.common.Attribute;
@@ -124,7 +121,7 @@ public class SimilarityJoinPredicate implements IJoinPredicate {
                 .map(span -> span.getValue()).collect(Collectors.toSet());
         Set<String> outerSpanValueSet = outerRelevantSpanList.stream()
                 .map(span -> span.getValue()).collect(Collectors.toSet());
-        
+
         // compute the result value set using the distance function
         NormalizedLevenshtein distanceFunc = new NormalizedLevenshtein();
         Set<String> resultValueSet = new HashSet<>();
@@ -165,9 +162,7 @@ public class SimilarityJoinPredicate implements IJoinPredicate {
         for (String attrName : outputSchema.getAttributeNames()) {
             // generate a new _ID field for this tuple
             if (attrName.equals(SchemaConstants._ID)) {
-                IDField innerID = (IDField) innerTuple.getField(SchemaConstants._ID);
-                IDField outerID = (IDField) innerTuple.getField(SchemaConstants._ID);
-                IDField newID = new IDField(innerID.getValue() + outerID.getValue());
+                IDField newID = new IDField(UUID.randomUUID().toString());
                 resultFields.add(newID);
             // use the generated spanList
             } else if (attrName.equals(SchemaConstants.SPAN_LIST)) {

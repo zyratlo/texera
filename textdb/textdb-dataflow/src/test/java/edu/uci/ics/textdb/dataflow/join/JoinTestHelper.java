@@ -54,54 +54,21 @@ public class JoinTestHelper {
                 JoinTestConstants.NEWS_SCHEMA, LuceneAnalyzerConstants.standardAnalyzerString());
     
     }
-    
-    /**
-     * Inserts one or multiple tuples to the outer test table.
-     * @param tuples
-     * @throws StorageException
-     */
-    public static void insertToOuter(ITuple... tuples) throws StorageException {
+
+    public static void insertToTable(String tableName, ITuple... tuples) throws StorageException {
         RelationManager relationManager = RelationManager.getRelationManager();
         for (int i = 0; i < tuples.length; i++) {
-            relationManager.insertTuple(BOOK_TABLE_OUTER, tuples[i]);
+            relationManager.insertTuple(tableName, tuples[i]);
+        }
+    }
+
+    public static void insertToTable(String tableName, List<ITuple> tuples) throws StorageException {
+        RelationManager relationManager = RelationManager.getRelationManager();
+        for (ITuple tuple: tuples) {
+            relationManager.insertTuple(tableName, tuple);
         }
     }
     
-    /**
-     * Inserts a list of tuples to the outer test table.
-     * @param tuples
-     * @throws StorageException
-     */
-    public static void insertToOuter(List<ITuple> tuples) throws StorageException {
-        RelationManager relationManager = RelationManager.getRelationManager();
-        for (ITuple tuple: tuples) {
-            relationManager.insertTuple(BOOK_TABLE_OUTER, tuple);
-        }
-    } 
-    
-    /**
-     * Inserts one or multiple tuples to the inner test table.
-     * @param tuples
-     * @throws StorageException
-     */
-    public static void insertToInner(ITuple... tuples) throws StorageException {
-        RelationManager relationManager = RelationManager.getRelationManager();
-        for (int i = 0; i < tuples.length; i++) {
-            relationManager.insertTuple(BOOK_TABLE_INNER, tuples[i]);
-        }
-    }
-    
-    /**
-     * Inserts a list of tuples to the inner test table.
-     * @param tuples
-     * @throws StorageException
-     */
-    public static void insertToInner(List<ITuple> tuples) throws StorageException {
-        RelationManager relationManager = RelationManager.getRelationManager();
-        for (ITuple tuple: tuples) {
-            relationManager.insertTuple(BOOK_TABLE_INNER, tuple);
-        }
-    } 
     
     /**
      * Clears the data of the inner and outer test tables.
@@ -110,7 +77,9 @@ public class JoinTestHelper {
     public static void clearTestTables() throws TextDBException {
         RelationManager relationManager = RelationManager.getRelationManager();
         relationManager.deleteTuples(BOOK_TABLE_OUTER, new MatchAllDocsQuery());
-        relationManager.deleteTuples(BOOK_TABLE_INNER, new MatchAllDocsQuery());      
+        relationManager.deleteTuples(BOOK_TABLE_INNER, new MatchAllDocsQuery());
+        relationManager.deleteTuples(NEWS_TABLE_OUTER, new MatchAllDocsQuery());
+        relationManager.deleteTuples(NEWS_TABLE_INNER, new MatchAllDocsQuery());
     }
     
     /**
