@@ -30,6 +30,7 @@ public class OperatorArityConstants {
         put("IndexSink".toLowerCase(), 1);
         put("TupleStreamSink".toLowerCase(), 1);
       
+        put("Projection".toLowerCase(), 1);
         put("Join".toLowerCase(), 2);
     }};
     
@@ -50,6 +51,7 @@ public class OperatorArityConstants {
         put("KeywordSource".toLowerCase(), 1);
         put("DictionarySource".toLowerCase(), 1);
         
+        put("Projection".toLowerCase(), 1);
         put("Join".toLowerCase(), 1);  
     }};
     
