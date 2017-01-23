@@ -28,7 +28,9 @@ public class OperatorArityConstants {
         
         put("FileSink".toLowerCase(), 1);
         put("IndexSink".toLowerCase(), 1);
+        put("TupleStreamSink".toLowerCase(), 1);
       
+        put("Projection".toLowerCase(), 1);
         put("Join".toLowerCase(), 2);
     }};
     
@@ -38,6 +40,7 @@ public class OperatorArityConstants {
     public static Map<String, Integer> fixedOutputArityMap = new HashMap<String, Integer>(){{
         put("IndexSink".toLowerCase(), 0);
         put("FileSink".toLowerCase(), 0);
+        put("TupleStreamSink".toLowerCase(), 0);
         
         put("KeywordMatcher".toLowerCase(), 1);
         put("DictionaryMatcher".toLowerCase(), 1);
@@ -48,6 +51,7 @@ public class OperatorArityConstants {
         put("KeywordSource".toLowerCase(), 1);
         put("DictionarySource".toLowerCase(), 1);
         
+        put("Projection".toLowerCase(), 1);
         put("Join".toLowerCase(), 1);  
     }};
     

@@ -60,6 +60,16 @@ public class KeywordSourceBuilder {
         } catch (DataFlowException | StorageException e) {
             throw new PlanGenException(e.getMessage(), e);
         }
+        
+        // set limit and offset
+        Integer limitInt = OperatorBuilderUtils.findLimit(operatorProperties);
+        if (limitInt != null) {
+            sourceOperator.setLimit(limitInt);
+        }
+        Integer offsetInt = OperatorBuilderUtils.findOffset(operatorProperties);
+        if (offsetInt != null) {
+            sourceOperator.setOffset(offsetInt);
+        }
    
         return sourceOperator;
     }
