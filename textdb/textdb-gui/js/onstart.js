@@ -5,6 +5,8 @@
 	@Author: Jimmy Wang
 */
 
+var request_debug;
+
 // main operation (holds all the methods for the buttons and holds the buttons itself)
 var setup = function(){
 	var data = {};
@@ -316,7 +318,8 @@ var setup = function(){
 		TEXTDBJSON.operators = operators;
 		TEXTDBJSON.links = links;
 
-		console.log(TEXTDBJSON);
+		request_debug = TEXTDBJSON;
+		console.log(JSON.stringify(TEXTDBJSON));
 		
 		$.ajax({
 			url: "http://localhost:8080/queryplan/execute",
