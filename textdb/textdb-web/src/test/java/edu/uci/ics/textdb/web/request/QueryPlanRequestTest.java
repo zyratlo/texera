@@ -129,8 +129,8 @@ public class QueryPlanRequestTest {
                 "   ]\n" +
                 "}";
         QueryPlanRequest queryPlanRequest = MAPPER.readValue(jsonString, QueryPlanRequest.class);
-        assertEquals(queryPlanRequest.getOperatorBeans().size(), 2);
-        assertEquals(queryPlanRequest.getOperatorLinkBeans().size(), 1);
+        assertEquals(queryPlanRequest.getOperatorBeans().size(), 8);
+        assertEquals(queryPlanRequest.getOperatorLinkBeans().size(), 9);
     }
 
     @Test
