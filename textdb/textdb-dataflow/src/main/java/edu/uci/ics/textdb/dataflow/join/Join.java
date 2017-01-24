@@ -2,14 +2,10 @@ package edu.uci.ics.textdb.dataflow.join;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import edu.uci.ics.textdb.api.common.Attribute;
-import edu.uci.ics.textdb.api.common.FieldType;
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.common.Schema;
 import edu.uci.ics.textdb.api.dataflow.IOperator;
-import edu.uci.ics.textdb.common.constants.SchemaConstants;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
 import edu.uci.ics.textdb.common.exception.ErrorMessages;
 import edu.uci.ics.textdb.api.exception.TextDBException;
@@ -176,7 +172,7 @@ public class Join implements IOperator {
                     shouldIGetOuterOperatorNextTuple = true;
                 }
             }
-            
+
             nextTuple = joinPredicate.joinTuples(outerTuple, innerTuple, outputSchema);
         }
         
