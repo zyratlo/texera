@@ -1,14 +1,11 @@
 package edu.uci.ics.textdb.dataflow.join;
 
-import edu.uci.ics.textdb.api.common.Attribute;
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.common.Schema;
 import edu.uci.ics.textdb.common.constants.SchemaConstants;
 import edu.uci.ics.textdb.common.field.*;
 import edu.uci.ics.textdb.common.utils.Utils;
-import edu.uci.ics.textdb.dataflow.common.RegexPredicate;
 import edu.uci.ics.textdb.dataflow.regexmatch.RegexMatcher;
-import edu.uci.ics.textdb.dataflow.sink.TupleStreamSink;
 import edu.uci.ics.textdb.dataflow.utils.TestUtils;
 import junit.framework.Assert;
 import org.junit.After;
@@ -19,7 +16,6 @@ import edu.uci.ics.textdb.api.exception.TextDBException;
 import edu.uci.ics.textdb.common.constants.DataConstants.KeywordMatchingType;
 import org.junit.Test;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -212,7 +208,7 @@ public class JoinSimilarityTest {
         RegexMatcher regexMatcherOuter = JoinTestHelper.getRegexMatcher(JoinTestHelper.NEWS_TABLE_OUTER,
                 phoneRegex, JoinTestConstants.NEWS_BODY);
 
-        SimilarityJoinPredicate similarityJoinPredicate = new SimilarityJoinPredicate(JoinTestConstants.NEWS_BODY, 0.5);
+        SimilarityJoinPredicate similarityJoinPredicate = new SimilarityJoinPredicate(JoinTestConstants.NEWS_BODY, 0.8);
         List<ITuple> results = JoinTestHelper.getJoinDistanceResults(
                 regexMatcherOuter, regexMatcherInner, similarityJoinPredicate, Integer.MAX_VALUE, 0);
 
