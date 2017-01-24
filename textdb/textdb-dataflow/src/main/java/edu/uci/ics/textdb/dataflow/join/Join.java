@@ -176,7 +176,7 @@ public class Join implements IOperator {
                     shouldIGetOuterOperatorNextTuple = true;
                 }
             }
-
+            
             nextTuple = joinPredicate.joinTuples(outerTuple, innerTuple, outputSchema);
         }
         
