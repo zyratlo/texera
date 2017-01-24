@@ -35,6 +35,7 @@ public abstract class AbstractSingleInputOperator implements IOperator {
     
     @Override
     public void open() throws TextDBException {
+        System.out.println("opening: " + this.getClass().getSimpleName() + "-" + this.hashCode());
         if (cursor != CLOSED) {
             return;
         }
@@ -61,6 +62,7 @@ public abstract class AbstractSingleInputOperator implements IOperator {
     @Override
     public ITuple getNextTuple() throws TextDBException {
         if (cursor == CLOSED) {
+            System.out.println("operator not opened: " + this.getClass().getSimpleName() + "-" + this.hashCode());
             throw new DataFlowException(ErrorMessages.OPERATOR_NOT_OPENED);
         }
         if (resultCursor >= limit + offset - 1){
