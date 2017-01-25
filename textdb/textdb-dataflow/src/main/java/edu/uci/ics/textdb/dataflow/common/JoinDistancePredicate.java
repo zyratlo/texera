@@ -23,7 +23,6 @@ import edu.uci.ics.textdb.common.field.Span;
  */
 public class JoinDistancePredicate implements IJoinPredicate {
 
-    private String idAttributeName;
     private String joinAttributeName;
     private Integer threshold;
 
@@ -37,7 +36,7 @@ public class JoinDistancePredicate implements IJoinPredicate {
      * JoinPredicate joinPre = new JoinPredicate(Attribute idAttr, Attribute
      * descriptionAttr, 10) <br>
      * will create a predicate that joins the spans of type descriptionAttr of
-     * outer and inner operators (that agree on the idAttr id attributes) and
+     * outer and inner operators (that agree on the _id attributes) and
      * outputs tuples which satisfy the criteria of being within 10 characters
      * of each other.
      * </p>
@@ -63,13 +62,13 @@ public class JoinDistancePredicate implements IJoinPredicate {
      * 
      * where <spanStartIndex, spanEndIndex> represents a span.
      * 
-     * JoinPredicate joinPre = new JoinPredicate(idAttr, reviewAttr, 10);
+     * JoinPredicate joinPre = new JoinPredicate(reviewAttr, 10);
      * <p>
      * 
      * <p>
      * Example 1: Suppose that the outer tuple is bookTuple1 and inner tuple is
      * bookTuple2 (from two operators) and we want to join over reviewAttr the
-     * words "book" and "gives". Since, both the tuples have same ID the
+     * words "book" and "gives". Since, both the tuples have same _ID the
      * distance between the words are computed by using their span. Since, the
      * distance between the words (computed as |(span 1 spanStartIndex) - (span
      * 2 spanStartIndex)| and |(span 1 spanEndIndex) - (span 2 spanEndIndex)|)
@@ -80,38 +79,27 @@ public class JoinDistancePredicate implements IJoinPredicate {
      * </p>
      * <p>
      * Example 2: Consider the previous example but with words "book" and "us"
-     * to be joined. Since, the tuple IDs are same, but the words are more than
+     * to be joined. Since, the tuple _IDs are same, but the words are more than
      * 10 characters apart and hence join won't produce a result and simply
      * returns the tuple bookTuple1.
      * </p>
-     * 
-     * @param idAttribute
-     *            is the ID attribute used to compare if documents are same
-     * @param joinAttribute
+     *
+     * @param joinAttributeName
      *            is the Attribute to perform join on
      * @param threshold
      *            is the maximum distance (in characters) between any two spans
      */
-    public JoinDistancePredicate(String idAttributeName, String joinAttributeName, Integer threshold) {
-        this.idAttributeName = idAttributeName;
+    public JoinDistancePredicate(String joinAttributeName, Integer threshold) {
         this.joinAttributeName = joinAttributeName;
         this.threshold = threshold;
-    }
-
-    public String getIDAttributeName() {
-        return this.idAttributeName;
-    }
-
-    public String getJoinAttributeName() {
-        return this.joinAttributeName;
     }
 
     public Integer getThreshold() {
         return this.threshold;
     }
     
-    public Schema generateOutputSchema(Schema innerOperatorSchema, Schema outerOperatorSchema) throws DataFlowException {
-        return generateIntersectionSchema(innerOperatorSchema, outerOperatorSchema);
+    public Schema generateOutputSchema(Schema outerOperatorSchema, Schema innerOperatorSchema) throws DataFlowException {
+        return generateIntersectionSchema(outerOperatorSchema, innerOperatorSchema);
     }
     
     /**
@@ -120,12 +108,12 @@ public class JoinDistancePredicate implements IJoinPredicate {
      * 
      * InnerOperator's attributes and outerOperator's attributes must:
      * both contain the attributes to be joined.
-     * both contain "ID" attribute. (ID attribute that user specifies in joinPredicate)
+     * both contain "_ID" attribute.
      * both contain "spanList" attribute.
      * 
      * @return outputSchema
      */
-    private Schema generateIntersectionSchema(Schema innerOperatorSchema, Schema outerOperatorSchema) throws DataFlowException {
+    private Schema generateIntersectionSchema(Schema outerOperatorSchema, Schema innerOperatorSchema) throws DataFlowException {
         List<Attribute> innerAttributes = innerOperatorSchema.getAttributes();
         List<Attribute> outerAttributes = outerOperatorSchema.getAttributes();
         
@@ -139,19 +127,19 @@ public class JoinDistancePredicate implements IJoinPredicate {
         // check if output schema contain necessary attributes
         if (intersectionSchema.getAttributes().isEmpty()) {
             throw new DataFlowException("inner operator and outer operator don't share any common attributes");
-        } else if (intersectionSchema.getAttribute(this.getJoinAttributeName()) == null) {
+        } else if (intersectionSchema.getAttribute(this.joinAttributeName) == null) {
             throw new DataFlowException("inner operator or outer operator doesn't contain join attribute");
-        } else if (intersectionSchema.getAttribute(this.getIDAttributeName()) == null) {
-            throw new DataFlowException("inner operator or outer operator doesn't contain ID attribute");
+        } else if (intersectionSchema.getAttribute(SchemaConstants._ID) == null) {
+            throw new DataFlowException("inner operator or outer operator doesn't contain _ID attribute");
         } else if (intersectionSchema.getAttribute(SchemaConstants.SPAN_LIST) == null) {
             throw new DataFlowException("inner operator or outer operator doesn't contain spanList attribute");
         }
         
         // check if join attribute is TEXT or STRING
-        FieldType joinAttrType = intersectionSchema.getAttribute(this.getJoinAttributeName()).getFieldType();
+        FieldType joinAttrType = intersectionSchema.getAttribute(this.joinAttributeName).getFieldType();
         if (joinAttrType != FieldType.TEXT && joinAttrType != FieldType.STRING) {
             throw new DataFlowException(
-                    String.format("Join attribute %s must be either TEXT or STRING.", this.getJoinAttributeName()));
+                    String.format("Join attribute %s must be either TEXT or STRING.", this.joinAttributeName));
         }
         
         return intersectionSchema;        
@@ -168,16 +156,16 @@ public class JoinDistancePredicate implements IJoinPredicate {
 
 	    /*
 	     * We expect the values of all fields to be the same for innerTuple and outerTuple.
-	     * We only checks ID field, and field to be joined, since they are crucial to join operator.
+	     * We only checks _ID field, and field to be joined, since they are crucial to join operator.
 	     * For other fields, we use the value from innerTuple.
-	     * check if the ID fields are the same
+	     * check if the _ID fields are the same
 	     */
-	    if (! compareField(innerTuple, outerTuple, this.getIDAttributeName())) {
+	    if (! compareField(innerTuple, outerTuple, SchemaConstants._ID)) {
 	        return null;
 	    }
 	
 	    // check if the fields to be joined are the same
-	    if (! compareField(innerTuple, outerTuple, this.getJoinAttributeName())) {
+	    if (! compareField(innerTuple, outerTuple, this.joinAttributeName)) {
 	        return null;
 	    }
 
@@ -217,13 +205,13 @@ public class JoinDistancePredicate implements IJoinPredicate {
 	        Span outerSpan = outerSpanIter.next();
 	        // Check if the field matches the filed over which we want to join.
 	        // If not return null.
-	        if (!outerSpan.getFieldName().equals(this.getJoinAttributeName())) {
+	        if (!outerSpan.getFieldName().equals(this.joinAttributeName)) {
 	            continue;
 	        }
 	        Iterator<Span> innerSpanIter = innerSpanList.iterator();
 	        while (innerSpanIter.hasNext()) {
 	            Span innerSpan = innerSpanIter.next();
-	            if (!innerSpan.getFieldName().equals(this.getJoinAttributeName())) {
+	            if (!innerSpan.getFieldName().equals(this.joinAttributeName)) {
 	                continue;
 	            }
 	            Integer threshold = this.getThreshold();
@@ -231,7 +219,7 @@ public class JoinDistancePredicate implements IJoinPredicate {
 	                    && Math.abs(outerSpan.getEnd() - innerSpan.getEnd()) <= threshold) {
 	                Integer newSpanStartIndex = Math.min(outerSpan.getStart(), innerSpan.getStart());
 	                Integer newSpanEndIndex = Math.max(outerSpan.getEnd(), innerSpan.getEnd());
-	                String fieldName = this.getJoinAttributeName();
+	                String fieldName = this.joinAttributeName;
 	                String fieldValue = (String) innerTuple.getField(fieldName).getValue();
 	                String newFieldValue = fieldValue.substring(newSpanStartIndex, newSpanEndIndex);
 	                String spanKey = outerSpan.getKey() + "_" + innerSpan.getKey();

@@ -8,6 +8,7 @@ import edu.uci.ics.textdb.common.exception.PlanGenException;
 import edu.uci.ics.textdb.dataflow.common.IJoinPredicate;
 import edu.uci.ics.textdb.dataflow.common.JoinDistancePredicate;
 import edu.uci.ics.textdb.dataflow.join.Join;
+import edu.uci.ics.textdb.dataflow.join.SimilarityJoinPredicate;
 import edu.uci.ics.textdb.plangen.PlanGenUtils;
 
 
@@ -43,11 +44,14 @@ import edu.uci.ics.textdb.plangen.PlanGenUtils;
 public class JoinBuilder {
     
     public static final String JOIN_PREDICATE = "predicateType";
-    
-    public static final String JOIN_ID_ATTRIBUTE_NAME = "idAttributeName";
-    
+        
     public static final String JOIN_CHARACTER_DISTANCE = "CharacterDistance";
+    public static final String JOIN_SIMILARITY = "SimilarityJoin";
+    
     public static final String JOIN_DISTANCE = "distance";
+    public static final String JOIN_THRESHOLD = "threshold";
+    public static final String JOIN_INNER_ATTR_NAME = "innerAttributeName";
+    public static final String JOIN_OUTER_ATTR_NAME = "outerAttributeName";
     
     
     public static Join buildOperator(Map<String, String> operatorProperties) throws PlanGenException {        
@@ -75,6 +79,7 @@ public class JoinBuilder {
     private static HashMap<String, GetJoinPredicate> joinPredicateHandlerMap = new HashMap<>();
     static {
         joinPredicateHandlerMap.put(JOIN_CHARACTER_DISTANCE.toLowerCase(), JoinBuilder::getJoinCharDistancePredicate);
+        joinPredicateHandlerMap.put(JOIN_SIMILARITY.toLowerCase(), JoinBuilder::getSimilarityJoinPredicate);
     }
     
     /*
@@ -92,10 +97,6 @@ public class JoinBuilder {
     private static JoinDistancePredicate getJoinCharDistancePredicate(
             Map<String, String> operatorProperties) throws PlanGenException{
         String distanceStr = OperatorBuilderUtils.getRequiredProperty(JOIN_DISTANCE, operatorProperties);
-        String joinIDAttributeName = OperatorBuilderUtils.getRequiredProperty(JOIN_ID_ATTRIBUTE_NAME, operatorProperties);
-        
-        PlanGenUtils.planGenAssert(! joinIDAttributeName.trim().isEmpty(), 
-                "Join character distance predicate: ID attribute name is empty.");
         
         List<String> attributeNames = OperatorBuilderUtils.constructAttributeNames(operatorProperties);
         PlanGenUtils.planGenAssert(attributeNames.size() == 1, 
@@ -112,7 +113,26 @@ public class JoinBuilder {
             throw new PlanGenException("Join character distance predicate: distance must be greater than 0.");
         }
         
-        return new JoinDistancePredicate(joinIDAttributeName, joinAttributeName, distance);
+        return new JoinDistancePredicate(joinAttributeName, distance);
+    }
+    
+    /*
+     * This functions builds a SimilarityJoinPredicate, which is a join predicate of similar span values.
+     */
+    private static SimilarityJoinPredicate getSimilarityJoinPredicate(
+            Map<String, String> operatorProperties) throws PlanGenException {
+        
+        String thresholdStr = OperatorBuilderUtils.getRequiredProperty(JOIN_THRESHOLD, operatorProperties);
+        String outerAttrName = OperatorBuilderUtils.getRequiredProperty(JOIN_OUTER_ATTR_NAME, operatorProperties);
+        String innerAttrName = OperatorBuilderUtils.getRequiredProperty(JOIN_INNER_ATTR_NAME, operatorProperties);
+
+        Double threshold;
+        try {
+            threshold = Double.parseDouble(thresholdStr);
+        } catch (NumberFormatException e) {
+            throw new PlanGenException(e);
+        }
+        return new SimilarityJoinPredicate(outerAttrName, innerAttrName, threshold);
     }
 
 }

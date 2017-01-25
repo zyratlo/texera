@@ -22,10 +22,8 @@ import edu.uci.ics.textdb.common.exception.StorageException;
 import edu.uci.ics.textdb.common.field.DataTuple;
 import edu.uci.ics.textdb.common.utils.Utils;
 import edu.uci.ics.textdb.dataflow.common.IJoinPredicate;
-import edu.uci.ics.textdb.dataflow.common.JoinDistancePredicate;
 import edu.uci.ics.textdb.dataflow.common.KeywordPredicate;
 import edu.uci.ics.textdb.dataflow.keywordmatch.KeywordMatcherSourceOperator;
-import edu.uci.ics.textdb.storage.DataStore;
 import edu.uci.ics.textdb.storage.relation.RelationManager;
 
 public class JoinTestHelper {

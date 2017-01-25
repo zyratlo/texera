@@ -93,7 +93,7 @@ public class Join implements IOperator {
         Schema outerOperatorSchema = outerOperator.getOutputSchema();
         outerOperator.close();
         
-        this.outputSchema = joinPredicate.generateOutputSchema(innerOperatorSchema, outerOperatorSchema);
+        this.outputSchema = joinPredicate.generateOutputSchema(outerOperatorSchema, innerOperatorSchema);
         
         // load all tuples from inner operator into memory
         innerOperator.open();

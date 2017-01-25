@@ -17,55 +17,67 @@ import edu.uci.ics.textdb.common.field.Span;
 import edu.uci.ics.textdb.dataflow.common.IJoinPredicate;
 import info.debatty.java.stringsimilarity.NormalizedLevenshtein;
 
+/**
+ *
+ * Similarity Join Predicate is one type of join predicate where
+ *   two tuples are joined if the values in their spanlists are
+ *   similar within a similarity threshold.
+ *
+ * The output schema of Similarity Join will be the combination of inner and outer schema.
+ *   (except the _id, spanList and payload field)
+ * TODO: this solution for output schema is only temporary
+ *
+ * Currently the similarity is measured by normalized Levenshtein distance,
+ *   which is the Levenshtein distance divided by the length of the longest string
+ *
+ * Example of a same-table, different-tuple join, similarity threshold > 0.8
+ *
+ * table_schema,   inner_tuple,             outer_tuple
+ *   _id:          random_id                random_id
+ *   content:      "textdb"                 "testdb"
+ *   spanList:     (0, 6, "textdb", content)  (0, 6, "testdb", content)
+ *   payload:      payload_inner            payload_outer
+ *
+ * Similarity of "textdb" and "testdb" is 1 - (1/6) = 0.833
+ *
+ * result_schema,      result_tuple
+ *   _id:              new_random_id
+ *   inner_content:    "textdb"
+ *   outer_content:    "testdb"
+ *   spanList:         [(0, 6, "textdb", inner_content)  (0, 6, "testdb", outer_content)]
+ *   payload:          [payload_inner, payload_outer]
+ *
+ * @author Zuozhi Wang
+ *
+ */
 public class SimilarityJoinPredicate implements IJoinPredicate {
     
     public static final String INNER_PREFIX = "inner_";
     public static final String OUTER_PREFIX = "outer_";
     
-    Double similarity;
-    String joinAttributeName;
-    
-    /**
-     * The output schema of Similarity Join will be the combination of inner and outer schema.
-     *   (except the _id, spanList and payload field)
-     *   
-     * Example of a same-table, different-tuple join
-     * table_schema,   inner_tuple,             outer_tuple
-     *   _id:          random_id                random_id
-     *   content:      "join"                   "john"
-     *   spanList:     (0, 4, "join", content)  (0, 4, "john", content)
-     *   payload:      payload_inner            payload_outer
-     *   
-     * result_schema,      result_tuple
-     *   _id:              new_random_id
-     *   inner_content:    "join"
-     *   outer_content:    "john"
-     *   spanList:         [(0, 4, "join", inner_content)  (0, 4, "john", outer_content)]
-     *   payload:          [payload_inner, payload_outer]
-     *   
-     */
-    public SimilarityJoinPredicate(String joinAttributeName, Double similarity) {
-        if (similarity > 1) {
-            similarity = 1.0;
-        } else if (similarity < 0) {
-            similarity = 0.0;
+    Double similarityThreshold;
+
+    String innerJoinAttrName;
+    String outerJoinAttrName;
+
+    public SimilarityJoinPredicate(String joinAttributeName, Double similarityThreshold) {
+        this(joinAttributeName, joinAttributeName, similarityThreshold);
+    }
+
+    public SimilarityJoinPredicate(String outerJoinAttrName, String innerJoinAttrName, Double similarityThreshold) {
+        if (similarityThreshold > 1) {
+            similarityThreshold = 1.0;
+        } else if (similarityThreshold < 0) {
+            similarityThreshold = 0.0;
         }
-        this.similarity = similarity;
-        this.joinAttributeName = joinAttributeName;
+        this.similarityThreshold = similarityThreshold;
+        this.outerJoinAttrName = outerJoinAttrName;
+        this.innerJoinAttrName = innerJoinAttrName;
     }
 
-    @Override
-    public String getIDAttributeName() {
-        return SchemaConstants._ID;
-    }
-
-    @Override
-    public String getJoinAttributeName() {
-        return joinAttributeName;
-    }
     
     @Override
-    public Schema generateOutputSchema(Schema innerOperatorSchema, Schema outerOperatorSchema) throws DataFlowException {
+    public Schema generateOutputSchema(Schema outerOperatorSchema, Schema innerOperatorSchema) throws DataFlowException {
         List<Attribute> outputAttributeList = new ArrayList<>();
         
         // add _ID field first
@@ -106,15 +118,15 @@ public class SimilarityJoinPredicate implements IJoinPredicate {
 
     @Override
     public ITuple joinTuples(ITuple outerTuple, ITuple innerTuple, Schema outputSchema) throws DataFlowException {        
-        if (similarity == 0) {
+        if (similarityThreshold == 0) {
             return null;
         }
         
         // get the span list only with the joinAttributeName
         List<Span> innerRelevantSpanList = ((ListField<Span>) innerTuple.getField(SchemaConstants.SPAN_LIST))
-                .getValue().stream().filter(span -> span.getFieldName().equals(joinAttributeName)).collect(Collectors.toList());
+                .getValue().stream().filter(span -> span.getFieldName().equals(innerJoinAttrName)).collect(Collectors.toList());
         List<Span> outerRelevantSpanList = ((ListField<Span>) outerTuple.getField(SchemaConstants.SPAN_LIST))
-                .getValue().stream().filter(span -> span.getFieldName().equals(joinAttributeName)).collect(Collectors.toList());
+                .getValue().stream().filter(span -> span.getFieldName().equals(outerJoinAttrName)).collect(Collectors.toList());
         
         // get a set of span's values (since multiple spans may have the same value)
         Set<String> innerSpanValueSet = innerRelevantSpanList.stream()
@@ -128,7 +140,7 @@ public class SimilarityJoinPredicate implements IJoinPredicate {
         for (String innerString : innerSpanValueSet) {
             for (String outerString : outerSpanValueSet) {
                 Double distance = distanceFunc.distance(innerString, outerString);
-                if (1 - distance >= similarity) {
+                if (1 - distance >= similarityThreshold) {
                     resultValueSet.add(innerString);
                     resultValueSet.add(outerString);
                 }
