@@ -31,21 +31,19 @@ var setup = function(){
 	var DEFAULT_DISTANCE = 10;
 	var DEFAULT_ATTRIBUTES = "first name, last name";
 	var DEFAULT_LIMIT = 10;
-	var DEFAULT_OFFSET = 0;
+	var DEFAULT_OFFSET = 5;
 	
 	/*
 		Helper Functions
 	*/
 	//Helper Function for Process Queries that displays the results after hitting "Process Query"
 	function createResultFrame(message){
-		var resultJSON = JSON.parse(message['text']);
-
 		var resultFrame = $('<div class="result-frame"><div class="result-box"><div class="result-box-band">Return Result<div class="result-frame-close"><img src="img/close-icon.png"></div></div><div class="return-result"></div></div></div>');
 		$('body').append(resultFrame);
 		
 		var node = new PrettyJSON.view.Node({
 			el:$('.return-result'),
-			data:resultJSON
+			data:message
 		});
 	}
 	
@@ -102,9 +100,6 @@ var setup = function(){
 				userInput = DEFAULT_FILE_SINK;
 			}
 			extraOperators['file_path'] = userInput;
-		}
-		else if (panel == 'tuple-stream-sink-panel'){
-			// no property
 		}
 		else if (panel == 'join-panel'){
 			if (userInput == null || userInput == ''){
@@ -314,8 +309,6 @@ var setup = function(){
 		}
 		TEXTDBJSON.operators = operators;
 		TEXTDBJSON.links = links;
-
-		console.log(TEXTDBJSON);
 		
 		$.ajax({
 			url: "http://localhost:8080/queryplan/execute",
@@ -325,8 +318,8 @@ var setup = function(){
 			contentType: "application/json",
 			success: function(returnedData){
 				console.log("SUCCESS\n");
-
-				createResultFrame(JSON.parse(returnedData));
+				console.log(JSON.stringify(returnedData));
+				createResultFrame(returnedData);
 			},
 			error: function(xhr, status, err){
 				console.log(JSON.stringify(xhr));
