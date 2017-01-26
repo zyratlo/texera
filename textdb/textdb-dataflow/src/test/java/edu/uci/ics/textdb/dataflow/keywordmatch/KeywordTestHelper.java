@@ -9,29 +9,37 @@ import edu.uci.ics.textdb.common.constants.DataConstants.KeywordMatchingType;
 import edu.uci.ics.textdb.common.constants.LuceneAnalyzerConstants;
 import edu.uci.ics.textdb.common.constants.TestConstants;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
-import edu.uci.ics.textdb.common.utils.Utils;
 import edu.uci.ics.textdb.dataflow.common.KeywordPredicate;
 import edu.uci.ics.textdb.dataflow.source.ScanBasedSourceOperator;
 import edu.uci.ics.textdb.dataflow.utils.TestUtils;
 import edu.uci.ics.textdb.storage.relation.RelationManager;
 
+/**
+ * A helper class for functions that are used in multiple keyword matcher tests.
+ * This class contains functions that: 
+ *   create and write test tables,
+ *   delete test tables
+ *   get the results from a keyword matcher
+ * @author Zuozhi Wang
+ *
+ */
 public class KeywordTestHelper {
     
-    public static final String PEOPLE_TABLE = "keywordtest_people";
-    public static final String MEDLINE_TABLE = "keywordtest_medline";
+    public static final String PEOPLE_TABLE = "keyword_test_people";
+    public static final String MEDLINE_TABLE = "keyword_test_medline";
     
     public static void writeTestTables() throws TextDBException {
         RelationManager relationManager = RelationManager.getRelationManager();
         
         // create the people table and write tuples
-        relationManager.createTable(PEOPLE_TABLE, "../index/keywordtest/people/", 
+        relationManager.createTable(PEOPLE_TABLE, "../index/test_tables/" + PEOPLE_TABLE, 
                 TestConstants.SCHEMA_PEOPLE, LuceneAnalyzerConstants.standardAnalyzerString());        
         for (ITuple tuple : TestConstants.getSamplePeopleTuples()) {
             relationManager.insertTuple(PEOPLE_TABLE, tuple);
         }
         
         // create the medline table and write tuples
-        relationManager.createTable(MEDLINE_TABLE, "../index/keywordtest/medline/",
+        relationManager.createTable(MEDLINE_TABLE, "../index/test_tables/" + MEDLINE_TABLE,
                 keywordTestConstants.SCHEMA_MEDLINE, LuceneAnalyzerConstants.standardAnalyzerString());       
         for (ITuple tuple : keywordTestConstants.getSampleMedlineRecord()) {
             relationManager.insertTuple(MEDLINE_TABLE, tuple);
@@ -86,11 +94,12 @@ public class KeywordTestHelper {
     
     public static List<ITuple> getScanSourceResults(String tableName, String keywordQuery, List<String> attributeNames,
             KeywordMatchingType matchingType, int limit, int offset) throws TextDBException {
+        RelationManager relationManager = RelationManager.getRelationManager();
         
         ScanBasedSourceOperator scanSource = new ScanBasedSourceOperator(tableName);
         
         KeywordPredicate keywordPredicate = new KeywordPredicate(
-                keywordQuery, attributeNames, LuceneAnalyzerConstants.getStandardAnalyzer(), matchingType);
+                keywordQuery, attributeNames, relationManager.getTableAnalyzer(tableName), matchingType);
         KeywordMatcher keywordMatcher = new KeywordMatcher(keywordPredicate);
         keywordMatcher.setLimit(limit);
         keywordMatcher.setOffset(offset);
@@ -113,9 +122,9 @@ public class KeywordTestHelper {
             KeywordMatchingType matchingType, int limit, int offset) throws TextDBException {
         RelationManager relationManager = RelationManager.getRelationManager();
         KeywordPredicate keywordPredicate = new KeywordPredicate(
-                keywordQuery, attributeNames, LuceneAnalyzerConstants.getStandardAnalyzer(), matchingType);
+                keywordQuery, attributeNames, relationManager.getTableAnalyzer(tableName), matchingType);
         KeywordMatcherSourceOperator keywordSource = new KeywordMatcherSourceOperator(
-                keywordPredicate, relationManager.getTableDataStore(tableName));
+                keywordPredicate, tableName);
         keywordSource.setLimit(limit);
         keywordSource.setOffset(offset);
         

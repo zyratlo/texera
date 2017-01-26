@@ -18,11 +18,13 @@ import edu.uci.ics.textdb.api.dataflow.ISourceOperator;
 import edu.uci.ics.textdb.api.storage.IDataStore;
 import edu.uci.ics.textdb.common.constants.DataConstants.KeywordMatchingType;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
+import edu.uci.ics.textdb.common.exception.StorageException;
 import edu.uci.ics.textdb.api.exception.TextDBException;
 import edu.uci.ics.textdb.dataflow.common.AbstractSingleInputOperator;
 import edu.uci.ics.textdb.dataflow.common.KeywordPredicate;
 import edu.uci.ics.textdb.storage.DataReaderPredicate;
 import edu.uci.ics.textdb.storage.reader.DataReader;
+import edu.uci.ics.textdb.storage.relation.RelationManager;
 
 /**
  * KeywordMatcherSourceOperator is a source operator with a keyword query.
@@ -34,25 +36,25 @@ import edu.uci.ics.textdb.storage.reader.DataReader;
 public class KeywordMatcherSourceOperator extends AbstractSingleInputOperator implements ISourceOperator {
 
     private KeywordPredicate predicate;
-    private IDataStore dataStore;
+    private String tableName;
 
     private String keywordQuery;
 
     private DataReader dataReader;
     private KeywordMatcher keywordMatcher;
-
+    
     private Schema inputSchema;
-    private Schema outputSchema;
 
-    public KeywordMatcherSourceOperator(KeywordPredicate predicate, IDataStore dataStore) throws DataFlowException {
+    public KeywordMatcherSourceOperator(KeywordPredicate predicate, String tableName) 
+            throws DataFlowException, StorageException {
         this.predicate = predicate;
-        this.dataStore = dataStore;
-
+        this.tableName = tableName;
+        
         this.keywordQuery = predicate.getQuery();
         
-        // input schema must be setup first
+        IDataStore dataStore = RelationManager.getRelationManager().getTableDataStore(tableName);
         this.inputSchema = dataStore.getSchema();
-
+        
         // generate dataReader
         Query luceneQuery = createLuceneQueryObject();
         DataReaderPredicate dataReaderPredicate = new DataReaderPredicate(
@@ -102,9 +104,9 @@ public class KeywordMatcherSourceOperator extends AbstractSingleInputOperator im
     public KeywordPredicate getPredicate() {
         return this.predicate;
     }
-
-    public IDataStore getDataStore() {
-        return this.dataStore;
+    
+    public String getTableName() {
+        return this.tableName;
     }
 
     /**

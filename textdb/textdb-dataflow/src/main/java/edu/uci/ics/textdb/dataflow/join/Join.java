@@ -64,22 +64,14 @@ public class Join implements IOperator {
     private int resultCursor = -1;
     private int limit = Integer.MAX_VALUE;
     private int offset = 0;
-
+    
     /**
-     * This constructor is used to set the operators whose output is to be
-     * compared and joined and the predicate which specifies the fields and
-     * constraints over which join happens.
+     * Constructs a Join operator using a predicate which specifies the fields and
+     *   constraints over which join happens.
      * 
-     * @param outer
-     *            is the outer operator producing the tuples
-     * @param inner
-     *            is the inner operator producing the tuples
      * @param joinPredicate
-     *            is the predicate over which the join is made
      */
-    public Join(IOperator outerOperator, IOperator innerOperator, IJoinPredicate joinPredicate) {
-        this.outerOperator = outerOperator;
-        this.innerOperator = innerOperator;
+    public Join(IJoinPredicate joinPredicate) {
         this.joinPredicate = joinPredicate;
     }
 
@@ -87,6 +79,13 @@ public class Join implements IOperator {
     public void open() throws TextDBException {
         if (cursor != CLOSED) {
         	return;
+        }
+        
+        if (innerOperator == null) {
+            throw new DataFlowException("Inner Input Operator is not set.");
+        }
+        if (outerOperator == null) {
+            throw new DataFlowException("Outer Input Operator is not set.");
         }
         
         // generate output schema from schema of inner and outer operator
@@ -250,29 +249,21 @@ public class Join implements IOperator {
         this.innerOperator = innerInputOperator;
     }
     
+    public IOperator getInnerInputOperator() {
+        return this.innerOperator;
+    }
+    
     public void setOuterInputOperator(IOperator outerInputOperator) {
         this.outerOperator = outerInputOperator;
     }
+    
+    public IOperator getOuterInputOperator() {
+        return this.outerOperator;
+    }    
 
     @Override
     public Schema getOutputSchema() {
         return outputSchema;
-    }
-    
-    public IOperator getOuterOperator() {
-        return outerOperator;
-    }
-
-    public void setOuterOperator(IOperator outerOperator) {
-        this.outerOperator = outerOperator;
-    }
-
-    public IOperator getInnerOperator() {
-        return innerOperator;
-    }
-
-    public void setInnerOperator(IOperator innerOperator) {
-        this.innerOperator = innerOperator;
     }
 
     public void setLimit(int limit) {

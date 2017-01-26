@@ -19,19 +19,19 @@ public class NlpPredicate implements IPredicate {
     }
 
     private NlpTokenType nlpTokenType;
-    private List<Attribute> attributeList;
+    private List<String> attributeNames;
 
-    public NlpPredicate(NlpTokenType nlpTokenType, List<Attribute> attributeList) {
+    public NlpPredicate(NlpTokenType nlpTokenType, List<String> attributeNames) {
         this.nlpTokenType = nlpTokenType;
-        this.attributeList = attributeList;
+        this.attributeNames = attributeNames;
     }
 
     public NlpTokenType getNlpTokenType() {
         return nlpTokenType;
     }
 
-    public List<Attribute> getAttributeList() {
-        return attributeList;
+    public List<String> getAttributeNames() {
+        return attributeNames;
     }
     
     public String getNlpTypeIndicator() {

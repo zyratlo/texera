@@ -5,14 +5,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
-import edu.uci.ics.textdb.api.common.Attribute;
 import edu.uci.ics.textdb.api.common.FieldType;
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.common.Schema;
 import edu.uci.ics.textdb.api.dataflow.ISourceOperator;
-import edu.uci.ics.textdb.api.storage.IDataStore;
 import edu.uci.ics.textdb.common.constants.DataConstants;
 import edu.uci.ics.textdb.common.constants.DataConstants.KeywordMatchingType;
 import edu.uci.ics.textdb.common.constants.SchemaConstants;
@@ -43,7 +40,7 @@ public class DictionaryMatcherSourceOperator implements ISourceOperator {
     private String currentDictionaryEntry;
 
     private final DictionaryPredicate predicate;
-    private IDataStore dataStore;
+    private String tableName;
 
     private int resultCursor;
     private int limit;
@@ -55,12 +52,12 @@ public class DictionaryMatcherSourceOperator implements ISourceOperator {
      * @param predicate
      * 
      */
-    public DictionaryMatcherSourceOperator(DictionaryPredicate predicate, IDataStore dataStore) {
+    public DictionaryMatcherSourceOperator(DictionaryPredicate predicate, String tableName) {
         this.resultCursor = -1;
         this.limit = Integer.MAX_VALUE;
         this.offset = 0;
         this.predicate = predicate;
-        this.dataStore = dataStore;
+        this.tableName = tableName;
     }
 
     /**
@@ -77,7 +74,7 @@ public class DictionaryMatcherSourceOperator implements ISourceOperator {
 
             if (predicate.getKeywordMatchingType() == DataConstants.KeywordMatchingType.SUBSTRING_SCANBASED) {
                 // For Substring matching, create a scan source operator.
-                indexSource = new ScanBasedSourceOperator(dataStore);
+                indexSource = new ScanBasedSourceOperator(tableName);
                 indexSource.open();
 
                 // Substring matching's output schema needs to contains span
@@ -96,7 +93,7 @@ public class DictionaryMatcherSourceOperator implements ISourceOperator {
                         predicate.getAnalyzer(),
                         predicate.getKeywordMatchingType());
 
-                keywordSource = new KeywordMatcherSourceOperator(keywordPredicate, dataStore);
+                keywordSource = new KeywordMatcherSourceOperator(keywordPredicate, tableName);
                 keywordSource.open();
 
                 // Other keyword matching types uses a KeywordMatcher, so the
@@ -177,7 +174,7 @@ public class DictionaryMatcherSourceOperator implements ISourceOperator {
                         predicate.getAttributeNames(),
                         predicate.getAnalyzer(), keywordMatchingType);
 
-                keywordSource = new KeywordMatcherSourceOperator(keywordPredicate, dataStore);
+                keywordSource = new KeywordMatcherSourceOperator(keywordPredicate, tableName);
                 keywordSource.open();
             }
         }
@@ -304,8 +301,8 @@ public class DictionaryMatcherSourceOperator implements ISourceOperator {
         return this.predicate;
     }
 
-    public IDataStore getDataStore() {
-        return this.dataStore;
+    public String getTableName() {
+        return this.tableName;
     }
     
 }
