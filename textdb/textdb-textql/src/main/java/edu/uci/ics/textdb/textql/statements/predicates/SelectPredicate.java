@@ -17,6 +17,6 @@ public interface SelectPredicate {
      * Return this operator converted to an { @code OperatorBean }.
      * @param selectOperatorId The ID of the OperatorBean to be created.
      */
-    public abstract OperatorBean getOperatorBean(String selectOperatorId);
+    public OperatorBean getOperatorBean(String selectOperatorId);
     
 }

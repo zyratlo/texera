@@ -17,6 +17,6 @@ public interface ExtractPredicate {
      * Return the bean representation of this { @code ExtractPredicate }.
      * @param extractionOperatorId The ID of the OperatorBean to be created.
      */
-    public abstract OperatorBean getOperatorBean(String extractionOperatorId);
+    public OperatorBean getOperatorBean(String extractionOperatorId);
     
 }
