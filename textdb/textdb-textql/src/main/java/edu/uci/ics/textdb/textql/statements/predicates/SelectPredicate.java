@@ -5,8 +5,8 @@ import edu.uci.ics.textdb.web.request.beans.OperatorBean;
 /**
  * Object representation of a "SELECT (...)" predicate inside a { @code SelectExtractStatement }.
  * Subclasses have specific fields related to its projection functionalities.
- * SelectPredicate --+ SelectAllPredicate
- *                   + SelectFieldsPredicate
+ * SelectPredicate --+ SelectAllFieldsPredicate
+ *                   + SelectSomeFieldsPredicate
  * 
  * @author Flavio Bayer
  *
