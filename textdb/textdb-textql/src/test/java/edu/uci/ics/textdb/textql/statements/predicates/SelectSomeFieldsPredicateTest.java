@@ -8,6 +8,8 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import edu.uci.ics.textdb.common.constants.SchemaConstants;
+import edu.uci.ics.textdb.web.request.beans.OperatorBean;
+import edu.uci.ics.textdb.web.request.beans.ProjectionBean;
 
 /**
  * This class contains test cases for the SelectSomeFieldsPredicate class.
@@ -61,6 +63,57 @@ public class SelectSomeFieldsPredicateTest {
         // Check set projectedFields to the given list of fields
         selectSomeFieldsPredicate.setProjectedFields(projectedFields);
         Assert.assertEquals(selectSomeFieldsPredicate.getProjectedFields(), projectedFields);
+    }
+
+    /**
+     * Test the getOperatorBean method.
+     * Build a SelectSomeFieldsPredicate, invoke the getOperatorBean and check
+     * whether a ProjectionBean with the right attributes is returned.
+     * An empty list is used as the list of projected fields.
+     */
+    @Test
+    public void testGetOperatorBean00() {
+        List<String> projectedFields = Collections.emptyList();
+        SelectSomeFieldsPredicate selectSomeFieldsPredicate = new SelectSomeFieldsPredicate(projectedFields);
+        
+        OperatorBean computedProjectionBean = selectSomeFieldsPredicate.getOperatorBean("xxx");
+        OperatorBean expectedProjectionBean = new ProjectionBean("xxx", "Projection", "", null, null);
+        
+        Assert.assertEquals(expectedProjectionBean, computedProjectionBean);
+    }
+    
+    /**
+     * Test the getOperatorBean method.
+     * Build a SelectSomeFieldsPredicate, invoke the getOperatorBean and check
+     * whether a ProjectionBean with the right attributes is returned.
+     * A list with some field names is used as the list of projected fields.
+     */
+    @Test
+    public void testGetOperatorBean01() {
+        List<String> projectedFields = Arrays.asList("field0", "field1");
+        SelectSomeFieldsPredicate selectSomeFieldsPredicate = new SelectSomeFieldsPredicate(projectedFields);
+        
+        OperatorBean computedProjectionBean = selectSomeFieldsPredicate.getOperatorBean("zwx");
+        OperatorBean expectedProjectionBean = new ProjectionBean("zwx", "Projection", "field0,field1", null, null);
+
+        Assert.assertEquals(expectedProjectionBean, computedProjectionBean);        
+    }
+
+    /**
+     * Test the getOperatorBean method.
+     * Build a SelectSomeFieldsPredicate, invoke the getOperatorBean and check
+     * whether a ProjectionBean with the right attributes is returned.
+     * A list with some unordered field names is used as the list of projected fields.
+     */
+    @Test
+    public void testGetOperatorBean02() {
+        List<String> projectedFields = Arrays.asList("c", "a", "b");
+        SelectSomeFieldsPredicate selectSomeFieldsPredicate = new SelectSomeFieldsPredicate(projectedFields);
+        
+        OperatorBean computedProjectionBean = selectSomeFieldsPredicate.getOperatorBean("op00");
+        OperatorBean expectedProjectionBean = new ProjectionBean("op00", "Projection", "c,a,b", null, null);
+        
+        Assert.assertEquals(expectedProjectionBean, computedProjectionBean);   
     }
     
 }
