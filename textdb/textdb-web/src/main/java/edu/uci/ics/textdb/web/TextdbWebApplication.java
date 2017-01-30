@@ -34,7 +34,7 @@ public class TextdbWebApplication extends Application<TextdbWebConfiguration> {
 
     // Defining some simple operators for a simple query plan to trigger Stanford NLP loading
     private static final KeywordSourceBean KEYWORD_SOURCE_BEAN = new KeywordSourceBean("KeywordSource_0", "KeywordSource",
-            "content", "100", "0", "zika", "conjunction", "sample");
+            "content", "100", "0", "zika", "conjunction", "sample_extraction_promed");
     private static final NlpExtractorBean NLP_EXTRACTOR_BEAN = new NlpExtractorBean("NlpExtractor_0", "NlpExtractor",
             "content", "100", "0", "location");
     private static final TupleStreamSinkBean TUPLE_STREAM_SINK_BEAN = new TupleStreamSinkBean("TupleStreamSink_0",
