@@ -55,7 +55,7 @@ public class ScanSourceBean extends OperatorBean {
         HashMap<String, String> operatorProperties = super.getOperatorProperties();
         if(this.getDataSource() == null || operatorProperties == null)
             return null;
-        operatorProperties.put(OperatorBuilderUtils.DATA_DIRECTORY, this.getDataSource());
+        operatorProperties.put(OperatorBuilderUtils.DATA_SOURCE, this.getDataSource());
         return operatorProperties;
     }
 

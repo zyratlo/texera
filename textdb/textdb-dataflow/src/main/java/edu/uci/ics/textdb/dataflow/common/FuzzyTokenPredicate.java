@@ -4,17 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
-import org.apache.lucene.queryparser.classic.ParseException;
-import org.apache.lucene.search.BooleanClause.Occur;
-import org.apache.lucene.search.BooleanQuery;
-import org.apache.lucene.search.Query;
 
 import edu.uci.ics.textdb.api.common.IPredicate;
-import edu.uci.ics.textdb.api.storage.IDataStore;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
 import edu.uci.ics.textdb.common.utils.Utils;
-import edu.uci.ics.textdb.storage.DataReaderPredicate;
 
 /*
  * @author varun bharill, parag saraogi
@@ -26,7 +19,6 @@ import edu.uci.ics.textdb.storage.DataReaderPredicate;
 public class FuzzyTokenPredicate implements IPredicate {
 
     private String query;
-    private Query luceneQuery;
     private ArrayList<String> tokens;
     private List<String> attributeNames;
     private Analyzer luceneAnalyzer;
@@ -35,18 +27,12 @@ public class FuzzyTokenPredicate implements IPredicate {
 
     public FuzzyTokenPredicate(String query, List<String> attributeNames, Analyzer analyzer,
             double thresholdRatio) throws DataFlowException {
-        try {
-            this.thresholdRatio = thresholdRatio;
-            this.luceneAnalyzer = analyzer;
-            this.query = query;
-            this.tokens = Utils.tokenizeQuery(analyzer, query);
-            this.computeThreshold();
-            this.attributeNames = attributeNames;
-            this.luceneQuery = this.createLuceneQueryObject();
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new DataFlowException(e.getMessage(), e);
-        }
+        this.thresholdRatio = thresholdRatio;
+        this.luceneAnalyzer = analyzer;
+        this.query = query;
+        this.tokens = Utils.tokenizeQuery(analyzer, query);
+        this.computeThreshold();
+        this.attributeNames = attributeNames;
     }
 
     public List<String> getAttributeNames() {
@@ -75,29 +61,6 @@ public class FuzzyTokenPredicate implements IPredicate {
         if (this.threshold == 0) {
             this.threshold = 1;
         }
-    }
-
-    private Query createLuceneQueryObject() throws ParseException {
-        /*
-         * By default the boolean query takes 1024 # of clauses as the max
-         * limit. Since our input query has no limitaion on the number of
-         * tokens, we have to put a check.
-         */
-        if (this.threshold > 1024)
-            BooleanQuery.setMaxClauseCount(this.threshold + 1);
-        BooleanQuery.Builder builder = new BooleanQuery.Builder();
-        builder.setMinimumNumberShouldMatch(this.threshold);
-        MultiFieldQueryParser qp = new MultiFieldQueryParser(attributeNames.stream().toArray(String[]::new), this.luceneAnalyzer);
-        for (String s : this.tokens) {
-            builder.add(qp.parse(s), Occur.SHOULD);
-        }
-        return builder.build();
-    }
-
-    public DataReaderPredicate getDataReaderPredicate(IDataStore dataStore) {
-        DataReaderPredicate dataReaderPredicate = new DataReaderPredicate(this.luceneQuery, dataStore);
-        dataReaderPredicate.setIsPayloadAdded(true);
-        return dataReaderPredicate;
     }
 
     public String getQuery() {

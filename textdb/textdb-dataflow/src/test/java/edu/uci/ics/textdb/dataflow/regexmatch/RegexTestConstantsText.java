@@ -32,7 +32,7 @@ public class RegexTestConstantsText {
         return tuple;
     }
 
-    public static List<ITuple> getSampleTextTuples() throws ParseException {
+    public static List<ITuple> getSampleTextTuples() {
         List<ITuple> textTuples = new ArrayList<>();
         textTuples.add(getTextTuple("This testcase is for testing regex that can be translated by the translator"));
         textTuples.add(getTextTuple(

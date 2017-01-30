@@ -55,7 +55,7 @@ public class JoinBuilder {
         PlanGenUtils.planGenAssert(! joinPredicateType.trim().isEmpty(), "Join predicate type is empty");
         
         IJoinPredicate joinPredicate = generateJoinPredicate(joinPredicateType, operatorProperties);
-        Join joinOperator = new Join(null, null, joinPredicate);
+        Join joinOperator = new Join(joinPredicate);
         
         return joinOperator;
     }

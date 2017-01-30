@@ -5,71 +5,53 @@ import java.util.Arrays;
 import java.util.List;
 
 import edu.uci.ics.textdb.api.exception.TextDBException;
-import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.apache.lucene.search.MatchAllDocsQuery;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import edu.uci.ics.textdb.api.common.IField;
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.common.Schema;
 import edu.uci.ics.textdb.api.dataflow.IOperator;
-import edu.uci.ics.textdb.api.storage.IDataStore;
-import edu.uci.ics.textdb.api.storage.IDataWriter;
-import edu.uci.ics.textdb.common.constants.DataConstants;
+import edu.uci.ics.textdb.common.constants.LuceneAnalyzerConstants;
 import edu.uci.ics.textdb.common.constants.TestConstants;
-import edu.uci.ics.textdb.common.exception.DataFlowException;
 import edu.uci.ics.textdb.common.field.DataTuple;
 import edu.uci.ics.textdb.common.field.TextField;
 import edu.uci.ics.textdb.dataflow.projection.ProjectionOperator;
 import edu.uci.ics.textdb.dataflow.projection.ProjectionPredicate;
-import edu.uci.ics.textdb.dataflow.source.IndexBasedSourceOperator;
+import edu.uci.ics.textdb.dataflow.source.ScanBasedSourceOperator;
 import edu.uci.ics.textdb.dataflow.utils.TestUtils;
-import edu.uci.ics.textdb.storage.DataReaderPredicate;
-import edu.uci.ics.textdb.storage.DataStore;
-import edu.uci.ics.textdb.storage.writer.DataWriter;
+import edu.uci.ics.textdb.storage.relation.RelationManager;
 import junit.framework.Assert;
 
 public class OneToNBroadcastConnectorTest {
     
-    private IDataStore dataStore;
-    private DataWriter dataWriter;
-    private Analyzer luceneAnalyzer;
-
-    @Before
-    public void setUp() throws Exception {
-        dataStore = new DataStore(DataConstants.INDEX_DIR, TestConstants.SCHEMA_PEOPLE);
-        luceneAnalyzer = new StandardAnalyzer();
-        dataWriter = new DataWriter(dataStore, luceneAnalyzer);
-        dataWriter.clearData();
-        dataWriter.open();
+    public static final String PEOPLE_TABLE = "one_to_n_connector_test_people";
+    
+    @BeforeClass
+    public static void setUp() throws Exception {
+        RelationManager relationManager = RelationManager.getRelationManager();
+        
+        // create the people table and write tuples
+        relationManager.createTable(PEOPLE_TABLE, "../index/test_tables/" + PEOPLE_TABLE, 
+                TestConstants.SCHEMA_PEOPLE, LuceneAnalyzerConstants.standardAnalyzerString());        
         for (ITuple tuple : TestConstants.getSamplePeopleTuples()) {
-            dataWriter.insertTuple(tuple);
+            relationManager.insertTuple(PEOPLE_TABLE, tuple);
         }
-        dataWriter.close();
     }
     
-    @After
-    public void cleanUp() throws Exception {
-        dataWriter.clearData();
-    }
-    
-    private IOperator getScanSourceOperator(IDataStore dataStore) throws DataFlowException {
-        DataReaderPredicate dataReaderPredicate = new DataReaderPredicate(
-                new MatchAllDocsQuery(), dataStore);
-        IndexBasedSourceOperator sourceOperator = new IndexBasedSourceOperator(dataReaderPredicate);
-        return sourceOperator;
-    }
-    
+    @AfterClass
+    public static void cleanUp() throws Exception {
+        RelationManager relationManager = RelationManager.getRelationManager();
+        relationManager.deleteTable(PEOPLE_TABLE);
+    }    
     
     /*
      * This test connects Connector with Projection
      */
     @Test
     public void testTwoOutputsWithProjection() throws TextDBException {
-        IOperator sourceOperator = getScanSourceOperator(dataStore);
+        IOperator sourceOperator = new ScanBasedSourceOperator(PEOPLE_TABLE);
         
         List<String> projectionFields = Arrays.asList(
                 TestConstants.DESCRIPTION);
@@ -131,8 +113,7 @@ public class OneToNBroadcastConnectorTest {
      */
     @Test
     public void testThreeOutputsWithItself() throws Exception {
-        IOperator sourceOperator = getScanSourceOperator(dataStore);
-
+        IOperator sourceOperator = new ScanBasedSourceOperator(PEOPLE_TABLE);
               
         OneToNBroadcastConnector connector = new OneToNBroadcastConnector(3);       
         connector.setInputOperator(sourceOperator);
