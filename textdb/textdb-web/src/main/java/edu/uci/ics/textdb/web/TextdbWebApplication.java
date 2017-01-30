@@ -1,10 +1,20 @@
 package edu.uci.ics.textdb.web;
 
 import java.util.EnumSet;
+import java.util.List;
 
 import javax.servlet.DispatcherType;
 import javax.servlet.FilterRegistration;
 
+import edu.uci.ics.textdb.api.common.ITuple;
+import edu.uci.ics.textdb.api.exception.TextDBException;
+import edu.uci.ics.textdb.api.plan.Plan;
+import edu.uci.ics.textdb.common.exception.PlanGenException;
+import edu.uci.ics.textdb.dataflow.sink.TupleStreamSink;
+import edu.uci.ics.textdb.plangen.LogicalPlan;
+import edu.uci.ics.textdb.web.request.beans.KeywordSourceBean;
+import edu.uci.ics.textdb.web.request.beans.NlpExtractorBean;
+import edu.uci.ics.textdb.web.request.beans.TupleStreamSinkBean;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
 
 import edu.uci.ics.textdb.web.healthcheck.SampleHealthCheck;
@@ -20,6 +30,15 @@ import io.dropwizard.setup.Environment;
  * Created by kishore on 10/4/16.
  */
 public class TextdbWebApplication extends Application<TextdbWebConfiguration> {
+
+
+    // Defining some simple operators for a simple query plan to trigger Stanford NLP loading
+    private static final KeywordSourceBean KEYWORD_SOURCE_BEAN = new KeywordSourceBean("KeywordSource_0", "KeywordSource",
+            "content", "100", "0", "zika", "conjunction", "sample");
+    private static final NlpExtractorBean NLP_EXTRACTOR_BEAN = new NlpExtractorBean("NlpExtractor_0", "NlpExtractor",
+            "content", "100", "0", "location");
+    private static final TupleStreamSinkBean TUPLE_STREAM_SINK_BEAN = new TupleStreamSinkBean("TupleStreamSink_0",
+            "TupleStreamSink", "content", "100", "0");
 
     @Override
     public void initialize(Bootstrap<TextdbWebConfiguration> bootstrap) {
@@ -52,7 +71,30 @@ public class TextdbWebApplication extends Application<TextdbWebConfiguration> {
         cors.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), true, "/*");
     }
 
+    private static void loadStanfordNLP() throws TextDBException{
+
+        // Creating a simple logical plan with a Stanford NLP Extractor operator
+        LogicalPlan logicalPlan = new LogicalPlan();
+        logicalPlan.addOperator(KEYWORD_SOURCE_BEAN.getOperatorID(), KEYWORD_SOURCE_BEAN.getOperatorType(),
+                KEYWORD_SOURCE_BEAN.getOperatorProperties());
+        logicalPlan.addOperator(NLP_EXTRACTOR_BEAN.getOperatorID(), NLP_EXTRACTOR_BEAN.getOperatorType(),
+                NLP_EXTRACTOR_BEAN.getOperatorProperties());
+        logicalPlan.addOperator(TUPLE_STREAM_SINK_BEAN.getOperatorID(), TUPLE_STREAM_SINK_BEAN.getOperatorType(),
+                TUPLE_STREAM_SINK_BEAN.getOperatorProperties());
+        logicalPlan.addLink(KEYWORD_SOURCE_BEAN.getOperatorID(), NLP_EXTRACTOR_BEAN.getOperatorID());
+        logicalPlan.addLink(NLP_EXTRACTOR_BEAN.getOperatorID(), TUPLE_STREAM_SINK_BEAN.getOperatorID());
+
+        // Triggering the execution of the above query plan
+        Plan plan = logicalPlan.buildQueryPlan();
+        TupleStreamSink sink = (TupleStreamSink) plan.getRoot();
+        sink.open();
+        List<ITuple> results = sink.collectAllTuples();
+        sink.close();
+    }
+
     public static void main(String args[]) throws Exception {
         new TextdbWebApplication().run(args);
+
+        loadStanfordNLP();
     }
 }
