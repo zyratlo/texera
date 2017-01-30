@@ -25,12 +25,15 @@ public class SelectAllFieldsPredicateTest {
     public void testGetOperatorBean() {
         SelectAllFieldsPredicate selectAllFieldsPredicate = new SelectAllFieldsPredicate();
         OperatorBean projectionBean;
+        String operatorId;
         
-        projectionBean = selectAllFieldsPredicate.getOperatorBean("xxx");
-        Assert.assertEquals(projectionBean, new PassThroughBean("xxx", "PassThrough"));
-        
-        projectionBean = selectAllFieldsPredicate.getOperatorBean("y0a9");
-        Assert.assertEquals(projectionBean, new PassThroughBean("y0a9", "PassThrough"));
+        operatorId = "xxx";
+        projectionBean = selectAllFieldsPredicate.getOperatorBean(operatorId);
+        Assert.assertEquals(projectionBean, new PassThroughBean(operatorId, "PassThrough"));
+
+        operatorId = "y0a9";
+        projectionBean = selectAllFieldsPredicate.getOperatorBean(operatorId);
+        Assert.assertEquals(projectionBean, new PassThroughBean(operatorId, "PassThrough"));
     }
     
 }

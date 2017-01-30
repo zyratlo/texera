@@ -22,7 +22,7 @@ import edu.uci.ics.textdb.web.request.beans.OperatorBean;
 public class KeywordExtractPredicateTest {
 
     /**
-     * Test the class constructor, getters and the setter methods.
+     * Test the class constructor, getter and the setter methods.
      * Call the constructor of the KeywordExtractPredicate, test 
      * if the returned value by the getter is the same as used in 
      * the constructor and then test if the value is changed
@@ -57,12 +57,12 @@ public class KeywordExtractPredicateTest {
 
     /**
      * Assert the correctness of the Constructor, getter and setter methods.
-     * Test the constructor with the given parameters, no parameters, the setters
-     * with the given values, the setters with null values. The getter methods are
-     * used to get the value back from the object being tested.
-     * @param matchingFields The matchingFields value of the KeywordExtractPredicate.
-     * @param keywords The keywords value of the KeywordExtractPredicate.
-     * @param matchingType The matchingType value of the KeywordExtractPredicate.
+     * Test the constructor with the given parameters, the constructor without
+     * parameters, the setter with the given values, the setter with null
+     * values and the getter methods.
+     * @param matchingFields The matchingFields of the KeywordExtractPredicate.
+     * @param keywords The keywords of the KeywordExtractPredicate.
+     * @param matchingType The matchingType of the KeywordExtractPredicate.
      */
     private void assertConstructorGettersSetters(List<String> matchingFields, String keywords, String matchingType){
         KeywordExtractPredicate keywordExtractPredicate;
@@ -104,14 +104,15 @@ public class KeywordExtractPredicateTest {
      */
     @Test
     public void testGetOperatorBean00() {
+        String operatorId = "xxx";
         List<String> matchingFields = Collections.emptyList();
         String keywords = "keyword";
         String matchingType = KeywordMatchingType.CONJUNCTION_INDEXBASED.toString();
         KeywordExtractPredicate keywordExtractPredicate = new KeywordExtractPredicate(matchingFields, keywords, matchingType);
         
-        OperatorBean computedProjectionBean = keywordExtractPredicate.getOperatorBean("xxx");
+        OperatorBean computedProjectionBean = keywordExtractPredicate.getOperatorBean(operatorId);
         String matchingFieldsAsString = String.join(",", matchingFields);
-        OperatorBean expectedProjectionBean = new KeywordMatcherBean("xxx", "KeywordMatcher", matchingFieldsAsString,
+        OperatorBean expectedProjectionBean = new KeywordMatcherBean(operatorId, "KeywordMatcher", matchingFieldsAsString,
                             null, null, keywords, matchingType);
         
         Assert.assertEquals(expectedProjectionBean, computedProjectionBean);
@@ -125,14 +126,15 @@ public class KeywordExtractPredicateTest {
      */
     @Test
     public void testGetOperatorBean01() {
+        String operatorId = "operator";
         List<String> matchingFields = Arrays.asList("fieldOne");
         String keywords = "keyword(s)";
         String matchingType = KeywordMatchingType.PHRASE_INDEXBASED.toString();
         KeywordExtractPredicate keywordExtractPredicate = new KeywordExtractPredicate(matchingFields, keywords, matchingType);
         
-        OperatorBean computedProjectionBean = keywordExtractPredicate.getOperatorBean("operator");
+        OperatorBean computedProjectionBean = keywordExtractPredicate.getOperatorBean(operatorId);
         String matchingFieldsAsString = String.join(",", matchingFields);
-        OperatorBean expectedProjectionBean = new KeywordMatcherBean("operator", "KeywordMatcher", matchingFieldsAsString,
+        OperatorBean expectedProjectionBean = new KeywordMatcherBean(operatorId, "KeywordMatcher", matchingFieldsAsString,
                             null, null, keywords, matchingType);
         
         Assert.assertEquals(expectedProjectionBean, computedProjectionBean);
@@ -146,14 +148,15 @@ public class KeywordExtractPredicateTest {
      */
     @Test
     public void testGetOperatorBean02() {
+        String operatorId = "keywordExtract00";
         List<String> matchingFields = Arrays.asList("field0", "field1");
         String keywords = "xxx";
         String matchingType = KeywordMatchingType.SUBSTRING_SCANBASED.toString();
         KeywordExtractPredicate keywordExtractPredicate = new KeywordExtractPredicate(matchingFields, keywords, matchingType);
         
-        OperatorBean computedProjectionBean = keywordExtractPredicate.getOperatorBean("keywordExtract00");
+        OperatorBean computedProjectionBean = keywordExtractPredicate.getOperatorBean(operatorId);
         String matchingFieldsAsString = String.join(",", matchingFields);
-        OperatorBean expectedProjectionBean = new KeywordMatcherBean("keywordExtract00", "KeywordMatcher",
+        OperatorBean expectedProjectionBean = new KeywordMatcherBean(operatorId, "KeywordMatcher",
                             matchingFieldsAsString, null, null, keywords, matchingType);
         
         Assert.assertEquals(expectedProjectionBean, computedProjectionBean);
