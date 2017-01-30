@@ -103,6 +103,7 @@ public class KeywordExtractPredicate implements ExtractPredicate {
     /**
      * Return this operator converted to a { @code KeywordMatcherBean }.
      * @param extractionOperatorId The ID of the OperatorBean to be created.
+     * @return this operator converted to a KeywordMatcherBean.
      */
     @Override
     public KeywordMatcherBean getOperatorBean(String extractionOperatorId) {
