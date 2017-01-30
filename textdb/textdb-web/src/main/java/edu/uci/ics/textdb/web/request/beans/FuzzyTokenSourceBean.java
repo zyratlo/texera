@@ -71,7 +71,7 @@ public class FuzzyTokenSourceBean extends OperatorBean {
             return null;
         operatorProperties.put(FuzzyTokenMatcherBuilder.FUZZY_STRING, this.getQuery());
         operatorProperties.put(FuzzyTokenMatcherBuilder.THRESHOLD_RATIO, this.getThresholdRatio());
-        operatorProperties.put(OperatorBuilderUtils.DATA_DIRECTORY, this.getDataSource());
+        operatorProperties.put(OperatorBuilderUtils.DATA_SOURCE, this.getDataSource());
         return operatorProperties;
     }
 

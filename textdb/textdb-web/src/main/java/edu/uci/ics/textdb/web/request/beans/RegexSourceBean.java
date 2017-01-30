@@ -57,7 +57,7 @@ public class RegexSourceBean extends OperatorBean {
         if(this.getRegex() == null || this.getDataSource() == null || operatorProperties == null)
             return null;
         operatorProperties.put(RegexMatcherBuilder.REGEX, this.getRegex());
-        operatorProperties.put(OperatorBuilderUtils.DATA_DIRECTORY, this.getDataSource());
+        operatorProperties.put(OperatorBuilderUtils.DATA_SOURCE, this.getDataSource());
         return operatorProperties;
     }
 

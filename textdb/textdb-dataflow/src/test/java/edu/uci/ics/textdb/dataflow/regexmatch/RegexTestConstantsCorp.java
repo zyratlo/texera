@@ -31,7 +31,7 @@ public class RegexTestConstantsCorp {
     public static final Attribute[] ATTRIBUTES_CORP = { CORP_NAME_ATTR, URL_ATTR, IP_ADDRESS_ATTR };
     public static final Schema SCHEMA_CORP = new Schema(ATTRIBUTES_CORP);
 
-    public static List<ITuple> getSampleCorpTuples() throws ParseException {
+    public static List<ITuple> getSampleCorpTuples() {
         IField[] fields1 = { new StringField("Facebook"), new StringField("404 Not Found"),
                 new StringField("66.220.144.0") };
         IField[] fields2 = { new StringField("Weibo"), new StringField("http://weibo.com"),
