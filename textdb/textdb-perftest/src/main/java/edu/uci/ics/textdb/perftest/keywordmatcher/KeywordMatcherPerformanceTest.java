@@ -6,31 +6,27 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import edu.uci.ics.textdb.api.exception.TextDBException;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
+
+import edu.uci.ics.textdb.api.exception.TextDBException;
 
 import edu.uci.ics.textdb.api.common.Attribute;
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.common.constants.DataConstants;
 import edu.uci.ics.textdb.common.constants.SchemaConstants;
 import edu.uci.ics.textdb.common.constants.DataConstants.KeywordMatchingType;
-import edu.uci.ics.textdb.common.exception.DataFlowException;
 import edu.uci.ics.textdb.common.field.ListField;
 import edu.uci.ics.textdb.common.field.Span;
 import edu.uci.ics.textdb.common.utils.Utils;
 import edu.uci.ics.textdb.dataflow.common.KeywordPredicate;
-import edu.uci.ics.textdb.dataflow.keywordmatch.KeywordMatcher;
 import edu.uci.ics.textdb.dataflow.keywordmatch.KeywordMatcherSourceOperator;
-import edu.uci.ics.textdb.dataflow.source.IndexBasedSourceOperator;
 import edu.uci.ics.textdb.perftest.medline.MedlineIndexWriter;
 import edu.uci.ics.textdb.perftest.utils.PerfTestUtils;
-import edu.uci.ics.textdb.storage.DataStore;
+import edu.uci.ics.textdb.storage.relation.RelationManager;
 
 /**
  * @author Hailey Pan
@@ -83,15 +79,11 @@ public class KeywordMatcherPerformanceTest {
             if (file.getName().startsWith(".")) {
                 continue;
             }
-            DataStore dataStore = new DataStore(PerfTestUtils.getIndexPath(file.getName()),
-                    MedlineIndexWriter.SCHEMA_MEDLINE);
-
-            csvWriter(conjunctionCsv, file.getName(), queries, DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED,
-                    dataStore);
-            csvWriter(phraseCsv, file.getName(), queries, DataConstants.KeywordMatchingType.PHRASE_INDEXBASED,
-                    dataStore);
-            csvWriter(scanCsv, file.getName(), queries, DataConstants.KeywordMatchingType.SUBSTRING_SCANBASED,
-                    dataStore);
+            String tableName = file.getName().replace(".txt", "");
+                    
+            csvWriter(conjunctionCsv, file.getName(), queries, DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED, tableName);
+            csvWriter(phraseCsv, file.getName(), queries, DataConstants.KeywordMatchingType.PHRASE_INDEXBASED, tableName);
+            csvWriter(scanCsv, file.getName(), queries, DataConstants.KeywordMatchingType.SUBSTRING_SCANBASED, tableName);
 
         }
 
@@ -111,7 +103,7 @@ public class KeywordMatcherPerformanceTest {
      * 
      */
     public static void csvWriter(String resultFile, String recordNum, ArrayList<String> queries,
-            KeywordMatchingType opType, DataStore dataStore) throws Exception {
+            KeywordMatchingType opType, String tableName) throws Exception {
         double avgTime = 0.0;
         PerfTestUtils.createFile(PerfTestUtils.getResultPath(resultFile), HEADER);
         FileWriter fileWriter = new FileWriter(PerfTestUtils.getResultPath(resultFile), true);
@@ -119,7 +111,7 @@ public class KeywordMatcherPerformanceTest {
         fileWriter.append(currentTime + delimiter);
         fileWriter.append(recordNum + delimiter);
         resetStats();
-        match(queries, opType, new StandardAnalyzer(), dataStore);
+        match(queries, opType, new StandardAnalyzer(), tableName);
         avgTime = PerfTestUtils.calculateAverage(timeResults);
         fileWriter.append(Collections.min(timeResults) + delimiter + Collections.max(timeResults) + delimiter + avgTime
                 + delimiter + PerfTestUtils.calculateSTD(timeResults, avgTime) + delimiter
@@ -140,16 +132,19 @@ public class KeywordMatcherPerformanceTest {
      * This function does match for a list of queries
      */
     public static void match(ArrayList<String> queryList, KeywordMatchingType opType, Analyzer luceneAnalyzer,
-            DataStore dataStore) throws TextDBException, IOException {
+            String tableName) throws TextDBException, IOException {
 
         Attribute[] attributeList = new Attribute[] { MedlineIndexWriter.ABSTRACT_ATTR };
 
         for (String query : queryList) {
-            KeywordPredicate keywordPredicate = new KeywordPredicate(query,
+            KeywordPredicate keywordPredicate = new KeywordPredicate(
+                    query,
                     Utils.getAttributeNames(attributeList),
-                    luceneAnalyzer, opType);
+                    luceneAnalyzer, 
+                    opType);
 
-            KeywordMatcherSourceOperator keywordSource = new KeywordMatcherSourceOperator(keywordPredicate, dataStore);
+            KeywordMatcherSourceOperator keywordSource = new KeywordMatcherSourceOperator(
+                    keywordPredicate, tableName);
 
             long startMatchTime = System.currentTimeMillis();
             keywordSource.open();

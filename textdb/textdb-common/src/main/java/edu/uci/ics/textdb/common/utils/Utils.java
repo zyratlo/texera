@@ -26,6 +26,10 @@ import org.apache.lucene.document.DateTools.Resolution;
 import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.index.IndexOptions;
 import org.apache.lucene.index.IndexableField;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.json.JSONStringer;
+import org.json.JSONWriter;
 
 import edu.uci.ics.textdb.api.common.Attribute;
 import edu.uci.ics.textdb.api.common.FieldType;
@@ -115,6 +119,32 @@ public class Utils {
         }
         return luceneField;
     }
+    
+    /**
+     * Returns the FieldType of a field object.
+     * 
+     * @param field
+     * @return
+     */
+    public static FieldType getFieldType(IField field) {
+        if (field instanceof DateField) {
+            return FieldType.DATE;
+        } else if (field instanceof DoubleField) {
+            return FieldType.DOUBLE;
+        } else if (field instanceof IDField) {
+            return FieldType._ID_TYPE;
+        } else if (field instanceof IntegerField) {
+            return FieldType.INTEGER;
+        } else if (field instanceof ListField) {
+            return FieldType.LIST;
+        } else if (field instanceof StringField) {
+            return FieldType.STRING;
+        } else if (field instanceof TextField) {
+            return FieldType.TEXT;
+        } else {
+            throw new RuntimeException("no existing type mapping of this field object");
+        }
+    }
 
     /**
      * @about Creating a new span tuple from span schema, field list
@@ -196,6 +226,19 @@ public class Utils {
         Schema newSchema = new Schema(attributes.toArray(new Attribute[attributes.size()]));
         return newSchema;
     }
+    
+    /**
+     * Removes one or more attributes from the schema and returns the new schema.
+     * 
+     * @param schema
+     * @param attributeName
+     * @return
+     */
+    public static Schema removeAttributeFromSchema(Schema schema, String... attributeName) {
+        return new Schema(schema.getAttributes().stream()
+                .filter(attr -> (! Arrays.asList(attributeName).contains(attr.getFieldName())))
+                .toArray(Attribute[]::new));
+    }
 
     /**
      * Tokenizes the query string using the given analyser
@@ -247,6 +290,55 @@ public class Utils {
         luceneAnalyzer.close();
 
         return result;
+    }
+    
+    
+    public static JSONArray getTupleListJSON(List<ITuple> tupleList) {
+        JSONArray jsonArray = new JSONArray();
+        
+        for (ITuple tuple : tupleList) {
+            jsonArray.put(getTupleJSON(tuple));
+        }
+        
+        return jsonArray;
+    }
+    
+    public static JSONObject getTupleJSON(ITuple tuple) {
+        JSONObject jsonObject = new JSONObject();
+        
+        for (String attrName : tuple.getSchema().getAttributeNames()) {
+            if (attrName.equalsIgnoreCase(SchemaConstants.SPAN_LIST)) {
+                List<Span> spanList = ((ListField<Span>) tuple.getField(SchemaConstants.SPAN_LIST)).getValue();
+                jsonObject.put(attrName, getSpanListJSON(spanList));
+            } else {
+                jsonObject.put(attrName, tuple.getField(attrName).getValue().toString());
+            }
+        }
+        
+        return jsonObject;
+    }
+    
+    public static JSONArray getSpanListJSON(List<Span> spanList) {
+        JSONArray jsonArray = new JSONArray();
+        
+        for (Span span : spanList) {
+            jsonArray.put(getSpanJSON(span));
+        }
+        
+        return jsonArray;
+    }
+    
+    public static JSONObject getSpanJSON(Span span) {
+        JSONObject jsonObject = new JSONObject();
+        
+        jsonObject.put("key", span.getKey());
+        jsonObject.put("value", span.getValue());
+        jsonObject.put("field", span.getFieldName());
+        jsonObject.put("start", span.getStart());
+        jsonObject.put("end", span.getEnd());
+        jsonObject.put("token offset", span.getTokenOffset());
+
+        return jsonObject;
     }
 
     public static String getTupleListString(List<ITuple> tupleList) {

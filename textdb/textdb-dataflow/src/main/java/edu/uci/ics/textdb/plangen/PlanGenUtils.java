@@ -17,6 +17,7 @@ import edu.uci.ics.textdb.plangen.operatorbuilder.KeywordSourceBuilder;
 import edu.uci.ics.textdb.plangen.operatorbuilder.NlpExtractorBuilder;
 import edu.uci.ics.textdb.plangen.operatorbuilder.ProjectionBuilder;
 import edu.uci.ics.textdb.plangen.operatorbuilder.RegexMatcherBuilder;
+import edu.uci.ics.textdb.plangen.operatorbuilder.TupleStreamSinkBuilder;
 
 /**
  * This class provides a set of helper functions that are commonly used in plan generation.
@@ -40,6 +41,7 @@ public class PlanGenUtils {
         operatorBuilderMap.put("KeywordSource".toLowerCase(), KeywordSourceBuilder::buildSourceOperator);
         operatorBuilderMap.put("DictionarySource".toLowerCase(), DictionarySourceBuilder::buildSourceOperator);
         operatorBuilderMap.put("FileSink".toLowerCase(), FileSinkBuilder::buildSink);
+        operatorBuilderMap.put("TupleStreamSink".toLowerCase(), TupleStreamSinkBuilder::buildTupleStreamSink);
         operatorBuilderMap.put("Join".toLowerCase(), JoinBuilder::buildOperator);
         operatorBuilderMap.put("Projection".toLowerCase(), ProjectionBuilder::buildOperator);
     }

@@ -4,32 +4,44 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import org.json.JSONObject;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import edu.uci.ics.textdb.api.common.Attribute;
 import edu.uci.ics.textdb.api.common.FieldType;
+import edu.uci.ics.textdb.api.common.Schema;
+import edu.uci.ics.textdb.common.constants.LuceneAnalyzerConstants;
 import edu.uci.ics.textdb.common.exception.PlanGenException;
+import edu.uci.ics.textdb.common.exception.StorageException;
 import edu.uci.ics.textdb.dataflow.dictionarymatcher.DictionaryMatcherSourceOperator;
+import edu.uci.ics.textdb.storage.relation.RelationManager;
 import junit.framework.Assert;
 
 public class DictionarySourceBuilderTest {
     
+    public static final String TEST_TABLE = "dictionary_source_buidler_test_table";
+    
+    public static final Schema TEST_SCHEMA = new Schema(
+            new Attribute("city", FieldType.STRING), new Attribute("location", FieldType.STRING),
+            new Attribute("content", FieldType.TEXT));
+    
+    @BeforeClass
+    public static void setUp() throws StorageException {
+        RelationManager.getRelationManager().createTable(
+                TEST_TABLE, "../index/test_tables/"+TEST_TABLE,
+                TEST_SCHEMA, LuceneAnalyzerConstants.standardAnalyzerString());
+    }
+    
+    @AfterClass
+    public static void cleanUp() throws StorageException {
+        RelationManager.getRelationManager().deleteTable(TEST_TABLE);
+    }
+    
     @Test
     public void testDictionarySourceBuilder1() throws Exception {
-        String directoryStr = "./index";
-        JSONObject schemaJsonObject = new JSONObject();
-        schemaJsonObject.put(OperatorBuilderUtils.ATTRIBUTE_NAMES, "id, city, location, content");
-        schemaJsonObject.put(OperatorBuilderUtils.ATTRIBUTE_TYPES, "integer, string, string, text");
-                
-        List<Attribute> schemaAttrs = Arrays.asList(
-                new Attribute("id", FieldType.INTEGER),
-                new Attribute("city", FieldType.STRING),
-                new Attribute("location", FieldType.STRING),
-                new Attribute("content", FieldType.TEXT));
-        
+
         String dictionaryStr = "Irvine, Anaheim, Costa Mesa, Santa Ana";
         List<String> dictionaryList = Arrays.asList(
                 "Irvine",
@@ -43,11 +55,9 @@ public class DictionarySourceBuilderTest {
         operatorProperties.put(DictionaryMatcherBuilder.DICTIONARY, dictionaryStr);
         operatorProperties.put(DictionaryMatcherBuilder.MATCHING_TYPE, "PHRASE_INDEXBASED");
         operatorProperties.put(OperatorBuilderUtils.ATTRIBUTE_NAMES, "city, location, content");
-        operatorProperties.put(OperatorBuilderUtils.DATA_DIRECTORY, directoryStr);
-        operatorProperties.put(OperatorBuilderUtils.SCHEMA, schemaJsonObject.toString());
+        operatorProperties.put(OperatorBuilderUtils.DATA_SOURCE, TEST_TABLE);
         
         DictionaryMatcherSourceOperator sourceOperator = DictionarySourceBuilder.buildSourceOperator(operatorProperties);
-
         
         String dictionaryEntry = null;
         ArrayList<String> actualDictionary = new ArrayList<>();
@@ -57,27 +67,18 @@ public class DictionarySourceBuilderTest {
         
         // compare dict
         Assert.assertEquals(dictionaryList, actualDictionary);
-        // compare dataStore directory
-        Assert.assertEquals(directoryStr, sourceOperator.getDataStore().getDataDirectory());
-        // compare dataStore schema
-        Assert.assertEquals(
-                schemaAttrs.stream().collect(Collectors.toList()).toString(), 
-                sourceOperator.getDataStore().getSchema().getAttributes().stream().collect(Collectors.toList()).toString());
+        // compare table name
+        Assert.assertEquals(TEST_TABLE, sourceOperator.getTableName());
         // compare dictMatcher attribute list
         Assert.assertEquals(dictAttrNames, sourceOperator.getPredicate().getAttributeNames());
 
     }
     
     /*
-     * Test invalid DictionaryMatcherSourceOperator with an invalid attribute type
+     * Test invalid DictionaryMatcherSourceOperator with an empty data source (table name)
      */
     @Test(expected = PlanGenException.class)
-    public void testInvalidBuilder1() throws Exception {
-        String directoryStr = "./index";
-        JSONObject schemaJsonObject = new JSONObject();
-        schemaJsonObject.put(OperatorBuilderUtils.ATTRIBUTE_NAMES, "id, city, location, content");
-        schemaJsonObject.put(OperatorBuilderUtils.ATTRIBUTE_TYPES, "random_type, string, type-that-doesnt-exist, text");
-         
+    public void testInvalidBuilder1() throws Exception {       
         String dictionaryStr = "Irvine, Anaheim, Costa Mesa, Santa Ana";
    
         HashMap<String, String> operatorProperties = new HashMap<>();
@@ -85,21 +86,16 @@ public class DictionarySourceBuilderTest {
         operatorProperties.put(DictionaryMatcherBuilder.MATCHING_TYPE, "PHRASE_INDEXBASED");
         operatorProperties.put(OperatorBuilderUtils.ATTRIBUTE_NAMES, "city, location, content");
         operatorProperties.put(OperatorBuilderUtils.ATTRIBUTE_TYPES, "STRING, STRING, TEXT");
-        operatorProperties.put(OperatorBuilderUtils.DATA_DIRECTORY, directoryStr);
-        operatorProperties.put(OperatorBuilderUtils.SCHEMA, schemaJsonObject.toString());
+        operatorProperties.put(OperatorBuilderUtils.DATA_SOURCE, "");
         
         DictionarySourceBuilder.buildSourceOperator(operatorProperties);
     }
     
     /*
-     * Test invalid DictionaryMatcherSourceOperator with inconsistent attribute names and types
+     * Test invalid DictionaryMatcherSourceOperator without the data source attribute
      */
     @Test(expected = PlanGenException.class)
     public void testInvalidBuilder2() throws Exception {
-        String directoryStr = "./index";
-        JSONObject schemaJsonObject = new JSONObject();
-        schemaJsonObject.put(OperatorBuilderUtils.ATTRIBUTE_NAMES, "id, city, location, content");
-        schemaJsonObject.put(OperatorBuilderUtils.ATTRIBUTE_TYPES, "integer, string, text");
          
         String dictionaryStr = "Irvine, Anaheim, Costa Mesa, Santa Ana";
    
@@ -108,54 +104,6 @@ public class DictionarySourceBuilderTest {
         operatorProperties.put(DictionaryMatcherBuilder.MATCHING_TYPE, "PHRASE_INDEXBASED");
         operatorProperties.put(OperatorBuilderUtils.ATTRIBUTE_NAMES, "city, location, content");
         operatorProperties.put(OperatorBuilderUtils.ATTRIBUTE_TYPES, "STRING, STRING, TEXT");
-        operatorProperties.put(OperatorBuilderUtils.DATA_DIRECTORY, directoryStr);
-        operatorProperties.put(OperatorBuilderUtils.SCHEMA, schemaJsonObject.toString());
-        
-        DictionarySourceBuilder.buildSourceOperator(operatorProperties);
-    }
-    
-    /*
-     * Test invalid DictionaryMatcherSourceOperator with an empty directory
-     */
-    @Test(expected = PlanGenException.class)
-    public void testInvalidBuilder3() throws Exception {
-        String directoryStr = "";
-        JSONObject schemaJsonObject = new JSONObject();
-        schemaJsonObject.put(OperatorBuilderUtils.ATTRIBUTE_NAMES, "id, city, location, content");
-        schemaJsonObject.put(OperatorBuilderUtils.ATTRIBUTE_TYPES, "integer, string, text");
-         
-        String dictionaryStr = "Irvine, Anaheim, Costa Mesa, Santa Ana";
-   
-        HashMap<String, String> operatorProperties = new HashMap<>();
-        operatorProperties.put(DictionaryMatcherBuilder.DICTIONARY, dictionaryStr);
-        operatorProperties.put(DictionaryMatcherBuilder.MATCHING_TYPE, "PHRASE_INDEXBASED");
-        operatorProperties.put(OperatorBuilderUtils.ATTRIBUTE_NAMES, "city, location, content");
-        operatorProperties.put(OperatorBuilderUtils.ATTRIBUTE_TYPES, "STRING, STRING, TEXT");
-        operatorProperties.put(OperatorBuilderUtils.DATA_DIRECTORY, directoryStr);
-        operatorProperties.put(OperatorBuilderUtils.SCHEMA, schemaJsonObject.toString());
-        
-        DictionarySourceBuilder.buildSourceOperator(operatorProperties);
-    }
-    
-    /*
-     * Test invalid DictionaryMatcherSourceOperator with an empty directory
-     */
-    @Test(expected = PlanGenException.class)
-    public void testInvalidBuilder4() throws Exception {
-        String directoryStr = "      ";
-        JSONObject schemaJsonObject = new JSONObject();
-        schemaJsonObject.put(OperatorBuilderUtils.ATTRIBUTE_NAMES, "id, city, location, content");
-        schemaJsonObject.put(OperatorBuilderUtils.ATTRIBUTE_TYPES, "integer, string, text");
-         
-        String dictionaryStr = "Irvine, Anaheim, Costa Mesa, Santa Ana";
-   
-        HashMap<String, String> operatorProperties = new HashMap<>();
-        operatorProperties.put(DictionaryMatcherBuilder.DICTIONARY, dictionaryStr);
-        operatorProperties.put(DictionaryMatcherBuilder.MATCHING_TYPE, "PHRASE_INDEXBASED");
-        operatorProperties.put(OperatorBuilderUtils.ATTRIBUTE_NAMES, "city, location, content");
-        operatorProperties.put(OperatorBuilderUtils.ATTRIBUTE_TYPES, "STRING, STRING, TEXT");
-        operatorProperties.put(OperatorBuilderUtils.DATA_DIRECTORY, directoryStr);
-        operatorProperties.put(OperatorBuilderUtils.SCHEMA, schemaJsonObject.toString());
         
         DictionarySourceBuilder.buildSourceOperator(operatorProperties);
     }
