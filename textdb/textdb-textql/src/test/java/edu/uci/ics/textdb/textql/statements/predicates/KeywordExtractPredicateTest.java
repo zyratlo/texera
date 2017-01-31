@@ -13,7 +13,7 @@ import edu.uci.ics.textdb.web.request.beans.OperatorBean;
 
 /**
  * This class contains test cases for the KeywordExtractPredicate class.
- * The constructor, getters, setters and the getOperatorBean methods are
+ * The constructor, getters, setters and the generateOperatorBean methods are
  * tested.
  * 
  * @author Flavio Bayer
@@ -97,20 +97,20 @@ public class KeywordExtractPredicateTest {
     }
 
     /**
-     * Test the getOperatorBean method.
-     * Build a KeywordExtractPredicate, invoke the getOperatorBean and
+     * Test the generateOperatorBean method.
+     * Build a KeywordExtractPredicate, invoke the generateOperatorBean and
      * check whether a KeywordMatcherBean with the right attributes is returned.
      * An empty list is used as the list of fields to perform the match.
      */
     @Test
-    public void testGetOperatorBean00() {
+    public void testGenerateOperatorBean00() {
         String operatorId = "xxx";
         List<String> matchingFields = Collections.emptyList();
         String keywords = "keyword";
         String matchingType = KeywordMatchingType.CONJUNCTION_INDEXBASED.toString();
         KeywordExtractPredicate keywordExtractPredicate = new KeywordExtractPredicate(matchingFields, keywords, matchingType);
         
-        OperatorBean computedProjectionBean = keywordExtractPredicate.getOperatorBean(operatorId);
+        OperatorBean computedProjectionBean = keywordExtractPredicate.generateOperatorBean(operatorId);
         String matchingFieldsAsString = String.join(",", matchingFields);
         OperatorBean expectedProjectionBean = new KeywordMatcherBean(operatorId, "KeywordMatcher", matchingFieldsAsString,
                             null, null, keywords, matchingType);
@@ -119,20 +119,20 @@ public class KeywordExtractPredicateTest {
     }
     
     /**
-     * Test the getOperatorBean method.
-     * Build a KeywordExtractPredicate, invoke the getOperatorBean and
+     * Test the generateOperatorBean method.
+     * Build a KeywordExtractPredicate, invoke the generateOperatorBean and
      * check whether a KeywordMatcherBean with the right attributes is returned.
      * A list with one field is used as the list of fields to perform the match.
      */
     @Test
-    public void testGetOperatorBean01() {
+    public void testGenerateOperatorBean01() {
         String operatorId = "operator";
         List<String> matchingFields = Arrays.asList("fieldOne");
         String keywords = "keyword(s)";
         String matchingType = KeywordMatchingType.PHRASE_INDEXBASED.toString();
         KeywordExtractPredicate keywordExtractPredicate = new KeywordExtractPredicate(matchingFields, keywords, matchingType);
         
-        OperatorBean computedProjectionBean = keywordExtractPredicate.getOperatorBean(operatorId);
+        OperatorBean computedProjectionBean = keywordExtractPredicate.generateOperatorBean(operatorId);
         String matchingFieldsAsString = String.join(",", matchingFields);
         OperatorBean expectedProjectionBean = new KeywordMatcherBean(operatorId, "KeywordMatcher", matchingFieldsAsString,
                             null, null, keywords, matchingType);
@@ -141,20 +141,20 @@ public class KeywordExtractPredicateTest {
     }
     
     /**
-     * Test the getOperatorBean method.
-     * Build a KeywordExtractPredicate, invoke the getOperatorBean and
+     * Test the generateOperatorBean method.
+     * Build a KeywordExtractPredicate, invoke the generateOperatorBean and
      * check whether a KeywordMatcherBean with the right attributes is returned.
      * A list with some fields is used as the list of fields to perform the match.
      */
     @Test
-    public void testGetOperatorBean02() {
+    public void testGenerateOperatorBean02() {
         String operatorId = "keywordExtract00";
         List<String> matchingFields = Arrays.asList("field0", "field1");
         String keywords = "xxx";
         String matchingType = KeywordMatchingType.SUBSTRING_SCANBASED.toString();
         KeywordExtractPredicate keywordExtractPredicate = new KeywordExtractPredicate(matchingFields, keywords, matchingType);
         
-        OperatorBean computedProjectionBean = keywordExtractPredicate.getOperatorBean(operatorId);
+        OperatorBean computedProjectionBean = keywordExtractPredicate.generateOperatorBean(operatorId);
         String matchingFieldsAsString = String.join(",", matchingFields);
         OperatorBean expectedProjectionBean = new KeywordMatcherBean(operatorId, "KeywordMatcher",
                             matchingFieldsAsString, null, null, keywords, matchingType);

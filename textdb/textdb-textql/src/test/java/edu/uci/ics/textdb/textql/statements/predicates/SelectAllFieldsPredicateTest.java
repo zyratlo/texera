@@ -8,7 +8,7 @@ import edu.uci.ics.textdb.web.request.beans.OperatorBean;
 
 /**
  * This class contains test cases for the SelectAllFieldsPredicate class.
- * The getOperatorBean method is tested.
+ * The generateOperatorBean method is tested.
  * There are no constructors, getters nor setters to test. 
  * 
  * @author Flavio Bayer
@@ -17,22 +17,22 @@ import edu.uci.ics.textdb.web.request.beans.OperatorBean;
 public class SelectAllFieldsPredicateTest {
 
     /**
-     * Test the getOperatorBean method.
-     * Build a SelectAllFieldsPredicate, invoke the getOperatorBean and check
+     * Test the generateOperatorBean method.
+     * Build a SelectAllFieldsPredicate, invoke the generateOperatorBean and check
      * whether a PassThroughBean with the right attributes is returned.
      */
     @Test
-    public void testGetOperatorBean() {
+    public void testGenerateOperatorBean() {
         SelectAllFieldsPredicate selectAllFieldsPredicate = new SelectAllFieldsPredicate();
         OperatorBean projectionBean;
         String operatorId;
         
         operatorId = "xxx";
-        projectionBean = selectAllFieldsPredicate.getOperatorBean(operatorId);
+        projectionBean = selectAllFieldsPredicate.generateOperatorBean(operatorId);
         Assert.assertEquals(projectionBean, new PassThroughBean(operatorId, "PassThrough"));
 
         operatorId = "y0a9";
-        projectionBean = selectAllFieldsPredicate.getOperatorBean(operatorId);
+        projectionBean = selectAllFieldsPredicate.generateOperatorBean(operatorId);
         Assert.assertEquals(projectionBean, new PassThroughBean(operatorId, "PassThrough"));
     }
     
