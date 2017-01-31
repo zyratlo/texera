@@ -11,6 +11,7 @@ import edu.uci.ics.textdb.api.exception.TextDBException;
 import edu.uci.ics.textdb.api.plan.Plan;
 import edu.uci.ics.textdb.common.exception.PlanGenException;
 import edu.uci.ics.textdb.dataflow.sink.TupleStreamSink;
+import edu.uci.ics.textdb.perftest.sample.SampleExtraction;
 import edu.uci.ics.textdb.plangen.LogicalPlan;
 import edu.uci.ics.textdb.web.request.beans.KeywordSourceBean;
 import edu.uci.ics.textdb.web.request.beans.NlpExtractorBean;
@@ -23,6 +24,9 @@ import edu.uci.ics.textdb.web.resource.SampleResource;
 import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import sun.util.resources.cldr.ff.LocaleNames_ff;
 
 /**
  * This is the main application class from where the TextDB application
@@ -34,7 +38,8 @@ public class TextdbWebApplication extends Application<TextdbWebConfiguration> {
 
     // Defining some simple operators for a simple query plan to trigger Stanford NLP loading
     private static final KeywordSourceBean KEYWORD_SOURCE_BEAN = new KeywordSourceBean("KeywordSource_0", "KeywordSource",
-            "content", "100", "0", "zika", "conjunction", "sample_extraction_promed");
+            "content", "100", "0", "Cleide Moreira, Director of Epidemiological Surveillance of SESAU", "conjunction",
+            "promed");
     private static final NlpExtractorBean NLP_EXTRACTOR_BEAN = new NlpExtractorBean("NlpExtractor_0", "NlpExtractor",
             "content", "100", "0", "location");
     private static final TupleStreamSinkBean TUPLE_STREAM_SINK_BEAN = new TupleStreamSinkBean("TupleStreamSink_0",
@@ -93,8 +98,12 @@ public class TextdbWebApplication extends Application<TextdbWebConfiguration> {
     }
 
     public static void main(String args[]) throws Exception {
-        new TextdbWebApplication().run(args);
-
+        System.out.println("Writing Sample Index");
+        SampleExtraction.writeSampleIndex();
+        System.out.println("Completed Writing Sample Index");
+        System.out.println("Started Loading Stanford NLP");
         loadStanfordNLP();
+        System.out.println("Finished Loading Stanford NLP");
+        new TextdbWebApplication().run(args);
     }
 }
