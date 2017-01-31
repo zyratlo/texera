@@ -13,7 +13,7 @@ import edu.uci.ics.textdb.web.request.beans.ProjectionBean;
 
 /**
  * This class contains test cases for the SelectSomeFieldsPredicate class.
- * The constructor, getters, setters and the getOperatorBean methods are
+ * The constructor, getters, setters and the generateOperatorBean methods are
  * tested.
  * 
  * @author Flavio Bayer
@@ -66,54 +66,54 @@ public class SelectSomeFieldsPredicateTest {
     }
 
     /**
-     * Test the getOperatorBean method.
-     * Build a SelectSomeFieldsPredicate, invoke the getOperatorBean and check
+     * Test the generateOperatorBean method.
+     * Build a SelectSomeFieldsPredicate, invoke the generateOperatorBean and check
      * whether a ProjectionBean with the right attributes is returned.
      * An empty list is used as the list of projected fields.
      */
     @Test
-    public void testGetOperatorBean00() {
+    public void testGenerateOperatorBean00() {
         String operatorId = "xxx";
         List<String> projectedFields = Collections.emptyList();
         SelectSomeFieldsPredicate selectSomeFieldsPredicate = new SelectSomeFieldsPredicate(projectedFields);
         
-        OperatorBean computedProjectionBean = selectSomeFieldsPredicate.getOperatorBean(operatorId);
+        OperatorBean computedProjectionBean = selectSomeFieldsPredicate.generateOperatorBean(operatorId);
         OperatorBean expectedProjectionBean = new ProjectionBean(operatorId, "Projection", "", null, null);
         
         Assert.assertEquals(expectedProjectionBean, computedProjectionBean);
     }
     
     /**
-     * Test the getOperatorBean method.
-     * Build a SelectSomeFieldsPredicate, invoke the getOperatorBean and check
+     * Test the generateOperatorBean method.
+     * Build a SelectSomeFieldsPredicate, invoke the generateOperatorBean and check
      * whether a ProjectionBean with the right attributes is returned.
      * A list with some field names is used as the list of projected fields.
      */
     @Test
-    public void testGetOperatorBean01() {
+    public void testGenerateOperatorBean01() {
         String operatorId = "zwx";
         List<String> projectedFields = Arrays.asList("field0", "field1");
         SelectSomeFieldsPredicate selectSomeFieldsPredicate = new SelectSomeFieldsPredicate(projectedFields);
         
-        OperatorBean computedProjectionBean = selectSomeFieldsPredicate.getOperatorBean(operatorId);
+        OperatorBean computedProjectionBean = selectSomeFieldsPredicate.generateOperatorBean(operatorId);
         OperatorBean expectedProjectionBean = new ProjectionBean(operatorId, "Projection", "field0,field1", null, null);
 
         Assert.assertEquals(expectedProjectionBean, computedProjectionBean);        
     }
 
     /**
-     * Test the getOperatorBean method.
-     * Build a SelectSomeFieldsPredicate, invoke the getOperatorBean and check
+     * Test the generateOperatorBean method.
+     * Build a SelectSomeFieldsPredicate, invoke the generateOperatorBean and check
      * whether a ProjectionBean with the right attributes is returned.
      * A list with some unordered field names is used as the list of projected fields.
      */
     @Test
-    public void testGetOperatorBean02() {
+    public void testGenerateOperatorBean02() {
         String operatorId = "op00";
         List<String> projectedFields = Arrays.asList("c", "a", "b");
         SelectSomeFieldsPredicate selectSomeFieldsPredicate = new SelectSomeFieldsPredicate(projectedFields);
         
-        OperatorBean computedProjectionBean = selectSomeFieldsPredicate.getOperatorBean(operatorId);
+        OperatorBean computedProjectionBean = selectSomeFieldsPredicate.generateOperatorBean(operatorId);
         OperatorBean expectedProjectionBean = new ProjectionBean(operatorId, "Projection", "c,a,b", null, null);
         
         Assert.assertEquals(expectedProjectionBean, computedProjectionBean);   
