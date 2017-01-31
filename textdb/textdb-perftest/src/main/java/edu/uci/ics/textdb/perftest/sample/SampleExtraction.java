@@ -1,11 +1,12 @@
 package edu.uci.ics.textdb.perftest.sample;
 
-import java.io.File;
+import java.io.*;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.Scanner;
+import java.util.*;
 
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.jsoup.Jsoup;
@@ -38,20 +39,29 @@ import edu.uci.ics.textdb.storage.relation.RelationManager;
 
 public class SampleExtraction {
     
-    public static final String PROMED_SAMPLE_TABLE = "sample_extraction_promed";
+    public static final String PROMED_SAMPLE_TABLE = "sample";
         
-    public static final String promedFilesDirectory = "./sample-data-files/promed/";
-    public static final String promedIndexDirectory = "./index/standard/promed/"; 
-    
+    public static String promedFilesDirectory;
+    public static String promedIndexDirectory;
+    public static String sampleDataFilesDirectory;
     
     public static void main(String[] args) throws Exception {
-        
+
+        // Finding the absolute paths to the promed file directories
+        findDirectoryPaths();
+
         // write the index of data files
         // index only needs to be written once, after the first run, this function can be commented out
         writeSampleIndex();
         
         // perform the extraction task
         extractPersonLocation();
+    }
+
+    public static void findDirectoryPaths() throws URISyntaxException {
+        promedFilesDirectory = Paths.get(SampleExtraction.class.getResource("/sample-data-files/promed").toURI()).toString();
+        promedIndexDirectory = Paths.get(SampleExtraction.class.getResource("/index/standard/promed").toURI()).toString();
+        sampleDataFilesDirectory = Paths.get(SampleExtraction.class.getResource("/sample-data-files").toURI()).toString();
     }
     
     public static ITuple parsePromedHTML(String fileName, String content) {
@@ -63,6 +73,21 @@ public class SampleExtraction {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    private List<String> getResourceFiles( String path ) throws IOException {
+        List<String> filenames = new ArrayList<>();
+        try(
+                InputStream in = SampleExtraction.class.getResourceAsStream( path );
+                BufferedReader br = new BufferedReader( new InputStreamReader( in ) ) ) {
+            String resource;
+
+            while( (resource = br.readLine()) != null ) {
+                filenames.add( resource );
+            }
+        }
+
+        return filenames;
     }
 
     public static void writeSampleIndex() throws Exception {
@@ -144,7 +169,7 @@ public class SampleExtraction {
          
         SimpleDateFormat sdf = new SimpleDateFormat("MM-dd-yyyy-HH-mm-ss");
         FileSink fileSink = new FileSink( 
-                new File("./sample-data-files/person-location-result-" 
+                new File(sampleDataFilesDirectory + "/person-location-result-"
                 		+ sdf.format(new Date(System.currentTimeMillis())).toString() + ".txt"));
 
         fileSink.setToStringFunction((tuple -> Utils.getTupleString(tuple)));
