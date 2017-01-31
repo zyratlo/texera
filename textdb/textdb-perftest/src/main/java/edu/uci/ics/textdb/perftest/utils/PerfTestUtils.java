@@ -48,7 +48,7 @@ public class PerfTestUtils {
             resultFolder = Paths.get(PerfTestUtils.class.getResource("/perftest-files/results").toURI()).toString();
             queryFolder = Paths.get(PerfTestUtils.class.getResource("/perftest-files/queries").toURI()).toString();
         } catch (URISyntaxException e) {
-
+            e.printStackTrace();
         }
     }
 

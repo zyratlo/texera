@@ -44,24 +44,32 @@ public class SampleExtraction {
     public static String promedFilesDirectory;
     public static String promedIndexDirectory;
     public static String sampleDataFilesDirectory;
-    
+
+    static {
+        try {
+            // Finding the absolute path to the sample data files directory and index directory
+            promedFilesDirectory = Paths.get(SampleExtraction.class.getResource("/sample-data-files/promed")
+                    .toURI())
+                    .toString();
+            promedIndexDirectory = Paths.get(SampleExtraction.class.getResource("/index/standard/promed")
+                    .toURI())
+                    .toString();
+            sampleDataFilesDirectory = Paths.get(SampleExtraction.class.getResource("/sample-data-files")
+                    .toURI())
+                    .toString();
+        }
+        catch(URISyntaxException e) {
+            e.printStackTrace();
+        }
+    }
+
     public static void main(String[] args) throws Exception {
-
-        // Finding the absolute paths to the promed file directories
-        findDirectoryPaths();
-
         // write the index of data files
         // index only needs to be written once, after the first run, this function can be commented out
         writeSampleIndex();
         
         // perform the extraction task
         extractPersonLocation();
-    }
-
-    public static void findDirectoryPaths() throws URISyntaxException {
-        promedFilesDirectory = Paths.get(SampleExtraction.class.getResource("/sample-data-files/promed").toURI()).toString();
-        promedIndexDirectory = Paths.get(SampleExtraction.class.getResource("/index/standard/promed").toURI()).toString();
-        sampleDataFilesDirectory = Paths.get(SampleExtraction.class.getResource("/sample-data-files").toURI()).toString();
     }
     
     public static ITuple parsePromedHTML(String fileName, String content) {
@@ -73,21 +81,6 @@ public class SampleExtraction {
         } catch (Exception e) {
             return null;
         }
-    }
-
-    private List<String> getResourceFiles( String path ) throws IOException {
-        List<String> filenames = new ArrayList<>();
-        try(
-                InputStream in = SampleExtraction.class.getResourceAsStream( path );
-                BufferedReader br = new BufferedReader( new InputStreamReader( in ) ) ) {
-            String resource;
-
-            while( (resource = br.readLine()) != null ) {
-                filenames.add( resource );
-            }
-        }
-
-        return filenames;
     }
 
     public static void writeSampleIndex() throws Exception {
