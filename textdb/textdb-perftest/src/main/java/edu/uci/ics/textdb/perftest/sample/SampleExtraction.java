@@ -37,7 +37,7 @@ import edu.uci.ics.textdb.storage.relation.RelationManager;
 
 public class SampleExtraction {
     
-    public static final String PROMED_SAMPLE_TABLE = "sample_extraction_promed";
+    public static final String PROMED_SAMPLE_TABLE = "promed";
         
     public static String promedFilesDirectory;
     public static String promedIndexDirectory;
@@ -60,7 +60,6 @@ public class SampleExtraction {
             e.printStackTrace();
         }
     }
-
     public static void main(String[] args) throws Exception {
         // write the index of data files
         // index only needs to be written once, after the first run, this function can be commented out
