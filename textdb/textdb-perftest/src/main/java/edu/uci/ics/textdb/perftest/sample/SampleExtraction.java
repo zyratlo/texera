@@ -37,7 +37,7 @@ import edu.uci.ics.textdb.storage.relation.RelationManager;
 
 public class SampleExtraction {
     
-    public static final String PROMED_SAMPLE_TABLE = "sample";
+    public static final String PROMED_SAMPLE_TABLE = "sample_extraction_promed";
         
     public static String promedFilesDirectory;
     public static String promedIndexDirectory;
