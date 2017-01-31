@@ -2,8 +2,6 @@ package edu.uci.ics.textdb.perftest.sample;
 
 import java.io.*;
 import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -51,9 +49,9 @@ public class SampleExtraction {
             promedFilesDirectory = Paths.get(SampleExtraction.class.getResource("/sample-data-files/promed")
                     .toURI())
                     .toString();
-            promedIndexDirectory = Paths.get(SampleExtraction.class.getResource("/index/standard/promed")
+            promedIndexDirectory = Paths.get(SampleExtraction.class.getResource("/index/standard")
                     .toURI())
-                    .toString();
+                    .toString() + "/promed";
             sampleDataFilesDirectory = Paths.get(SampleExtraction.class.getResource("/sample-data-files")
                     .toURI())
                     .toString();
