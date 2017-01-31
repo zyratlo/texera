@@ -9,7 +9,6 @@ import javax.servlet.FilterRegistration;
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.exception.TextDBException;
 import edu.uci.ics.textdb.api.plan.Plan;
-import edu.uci.ics.textdb.common.exception.PlanGenException;
 import edu.uci.ics.textdb.dataflow.sink.TupleStreamSink;
 import edu.uci.ics.textdb.perftest.sample.SampleExtraction;
 import edu.uci.ics.textdb.plangen.LogicalPlan;
@@ -24,9 +23,6 @@ import edu.uci.ics.textdb.web.resource.SampleResource;
 import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import sun.util.resources.cldr.ff.LocaleNames_ff;
 
 /**
  * This is the main application class from where the TextDB application
