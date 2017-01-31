@@ -196,13 +196,13 @@ public class SelectExtractStatement extends Statement {
         if(this.selectPredicate==null){
             operators.add(new PassThroughBean(getSelectionNodeID(), "PassThrough"));
         }else{
-            operators.add(this.selectPredicate.getOperatorBean(getSelectionNodeID()));
+            operators.add(this.selectPredicate.generateOperatorBean(getSelectionNodeID()));
         }
         // Build and append bean for Extraction predicate
         if(this.extractPredicate==null){
             operators.add(new PassThroughBean(getExtractionNodeID(), "PassThrough"));
         }else{
-            operators.add(this.extractPredicate.getOperatorBean(getExtractionNodeID()));
+            operators.add(this.extractPredicate.generateOperatorBean(getExtractionNodeID()));
         }
         // Build and append bean for the Source
         operators.add(new PassThroughBean(getInputNodeID(), "PassThrough"));

@@ -106,7 +106,7 @@ public class KeywordExtractPredicate implements ExtractPredicate {
      * @return this operator converted to a KeywordMatcherBean.
      */
     @Override
-    public KeywordMatcherBean getOperatorBean(String extractionOperatorId) {
+    public KeywordMatcherBean generateOperatorBean(String extractionOperatorId) {
         String matchingFieldsAsString = String.join(",", this.matchingFields);
         return new KeywordMatcherBean(extractionOperatorId, "KeywordMatcher", matchingFieldsAsString,
                     null, null, this.keywords, this.matchingType);
