@@ -12,6 +12,7 @@ import edu.uci.ics.textdb.common.exception.DataFlowException;
 import edu.uci.ics.textdb.dataflow.common.KeywordPredicate;
 import edu.uci.ics.textdb.dataflow.source.ScanBasedSourceOperator;
 import edu.uci.ics.textdb.dataflow.utils.TestUtils;
+import edu.uci.ics.textdb.storage.DataWriter;
 import edu.uci.ics.textdb.storage.RelationManager;
 
 /**
@@ -33,17 +34,25 @@ public class KeywordTestHelper {
         
         // create the people table and write tuples
         relationManager.createTable(PEOPLE_TABLE, "../index/test_tables/" + PEOPLE_TABLE, 
-                TestConstants.SCHEMA_PEOPLE, LuceneAnalyzerConstants.standardAnalyzerString());        
+                TestConstants.SCHEMA_PEOPLE, LuceneAnalyzerConstants.standardAnalyzerString());
+
+        DataWriter peopleDataWriter = relationManager.getTableDataWriter(PEOPLE_TABLE);
+        peopleDataWriter.open();
         for (ITuple tuple : TestConstants.getSamplePeopleTuples()) {
-            relationManager.insertTuple(PEOPLE_TABLE, tuple);
+            peopleDataWriter.insertTuple(tuple);
         }
+        peopleDataWriter.close();
         
         // create the medline table and write tuples
         relationManager.createTable(MEDLINE_TABLE, "../index/test_tables/" + MEDLINE_TABLE,
-                keywordTestConstants.SCHEMA_MEDLINE, LuceneAnalyzerConstants.standardAnalyzerString());       
+                keywordTestConstants.SCHEMA_MEDLINE, LuceneAnalyzerConstants.standardAnalyzerString());
+   
+        DataWriter medDataWriter = relationManager.getTableDataWriter(MEDLINE_TABLE);
+        medDataWriter.open();
         for (ITuple tuple : keywordTestConstants.getSampleMedlineRecord()) {
-            relationManager.insertTuple(MEDLINE_TABLE, tuple);
-        }       
+            medDataWriter.insertTuple(tuple);
+        }
+        medDataWriter.close();
     }
     
     public static void deleteTestTables() throws TextDBException {

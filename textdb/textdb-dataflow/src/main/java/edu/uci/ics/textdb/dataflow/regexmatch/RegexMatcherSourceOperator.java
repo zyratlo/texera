@@ -27,7 +27,7 @@ public class RegexMatcherSourceOperator extends AbstractSingleInputOperator impl
         this.predicate = predicate;
         this.tableName = tableName;
         
-        this.dataReader = RelationManager.getRelationManager().getTuples(this.tableName, 
+        this.dataReader = RelationManager.getRelationManager().getTableDataReader(this.tableName, 
                 createLuceneQuery(this.predicate));
         
         regexMatcher = new RegexMatcher(this.predicate);

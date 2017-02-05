@@ -34,6 +34,7 @@ import edu.uci.ics.textdb.dataflow.regexmatch.RegexMatcher;
 import edu.uci.ics.textdb.dataflow.sink.FileSink;
 import edu.uci.ics.textdb.engine.Engine;
 import edu.uci.ics.textdb.perftest.promed.PromedSchema;
+import edu.uci.ics.textdb.storage.DataWriter;
 import edu.uci.ics.textdb.storage.RelationManager;
 
 public class SampleExtraction {
@@ -89,10 +90,12 @@ public class SampleExtraction {
         relationManager.createTable(PROMED_SAMPLE_TABLE, promedIndexDirectory, 
                 PromedSchema.PROMED_SCHEMA, LuceneAnalyzerConstants.standardAnalyzerString());
         
+        DataWriter dataWriter = relationManager.getTableDataWriter(PROMED_SAMPLE_TABLE);
+        dataWriter.open();
         for (ITuple tuple : fileTuples) {
-            relationManager.insertTuple(PROMED_SAMPLE_TABLE, tuple);
+            dataWriter.insertTuple(tuple);
         }
-        
+        dataWriter.close();
     }
 
     /*

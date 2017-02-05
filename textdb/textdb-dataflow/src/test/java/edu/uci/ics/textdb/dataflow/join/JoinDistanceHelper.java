@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.lucene.search.MatchAllDocsQuery;
-
 import edu.uci.ics.textdb.api.common.Attribute;
 import edu.uci.ics.textdb.api.common.IField;
 import edu.uci.ics.textdb.api.common.ITuple;
@@ -20,7 +18,7 @@ import edu.uci.ics.textdb.common.utils.Utils;
 import edu.uci.ics.textdb.dataflow.common.JoinDistancePredicate;
 import edu.uci.ics.textdb.dataflow.common.KeywordPredicate;
 import edu.uci.ics.textdb.dataflow.keywordmatch.KeywordMatcherSourceOperator;
-import edu.uci.ics.textdb.storage.DataStore;
+import edu.uci.ics.textdb.storage.DataWriter;
 import edu.uci.ics.textdb.storage.RelationManager;
 
 public class JoinDistanceHelper {
@@ -45,9 +43,13 @@ public class JoinDistanceHelper {
      */
     public static void insertToOuter(ITuple... tuples) throws StorageException {
         RelationManager relationManager = RelationManager.getRelationManager();
-        for (int i = 0; i < tuples.length; i++) {
-            relationManager.insertTuple(BOOK_TABLE_OUTER, tuples[i]);
+        
+        DataWriter outerDataWriter = relationManager.getTableDataWriter(BOOK_TABLE_OUTER);
+        outerDataWriter.open();
+        for (ITuple tuple : Arrays.asList(tuples)) {
+            outerDataWriter.insertTuple(tuple);
         }
+        outerDataWriter.close();
     }
     
     /**
@@ -57,9 +59,13 @@ public class JoinDistanceHelper {
      */
     public static void insertToOuter(List<ITuple> tuples) throws StorageException {
         RelationManager relationManager = RelationManager.getRelationManager();
-        for (ITuple tuple: tuples) {
-            relationManager.insertTuple(BOOK_TABLE_OUTER, tuple);
+        
+        DataWriter outerDataWriter = relationManager.getTableDataWriter(BOOK_TABLE_OUTER);
+        outerDataWriter.open();
+        for (ITuple tuple : tuples) {
+            outerDataWriter.insertTuple(tuple);
         }
+        outerDataWriter.close();
     } 
     
     /**
@@ -69,9 +75,13 @@ public class JoinDistanceHelper {
      */
     public static void insertToInner(ITuple... tuples) throws StorageException {
         RelationManager relationManager = RelationManager.getRelationManager();
-        for (int i = 0; i < tuples.length; i++) {
-            relationManager.insertTuple(BOOK_TABLE_INNER, tuples[i]);
+
+        DataWriter innerDataWriter = relationManager.getTableDataWriter(BOOK_TABLE_INNER);
+        innerDataWriter.open();
+        for (ITuple tuple : Arrays.asList(tuples)) {
+            innerDataWriter.insertTuple(tuple);
         }
+        innerDataWriter.close();
     }
     
     /**
@@ -81,9 +91,13 @@ public class JoinDistanceHelper {
      */
     public static void insertToInner(List<ITuple> tuples) throws StorageException {
         RelationManager relationManager = RelationManager.getRelationManager();
-        for (ITuple tuple: tuples) {
-            relationManager.insertTuple(BOOK_TABLE_INNER, tuple);
+        
+        DataWriter innerDataWriter = relationManager.getTableDataWriter(BOOK_TABLE_INNER);
+        innerDataWriter.open();
+        for (ITuple tuple : tuples) {
+            innerDataWriter.insertTuple(tuple);
         }
+        innerDataWriter.close();
     } 
     
     /**
@@ -92,8 +106,16 @@ public class JoinDistanceHelper {
      */
     public static void clearTestTables() throws TextDBException {
         RelationManager relationManager = RelationManager.getRelationManager();
-        relationManager.deleteTuples(BOOK_TABLE_OUTER, new MatchAllDocsQuery());
-        relationManager.deleteTuples(BOOK_TABLE_INNER, new MatchAllDocsQuery());      
+        
+        DataWriter innerDataWriter = relationManager.getTableDataWriter(BOOK_TABLE_INNER);
+        innerDataWriter.open();
+        innerDataWriter.clearData();
+        innerDataWriter.close();
+        
+        DataWriter outerDataWriter = relationManager.getTableDataWriter(BOOK_TABLE_OUTER);
+        outerDataWriter.open();
+        outerDataWriter.clearData();
+        outerDataWriter.close();  
     }
     
     /**

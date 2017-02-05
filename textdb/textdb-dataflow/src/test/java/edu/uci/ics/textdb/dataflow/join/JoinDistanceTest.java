@@ -33,6 +33,7 @@ import edu.uci.ics.textdb.dataflow.keywordmatch.KeywordMatcherSourceOperator;
 import edu.uci.ics.textdb.dataflow.projection.ProjectionOperator;
 import edu.uci.ics.textdb.dataflow.projection.ProjectionPredicate;
 import edu.uci.ics.textdb.dataflow.utils.TestUtils;
+import edu.uci.ics.textdb.storage.DataWriter;
 import edu.uci.ics.textdb.storage.RelationManager;
 import junit.framework.Assert;
 
@@ -633,8 +634,11 @@ public class JoinDistanceTest {
         ITuple alteredTuple = JoinDistanceHelper.alterField(originalTuple, 1, 
                 new TextField(originalTuple.getField(1).getValue().toString()));
         
-        relationManager.insertTuple(BOOK_TABLE_SPECIAL, alteredTuple);
-                        
+        DataWriter specialDataWriter = relationManager.getTableDataWriter(BOOK_TABLE_SPECIAL);
+        specialDataWriter.open();
+        specialDataWriter.insertTuple(alteredTuple);
+        specialDataWriter.close();
+                                
         KeywordMatcherSourceOperator keywordSourceOuter = 
                 JoinDistanceHelper.getKeywordSource(BOOK_TABLE_OUTER, "special", conjunction);
         KeywordMatcherSourceOperator keywordSourceInner = 
@@ -699,8 +703,11 @@ public class JoinDistanceTest {
         ITuple alteredTuple = JoinDistanceHelper.alterField(originalTuple, 4, 
                 new StringField(originalTuple.getField(4).getValue().toString()));
         
-        relationManager.insertTuple(BOOK_TABLE_SPECIAL, alteredTuple);
-                        
+        DataWriter specialDataWriter = relationManager.getTableDataWriter(BOOK_TABLE_SPECIAL);
+        specialDataWriter.open();
+        specialDataWriter.insertTuple(alteredTuple);
+        specialDataWriter.close();
+                                
         KeywordMatcherSourceOperator keywordSourceOuter = 
                 JoinDistanceHelper.getKeywordSource(BOOK_TABLE_OUTER, "special", conjunction);
         KeywordMatcherSourceOperator keywordSourceInner = 
