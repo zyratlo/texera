@@ -6,7 +6,7 @@ import org.apache.lucene.analysis.Analyzer;
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.common.Schema;
 import edu.uci.ics.textdb.storage.DataStore;
-import edu.uci.ics.textdb.storage.writer.DataWriter;
+import edu.uci.ics.textdb.storage.DataWriter;
 
 /**
  * IndexSink is a sink that writes tuples into an index.
