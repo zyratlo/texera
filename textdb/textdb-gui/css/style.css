@@ -13,7 +13,7 @@ body {
 .menu {
 	/*background: #202024 url("../img/black-thread.png") repeat left top;*/
 	background-color: black;
-	left: -285px;
+	left: 0px;
 	top: 0px;
 	height: 100%;
 	position: fixed;
@@ -21,13 +21,14 @@ body {
 }
 
 .menu ul {
-	border-top: 1px solid #636366;
+	border-top: 5px solid #303030;
 	list-style: none;
-	height: 97.5%;
+	height: 92%;
 	width: 100%;
 	margin: 0px;
 	padding: 0px;
-	overflow: auto;
+	border-right : 5px solid #303030;
+	overflow:  auto;
 }
 
 /* Each Operator Selector */
@@ -51,12 +52,36 @@ body {
 }
 
 /* The X that closes the menu */
-.icon-close {
-	cursor: pointer;
-	padding: 10px;
-	padding-bottom: 14px;
-	color: white;
 
+.icon-menu {
+	color: #fff;
+	font-weight: bold;
+	line-height: 45px;
+	padding-bottom: 3px;
+	padding-left: 20px;
+	padding-top: 8px;
+	font-size: 21px;
+	/*cursor: pointer;*/
+	background-color: #282828;
+	border-bottom: 1px solid white;
+
+
+}
+
+input {
+	color : black;
+}
+
+option {
+	color : black;
+}
+
+select {
+	color : black;
+}
+
+button {
+	color : black;
 }
 
 /* The Dropdown Panel after selecting an operator from menu */
@@ -91,34 +116,14 @@ button{
 }
 
 
-.matching-type{
-	margin-bottom: 10px;
-}
-.nlp-type{
-	margin-bottom: 10px;
-}
-.data-source{
-	margin-bottom: 10px;
-}
-.predicate-type{
-	margin-bottom: 10px;
-}
-.distance{
-	margin-bottom: 10px;
-}
-.value{
-	margin-bottom: 10px;
-}
-.attributes{
-	margin-bottom: 10px;
-}
-.limit{
-	margin-bottom: 10px;
-}
-.offset{
+.matching-type, .nlp-type, .data-source, .predicate-type, .distance, .value, .attributes{
 	margin-bottom: 10px;
 }
 
+.limit , .offset{
+	margin-bottom: 10px;
+	display : none;
+}
 
 
 /* Holds the nav, dashboard, popup attribute box */
@@ -129,57 +134,70 @@ button{
 /* Navbar at top of screen with menu, delete, and process operators */
 .nav {
 	/*background: #202024 url("../img/black-thread.png") repeat left top;*/
-	background-color: #262626;
+	background-color: #282828;
+	border-bottom: 1px solid white;
+	color : white;
 }
 
 .Wiki {
 	font-weight: bold;
 	float: right;
-	color: white;
+	padding-right: 10px;
+	border-left: 1px solid white;
 }
 
 .process-query {
 	font-weight: bold;
 	float: right;
-	color: #3d9e1a;
+	/*color: #3d9e1a;*/
+	border-left: 1px solid white;
+
+}
+
+.process-query i {
+	color : green;
+}
+
+.delete-operator i {
+	color : red;
 }
 
 .attribute-show {
 	font-weight: bold;
-	color: #ffff00;
+	float: right;
+	border-left: 1px solid white;
+
+	/*color: #ffff00;*/
+
 }
 
-.attribute-hide {
-	font-weight: bold;
-	color: #0080ff;
-}
+
 
 
 #main-delete {
 	/*background-color: Darkred;*/
 	float: right;
-	color: red;
+	/*color: red;*/
 	font-weight: bold;
+	border-left: 1px solid white;
 }
 
 /* menu, delete, and process operators (grouped) */
 .nav div {
 	cursor: pointer;
-	border-radius: 10px;
 	text-decoration: none;
 	text-transform: uppercase;
 	font-family: 'Open Sans', sans-serif;
-	font-size: 16px;
+	font-size: 18px;
 	padding: 15px;
 	display: inline-block;
-	margin: 10px;
+	/*margin-top: 10px;
+	margin-bottom: 10px;*/
+
+	/*margin: 10px;*/
 }
 
-.icon-menu {
-	padding-right: 50px;
-	color: #fff;
-	font-weight: bold;
-}
+
 
 i {
 	padding-right: 10px;
@@ -187,19 +205,24 @@ i {
 
 
 .activating{
-	background-color: #494b4d;
+	background-color: #1a1a1a;
+	color : #595959;
 }
 
+.activate-panel{
+	background-color: #3a3a3a;
+}
 
 /* Holds the flowchart */
 .dashboard {
-	border-top: 5px solid white;
+	border-top: 5px solid black;
 	background-image: url('../img/green.jpg');
 	opacity: 0.8;
 	margin: 0;
 	padding: 0;
 	height: 100%;
-	width: 100%;
+	/*width: 100%;*/
+	left : 285px;
 }
 
 /* Holds the attributes box */
@@ -214,11 +237,11 @@ i {
 	background-image: url('../img/white-background.jpg') ;
 	background-size: 100% 100%;
 	border: 1px solid black;
+	overflow: auto;
 }
 
 /* Closes the Attributes Box when clicked */
 .attributes-band{
-	height: 20px;
 	border-bottom: 1px solid black;
 	padding: 11px;
 	/*background: #202024 url('../img/black-thread.png') repeat left top;*/
@@ -243,30 +266,6 @@ i {
 	margin: 5px;
 	border: 1px solid black;
 }
-
-
-/* Wiki button // Modal */
-
-.modal {
-    display: none; /* Hidden by default */
-    position: fixed; /* Stay in place */
-    z-index: 1; /* Sit on top */
-    left: 0;
-    top: 0;
-    width: 100%; /* Full width */
-    height: 100%; /* Full height */
-    overflow: auto; /* Enable scroll if needed */
-    background-color: rgb(0,0,0); /* Fallback color */
-    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
-}
-
-/* Modal Content/Box */
-
-
-
-/*             */
-
-
 
 
 

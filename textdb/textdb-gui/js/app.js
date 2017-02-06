@@ -76,37 +76,58 @@ var endhover = function(){
 	$(this).removeClass('activating');
 }
 
+var beginpanelhover = function(){
+	$(this).addClass('activate-panel');
+}
 
+var endpanelhover = function(){
+	$(this).removeClass('activate-panel');
+}
 
 var main = function(){
 
 
-	$('.icon-menu').click(openMenu);
-  $('.icon-menu').hover(beginhover,endhover);
+	// $('.icon-menu').click(openMenu);
 	$('.process-query').hover(beginhover,endhover);
 	$('.delete-operator').hover(beginhover,endhover);
 	$('.icon-close').hover(beginhover, endhover);
-	$('li').hover(beginhover,endhover);
+
+	$('li').hover(beginpanelhover,endpanelhover);
+
 	$('.attribute-show').hover(beginhover,endhover);
 	$('.attribute-hide').hover(beginhover,endhover);
 	$('.Wiki').hover(beginhover,endhover);
 
 
 
-	$('.icon-close').click(closeMenu);
-	$('.attribute-show').click(openBand);
-	$('.attribute-hide').click(closeBand);
+	// $('.icon-close').click(closeMenu);
+
+	$("#switch").click(function () {
+		if (($("#switch").text() == 'Show Attributes')){
+			openBand();
+			$('#switch').html('<i class="fa fa-minus-circle" aria-hidden="true"></i>Hide Attributes');
+			;
+		}else{
+			closeBand();
+			$('#switch').html('<i class="fa fa-plus-circle"></i>Show Attributes');
+		}
+})
 
 	$('body').on('click', '.result-frame .result-box .result-box-band .result-frame-close', function() {
 		closeResultFrame(this);
 	});
 
-	$('.attributes-band').on('click', closeBand);
+
+	$('.attributes-band').on('click', function(){
+		closeBand();
+		$('#switch').html('<i class="fa fa-plus-circle"></i>Show Attributes');
+	});
 
 	$('.menu ul li').on('click', function(){
 		selectPanel(this);
 	});
 };
+
 
 
 $(document).ready(main);

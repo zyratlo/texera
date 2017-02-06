@@ -2,13 +2,16 @@
 	<head>
 
 		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
 
 		<script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>
 		<script type="text/javascript" src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
 		<script type="text/javascript" src="thirdparty/pretty-json/underscore-min.js" ></script>
 		<script type="text/javascript" src="thirdparty/pretty-json/backbone-min.js" ></script>
-
-
+		<!-- bootstrap -->
+		<link rel="stylesheet" href="thirdparty/bootstrap/css/bootstrap.min.css">
+		<script src="thirdparty/bootstrap/js/bootstrap.min.js"></script>
+			<!--  -->
 		<script type="text/javascript" src="thirdparty/pretty-json/pretty-json-min.js"></script>
 		<script type="text/javascript" src="thirdparty/flowchart-js/textdb.flowchart.js"></script>
 		<script type="text/javascript" src="js/app.js"></script>
@@ -16,35 +19,38 @@
 		<link href='thirdparty/flowchart-js/flowchart.css' rel='stylesheet'>
 		<link rel="stylesheet" href="thirdparty/font-awesome-4.7.0/css/font-awesome.min.css">
 
+
+
 		<link href='css/style.css' rel='stylesheet'>
 
 
 	</head>
 	<body>
 
-		<div class="menu">
+		<div class="menu" class="container">
 
 			<!-- Menu icon -->
-			<div class="icon-close">
-				<img src="img/close-icon.png">
+			<div class="icon-menu">
+				<i class="fa fa-bars"></i>
+				Menu
 			</div>
 
 			<!-- Menu -->
 			<ul>
-				<li rel="regex-panel" class="regex-matcher-operator"><i class="fa fa-plus-circle" aria-hidden="true"></i>Create Regex Matcher</li>
-					<div id="regex-panel" class="panel">
+				<li rel="regex-panel" class="regex-matcher-operator"><i class="fa fa-plus-circle" aria-hidden="true"></i>Regex Matcher</li>
+					<div id="regex-panel" class="panel" class="form-group">
 						<em>Enter Regex: </em><br/>
-						<input type="text" class='value' placeholder="zika\s*(virus|fever)"><br/>
+						<input type="text" class='value' class = "form-control" placeholder="zika\s*(virus|fever)"><br/>
 						<em>Enter Attributes (Separated by commas): </em><br/>
 						<input type="text" class='attributes' placeholder="first name, last name"><br/>
-						<em>Enter Limit (Optional): </em><br/>
-						<input type="text" class='limit' placeholder="10" value="10"><br/>
-						<em>Enter Offset (Optional): </em><br/>
-						<input type="text" class='offset' placeholder="5" value="5"><br/>
+						<!-- <em>Enter Limit (Optional): </em><br/> -->
+						<input type="text" class='limit' placeholder="10" value="10">
+						<!-- <em>Enter Offset (Optional): </em><br/> -->
+						<input type="text" class='offset' placeholder="5" value="5">
 						<br/>
 						<button rel="regex-panel" id='RegexMatcher' class="create-operator">Create operator</button><br/>
 					</div>
-				<li rel="keyword-panel" class="keyword-matcher-operator"><i class="fa fa-plus-circle" aria-hidden="true"></i>Create Keyword Matcher</li>
+				<li rel="keyword-panel" class="keyword-matcher-operator"><i class="fa fa-plus-circle" aria-hidden="true"></i>Keyword Matcher</li>
 					<div id="keyword-panel" class="panel">
 						<em>Enter Keyword: </em><br/>
 						<input type="text" class='value' placeholder="Zika"><br/>
@@ -56,17 +62,17 @@
 						</select><br/>
 						<em>Enter Attributes (Separated by commas): </em><br/>
 						<input type="text" class='attributes' placeholder="first name, last name"><br/>
-						<em>Enter Limit (Optional): </em><br/>
-						<input type="text" class='limit' placeholder="10" value="10"><br/>
-						<em>Enter Offset (Optional): </em><br/>
-						<input type="text" class='offset' placeholder="5" value="5"><br/>
+						<!-- <em>Enter Limit (Optional): </em><br/> -->
+						<input type="text" class='limit' placeholder="10" value="10">
+						<!-- <em>Enter Offset (Optional): </em><br/> -->
+						<input type="text" class='offset' placeholder="5" value="5">
 						<br/>
 						<button rel="keyword-panel" id='KeywordMatcher' class="create-operator">Create operator</button><br/><br/>
 					</div>
-				<li rel="dictionary-panel" class="dictionary-matcher-operator"><i class="fa fa-plus-circle" aria-hidden="true"></i>Create Dictionary Matcher</li>
+				<li rel="dictionary-panel" class="dictionary-matcher-operator"><i class="fa fa-plus-circle" aria-hidden="true"></i>Dictionary Matcher</li>
 					<div id="dictionary-panel" class="panel">
 						<em>Enter Dictionary: </em><br/>
-						<input type="file" class='value' placeholder="Enter File"><br/>
+						<input type="text" class='value' placeholder="Enter File"><br/>
 						<em>Select Matching Type: </em><br/>
 						<select class="matching-type">
 							<option value="conjunction" selected>Conjunction</option>
@@ -75,27 +81,27 @@
 						</select><br/>
 						<em>Enter Attributes (Separated by commas): </em><br/>
 						<input type="text" class='attributes' placeholder="first name, last name"><br/>
-						<em>Enter Limit (Optional): </em><br/>
-						<input type="text" class='limit' placeholder="10" value="10"><br/>
-						<em>Enter Offset (Optional): </em><br/>
-						<input type="text" class='offset' placeholder="5" value="5"><br/>
+						<!-- <em>Enter Limit (Optional): </em><br/> -->
+						<input type="text" class='limit' placeholder="10" value="10">
+						<!-- <em>Enter Offset (Optional): </em><br/> -->
+						<input type="text" class='offset' placeholder="5" value="5">
 						<br/>
 						<button rel="dictionary-panel" id='DictionaryMatcher' class="create-operator">Create operator</button><br/><br/>
 					</div>
-				<li rel="fuzzy-panel" class="fuzzy-matcher-operator"><i class="fa fa-plus-circle" aria-hidden="true"></i>Create Fuzzy Matcher</li>
+				<li rel="fuzzy-panel" class="fuzzy-matcher-operator"><i class="fa fa-plus-circle" aria-hidden="true"></i>Fuzzy Matcher</li>
 					<div id="fuzzy-panel" class="panel">
 						<em>Enter Fuzzy: </em><br/>
 						<input type="text" class='value' placeholder="Enter Fuzzy"><br/>
 						<em>Enter Attributes (Separated by commas): </em><br/>
 						<input type="text" class='attributes' placeholder="first name, last name"><br/>
-						<em>Enter Limit (Optional): </em><br/>
-						<input type="text" class='limit' placeholder="10" value="10"><br/>
-						<em>Enter Offset (Optional): </em><br/>
-						<input type="text" class='offset' placeholder="5" value="5"><br/>
+						<!-- <em>Enter Limit (Optional): </em><br/> -->
+						<input type="text" class='limit' placeholder="10" value="10">
+						<!-- <em>Enter Offset (Optional): </em><br/> -->
+						<input type="text" class='offset' placeholder="5" value="5">
 						<br/>
 						<button rel="fuzzy-panel" id='FuzzyTokenMatcher' class="create-operator">Create operator</button><br/><br/>
 					</div>
-				<li rel="nlp-panel" class="nlp-extractor-operator"><i class="fa fa-plus-circle" aria-hidden="true"></i>Create NLP Extractor</li>
+				<li rel="nlp-panel" class="nlp-extractor-operator"><i class="fa fa-plus-circle" aria-hidden="true"></i>NLP Extractor</li>
 					<div id="nlp-panel" class="panel">
 						<em>Enter NLP Extractor: </em><br/>
 						<select class="nlp-type">
@@ -115,14 +121,14 @@
 						</select><br/>
 						<em>Enter Attributes (Separated by commas): </em><br/>
 						<input type="text" class='attributes' placeholder="first name, last name"><br/>
-						<em>Enter Limit (Optional): </em><br/>
-						<input type="text" class='limit' placeholder="10" value="10"><br/>
-						<em>Enter Offset (Optional): </em><br/>
-						<input type="text" class='offset' placeholder="5" value="5"><br/>
+						<!-- <em>Enter Limit (Optional): </em><br/> -->
+						<input type="text" class='limit' placeholder="10" value="10">
+						<!-- <em>Enter Offset (Optional): </em><br/> -->
+						<input type="text" class='offset' placeholder="5" value="5">
 						<br/>
 						<button rel="nlp-panel" id='NlpExtractor' class="create-operator">Create operator</button><br/><br/>
 					</div>
-				<li rel="keyword-source-panel" class="keyword-source-operator"><font color="yellow"><i class="fa fa-plus-circle" aria-hidden="true"></i>Create Keyword Source</font></li>
+				<li rel="keyword-source-panel" class="keyword-source-operator"><font color="yellow"><i class="fa fa-plus-circle" aria-hidden="true"></i>Keyword Source</font></li>
 					<div id="keyword-source-panel" class="panel">
 						<em>Enter Keyword: </em><br/>
 						<input type="text" class='value' placeholder="Zika"><br/>
@@ -136,27 +142,27 @@
 						</select><br/>
 						<em>Enter Attributes (Separated by commas): </em><br/>
 						<input type="text" class='attributes' placeholder="first name, last name"><br/>
-						<em>Enter Limit (Optional): </em><br/>
-						<input type="text" class='limit' placeholder="10" value="10"><br/>
-						<em>Enter Offset (Optional): </em><br/>
-						<input type="text" class='offset' placeholder="5" value="5"><br/>
+						<!-- <em>Enter Limit (Optional): </em><br/> -->
+						<input type="text" class='limit' placeholder="10" value="10">
+						<!-- <em>Enter Offset (Optional): </em><br/> -->
+						<input type="text" class='offset' placeholder="5" value="5">
 						<br/>
 						<button rel="keyword-source-panel" id='KeywordSource' class="create-operator">Create operator</button><br/><br/>
 					</div>
-				<li rel="file-sink-panel" class="file-sink-operator"><font color="orange"><i class="fa fa-plus-circle" aria-hidden="true"></i>Create File Sink</font></li>
+				<li rel="file-sink-panel" class="file-sink-operator"><font color="orange"><i class="fa fa-plus-circle" aria-hidden="true"></i>File Sink</font></li>
 					<div id="file-sink-panel" class="panel">
 						<em>Enter File Path: </em><br/>
 						<input type="text" class='value' placeholder="output.txt"><br/>
 						<em>Enter Attributes (Separated by commas): </em><br/>
 						<input type="text" class='attributes' placeholder="first name, last name"><br/>
-						<em>Enter Limit (Optional): </em><br/>
-						<input type="text" class='limit' placeholder="10" value="10"><br/>
-						<em>Enter Offset (Optional): </em><br/>
-						<input type="text" class='offset' placeholder="5" value="5"><br/>
+						<!-- <em>Enter Limit (Optional): </em><br/> -->
+						<input type="text" class='limit' placeholder="10" value="10">
+						<!-- <em>Enter Offset (Optional): </em><br/> -->
+						<input type="text" class='offset' placeholder="5" value="5">
 						<br/>
 						<button rel="file-sink-panel" id='FileSink' class="create-operator">Create operator</button><br/><br/>
 					</div>
-				<li rel = "tuple-stream-sink-panel" class="tuple-stream-sink-operator"><font color = "orange"><i class="fa fa-plus-circle" aria-hidden="true"></i>Create Tuple Stream Sink</font></li>
+				<li rel = "tuple-stream-sink-panel" class="tuple-stream-sink-operator"><font color = "orange"><i class="fa fa-plus-circle" aria-hidden="true"></i>Tuple Stream Sink</font></li>
 					<div id="tuple-stream-sink-panel" class="panel"><br/>
 					<button rel="tuple-stream-sink-panel" id="TupleStreamSink" class="create-operator">Create operator</button><br/><br/>
 					</div>
@@ -165,45 +171,37 @@
 						<em>Enter Attribute (Only One Allowed): </em><br/>
 						<input type="text" class='attributes' placeholder="first name"><br/>
 						<em>Enter Attribute ID: </em><br/>
-						<input type="text" class='value' placeholder="John"><br/>
+						<input type="text" class='value' placeholder="_id"><br/>
 						<em>Enter Predicate Type: </em><br/>
-						<input type="text" class="predicate-type" placeholder="CharacterDistance" value="CharacterDistance"><br/>
-						<em>Enter Distance (if CharacterDistance): </em><br/>
-						<input type="text" class="distance" placeholder="10" value="10"><br/>
-						<em>Enter Limit (Optional): </em><br/>
-						<input type="text" class='limit' placeholder="10" value="10"><br/>
-						<em>Enter Offset (Optional): </em><br/>
-						<input type="text" class='offset' placeholder="5" value="5"><br/>
+						<input type="text" class="predicate-type" placeholder="CharacterDistance"><br/>
+						<em>Threshold: </em><br/>
+						<input type="text" class="distance" placeholder="100" value="100"><br/>
+						<!-- <em>Enter Limit (Optional): </em><br/> -->
+						<input type="text" class='limit' placeholder="10" value="10">
+						<!-- <em>Enter Offset (Optional): </em><br/> -->
+						<input type="text" class='offset' placeholder="5" value="5">
 						<br/>
 						<button rel="join-panel" id='Join' class="create-operator">Create operator</button><br/><br/>
 					</div>
-				<li rel="projection-panel" class="projection-operator"><font color="orange"><i class="fa fa-plus-circle" aria-hidden="true"></i>Create Projection</font></li>
+				<li rel="projection-panel" class="projection-operator"><font color="orange"><i class="fa fa-plus-circle" aria-hidden="true"></i>Projection</font></li>
 					<div id="projection-panel" class="panel">
 						<em>Enter Attributes (Separated by commas): </em><br/>
 						<input type="text" class='attributes value' placeholder="first name, last name"><br/>
-						<em>Enter Limit (Optional): </em><br/>
-						<input type="text" class='limit' placeholder="10" value="10"><br/>
-						<em>Enter Offset (Optional): </em><br/>
-						<input type="text" class='offset' placeholder="5" value="5"><br/>
+						<!-- <em>Enter Limit (Optional): </em><br/> -->
+						<input type="text" class='limit' placeholder="10" value="10">
+						<!-- <em>Enter Offset (Optional): </em><br/> -->
+						<input type="text" class='offset' placeholder="5" value="5">
 						<br/>
 						<button rel="projection-panel" id='Projection' class="create-operator">Create operator</button><br/><br/>
 					</div>
-				<li class="operator"><i class="fa fa-plus-circle" aria-hidden="true"></i>Create  Operator</li>
-				<li class="operator"><i class="fa fa-plus-circle" aria-hidden="true"></i>Create  Operator</li>
-				<li class="operator"><i class="fa fa-plus-circle" aria-hidden="true"></i>Create  Operator</li>
-				<li class="operator"><i class="fa fa-plus-circle" aria-hidden="true"></i>Create  Operator</li>
-				<li class="blank-operator"></li>
 			</ul>
 		</div>
 
 		<!-- Main body -->
-		<div class="jumbotron">
 
-		<div class="nav">
-			<div class="icon-menu">
-				<i class="fa fa-bars"></i>
-				Menu
-			</div>
+		<div class="jumbotron" class="container-fluid">
+
+		<div class="nav" class = "container-fluid">
 
 
 
@@ -212,22 +210,19 @@
 				Wiki
 			</div>
 
+
 			<div class="process-query">
 				<i class="fa fa-play-circle"></i>
-				Process Operators
+				Run
 			</div>
+
 			<div class="delete-operator" id="main-delete">
 				<i class="fa fa-times"></i>
-				Delete Selected Operator
+				Delete
 			</div>
-			<div class="attribute-show">
-				<i class="fa fa-plus-circle"></i>
-				Show Attribute
-			</div>
-			<div class="attribute-hide">
-				<i class="fa fa-minus-circle" aria-hidden="true"></i>
-				Hide Attribute
-			</div>
+
+			<div class="attribute-show" id="switch"><i class="fa fa-plus-circle"></i>Show Attributes</div>
+
 		</div>
 
 
@@ -241,6 +236,7 @@
 			<div class="attributes-band">Attributes</div>
 			<div id="attributes" class="popup-panel"></div>
 		</div>
+
 
 
 		<!-- Wiki Popup Modal -->
