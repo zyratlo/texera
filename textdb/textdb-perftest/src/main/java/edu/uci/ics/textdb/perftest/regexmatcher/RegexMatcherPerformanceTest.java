@@ -71,7 +71,7 @@ public class RegexMatcherPerformanceTest {
             if (file.getName().startsWith(".")) {
                 continue;
             }
-            String tableName = file.getName().replace(".txt", "");
+            String tableName = file.getName().replace(".txt", "") + "_trigram";
 
             PerfTestUtils.createFile(PerfTestUtils.getResultPath(csvFile), HEADER);
             fileWriter = new FileWriter(PerfTestUtils.getResultPath(csvFile),true);
