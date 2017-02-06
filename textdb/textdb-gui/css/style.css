@@ -1,3 +1,5 @@
+
+
 body {
 	left: 0;
 	margin: 0;
@@ -5,10 +7,13 @@ body {
 	position: relative;
 }
 
+
+
 /* Menu of Operators (hidden at beginning) */
 .menu {
-	background: #202024 url("../img/black-thread.png") repeat left top;
-	left: -285px;
+	/*background: #202024 url("../img/black-thread.png") repeat left top;*/
+	background-color: black;
+	left: 0px;
 	top: 0px;
 	height: 100%;
 	position: fixed;
@@ -16,18 +21,19 @@ body {
 }
 
 .menu ul {
-	border-top: 1px solid #636366;
+	border-top: 5px solid #303030;
 	list-style: none;
-	height: 95%;
+	height: 92%;
 	width: 100%;
 	margin: 0px;
 	padding: 0px;
-	overflow: auto;
+	border-right : 5px solid #303030;
+	overflow:  auto;
 }
 
 /* Each Operator Selector */
 .menu li {
-	border-bottom: 1px solid #636366;
+	border-bottom: 1.5px solid #636366;
 	border-left: 3px solid transparent;
 	font-family: 'Open Sans', sans-serif;
 	line-height: 45px;
@@ -35,8 +41,7 @@ body {
 	padding-left: 20px;
 	padding-top: 3px;
 	color: #fff;
-	font-size: 15px;
-	text-transform: uppercase;
+	font-size: 17px;
 	cursor: pointer;
 }
 
@@ -47,10 +52,36 @@ body {
 }
 
 /* The X that closes the menu */
-.icon-close {
-	cursor: pointer;
-	padding: 10px;
-	padding-bottom: 14px;
+
+.icon-menu {
+	color: #fff;
+	font-weight: bold;
+	line-height: 45px;
+	padding-bottom: 3px;
+	padding-left: 20px;
+	padding-top: 8px;
+	font-size: 21px;
+	/*cursor: pointer;*/
+	background-color: #282828;
+	border-bottom: 1px solid white;
+
+
+}
+
+input {
+	color : black;
+}
+
+option {
+	color : black;
+}
+
+select {
+	color : black;
+}
+
+button {
+	color : black;
 }
 
 /* The Dropdown Panel after selecting an operator from menu */
@@ -73,7 +104,7 @@ body {
 
 li.active{
 	border-bottom: none;
-	background-color: black;
+	background-color: #494b4d;
 	border-left: 3px solid cyan;
 	color: cyan;
 }
@@ -84,6 +115,17 @@ button{
 	padding-bottom: 5px;
 }
 
+
+.matching-type, .nlp-type, .data-source, .predicate-type, .distance, .value, .attributes{
+	margin-bottom: 10px;
+}
+
+.limit , .offset{
+	margin-bottom: 10px;
+	display : none;
+}
+
+
 /* Holds the nav, dashboard, popup attribute box */
 .jumbotron {
 	height: 100%;
@@ -91,49 +133,96 @@ button{
 
 /* Navbar at top of screen with menu, delete, and process operators */
 .nav {
-	background: #202024 url("../img/black-thread.png") repeat left top;
+	/*background: #202024 url("../img/black-thread.png") repeat left top;*/
+	background-color: #282828;
+	border-bottom: 1px solid white;
+	color : white;
+}
+
+.Wiki {
+	font-weight: bold;
+	float: right;
+	padding-right: 10px;
+	border-left: 1px solid white;
 }
 
 .process-query {
 	font-weight: bold;
 	float: right;
-	color: white;
+	/*color: #3d9e1a;*/
+	border-left: 1px solid white;
+
 }
 
-#main-delete {
-	background-color: Darkred;
-	float: right;
-	color: white;
+.process-query i {
+	color : green;
+}
+
+.delete-operator i {
+	color : red;
+}
+
+.attribute-show {
 	font-weight: bold;
+	float: right;
+	border-left: 1px solid white;
+
+	/*color: #ffff00;*/
+
+}
+
+
+
+
+#main-delete {
+	/*background-color: Darkred;*/
+	float: right;
+	/*color: red;*/
+	font-weight: bold;
+	border-left: 1px solid white;
 }
 
 /* menu, delete, and process operators (grouped) */
 .nav div {
-	border: 1px solid #636366;
 	cursor: pointer;
-	border-radius: 10px;
 	text-decoration: none;
 	text-transform: uppercase;
 	font-family: 'Open Sans', sans-serif;
-	font-size: 16px;
+	font-size: 18px;
 	padding: 15px;
 	display: inline-block;
-	margin: 10px;
+	/*margin-top: 10px;
+	margin-bottom: 10px;*/
+
+	/*margin: 10px;*/
 }
 
-.icon-menu {
-	padding-right: 100px;
-	color: #fff;
+
+
+i {
+	padding-right: 10px;
+}
+
+
+.activating{
+	background-color: #1a1a1a;
+	color : #595959;
+}
+
+.activate-panel{
+	background-color: #3a3a3a;
 }
 
 /* Holds the flowchart */
 .dashboard {
-	background-image: url('../img/white-background.jpg'); 
+	border-top: 5px solid black;
+	background-image: url('../img/green.jpg');
+	opacity: 0.8;
 	margin: 0;
 	padding: 0;
 	height: 100%;
-	width: 100%;
-	border: 1px solid #BBB;
+	/*width: 100%;*/
+	left : 285px;
 }
 
 /* Holds the attributes box */
@@ -142,20 +231,21 @@ button{
 	width: 450px;
 	padding: 0px;
 	margin: 0px;
-	bottom: 0;
-	right: 0;
+	bottom: -570px;
+	right: 10px;
 	position: fixed;
-	background-image: url('../img/white-background.jpg');
+	background-image: url('../img/white-background.jpg') ;
 	background-size: 100% 100%;
 	border: 1px solid black;
+	overflow: auto;
 }
 
 /* Closes the Attributes Box when clicked */
 .attributes-band{
-	height: 20px;
 	border-bottom: 1px solid black;
 	padding: 11px;
-	background: #202024 url('../img/black-thread.png') repeat left top;
+	/*background: #202024 url('../img/black-thread.png') repeat left top;*/
+	background-color: black;
 	color: #fff;
 	font-family: 'Open Sans', sans-serif;
 	font-size: 16px;
@@ -166,6 +256,7 @@ button{
 	padding: 11px;
 	font-family: 'Open Sans', sans-serif;
 	font-size: 16px;
+	font-weight: : bold;
 	white-space: pre-wrap;
 	line-height: 1.5;
 }
@@ -175,6 +266,10 @@ button{
 	margin: 5px;
 	border: 1px solid black;
 }
+
+
+
+
 
 /* Result Frame and Result Box after processing query */
 .result-frame{
@@ -206,7 +301,7 @@ button{
 .result-box-band{
 	padding: 11px;
 	height: 50px;
-	font-size: 22px;	
+	font-size: 22px;
 	border-bottom: 1px solid black;
 	background: #202024 url('../img/black-thread.png') repeat left top;
 	color: #fff;
