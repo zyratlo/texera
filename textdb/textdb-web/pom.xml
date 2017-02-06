@@ -52,6 +52,11 @@
             <artifactId>textdb-storage</artifactId>
             <version>${textdb.version}</version>
         </dependency>
+        <dependency>
+            <groupId>edu.uci.ics.textdb</groupId>
+            <artifactId>textdb-perftest</artifactId>
+            <version>${textdb.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
