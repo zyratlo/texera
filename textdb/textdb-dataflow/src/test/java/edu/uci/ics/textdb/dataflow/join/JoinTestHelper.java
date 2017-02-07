@@ -131,7 +131,7 @@ public class JoinTestHelper {
                     LuceneAnalyzerConstants.getLuceneAnalyzer(LuceneAnalyzerConstants.nGramAnalyzerString(3))));
             regexMatcher.setInputOperator(scanBasedSourceOperator);
             return regexMatcher;
-        } catch (DataFlowException | StorageException e) {
+        } catch (DataFlowException e) {
             e.printStackTrace();
             return null;
         }
