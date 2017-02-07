@@ -50,8 +50,8 @@ public class JoinBuilder {
     public static final String JOIN_SIMILARITY = "SimilarityJoin";
     
     public static final String JOIN_THRESHOLD = "threshold";
-    public static final String JOIN_INNER_ATTR_NAME = "innerAttributeName";
-    public static final String JOIN_OUTER_ATTR_NAME = "outerAttributeName";
+    public static final String JOIN_INNER_ATTR_NAME = "inner_attribute";
+    public static final String JOIN_OUTER_ATTR_NAME = "outer_attribute";
     
     
     public static Join buildOperator(Map<String, String> operatorProperties) throws PlanGenException {        
