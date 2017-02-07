@@ -16,4 +16,8 @@ public interface IJoinPredicate {
 			throws Exception;
 	
 	Schema generateOutputSchema(Schema outerOperatorSchema, Schema innerOperatorSchema) throws DataFlowException;
+	
+	String getInnerAttributeName();
+	
+	String getOuterAttributeName();
 }

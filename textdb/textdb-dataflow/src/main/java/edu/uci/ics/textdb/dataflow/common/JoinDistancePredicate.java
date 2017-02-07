@@ -265,4 +265,14 @@ public class JoinDistancePredicate implements IJoinPredicate {
 	
 	    return innerField.getValue().equals(outerField.getValue());
 	}
+
+    @Override
+    public String getInnerAttributeName() {
+        return this.joinAttributeName;
+    }
+
+    @Override
+    public String getOuterAttributeName() {
+        return this.joinAttributeName;
+    }
 }

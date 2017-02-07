@@ -204,4 +204,15 @@ public class SimilarityJoinPredicate implements IJoinPredicate {
                 span.getStart(), span.getEnd(), span.getKey(), span.getValue(), span.getTokenOffset());
     }
 
+    @Override
+    public String getInnerAttributeName() {
+        return this.innerJoinAttrName;
+    }
+
+    @Override
+    public String getOuterAttributeName() {
+        // TODO Auto-generated method stub
+        return this.outerJoinAttrName;
+    }
+
 }
