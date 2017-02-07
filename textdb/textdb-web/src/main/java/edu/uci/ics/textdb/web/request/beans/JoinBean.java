@@ -19,6 +19,8 @@ public class JoinBean extends OperatorBean {
     private String idAttribute;
     @JsonProperty("distance")
     private String distance;
+    @JsonProperty("predicate_type")
+    private String predicateType;
 
     // A bean variable for the predicate type of the join has been omitted for now and will be included in the future
 
@@ -26,10 +28,11 @@ public class JoinBean extends OperatorBean {
     }
 
     public JoinBean(String operatorID, String operatorType, String attributes, String limit, String offset,
-                    String idAttribute, String distance) {
+                    String idAttribute, String distance, String predicateType) {
         super(operatorID, operatorType, attributes, limit, offset);
         this.idAttribute = idAttribute;
         this.distance = distance;
+        this.predicateType = predicateType;
     }
 
     @JsonProperty("id_attribute")
@@ -52,12 +55,23 @@ public class JoinBean extends OperatorBean {
         this.distance = distance;
     }
 
+    @JsonProperty("predicate_type")
+    public String getPredicateType() {
+        return predicateType;
+    }
+
+    @JsonProperty("predicate_type")
+    public void setPredicateType(String predicateType) {
+        this.predicateType = predicateType;
+    }
+
     public HashMap<String, String> getOperatorProperties() {
         HashMap<String, String> operatorProperties = super.getOperatorProperties();
         if(this.getIdAttribute() == null || this.getDistance() == null || operatorProperties == null)
             return null;
         operatorProperties.put(JoinBuilder.JOIN_ID_ATTRIBUTE_NAME, this.getIdAttribute());
         operatorProperties.put(JoinBuilder.JOIN_DISTANCE, this.getDistance());
+        operatorProperties.put(JoinBuilder.JOIN_PREDICATE, this.getPredicateType());
         // TODO - Check on the other properties required for the Join Operator
         return operatorProperties;
     }
@@ -72,6 +86,7 @@ public class JoinBean extends OperatorBean {
                 .appendSuper(super.equals(joinBean))
                 .append(idAttribute, joinBean.getIdAttribute())
                 .append(distance, joinBean.getDistance())
+                .append(predicateType, joinBean.getPredicateType())
                 .isEquals();
     }
 
@@ -81,6 +96,7 @@ public class JoinBean extends OperatorBean {
                 .append(super.hashCode())
                 .append(idAttribute)
                 .append(distance)
+                .append(predicateType)
                 .toHashCode();
     }
 }

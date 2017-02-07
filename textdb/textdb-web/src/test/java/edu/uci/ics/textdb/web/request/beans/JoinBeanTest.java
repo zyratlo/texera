@@ -18,7 +18,7 @@ public class JoinBeanTest {
 
     @Test
     public void testDeserialization() throws IOException {
-        final JoinBean joinBean = new JoinBean("operator1", "Join", "attributes", "10", "100", "attribute", "10");
+        final JoinBean joinBean = new JoinBean("operator1", "Join", "attributes", "10", "100", "attribute", "10", "CharacterDistance");
         String jsonString = "{\n" +
                 "    \"operator_id\": \"operator1\",\n" +
                 "    \"operator_type\": \"Join\",\n" +
@@ -26,6 +26,7 @@ public class JoinBeanTest {
                 "    \"limit\": \"10\",\n" +
                 "    \"offset\": \"100\",\n" +
                 "    \"id_attribute\": \"attribute\",\n" +
+                "    \"predicate_type\":\"CharacterDistance\",\n" +
                 "    \"distance\": \"10\"\n" +
                 "}";
         JoinBean deserializedObject = MAPPER.readValue(jsonString, JoinBean.class);
@@ -34,7 +35,7 @@ public class JoinBeanTest {
 
     @Test
     public void testInvalidDeserialization() throws IOException {
-        final JoinBean joinBean = new JoinBean("operator1", "Join", "attributes", "10", "100", "attribute", "10");
+        final JoinBean joinBean = new JoinBean("operator1", "Join", "attributes", "10", "100", "attribute", "10", "CharacterDistance");
         String jsonString = "{\n" +
                 "    \"operator_id\": \"operator2\",\n" +
                 "    \"operator_type\": \"Join\",\n" +
