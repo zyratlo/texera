@@ -3,7 +3,6 @@ package edu.uci.ics.textdb.web.request;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.dropwizard.jackson.Jackson;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -17,7 +16,6 @@ import static org.junit.Assert.assertEquals;
 public class QueryPlanRequestTest {
     private static final ObjectMapper MAPPER = Jackson.newObjectMapper();
 
-    @Ignore
     @Test
     public void testDeserialization() throws IOException {
         // TODO - This JSON needs to be updated with a new JSON string corresponding to the changes in the Join oerator
@@ -67,20 +65,20 @@ public class QueryPlanRequestTest {
                 "      {\n" +
                 "         \"operator_id\":\"Join_6\",\n" +
                 "         \"operator_type\":\"Join\",\n" +
-                "         \"id_attribute\":\"_id\",\n" +
                 "         \"predicate_type\":\"CharacterDistance\",\n" +
-                "         \"distance\":\"100\",\n" +
-                "         \"attributes\":\"content\",\n" +
+                "         \"threshold\":\"100\",\n" +
+                "         \"inner_attribute\":\"content\",\n" +
+                "         \"outer_attribute\":\"content\",\n" +
                 "         \"limit\":\"100\",\n" +
                 "         \"offset\":\"0\"\n" +
                 "      },\n" +
                 "      {\n" +
                 "         \"operator_id\":\"Join_7\",\n" +
                 "         \"operator_type\":\"Join\",\n" +
-                "         \"id_attribute\":\"_id\",\n" +
                 "         \"predicate_type\":\"CharacterDistance\",\n" +
-                "         \"distance\":\"100\",\n" +
-                "         \"attributes\":\"content\",\n" +
+                "         \"threshold\":\"100\",\n" +
+                "         \"inner_attribute\":\"content\",\n" +
+                "         \"outer_attribute\":\"content\",\n" +
                 "         \"limit\":\"100\",\n" +
                 "         \"offset\":\"0\"\n" +
                 "      },\n" +
