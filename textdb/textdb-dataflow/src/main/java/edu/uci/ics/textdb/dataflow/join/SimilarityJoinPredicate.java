@@ -211,8 +211,11 @@ public class SimilarityJoinPredicate implements IJoinPredicate {
 
     @Override
     public String getOuterAttributeName() {
-        // TODO Auto-generated method stub
         return this.outerJoinAttrName;
+    }
+    
+    public Double getThreshold() {
+        return this.similarityThreshold;
     }
 
 }

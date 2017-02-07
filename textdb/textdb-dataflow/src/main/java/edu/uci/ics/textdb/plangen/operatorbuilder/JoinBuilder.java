@@ -1,7 +1,6 @@
 package edu.uci.ics.textdb.plangen.operatorbuilder;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import edu.uci.ics.textdb.common.exception.PlanGenException;
@@ -19,24 +18,26 @@ import edu.uci.ics.textdb.plangen.PlanGenUtils;
  * 
  *   predicateType (required)
  *   
- *   properties required for constructing attributeList, see OperatorBuilderUtils.constructAttributeList
- *   (As of now, join must have one attribute in the attribute list.)
+ *   innerAttributeName,
+ *   outerAttributeName
  *   
- *   idAttributeName (required): the name of the "ID" attribute
- *   
- *   requirements for differnt join predicates:
+ *   requirements for different join predicates:
  *   
  *   predicatType CharacterDistance:
- *      distance (required), the character distance threshold of this join predicate.
+ *      threshold (required), the character distance threshold of this join predicate.
+ *   
+ *   predicateType SimilarityJoin:
+ *      threshold (required), the similarity threshold of this join predicate
  *   
  *   Sample JSON representation:
  *   {
  *      "predicateType" : "CharacterDistance",
- *      "distance" : "100",
+ *      "threshold" : "100",
  *      
- *      "attributeName" : "content",
- *      "idAttributeName" : "id",
+ *      "innerAttributeName" : "content",
+ *      "outerAttributeName" : "content"
  *   }
+ *   
  * 
  * @author Zuozhi Wang
  *
@@ -48,7 +49,6 @@ public class JoinBuilder {
     public static final String JOIN_CHARACTER_DISTANCE = "CharacterDistance";
     public static final String JOIN_SIMILARITY = "SimilarityJoin";
     
-    public static final String JOIN_DISTANCE = "distance";
     public static final String JOIN_THRESHOLD = "threshold";
     public static final String JOIN_INNER_ATTR_NAME = "innerAttributeName";
     public static final String JOIN_OUTER_ATTR_NAME = "outerAttributeName";
@@ -96,13 +96,14 @@ public class JoinBuilder {
      */
     private static JoinDistancePredicate getJoinCharDistancePredicate(
             Map<String, String> operatorProperties) throws PlanGenException{
-        String distanceStr = OperatorBuilderUtils.getRequiredProperty(JOIN_DISTANCE, operatorProperties);
+        String distanceStr = OperatorBuilderUtils.getRequiredProperty(JOIN_THRESHOLD, operatorProperties);
+        String innerAttrName = OperatorBuilderUtils.getRequiredProperty(JOIN_INNER_ATTR_NAME, operatorProperties);
+        String outerAttrName = OperatorBuilderUtils.getRequiredProperty(JOIN_OUTER_ATTR_NAME, operatorProperties);
         
-        List<String> attributeNames = OperatorBuilderUtils.constructAttributeNames(operatorProperties);
-        PlanGenUtils.planGenAssert(attributeNames.size() == 1, 
-                "Join character distance predicate allows only 1 attribute, got " + attributeNames.size()+  " attributes.");
-        String joinAttributeName = attributeNames.get(0);
-        
+        if (! innerAttrName.equals(outerAttrName)) {
+            throw new PlanGenException("inner attr name and outer attr name must be the same for join distance");
+        }
+
         int distance;
         try {
             distance = Integer.parseInt(distanceStr);
@@ -113,7 +114,7 @@ public class JoinBuilder {
             throw new PlanGenException("Join character distance predicate: distance must be greater than 0.");
         }
         
-        return new JoinDistancePredicate(joinAttributeName, distance);
+        return new JoinDistancePredicate(outerAttrName, distance);
     }
     
     /*
