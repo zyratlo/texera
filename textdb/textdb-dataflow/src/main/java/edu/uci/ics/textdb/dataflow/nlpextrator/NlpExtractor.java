@@ -38,6 +38,9 @@ public class NlpExtractor extends AbstractSingleInputOperator {
     private NlpPredicate predicate;
 
     private Schema inputSchema;
+    
+    private static StanfordCoreNLP posPipeline = null;
+    private static StanfordCoreNLP nerPipeline = null;
 
     /**
      * @param NlpPredicate
@@ -152,12 +155,20 @@ public class NlpExtractor extends AbstractSingleInputOperator {
         Properties props = new Properties();
 
         // Setup Stanford NLP pipeline based on nlpTypeIndicator
+        StanfordCoreNLP pipeline = null;
         if (predicate.getNlpTypeIndicator().equals("POS")) {
             props.setProperty("annotators", "tokenize, ssplit, pos");
+            if (posPipeline == null) {
+                posPipeline = new StanfordCoreNLP(props);
+            }
+            pipeline = posPipeline;
         } else {
             props.setProperty("annotators", "tokenize, ssplit, pos, lemma, " + "ner");
+            if (nerPipeline == null) {
+                nerPipeline = new StanfordCoreNLP(props);
+            }
+            pipeline = nerPipeline;
         }
-        StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
         Annotation documentAnnotation = new Annotation(text);
         pipeline.annotate(documentAnnotation);
         List<CoreMap> sentences = documentAnnotation.get(CoreAnnotations.SentencesAnnotation.class);
