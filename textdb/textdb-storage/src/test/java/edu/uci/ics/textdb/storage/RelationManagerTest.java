@@ -23,8 +23,6 @@ import edu.uci.ics.textdb.common.field.IDField;
 import edu.uci.ics.textdb.common.field.StringField;
 import edu.uci.ics.textdb.common.utils.Utils;
 import edu.uci.ics.textdb.storage.RelationManager;
-import edu.uci.ics.textdb.storage.reader.DataReader;
-import edu.uci.ics.textdb.storage.relation.CatalogConstants;
 
 public class RelationManagerTest {
     
@@ -200,7 +198,7 @@ public class RelationManagerTest {
         IDField idField = dataWriter.insertTuple(insertedTuple);
         dataWriter.close();
                 
-        ITuple returnedTuple = relationManager.getTuple(tableName, idField);
+        ITuple returnedTuple = relationManager.getTupleByID(tableName, idField);
         
         Assert.assertEquals(insertedTuple.getField("content").getValue().toString(), 
                 returnedTuple.getField("content").getValue().toString());
@@ -209,7 +207,7 @@ public class RelationManagerTest {
         dataWriter.deleteTupleByID(idField);
         dataWriter.close();
         
-        ITuple deletedTuple = relationManager.getTuple(tableName, idField);
+        ITuple deletedTuple = relationManager.getTupleByID(tableName, idField);
         Assert.assertNull(deletedTuple);
         
         relationManager.deleteTable(tableName);
@@ -238,7 +236,7 @@ public class RelationManagerTest {
         IDField idField = dataWriter.insertTuple(insertedTuple);
         dataWriter.close();
         
-        ITuple returnedTuple = relationManager.getTuple(tableName, idField);
+        ITuple returnedTuple = relationManager.getTupleByID(tableName, idField);
         
         Assert.assertEquals(insertedTuple.getField("content").getValue().toString(), 
                 returnedTuple.getField("content").getValue().toString());
@@ -247,7 +245,7 @@ public class RelationManagerTest {
         ITuple updatedTuple = new DataTuple(tableSchema, new StringField("testUpdate"));
         dataWriter.updateTuple(updatedTuple, idField);
         dataWriter.close();
-        ITuple returnedUpdatedTuple = relationManager.getTuple(tableName, idField);
+        ITuple returnedUpdatedTuple = relationManager.getTupleByID(tableName, idField);
         
         Assert.assertEquals(updatedTuple.getField("content").getValue().toString(), 
                 returnedUpdatedTuple.getField("content").getValue().toString());
@@ -256,7 +254,7 @@ public class RelationManagerTest {
         dataWriter.deleteTupleByID(idField);
         dataWriter.close();
         
-        ITuple deletedTuple = relationManager.getTuple(tableName, idField);
+        ITuple deletedTuple = relationManager.getTupleByID(tableName, idField);
         Assert.assertNull(deletedTuple);
         
         relationManager.deleteTable(tableName);   
@@ -314,7 +312,7 @@ public class RelationManagerTest {
         dataWriter.deleteTuple(tuple2Query);
         dataWriter.close();
         
-        ITuple deletedTuple = relationManager.getTuple(tableName, idField2);
+        ITuple deletedTuple = relationManager.getTupleByID(tableName, idField2);
         Assert.assertNull(deletedTuple);
         
         relationManager.deleteTable(tableName);       

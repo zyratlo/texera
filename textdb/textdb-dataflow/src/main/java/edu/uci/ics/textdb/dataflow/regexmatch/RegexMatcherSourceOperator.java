@@ -12,8 +12,8 @@ import edu.uci.ics.textdb.common.exception.DataFlowException;
 import edu.uci.ics.textdb.common.exception.StorageException;
 import edu.uci.ics.textdb.dataflow.common.AbstractSingleInputOperator;
 import edu.uci.ics.textdb.dataflow.common.RegexPredicate;
+import edu.uci.ics.textdb.storage.DataReader;
 import edu.uci.ics.textdb.storage.RelationManager;
-import edu.uci.ics.textdb.storage.reader.DataReader;
 
 public class RegexMatcherSourceOperator extends AbstractSingleInputOperator implements ISourceOperator {
     

@@ -1,4 +1,4 @@
-package edu.uci.ics.textdb.storage.reader;
+package edu.uci.ics.textdb.storage;
 
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -14,6 +14,7 @@ import org.apache.lucene.index.Terms;
 import org.apache.lucene.index.TermsEnum;
 import org.apache.lucene.search.DocIdSetIterator;
 import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
@@ -32,7 +33,6 @@ import edu.uci.ics.textdb.common.field.DataTuple;
 import edu.uci.ics.textdb.common.field.ListField;
 import edu.uci.ics.textdb.common.field.Span;
 import edu.uci.ics.textdb.common.utils.Utils;
-import edu.uci.ics.textdb.storage.DataReaderPredicate;
 
 /**
  * 
@@ -42,7 +42,9 @@ import edu.uci.ics.textdb.storage.DataReaderPredicate;
 
 public class DataReader implements IDataReader {
 
-    private DataReaderPredicate predicate;
+    private DataStore dataStore;
+    private Query query;
+    
     private Schema inputSchema;
     private Schema outputSchema;
 
@@ -52,13 +54,16 @@ public class DataReader implements IDataReader {
 
     private int cursor = CLOSED;
 
-    private int limit;
-    private int offset;
     private boolean payloadAdded;
 
-    public DataReader(DataReaderPredicate dataReaderPredicate) {
-        predicate = dataReaderPredicate;
-        payloadAdded = dataReaderPredicate.isPayloadAdded();
+    protected DataReader(DataStore dataStore, Query query) {
+        this(dataStore, query, false);
+    }
+    
+    protected DataReader(DataStore dataStore, Query query, boolean payloadAdded) {
+        this.dataStore = dataStore;
+        this.query = query;
+        this.payloadAdded = payloadAdded;
     }
 
     @Override
@@ -67,15 +72,15 @@ public class DataReader implements IDataReader {
             return;
         }
         try {
-            String indexDirectoryStr = predicate.getDataStore().getDataDirectory();
+            String indexDirectoryStr = this.dataStore.getDataDirectory();
             Directory indexDirectory = FSDirectory.open(Paths.get(indexDirectoryStr));
             luceneIndexReader = DirectoryReader.open(indexDirectory);
             luceneIndexSearcher = new IndexSearcher(luceneIndexReader);
 
-            TopDocs topDocs = luceneIndexSearcher.search(predicate.getLuceneQuery(), Integer.MAX_VALUE);
+            TopDocs topDocs = luceneIndexSearcher.search(query, Integer.MAX_VALUE);
             scoreDocs = topDocs.scoreDocs;
 
-            inputSchema = predicate.getDataStore().getSchema();
+            inputSchema = this.dataStore.getSchema();
             if (payloadAdded) {
                 outputSchema = Utils.addAttributeToSchema(inputSchema, SchemaConstants.PAYLOAD_ATTRIBUTE);
             } else {
@@ -193,21 +198,13 @@ public class DataReader implements IDataReader {
 
         return payloadSpanList;
     }
-
-    public int getLimit() {
-        return limit;
+    
+    public boolean isPayloadAdded() {
+        return this.payloadAdded;
     }
-
-    public void setLimit(int limit) {
-        this.limit = limit;
-    }
-
-    public int getOffset() {
-        return offset;
-    }
-
-    public void setOffset(int offset) {
-        this.offset = offset;
+    
+    public void setPayloadAdded(boolean payloadAdded) {
+        this.payloadAdded = payloadAdded;
     }
 
     public Schema getOutputSchema() {

@@ -21,8 +21,6 @@ import edu.uci.ics.textdb.common.exception.DataFlowException;
 import edu.uci.ics.textdb.common.exception.StorageException;
 import edu.uci.ics.textdb.common.field.IDField;
 import edu.uci.ics.textdb.common.utils.Utils;
-import edu.uci.ics.textdb.storage.reader.DataReader;
-import edu.uci.ics.textdb.storage.relation.CatalogConstants;
 
 public class RelationManager {
     
@@ -158,16 +156,14 @@ public class RelationManager {
      * @return
      * @throws StorageException
      */
-    public ITuple getTuple(String tableName, IDField idValue) throws StorageException {
+    public ITuple getTupleByID(String tableName, IDField idField) throws StorageException {
         // construct the ID query
-        Query tupleIDQuery = new TermQuery(new Term(SchemaConstants._ID, idValue.getValue().toString()));
+        Query tupleIDQuery = new TermQuery(new Term(SchemaConstants._ID, idField.getValue().toString()));
         
         // find the tuple using DataReader
-        DataStore tableDataStore = getTableDataStore(tableName);
-        DataReaderPredicate dataReaderPredicate = new DataReaderPredicate(tupleIDQuery, tableDataStore);
-        dataReaderPredicate.setIsPayloadAdded(false);
-        DataReader dataReader = new DataReader(dataReaderPredicate);
-        
+        DataReader dataReader = getTableDataReader(tableName, tupleIDQuery);
+        dataReader.setPayloadAdded(false);
+
         dataReader.open(); 
         ITuple tuple = dataReader.getNextTuple();
         dataReader.close();
@@ -201,7 +197,7 @@ public class RelationManager {
      */
     public DataReader getTableDataReader(String tableName, Query tupleQuery) throws StorageException {
         DataStore tableDataStore = getTableDataStore(tableName);
-        return new DataReader(new DataReaderPredicate(tupleQuery, tableDataStore));
+        return new DataReader(tableDataStore, tupleQuery);
     }
     
     /**
@@ -227,9 +223,8 @@ public class RelationManager {
     public String getTableDirectory(String tableName) throws StorageException {
         // get the tuples with tableName from the table catalog
         Query tableNameQuery = new TermQuery(new Term(CatalogConstants.TABLE_NAME, tableName));
-        DataReaderPredicate predicate = new DataReaderPredicate(tableNameQuery, CatalogConstants.TABLE_CATALOG_DATASTORE);
-        predicate.setIsPayloadAdded(false);
-        DataReader tableCatalogDataReader = new DataReader(predicate);
+        DataReader tableCatalogDataReader = new DataReader(CatalogConstants.TABLE_CATALOG_DATASTORE, tableNameQuery);
+        tableCatalogDataReader.setPayloadAdded(false);
         
         tableCatalogDataReader.open();
         ITuple nextTuple = tableCatalogDataReader.getNextTuple();
@@ -255,9 +250,8 @@ public class RelationManager {
     public Schema getTableSchema(String tableName) throws StorageException {
         // get the tuples with tableName from the schema catalog
         Query tableNameQuery = new TermQuery(new Term(CatalogConstants.TABLE_NAME, tableName));
-        DataReaderPredicate predicate = new DataReaderPredicate(tableNameQuery, CatalogConstants.SCHEMA_CATALOG_DATASTORE);
-        predicate.setIsPayloadAdded(false);
-        DataReader schemaCatalogDataReader = new DataReader(predicate);
+        DataReader schemaCatalogDataReader = new DataReader(CatalogConstants.SCHEMA_CATALOG_DATASTORE, tableNameQuery);
+        
         
         // read the tuples into a list
         schemaCatalogDataReader.open();    
@@ -295,9 +289,9 @@ public class RelationManager {
     public Analyzer getTableAnalyzer(String tableName) throws StorageException {
         // get the tuples with tableName from the table catalog
         Query tableNameQuery = new TermQuery(new Term(CatalogConstants.TABLE_NAME, tableName));
-        DataReaderPredicate predicate = new DataReaderPredicate(tableNameQuery, CatalogConstants.TABLE_CATALOG_DATASTORE);
-        predicate.setIsPayloadAdded(false);
-        DataReader tableCatalogDataReader = new DataReader(predicate);
+
+        DataReader tableCatalogDataReader = new DataReader(CatalogConstants.TABLE_CATALOG_DATASTORE, tableNameQuery);
+        tableCatalogDataReader.setPayloadAdded(false);
         
         tableCatalogDataReader.open();
         ITuple nextTuple = tableCatalogDataReader.getNextTuple();
