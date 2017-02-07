@@ -23,8 +23,8 @@ import edu.uci.ics.textdb.api.exception.TextDBException;
 import edu.uci.ics.textdb.dataflow.common.AbstractSingleInputOperator;
 import edu.uci.ics.textdb.dataflow.common.KeywordPredicate;
 import edu.uci.ics.textdb.storage.DataReaderPredicate;
+import edu.uci.ics.textdb.storage.RelationManager;
 import edu.uci.ics.textdb.storage.reader.DataReader;
-import edu.uci.ics.textdb.storage.relation.RelationManager;
 
 /**
  * KeywordMatcherSourceOperator is a source operator with a keyword query.

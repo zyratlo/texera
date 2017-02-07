@@ -22,7 +22,6 @@ import edu.uci.ics.textdb.common.constants.SchemaConstants;
 import edu.uci.ics.textdb.common.constants.TestConstants;
 import edu.uci.ics.textdb.common.utils.Utils;
 import edu.uci.ics.textdb.storage.reader.DataReader;
-import edu.uci.ics.textdb.storage.writer.DataWriter;
 
 public class DataWriterReaderTest {
     private DataWriter dataWriter;
@@ -47,14 +46,14 @@ public class DataWriterReaderTest {
     public void testReadWriteData() throws Exception {
         List<ITuple> actualTuples = TestConstants.getSamplePeopleTuples();
         
-        dataWriter.clearData();
         dataWriter.open();
+        dataWriter.clearData();
         for (ITuple tuple : actualTuples) {
             dataWriter.insertTuple(tuple);
         }
         dataWriter.close();
         
-        Assert.assertEquals(dataStore.getNumDocuments(), actualTuples.size());
+        Assert.assertEquals(actualTuples.size(), dataWriter.getDataStore().getNumDocuments());
         
         dataReader.open();
         ITuple nextTuple = null;
