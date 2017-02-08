@@ -52,6 +52,9 @@ public class KeywordPredicate implements IPredicate {
     
     public void setQuery(String query) {
         this.query = query;
+        this.queryTokenList = Utils.tokenizeQuery(luceneAnalyzer, query);
+        this.queryTokenSet = new HashSet<>(this.queryTokenList);
+        this.queryTokensWithStopwords = Utils.tokenizeQueryWithStopwords(query);
     }
 
     public String getQuery() {
