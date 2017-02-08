@@ -18,7 +18,7 @@ public class OneToManyCacheConnector implements IOperator {
     
     private boolean isOpen = false;
     private boolean inputAllConsumed = false;
-    private int cursor = -1;
+    private int cursor = 0;
 
     @Override
     public void open() throws TextDBException {
@@ -74,7 +74,7 @@ public class OneToManyCacheConnector implements IOperator {
             inputOperator.close();
         }
         // reset the cursor
-        cursor = -1;
+        cursor = 0;
     }
     
     public void closeCache() throws TextDBException {
@@ -83,7 +83,7 @@ public class OneToManyCacheConnector implements IOperator {
         }
         inputAllConsumed = true;
         isOpen = false;
-        cursor = -1;
+        cursor = 0;
         inputOperator.close();
     }
 

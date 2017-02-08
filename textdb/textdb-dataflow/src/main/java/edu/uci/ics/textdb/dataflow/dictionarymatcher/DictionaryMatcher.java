@@ -1,16 +1,14 @@
 package edu.uci.ics.textdb.dataflow.dictionarymatcher;
 
-import java.util.stream.Collectors;
-
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.common.Schema;
 import edu.uci.ics.textdb.api.dataflow.IOperator;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
 import edu.uci.ics.textdb.common.exception.ErrorMessages;
-import edu.uci.ics.textdb.common.utils.Utils;
 import edu.uci.ics.textdb.api.exception.TextDBException;
 import edu.uci.ics.textdb.dataflow.common.DictionaryPredicate;
 import edu.uci.ics.textdb.dataflow.common.KeywordPredicate;
+import edu.uci.ics.textdb.dataflow.connector.OneToManyCacheConnector;
 import edu.uci.ics.textdb.dataflow.keywordmatch.KeywordMatcher;
 
 public class DictionaryMatcher implements IOperator {
@@ -18,6 +16,8 @@ public class DictionaryMatcher implements IOperator {
     private DictionaryPredicate predicate;
 
     private IOperator inputOperator;
+    private OneToManyCacheConnector cacheConnector;
+    private KeywordPredicate keywordPredicate;
     private KeywordMatcher keywordMatcher;
 
     private Schema outputSchema;
@@ -54,12 +54,16 @@ public class DictionaryMatcher implements IOperator {
                 throw new DataFlowException("Dictionary is empty");
             }
 
-            KeywordPredicate keywordPredicate = new KeywordPredicate(currentDictionaryEntry,
+            keywordPredicate = new KeywordPredicate(currentDictionaryEntry,
                     predicate.getAttributeNames(),
                     predicate.getAnalyzer(), predicate.getKeywordMatchingType());
 
             keywordMatcher = new KeywordMatcher(keywordPredicate);
-            keywordMatcher.setInputOperator(inputOperator);
+            
+            cacheConnector = new OneToManyCacheConnector();
+            cacheConnector.setInputOperator(inputOperator);
+            
+            keywordMatcher.setInputOperator(cacheConnector);
 
             keywordMatcher.open();
             outputSchema = keywordMatcher.getOutputSchema();
@@ -96,16 +100,11 @@ public class DictionaryMatcher implements IOperator {
                 return null;
             }
 
-            // Construct a new KeywordMatcher with the new dictionary entry.
+            // Update the KeywordMatcher with the new dictionary entry.
             keywordMatcher.close();
-            inputOperator.close();
-
-            KeywordPredicate keywordPredicate = new KeywordPredicate(currentDictionaryEntry,
-                    predicate.getAttributeNames(),
-                    predicate.getAnalyzer(), predicate.getKeywordMatchingType());
-
-            keywordMatcher = new KeywordMatcher(keywordPredicate);
-            keywordMatcher.setInputOperator(inputOperator);
+            
+            keywordPredicate.setQuery(currentDictionaryEntry);
+            keywordMatcher.setPredicate(keywordPredicate);
 
             keywordMatcher.open();
         }
@@ -120,8 +119,8 @@ public class DictionaryMatcher implements IOperator {
             if (keywordMatcher != null) {
                 keywordMatcher.close();
             }
-            if (inputOperator != null) {
-                inputOperator.close();
+            if (cacheConnector != null) {
+                cacheConnector.closeCache();
             }
         } catch (Exception e) {
             throw new DataFlowException(e.getMessage(), e);

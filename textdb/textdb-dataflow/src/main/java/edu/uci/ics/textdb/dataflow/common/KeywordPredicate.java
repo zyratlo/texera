@@ -49,6 +49,10 @@ public class KeywordPredicate implements IPredicate {
     public KeywordMatchingType getOperatorType() {
         return operatorType;
     }
+    
+    public void setQuery(String query) {
+        this.query = query;
+    }
 
     public String getQuery() {
         return query;
