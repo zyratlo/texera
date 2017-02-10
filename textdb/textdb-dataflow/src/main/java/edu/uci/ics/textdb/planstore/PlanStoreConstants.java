@@ -19,6 +19,7 @@ public class PlanStoreConstants {
     public static final String INDEX_DIR = "../plan";
     public static final String FILES_DIR = "../plan_files";
     public static final String FILE_SUFFIX = ".ser";
+    public static final String FILE_SUFFIX_JSON = ".json";
 
     public static final String NAME = "name";
     public static final String DESCRIPTION = "desc";
