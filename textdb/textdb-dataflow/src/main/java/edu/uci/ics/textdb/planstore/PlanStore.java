@@ -1,5 +1,9 @@
 package edu.uci.ics.textdb.planstore;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
 import edu.uci.ics.textdb.api.common.IField;
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.exception.TextDBException;
@@ -19,6 +23,8 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 /**
  * An implementation of query plan store.
@@ -94,10 +100,45 @@ public class PlanStore {
         ITuple tuple = new DataTuple(PlanStoreConstants.SCHEMA_PLAN,
                 new StringField(planName),
                 new StringField(description),
-                new StringField(filePath));
+                new StringField(filePath),
+                new StringField(PlanStoreConstants.LOGICAL_PLAN_FILE_TYPE));
 
         IDField id = relationManager.insertTuple(PlanStoreConstants.TABLE_NAME, tuple);
         writePlanObject(plan, filePath);
+
+        return id;
+    }
+
+    /**
+     * Adds a Logical Plan JSON to the plan store.
+     *
+     * @param planName, the name of the plan.
+     * @param description, the description of the plan.
+     * @param logicalPlanJson, the logical plan JSON string
+     * @Return IDField, the id field of the plan stored.
+     * @throws TextDBException, when there are null fields or the given name is invalid or there is an existing plan with same name.
+     */
+    public IDField addPlan(String planName, String description, String logicalPlanJson) throws TextDBException {
+        if (planName == null || description == null || logicalPlanJson == null) {
+            throw new TextDBException("Arguments cannot be null when adding a plan");
+        }
+        if (!PlanStoreConstants.VALID_PLAN_NAME.matcher(planName).find()) {
+            throw new TextDBException("Plan name is not valid. It can only contain alphanumeric characters, " +
+                    "underscore, and hyphen.");
+        }
+        if (getPlan(planName) != null) {
+            throw new TextDBException("A plan with the same name already exists");
+        }
+
+        String filePath = PlanStoreConstants.FILES_DIR + "/" + planName + PlanStoreConstants.FILE_SUFFIX_JSON;
+        ITuple tuple = new DataTuple(PlanStoreConstants.SCHEMA_PLAN,
+                new StringField(planName),
+                new StringField(description),
+                new StringField(filePath),
+                new StringField(PlanStoreConstants.JSON_FILE_TYPE));
+
+        IDField id = relationManager.insertTuple(PlanStoreConstants.TABLE_NAME, tuple);
+        writePlanJson(logicalPlanJson, filePath);
 
         return id;
     }
@@ -178,7 +219,7 @@ public class PlanStore {
      * @throws TextDBException
      */
     public void updatePlan(String planName, String description) throws TextDBException {
-        updatePlanInternal(planName, description, null);
+        updatePlanInternal(planName, description, (LogicalPlan) null);
     }
 
     /**
@@ -191,6 +232,40 @@ public class PlanStore {
      */
     public void updatePlan(String planName, String description, LogicalPlan plan) throws TextDBException {
         updatePlanInternal(planName, description, plan);
+    }
+
+    /**
+     * Updates plan object of a plan with the given plan name.
+     *
+     * @param planName, the name of the plan.
+     * @param logicalPlanJson, the new plan object.
+     * @throws TextDBException
+     */
+    public void updatePlanJson(String planName, LogicalPlan logicalPlanJson) throws TextDBException {
+        updatePlanInternal(planName, null, logicalPlanJson);
+    }
+
+    /**
+     * Updates plan description of a plan with the given plan name.
+     *
+     * @param planName, the name of the plan.
+     * @param description, the new description of the plan.
+     * @throws TextDBException
+     */
+    public void updatePlanJson(String planName, String description) throws TextDBException {
+        updatePlanInternal(planName, description, (String) null);
+    }
+
+    /**
+     * Updates both plan description and plan object of a plan with the given plan name.
+     *
+     * @param planName, the name of the plan.
+     * @param description, the new description of the plan.
+     * @param logicalPlanJson, the new plan object.
+     * @throws TextDBException
+     */
+    public void updatePlanJson(String planName, String description, LogicalPlan logicalPlanJson) throws TextDBException {
+        updatePlanInternal(planName, description, logicalPlanJson);
     }
 
     /**
@@ -207,6 +282,7 @@ public class PlanStore {
         ITuple existingPlan = getPlan(planName);
 
         if (existingPlan == null) {
+//            throw new TextDBException("The plan does not exist to be updated");
             return;
         }
 
@@ -216,7 +292,8 @@ public class PlanStore {
             ITuple newTuple = new DataTuple(PlanStoreConstants.SCHEMA_PLAN,
                     new StringField(planName),
                     descriptionField,
-                    existingPlan.getField(PlanStoreConstants.FILE_PATH));
+                    existingPlan.getField(PlanStoreConstants.FILE_PATH),
+                    existingPlan.getField(PlanStoreConstants.FILE_TYPE));
             relationManager.updateTuple(PlanStoreConstants.TABLE_NAME, newTuple, (IDField) idField);
         }
 
@@ -225,6 +302,36 @@ public class PlanStore {
             String filePath = filePathField.getValue().toString();
             deletePlanObject(filePath);
             writePlanObject(plan, filePath);
+        }
+    }
+
+    /**
+     * Updates both plan description and plan json of a plan with the given plan name.
+     * If description is null, it will not update plan description.
+     * If plan json is null, it will not update plan object.
+     *
+     * @param planName, the name of the plan.
+     * @param description, the new description of the plan.
+     * @param logicalPlanJson, the new plan json string.
+     * @throws TextDBException
+     */
+    private void updatePlanInternal(String planName, String description, String logicalPlanJson) throws TextDBException {
+        ITuple existingPlan = getPlan(planName);
+
+        if (existingPlan == null) {
+//            throw new TextDBException("The plan does not exist to be updated");
+            return;
+        }
+
+        if (description != null) {
+            updatePlan(planName, description);
+        }
+
+        if (logicalPlanJson != null) {
+            IField filePathField = existingPlan.getField(PlanStoreConstants.FILE_PATH);
+            String filePath = filePathField.getValue().toString();
+            deletePlanObject(filePath);
+            writePlanJson(logicalPlanJson, filePath);
         }
     }
 
@@ -254,6 +361,23 @@ public class PlanStore {
     }
 
     /**
+     * Retrieves the Logical Plan in JSON format at the given file path
+     * @param filePath, the file path of the logical plan JSON
+     * @return String
+     * @throws TextDBException
+     */
+    public String readPlanJson(String filePath) throws TextDBException {
+        try {
+            // Reading the Logical JSON string as bytes
+            byte[] encoded = Files.readAllBytes(Paths.get(filePath));
+            return new String(encoded);
+        }
+        catch (IOException e) {
+            throw new TextDBException("Failed to read the Logical Plan's JSON");
+        }
+    }
+
+    /**
      * Writes the given plan object into the given file path.
      *
      * @param plan, the plan object to store.
@@ -275,6 +399,32 @@ public class PlanStore {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    /**
+     * Writes the given Logical Plan JSON to a .json file, at the given file path
+     * @param logicalPlanJson, the logical plan JSON in String format
+     * @param filePath, the file path of the logical plan JSON file
+     * @throws TextDBException
+     */
+    private void writePlanJson(String logicalPlanJson, String filePath) throws TextDBException {
+        try {
+            // Converting the JSON String to a JSON Node to minimize space usage and to check validity of JSON string
+            JsonParser jsonParser = new JsonParser();
+            JsonObject jsonObject = jsonParser.parse(logicalPlanJson).getAsJsonObject();
+
+            // Writing to the logical JSON string to a file
+            FileWriter fileWriter = new FileWriter(filePath);
+            fileWriter.write(jsonObject.toString());
+            fileWriter.flush();
+            fileWriter.close();
+        }
+        catch (JsonParseException e) {
+            throw new TextDBException("Logical Plan JSON is invalid", e);
+        }
+        catch (IOException e) {
+            throw new TextDBException("Failed to write the Logical Plan JSON", e);
         }
     }
 
