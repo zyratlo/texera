@@ -3,34 +3,15 @@ import edu.uci.ics.textdb.api.exception.TextDBException;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-//import java.text.ParseException;
-//import java.util.ArrayList;
-//import java.util.List;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-//import org.json.JSONException;
-//import org.json.JSONObject;
-
-//import edu.uci.ics.textdb.api.common.Attribute;
-//import edu.uci.ics.textdb.api.common.FieldType;
-//import edu.uci.ics.textdb.api.common.IField;
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.common.Schema;
 import edu.uci.ics.textdb.api.dataflow.ISourceOperator;
-//import edu.uci.ics.textdb.api.storage.IDataReader;
-//import edu.uci.ics.textdb.api.storage.IDataStore;
-//import edu.uci.ics.textdb.common.exception.DataFlowException;
-//import edu.uci.ics.textdb.common.exception.StorageException;
 import edu.uci.ics.textdb.common.field.DataTuple;
-//import edu.uci.ics.textdb.common.field.StringField;
 import edu.uci.ics.textdb.common.field.TextField;
-//import edu.uci.ics.textdb.common.utils.Utils;
-//import edu.uci.ics.textdb.dataflow.source.FileSourceOperator.ToTuple;
-//import edu.uci.ics.textdb.storage.DataReaderPredicate;
-//import edu.uci.ics.textdb.storage.reader.DataReader;
-//import edu.uci.ics.textdb.storage.relation.RelationManager;
+
 
 
 /**
@@ -73,6 +54,7 @@ public class FileRegexSplitSourceOperator implements ISourceOperator {
     }
 
     @Override
+    // Construct a tuple with only one field schema.
     public ITuple getNextTuple() throws TextDBException {
         if ( isOpen == true && this.scanner.hasNextLine()) {
                 try {
@@ -121,8 +103,7 @@ public class FileRegexSplitSourceOperator implements ISourceOperator {
             this.lineNum += 1;
             Matcher startM = p.matcher(line);
             
-            if (startM.find())
-            {
+            if (startM.find()) {
                 this.tupleEndLineNum = this.lineNum;
                 this.nextTupleStartString = line;
                 isTupleComplete = true;
