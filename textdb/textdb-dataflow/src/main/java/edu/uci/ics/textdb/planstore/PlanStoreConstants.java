@@ -18,22 +18,16 @@ public class PlanStoreConstants {
 
     public static final String INDEX_DIR = "../plan";
     public static final String FILES_DIR = "../plan_files";
-    public static final String FILE_SUFFIX = ".ser";
-    public static final String FILE_SUFFIX_JSON = ".json";
+    public static final String FILE_SUFFIX = ".json";
 
     public static final String NAME = "name";
     public static final String DESCRIPTION = "desc";
     public static final String FILE_PATH = "filePath";
-    public static final String FILE_TYPE = "fileType";
 
     public static final Attribute NAME_ATTR = new Attribute(NAME, FieldType.STRING);
     public static final Attribute DESCRIPTION_ATTR = new Attribute(DESCRIPTION, FieldType.STRING);
     public static final Attribute FILE_PATH_ATTR = new Attribute(FILE_PATH, FieldType.STRING);
-    public static final Attribute FILE_TYPE_ATTR = new Attribute(FILE_TYPE, FieldType.STRING);
 
-    public static final Attribute[] ATTRIBUTES_PLAN = {NAME_ATTR, DESCRIPTION_ATTR, FILE_PATH_ATTR, FILE_TYPE_ATTR};
+    public static final Attribute[] ATTRIBUTES_PLAN = {NAME_ATTR, DESCRIPTION_ATTR, FILE_PATH_ATTR};
     public static final Schema SCHEMA_PLAN = new Schema(ATTRIBUTES_PLAN);
-
-    public static final String LOGICAL_PLAN_FILE_TYPE = "LogicalPlan";
-    public static final String JSON_FILE_TYPE = "Json";
 }

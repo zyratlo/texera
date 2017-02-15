@@ -20,7 +20,9 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
@@ -95,12 +97,11 @@ public class PlanStore {
             throw new TextDBException("A plan with the same name already exists");
         }
 
-        String filePath = PlanStoreConstants.FILES_DIR + "/" + planName + PlanStoreConstants.FILE_SUFFIX_JSON;
+        String filePath = PlanStoreConstants.FILES_DIR + "/" + planName + PlanStoreConstants.FILE_SUFFIX;
         ITuple tuple = new DataTuple(PlanStoreConstants.SCHEMA_PLAN,
                 new StringField(planName),
                 new StringField(description),
-                new StringField(filePath),
-                new StringField(PlanStoreConstants.JSON_FILE_TYPE));
+                new StringField(filePath));
 
         IDField id = relationManager.insertTuple(PlanStoreConstants.TABLE_NAME, tuple);
         writePlanJson(logicalPlanJson, filePath);
@@ -166,6 +167,38 @@ public class PlanStore {
     }
 
     /**
+     * Updates the description for the given plan name
+     * @param planName - Name of the plan whose description is to be modified
+     * @param description - New description of the plan as it it is to be updated
+     * @throws TextDBException
+     */
+    public void updatePlanDescription(String planName, String description) throws TextDBException{
+        updatePlanInternal(planName, description, null);
+    }
+
+    /**
+     * Updates the logical plan for the given plan name
+     * @param planName - Name of the plan which is to be modified
+     * @param logicalPlanJson - New logical plan json as it is to be updated in the plan store
+     * @throws TextDBException
+     */
+    public void updatePlan(String planName, String logicalPlanJson) throws TextDBException{
+        updatePlanInternal(planName, null, logicalPlanJson);
+
+    }
+
+    /**
+     * Updates both the description and the logical plan json for the given plan name
+     * @param planName - Name of the plan which is to be updated
+     * @param description - New description for the plan
+     * @param logicalPlanJson - New logical plan json for the plan
+     * @throws TextDBException
+     */
+    public void updatePlan(String planName, String description, String logicalPlanJson) throws TextDBException{
+        updatePlanInternal(planName, description, logicalPlanJson);
+    }
+
+    /**
      * Updates both plan description and plan json of a plan with the given plan name.
      * If description is null, it will not update plan description.
      * If plan json is null, it will not update plan object.
@@ -175,11 +208,10 @@ public class PlanStore {
      * @param logicalPlanJson, the new plan json string.
      * @throws TextDBException
      */
-    private void updatePlan(String planName, String description, String logicalPlanJson) throws TextDBException {
+    private void updatePlanInternal(String planName, String description, String logicalPlanJson) throws TextDBException{
         ITuple existingPlan = getPlan(planName);
 
         if (existingPlan == null) {
-//            throw new TextDBException("The plan does not exist to be updated");
             return;
         }
 
@@ -189,8 +221,7 @@ public class PlanStore {
             ITuple newTuple = new DataTuple(PlanStoreConstants.SCHEMA_PLAN,
                     new StringField(planName),
                     descriptionField,
-                    existingPlan.getField(PlanStoreConstants.FILE_PATH),
-                    existingPlan.getField(PlanStoreConstants.FILE_TYPE));
+                    existingPlan.getField(PlanStoreConstants.FILE_PATH));
             relationManager.updateTuple(PlanStoreConstants.TABLE_NAME, newTuple, (IDField) idField);
         }
 
