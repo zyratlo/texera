@@ -11,9 +11,9 @@ import edu.uci.ics.textdb.common.constants.DataConstants.KeywordMatchingType;
 import edu.uci.ics.textdb.textql.statements.SelectExtractStatement;
 import edu.uci.ics.textdb.textql.statements.predicates.ExtractPredicate;
 import edu.uci.ics.textdb.textql.statements.predicates.KeywordExtractPredicate;
-import edu.uci.ics.textdb.textql.statements.predicates.SelectAllFieldsPredicate;
-import edu.uci.ics.textdb.textql.statements.predicates.SelectPredicate;
-import edu.uci.ics.textdb.textql.statements.predicates.SelectSomeFieldsPredicate;
+import edu.uci.ics.textdb.textql.statements.predicates.ProjectAllFieldsPredicate;
+import edu.uci.ics.textdb.textql.statements.predicates.ProjectPredicate;
+import edu.uci.ics.textdb.textql.statements.predicates.ProjectSomeFieldsPredicate;
 import edu.uci.ics.textdb.web.request.beans.KeywordMatcherBean;
 import edu.uci.ics.textdb.web.request.beans.OperatorBean;
 import edu.uci.ics.textdb.web.request.beans.ProjectionBean;
@@ -34,7 +34,7 @@ public class SelectExtractStatementTest {
      */
     @Test
     public void testConstructorAndGetters() {
-        SelectPredicate selectPredicate;
+        ProjectPredicate projectPredicate;
         ExtractPredicate extractPredicate;
         SelectExtractStatement selectExtractStatement;
 
@@ -48,25 +48,25 @@ public class SelectExtractStatementTest {
         selectExtractStatement = new SelectExtractStatement("_sid08", null, null, null, null, null);
         Assert.assertEquals(selectExtractStatement.getId(), "_sid08");
 
-        // Tests for the selectPredicate attribute
+        // Tests for the projectPredicate attribute
         selectExtractStatement = new SelectExtractStatement("", null, null, null, null, null);
-        Assert.assertEquals(selectExtractStatement.getSelectPredicate(), null);
+        Assert.assertEquals(selectExtractStatement.getProjectPredicate(), null);
 
-        selectPredicate = new SelectAllFieldsPredicate();
-        selectExtractStatement = new SelectExtractStatement(null, selectPredicate, null, null, null, null);
-        Assert.assertEquals(selectExtractStatement.getSelectPredicate(), selectPredicate);
+        projectPredicate = new ProjectAllFieldsPredicate();
+        selectExtractStatement = new SelectExtractStatement(null, projectPredicate, null, null, null, null);
+        Assert.assertEquals(selectExtractStatement.getProjectPredicate(), projectPredicate);
 
-        selectPredicate = new SelectSomeFieldsPredicate(Arrays.asList("a", "b", "c"));
-        selectExtractStatement = new SelectExtractStatement(null, selectPredicate, null, null, null, null);
-        Assert.assertEquals(selectExtractStatement.getSelectPredicate(), selectPredicate);
+        projectPredicate = new ProjectSomeFieldsPredicate(Arrays.asList("a", "b", "c"));
+        selectExtractStatement = new SelectExtractStatement(null, projectPredicate, null, null, null, null);
+        Assert.assertEquals(selectExtractStatement.getProjectPredicate(), projectPredicate);
 
-        selectPredicate = new SelectSomeFieldsPredicate(Arrays.asList("f0", "f1"));
-        selectExtractStatement = new SelectExtractStatement(null, selectPredicate, null, null, null, null);
-        Assert.assertEquals(selectExtractStatement.getSelectPredicate(), selectPredicate);
+        projectPredicate = new ProjectSomeFieldsPredicate(Arrays.asList("f0", "f1"));
+        selectExtractStatement = new SelectExtractStatement(null, projectPredicate, null, null, null, null);
+        Assert.assertEquals(selectExtractStatement.getProjectPredicate(), projectPredicate);
         
         // Tests for the extractPredicate attribute
         selectExtractStatement = new SelectExtractStatement(null, null, null, null, null, null);
-        Assert.assertEquals(selectExtractStatement.getSelectPredicate(), null);
+        Assert.assertEquals(selectExtractStatement.getProjectPredicate(), null);
         
         extractPredicate = new KeywordExtractPredicate(Arrays.asList("x", "y"), "keyword",
                 KeywordMatchingType.SUBSTRING_SCANBASED.toString());
@@ -122,7 +122,7 @@ public class SelectExtractStatementTest {
      */
     @Test
     public void testSettersAndGetters() {
-        SelectPredicate selectPredicate;
+        ProjectPredicate projectPredicate;
         ExtractPredicate extractPredicate;
         SelectExtractStatement selectExtractStatement = new SelectExtractStatement();
 
@@ -136,21 +136,21 @@ public class SelectExtractStatementTest {
         selectExtractStatement.setId("_sid9");
         Assert.assertEquals(selectExtractStatement.getId(), "_sid9");
 
-        // Tests for the selectPredicate attribute
-        selectExtractStatement.setSelectPredicate(null);
-        Assert.assertEquals(selectExtractStatement.getSelectPredicate(), null);
+        // Tests for the projectPredicate attribute
+        selectExtractStatement.setProjectPredicate(null);
+        Assert.assertEquals(selectExtractStatement.getProjectPredicate(), null);
 
-        selectPredicate = new SelectAllFieldsPredicate();
-        selectExtractStatement.setSelectPredicate(selectPredicate);
-        Assert.assertEquals(selectExtractStatement.getSelectPredicate(), selectPredicate);
+        projectPredicate = new ProjectAllFieldsPredicate();
+        selectExtractStatement.setProjectPredicate(projectPredicate);
+        Assert.assertEquals(selectExtractStatement.getProjectPredicate(), projectPredicate);
 
-        selectPredicate = new SelectSomeFieldsPredicate(Arrays.asList("a", "b", "c"));
-        selectExtractStatement.setSelectPredicate(selectPredicate);
-        Assert.assertEquals(selectExtractStatement.getSelectPredicate(), selectPredicate);
+        projectPredicate = new ProjectSomeFieldsPredicate(Arrays.asList("a", "b", "c"));
+        selectExtractStatement.setProjectPredicate(projectPredicate);
+        Assert.assertEquals(selectExtractStatement.getProjectPredicate(), projectPredicate);
 
-        selectPredicate = new SelectSomeFieldsPredicate(Arrays.asList("f0", "f1"));
-        selectExtractStatement.setSelectPredicate(selectPredicate);
-        Assert.assertEquals(selectExtractStatement.getSelectPredicate(), selectPredicate);
+        projectPredicate = new ProjectSomeFieldsPredicate(Arrays.asList("f0", "f1"));
+        selectExtractStatement.setProjectPredicate(projectPredicate);
+        Assert.assertEquals(selectExtractStatement.getProjectPredicate(), projectPredicate);
 
         // Tests for the extractPredicate attribute
         selectExtractStatement.setExtractPredicate(null);
@@ -233,8 +233,8 @@ public class SelectExtractStatementTest {
      */
     @Test
     public void testSelectExtractStatementBeansBuilder01() {
-        SelectPredicate selectPredicate = new SelectAllFieldsPredicate();
-        SelectExtractStatement selectExtractStatement = new SelectExtractStatement("id", selectPredicate, null, "Table",
+        ProjectPredicate projectPredicate = new ProjectAllFieldsPredicate();
+        SelectExtractStatement selectExtractStatement = new SelectExtractStatement("id", projectPredicate, null, "Table",
                 null, null);
 
         List<OperatorBean> expectedGeneratedBeans = Collections.emptyList();
@@ -254,8 +254,8 @@ public class SelectExtractStatementTest {
      */
     @Test
     public void testSelectExtractStatementBeansBuilder02() {
-        SelectPredicate selectPredicate = new SelectSomeFieldsPredicate(Arrays.asList("a", "b"));
-        SelectExtractStatement selectExtractStatement = new SelectExtractStatement("idX", selectPredicate, null, "from",
+        ProjectPredicate projectPredicate = new ProjectSomeFieldsPredicate(Arrays.asList("a", "b"));
+        SelectExtractStatement selectExtractStatement = new SelectExtractStatement("idX", projectPredicate, null, "from",
                 null, null);
 
         List<OperatorBean> expectedGeneratedBeans = Arrays.asList(
@@ -302,10 +302,10 @@ public class SelectExtractStatementTest {
      */
     @Test
     public void testSelectExtractStatementBeansBuilder04() {
-        SelectPredicate selectPredicate = new SelectAllFieldsPredicate();
+        ProjectPredicate projectPredicate = new ProjectAllFieldsPredicate();
         ExtractPredicate extractPredicate = new KeywordExtractPredicate(Arrays.asList("f1"), "keyword", 
                 KeywordMatchingType.CONJUNCTION_INDEXBASED.toString());
-        SelectExtractStatement selectExtractStatement = new SelectExtractStatement("id", selectPredicate,
+        SelectExtractStatement selectExtractStatement = new SelectExtractStatement("id", projectPredicate,
                 extractPredicate, "source", null, null);
 
         List<OperatorBean> expectedGeneratedBeans = Arrays.asList(
@@ -328,10 +328,10 @@ public class SelectExtractStatementTest {
      */
     @Test
     public void testSelectExtractStatementBeansBuilder05() {
-        SelectPredicate selectPredicate = new SelectSomeFieldsPredicate(Arrays.asList("a", "b"));
+        ProjectPredicate projectPredicate = new ProjectSomeFieldsPredicate(Arrays.asList("a", "b"));
         ExtractPredicate extractPredicate = new KeywordExtractPredicate(Arrays.asList("a", "b"), "x", 
                 KeywordMatchingType.SUBSTRING_SCANBASED.toString());
-        SelectExtractStatement selectExtractStatement = new SelectExtractStatement("_sid4", selectPredicate,
+        SelectExtractStatement selectExtractStatement = new SelectExtractStatement("_sid4", projectPredicate,
                 extractPredicate, "from", null, null);
 
         List<OperatorBean> expectedGeneratedBeans = Arrays.asList(

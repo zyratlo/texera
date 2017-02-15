@@ -20,9 +20,9 @@ import edu.uci.ics.textdb.textql.statements.SelectExtractStatement;
 import edu.uci.ics.textdb.textql.statements.Statement;
 import edu.uci.ics.textdb.textql.statements.predicates.ExtractPredicate;
 import edu.uci.ics.textdb.textql.statements.predicates.KeywordExtractPredicate;
-import edu.uci.ics.textdb.textql.statements.predicates.SelectPredicate;
-import edu.uci.ics.textdb.textql.statements.predicates.SelectAllFieldsPredicate;
-import edu.uci.ics.textdb.textql.statements.predicates.SelectSomeFieldsPredicate;
+import edu.uci.ics.textdb.textql.statements.predicates.ProjectPredicate;
+import edu.uci.ics.textdb.textql.statements.predicates.ProjectAllFieldsPredicate;
+import edu.uci.ics.textdb.textql.statements.predicates.ProjectSomeFieldsPredicate;
 
 import junit.framework.Assert;
 
@@ -263,17 +263,17 @@ public class TextQLParserTest {
     @Test
     public void testStatement() throws ParseException {
         String SelectStatement00 = "SELECT * FROM a;";
-        SelectPredicate SelectStatementSelect00 = new SelectAllFieldsPredicate();
+        ProjectPredicate SelectStatementSelect00 = new ProjectAllFieldsPredicate();
         Statement SelectStatementParameters00 = new SelectExtractStatement("_sid0", SelectStatementSelect00, null, "a", null, null);
         Assert.assertEquals((new TextQLParser(string2InputStream(SelectStatement00))).statement(), SelectStatementParameters00);
         
         String SelectStatement06 = "SELECT f8, fa, fc, df, ff FROM j;";
-        SelectPredicate SelectStatementSelect06 = new SelectSomeFieldsPredicate(Arrays.asList("f8","fa","fc","df","ff"));
+        ProjectPredicate SelectStatementSelect06 = new ProjectSomeFieldsPredicate(Arrays.asList("f8","fa","fc","df","ff"));
         Statement SelectStatementParameters06 = new SelectExtractStatement("_sid0", SelectStatementSelect06, null, "j", null, null);
         Assert.assertEquals((new TextQLParser(string2InputStream(SelectStatement06))).statement(), SelectStatementParameters06);
         
         String SelectStatement13 = "SELECT h, i, j EXTRACT KEYWORDMATCH([h6,h7,k8,k9], \"key5\") FROM q;";
-        SelectPredicate SelectStatementSelect13 = new SelectSomeFieldsPredicate(Arrays.asList("h","i","j"));
+        ProjectPredicate SelectStatementSelect13 = new ProjectSomeFieldsPredicate(Arrays.asList("h","i","j"));
         ExtractPredicate SelectStatementExtract13 = new KeywordExtractPredicate(Arrays.asList("h6","h7","k8","k9"), "key5", null);
         Statement SelectStatementParameters13 = new SelectExtractStatement("_sid0", SelectStatementSelect13, SelectStatementExtract13, "q", null, null);
         Assert.assertEquals((new TextQLParser(string2InputStream(SelectStatement13))).statement(), SelectStatementParameters13);
@@ -289,19 +289,19 @@ public class TextQLParserTest {
         Assert.assertEquals((new TextQLParser(string2InputStream(SelectStatement21))).statement(), SelectStatementParameters21);
         
         String createViewStatement00 = " CREATE VIEW v0 AS SELECT * FROM a; ";
-        SelectPredicate createViewStatementSelectP00 = new SelectAllFieldsPredicate();
+        ProjectPredicate createViewStatementSelectP00 = new ProjectAllFieldsPredicate();
         Statement createViewStatementSelect00 = new SelectExtractStatement("_sid0", createViewStatementSelectP00, null, "a", null, null);
         Statement createViewStatementParameters00 = new CreateViewStatement("v0", createViewStatementSelect00);
         Assert.assertEquals((new TextQLParser(string2InputStream(createViewStatement00))).statement(), createViewStatementParameters00);
         
         String createViewStatement01 = " CREATE VIEW v1 AS SELECT f8, fa, fc, df, ff FROM j LIMIT 1 OFFSET 8; ";
-        SelectPredicate createViewStatementSelectP01 = new SelectSomeFieldsPredicate(Arrays.asList("f8","fa","fc","df","ff"));
+        ProjectPredicate createViewStatementSelectP01 = new ProjectSomeFieldsPredicate(Arrays.asList("f8","fa","fc","df","ff"));
         Statement createViewStatementSelect01 = new SelectExtractStatement("_sid0", createViewStatementSelectP01, null, "j", 1, 8);
         Statement createViewStatementParameters01 = new CreateViewStatement("v1", createViewStatementSelect01);
         Assert.assertEquals((new TextQLParser(string2InputStream(createViewStatement01))).statement(), createViewStatementParameters01);
         
         String createViewStatement02 = " CREATE VIEW v2 AS SELECT e EXTRACT KEYWORDMATCH([g4,g5], \"key0\") FROM o ;";
-        SelectPredicate createViewStatementSelectP02 = new SelectSomeFieldsPredicate(Arrays.asList("e"));
+        ProjectPredicate createViewStatementSelectP02 = new ProjectSomeFieldsPredicate(Arrays.asList("e"));
         ExtractPredicate createViewStatementExtract02 = new KeywordExtractPredicate(Arrays.asList("g4","g5"), "key0", null);
         Statement createViewStatementSelect02 = new SelectExtractStatement("_sid0", createViewStatementSelectP02, createViewStatementExtract02, "o", null, null);
         Statement createViewStatementParameters02 = new CreateViewStatement("v2", createViewStatementSelect02);
@@ -332,25 +332,25 @@ public class TextQLParserTest {
         String createViewStatement03 = " CREATE VIEW v2 AS EXTRACT KEYWORDMATCH([g4,g5], \"key0\", substring) FROM o ;";
         
         //Example of statement objects used for testing
-        SelectPredicate SelectStatementSelect00 = new SelectAllFieldsPredicate();
+        ProjectPredicate SelectStatementSelect00 = new ProjectAllFieldsPredicate();
         //Statement SelectStatementParameters00 = new SelectStatement("_sid0", , null, "a", null, null);
 
-        SelectPredicate SelectStatementSelect13 = new SelectSomeFieldsPredicate(Arrays.asList("h","i","j"));
+        ProjectPredicate SelectStatementSelect13 = new ProjectSomeFieldsPredicate(Arrays.asList("h","i","j"));
         ExtractPredicate SelectStatementExtract13 = new KeywordExtractPredicate(Arrays.asList("h6","h7","k8","k9"), "key5", null);
         //Statement SelectStatementParameters13 = new SelectStatement("_sid0", , SelectStatementExtract13, "q", 5, 6);
 
         ExtractPredicate SelectStatementExtract14 = new KeywordExtractPredicate(Arrays.asList("i6"), "key5", null);
         //Statement SelectStatementParameters14 = new SelectStatement("_sid0", null, SelectStatementExtract14, "q", null, null);
 
-        SelectPredicate cfreateViewStatementSelect00 = new SelectAllFieldsPredicate();
+        ProjectPredicate cfreateViewStatementSelect00 = new ProjectAllFieldsPredicate();
         //Statement createViewStatementSelect00 = new SelectStatement("_sid0", , null, "a", null, null);
         //Statement createViewStatementParameters00 = new CreateViewStatement("v0", createViewStatementSelect00);
         
-        SelectPredicate createViewStatementSelect01 = new SelectSomeFieldsPredicate(Arrays.asList("f8","fa","fc","df","ff"));
+        ProjectPredicate createViewStatementSelect01 = new ProjectSomeFieldsPredicate(Arrays.asList("f8","fa","fc","df","ff"));
         //Statement createViewStatementSelect01 = new SelectStatement("_sid0", , null, "j", 1, 8);
         //Statement createViewStatementParameters01 = new CreateViewStatement("v1", createViewStatementSelect01);
 
-        SelectPredicate createViewStatementSelect02 = new SelectSomeFieldsPredicate(Arrays.asList("e"));
+        ProjectPredicate createViewStatementSelect02 = new ProjectSomeFieldsPredicate(Arrays.asList("e"));
         ExtractPredicate createViewStatementExtract02 = new KeywordExtractPredicate(Arrays.asList("g4","g5"), "key0", null);
         //Statement createViewStatementSelect02 = new SelectStatement("_sid0", , createViewStatementExtract02, "o", null, null);
         //Statement createViewStatementParameters02 = new CreateViewStatement("v2", createViewStatementSelect02);
@@ -425,72 +425,72 @@ public class TextQLParserTest {
     @Test
     public void testSelectStatement() throws ParseException {
         String SelectStatement00 = "SELECT * FROM a";
-        SelectPredicate SelectStatementSelect00 = new SelectAllFieldsPredicate();
+        ProjectPredicate SelectStatementSelect00 = new ProjectAllFieldsPredicate();
         Statement SelectStatementParameters00 = new SelectExtractStatement("_sid0", SelectStatementSelect00, null, "a", null, null);
         Assert.assertEquals((new TextQLParser(string2InputStream(SelectStatement00))).selectExtractStatement(), SelectStatementParameters00);
         
         String SelectStatement01 = "SELECT * FROM b LIMIT 5";
-        SelectPredicate SelectStatementSelect01 = new SelectAllFieldsPredicate();
+        ProjectPredicate SelectStatementSelect01 = new ProjectAllFieldsPredicate();
         Statement SelectStatementParameters01 = new SelectExtractStatement("_sid0", SelectStatementSelect01, null, "b", 5, null);
         Assert.assertEquals((new TextQLParser(string2InputStream(SelectStatement01))).selectExtractStatement(), SelectStatementParameters01);
         
         String SelectStatement02 = "SELECT * FROM c LIMIT 1 OFFSET 8";
-        SelectPredicate SelectStatementSelect02 = new SelectAllFieldsPredicate();
+        ProjectPredicate SelectStatementSelect02 = new ProjectAllFieldsPredicate();
         Statement SelectStatementParameters02 = new SelectExtractStatement("_sid0", SelectStatementSelect02, null, "c", 1, 8);
         Assert.assertEquals((new TextQLParser(string2InputStream(SelectStatement02))).selectExtractStatement(), SelectStatementParameters02);
         
         String SelectStatement03 = "SELECT * FROM d OFFSET 6";
-        SelectPredicate SelectStatementSelect03 = new SelectAllFieldsPredicate();
+        ProjectPredicate SelectStatementSelect03 = new ProjectAllFieldsPredicate();
         Statement SelectStatementParameters03 = new SelectExtractStatement("_sid0", SelectStatementSelect03, null, "d", null, 6);
         Assert.assertEquals((new TextQLParser(string2InputStream(SelectStatement03))).selectExtractStatement(), SelectStatementParameters03);
         
         String SelectStatement04 = "SELECT f1 FROM e";
-        SelectPredicate SelectStatementSelect04 = new SelectSomeFieldsPredicate(Arrays.asList("f1"));
+        ProjectPredicate SelectStatementSelect04 = new ProjectSomeFieldsPredicate(Arrays.asList("f1"));
         Statement SelectStatementParameters04 = new SelectExtractStatement("_sid0", SelectStatementSelect04, null, "e", null, null);
         Assert.assertEquals((new TextQLParser(string2InputStream(SelectStatement04))).selectExtractStatement(), SelectStatementParameters04);
         
         String SelectStatement05 = "SELECT f1, f5 FROM i";
-        SelectPredicate SelectStatementSelect05 = new SelectSomeFieldsPredicate(Arrays.asList("f1","f5"));
+        ProjectPredicate SelectStatementSelect05 = new ProjectSomeFieldsPredicate(Arrays.asList("f1","f5"));
         Statement SelectStatementParameters05 = new SelectExtractStatement("_sid0", SelectStatementSelect05, null, "i", null, null);
         Assert.assertEquals((new TextQLParser(string2InputStream(SelectStatement05))).selectExtractStatement(), SelectStatementParameters05);
         
         String SelectStatement06 = "SELECT f8, fa, fc, df, ff FROM j";
-        SelectPredicate SelectStatementSelect06 = new SelectSomeFieldsPredicate(Arrays.asList("f8","fa","fc","df","ff"));
+        ProjectPredicate SelectStatementSelect06 = new ProjectSomeFieldsPredicate(Arrays.asList("f8","fa","fc","df","ff"));
         Statement SelectStatementParameters06 = new SelectExtractStatement("_sid0", SelectStatementSelect06, null, "j", null, null);
         Assert.assertEquals((new TextQLParser(string2InputStream(SelectStatement06))).selectExtractStatement(), SelectStatementParameters06);
         
         String SelectStatement07 = "SELECT a EXTRACT KEYWORDMATCH(g0, \"key1\") FROM k";
-        SelectPredicate SelectStatementSelect07 = new SelectSomeFieldsPredicate(Arrays.asList("a"));
+        ProjectPredicate SelectStatementSelect07 = new ProjectSomeFieldsPredicate(Arrays.asList("a"));
         ExtractPredicate SelectStatementExtract07 = new KeywordExtractPredicate(Arrays.asList("g0"), "key1", null);
         Statement SelectStatementParameters07 = new SelectExtractStatement("_sid0", SelectStatementSelect07, SelectStatementExtract07, "k", null, null);
         Assert.assertEquals((new TextQLParser(string2InputStream(SelectStatement07))).selectExtractStatement(), SelectStatementParameters07);
         
         String SelectStatement08 = "SELECT b EXTRACT KEYWORDMATCH(g1, \"key2\", conjunction) FROM l";
-        SelectPredicate SelectStatementSelect08 = new SelectSomeFieldsPredicate(Arrays.asList("b"));
+        ProjectPredicate SelectStatementSelect08 = new ProjectSomeFieldsPredicate(Arrays.asList("b"));
         ExtractPredicate SelectStatementExtract08 = new KeywordExtractPredicate(Arrays.asList("g1"), "key2", "conjunction");
         Statement SelectStatementParameters08 = new SelectExtractStatement("_sid0", SelectStatementSelect08, SelectStatementExtract08, "l", null, null);
         Assert.assertEquals((new TextQLParser(string2InputStream(SelectStatement08))).selectExtractStatement(), SelectStatementParameters08);
         
         String SelectStatement10 = "SELECT v EXTRACT KEYWORDMATCH(u, \"keyZ\") FROM t";
-        SelectPredicate SelectStatementSelect10 = new SelectSomeFieldsPredicate(Arrays.asList("v"));
+        ProjectPredicate SelectStatementSelect10 = new ProjectSomeFieldsPredicate(Arrays.asList("v"));
         ExtractPredicate SelectStatementExtract10 = new KeywordExtractPredicate(Arrays.asList("u"), "keyZ", null);
         Statement SelectStatementParameters10 = new SelectExtractStatement("_sid0", SelectStatementSelect10, SelectStatementExtract10, "t", null, null);
         Assert.assertEquals((new TextQLParser(string2InputStream(SelectStatement10))).selectExtractStatement(), SelectStatementParameters10);
         
         String SelectStatement11 = "SELECT e EXTRACT KEYWORDMATCH([g4], \"key0\") FROM o";
-        SelectPredicate SelectStatementSelect11 = new SelectSomeFieldsPredicate(Arrays.asList("e"));
+        ProjectPredicate SelectStatementSelect11 = new ProjectSomeFieldsPredicate(Arrays.asList("e"));
         ExtractPredicate SelectStatementExtract11 = new KeywordExtractPredicate(Arrays.asList("g4"), "key0", null);
         Statement SelectStatementParameters11 = new SelectExtractStatement("_sid0", SelectStatementSelect11, SelectStatementExtract11, "o", null, null);
         Assert.assertEquals((new TextQLParser(string2InputStream(SelectStatement11))).selectExtractStatement(), SelectStatementParameters11);
         
         String SelectStatement12 = "SELECT f EXTRACT KEYWORDMATCH([g6,g7,h8,i9], \"key\") FROM p";
-        SelectPredicate SelectStatementSelect12 = new SelectSomeFieldsPredicate(Arrays.asList("f"));
+        ProjectPredicate SelectStatementSelect12 = new ProjectSomeFieldsPredicate(Arrays.asList("f"));
         ExtractPredicate SelectStatementExtract12 = new KeywordExtractPredicate(Arrays.asList("g6","g7","h8","i9"), "key", null);
         Statement SelectStatementParameters12 = new SelectExtractStatement("_sid0", SelectStatementSelect12, SelectStatementExtract12, "p", null, null);
         Assert.assertEquals((new TextQLParser(string2InputStream(SelectStatement12))).selectExtractStatement(), SelectStatementParameters12);
         
         String SelectStatement13 = "SELECT h, i, j EXTRACT KEYWORDMATCH([h6,h7,k8,k9], \"key5\") FROM q";
-        SelectPredicate SelectStatementSelect13 = new SelectSomeFieldsPredicate(Arrays.asList("h","i","j"));
+        ProjectPredicate SelectStatementSelect13 = new ProjectSomeFieldsPredicate(Arrays.asList("h","i","j"));
         ExtractPredicate SelectStatementExtract13 = new KeywordExtractPredicate(Arrays.asList("h6","h7","k8","k9"), "key5", null);
         Statement SelectStatementParameters13 = new SelectExtractStatement("_sid0", SelectStatementSelect13, SelectStatementExtract13, "q", null, null);
         Assert.assertEquals((new TextQLParser(string2InputStream(SelectStatement13))).selectExtractStatement(), SelectStatementParameters13);
@@ -641,19 +641,19 @@ public class TextQLParserTest {
     @Test
     public void testCreateViewStatement() throws ParseException {
         String createViewStatement00 = " CREATE VIEW v0 AS SELECT * FROM a ";
-        SelectPredicate createViewStatementSelectP00 = new SelectAllFieldsPredicate();
+        ProjectPredicate createViewStatementSelectP00 = new ProjectAllFieldsPredicate();
         Statement createViewStatementSelect00 = new SelectExtractStatement("_sid0", createViewStatementSelectP00, null, "a", null, null);
         Statement createViewStatementParameters00 = new CreateViewStatement("v0", createViewStatementSelect00);
         Assert.assertEquals((new TextQLParser(string2InputStream(createViewStatement00))).createViewStatement(), createViewStatementParameters00);
         
         String createViewStatement01 = " CREATE VIEW v1 AS SELECT f8, fa, fc, df, ff FROM j LIMIT 1 OFFSET 8 ";
-        SelectPredicate createViewStatementSelectP01 =  new SelectSomeFieldsPredicate(Arrays.asList("f8","fa","fc","df","ff"));
+        ProjectPredicate createViewStatementSelectP01 =  new ProjectSomeFieldsPredicate(Arrays.asList("f8","fa","fc","df","ff"));
         Statement createViewStatementSelect01 = new SelectExtractStatement("_sid0", createViewStatementSelectP01, null, "j", 1, 8);
         Statement createViewStatementParameters01 = new CreateViewStatement("v1", createViewStatementSelect01);
         Assert.assertEquals((new TextQLParser(string2InputStream(createViewStatement01))).createViewStatement(), createViewStatementParameters01);
         
         String createViewStatement02 = " CREATE VIEW v2 AS SELECT e EXTRACT KEYWORDMATCH([g4,g5], \"key0\") FROM o ";
-        SelectPredicate createViewStatementSelectP02 = new SelectSomeFieldsPredicate(Arrays.asList("e"));
+        ProjectPredicate createViewStatementSelectP02 = new ProjectSomeFieldsPredicate(Arrays.asList("e"));
         ExtractPredicate createViewStatementExtract02 = new KeywordExtractPredicate(Arrays.asList("g4","g5"), "key0", null);
         Statement createViewStatementSelect02 = new SelectExtractStatement("_sid0", createViewStatementSelectP02, createViewStatementExtract02, "o", null, null);
         Statement createViewStatementParameters02 = new CreateViewStatement("v2", createViewStatementSelect02);
