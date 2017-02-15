@@ -45,7 +45,7 @@ public class PerfTestUtils {
             fileFolder = Paths.get(PerfTestUtils.class.getResource("/sample-data-files").toURI()).toString() + "/";
             standardIndexFolder = Paths.get(PerfTestUtils.class.getResource("/index/standard").toURI()).toString() + "/";
             trigramIndexFolder = Paths.get(PerfTestUtils.class.getResource("/index/trigram").toURI()).toString() + "/";
-            resultFolder = Paths.get(PerfTestUtils.class.getResource("/perftest-files/results").toURI()).toString() + "/";
+            resultFolder = "./src/main/resources/perftest-files/results/";
             queryFolder = Paths.get(PerfTestUtils.class.getResource("/perftest-files/queries").toURI()).toString() + "/";
         } catch (URISyntaxException e) {
             e.printStackTrace();
