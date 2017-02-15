@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 /**
  * Variables used in PlanStore.java.
  *
- * @author Adrian Seungjin Lee
+ * @author Adrian Seungjin Lee, Kishore Narendran
  */
 public class PlanStoreConstants {
     public static final String TABLE_NAME = "plan";

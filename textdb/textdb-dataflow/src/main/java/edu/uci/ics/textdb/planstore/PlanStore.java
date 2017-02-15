@@ -29,7 +29,7 @@ import java.nio.file.Paths;
 /**
  * An implementation of query plan store.
  *
- * @author Adrian Seungjin Lee
+ * @author Adrian Seungjin Lee, Kishore Narendran
  */
 public class PlanStore {
     private static PlanStore instance = null;
