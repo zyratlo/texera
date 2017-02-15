@@ -48,10 +48,9 @@ public class KeywordTestHelper {
             relationManager.insertTuple(MEDLINE_TABLE, tuple);
         }
         
-     // create the chinese table and write tuples
+     // create the Chinese table and write tuples
         relationManager.createTable(CHINESE_TABLE, "../index/test_tables/" + CHINESE_TABLE, 
                 TestConstantsChinese.SCHEMA_PEOPLE, LuceneAnalyzerConstants.chineseAnalyzerString());
-                //.standardAnalyzerString());        
         for (ITuple tuple : TestConstantsChinese.getSamplePeopleTuples()) {
             relationManager.insertTuple(CHINESE_TABLE, tuple);
         } 
@@ -151,5 +150,5 @@ public class KeywordTestHelper {
         
         return results;
     }
-    
+
 }

@@ -99,7 +99,7 @@ public class DictionaryMatcherTest {
         ArrayList<String> names = new ArrayList<String>(Arrays.asList("bruce"));
         IDictionary dictionary = new Dictionary(names);
 
-        // create data tuple first
+        // create a data tuple first
         List<Span> list = new ArrayList<Span>();
         Span span = new Span("firstName", 0, 5, "bruce", "bruce");
         list.add(span);
@@ -135,7 +135,7 @@ public class DictionaryMatcherTest {
         ArrayList<String> names = new ArrayList<String>(Arrays.asList("孔明"));
         IDictionary dictionary = new Dictionary(names);
 
-        // create data tuple first
+        // create a data tuple first
         List<Span> list = new ArrayList<Span>();
         Span span = new Span("firstName", 0, 2, "孔明", "孔明");
         list.add(span);
@@ -167,7 +167,7 @@ public class DictionaryMatcherTest {
         ArrayList<String> names = new ArrayList<String>(Arrays.asList("john Lee", "bruce"));
         Dictionary dictionary = new Dictionary(names);
 
-        // create data tuple first
+        // create a data tuple first
         List<Span> list1 = new ArrayList<Span>();
         List<Span> list2 = new ArrayList<Span>();
         Span span1 = new Span("lastName", 0, 8, "john Lee", "john Lee");
@@ -211,7 +211,7 @@ public class DictionaryMatcherTest {
         ArrayList<String> names = new ArrayList<String>(Arrays.asList("无忌", "长孙"));
         Dictionary dictionary = new Dictionary(names);
 
-        // create data tuple first
+        // create a data tuple first
         List<Span> list1 = new ArrayList<Span>();
         List<Span> list2 = new ArrayList<Span>();
         Span span1 = new Span("lastName", 0, 2, "长孙", "长孙");
@@ -254,7 +254,7 @@ public class DictionaryMatcherTest {
         ArrayList<String> names = new ArrayList<String>(Arrays.asList("john Lee", "bruce"));
         Dictionary dictionary = new Dictionary(names);
 
-        // create data tuple first
+        // create a data tuple first
         List<Span> list1 = new ArrayList<Span>();
         List<Span> list2 = new ArrayList<Span>();
         Span span1 = new Span("lastName", 0, 8, "john Lee", "john Lee");
@@ -297,7 +297,7 @@ public class DictionaryMatcherTest {
         ArrayList<String> names = new ArrayList<String>(Arrays.asList("长孙", "无忌"));
         Dictionary dictionary = new Dictionary(names);
 
-        // create data tuple first
+        // create a data tuple first
         List<Span> list1 = new ArrayList<Span>();
         List<Span> list2 = new ArrayList<Span>();
         Span span1 = new Span("lastName", 0, 2, "长孙", "长孙");
@@ -340,7 +340,7 @@ public class DictionaryMatcherTest {
         ArrayList<String> names = new ArrayList<String>(Arrays.asList("tall"));
         IDictionary dictionary = new Dictionary(names);
 
-        // create data tuple first
+        // create a data tuple first
         List<Span> list = new ArrayList<Span>();
         Span span = new Span("description", 0, 4, "tall", "Tall");
         list.add(span);
@@ -381,7 +381,7 @@ public class DictionaryMatcherTest {
         ArrayList<String> names = new ArrayList<String>(Arrays.asList("学院"));
         IDictionary dictionary = new Dictionary(names);
 
-        // create data tuple first
+        // create a data tuple first
         List<Span> list1 = new ArrayList<Span>();
         Span span1 = new Span("description", 8, 10, "学院", "学院");
         list1.add(span1);
@@ -428,7 +428,7 @@ public class DictionaryMatcherTest {
         ArrayList<String> names = new ArrayList<String>(Arrays.asList("tall"));
         IDictionary dictionary = new Dictionary(names);
 
-        // create data tuple first
+        // create a data tuple first
         List<Span> list = new ArrayList<Span>();
         Span span = new Span("description", 0, 4, "tall", "Tall", 0);
         list.add(span);
@@ -469,7 +469,7 @@ public class DictionaryMatcherTest {
         ArrayList<String> names = new ArrayList<String>(Arrays.asList("北京大学"));
         IDictionary dictionary = new Dictionary(names);
 
-        // create data tuple first
+        // create a data tuple first
         List<Span> list = new ArrayList<Span>();
         Span span = new Span("description", 0, 4, "北京大学", "北京大学", 0);
         list.add(span);
@@ -510,7 +510,7 @@ public class DictionaryMatcherTest {
         ArrayList<String> names = new ArrayList<String>(Arrays.asList("tall"));
         IDictionary dictionary = new Dictionary(names);
 
-        // create data tuple first
+        // create a data tuple first
         List<Span> list = new ArrayList<Span>();
         Span span = new Span("description", 0, 4, "tall", "Tall");
         list.add(span);
@@ -551,7 +551,7 @@ public class DictionaryMatcherTest {
         ArrayList<String> names = new ArrayList<String>(Arrays.asList("北京大学"));
         IDictionary dictionary = new Dictionary(names);
 
-        // create data tuple first
+        // create a data tuple first
         List<Span> list = new ArrayList<Span>();
         Span span = new Span("description", 0, 4, "北京大学", "北京大学");
         list.add(span);
@@ -593,7 +593,7 @@ public class DictionaryMatcherTest {
         ArrayList<String> names = new ArrayList<String>(Arrays.asList("george lin lin"));
         IDictionary dictionary = new Dictionary(names);
 
-        // create data tuple first
+        // create a data tuple first
         List<Span> list = new ArrayList<Span>();
         Span span = new Span("firstName", 0, 14, "george lin lin", "george lin lin");
         list.add(span);
@@ -628,7 +628,7 @@ public class DictionaryMatcherTest {
         ArrayList<String> names = new ArrayList<String>(Arrays.asList("洛克贝尔"));
         IDictionary dictionary = new Dictionary(names);
 
-        // create data tuple first
+        // create a data tuple first
         List<Span> list = new ArrayList<Span>();
         Span span = new Span("lastName", 0, 4, "洛克贝尔", "洛克贝尔");
         list.add(span);
@@ -664,7 +664,7 @@ public class DictionaryMatcherTest {
         ArrayList<String> names = new ArrayList<String>(Arrays.asList("george lin lin"));
         IDictionary dictionary = new Dictionary(names);
 
-        // create data tuple first
+        // create a data tuple first
         List<Span> list = new ArrayList<Span>();
         Span span = new Span("firstName", 0, 14, "george lin lin", "george lin lin");
         list.add(span);
@@ -699,7 +699,7 @@ public class DictionaryMatcherTest {
         ArrayList<String> names = new ArrayList<String>(Arrays.asList("洛克贝尔"));
         IDictionary dictionary = new Dictionary(names);
 
-        // create data tuple first
+        // create a data tuple first
         List<Span> list = new ArrayList<Span>();
         Span span = new Span("lastName", 0, 4, "洛克贝尔", "洛克贝尔");;
         list.add(span);
@@ -736,7 +736,7 @@ public class DictionaryMatcherTest {
         ArrayList<String> names = new ArrayList<String>(Arrays.asList("george lin lin"));
         IDictionary dictionary = new Dictionary(names);
 
-        // create data tuple first
+        // create a data tuple first
         List<Span> list = new ArrayList<Span>();
         Span span = new Span("firstName", 0, 14, "george lin lin", "george lin lin");
         list.add(span);
@@ -771,7 +771,7 @@ public class DictionaryMatcherTest {
         ArrayList<String> names = new ArrayList<String>(Arrays.asList("洛克贝尔"));
         IDictionary dictionary = new Dictionary(names);
 
-        // create data tuple first
+        // create a data tuple first
         List<Span> list = new ArrayList<Span>();
         Span span = new Span("lastName", 0, 4, "洛克贝尔", "洛克贝尔");;
         list.add(span);
@@ -808,7 +808,7 @@ public class DictionaryMatcherTest {
 
         ArrayList<String> names = new ArrayList<String>(Arrays.asList("lin clooney"));
         IDictionary dictionary = new Dictionary(names);
-        // create data tuple first
+        // create a data tuple first
         List<Span> list = new ArrayList<Span>();
         Span span1 = new Span("lastName", 0, 11, "lin clooney", "lin clooney");
         Span span2 = new Span("description", 0, 11, "lin clooney", "Lin Clooney");
@@ -847,7 +847,7 @@ public class DictionaryMatcherTest {
 
         ArrayList<String> names = new ArrayList<String>(Arrays.asList("lin clooney"));
         IDictionary dictionary = new Dictionary(names);
-        // create data tuple first
+        // create a data tuple first
         List<Span> list = new ArrayList<Span>();
 
         Span span1 = new Span("lastName", 0, 11, "lin clooney", "lin clooney");
@@ -894,7 +894,7 @@ public class DictionaryMatcherTest {
 
         ArrayList<String> names = new ArrayList<String>(Arrays.asList("lin clooney"));
         IDictionary dictionary = new Dictionary(names);
-        // create data tuple first
+        // create a data tuple first
         List<Span> list = new ArrayList<Span>();
         Span span1 = new Span("lastName", 0, 11, "lin clooney", "lin clooney");
         Span span2 = new Span("description", 0, 11, "lin clooney", "Lin Clooney");
@@ -932,7 +932,7 @@ public class DictionaryMatcherTest {
 
         ArrayList<String> names = new ArrayList<String>(Arrays.asList("lin and is angry"));
         IDictionary dictionary = new Dictionary(names);
-        // create data tuple first
+        // create a data tuple first
         List<Span> list = new ArrayList<>();
         Span span = new Span("description", 25, 45, "lin and is angry", "lin clooney is Angry");
         list.add(span);
@@ -1075,10 +1075,5 @@ public class DictionaryMatcherTest {
         Assert.assertEquals(resultList.size(), 1);
         Assert.assertTrue(TestUtils.containsAll(expectedList, resultList));
     }
-    
-    
-    
-    
-    
     
 }
