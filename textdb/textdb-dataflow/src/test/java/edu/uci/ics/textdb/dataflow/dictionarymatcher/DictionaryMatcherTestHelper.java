@@ -10,6 +10,7 @@ import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.exception.TextDBException;
 import edu.uci.ics.textdb.common.constants.LuceneAnalyzerConstants;
 import edu.uci.ics.textdb.common.constants.TestConstants;
+import edu.uci.ics.textdb.common.constants.TestConstantsChinese;
 import edu.uci.ics.textdb.common.constants.DataConstants.KeywordMatchingType;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
 import edu.uci.ics.textdb.dataflow.common.DictionaryPredicate;
@@ -20,6 +21,7 @@ import edu.uci.ics.textdb.storage.relation.RelationManager;
 public class DictionaryMatcherTestHelper {
     
     public static final String PEOPLE_TABLE = "dictionary_test_people";
+    public static final String CHINESE_TABLE = "dictionary_test_chinese";
     
     public static void writeTestTables() throws TextDBException {
         RelationManager relationManager = RelationManager.getRelationManager();
@@ -31,11 +33,18 @@ public class DictionaryMatcherTestHelper {
             relationManager.insertTuple(PEOPLE_TABLE, tuple);
         }
           
+     // create the people table and write tuples in Chinese
+        relationManager.createTable(CHINESE_TABLE, "../index/test_tables/" + CHINESE_TABLE, 
+                TestConstantsChinese.SCHEMA_PEOPLE, LuceneAnalyzerConstants.chineseAnalyzerString());       
+        for (ITuple tuple : TestConstantsChinese.getSamplePeopleTuples()) {
+            relationManager.insertTuple(CHINESE_TABLE, tuple);
+        }
     }
     
     public static void deleteTestTables() throws TextDBException {
         RelationManager relationManager = RelationManager.getRelationManager();
         relationManager.deleteTable(PEOPLE_TABLE);
+        relationManager.deleteTable(CHINESE_TABLE);
     }
     
     public static List<ITuple> getQueryResults(String tableName, IDictionary dictionary, List<String> attributeNames,
