@@ -24,6 +24,7 @@ import java.util.List;
 public class PlanStoreTest {
     private static PlanStore planStore;
 
+    // Data members that store Sample Logical Plan JSON Strings
     private static final String logicalPlanJson1 = "{\n" +
             "    \"operators\": [{\n" +
             "        \"operator_id\": \"operator1\",\n" +
@@ -71,17 +72,32 @@ public class PlanStoreTest {
             "}";
 
 
+    /**
+     * This function creates a PlanStore before every test
+     * @throws Exception
+     */
     @Before
     public void setUp() throws Exception {
         planStore = PlanStore.getInstance();
         planStore.createPlanStore();
     }
 
+    /**
+     * This method destroys the plan store after every test
+     * @throws Exception
+     */
     @After
     public void cleanUp() throws Exception {
         planStore.destroyPlanStore();
     }
 
+    /**
+     * This is a helper function that checks whether the plan corresponding to the plan name corresponds to the
+     * logical plan JSON string that is fed to this function
+     * @param planName - Name of the plan name to check with
+     * @param logicalPlanJson - Expected LogicalPlan JSON string
+     * @throws TextDBException
+     */
     public static void assertCorrectPlanExists(String planName, String logicalPlanJson) throws TextDBException {
         ITuple res = planStore.getPlan(planName);
 
@@ -97,6 +113,12 @@ public class PlanStoreTest {
         Assert.assertEquals(jsonElement, returnedJsonElement);
     }
 
+
+    /**
+     * This function checks whether the two given logical plan JSON strings are equivalent
+     * @param plan1 - The first Logical Plan JSON
+     * @param plan2 - The second Logical Plan JSON
+     */
     public static void assertPlanEquivalence(String plan1, String plan2) {
         Assert.assertNotNull(plan1);
         Assert.assertNotNull(plan2);
@@ -119,9 +141,6 @@ public class PlanStoreTest {
 
     @Test
     public void testUpdatePlan() throws TextDBException {
-        LogicalPlan logicalPlan1 = LogicalPlanTest.getLogicalPlan1();
-        LogicalPlan logicalPlan2 = LogicalPlanTest.getLogicalPlan2();
-
         String planName1 = "plan1";
 
         planStore.addPlan(planName1, "basic dictionary source plan", logicalPlanJson1);
@@ -133,7 +152,6 @@ public class PlanStoreTest {
 
     @Test
     public void testDeletePlan() throws TextDBException {
-
         String planName1 = "plan1";
         String planName2 = "plan2";
 
@@ -148,7 +166,6 @@ public class PlanStoreTest {
 
     @Test
     public void testPlanIterator() throws TextDBException {
-
         List<String> validPlans = new ArrayList<>();
         validPlans.add(logicalPlanJson1);
         validPlans.add(logicalPlanJson2);
@@ -167,7 +184,7 @@ public class PlanStoreTest {
         IDataReader reader = planStore.getPlanIterator();
         reader.open();
 
-        ITuple tuple = null;
+        ITuple tuple;
         String[] returnedPlans = new String[expectedPlans.size()];
 
         while ((tuple = reader.getNextTuple()) != null) {
@@ -186,7 +203,6 @@ public class PlanStoreTest {
 
     @Test(expected = TextDBException.class)
     public void testAddPlanWithInvalidName() throws TextDBException {
-
         String planName = "plan/regex";
 
         planStore.addPlan(planName, "basic dictionary source plan", logicalPlanJson1);
@@ -194,7 +210,6 @@ public class PlanStoreTest {
 
     @Test(expected = TextDBException.class)
     public void testAddPlanWithEmptyName() throws TextDBException {
-
         String planName = "";
 
         planStore.addPlan(planName, "basic dictionary source plan", logicalPlanJson1);
@@ -202,7 +217,6 @@ public class PlanStoreTest {
 
     @Test(expected = TextDBException.class)
     public void testAddMultiplePlansWithSameName() throws TextDBException {
-
         String planName = "plan";
 
         planStore.addPlan(planName, "basic dictionary source plan", logicalPlanJson1);
@@ -211,7 +225,6 @@ public class PlanStoreTest {
 
     @Test
     public void testDeleteNotExistingPlan() throws TextDBException {
-
         String planName = "plan";
 
         planStore.addPlan(planName, "basic dictionary source plan", logicalPlanJson1);
@@ -223,7 +236,6 @@ public class PlanStoreTest {
 
     @Test
     public void testUpdateNotExistingPlan() throws TextDBException {
-
         String planName = "plan";
 
         planStore.addPlan(planName, "basic dictionary source plan", logicalPlanJson1);
@@ -235,7 +247,6 @@ public class PlanStoreTest {
 
     @Test
     public void testNotDeletePlanBySubstring() throws TextDBException {
-
         String planName = "plan_sub";
 
         planStore.addPlan(planName, "basic dictionary source plan", logicalPlanJson1);
