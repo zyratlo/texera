@@ -213,14 +213,14 @@ public class SelectStatementTest {
      */
     @Test
     public void testSelectStatementBeansBuilder00() {
-        SelectStatement selectExtractStatement = new SelectStatement("id", null, null, "tableX", null,
+        SelectStatement selectStatement = new SelectStatement("id", null, null, "tableX", null,
                 null);
 
         List<OperatorBean> expectedGeneratedBeans = Collections.emptyList();
         List<String> dependencies = Arrays.asList("tableX");
 
-        Assert.assertEquals(selectExtractStatement.getInputViews(), dependencies);
-        StatementTestUtils.assertGeneratedBeans(selectExtractStatement, expectedGeneratedBeans);
+        Assert.assertEquals(selectStatement.getInputViews(), dependencies);
+        StatementTestUtils.assertGeneratedBeans(selectStatement, expectedGeneratedBeans);
     }
 
     /**
@@ -234,14 +234,14 @@ public class SelectStatementTest {
     @Test
     public void testSelectStatementBeansBuilder01() {
         ProjectPredicate projectPredicate = new ProjectAllFieldsPredicate();
-        SelectStatement selectExtractStatement = new SelectStatement("id", projectPredicate, null, "Table",
+        SelectStatement selectStatement = new SelectStatement("id", projectPredicate, null, "Table",
                 null, null);
 
         List<OperatorBean> expectedGeneratedBeans = Collections.emptyList();
         List<String> dependencies = Arrays.asList("Table");
 
-        Assert.assertEquals(selectExtractStatement.getInputViews(), dependencies);
-        StatementTestUtils.assertGeneratedBeans(selectExtractStatement, expectedGeneratedBeans);
+        Assert.assertEquals(selectStatement.getInputViews(), dependencies);
+        StatementTestUtils.assertGeneratedBeans(selectStatement, expectedGeneratedBeans);
     }
 
     /**
@@ -255,7 +255,7 @@ public class SelectStatementTest {
     @Test
     public void testSelectStatementBeansBuilder02() {
         ProjectPredicate projectPredicate = new ProjectSomeFieldsPredicate(Arrays.asList("a", "b"));
-        SelectStatement selectExtractStatement = new SelectStatement("idX", projectPredicate, null, "from",
+        SelectStatement selectStatement = new SelectStatement("idX", projectPredicate, null, "from",
                 null, null);
 
         List<OperatorBean> expectedGeneratedBeans = Arrays.asList(
@@ -263,8 +263,8 @@ public class SelectStatementTest {
             );
         List<String> dependencies = Arrays.asList("from");
 
-        Assert.assertEquals(selectExtractStatement.getInputViews(), dependencies);
-        StatementTestUtils.assertGeneratedBeans(selectExtractStatement, expectedGeneratedBeans);
+        Assert.assertEquals(selectStatement.getInputViews(), dependencies);
+        StatementTestUtils.assertGeneratedBeans(selectStatement, expectedGeneratedBeans);
     }
 
     /**
@@ -279,7 +279,7 @@ public class SelectStatementTest {
     public void testSelectStatementBeansBuilder03() {
         ExtractPredicate extractPredicate = new KeywordExtractPredicate(Arrays.asList("c", "d"), "word",
                 KeywordMatchingType.SUBSTRING_SCANBASED.toString());
-        SelectStatement selectExtractStatement = new SelectStatement("id", null, extractPredicate, 
+        SelectStatement selectStatement = new SelectStatement("id", null, extractPredicate, 
                 "TableP9", null, null);
 
         List<OperatorBean> expectedGeneratedBeans = Arrays.asList(
@@ -288,8 +288,8 @@ public class SelectStatementTest {
             );
         List<String> dependencies = Arrays.asList("TableP9");
 
-        Assert.assertEquals(selectExtractStatement.getInputViews(), dependencies);
-        StatementTestUtils.assertGeneratedBeans(selectExtractStatement, expectedGeneratedBeans);
+        Assert.assertEquals(selectStatement.getInputViews(), dependencies);
+        StatementTestUtils.assertGeneratedBeans(selectStatement, expectedGeneratedBeans);
     }
 
     /**
@@ -305,7 +305,7 @@ public class SelectStatementTest {
         ProjectPredicate projectPredicate = new ProjectAllFieldsPredicate();
         ExtractPredicate extractPredicate = new KeywordExtractPredicate(Arrays.asList("f1"), "keyword", 
                 KeywordMatchingType.CONJUNCTION_INDEXBASED.toString());
-        SelectStatement selectExtractStatement = new SelectStatement("id", projectPredicate,
+        SelectStatement selectStatement = new SelectStatement("id", projectPredicate,
                 extractPredicate, "source", null, null);
 
         List<OperatorBean> expectedGeneratedBeans = Arrays.asList(
@@ -314,8 +314,8 @@ public class SelectStatementTest {
                 );
         List<String> dependencies = Arrays.asList("source");
 
-        Assert.assertEquals(selectExtractStatement.getInputViews(), dependencies);
-        StatementTestUtils.assertGeneratedBeans(selectExtractStatement, expectedGeneratedBeans);
+        Assert.assertEquals(selectStatement.getInputViews(), dependencies);
+        StatementTestUtils.assertGeneratedBeans(selectStatement, expectedGeneratedBeans);
     }
 
     /**
@@ -331,7 +331,7 @@ public class SelectStatementTest {
         ProjectPredicate projectPredicate = new ProjectSomeFieldsPredicate(Arrays.asList("a", "b"));
         ExtractPredicate extractPredicate = new KeywordExtractPredicate(Arrays.asList("a", "b"), "x", 
                 KeywordMatchingType.SUBSTRING_SCANBASED.toString());
-        SelectStatement selectExtractStatement = new SelectStatement("_sid4", projectPredicate,
+        SelectStatement selectStatement = new SelectStatement("_sid4", projectPredicate,
                 extractPredicate, "from", null, null);
 
         List<OperatorBean> expectedGeneratedBeans = Arrays.asList(
@@ -341,7 +341,7 @@ public class SelectStatementTest {
             );
         List<String> dependencies = Arrays.asList("from");
 
-        Assert.assertEquals(selectExtractStatement.getInputViews(), dependencies);
-        StatementTestUtils.assertGeneratedBeans(selectExtractStatement, expectedGeneratedBeans);
+        Assert.assertEquals(selectStatement.getInputViews(), dependencies);
+        StatementTestUtils.assertGeneratedBeans(selectStatement, expectedGeneratedBeans);
     }
 }
