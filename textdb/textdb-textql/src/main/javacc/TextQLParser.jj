@@ -28,6 +28,13 @@ options {
      * The TextQL language is case-insensitive.
      */
     IGNORE_CASE = true;
+    /**
+     * Compile to a LL(2) grammar.
+     * Use 2 tokens while deciding the next semantic rule to follow.
+     * This is required due to conflicts when parsing the SELECT clause in the
+     * selectExtractStatement rule.
+     */
+    LOOKAHEAD = 2;
 }
 
 PARSER_BEGIN(TextQLParser)
@@ -83,7 +90,6 @@ TOKEN : { < CREATE : "CREATE" > }
 TOKEN : { < DIRECTORY : "DIRECTORY" > }
 TOKEN : { < VIEW : "VIEW" > }
 TOKEN : { < SELECT : "SELECT" > }
-TOKEN : { < EXTRACT : "EXTRACT" > }
 TOKEN : { < FROM : "FROM" > }
 TOKEN : { < AS : "AS" > }
 TOKEN : { < LIMIT : "LIMIT" > }
@@ -435,13 +441,13 @@ CreateViewStatement createViewStatement() :
  * Examples of valid input:
  *         SELECT * FROM t
  *         SELECT a, b, c FROM t LIMIT 1 OFFSET 8
- *         EXTRACT KEYWORDMATCH(g0, "key1") FROM k
- *         SELECT a EXTRACT KEYWORDMATCH(field, "key1") FROM k
- *         SELECT * EXTRACT KEYWORDMATCH([h6,h7,k8,k9], "key1", conjunction) FROM k LIMIT 1 OFFSET 8
+ *         SELECT KEYWORDMATCH(g0, "key1") FROM k
+ *         SELECT a, KEYWORDMATCH(field, "key1") FROM k
+ *         SELECT *, KEYWORDMATCH([h6,h7,k8,k9], "key1", conjunction) FROM k LIMIT 1 OFFSET 8
  * Grammar: (
- *              "SELECT" ( "*" | <identifierListToListString> ) ( "EXTRACT" <ExtractPredicate> )?
+ *              "SELECT" <ProjectPredicate> ( "," <ExtractPredicate> )?
  *            |
- *              "EXTRACT" <ExtractPredicate>
+ *              <ExtractPredicate>
  *          )
  *          "FROM" <Identifier>
  *          ("LIMIT" <Number> )?
@@ -451,38 +457,29 @@ CreateViewStatement createViewStatement() :
 SelectExtractStatement selectExtractStatement() : 
 {
     SelectExtractStatement selectExtractStatement = new SelectExtractStatement();
-    List<String> identifiers;
+    ProjectPredicate projectPredicate;
+    ExtractPredicate extractPredicate;
     String fromClause;
     Integer limitClause;
     Integer offsetClause;
-    ExtractPredicate extractPredicate;
-    ProjectPredicate projectPredicate;
 }
 {
     { selectExtractStatement.setId(getNewStatementId()); }
-    // parse the SELECT clause or/and the EXTRACT clause
+    // parse the SELECT clause
+    <SELECT>
     (
-            // parse the SELECT clause only, or parse the SELECT clause and the EXTRACT clause
+            // parse the project predicate
+            projectPredicate = projectPredicate()
+                { selectExtractStatement.setProjectPredicate(projectPredicate); }
+            // parse the extract predicate after a project predicate (optional)
             (
-                // parse the SELECT clause
-                <SELECT> 
-                ( 
-                        <STAR> { projectPredicate = new ProjectAllFieldsPredicate(); } // SELECT *
-                    | 
-                        identifiers = identifierListToListString() // SELECT a,b,...
-                            { projectPredicate = new ProjectSomeFieldsPredicate(identifiers); } 
-                )
-                    { selectExtractStatement.setProjectPredicate(projectPredicate); }
-                // parse the EXTRACT clause (optional)
-                (
-                    <EXTRACT> extractPredicate = extractPredicate() // EXTRACT extractPredicate
-                        { selectExtractStatement.setExtractPredicate(extractPredicate); } 
-                )?
-            )
+                <COMMA> extractPredicate = extractPredicate()
+                    { selectExtractStatement.setExtractPredicate(extractPredicate); }
+            )?
         |
-            // parse the EXTRACT clause only
-            <EXTRACT> extractPredicate = extractPredicate() // EXTRACT only
-                { selectExtractStatement.setExtractPredicate(extractPredicate); } 
+            // parse the extract predicate only
+            extractPredicate = extractPredicate()
+                { selectExtractStatement.setExtractPredicate(extractPredicate); }
     )
     // parse FROM field
     <FROM> fromClause = identifierLiteralToString()
@@ -507,6 +504,33 @@ SelectExtractStatement selectExtractStatement() :
 /*
  * Parse declaration of Predicates
  */
+/**
+ * Parse one project predicate from the input and generate a ProjectPredicate
+ * object with the parsed data.
+ * The type of extract predicate can be either ProjectAllFieldsPredicate or
+ * ProjectSomeFieldsPredicate.
+ * Grammar: ProjectPredicate := ( "*" | <identifierListToListString> )
+ * @return The ProjectPredicate representation of the next extract predicate
+ */
+ProjectPredicate projectPredicate() : 
+{
+    ProjectPredicate projectPredicate;
+    List<String> identifiers;
+}
+{
+    // parse the project predicate
+    (
+            <STAR> { projectPredicate = new ProjectAllFieldsPredicate(); } // *
+        | 
+            identifiers = identifierListToListString() // a,b,...
+                { projectPredicate = new ProjectSomeFieldsPredicate(identifiers); }
+    )
+    // return generated ProjectPredicate
+    {
+        return projectPredicate;
+    }
+}
+
 /**
  * Parse one extract predicate from the input and generate an ExtractPredicate
  * object with the parsed data.

@@ -216,11 +216,11 @@ public class TextQLParserTest {
         Assert.assertEquals((new TextQLParser(string2InputStream(" B7FROM "))).identifierListToListString(), Arrays.asList("B7FROM"));
         Assert.assertEquals((new TextQLParser(string2InputStream(" A "))).identifierListToListString(), Arrays.asList("A"));
         Assert.assertEquals((new TextQLParser(string2InputStream(" FROMa "))).identifierListToListString(), Arrays.asList("FROMa"));
-        assertException(()->(new TextQLParser(string2InputStream(" j7i,/8s7s/ "))).identifierListToListString(), ParseException.class);
-        assertException(()->(new TextQLParser(string2InputStream(" k8i,\"8s7s\" "))).identifierListToListString(), ParseException.class);
-        assertException(()->(new TextQLParser(string2InputStream(" k8i,,k9j "))).identifierListToListString(), ParseException.class);
-        assertException(()->(new TextQLParser(string2InputStream(" k8i,/8s7s/ "))).identifierListToListString(),ParseException.class);
-        assertException(()->(new TextQLParser(string2InputStream(" k8i, "))).identifierListToListString(), ParseException.class);
+        Assert.assertEquals((new TextQLParser(string2InputStream(" j7i,/8s7s/ "))).identifierListToListString(), Arrays.asList("j7i"));
+        Assert.assertEquals((new TextQLParser(string2InputStream(" k8i,\"8s7s\" "))).identifierListToListString(), Arrays.asList("k8i"));
+        Assert.assertEquals((new TextQLParser(string2InputStream(" k8i,,k9j "))).identifierListToListString(), Arrays.asList("k8i"));
+        Assert.assertEquals((new TextQLParser(string2InputStream(" k8i,/8s7s/ "))).identifierListToListString(), Arrays.asList("k8i"));
+        Assert.assertEquals((new TextQLParser(string2InputStream(" k8i, "))).identifierListToListString(), Arrays.asList("k8i"));
         assertException(()->(new TextQLParser(string2InputStream(" j7i\\8s7s "))).identifierListToListString(), TokenMgrError.class);
         assertException(()->(new TextQLParser(string2InputStream(" k8i\"8s7s "))).identifierListToListString(), TokenMgrError.class);
         assertException(()->(new TextQLParser(string2InputStream(" 2df "))).identifierListToListString(), ParseException.class);
@@ -272,18 +272,18 @@ public class TextQLParserTest {
         Statement SelectStatementParameters06 = new SelectExtractStatement("_sid0", SelectStatementSelect06, null, "j", null, null);
         Assert.assertEquals((new TextQLParser(string2InputStream(SelectStatement06))).statement(), SelectStatementParameters06);
         
-        String SelectStatement13 = "SELECT h, i, j EXTRACT KEYWORDMATCH([h6,h7,k8,k9], \"key5\") FROM q;";
+        String SelectStatement13 = "SELECT h, i, j, KEYWORDMATCH([h6,h7,k8,k9], \"key5\") FROM q;";
         ProjectPredicate SelectStatementSelect13 = new ProjectSomeFieldsPredicate(Arrays.asList("h","i","j"));
         ExtractPredicate SelectStatementExtract13 = new KeywordExtractPredicate(Arrays.asList("h6","h7","k8","k9"), "key5", null);
         Statement SelectStatementParameters13 = new SelectExtractStatement("_sid0", SelectStatementSelect13, SelectStatementExtract13, "q", null, null);
         Assert.assertEquals((new TextQLParser(string2InputStream(SelectStatement13))).statement(), SelectStatementParameters13);
         
-        String SelectStatement14 = "EXTRACT KEYWORDMATCH([i6,j7,l8,m9], \"key5\") FROM q;";
+        String SelectStatement14 = "SELECT KEYWORDMATCH([i6,j7,l8,m9], \"key5\") FROM q;";
         ExtractPredicate SelectStatementExtract14 = new KeywordExtractPredicate(Arrays.asList("i6","j7","l8","m9"), "key5", null);
         Statement SelectStatementParameters14 = new SelectExtractStatement("_sid0", null, SelectStatementExtract14, "q", null, null);
         Assert.assertEquals((new TextQLParser(string2InputStream(SelectStatement14))).statement(), SelectStatementParameters14);
         
-        String SelectStatement21 = "EXTRACT KEYWORDMATCH([h3,i2,j1,k0], \"key\\\"/\") FROM m LIMIT 4 OFFSET 25 ;";
+        String SelectStatement21 = "SELECT KEYWORDMATCH([h3,i2,j1,k0], \"key\\\"/\") FROM m LIMIT 4 OFFSET 25 ;";
         ExtractPredicate SelectStatementExtract21 = new KeywordExtractPredicate(Arrays.asList("h3","i2","j1","k0"), "key\"/", null);
         Statement SelectStatementParameters21 = new SelectExtractStatement("_sid0", null, SelectStatementExtract21, "m", 4, 25);
         Assert.assertEquals((new TextQLParser(string2InputStream(SelectStatement21))).statement(), SelectStatementParameters21);
@@ -300,14 +300,14 @@ public class TextQLParserTest {
         Statement createViewStatementParameters01 = new CreateViewStatement("v1", createViewStatementSelect01);
         Assert.assertEquals((new TextQLParser(string2InputStream(createViewStatement01))).statement(), createViewStatementParameters01);
         
-        String createViewStatement02 = " CREATE VIEW v2 AS SELECT e EXTRACT KEYWORDMATCH([g4,g5], \"key0\") FROM o ;";
+        String createViewStatement02 = " CREATE VIEW v2 AS SELECT e, KEYWORDMATCH([g4,g5], \"key0\") FROM o ;";
         ProjectPredicate createViewStatementSelectP02 = new ProjectSomeFieldsPredicate(Arrays.asList("e"));
         ExtractPredicate createViewStatementExtract02 = new KeywordExtractPredicate(Arrays.asList("g4","g5"), "key0", null);
         Statement createViewStatementSelect02 = new SelectExtractStatement("_sid0", createViewStatementSelectP02, createViewStatementExtract02, "o", null, null);
         Statement createViewStatementParameters02 = new CreateViewStatement("v2", createViewStatementSelect02);
         Assert.assertEquals((new TextQLParser(string2InputStream(createViewStatement02))).statement(), createViewStatementParameters02);
         
-        String createViewStatement03 = " CREATE VIEW v2 AS EXTRACT KEYWORDMATCH([g4,g5], \"key0\", substring) FROM o ;";
+        String createViewStatement03 = " CREATE VIEW v2 AS SELECT KEYWORDMATCH([g4,g5], \"key0\", substring) FROM o ;";
         ExtractPredicate createViewStatementExtract03 = new KeywordExtractPredicate(Arrays.asList("g4","g5"), "key0", "substring");
         Statement createViewStatementSelect03 = new SelectExtractStatement("_sid0", null, createViewStatementExtract03, "o", null, null);
         Statement createViewStatementParameters03 = new CreateViewStatement("v2", createViewStatementSelect03);
@@ -324,12 +324,12 @@ public class TextQLParserTest {
     public void testStatementsMain() throws ParseException {
         //Declaration of multiple statements for testing
         String SelectStatement00 = "SELECT * FROM a;";
-        String SelectStatement13 = "SELECT h, i, j EXTRACT KEYWORDMATCH([h6,h7,k8,k9], \"key5\") FROM q LIMIT 5 OFFSET 6;";
-        String SelectStatement14 = "EXTRACT KEYWORDMATCH(i6, \"key5\") FROM q;";
+        String SelectStatement13 = "SELECT h, i, j, KEYWORDMATCH([h6,h7,k8,k9], \"key5\") FROM q LIMIT 5 OFFSET 6;";
+        String SelectStatement14 = "SELECT KEYWORDMATCH(i6, \"key5\") FROM q;";
         String createViewStatement00 = " CREATE VIEW v0 AS SELECT * FROM a; ";
         String createViewStatement01 = " CREATE VIEW v1 AS SELECT f8, fa, fc, df, ff FROM j LIMIT 1 OFFSET 8; ";
-        String createViewStatement02 = " CREATE VIEW v2 AS SELECT e EXTRACT KEYWORDMATCH([g4,g5], \"key0\") FROM o ;";
-        String createViewStatement03 = " CREATE VIEW v2 AS EXTRACT KEYWORDMATCH([g4,g5], \"key0\", substring) FROM o ;";
+        String createViewStatement02 = " CREATE VIEW v2 AS SELECT e, KEYWORDMATCH([g4,g5], \"key0\") FROM o ;";
+        String createViewStatement03 = " CREATE VIEW v2 AS SELECT KEYWORDMATCH([g4,g5], \"key0\", substring) FROM o ;";
         
         //Example of statement objects used for testing
         ProjectPredicate SelectStatementSelect00 = new ProjectAllFieldsPredicate();
@@ -459,68 +459,68 @@ public class TextQLParserTest {
         Statement SelectStatementParameters06 = new SelectExtractStatement("_sid0", SelectStatementSelect06, null, "j", null, null);
         Assert.assertEquals((new TextQLParser(string2InputStream(SelectStatement06))).selectExtractStatement(), SelectStatementParameters06);
         
-        String SelectStatement07 = "SELECT a EXTRACT KEYWORDMATCH(g0, \"key1\") FROM k";
+        String SelectStatement07 = "SELECT a, KEYWORDMATCH(g0, \"key1\") FROM k";
         ProjectPredicate SelectStatementSelect07 = new ProjectSomeFieldsPredicate(Arrays.asList("a"));
         ExtractPredicate SelectStatementExtract07 = new KeywordExtractPredicate(Arrays.asList("g0"), "key1", null);
         Statement SelectStatementParameters07 = new SelectExtractStatement("_sid0", SelectStatementSelect07, SelectStatementExtract07, "k", null, null);
         Assert.assertEquals((new TextQLParser(string2InputStream(SelectStatement07))).selectExtractStatement(), SelectStatementParameters07);
         
-        String SelectStatement08 = "SELECT b EXTRACT KEYWORDMATCH(g1, \"key2\", conjunction) FROM l";
+        String SelectStatement08 = "SELECT b, KEYWORDMATCH(g1, \"key2\", conjunction) FROM l";
         ProjectPredicate SelectStatementSelect08 = new ProjectSomeFieldsPredicate(Arrays.asList("b"));
         ExtractPredicate SelectStatementExtract08 = new KeywordExtractPredicate(Arrays.asList("g1"), "key2", "conjunction");
         Statement SelectStatementParameters08 = new SelectExtractStatement("_sid0", SelectStatementSelect08, SelectStatementExtract08, "l", null, null);
         Assert.assertEquals((new TextQLParser(string2InputStream(SelectStatement08))).selectExtractStatement(), SelectStatementParameters08);
         
-        String SelectStatement10 = "SELECT v EXTRACT KEYWORDMATCH(u, \"keyZ\") FROM t";
+        String SelectStatement10 = "SELECT v, KEYWORDMATCH(u, \"keyZ\") FROM t";
         ProjectPredicate SelectStatementSelect10 = new ProjectSomeFieldsPredicate(Arrays.asList("v"));
         ExtractPredicate SelectStatementExtract10 = new KeywordExtractPredicate(Arrays.asList("u"), "keyZ", null);
         Statement SelectStatementParameters10 = new SelectExtractStatement("_sid0", SelectStatementSelect10, SelectStatementExtract10, "t", null, null);
         Assert.assertEquals((new TextQLParser(string2InputStream(SelectStatement10))).selectExtractStatement(), SelectStatementParameters10);
         
-        String SelectStatement11 = "SELECT e EXTRACT KEYWORDMATCH([g4], \"key0\") FROM o";
+        String SelectStatement11 = "SELECT e, KEYWORDMATCH([g4], \"key0\") FROM o";
         ProjectPredicate SelectStatementSelect11 = new ProjectSomeFieldsPredicate(Arrays.asList("e"));
         ExtractPredicate SelectStatementExtract11 = new KeywordExtractPredicate(Arrays.asList("g4"), "key0", null);
         Statement SelectStatementParameters11 = new SelectExtractStatement("_sid0", SelectStatementSelect11, SelectStatementExtract11, "o", null, null);
         Assert.assertEquals((new TextQLParser(string2InputStream(SelectStatement11))).selectExtractStatement(), SelectStatementParameters11);
         
-        String SelectStatement12 = "SELECT f EXTRACT KEYWORDMATCH([g6,g7,h8,i9], \"key\") FROM p";
+        String SelectStatement12 = "SELECT f, KEYWORDMATCH([g6,g7,h8,i9], \"key\") FROM p";
         ProjectPredicate SelectStatementSelect12 = new ProjectSomeFieldsPredicate(Arrays.asList("f"));
         ExtractPredicate SelectStatementExtract12 = new KeywordExtractPredicate(Arrays.asList("g6","g7","h8","i9"), "key", null);
         Statement SelectStatementParameters12 = new SelectExtractStatement("_sid0", SelectStatementSelect12, SelectStatementExtract12, "p", null, null);
         Assert.assertEquals((new TextQLParser(string2InputStream(SelectStatement12))).selectExtractStatement(), SelectStatementParameters12);
         
-        String SelectStatement13 = "SELECT h, i, j EXTRACT KEYWORDMATCH([h6,h7,k8,k9], \"key5\") FROM q";
+        String SelectStatement13 = "SELECT h, i, j, KEYWORDMATCH([h6,h7,k8,k9], \"key5\") FROM q";
         ProjectPredicate SelectStatementSelect13 = new ProjectSomeFieldsPredicate(Arrays.asList("h","i","j"));
         ExtractPredicate SelectStatementExtract13 = new KeywordExtractPredicate(Arrays.asList("h6","h7","k8","k9"), "key5", null);
         Statement SelectStatementParameters13 = new SelectExtractStatement("_sid0", SelectStatementSelect13, SelectStatementExtract13, "q", null, null);
         Assert.assertEquals((new TextQLParser(string2InputStream(SelectStatement13))).selectExtractStatement(), SelectStatementParameters13);
         
-        String SelectStatement14 = "EXTRACT KEYWORDMATCH([i6,j7,l8,m9], \"key5\") FROM q";
+        String SelectStatement14 = "SELECT KEYWORDMATCH([i6,j7,l8,m9], \"key5\") FROM q";
         ExtractPredicate SelectStatementExtract14 = new KeywordExtractPredicate(Arrays.asList("i6","j7","l8","m9"), "key5", null);
         Statement SelectStatementParameters14 = new SelectExtractStatement("_sid0", null, SelectStatementExtract14, "q", null, null);
         Assert.assertEquals((new TextQLParser(string2InputStream(SelectStatement14))).selectExtractStatement(), SelectStatementParameters14);
         
-        String SelectStatement15 = "EXTRACT KEYWORDMATCH(g0, \"key1\") FROM k";
+        String SelectStatement15 = "SELECT KEYWORDMATCH(g0, \"key1\") FROM k";
         ExtractPredicate SelectStatementExtract15 = new KeywordExtractPredicate(Arrays.asList("g0"), "key1", null);
         Statement SelectStatementParameters15 = new SelectExtractStatement("_sid0", null, SelectStatementExtract15, "k", null, null);
         Assert.assertEquals((new TextQLParser(string2InputStream(SelectStatement15))).selectExtractStatement(), SelectStatementParameters15);
         
-        String SelectStatement16 = "EXTRACT KEYWORDMATCH(g1, \"key2\", phrase) FROM l";
+        String SelectStatement16 = "SELECT KEYWORDMATCH(g1, \"key2\", phrase) FROM l";
         ExtractPredicate SelectStatementExtract16 = new KeywordExtractPredicate(Arrays.asList("g1"), "key2", "phrase");
         Statement SelectStatementParameters16 = new SelectExtractStatement("_sid0", null, SelectStatementExtract16, "l", null, null);
         Assert.assertEquals((new TextQLParser(string2InputStream(SelectStatement16))).selectExtractStatement(), SelectStatementParameters16);
         
-        String SelectStatement19 = "EXTRACT KEYWORDMATCH([g4], \"key0\") FROM o";
+        String SelectStatement19 = "SELECT KEYWORDMATCH([g4], \"key0\") FROM o";
         ExtractPredicate SelectStatementExtract19 = new KeywordExtractPredicate(Arrays.asList("g4"), "key0", null);
         Statement SelectStatementParameters19 = new SelectExtractStatement("_sid0", null, SelectStatementExtract19, "o", null, null);
         Assert.assertEquals((new TextQLParser(string2InputStream(SelectStatement19))).selectExtractStatement(), SelectStatementParameters19);
         
-        String SelectStatement20 = "EXTRACT KEYWORDMATCH([g6,g7,h8,i9], \"key\") FROM p";
+        String SelectStatement20 = "SELECT KEYWORDMATCH([g6,g7,h8,i9], \"key\") FROM p";
         ExtractPredicate SelectStatementExtract20 = new KeywordExtractPredicate(Arrays.asList("g6","g7","h8","i9"), "key", null);
         Statement SelectStatementParameters20 = new SelectExtractStatement("_sid0", null, SelectStatementExtract20, "p", null, null);
         Assert.assertEquals((new TextQLParser(string2InputStream(SelectStatement20))).selectExtractStatement(), SelectStatementParameters20);
         
-        String SelectStatement21 = "EXTRACT KEYWORDMATCH([h3,i2,j1,k0], \"key\\\"/\") FROM m LIMIT 4 OFFSET 25 ";
+        String SelectStatement21 = "SELECT KEYWORDMATCH([h3,i2,j1,k0], \"key\\\"/\") FROM m LIMIT 4 OFFSET 25 ";
         ExtractPredicate SelectStatementExtract21 = new KeywordExtractPredicate(Arrays.asList("h3","i2","j1","k0"), "key\"/", null);
         Statement SelectStatementParameters21 = new SelectExtractStatement("_sid0", null, SelectStatementExtract21, "m", 4, 25);
         Assert.assertEquals((new TextQLParser(string2InputStream(SelectStatement21))).selectExtractStatement(), SelectStatementParameters21);
@@ -537,29 +537,20 @@ public class TextQLParserTest {
         String SelectStatement25 = "SELECT [a,b] FROM a";
         assertException(()->(new TextQLParser(string2InputStream(SelectStatement25))).selectExtractStatement(), ParseException.class);
         
-        String SelectStatement26 = "SELECT *,a FROM a";
+        String SelectStatement26 = "SELECT *, a FROM a";
         assertException(()->(new TextQLParser(string2InputStream(SelectStatement26))).selectExtractStatement(), ParseException.class);
         
         String SelectStatement27 = "SELECT * FROM [a,b]";
         assertException(()->(new TextQLParser(string2InputStream(SelectStatement27))).selectExtractStatement(), ParseException.class);
         
-        String SelectStatement28 = "SELECT KEYWORDMATCH(g0, \"key1\") FROM a";
+        String SelectStatement28 = "SELECT KEYWORDMATCH(g0, \"key1\"), a FROM a";
         assertException(()->(new TextQLParser(string2InputStream(SelectStatement28))).selectExtractStatement(), ParseException.class);
         
-        String SelectStatement29 = "SELECT EXTRACT KEYWORDMATCH(g0, \"key1\") FROM a";
+        String SelectStatement29 = "SELECT KEYWORDMATCH(g0, \"key1\") SELECT a FROM k";
         assertException(()->(new TextQLParser(string2InputStream(SelectStatement29))).selectExtractStatement(), ParseException.class);
         
-        String SelectStatement30 = "EXTRACT a FROM a";
+        String SelectStatement30 = "SELECT a";
         assertException(()->(new TextQLParser(string2InputStream(SelectStatement30))).selectExtractStatement(), ParseException.class);
-        
-        String SelectStatement31 = "EXTRACT * FROM a";
-        assertException(()->(new TextQLParser(string2InputStream(SelectStatement31))).selectExtractStatement(), ParseException.class);
-        
-        String SelectStatement32 = "EXTRACT KEYWORDMATCH(g0, \"key1\") SELECT a FROM k";
-        assertException(()->(new TextQLParser(string2InputStream(SelectStatement32))).selectExtractStatement(), ParseException.class);
-        
-        String SelectStatement33 = "SELECT a";
-        assertException(()->(new TextQLParser(string2InputStream(SelectStatement33))).selectExtractStatement(), ParseException.class);
     }
 
     /**
@@ -652,14 +643,14 @@ public class TextQLParserTest {
         Statement createViewStatementParameters01 = new CreateViewStatement("v1", createViewStatementSelect01);
         Assert.assertEquals((new TextQLParser(string2InputStream(createViewStatement01))).createViewStatement(), createViewStatementParameters01);
         
-        String createViewStatement02 = " CREATE VIEW v2 AS SELECT e EXTRACT KEYWORDMATCH([g4,g5], \"key0\") FROM o ";
+        String createViewStatement02 = " CREATE VIEW v2 AS SELECT e, KEYWORDMATCH([g4,g5], \"key0\") FROM o ";
         ProjectPredicate createViewStatementSelectP02 = new ProjectSomeFieldsPredicate(Arrays.asList("e"));
         ExtractPredicate createViewStatementExtract02 = new KeywordExtractPredicate(Arrays.asList("g4","g5"), "key0", null);
         Statement createViewStatementSelect02 = new SelectExtractStatement("_sid0", createViewStatementSelectP02, createViewStatementExtract02, "o", null, null);
         Statement createViewStatementParameters02 = new CreateViewStatement("v2", createViewStatementSelect02);
         Assert.assertEquals((new TextQLParser(string2InputStream(createViewStatement02))).createViewStatement(), createViewStatementParameters02);
         
-        String createViewStatement03 = " CREATE VIEW v2 AS EXTRACT KEYWORDMATCH([g4,g5], \"key0\", substring) FROM o ";
+        String createViewStatement03 = " CREATE VIEW v2 AS SELECT KEYWORDMATCH([g4,g5], \"key0\", substring) FROM o ";
         ExtractPredicate createViewStatementExtract03 = new KeywordExtractPredicate(Arrays.asList("g4","g5"), "key0", "substring");
         Statement createViewStatementSelect03 = new SelectExtractStatement("_sid0", null, createViewStatementExtract03, "o", null, null);
         Statement createViewStatementParameters03 = new CreateViewStatement("v2", createViewStatementSelect03);
