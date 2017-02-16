@@ -46,9 +46,9 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import edu.uci.ics.textdb.textql.statements.Statement;
 import edu.uci.ics.textdb.textql.statements.SelectExtractStatement;
 import edu.uci.ics.textdb.textql.statements.CreateViewStatement;
-import edu.uci.ics.textdb.textql.statements.predicates.SelectPredicate;
-import edu.uci.ics.textdb.textql.statements.predicates.SelectAllFieldsPredicate;
-import edu.uci.ics.textdb.textql.statements.predicates.SelectSomeFieldsPredicate;
+import edu.uci.ics.textdb.textql.statements.predicates.ProjectPredicate;
+import edu.uci.ics.textdb.textql.statements.predicates.ProjectAllFieldsPredicate;
+import edu.uci.ics.textdb.textql.statements.predicates.ProjectSomeFieldsPredicate;
 import edu.uci.ics.textdb.textql.statements.predicates.ExtractPredicate;
 import edu.uci.ics.textdb.textql.statements.predicates.KeywordExtractPredicate;
 
@@ -456,7 +456,7 @@ SelectExtractStatement selectExtractStatement() :
     Integer limitClause;
     Integer offsetClause;
     ExtractPredicate extractPredicate;
-    SelectPredicate selectPredicate;
+    ProjectPredicate projectPredicate;
 }
 {
     { selectExtractStatement.setId(getNewStatementId()); }
@@ -467,12 +467,12 @@ SelectExtractStatement selectExtractStatement() :
                 // parse the SELECT clause
                 <SELECT> 
                 ( 
-                        <STAR> { selectPredicate = new SelectAllFieldsPredicate(); } // SELECT *
+                        <STAR> { projectPredicate = new ProjectAllFieldsPredicate(); } // SELECT *
                     | 
                         identifiers = identifierListToListString() // SELECT a,b,...
-                            { selectPredicate = new SelectSomeFieldsPredicate(identifiers); } 
+                            { projectPredicate = new ProjectSomeFieldsPredicate(identifiers); } 
                 )
-                    { selectExtractStatement.setSelectPredicate(selectPredicate); }
+                    { selectExtractStatement.setProjectPredicate(projectPredicate); }
                 // parse the EXTRACT clause (optional)
                 (
                     <EXTRACT> extractPredicate = extractPredicate() // EXTRACT extractPredicate
