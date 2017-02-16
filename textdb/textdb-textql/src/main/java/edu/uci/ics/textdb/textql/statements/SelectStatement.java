@@ -18,7 +18,7 @@ import edu.uci.ics.textdb.web.request.beans.OperatorLinkBean;
  * @author Flavio Bayer
  *
  */
-public class SelectExtractStatement extends Statement {
+public class SelectStatement extends Statement {
     
     /**
      * Predicate used for projection of the fields to be returned such as in "SELECT *".
@@ -47,15 +47,14 @@ public class SelectExtractStatement extends Statement {
     private Integer offsetClause;
       
     /**
-     * Create a { @code CreateViewStatement } with all the parameters set to { @code null }.
-     * @param id The id of the statement.
+     * Create a { @code SelectStatement } with all the parameters set to { @code null }.
      */
-    public SelectExtractStatement() {
+    public SelectStatement() {
         this(null, null, null, null, null, null);
     }
 
     /**
-     * Create a { @code CreateViewStatement } with the given parameters.
+     * Create a { @code SelectStatement } with the given parameters.
      * @param id The ID of this statement.
      * @param projectPredicate The predicate for result projection.
      * @param extractPredicate The predicate for data extraction.
@@ -63,7 +62,7 @@ public class SelectExtractStatement extends Statement {
      * @param limitClause The value of the limit clause.
      * @param offsetClauseThe value of the offset clause.
      */
-    public SelectExtractStatement(String id, ProjectPredicate projectPredicate, ExtractPredicate extractPredicate,
+    public SelectStatement(String id, ProjectPredicate projectPredicate, ExtractPredicate extractPredicate,
             String fromClause, Integer limitClause, Integer offsetClause) {
         super(id);
         this.projectPredicate = projectPredicate;
@@ -240,14 +239,14 @@ public class SelectExtractStatement extends Statement {
     public boolean equals(Object other) {
         if (other == null) { return false; }
         if (other.getClass() != this.getClass()) { return false; }
-        SelectExtractStatement selectExtractStatement = (SelectExtractStatement) other;
+        SelectStatement selectStatement = (SelectStatement) other;
         return new EqualsBuilder()
-                    .appendSuper(super.equals(selectExtractStatement))
-                    .append(projectPredicate, selectExtractStatement.projectPredicate)
-                    .append(extractPredicate, selectExtractStatement.extractPredicate)
-                    .append(fromClause, selectExtractStatement.fromClause)
-                    .append(limitClause, selectExtractStatement.limitClause)
-                    .append(offsetClause, selectExtractStatement.offsetClause)
+                    .appendSuper(super.equals(selectStatement))
+                    .append(projectPredicate, selectStatement.projectPredicate)
+                    .append(extractPredicate, selectStatement.extractPredicate)
+                    .append(fromClause, selectStatement.fromClause)
+                    .append(limitClause, selectStatement.limitClause)
+                    .append(offsetClause, selectStatement.offsetClause)
                     .isEquals();
     }
     

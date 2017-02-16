@@ -9,7 +9,7 @@ import org.junit.Test;
 
 import edu.uci.ics.textdb.common.constants.DataConstants.KeywordMatchingType;
 import edu.uci.ics.textdb.textql.statements.CreateViewStatement;
-import edu.uci.ics.textdb.textql.statements.SelectExtractStatement;
+import edu.uci.ics.textdb.textql.statements.SelectStatement;
 import edu.uci.ics.textdb.textql.statements.Statement;
 import edu.uci.ics.textdb.textql.statements.predicates.ExtractPredicate;
 import edu.uci.ics.textdb.textql.statements.predicates.KeywordExtractPredicate;
@@ -56,23 +56,23 @@ public class CreateViewStatementTest {
         createViewStatement = new CreateViewStatement("statementId", null);
         Assert.assertEquals(createViewStatement.getSubStatement(), null);
 
-        subStatement = new SelectExtractStatement("substatementId0", null, null, "source", null, null);
+        subStatement = new SelectStatement("substatementId0", null, null, "source", null, null);
         createViewStatement = new CreateViewStatement("statementId", subStatement);
         Assert.assertEquals(createViewStatement.getSubStatement(), subStatement);
 
-        subStatement = new SelectExtractStatement("substatementId1", null, null, "table", null, null);
+        subStatement = new SelectStatement("substatementId1", null, null, "table", null, null);
         createViewStatement = new CreateViewStatement("statementId", subStatement);
         Assert.assertEquals(createViewStatement.getSubStatement(), subStatement);
         
         projectPredicate = new ProjectAllFieldsPredicate();
-        subStatement = new SelectExtractStatement("substatementId2", projectPredicate, null, "from", null, null);
+        subStatement = new SelectStatement("substatementId2", projectPredicate, null, "from", null, null);
         createViewStatement = new CreateViewStatement("statementId", subStatement);
         Assert.assertEquals(createViewStatement.getSubStatement(), subStatement);
         
         projectPredicate = new ProjectSomeFieldsPredicate(Arrays.asList("at1", "at0"));
         extractPredicate = new KeywordExtractPredicate(Arrays.asList("a", "b"), "keyword",
                 KeywordMatchingType.CONJUNCTION_INDEXBASED.toString());
-        subStatement = new SelectExtractStatement("substatementIdX", projectPredicate, extractPredicate, "t", null, null);
+        subStatement = new SelectStatement("substatementIdX", projectPredicate, extractPredicate, "t", null, null);
         createViewStatement = new CreateViewStatement("statementId", subStatement);
         Assert.assertEquals(createViewStatement.getSubStatement(), subStatement);
     }
@@ -104,19 +104,19 @@ public class CreateViewStatementTest {
         Assert.assertEquals(createViewStatement.getSubStatement(), null);
         
         projectPredicate = new ProjectAllFieldsPredicate();
-        subStatement = new SelectExtractStatement("substatementId0", projectPredicate, null, "from", null, null);
+        subStatement = new SelectStatement("substatementId0", projectPredicate, null, "from", null, null);
         createViewStatement = new CreateViewStatement("statementId", subStatement);
         Assert.assertEquals(createViewStatement.getSubStatement(), subStatement);
         
         projectPredicate = new ProjectAllFieldsPredicate();
-        subStatement = new SelectExtractStatement("substatementId1", projectPredicate, null, "table", null, null);
+        subStatement = new SelectStatement("substatementId1", projectPredicate, null, "table", null, null);
         createViewStatement = new CreateViewStatement("statementId", subStatement);
         Assert.assertEquals(createViewStatement.getSubStatement(), subStatement);
 
         projectPredicate = new ProjectSomeFieldsPredicate(Arrays.asList("c", "d"));
         extractPredicate = new KeywordExtractPredicate(Arrays.asList("f0", "f1"), "xxx",
                 KeywordMatchingType.PHRASE_INDEXBASED.toString());
-        subStatement = new SelectExtractStatement("id", projectPredicate, extractPredicate, "source", null, null);
+        subStatement = new SelectStatement("id", projectPredicate, extractPredicate, "source", null, null);
         createViewStatement.setSubStatement(subStatement);
         Assert.assertEquals(createViewStatement.getSubStatement(), subStatement);
     }
@@ -132,7 +132,7 @@ public class CreateViewStatementTest {
      */
     @Test
     public void testCreateViewStatementBeansBuilder00() {
-        Statement subStatement = new SelectExtractStatement("id2", null, null, "from", null, null);
+        Statement subStatement = new SelectStatement("id2", null, null, "from", null, null);
         CreateViewStatement createViewStatement = new CreateViewStatement("idx", subStatement);
 
         List<OperatorBean> expectedGeneratedBeans = Collections.emptyList();
@@ -156,7 +156,7 @@ public class CreateViewStatementTest {
         ProjectPredicate projectPredicate = new ProjectSomeFieldsPredicate(Arrays.asList("x", "y"));
         ExtractPredicate extractPredicate = new KeywordExtractPredicate(Arrays.asList("a", "b"), "zzz",
                 KeywordMatchingType.SUBSTRING_SCANBASED.toString());
-        Statement subStatement = new SelectExtractStatement("id", projectPredicate, extractPredicate, "from", null,
+        Statement subStatement = new SelectStatement("id", projectPredicate, extractPredicate, "from", null,
                 null);
         CreateViewStatement createViewStatement = new CreateViewStatement("idx", subStatement);
 
