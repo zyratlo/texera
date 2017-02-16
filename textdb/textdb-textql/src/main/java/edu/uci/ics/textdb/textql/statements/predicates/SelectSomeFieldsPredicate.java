@@ -14,7 +14,7 @@ import edu.uci.ics.textdb.web.request.beans.ProjectionBean;
  * @author Flavio Bayer
  *
  */
-public class SelectSomeFieldsPredicate extends SelectPredicate {
+public class SelectSomeFieldsPredicate implements SelectPredicate {
 
     /**
      * The { @link List } of fields to be projected if it is specified as
@@ -51,7 +51,7 @@ public class SelectSomeFieldsPredicate extends SelectPredicate {
      * Return this operator converted to an { @code OperatorBean }.
      * @param selectOperatorId The ID of the OperatorBean to be created.
      */
-    public OperatorBean getOperatorBean(String selectOperatorId) {
+    public OperatorBean generateOperatorBean(String selectOperatorId) {
         ProjectionBean projectionBean = new ProjectionBean();
         projectionBean.setOperatorID(selectOperatorId);
         projectionBean.setOperatorType("Projection");
@@ -66,7 +66,6 @@ public class SelectSomeFieldsPredicate extends SelectPredicate {
         if (other.getClass() != getClass()) { return false; }
         SelectSomeFieldsPredicate selectFieldsPredicate = (SelectSomeFieldsPredicate) other;
         return new EqualsBuilder()
-                .appendSuper(super.equals(selectFieldsPredicate))
                 .append(projectedFields, selectFieldsPredicate.projectedFields)
                 .isEquals();
     }

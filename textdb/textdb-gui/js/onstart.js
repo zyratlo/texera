@@ -1,7 +1,7 @@
 /*
 	Gui <---> Flowchart.js Communication
 	GUIJSON <---> TEXTDBJSON Conversion
-	
+
 	@Author: Jimmy Wang
 */
 
@@ -11,13 +11,14 @@ var setup = function(){
 
 	// Apply the plugin on a standard, empty div...
 	$('#the-flowchart').flowchart({
-		data: data
+		data: data,
+		multipleLinksOnOutput: true
 	});
-	
+
 	var operatorI = 0;
 	var selectedOperator = '';
 	var editOperators = [];
-	
+
 	var DEFAULT_REGEX = "zika\s*(virus|fever)";
 	var DEFAULT_KEYWORD = "Zika";
 	var DEFAULT_DICT = "SampleDict1.txt";
@@ -26,13 +27,13 @@ var setup = function(){
 	var DEFAULT_NLP = "ne_all";
 	var DEFAULT_DATA_SOURCE = "collection name";
 	var DEFAULT_FILE_SINK = "output.txt";
-	var DEFAULT_ATTRIBUTE_ID = "John";
+	var DEFAULT_ATTRIBUTE_ID = "_id";
 	var DEFAULT_PREDICATE_TYPE = "CharacterDistance";
-	var DEFAULT_DISTANCE = 10;
+	var DEFAULT_DISTANCE = 100; //threshold
 	var DEFAULT_ATTRIBUTES = "first name, last name";
-	var DEFAULT_LIMIT = 10;
-	var DEFAULT_OFFSET = 5;
-	
+	var DEFAULT_LIMIT = null;
+	var DEFAULT_OFFSET = null;
+
 	/*
 		Helper Functions
 	*/
@@ -40,17 +41,17 @@ var setup = function(){
 	function createResultFrame(message){
 		var resultFrame = $('<div class="result-frame"><div class="result-box"><div class="result-box-band">Return Result<div class="result-frame-close"><img src="img/close-icon.png"></div></div><div class="return-result"></div></div></div>');
 		$('body').append(resultFrame);
-		
+
 		var node = new PrettyJSON.view.Node({
 			el:$('.return-result'),
 			data:message
 		});
 	}
-	
-	//Create Operator Helper Function 
+
+	//Create Operator Helper Function
 	function getExtraOperators(userInput, panel){
 		var extraOperators = {};
-		  
+
 		if (panel == 'regex-panel'){
 			if (userInput == null || userInput == ''){
 				userInput = DEFAULT_REGEX;
@@ -86,13 +87,13 @@ var setup = function(){
 				userInput = DEFAULT_KEYWORD;
 			}
 			extraOperators['keyword'] = userInput;
-			
+
 			var dataSource = $('#' + panel + ' .data-source').val();
 			if (dataSource == null || dataSource == ''){
 				dataSource = DEFAULT_DATA_SOURCE;
 			}
 			extraOperators['data_source'] = dataSource;
-			
+
 			extraOperators['matching_type'] = $('#' + panel + ' .matching-type').val();
 		}
 		else if (panel == 'file-sink-panel'){
@@ -106,13 +107,13 @@ var setup = function(){
 				userInput = DEFAULT_ATTRIBUTE_ID;
 			}
 			extraOperators['id_attribute'] = userInput;
-			
+
 			var predicateType = $('#' + panel + ' .predicate-type').val();
 			if (predicateType == null || predicateType == ''){
 				predicateType = DEFAULT_PREDICATE_TYPE;
 			}
 			extraOperators['predicate_type'] = predicateType;
-			
+
 			var distance = $('#' + panel + ' .distance').val();
 			if (distance == null || distance == ''){
 				distance = DEFAULT_DISTANCE;
@@ -121,8 +122,8 @@ var setup = function(){
 		}
 		return extraOperators;
 	};
-	
-	//Create Operator Helper Function 
+
+	//Create Operator Helper Function
 	function getAttr(panel, keyword){
 		var result = $('#' + panel + keyword).val();
 		if(keyword == ' .limit'){
@@ -142,7 +143,7 @@ var setup = function(){
 		}
 		return result;
 	};
-	
+
 	//Edit Operator Button Helper Function
 		//getEditInputHtml Helper Function (get Html for a specific operator)
 	function getHtml(attr, attrValue){
@@ -151,10 +152,10 @@ var setup = function(){
 		if(attr == 'matching_type'){
 			var matchingTypeArray = ["conjunction", "phrase", "substring"];
 			resultString += '<select class="matching-type"><option value="' + attrValue + '" selected>' + attrValue + '</option>';
-			
+
 			//indexOf is not supported in IE6,7,8
 			matchingTypeArray.splice(matchingTypeArray.indexOf(attrValue),1);
-			
+
 			for(var index in matchingTypeArray){
 				resultString += '<option value="' + matchingTypeArray[index] + '">' + matchingTypeArray[index] + '</option>';
 			}
@@ -163,10 +164,10 @@ var setup = function(){
 		else if(attr == 'nlp_type'){
 			var nlpArray = ["noun", "verb", "adjective", "adverb", "ne_all", "number", "location", "person", "organization", "money", "percent", "date", "time"];
 			resultString += '<select class="nlp-type"><option value="' + attrValue + '" selected>' + attrValue + '</option>';
-			
+
 			//indexOf is not supported in IE6,7,8
 			nlpArray.splice(nlpArray.indexOf(attrValue),1);
-			
+
 			for(var index in nlpArray){
 				resultString += '<option value="' + nlpArray[index] + '">' + nlpArray[index] + '</option>';
 			}
@@ -179,9 +180,9 @@ var setup = function(){
 			resultString += '<input type="text" class="' + classString + '" value="' + attrValue + '">';
 		}
 		editOperators.push(classString);
-		return resultString;		
+		return resultString;
 	}
-	
+
 	//Edit Operator Help Function (creates the html code for the input boxes to edit an operator)
 	var getEditInputHtml = function(output){
 		var result = "";
@@ -196,7 +197,7 @@ var setup = function(){
 				}
 				result += ": ";
 				if(attr == 'operator_type'){
-					result += output[attr] + "\n";					
+					result += output[attr] + "\n";
 				}
 				else{
 					var inputHtml = getHtml(attr,output[attr]);
@@ -209,7 +210,7 @@ var setup = function(){
 		result.replace(/\n/g, '<br />');
 		return result;
 	};
-	
+
 	//Attribute Pop-Up Box Helper Function
 	function getPopupText(output){
 		var result = "";
@@ -233,15 +234,15 @@ var setup = function(){
 	/*
 		Button functions
 	*/
-	
+
 	//Process Operators to Server (GUIJSON --> TEXTDBJSON --> Server)
 	var processQuery = function(){
 		var GUIJSON = $('#the-flowchart').flowchart('getData');
-			
+
 		var TEXTDBJSON = {};
 		var operators = [];
 		var links = [];
-		
+
 		var DUMMYJSON = {
 			glossary: {
 				title: 'example glossary',
@@ -284,7 +285,7 @@ var setup = function(){
 				}
 			}
 		}
-		
+
 		for(var operatorIndex in GUIJSON.operators){
 			var currentOperator = GUIJSON['operators']
 			if (currentOperator.hasOwnProperty(operatorIndex)){
@@ -296,8 +297,8 @@ var setup = function(){
 				}
 				operators.push(attributes);
 			}
-		}	
-		
+		}
+
 		for(var link in GUIJSON.links){
 			var destination = {};
 			var currentLink = GUIJSON['links']
@@ -309,7 +310,7 @@ var setup = function(){
 		}
 		TEXTDBJSON.operators = operators;
 		TEXTDBJSON.links = links;
-		
+
 		$.ajax({
 			url: "http://localhost:8080/queryplan/execute",
 			type: "POST",
@@ -328,38 +329,40 @@ var setup = function(){
 			}
 		});
 	};
-	
+
 	//Attribute Pop-Up Box displays attributes in the popup box for selected operator
 	var displayPopupBox = function(){
 		selectedOperator = $('#the-flowchart').flowchart('getSelectedOperatorId');
 		var output = data['operators'][selectedOperator]['properties']['attributes'];
 		var title = data['operators'][selectedOperator]['properties']['title'];
-		
+
 		$('.popup').animate({
             'bottom': '0'
         }, 200);
-		
+
 		$('#attributes').css({
 			'visibility': 'visible'
 		});
-		
+
 		$('#attributes').text(getPopupText(output));
 		$('#attributes').html($('#attributes').text());
-		
+
 		var editButton = $('<button class="edit-operator">Edit</button>');
         $('#attributes').append(editButton);
-		
+
 		var deleteButton = $('<button class="delete-operator">Delete</button>');
         $('#attributes').append(deleteButton);
-		
+
 		$('.attributes-band').html('Attributes for <em>' + title + '</em>');
-	};	
-	
+
+		$('#switch').html('<i class="fa fa-minus-circle" aria-hidden="true"></i>Hide Attributes');
+	};
+
 	//Create Operator to send to flowchart.js and display on flowchart
 	var createOperator = function(buttonPanel){
 		var panel = $(buttonPanel).attr('rel');
 
-		var userInput = $('#' + panel + ' .value').val();	  
+		var userInput = $('#' + panel + ' .value').val();
 		var extraOperators = getExtraOperators(userInput,panel);
 
 		var userLimit = getAttr(panel, ' .limit');
@@ -374,12 +377,12 @@ var setup = function(){
 				title: (operatorName),
 				inputs: {
 					input_1: {
-						label: 'Input 1',
+						label: 'Input (:i)',
 					}
 				},
 				outputs: {
 					output_1: {
-						label: 'Output 1',
+						label: 'Output (:i)',
 					}
 				},
 				attributes: {
@@ -396,29 +399,33 @@ var setup = function(){
 		operatorData.properties.attributes['limit'] = userLimit;
 		operatorData.properties.attributes['offset'] = userOffset;
 
+		if(operatorName == "Join"){
+			operatorData.properties.inputs['input_2'] = {label: 'Input 2'};
+		}
+
 		operatorI++;
 
 		$('#the-flowchart').flowchart('createOperator', operatorId, operatorData);
 
-		data = $('#the-flowchart').flowchart('getData'); 
+		data = $('#the-flowchart').flowchart('getData');
 	};
-	
+
 	//Edit Operator to send to flowchart.js and display on flowchart
 	var editOperator = function(){
 		editOperators = [];
 		var output = data['operators'][selectedOperator]['properties']['attributes'];
-		
+
 		$('#attributes').text(getEditInputHtml(output));
-		
+
 		$('#attributes').html($('#attributes').text());
-		
+
 		var confirmChangesButton = $('<button class="confirm-button">Confirm Changes</button>');
         $('#attributes').append(confirmChangesButton);
-		
+
 		var cancelButton = $('<button class="cancel-button">Cancel</button>');
         $('#attributes').append(cancelButton);
 	};
-	
+
 	//Confirms changes made to selected operator which are passed to flowchart.js and recreated.
 	var confirmChanges = function(){
 		data = $('#the-flowchart').flowchart('getData');
@@ -437,12 +444,12 @@ var setup = function(){
 				title: (operatorName),
 				inputs: {
 					input_1: {
-						label: 'Input 1',
+						label: 'Input (:i)',
 					}
 				},
 				outputs: {
 					output_1: {
-						label: 'Output 1',
+						label: 'Output (:i)',
 					}
 				},
 				attributes: {
@@ -451,7 +458,7 @@ var setup = function(){
 				}
 			}
 		};
-	  
+
 		for(var otherOperator in editOperators){
 			var attr = editOperators[otherOperator].replace(/-/, '_');
 			var result = $('.' + panel + ' .' + editOperators[otherOperator]).val();
@@ -460,9 +467,9 @@ var setup = function(){
 			}
 			operatorData.properties.attributes[attr] = result;
 		}
-      
-		$('#the-flowchart').flowchart('deleteSelected');
-		$('#the-flowchart').flowchart('createOperator', operatorId, operatorData);
+
+		$('#the-flowchart').flowchart('setOperatorData', operatorId, operatorData);
+
 		$('#the-flowchart').flowchart('selectOperator', operatorId);
 		selectedOperator = $('#the-flowchart').flowchart('getSelectedOperatorId');
 
@@ -481,24 +488,24 @@ var setup = function(){
 		var deleteButton = $('<button class="delete-operator">Delete</button>');
 		$('#attributes').append(deleteButton);
 	};
-	
+
 	//Deletes the selected operator from flowchart.js and GUI
 	var deleteOperator = function(){
 		data = $('#the-flowchart').flowchart('getData');
 		$('#attributes').css({
 			'visibility': 'hidden'
 		});
-		
+
 		$('.attributes-band').text('Attributes');
-		
+
 		$('#the-flowchart').flowchart('deleteSelected');
 		data = $('#the-flowchart').flowchart('getData');
 	};
-	
+
 	/*
 		Buttons
 	*/
-	
+
 	//Process Operator Button. Calls processQuery function
 	$('.process-query').on('click', processQuery);
 
@@ -511,14 +518,14 @@ var setup = function(){
 	});
 
 	//Edit Operator Button calls editOperator function
-	$('#attributes').on('click', '.edit-operator', editOperator);	
+	$('#attributes').on('click', '.edit-operator', editOperator);
 
 	//Confirm Changes Button. Calls confirmChanges function
 	$('#attributes').on('click', '.confirm-button', confirmChanges);
 
 	//Cancel Edit Button (as if selecting the operator again) calls displayPopupBox function
 	$('#attributes').on('click', '.cancel-button', displayPopupBox);
-		
+
 	//Delete Operator Button. Calls deleteOperator function
 	$('#attributes, .nav').on('click', '.delete-operator', deleteOperator);
 };

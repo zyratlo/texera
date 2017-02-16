@@ -12,7 +12,7 @@ import edu.uci.ics.textdb.web.request.beans.KeywordMatcherBean;
  * @author Flavio Bayer
  *
  */
-public class KeywordExtractPredicate extends ExtractPredicate {
+public class KeywordExtractPredicate implements ExtractPredicate {
     
     /**
      * The { @link List } of fields on which the keyword search should be performed.
@@ -103,9 +103,10 @@ public class KeywordExtractPredicate extends ExtractPredicate {
     /**
      * Return this operator converted to a { @code KeywordMatcherBean }.
      * @param extractionOperatorId The ID of the OperatorBean to be created.
+     * @return this operator converted to a KeywordMatcherBean.
      */
     @Override
-    public KeywordMatcherBean getOperatorBean(String extractionOperatorId) {
+    public KeywordMatcherBean generateOperatorBean(String extractionOperatorId) {
         String matchingFieldsAsString = String.join(",", this.matchingFields);
         return new KeywordMatcherBean(extractionOperatorId, "KeywordMatcher", matchingFieldsAsString,
                     null, null, this.keywords, this.matchingType);
@@ -118,7 +119,6 @@ public class KeywordExtractPredicate extends ExtractPredicate {
         if (other.getClass() != getClass()) { return false; }
         KeywordExtractPredicate keywordExtractPredicate = (KeywordExtractPredicate) other;
         return new EqualsBuilder()
-                .appendSuper(super.equals(keywordExtractPredicate))
                 .append(matchingFields, keywordExtractPredicate.matchingFields)
                 .append(keywords, keywordExtractPredicate.keywords)
                 .append(matchingType, keywordExtractPredicate.matchingType)

@@ -38,10 +38,10 @@ import edu.uci.ics.textdb.storage.relation.RelationManager;
 
 public class SampleExtraction {
     
-    public static final String PROMED_SAMPLE_TABLE = "sample_extraction_promed";
+    public static final String PROMED_SAMPLE_TABLE = "promed";
         
-    public static final String promedFilesDirectory = "./sample-data-files/promed/";
-    public static final String promedIndexDirectory = "./index/standard/promed/"; 
+    public static final String promedFilesDirectory = "../textdb-perftest/sample-data-files/promed/";
+    public static final String promedIndexDirectory = "../textdb-perftest/index/standard/promed/";
     
     
     public static void main(String[] args) throws Exception {

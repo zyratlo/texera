@@ -25,6 +25,7 @@ import edu.uci.ics.textdb.dataflow.keywordmatch.KeywordMatcherSourceOperator;
 import edu.uci.ics.textdb.dataflow.nlpextrator.NlpExtractor;
 import edu.uci.ics.textdb.dataflow.regexmatch.RegexMatcher;
 import edu.uci.ics.textdb.dataflow.sink.FileSink;
+import edu.uci.ics.textdb.dataflow.sink.TupleStreamSink;
 import edu.uci.ics.textdb.plangen.operatorbuilder.FileSinkBuilder;
 import edu.uci.ics.textdb.plangen.operatorbuilder.FuzzyTokenMatcherBuilder;
 import edu.uci.ics.textdb.plangen.operatorbuilder.JoinBuilder;
@@ -156,7 +157,7 @@ public class LogicalPlanTest {
      *
      *                  --> RegexMatcher -->
      *                  |                    >-- Join1
-     * KeywordSource --< -> NlpExtractor -->          >-- Join2 --> FileSink
+     * KeywordSource --< -> NlpExtractor -->          >-- Join2 --> TupleStreamSink
      *                  |                           /
      *                  --> FuzzyTokenMatcher ----->
      *
@@ -170,7 +171,7 @@ public class LogicalPlanTest {
         logicalPlan.addOperator("fuzzytoken", "FuzzyTokenMatcher", fuzzyTokenMatcherProperties);
         logicalPlan.addOperator("join", "Join", joinProperties);
         logicalPlan.addOperator("join2", "Join", joinProperties);
-        logicalPlan.addOperator("sink", "FileSink", fileSinkProperties);
+        logicalPlan.addOperator("sink", "TupleStreamSink", new HashMap<String, String>());
 
         logicalPlan.addLink("source", "regex");
         logicalPlan.addLink("source", "nlp");
@@ -260,7 +261,7 @@ public class LogicalPlanTest {
      * 
      *                  --> RegexMatcher -->
      *                  |                    >-- Join1
-     * KeywordSource --< -> NlpExtractor -->          >-- Join2 --> FileSink
+     * KeywordSource --< -> NlpExtractor -->          >-- Join2 --> TupleStreamSink
      *                  |                           /
      *                  --> FuzzyTokenMatcher ----->
      * 
@@ -275,10 +276,10 @@ public class LogicalPlanTest {
 
         Plan queryPlan = logicalPlan.buildQueryPlan();
 
-        ISink fileSink = queryPlan.getRoot();
-        Assert.assertTrue(fileSink instanceof FileSink);
+        ISink tupleStreamSink = queryPlan.getRoot();
+        Assert.assertTrue(tupleStreamSink instanceof TupleStreamSink);
 
-        IOperator join2 = ((FileSink) fileSink).getInputOperator();
+        IOperator join2 = ((TupleStreamSink) tupleStreamSink).getInputOperator();
         Assert.assertTrue(join2 instanceof Join);
 
         IOperator join2Input1 = ((Join) join2).getInnerInputOperator();

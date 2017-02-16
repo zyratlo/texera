@@ -1,4 +1,4 @@
-package edu.uci.ics.textdb.testql.statements;
+package edu.uci.ics.textdb.textql.statements;
 
 import java.util.HashSet;
 import java.util.Iterator;
