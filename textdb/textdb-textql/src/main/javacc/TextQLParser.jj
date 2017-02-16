@@ -29,10 +29,10 @@ options {
      */
     IGNORE_CASE = true;
     /**
-     * Compile to a LL(2) grammar.
+     * Compile to an LL(2) grammar.
      * Use 2 tokens while deciding the next semantic rule to follow.
      * This is required due to conflicts when parsing the SELECT clause in the
-     * selectStatement rule.
+     * selectExtractStatement rule.
      */
     LOOKAHEAD = 2;
 }
