@@ -160,7 +160,7 @@ public class DictionaryMatcher implements IOperator {
         
         private boolean isOpen = false;
         private boolean inputAllConsumed = false;
-        private int cursor = 0;
+        private int cachedTupleCursor = 0;
         
         /*
          * openAll() is the actual "open" function for this cache operator.
@@ -190,7 +190,7 @@ public class DictionaryMatcher implements IOperator {
                 throw new DataFlowException(ErrorMessages.OPERATOR_NOT_OPENED);
             }
             // reset the cursor
-            cursor = 0;
+            cachedTupleCursor = 0;
         }
 
         @Override
@@ -199,8 +199,8 @@ public class DictionaryMatcher implements IOperator {
                 throw new DataFlowException(ErrorMessages.OPERATOR_NOT_OPENED);
             }
             // if cursor's next value exceeds the cache's size
-            if (cursor + 1 >= inputTupleList.size()) {
-                // if the input operator has been consumed, return null
+            if (cachedTupleCursor + 1 >= inputTupleList.size()) {
+                // if the input operator has been fully consumed, return null
                 if (inputAllConsumed) {
                     return null;
                 // else, get the next tuple from input operator, 
@@ -211,14 +211,14 @@ public class DictionaryMatcher implements IOperator {
                         inputAllConsumed = true;
                     } else {
                         inputTupleList.add(tuple);
-                        cursor++;
+                        cachedTupleCursor++;
                     }
                     return tuple;
                 }
             // if we can get the tuple from the cache, retrieve it and advance cursor
             } else {
-                ITuple tuple = inputTupleList.get(cursor);
-                cursor++;
+                ITuple tuple = inputTupleList.get(cachedTupleCursor);
+                cachedTupleCursor++;
                 return tuple;
             }
         }
@@ -235,7 +235,7 @@ public class DictionaryMatcher implements IOperator {
             }
             inputAllConsumed = true;
             isOpen = false;
-            cursor = 0;
+            cachedTupleCursor = 0;
             inputTupleList = new ArrayList<>();
             inputOperator.close();
         }
@@ -251,7 +251,7 @@ public class DictionaryMatcher implements IOperator {
                 throw new DataFlowException(ErrorMessages.OPERATOR_NOT_OPENED);
             }
             // reset the cursor
-            cursor = 0;
+            cachedTupleCursor = 0;
         }
         
         @Override
