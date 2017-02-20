@@ -105,8 +105,11 @@ public class DictionaryMatcher implements IOperator {
             // Update the KeywordMatcher with the new dictionary entry.
             keywordMatcher.close();
             
-            keywordPredicate.setQuery(currentDictionaryEntry);
-            keywordMatcher.setPredicate(keywordPredicate);
+            keywordPredicate = new KeywordPredicate(currentDictionaryEntry,
+                    predicate.getAttributeNames(),
+                    predicate.getAnalyzer(), predicate.getKeywordMatchingType());
+            keywordMatcher = new KeywordMatcher(keywordPredicate);
+            keywordMatcher.setInputOperator(cacheOperator);
 
             keywordMatcher.open();
         }
