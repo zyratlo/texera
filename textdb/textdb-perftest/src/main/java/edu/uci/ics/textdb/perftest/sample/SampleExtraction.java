@@ -153,7 +153,7 @@ public class SampleExtraction {
         NlpPredicate nlpPredicateLocation = new NlpPredicate(NlpPredicate.NlpTokenType.Location, Arrays.asList(PromedSchema.CONTENT));
         NlpExtractor nlpExtractorLocation = new NlpExtractor(nlpPredicateLocation);
 
-        IJoinPredicate joinPredicatePersonLocation = new JoinDistancePredicate(PromedSchema.ID, PromedSchema.CONTENT, 100);
+        IJoinPredicate joinPredicatePersonLocation = new JoinDistancePredicate(PromedSchema.CONTENT, 100);
         Join joinPersonLocation = new Join(joinPredicatePersonLocation);
         
         ProjectionPredicate projectionPredicateIdAndSpan = new ProjectionPredicate(
