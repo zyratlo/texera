@@ -19,7 +19,7 @@ import edu.uci.ics.textdb.common.constants.LuceneAnalyzerConstants;
 import edu.uci.ics.textdb.engine.Engine;
 import edu.uci.ics.textdb.perftest.medline.MedlineIndexWriter;
 import edu.uci.ics.textdb.storage.DataStore;
-import edu.uci.ics.textdb.storage.relation.RelationManager;
+import edu.uci.ics.textdb.storage.RelationManager;
 
 /**
  * @author Hailey Pan
@@ -51,7 +51,6 @@ public class PerfTestUtils {
             e.printStackTrace();
         }
     }
-
 
     /**
      * 
@@ -218,19 +217,24 @@ public class PerfTestUtils {
         RelationManager relationManager = RelationManager.getRelationManager();
         
         String tableName = fileName.replace(".txt", "");
-        
-        relationManager.deleteTable(tableName);
-        
+                
         if (indexType.equalsIgnoreCase("trigram")) {
+            tableName = tableName + "_trigram";
+            relationManager.deleteTable(tableName);
             relationManager.createTable(tableName, getTrigramIndexPath(tableName), 
                     MedlineIndexWriter.SCHEMA_MEDLINE, LuceneAnalyzerConstants.nGramAnalyzerString(3));
+            Engine.getEngine().evaluate(MedlineIndexWriter.getMedlineIndexPlan(fileFolder + fileName, tableName));
+            
         } else if (indexType.equalsIgnoreCase("standard")) {
+            relationManager.deleteTable(tableName);
             relationManager.createTable(tableName, getIndexPath(tableName), 
                     MedlineIndexWriter.SCHEMA_MEDLINE, LuceneAnalyzerConstants.standardAnalyzerString());
+            Engine.getEngine().evaluate(MedlineIndexWriter.getMedlineIndexPlan(fileFolder + fileName, tableName));
         } else {
             System.out.println("Index is not successfully written.");
             System.out.println("IndexType has to be either \"standard\" or \"trigram\"  ");
         }
+        
     }
 
     /**
