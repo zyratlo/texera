@@ -44,16 +44,15 @@ public class RegexToGramQueryTranslator {
             throws com.google.re2j.PatternSyntaxException {
 
         GramBooleanQuery result = translateUnsimplified(regex, gramLength);
-        GramBooleanQuery dnf = GramBooleanQuery.toDNF(result);
-        GramBooleanQuery simplifiedDNF = GramBooleanQuery.simplifyDNF(dnf);
 
-        TranslatorUtils.escapeSpecialCharacters(simplifiedDNF);
+
+        TranslatorUtils.escapeSpecialCharacters(result);
 
         // Since the inverted index relies on lower-case grams, we need to
         // convert the characters to lower case.
-        TranslatorUtils.toLowerCase(simplifiedDNF);
+        TranslatorUtils.toLowerCase(result);
 
-        return simplifiedDNF;
+        return result;
     }
 
     /*

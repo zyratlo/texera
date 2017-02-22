@@ -131,6 +131,8 @@ class RegexInfo {
             simplifyAffix(suffix, true);
         }
 
+        GramBooleanQuery dnf = GramBooleanQuery.toDNF(match);
+        match = GramBooleanQuery.simplifyDNF(dnf);
         return this;
     }
 
