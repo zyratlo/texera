@@ -54,7 +54,9 @@ public class FileRegexSplitSourceOperator implements ISourceOperator {
     }
 
     @Override
-    // Construct a tuple with only one field schema.
+/**
+ * Construct a tuple with only one field schema.
+ */
     public ITuple getNextTuple() throws TextDBException {
         if ( isOpen == true && this.scanner.hasNextLine()) {
                 try {
@@ -85,7 +87,9 @@ public class FileRegexSplitSourceOperator implements ISourceOperator {
         return outputSchema;
     }
     
-    // Split text into list tuples by a Regex line by line.
+/*
+ * Split text into list tuples by a Regex line by line.
+ */
     
     public String getTupleString(){
         StringBuilder tupleString = new StringBuilder();
