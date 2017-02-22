@@ -15,11 +15,8 @@ import edu.uci.ics.textdb.common.field.DataTuple;
 import edu.uci.ics.textdb.common.field.IDField;
 import edu.uci.ics.textdb.common.field.StringField;
 import edu.uci.ics.textdb.common.utils.Utils;
-
-import edu.uci.ics.textdb.plangen.LogicalPlan;
 import edu.uci.ics.textdb.storage.DataWriter;
 import edu.uci.ics.textdb.storage.RelationManager;
-
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.Query;
@@ -214,7 +211,7 @@ public class PlanStore {
     /**
      * Updates both plan description and plan json of a plan with the given plan name.
      * If description is null, it will not update plan description.
-     * If plan json is null, it will not update plan object.
+     * If plan json is NULL, it will not update the plan's JSON file.
      *
      * @param planName, the name of the plan.
      * @param description, the new description of the plan.
@@ -252,7 +249,7 @@ public class PlanStore {
     /**
      * Retrieves the Logical Plan in JSON format at the given file path
      * @param filePath, the file path of the logical plan JSON
-     * @return String
+     * @return String - The logical plan JSON in String format
      * @throws TextDBException
      */
     public String readPlanJson(String filePath) throws TextDBException {
@@ -293,7 +290,7 @@ public class PlanStore {
     }
 
     /**
-     * Removes a plan object stored in the given file path.
+     * Removes a logical plan JSON file stored in the given file path.
      *
      * @param filePath, the file path of the plan object.
      * @throws TextDBException

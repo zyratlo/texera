@@ -1,20 +1,16 @@
 package edu.uci.ics.textdb.planstore;
 
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.exception.TextDBException;
 import edu.uci.ics.textdb.api.storage.IDataReader;
-import edu.uci.ics.textdb.plangen.LogicalPlan;
-import edu.uci.ics.textdb.plangen.LogicalPlanTest;
 import junit.framework.Assert;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 
@@ -220,7 +216,7 @@ public class PlanStoreTest {
         String planName = "plan";
 
         planStore.addPlan(planName, "basic dictionary source plan", logicalPlanJson1);
-        planStore.addPlan(planName, "basic dictionary source plan", logicalPlanJson2);
+        planStore.addPlan(planName, "basic keyword source plan", logicalPlanJson2);
     }
 
     @Test
