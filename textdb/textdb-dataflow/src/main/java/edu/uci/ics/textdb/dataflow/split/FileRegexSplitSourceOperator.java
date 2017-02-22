@@ -1,4 +1,4 @@
-package edu.uci.ics.textdb.dataflow.source;
+package edu.uci.ics.textdb.dataflow.split;
 import edu.uci.ics.textdb.api.exception.TextDBException;
 
 import java.io.File;
@@ -11,6 +11,7 @@ import edu.uci.ics.textdb.api.common.Schema;
 import edu.uci.ics.textdb.api.dataflow.ISourceOperator;
 import edu.uci.ics.textdb.common.field.DataTuple;
 import edu.uci.ics.textdb.common.field.TextField;
+import edu.uci.ics.textdb.dataflow.common.AbstractSingleInputOperator;
 
 
 
@@ -20,7 +21,7 @@ import edu.uci.ics.textdb.common.field.TextField;
  * 
  * This class handles tuples divide in a long text file source by using a regex.
  */
-public class FileRegexSplitSourceOperator implements ISourceOperator {
+public class FileRegexSplitSourceOperator extends AbstractSingleInputOperator {
     private File file;
     private Scanner scanner;
     private Schema outputSchema;
@@ -54,9 +55,12 @@ public class FileRegexSplitSourceOperator implements ISourceOperator {
     }
 
     @Override
+<<<<<<< HEAD:textdb/textdb-dataflow/src/main/java/edu/uci/ics/textdb/dataflow/source/FileRegexSplitSourceOperator.java
 /**
  * Construct a tuple with only one field schema.
  */
+=======
+>>>>>>> 2bef28db5b0cece0c694b2d4ec9dd2ad3e969410:textdb/textdb-dataflow/src/main/java/edu/uci/ics/textdb/dataflow/split/FileRegexSplitSourceOperator.java
     public ITuple getNextTuple() throws TextDBException {
         if ( isOpen == true && this.scanner.hasNextLine()) {
                 try {
@@ -86,12 +90,20 @@ public class FileRegexSplitSourceOperator implements ISourceOperator {
     public Schema getOutputSchema() {
         return outputSchema;
     }
+<<<<<<< HEAD:textdb/textdb-dataflow/src/main/java/edu/uci/ics/textdb/dataflow/source/FileRegexSplitSourceOperator.java
     
 /*
  * Split text into list tuples by a Regex line by line.
  */
     
     public String getTupleString(){
+=======
+       
+    /*
+     * Split text into list tuples by a Regex line by line.
+     */
+    private String getTupleString(){
+>>>>>>> 2bef28db5b0cece0c694b2d4ec9dd2ad3e969410:textdb/textdb-dataflow/src/main/java/edu/uci/ics/textdb/dataflow/split/FileRegexSplitSourceOperator.java
         StringBuilder tupleString = new StringBuilder();
         tupleString.append(this.nextTupleStartString);
         if ( !this.nextTupleStartString.isEmpty() ){

@@ -8,7 +8,7 @@ import edu.uci.ics.textdb.api.common.FieldType;
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.common.Schema;
 import edu.uci.ics.textdb.common.utils.Utils;
-import edu.uci.ics.textdb.dataflow.source.FileRegexSplitSourceOperator;
+import edu.uci.ics.textdb.dataflow.split.FileRegexSplitSourceOperator;
 
 public class RegexSplitTest {
 //    public static final String URL = "url";
