@@ -173,7 +173,7 @@ public class PlanStore {
         dataWriter.close();
         
         IField filePathField = plan.getField(PlanStoreConstants.FILE_PATH);
-        deletePlanObject(filePathField.getValue().toString());
+        deletePlanJson(filePathField.getValue().toString());
     }
 
     /**
@@ -241,7 +241,7 @@ public class PlanStore {
         if (logicalPlanJson != null) {
             IField filePathField = existingPlan.getField(PlanStoreConstants.FILE_PATH);
             String filePath = filePathField.getValue().toString();
-            deletePlanObject(filePath);
+            deletePlanJson(filePath);
             writePlanJson(logicalPlanJson, filePath);
         }
     }
@@ -295,7 +295,7 @@ public class PlanStore {
      * @param filePath, the file path of the plan object.
      * @throws TextDBException
      */
-    private void deletePlanObject(String filePath) {
+    private void deletePlanJson(String filePath) {
         File planFile = new File(filePath);
         if (planFile.exists()) {
             planFile.delete();
