@@ -41,7 +41,7 @@ public class RegexSplitOperator extends AbstractSingleInputOperator implements I
     public RegexSplitOperator(RegexSplitPredicate predicate) { // Attribute attribute
         
         this.predicate = predicate;
-        this.bufferCursor = -1;
+        this.bufferCursor = 0;
         this.hasBuffer = false;
     }
     
@@ -94,7 +94,7 @@ public class RegexSplitOperator extends AbstractSingleInputOperator implements I
             // if reached the end of buffer, reset the buffer properties.
             if (bufferCursor == outputTupleBuffer.size()) {
                 hasBuffer = false;
-                bufferCursor = -1;
+                bufferCursor = 0;
             }
             return resultTuple;
         }
@@ -128,7 +128,7 @@ public class RegexSplitOperator extends AbstractSingleInputOperator implements I
                     outputTupleBuffer.add(new DataTuple(inputSchema, tupleFieldList.stream().toArray(IField[]::new)));
                 }
                 hasBuffer = true;       //must has a buffer
-                cursor = 0;
+                bufferCursor = 0;
             }
         }
     }
@@ -136,7 +136,7 @@ public class RegexSplitOperator extends AbstractSingleInputOperator implements I
     @Override
     protected void cleanUp() throws TextDBException {
         hasBuffer = false;
-        bufferCursor = -1;
+        bufferCursor = 0;
     }
     
     public RegexSplitPredicate getPredicate(){
@@ -153,19 +153,21 @@ public class RegexSplitOperator extends AbstractSingleInputOperator implements I
         
         // Match the pattern in the text.
         Matcher startM = p.matcher(strText);
-        int startAt = 0;
-        int count = 0;
-        
-        while(startM.find() || count == startM.groupCount()){
-            count++;
-            int endAt = startM.start();
-            startAt = endAt;
-            //Handling the string after the last matching group.
-            if (count == startM.groupCount()){
-                endAt = strText.length()-1;
+
+        List<Integer> splitIndex = new ArrayList<Integer>();
+        splitIndex.add(0);
+
+        while(startM.find()){
+            if (startM.start() != 0) {
+                splitIndex.add(startM.start());
             }
-            splitTextList.add(strText.substring(startAt, endAt));
         }
+        splitIndex.add(strText.length());
+        
+        for (int i = 0 ; i < splitIndex.size() - 1; i++) {
+            splitTextList.add(strText.substring(splitIndex.get(i), splitIndex.get(i + 1)));
+        }
+
         //Handling 
         return splitTextList;
     }
