@@ -1,7 +1,5 @@
 package edu.uci.ics.textdb.dataflow.regexsplit;
 
-import java.util.List;
-
 import edu.uci.ics.textdb.api.common.IPredicate;
 
 /**
@@ -9,15 +7,13 @@ import edu.uci.ics.textdb.api.common.IPredicate;
  *
  */
 public class RegexSplitPredicate implements IPredicate {
-    private List<String> attributeNames;
     private String regex;
     private String attributeToSplit;
     
     
     
-    public RegexSplitPredicate(String regex, List<String> attributeNames, String attributeToSplit){
+    public RegexSplitPredicate(String regex, String attributeToSplit){
         this.regex = regex;
- //       this.attributeNames = attributeNames;
         this.attributeToSplit = attributeToSplit;
     }
     
@@ -27,10 +23,6 @@ public class RegexSplitPredicate implements IPredicate {
     
     public String getAttributeToSplit() {
         return attributeToSplit;
-    }
-
-    public List<String> getAttributeNames() {
-        return attributeNames;
     }
 
 }
