@@ -23,35 +23,40 @@ import edu.uci.ics.textdb.dataflow.common.AbstractSingleInputOperator;
  * @author Qinhua Huang
  * @author Zuozhi Wang
  * 
- * This class is to divide an attribute by using a regex in order to get multiple tuples, 
+ * This class is to divide an attribute of TextField or StringField by using a regex in order to get multiple tuples, 
  * with the other attributes unchanged.
+ * 
+ * Example:
+ * Source text: "Make America be Great America Again."
+ * splitRegex = "America"
+ * Split output can be 1 of the following 3, in terms of the SplitTypes:
+ * 1. GROUP_RIGHT: ["Make ", "America be Great ", "America Again."]
+ * 2. GROUP_LEFT: ["Make America", " be Great America"," Again."]
+ * 3. STANDALONE: ["Make ", "America", " be Great ", "America", " Again."]
+ * 
  */
 
 public class RegexSplitOperator extends AbstractSingleInputOperator implements ISourceOperator{
-    
+
     private RegexSplitPredicate predicate;
-    
+
     private List<ITuple> outputTupleBuffer;
     private int bufferCursor;
     private boolean hasOutputBufferTuple;
-    
-    Schema inputSchema;
-    
-    
-    public RegexSplitOperator(RegexSplitPredicate predicate) { // Attribute attribute
-        
+    private Schema inputSchema;
+
+    public RegexSplitOperator(RegexSplitPredicate predicate) {
         this.predicate = predicate;
         this.bufferCursor = 0;
         this.hasOutputBufferTuple = false;
     }
-    
+
     @Override
     protected void setUp() throws DataFlowException {        
         inputSchema = inputOperator.getOutputSchema();
         outputSchema = inputSchema;
     }
-    
-    @Override
+
     public void open() throws TextDBException {
         if (cursor != CLOSED) {
             return;
@@ -67,17 +72,17 @@ public class RegexSplitOperator extends AbstractSingleInputOperator implements I
         }
         cursor = OPENED;
     }
-    
+
     @Override
     public Schema getOutputSchema() {
         return outputSchema;
     }
-    
+
     @Override
     protected ITuple computeNextMatchingTuple() throws TextDBException {
         ITuple inputTuple = null;
         ITuple resultTuple = null;
-
+        
         // If buffer is empty, fetch a input tuple to generate a buffer for output.
         if (hasOutputBufferTuple == false) {
             inputTuple = inputOperator.getNextTuple();
@@ -100,9 +105,8 @@ public class RegexSplitOperator extends AbstractSingleInputOperator implements I
         }
         return null;
     }
-    
-    
-    public void populateOutputBuffer(ITuple inputTuple) throws TextDBException {        
+
+    private void populateOutputBuffer(ITuple inputTuple) throws TextDBException {        
         if (inputTuple != null)
         {
             String strToSplit;
@@ -146,25 +150,24 @@ public class RegexSplitOperator extends AbstractSingleInputOperator implements I
     /*
      *  Get a Tuple list from input file operator.
      */
-    public List<String> getSplitText(String strText) throws TextDBException {
+    private List<String> getSplitText(String strText) throws TextDBException {
         List<String> splitTextList = new ArrayList<>();
         //Create a pattern using regex.
         Pattern p = Pattern.compile(predicate.getRegex());
         
         // Match the pattern in the text.
-        Matcher startM = p.matcher(strText);
-
+        Matcher regexMatcher = p.matcher(strText);
         List<Integer> splitIndex = new ArrayList<Integer>();
         splitIndex.add(0);
 
-        while(startM.find()){
+        while(regexMatcher.find()){
             if (predicate.getSplitType() == RegexSplitPredicate.SplitType.GROUP_RIGHT) {
-                splitIndex.add(startM.start());
+                splitIndex.add(regexMatcher.start());
             } else if (predicate.getSplitType() == RegexSplitPredicate.SplitType.GROUP_LEFT) {
-                splitIndex.add(startM.end());
+                splitIndex.add(regexMatcher.end());
             } else if (predicate.getSplitType() == RegexSplitPredicate.SplitType.STANDALONE) {
-                splitIndex.add(startM.start());
-                splitIndex.add(startM.end());
+                splitIndex.add(regexMatcher.start());
+                splitIndex.add(regexMatcher.end());
             }
         }
         splitIndex.add(strText.length());
@@ -174,7 +177,7 @@ public class RegexSplitOperator extends AbstractSingleInputOperator implements I
                 splitTextList.add(strText.substring(splitIndex.get(i), splitIndex.get(i + 1)));
             }
         }
-
+        
         return splitTextList;
     }
     

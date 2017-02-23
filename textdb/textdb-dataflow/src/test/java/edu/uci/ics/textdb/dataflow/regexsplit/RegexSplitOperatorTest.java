@@ -13,6 +13,7 @@ import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.exception.TextDBException;
 import edu.uci.ics.textdb.common.constants.LuceneAnalyzerConstants;
 import edu.uci.ics.textdb.common.constants.TestConstantsChinese;
+import edu.uci.ics.textdb.common.exception.DataFlowException;
 import edu.uci.ics.textdb.dataflow.source.ScanBasedSourceOperator;
 import edu.uci.ics.textdb.storage.DataWriter;
 import edu.uci.ics.textdb.storage.RelationManager;
@@ -65,28 +66,18 @@ public class RegexSplitOperatorTest {
     }
     
     /*
-     *  Try the divide the non (TextField | StringField) field. 
+     *  To divide the non (TextField | StringField) field. 
      *  This will fail.
      */
-    @Test
+    @Test(expected = DataFlowException.class)
     public void test1() throws TextDBException {
         String splitRegex = "19";
         String splitAttrName = TestConstantsChinese.DATE_OF_BIRTH;
         boolean catchException = false;
-        try {
-            List<ITuple> results = getRegexSplitResults(CHINESE_TABLE, splitRegex, splitAttrName, 
-                    RegexSplitPredicate.SplitType.GROUP_RIGHT);
-        
-            List<String> splitStrings = results.stream()
-                    .map(tuple -> tuple.getField(TestConstantsChinese.DESCRIPTION).getValue().toString())
-                    .collect(Collectors.toList());
-
-            System.out.println(splitStrings);
-        } catch ( TextDBException e) {
-            catchException = true;
-        }
-        Assert.assertEquals(true, catchException);
+        List<ITuple> results = getRegexSplitResults(CHINESE_TABLE, splitRegex, splitAttrName, 
+                RegexSplitPredicate.SplitType.GROUP_RIGHT);
     }
+    
     /*
      *  Divide the String field.
      */
