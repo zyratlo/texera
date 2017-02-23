@@ -33,7 +33,7 @@ public class RegexSplitOperator extends AbstractSingleInputOperator implements I
     
     private List<ITuple> outputTupleBuffer;
     private int bufferCursor;
-    private boolean hasBuffer;
+    private boolean hasOutputBufferTuple;
     
     Schema inputSchema;
     
@@ -42,7 +42,7 @@ public class RegexSplitOperator extends AbstractSingleInputOperator implements I
         
         this.predicate = predicate;
         this.bufferCursor = 0;
-        this.hasBuffer = false;
+        this.hasOutputBufferTuple = false;
     }
     
     @Override
@@ -78,8 +78,8 @@ public class RegexSplitOperator extends AbstractSingleInputOperator implements I
         ITuple inputTuple = null;
         ITuple resultTuple = null;
 
-        // If buffer is false, fetch a input tuple to generate a buffer for output.
-        if (hasBuffer == false) {
+        // If buffer is empty, fetch a input tuple to generate a buffer for output.
+        if (hasOutputBufferTuple == false) {
             inputTuple = inputOperator.getNextTuple();
             if (inputTuple == null) {
                 return null;
@@ -87,13 +87,13 @@ public class RegexSplitOperator extends AbstractSingleInputOperator implements I
             populateOutputBuffer(inputTuple);
         }
         
-        //if there is non-buffer and cursor < bufferSize, go ahead to get a output buffer.
+        //if there is a tuples buffer and cursor < bufferSize, go ahead to get a output buffer.
         if (bufferCursor < outputTupleBuffer.size()) {
             resultTuple = outputTupleBuffer.get(bufferCursor);
             bufferCursor++;
-            // if reached the end of buffer, reset the buffer properties.
+            // if reached the end of buffer, reset the buffer cursor.
             if (bufferCursor == outputTupleBuffer.size()) {
-                hasBuffer = false;
+                hasOutputBufferTuple = false;
                 bufferCursor = 0;
             }
             return resultTuple;
@@ -127,7 +127,7 @@ public class RegexSplitOperator extends AbstractSingleInputOperator implements I
                     }
                     outputTupleBuffer.add(new DataTuple(inputSchema, tupleFieldList.stream().toArray(IField[]::new)));
                 }
-                hasBuffer = true;       //must has a buffer
+                hasOutputBufferTuple = true;       //must has a buffer
                 bufferCursor = 0;
             }
         }
@@ -135,7 +135,7 @@ public class RegexSplitOperator extends AbstractSingleInputOperator implements I
 
     @Override
     protected void cleanUp() throws TextDBException {
-        hasBuffer = false;
+        hasOutputBufferTuple = false;
         bufferCursor = 0;
     }
     
@@ -175,40 +175,9 @@ public class RegexSplitOperator extends AbstractSingleInputOperator implements I
             }
         }
 
-        //Handling 
         return splitTextList;
     }
     
-    /* Original Correct One!!!!
-     *  Get a Tuple list from input file operator.
-     */
-/*    public List<String> getSplitText(String strText) throws TextDBException {
-        List<String> splitTextList = new ArrayList<>();
-        //Create a pattern using regex.
-        Pattern p = Pattern.compile(predicate.getRegex());
-        
-        // Match the pattern in the text.
-        Matcher startM = p.matcher(strText);
-
-        List<Integer> splitIndex = new ArrayList<Integer>();
-        splitIndex.add(0);
-
-        while(startM.find()){
-            if (startM.start() != 0) {
-                splitIndex.add(startM.start());
-            }
-        }
-        splitIndex.add(strText.length());
-        
-        for (int i = 0 ; i < splitIndex.size() - 1; i++) {
-            splitTextList.add(strText.substring(splitIndex.get(i), splitIndex.get(i + 1)));
-        }
-
-        //Handling 
-        return splitTextList;
-    }
-    */
-
     @Override
     public ITuple processOneInputTuple(ITuple inputTuple) throws TextDBException {
         throw new RuntimeException("RegexSplit does not support process one tuple");
