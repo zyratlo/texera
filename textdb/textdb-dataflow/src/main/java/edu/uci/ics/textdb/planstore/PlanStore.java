@@ -292,7 +292,7 @@ public class PlanStore {
     /**
      * Removes a logical plan JSON file stored in the given file path.
      *
-     * @param filePath, the file path of the plan object.
+     * @param filePath, the file path of the logical plan JSON file.
      * @throws TextDBException
      */
     private void deletePlanJson(String filePath) {
