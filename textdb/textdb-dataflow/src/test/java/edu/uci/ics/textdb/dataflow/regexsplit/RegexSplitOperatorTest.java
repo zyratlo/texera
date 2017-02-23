@@ -1,38 +1,19 @@
 package edu.uci.ics.textdb.dataflow.regexsplit;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import edu.uci.ics.textdb.api.common.IDictionary;
-import edu.uci.ics.textdb.api.common.IField;
 import edu.uci.ics.textdb.api.common.ITuple;
-import edu.uci.ics.textdb.api.common.Schema;
 import edu.uci.ics.textdb.api.exception.TextDBException;
 import edu.uci.ics.textdb.common.constants.LuceneAnalyzerConstants;
-import edu.uci.ics.textdb.common.constants.SchemaConstants;
-import edu.uci.ics.textdb.common.constants.TestConstants;
 import edu.uci.ics.textdb.common.constants.TestConstantsChinese;
-import edu.uci.ics.textdb.common.constants.DataConstants.KeywordMatchingType;
-import edu.uci.ics.textdb.common.field.DataTuple;
-import edu.uci.ics.textdb.common.field.DateField;
-import edu.uci.ics.textdb.common.field.DoubleField;
-import edu.uci.ics.textdb.common.field.IntegerField;
-import edu.uci.ics.textdb.common.field.ListField;
-import edu.uci.ics.textdb.common.field.Span;
-import edu.uci.ics.textdb.common.field.StringField;
-import edu.uci.ics.textdb.common.field.TextField;
-import edu.uci.ics.textdb.common.utils.Utils;
-import edu.uci.ics.textdb.dataflow.common.Dictionary;
-import edu.uci.ics.textdb.dataflow.dictionarymatcher.DictionaryMatcherTestHelper;
 import edu.uci.ics.textdb.dataflow.source.ScanBasedSourceOperator;
-import edu.uci.ics.textdb.dataflow.utils.TestUtils;
 import edu.uci.ics.textdb.storage.DataWriter;
 import edu.uci.ics.textdb.storage.RelationManager;
 
@@ -62,7 +43,8 @@ public class RegexSplitOperatorTest {
     public static List<ITuple> getRegexSplitResults(
             String tableName, String splitRegex, String splitAttrName) throws TextDBException{
         ScanBasedSourceOperator scanSource = new ScanBasedSourceOperator(tableName);
-        RegexSplitOperator regexSplit = new RegexSplitOperator(new RegexSplitPredicate(splitRegex, splitAttrName));
+        RegexSplitOperator regexSplit = new RegexSplitOperator(
+                new RegexSplitPredicate(splitRegex, splitAttrName, RegexSplitPredicate.SplitType.GROUP_LEFT));
         regexSplit.setInputOperator(scanSource);
         
         List<ITuple> results = new ArrayList<>();
@@ -81,8 +63,23 @@ public class RegexSplitOperatorTest {
         String splitRegex = "学";
         String splitAttrName = TestConstantsChinese.DESCRIPTION;
         
+        List<String> splitResult = new ArrayList<>();
+        splitResult.add("北京大");
+        splitResult.add("学电气工程");
+        splitResult.add("学院");
+        splitResult.add("北京大");
+        splitResult.add("学计算机");
+        splitResult.add("学院");
+        splitResult.add("伟大的建筑是历史的坐标，具有传承的价值。");
+        
         List<ITuple> results = getRegexSplitResults(CHINESE_TABLE, splitRegex, splitAttrName);
-        System.out.println(Utils.getTupleListString(results));
+        
+        List<String> splitStrings = results.stream()
+                .map(tuple -> tuple.getField(TestConstantsChinese.DESCRIPTION).getValue().toString())
+                .collect(Collectors.toList());
+
+        System.out.println(splitStrings);
+        Assert.assertEquals(splitResult, splitStrings);
     }
 
 }

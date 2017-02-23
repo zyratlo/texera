@@ -139,7 +139,7 @@ public class RegexSplitOperator extends AbstractSingleInputOperator implements I
         bufferCursor = 0;
     }
     
-    public RegexSplitPredicate getPredicate(){
+    public RegexSplitPredicate getPredicate() {
         return this.predicate;
     }
     
@@ -147,6 +147,42 @@ public class RegexSplitOperator extends AbstractSingleInputOperator implements I
      *  Get a Tuple list from input file operator.
      */
     public List<String> getSplitText(String strText) throws TextDBException {
+        List<String> splitTextList = new ArrayList<>();
+        //Create a pattern using regex.
+        Pattern p = Pattern.compile(predicate.getRegex());
+        
+        // Match the pattern in the text.
+        Matcher startM = p.matcher(strText);
+
+        List<Integer> splitIndex = new ArrayList<Integer>();
+        splitIndex.add(0);
+
+        while(startM.find()){
+            if (predicate.getSplitType() == RegexSplitPredicate.SplitType.GROUP_RIGHT) {
+                splitIndex.add(startM.start());
+            } else if (predicate.getSplitType() == RegexSplitPredicate.SplitType.GROUP_LEFT) {
+                splitIndex.add(startM.end());
+            } else if (predicate.getSplitType() == RegexSplitPredicate.SplitType.STANDALONE) {
+                splitIndex.add(startM.start());
+                splitIndex.add(startM.end());
+            }
+        }
+        splitIndex.add(strText.length());
+        
+        for (int i = 0 ; i < splitIndex.size() - 1; i++) {
+            if (splitIndex.get(i) != splitIndex.get(i+1)) {
+                splitTextList.add(strText.substring(splitIndex.get(i), splitIndex.get(i + 1)));
+            }
+        }
+
+        //Handling 
+        return splitTextList;
+    }
+    
+    /* Original Correct One!!!!
+     *  Get a Tuple list from input file operator.
+     */
+/*    public List<String> getSplitText(String strText) throws TextDBException {
         List<String> splitTextList = new ArrayList<>();
         //Create a pattern using regex.
         Pattern p = Pattern.compile(predicate.getRegex());
@@ -171,6 +207,7 @@ public class RegexSplitOperator extends AbstractSingleInputOperator implements I
         //Handling 
         return splitTextList;
     }
+    */
 
     @Override
     public ITuple processOneInputTuple(ITuple inputTuple) throws TextDBException {
