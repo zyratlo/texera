@@ -99,8 +99,7 @@ public class PlanStoreTest {
 
         Assert.assertNotNull(res);
 
-        String filePath = res.getField(PlanStoreConstants.FILE_PATH).getValue().toString();
-        String returnedPlan = planStore.readPlanJson(filePath);
+        String returnedPlan = res.getField(PlanStoreConstants.LOGICAL_PLAN_JSON).getValue().toString();
 
         JsonParser jsonParser = new JsonParser();
         JsonElement jsonElement = jsonParser.parse(logicalPlanJson);
@@ -186,8 +185,7 @@ public class PlanStoreTest {
         while ((tuple = reader.getNextTuple()) != null) {
             String planName = tuple.getField(PlanStoreConstants.NAME).getValue().toString();
             int planIdx = Integer.parseInt(planName.split("_")[1]);
-            String filePath = tuple.getField(PlanStoreConstants.FILE_PATH).getValue().toString();
-            String logicalPlanJson = planStore.readPlanJson(filePath);
+            String logicalPlanJson = tuple.getField(PlanStoreConstants.LOGICAL_PLAN_JSON).getValue().toString();
             returnedPlans[planIdx] = logicalPlanJson;
         }
         reader.close();
