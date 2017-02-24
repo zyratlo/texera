@@ -23,7 +23,8 @@ import org.apache.lucene.search.TermQuery;
 /**
  * An implementation of query plan store.
  *
- * @author Adrian Seungjin Lee, Kishore Narendran
+ * @author Adrian Seungjin Lee
+ * @author Kishore Narendran
  */
 public class PlanStore {
     private static PlanStore instance = null;
@@ -235,7 +236,6 @@ public class PlanStore {
                 logicalPlanJsonField);
 
         // Writing the updated tuple
-        System.out.println("THESE ARE THE FIELDS!");
         DataWriter dataWriter = relationManager.getTableDataWriter(PlanStoreConstants.TABLE_NAME);
         dataWriter.open();
         dataWriter.updateTuple(newTuple, idField);

@@ -15,7 +15,8 @@ import java.util.List;
 
 
 /**
- * @author sweetest, Kishore Narendran
+ * @author Adrian Seungjin Lee
+ * @author Kishore Narendran
  */
 public class PlanStoreTest {
     private static PlanStore planStore;
