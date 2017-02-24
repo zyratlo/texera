@@ -43,26 +43,6 @@ public class RegexToGramQueryTranslator {
     public static GramBooleanQuery translate(String regex, int gramLength)
             throws com.google.re2j.PatternSyntaxException {
 
-        GramBooleanQuery result = translateUnsimplified(regex, gramLength);
-
-
-        TranslatorUtils.escapeSpecialCharacters(result);
-
-        // Since the inverted index relies on lower-case grams, we need to
-        // convert the characters to lower case.
-        TranslatorUtils.toLowerCase(result);
-
-        return result;
-    }
-
-    /*
-     * This returns the query tree before simplification. It's used internally
-     * for debugging purposes.
-     * 
-     */
-    static GramBooleanQuery translateUnsimplified(String regex, int gramLength)
-            throws com.google.re2j.PatternSyntaxException {
-
         TranslatorUtils.GRAM_LENGTH = gramLength;
 
         PublicRegexp re = PublicParser.parse(regex, PublicRE2.PERL);
@@ -72,6 +52,12 @@ public class RegexToGramQueryTranslator {
         regexInfo.simplify(true);
 
         TranslatorUtils.GRAM_LENGTH = TranslatorUtils.DEFAULT_GRAM_LENGTH;
+
+        TranslatorUtils.escapeSpecialCharacters(regexInfo.match);
+
+        // Since the inverted index relies on lower-case grams, we need to
+        // convert the characters to lower case.
+        TranslatorUtils.toLowerCase(regexInfo.match);
 
         return regexInfo.match;
     }
