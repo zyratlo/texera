@@ -83,7 +83,7 @@ public class RegexSplitOperator extends AbstractSingleInputOperator implements I
         ITuple inputTuple = null;
         ITuple resultTuple = null;
         
-        // If buffer is empty, fetch a input tuple to generate a buffer for output.
+        // If buffer is empty, fetch a input tuple to generate buffer tuples for output.
         if (hasOutputBufferTuple == false) {
             inputTuple = inputOperator.getNextTuple();
             if (inputTuple == null) {
@@ -173,7 +173,7 @@ public class RegexSplitOperator extends AbstractSingleInputOperator implements I
         splitIndex.add(strText.length());
         
         for (int i = 0 ; i < splitIndex.size() - 1; i++) {
-            if (splitIndex.get(i) != splitIndex.get(i+1)) {
+            if (splitIndex.get(i) < splitIndex.get(i+1)) {
                 splitTextList.add(strText.substring(splitIndex.get(i), splitIndex.get(i + 1)));
             }
         }
