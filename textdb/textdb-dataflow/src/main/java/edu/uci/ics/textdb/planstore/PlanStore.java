@@ -240,8 +240,4 @@ public class PlanStore {
         dataWriter.updateTuple(newTuple, idField);
         dataWriter.close();
     }
-    public static void main(String args[]) throws Exception {
-        PlanStore planStore = PlanStore.getInstance();
-        planStore.destroyPlanStore();
-    }
 }
