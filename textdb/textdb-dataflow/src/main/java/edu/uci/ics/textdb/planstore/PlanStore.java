@@ -223,9 +223,9 @@ public class PlanStore {
 
         // Getting the fields in order for performing the update
         IDField idField = (IDField) existingPlan.getField(SchemaConstants._ID);
-        IField descriptionField = description == null ?
+        IField descriptionField = description != null ?
                 new StringField(description) : existingPlan.getField(PlanStoreConstants.DESCRIPTION);
-        IField logicalPlanJsonField = logicalPlanJson == null ?
+        IField logicalPlanJsonField = logicalPlanJson != null ?
                 new StringField(logicalPlanJson) : existingPlan.getField(PlanStoreConstants.LOGICAL_PLAN_JSON);
 
         // Creating a tuple out of all the fields
@@ -235,6 +235,7 @@ public class PlanStore {
                 logicalPlanJsonField);
 
         // Writing the updated tuple
+        System.out.println("THESE ARE THE FIELDS!");
         DataWriter dataWriter = relationManager.getTableDataWriter(PlanStoreConstants.TABLE_NAME);
         dataWriter.open();
         dataWriter.updateTuple(newTuple, idField);
