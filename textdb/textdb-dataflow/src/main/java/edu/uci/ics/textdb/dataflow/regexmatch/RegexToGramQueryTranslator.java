@@ -45,6 +45,10 @@ public class RegexToGramQueryTranslator {
 
         TranslatorUtils.GRAM_LENGTH = gramLength;
 
+        // Since the inverted index relies on lower-case grams, we need to
+        // convert the characters to lower case.
+        regex = regex.toLowerCase();
+        
         PublicRegexp re = PublicParser.parse(regex, PublicRE2.PERL);
         re = PublicSimplify.simplify(re);
 
@@ -54,10 +58,6 @@ public class RegexToGramQueryTranslator {
         TranslatorUtils.GRAM_LENGTH = TranslatorUtils.DEFAULT_GRAM_LENGTH;
 
         TranslatorUtils.escapeSpecialCharacters(regexInfo.match);
-
-        // Since the inverted index relies on lower-case grams, we need to
-        // convert the characters to lower case.
-        TranslatorUtils.toLowerCase(regexInfo.match);
 
         return regexInfo.match;
     }
