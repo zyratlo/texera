@@ -1,5 +1,7 @@
 package edu.uci.ics.textdb.web;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.MapperFeature;
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.exception.TextDBException;
 import edu.uci.ics.textdb.api.plan.Plan;
@@ -49,14 +51,19 @@ public class TextdbWebApplication extends Application<TextdbWebConfiguration> {
         final QueryPlanResource queryPlanResource = new QueryPlanResource();
         // Registers the QueryPlanResource with Jersey
         environment.jersey().register(queryPlanResource);
+
         // Creates an instance of the HealthCheck and registers it with the environment
         final SampleHealthCheck sampleHealthCheck = new SampleHealthCheck();
         // Registering the SampleHealthCheck with the environment
         environment.healthChecks().register("sample", sampleHealthCheck);
-        
+
+        // Configuring the object mapper used by Dropwizard
+        environment.getObjectMapper().configure(MapperFeature.USE_GETTERS_AS_SETTERS, false);
+        environment.getObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
         // Enable CORS headers
         final FilterRegistration.Dynamic cors =
-            environment.servlets().addFilter("CORS", CrossOriginFilter.class);
+                environment.servlets().addFilter("CORS", CrossOriginFilter.class);
         // Configure CORS parameters
         cors.setInitParameter("allowedOrigins", "*");
         cors.setInitParameter("allowedHeaders", "X-Requested-With,Content-Type,Accept,Origin");
