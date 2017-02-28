@@ -34,6 +34,15 @@ import edu.uci.ics.textdb.dataflow.common.AbstractSingleInputOperator;
  * 2. GROUP_LEFT: ["Make America", " be Great America"," Again."]
  * 3. STANDALONE: ["Make ", "America", " be Great ", "America", " Again."]
  * 
+ * 
+ * Overlaped patterns appeared in STANDALONE model:
+ * When a string contains multiple repeated patterns, it will only return the largest one as pattern tuple.
+ * Example:
+ * Text = "ABACBDCD"
+ * regex = "A.*B.*C.*D";
+ * result list = <"ABACBDCD">
+ *        
+ * 
  */
 
 public class RegexSplitOperator extends AbstractSingleInputOperator implements ISourceOperator{
@@ -42,49 +51,28 @@ public class RegexSplitOperator extends AbstractSingleInputOperator implements I
 
     private List<ITuple> outputTupleBuffer;
     private int bufferCursor;
-    private boolean hasOutputBufferTuple;
     private Schema inputSchema;
 
     public RegexSplitOperator(RegexSplitPredicate predicate) {
         this.predicate = predicate;
         this.bufferCursor = 0;
-        this.hasOutputBufferTuple = false;
+        outputTupleBuffer = null;
     }
 
     @Override
-    protected void setUp() throws DataFlowException {        
+    protected void setUp() throws DataFlowException {
         inputSchema = inputOperator.getOutputSchema();
         outputSchema = inputSchema;
     }
 
-    public void open() throws TextDBException {
-        if (cursor != CLOSED) {
-            return;
-        }
-        try {
-            if (this.inputOperator == null) {
-                throw new DataFlowException(ErrorMessages.INPUT_OPERATOR_NOT_SPECIFIED);
-            }
-            inputOperator.open();
-            setUp();
-        } catch (Exception e) {
-            throw new DataFlowException(e.getMessage(), e);
-        }
-        cursor = OPENED;
-    }
-
-    @Override
-    public Schema getOutputSchema() {
-        return outputSchema;
-    }
 
     @Override
     protected ITuple computeNextMatchingTuple() throws TextDBException {
         ITuple inputTuple = null;
         ITuple resultTuple = null;
         
-        // If buffer is empty, fetch a input tuple to generate buffer tuples for output.
-        if (hasOutputBufferTuple == false) {
+        // If the buffer is empty, fetch an input tuple to generate buffer tuples for output.
+        if (outputTupleBuffer == null) {
             inputTuple = inputOperator.getNextTuple();
             if (inputTuple == null) {
                 return null;
@@ -92,63 +80,54 @@ public class RegexSplitOperator extends AbstractSingleInputOperator implements I
             populateOutputBuffer(inputTuple);
         }
         
-        //if there is a tuples buffer and cursor < bufferSize, go ahead to get a output buffer.
-        if (bufferCursor < outputTupleBuffer.size()) {
-            resultTuple = outputTupleBuffer.get(bufferCursor);
-            bufferCursor++;
-            // if reached the end of buffer, reset the buffer cursor.
-            if (bufferCursor == outputTupleBuffer.size()) {
-                hasOutputBufferTuple = false;
-                bufferCursor = 0;
-            }
-            return resultTuple;
+        if (bufferCursor > outputTupleBuffer.size()) {
+            return null;
         }
-        return null;
+        //If there is an buffer and cursor < bufferSize, go ahead to get an output buffer.
+        resultTuple = outputTupleBuffer.get(bufferCursor);
+        bufferCursor++;
+        // If it reaches the end of the buffer, reset the buffer cursor.
+        if (bufferCursor == outputTupleBuffer.size()) {
+            outputTupleBuffer = null;
+            bufferCursor = 0;
+        }
+        return resultTuple;
+  
     }
 
-    private void populateOutputBuffer(ITuple inputTuple) throws TextDBException {        
-        if (inputTuple != null)
-        {
-            String strToSplit;
-            FieldType fieldType = this.inputSchema.getAttribute(predicate.getAttributeToSplit()).getFieldType();
-            if (fieldType == FieldType.TEXT || fieldType == FieldType.STRING)
-            {
-                strToSplit = inputTuple.getField(predicate.getAttributeToSplit()).getValue().toString();
-                List<String> splitTextList = getSplitText(strToSplit);
-                outputTupleBuffer = new ArrayList<>();
-                for (String splitText : splitTextList) {
-                    List<IField> tupleFieldList = new ArrayList<>();
-                    for (String attributeName : inputSchema.getAttributeNames()) {
-                        if (attributeName.equals(predicate.getAttributeToSplit())) {
-                            if (fieldType == FieldType.TEXT) {
-                                tupleFieldList.add(new TextField(splitText));
-                            } else {
-                                tupleFieldList.add(new StringField(splitText));
-                            }
-                        } else {
-                            tupleFieldList.add(inputTuple.getField(attributeName));
-                        }
+    private void populateOutputBuffer(ITuple inputTuple) throws TextDBException {
+        if (inputTuple == null) {
+            return;
+        }
+        String strToSplit;
+        FieldType fieldType = this.inputSchema.getAttribute(predicate.getAttributeToSplit()).getFieldType();
+        if (fieldType != FieldType.TEXT && fieldType != FieldType.STRING) {
+            return;
+        }
+
+        strToSplit = inputTuple.getField(predicate.getAttributeToSplit()).getValue().toString();
+        List<String> splitTextList = getSplitText(strToSplit);
+        outputTupleBuffer = new ArrayList<>();
+        for (String splitText : splitTextList) {
+            List<IField> tupleFieldList = new ArrayList<>();
+            for (String attributeName : inputSchema.getAttributeNames()) {
+                if (attributeName.equals(predicate.getAttributeToSplit())) {
+                    if (fieldType == FieldType.TEXT) {
+                        tupleFieldList.add(new TextField(splitText));
+                    } else {
+                        tupleFieldList.add(new StringField(splitText));
                     }
-                    outputTupleBuffer.add(new DataTuple(inputSchema, tupleFieldList.stream().toArray(IField[]::new)));
+                } else {
+                    tupleFieldList.add(inputTuple.getField(attributeName));
                 }
-                hasOutputBufferTuple = true;       //must has a buffer
-                bufferCursor = 0;
             }
+            outputTupleBuffer.add(new DataTuple(inputSchema, tupleFieldList.stream().toArray(IField[]::new)));
         }
-    }
-
-    @Override
-    protected void cleanUp() throws TextDBException {
-        hasOutputBufferTuple = false;
         bufferCursor = 0;
     }
     
-    public RegexSplitPredicate getPredicate() {
-        return this.predicate;
-    }
-    
     /*
-     *  Get a Tuple list from input file operator.
+     *  Process text into list.
      */
     private List<String> getSplitText(String strText) throws TextDBException {
         List<String> splitTextList = new ArrayList<>();
@@ -159,7 +138,7 @@ public class RegexSplitOperator extends AbstractSingleInputOperator implements I
         Matcher regexMatcher = p.matcher(strText);
         List<Integer> splitIndex = new ArrayList<Integer>();
         splitIndex.add(0);
-
+        
         while(regexMatcher.find()){
             if (predicate.getSplitType() == RegexSplitPredicate.SplitType.GROUP_RIGHT) {
                 splitIndex.add(regexMatcher.start());
@@ -170,16 +149,27 @@ public class RegexSplitOperator extends AbstractSingleInputOperator implements I
                 splitIndex.add(regexMatcher.end());
             }
         }
+        
         splitIndex.add(strText.length());
         
         for (int i = 0 ; i < splitIndex.size() - 1; i++) {
             if (splitIndex.get(i) < splitIndex.get(i+1)) {
                 splitTextList.add(strText.substring(splitIndex.get(i), splitIndex.get(i + 1)));
-            }
+            } 
         }
-        
         return splitTextList;
     }
+    
+    @Override
+    protected void cleanUp() throws TextDBException {
+        outputTupleBuffer = null;
+        bufferCursor = 0;
+    }
+    
+    public RegexSplitPredicate getPredicate() {
+        return this.predicate;
+    }
+
     
     @Override
     public ITuple processOneInputTuple(ITuple inputTuple) throws TextDBException {

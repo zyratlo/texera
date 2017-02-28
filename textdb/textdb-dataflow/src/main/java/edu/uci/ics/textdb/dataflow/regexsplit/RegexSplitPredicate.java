@@ -9,9 +9,9 @@ import edu.uci.ics.textdb.api.common.IPredicate;
 public class RegexSplitPredicate implements IPredicate {
     
     public enum SplitType {
-        GROUP_LEFT,  // the regex is grouped with the text on its left
-        GROUP_RIGHT, // the regex is grouped with the text on its right
-        STANDALONE      // the regex become a standalone tuple
+        GROUP_LEFT,     // the regex is grouped with the text on its left
+        GROUP_RIGHT,    // the regex is grouped with the text on its right
+        STANDALONE      // the regex becomes a standalone tuple
     }
     
     
