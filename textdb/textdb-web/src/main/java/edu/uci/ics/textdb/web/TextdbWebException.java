@@ -11,7 +11,7 @@ import javax.ws.rs.core.Response;
  * propagates a meaningful message as an API response.
  * Created by kishorenarendran on 2/24/17.
  */
-public class TextdbWebException extends WebApplicationException{
+public class TextdbWebException extends WebApplicationException {
     public TextdbWebException() {
         super(Response.status(400).build());
     }
