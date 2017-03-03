@@ -13,7 +13,7 @@ import edu.uci.ics.textdb.web.TextdbWebException;
 import edu.uci.ics.textdb.web.request.QueryPlanRequest;
 import edu.uci.ics.textdb.web.request.beans.QueryPlanBean;
 import edu.uci.ics.textdb.web.response.QueryPlanResponse;
-import edu.uci.ics.textdb.web.response.SampleResponse;
+import edu.uci.ics.textdb.web.response.TextdbWebResponse;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -96,7 +96,7 @@ public class PlanStoreResource {
     }
 
     @POST
-    public SampleResponse addQueryPlan(QueryPlanBean queryPlanBean) {
+    public TextdbWebResponse addQueryPlan(QueryPlanBean queryPlanBean) {
         try {
             // Adding the query plan to the PlanStore
             planStore.addPlan(queryPlanBean.getName(), queryPlanBean.getDescription(),
@@ -108,12 +108,12 @@ public class PlanStoreResource {
         catch(IOException e) {
             e.printStackTrace();
         }
-        return new SampleResponse(0, "Success");
+        return new TextdbWebResponse(0, "Success");
     }
 
     @DELETE
     @Path("/{plan_name}")
-    public SampleResponse deleteQueryPlan(@PathParam("plan_name") String planName) {
+    public TextdbWebResponse deleteQueryPlan(@PathParam("plan_name") String planName) {
         try {
             // Deleting the plan from the plan store
             planStore.deletePlan(planName);
@@ -121,12 +121,12 @@ public class PlanStoreResource {
         catch(TextDBException e) {
             throw new TextdbWebException(e.getMessage());
         }
-        return new SampleResponse(0, "Success");
+        return new TextdbWebResponse(0, "Success");
     }
 
     @PUT
     @Path("/{plan_name}")
-    public SampleResponse updateQueryPlan(@PathParam("plan_name") String planName, QueryPlanBean queryPlanBean) {
+    public TextdbWebResponse updateQueryPlan(@PathParam("plan_name") String planName, QueryPlanBean queryPlanBean) {
         try {
             // Updating the plan in the plan store
             planStore.updatePlan(planName, queryPlanBean.getDescription(),
@@ -135,6 +135,6 @@ public class PlanStoreResource {
         catch(JsonProcessingException | TextDBException e) {
             throw new TextdbWebException(e.getMessage());
         }
-        return new SampleResponse(0, "Success");
+        return new TextdbWebResponse(0, "Success");
     }
 }

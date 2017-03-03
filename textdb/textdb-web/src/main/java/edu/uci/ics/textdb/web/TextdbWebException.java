@@ -1,6 +1,6 @@
 package edu.uci.ics.textdb.web;
 
-import edu.uci.ics.textdb.web.response.SampleResponse;
+import edu.uci.ics.textdb.web.response.TextdbWebResponse;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
@@ -17,7 +17,7 @@ public class TextdbWebException extends WebApplicationException{
     }
 
     public TextdbWebException(String message) {
-        super(Response.status(400).entity(new SampleResponse(1, message))
+        super(Response.status(400).entity(new TextdbWebResponse(1, message))
                 .type(MediaType.APPLICATION_JSON_TYPE).build());
     }
 }
