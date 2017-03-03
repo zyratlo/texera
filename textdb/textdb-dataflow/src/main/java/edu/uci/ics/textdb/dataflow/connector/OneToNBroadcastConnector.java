@@ -93,7 +93,6 @@ public class OneToNBroadcastConnector implements IConnector {
      */
     private ITuple getNextTuple(int outputOperatorIndex) throws TextDBException {
         int currentPosition = outputCursorList.get(outputOperatorIndex);
-        System.out.println("updated next position for index: " + outputOperatorIndex);
         
         if (currentPosition + 1 < inputTupleList.size()) {
             int nextPosition = currentPosition + 1;
