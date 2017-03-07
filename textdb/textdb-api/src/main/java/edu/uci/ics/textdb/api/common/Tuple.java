@@ -23,19 +23,21 @@ public class Tuple {
         this.fields = Arrays.asList(fields);
     }
 
+    @SuppressWarnings("unchecked")
     public <T extends IField> T getField(int index) {
-        @SuppressWarnings("unchecked")
-        T field = (T) fields.get(index);
-        return field;
+        return (T) fields.get(index);
     }
     
     public <T extends IField> T getField(int index, Class<T> fieldClass) {
         return getField(index);
     }
 
-    public IField getField(String fieldName) {
-        int index = schema.getIndex(fieldName);
-        return getField(index);
+    public <T extends IField> T getField(String fieldName) {
+        return getField(schema.getIndex(fieldName));
+    }
+    
+    public <T extends IField> T getField(String fieldName, Class<T> fieldClass) {
+        return getField(schema.getIndex(fieldName));
     }
 
     public int hashCode() {
