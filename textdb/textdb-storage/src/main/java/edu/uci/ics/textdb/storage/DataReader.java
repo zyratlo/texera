@@ -24,8 +24,8 @@ import edu.uci.ics.textdb.api.common.Attribute;
 import edu.uci.ics.textdb.api.common.FieldType;
 import edu.uci.ics.textdb.api.common.IField;
 import edu.uci.ics.textdb.api.common.Tuple;
+import edu.uci.ics.textdb.api.dataflow.IOperator;
 import edu.uci.ics.textdb.api.common.Schema;
-import edu.uci.ics.textdb.api.storage.IDataReader;
 import edu.uci.ics.textdb.common.constants.SchemaConstants;
 import edu.uci.ics.textdb.common.exception.ErrorMessages;
 import edu.uci.ics.textdb.common.exception.StorageException;
@@ -54,7 +54,7 @@ import edu.uci.ics.textdb.common.utils.Utils;
  * @author Zuozhi Wang
  *
  */
-public class DataReader implements IDataReader {
+public class DataReader implements IOperator {
 
     private DataStore dataStore;
     private Query query;

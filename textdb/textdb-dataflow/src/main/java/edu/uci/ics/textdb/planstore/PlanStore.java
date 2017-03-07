@@ -5,13 +5,13 @@ import com.google.gson.JsonParser;
 import edu.uci.ics.textdb.api.common.IField;
 import edu.uci.ics.textdb.api.common.Tuple;
 import edu.uci.ics.textdb.api.exception.TextDBException;
-import edu.uci.ics.textdb.api.storage.IDataReader;
 import edu.uci.ics.textdb.common.constants.LuceneAnalyzerConstants;
 import edu.uci.ics.textdb.common.constants.SchemaConstants;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
 import edu.uci.ics.textdb.common.exception.StorageException;
 import edu.uci.ics.textdb.common.field.IDField;
 import edu.uci.ics.textdb.common.field.StringField;
+import edu.uci.ics.textdb.storage.DataReader;
 import edu.uci.ics.textdb.storage.DataWriter;
 import edu.uci.ics.textdb.storage.RelationManager;
 import org.apache.lucene.index.Term;
@@ -111,7 +111,7 @@ public class PlanStore {
     public Tuple getPlan(String planName) throws TextDBException {
         Query q = new TermQuery(new Term(PlanStoreConstants.NAME, planName));
 
-        IDataReader reader = relationManager.getTableDataReader(PlanStoreConstants.TABLE_NAME, q);
+        DataReader reader = relationManager.getTableDataReader(PlanStoreConstants.TABLE_NAME, q);
         reader.open();
 
         Tuple inputTuple = null;
@@ -134,7 +134,7 @@ public class PlanStore {
      * @Return IDataReader
      * @throws TextDBException
      */
-    public IDataReader getPlanIterator() throws TextDBException {
+    public DataReader getPlanIterator() throws TextDBException {
         return relationManager.getTableDataReader(PlanStoreConstants.TABLE_NAME, new MatchAllDocsQuery());
     }
 

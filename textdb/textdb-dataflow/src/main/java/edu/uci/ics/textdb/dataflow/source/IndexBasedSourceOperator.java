@@ -5,11 +5,11 @@ import org.apache.lucene.search.Query;
 import edu.uci.ics.textdb.api.common.Tuple;
 import edu.uci.ics.textdb.api.common.Schema;
 import edu.uci.ics.textdb.api.dataflow.ISourceOperator;
-import edu.uci.ics.textdb.api.storage.IDataReader;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
 import edu.uci.ics.textdb.common.exception.ErrorMessages;
 import edu.uci.ics.textdb.common.exception.StorageException;
 import edu.uci.ics.textdb.api.exception.TextDBException;
+import edu.uci.ics.textdb.storage.DataReader;
 import edu.uci.ics.textdb.storage.RelationManager;
 
 /**
@@ -17,7 +17,7 @@ import edu.uci.ics.textdb.storage.RelationManager;
  */
 public class IndexBasedSourceOperator implements ISourceOperator {
 
-    private IDataReader dataReader;
+    private DataReader dataReader;
     
     private int cursor = CLOSED;
 
