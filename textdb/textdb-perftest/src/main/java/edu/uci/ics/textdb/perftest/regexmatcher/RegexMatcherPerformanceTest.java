@@ -104,7 +104,8 @@ public class RegexMatcherPerformanceTest {
 	        int counter = 0;
 	        Tuple nextTuple = null;
 	        while ((nextTuple = regexSource.getNextTuple()) != null) {
-	            List<Span> spanList = ((ListField<Span>) nextTuple.getField(SchemaConstants.SPAN_LIST)).getValue();
+	            ListField<Span> spanListField = nextTuple.getField(SchemaConstants.SPAN_LIST);
+	            List<Span> spanList = spanListField.getValue();
 	            counter += spanList.size();
 	        }
 	        regexSource.close();

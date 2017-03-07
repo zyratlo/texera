@@ -8,6 +8,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import edu.uci.ics.textdb.api.common.Tuple;
+import edu.uci.ics.textdb.common.field.ListField;
 
 /**
  * Created by kishorenarendran on 25/04/16. Testing QueryRewriter This test
@@ -93,15 +94,15 @@ public class QueryRewriterTest {
         QueryRewriter queryRewriter = new QueryRewriter(query);
         queryRewriter.open();
         Tuple resultItuple = queryRewriter.getNextTuple();
-        ArrayList<String> rewrittenStrings = new ArrayList<String>(
-                (List<String>) resultItuple.getField(QueryRewriter.QUERYLIST).getValue());
+        ListField<String> rewrittenStringsField = resultItuple.getField(QueryRewriter.QUERYLIST);
+        ArrayList<String> rewrittenStrings = new ArrayList<String>(rewrittenStringsField.getValue());
         queryRewriter.close();
 
         QueryRewriter allQueryRewriter = new QueryRewriter(query, true);
         allQueryRewriter.open();
         resultItuple = allQueryRewriter.getNextTuple();
-        ArrayList<String> allRewrittenStrings = new ArrayList<String>(
-                (List<String>) resultItuple.getField(QueryRewriter.QUERYLIST).getValue());
+        ListField<String> allRewrittenStringsField = resultItuple.getField(QueryRewriter.QUERYLIST);
+        ArrayList<String> allRewrittenStrings = new ArrayList<String>(allRewrittenStringsField.getValue());
         queryRewriter.close();
 
         return (rewrittenStrings.equals(expectedRewrittenStrings) 

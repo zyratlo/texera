@@ -173,24 +173,18 @@ public class JoinDistancePredicate implements IJoinPredicate {
 	     * Check using try/catch if both the tuples have span information.
 	     * If not return null; so we can process next tuple.
 	     */
-	    IField spanFieldOfInnerTuple = null;
-	    IField spanFieldOfOuterTuple = null;
-	    try {
-	        spanFieldOfInnerTuple = innerTuple.getField(SchemaConstants.SPAN_LIST);
-	        spanFieldOfOuterTuple = outerTuple.getField(SchemaConstants.SPAN_LIST);
-	    } catch (Exception e) {
-	        return null;
-	    }
+	    ListField<Span> spanFieldOfInnerTuple = innerTuple.getField(SchemaConstants.SPAN_LIST);
+	    ListField<Span> spanFieldOfOuterTuple = outerTuple.getField(SchemaConstants.SPAN_LIST);
 	
 	    List<Span> innerSpanList = null;
 	    List<Span> outerSpanList = null;
 	    // Check if both the fields obtained from the indexes are indeed of type
 	    // ListField
 	    if (spanFieldOfInnerTuple.getClass().equals(ListField.class)) {
-	        innerSpanList = (List<Span>) spanFieldOfInnerTuple.getValue();
+	        innerSpanList = spanFieldOfInnerTuple.getValue();
 	    }
 	    if (spanFieldOfOuterTuple.getClass().equals(ListField.class)) {
-	        outerSpanList = (List<Span>) spanFieldOfOuterTuple.getValue();
+	        outerSpanList = spanFieldOfOuterTuple.getValue();
 	    }
 	
 	    Iterator<Span> outerSpanIter = outerSpanList.iterator();
@@ -238,7 +232,7 @@ public class JoinDistancePredicate implements IJoinPredicate {
 	            outputAttrList.stream()
 	            .filter(attr -> ! attr.equals(SchemaConstants.SPAN_LIST_ATTRIBUTE))
 	            .map(attr -> attr.getFieldName())
-	            .map(fieldName -> innerTuple.getField(fieldName))
+	            .map(fieldName -> innerTuple.getField(fieldName, IField.class))
 	            .collect(Collectors.toList());
 	    
 	    outputFields.add(new ListField<>(newJoinSpanList));
