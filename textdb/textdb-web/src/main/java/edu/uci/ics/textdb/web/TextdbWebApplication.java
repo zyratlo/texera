@@ -1,28 +1,25 @@
 package edu.uci.ics.textdb.web;
 
-import java.util.EnumSet;
-import java.util.List;
-
-import javax.servlet.DispatcherType;
-import javax.servlet.FilterRegistration;
-
 import edu.uci.ics.textdb.api.common.ITuple;
 import edu.uci.ics.textdb.api.exception.TextDBException;
 import edu.uci.ics.textdb.api.plan.Plan;
 import edu.uci.ics.textdb.dataflow.sink.TupleStreamSink;
 import edu.uci.ics.textdb.perftest.sample.SampleExtraction;
 import edu.uci.ics.textdb.plangen.LogicalPlan;
+import edu.uci.ics.textdb.web.healthcheck.SampleHealthCheck;
 import edu.uci.ics.textdb.web.request.beans.KeywordSourceBean;
 import edu.uci.ics.textdb.web.request.beans.NlpExtractorBean;
 import edu.uci.ics.textdb.web.request.beans.TupleStreamSinkBean;
-import org.eclipse.jetty.servlets.CrossOriginFilter;
-
-import edu.uci.ics.textdb.web.healthcheck.SampleHealthCheck;
 import edu.uci.ics.textdb.web.resource.QueryPlanResource;
-import edu.uci.ics.textdb.web.resource.SampleResource;
 import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
+import org.eclipse.jetty.servlets.CrossOriginFilter;
+
+import javax.servlet.DispatcherType;
+import javax.servlet.FilterRegistration;
+import java.util.EnumSet;
+import java.util.List;
 
 /**
  * This is the main application class from where the TextDB application
@@ -48,10 +45,6 @@ public class TextdbWebApplication extends Application<TextdbWebConfiguration> {
 
     @Override
     public void run(TextdbWebConfiguration textdbWebConfiguration, Environment environment) throws Exception {
-        // Creates an instance of the SampleResource class to register with Jersey
-        final SampleResource sampleResource = new SampleResource();
-        // Registers the SampleResource with Jersey
-        environment.jersey().register(sampleResource);
         // Creates an instance of the QueryPlanResource class to register with Jersey
         final QueryPlanResource queryPlanResource = new QueryPlanResource();
         // Registers the QueryPlanResource with Jersey
