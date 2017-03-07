@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.apache.lucene.analysis.Analyzer;
 
-import edu.uci.ics.textdb.api.common.IDictionary;
 import edu.uci.ics.textdb.api.common.Tuple;
 import edu.uci.ics.textdb.api.exception.TextDBException;
 import edu.uci.ics.textdb.common.constants.LuceneAnalyzerConstants;
@@ -13,6 +12,7 @@ import edu.uci.ics.textdb.common.constants.TestConstants;
 import edu.uci.ics.textdb.common.constants.TestConstantsChinese;
 import edu.uci.ics.textdb.common.constants.DataConstants.KeywordMatchingType;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
+import edu.uci.ics.textdb.dataflow.common.Dictionary;
 import edu.uci.ics.textdb.dataflow.common.DictionaryPredicate;
 import edu.uci.ics.textdb.dataflow.source.ScanBasedSourceOperator;
 import edu.uci.ics.textdb.dataflow.utils.TestUtils;
@@ -55,12 +55,12 @@ public class DictionaryMatcherTestHelper {
         relationManager.deleteTable(CHINESE_TABLE);
     }
     
-    public static List<Tuple> getQueryResults(String tableName, IDictionary dictionary, List<String> attributeNames,
+    public static List<Tuple> getQueryResults(String tableName, Dictionary dictionary, List<String> attributeNames,
             KeywordMatchingType matchingType) throws TextDBException {
         return getQueryResults(tableName, dictionary, attributeNames, matchingType, Integer.MAX_VALUE, 0);
     }
     
-    public static List<Tuple> getQueryResults(String tableName, IDictionary dictionary, List<String> attributeNames,
+    public static List<Tuple> getQueryResults(String tableName, Dictionary dictionary, List<String> attributeNames,
             KeywordMatchingType matchingType, int limit, int offset) throws TextDBException {
         
         // results from a scan on the table followed by a keyword match
@@ -111,7 +111,7 @@ public class DictionaryMatcherTestHelper {
      * @return
      * @throws TextDBException
      */
-    public static List<Tuple> getScanSourceResults(String tableName, IDictionary dictionary, List<String> attributeNames,
+    public static List<Tuple> getScanSourceResults(String tableName, Dictionary dictionary, List<String> attributeNames,
             KeywordMatchingType matchingType, int limit, int offset) throws TextDBException {
         
         RelationManager relationManager = RelationManager.getRelationManager();
@@ -153,7 +153,7 @@ public class DictionaryMatcherTestHelper {
      * @return
      * @throws TextDBException
      */
-    public static List<Tuple> getDictionarySourceResults(String tableName, IDictionary dictionary, List<String> attributeNames,
+    public static List<Tuple> getDictionarySourceResults(String tableName, Dictionary dictionary, List<String> attributeNames,
             KeywordMatchingType matchingType, int limit, int offset) throws TextDBException {
         RelationManager relationManager = RelationManager.getRelationManager();
         Analyzer luceneAnalyzer = relationManager.getTableAnalyzer(tableName);
