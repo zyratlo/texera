@@ -6,9 +6,9 @@ import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.uci.ics.textdb.api.common.Tuple;
 import edu.uci.ics.textdb.api.exception.TextDBException;
-import edu.uci.ics.textdb.api.storage.IDataReader;
 import edu.uci.ics.textdb.planstore.PlanStore;
 import edu.uci.ics.textdb.planstore.PlanStoreConstants;
+import edu.uci.ics.textdb.storage.DataReader;
 import edu.uci.ics.textdb.web.TextdbWebException;
 import edu.uci.ics.textdb.web.request.QueryPlanRequest;
 import edu.uci.ics.textdb.web.request.beans.QueryPlanBean;
@@ -50,7 +50,7 @@ public class PlanStoreResource {
 
         try {
             // Getting an iterator for the plan store
-            IDataReader reader = planStore.getPlanIterator();
+            DataReader reader = planStore.getPlanIterator();
             reader.open();
 
             // Iterating through the stored plans, and mapping them to a QueryPlanRequest object

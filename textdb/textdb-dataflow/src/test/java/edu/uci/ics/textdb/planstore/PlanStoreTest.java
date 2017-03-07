@@ -4,7 +4,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import edu.uci.ics.textdb.api.common.Tuple;
 import edu.uci.ics.textdb.api.exception.TextDBException;
-import edu.uci.ics.textdb.api.storage.IDataReader;
+import edu.uci.ics.textdb.storage.DataReader;
 import junit.framework.Assert;
 import org.junit.After;
 import org.junit.Before;
@@ -177,7 +177,7 @@ public class PlanStoreTest {
         }
 
 
-        IDataReader reader = planStore.getPlanIterator();
+        DataReader reader = planStore.getPlanIterator();
         reader.open();
 
         Tuple tuple;

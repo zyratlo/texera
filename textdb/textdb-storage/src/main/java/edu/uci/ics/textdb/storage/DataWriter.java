@@ -20,8 +20,6 @@ import edu.uci.ics.textdb.api.common.FieldType;
 import edu.uci.ics.textdb.api.common.IField;
 import edu.uci.ics.textdb.api.common.Tuple;
 import edu.uci.ics.textdb.api.common.Schema;
-import edu.uci.ics.textdb.api.storage.IDataStore;
-import edu.uci.ics.textdb.api.storage.IDataWriter;
 import edu.uci.ics.textdb.common.constants.SchemaConstants;
 import edu.uci.ics.textdb.common.exception.ErrorMessages;
 import edu.uci.ics.textdb.common.exception.StorageException;
@@ -52,7 +50,7 @@ import edu.uci.ics.textdb.common.utils.Utils;
  * @author Zuozhi Wang
  *
  */
-public class DataWriter implements IDataWriter {
+public class DataWriter {
 
     private String indexDirectory;
     private Schema schema;
@@ -68,7 +66,7 @@ public class DataWriter implements IDataWriter {
      * Only the RelationManager is allowed to constructor a DataWriter object, 
      *  while upper-level operators can't.
      */
-    DataWriter(IDataStore dataStore, Analyzer analyzer) {
+    DataWriter(DataStore dataStore, Analyzer analyzer) {
         this.indexDirectory = dataStore.getDataDirectory();
         // change the schema to a schema with _ID field
         this.schema = dataStore.getSchema();
@@ -107,7 +105,6 @@ public class DataWriter implements IDataWriter {
         }
     }
 
-    @Override
     public void clearData() throws StorageException {
         if (! isOpen) {
             throw new StorageException(ErrorMessages.OPERATOR_NOT_OPENED);
@@ -120,7 +117,6 @@ public class DataWriter implements IDataWriter {
         }
     }
 
-    @Override
     public IDField insertTuple(Tuple tuple) throws StorageException {
         if (! isOpen) {
             throw new StorageException(ErrorMessages.OPERATOR_NOT_OPENED);
