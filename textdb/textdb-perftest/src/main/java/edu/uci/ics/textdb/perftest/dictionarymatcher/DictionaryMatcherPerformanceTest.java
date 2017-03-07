@@ -11,7 +11,7 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 
 import edu.uci.ics.textdb.api.common.IDictionary;
-import edu.uci.ics.textdb.api.common.ITuple;
+import edu.uci.ics.textdb.api.common.Tuple;
 import edu.uci.ics.textdb.common.constants.DataConstants;
 import edu.uci.ics.textdb.common.constants.SchemaConstants;
 import edu.uci.ics.textdb.common.constants.DataConstants.KeywordMatchingType;
@@ -129,7 +129,7 @@ public class DictionaryMatcherPerformanceTest {
 
         long startMatchTime = System.currentTimeMillis();
         dictionaryMatcher.open();
-        ITuple nextTuple = null;
+        Tuple nextTuple = null;
         int counter = 0;
         while ((nextTuple = dictionaryMatcher.getNextTuple()) != null) {
             List<Span> spanList = ((ListField<Span>) nextTuple.getField(SchemaConstants.SPAN_LIST)).getValue();

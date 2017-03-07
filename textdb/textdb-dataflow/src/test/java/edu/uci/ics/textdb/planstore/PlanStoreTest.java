@@ -2,7 +2,7 @@ package edu.uci.ics.textdb.planstore;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
-import edu.uci.ics.textdb.api.common.ITuple;
+import edu.uci.ics.textdb.api.common.Tuple;
 import edu.uci.ics.textdb.api.exception.TextDBException;
 import edu.uci.ics.textdb.api.storage.IDataReader;
 import junit.framework.Assert;
@@ -96,7 +96,7 @@ public class PlanStoreTest {
      * @throws TextDBException
      */
     public static void assertCorrectPlanExists(String planName, String logicalPlanJson) throws TextDBException {
-        ITuple res = planStore.getPlan(planName);
+        Tuple res = planStore.getPlan(planName);
 
         Assert.assertNotNull(res);
 
@@ -156,7 +156,7 @@ public class PlanStoreTest {
 
         planStore.deletePlan(planName1);
 
-        ITuple returnedPlan = planStore.getPlan(planName1);
+        Tuple returnedPlan = planStore.getPlan(planName1);
         Assert.assertNull(returnedPlan);
     }
 
@@ -180,7 +180,7 @@ public class PlanStoreTest {
         IDataReader reader = planStore.getPlanIterator();
         reader.open();
 
-        ITuple tuple;
+        Tuple tuple;
         String[] returnedPlans = new String[expectedPlans.size()];
 
         while ((tuple = reader.getNextTuple()) != null) {

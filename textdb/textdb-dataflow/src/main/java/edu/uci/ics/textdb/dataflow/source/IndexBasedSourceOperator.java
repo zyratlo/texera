@@ -2,7 +2,7 @@ package edu.uci.ics.textdb.dataflow.source;
 
 import org.apache.lucene.search.Query;
 
-import edu.uci.ics.textdb.api.common.ITuple;
+import edu.uci.ics.textdb.api.common.Tuple;
 import edu.uci.ics.textdb.api.common.Schema;
 import edu.uci.ics.textdb.api.dataflow.ISourceOperator;
 import edu.uci.ics.textdb.api.storage.IDataReader;
@@ -40,7 +40,7 @@ public class IndexBasedSourceOperator implements ISourceOperator {
     }
 
     @Override
-    public ITuple getNextTuple() throws TextDBException {
+    public Tuple getNextTuple() throws TextDBException {
         if (cursor == CLOSED) {
             throw new DataFlowException(ErrorMessages.OPERATOR_NOT_OPENED);
         }
