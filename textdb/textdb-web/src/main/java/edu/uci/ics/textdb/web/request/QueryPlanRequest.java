@@ -74,10 +74,12 @@ public class QueryPlanRequest {
         this.operatorLinkBeans = operatorLinkBeans;
     }
 
+    @JsonIgnore
     public HashMap<String, HashMap<String, String>> getOperatorProperties() {
         return operatorProperties;
     }
 
+    @JsonIgnore
     public LogicalPlan getLogicalPlan() {
         return logicalPlan;
     }
