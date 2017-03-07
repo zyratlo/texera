@@ -9,8 +9,8 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>textdb-framework</artifactId>
-    <name>textdb-framework</name>
+    <artifactId>textdb-exp</artifactId>
+    <name>textdb-exp</name>
     <url>http://maven.apache.org</url>
 
     <properties>
