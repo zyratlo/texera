@@ -11,7 +11,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import edu.uci.ics.textdb.api.common.Attribute;
-import edu.uci.ics.textdb.api.common.IDictionary;
 import edu.uci.ics.textdb.api.common.IField;
 import edu.uci.ics.textdb.api.common.Tuple;
 import edu.uci.ics.textdb.api.common.Schema;
@@ -60,7 +59,7 @@ public class DictionaryMatcherTest {
     public void testGetNextOfDictionaryItem() throws Exception {
 
         ArrayList<String> expectedStrings = new ArrayList<String>(Arrays.asList("george", "lee", "bruce"));
-        IDictionary dictionary = new Dictionary(expectedStrings);
+        Dictionary dictionary = new Dictionary(expectedStrings);
         String dictionaryItem;
         ArrayList<String> returnedStrings = new ArrayList<String>();
         while ((dictionaryItem = dictionary.getNextValue()) != null) {
@@ -78,7 +77,7 @@ public class DictionaryMatcherTest {
     public void testGetNextOfDictionaryItemChinese() throws Exception {
 
         ArrayList<String> expectedStrings = new ArrayList<String>(Arrays.asList("无忌", "孔明", "宋江"));
-        IDictionary dictionary = new Dictionary(expectedStrings);
+        Dictionary dictionary = new Dictionary(expectedStrings);
         String dictionaryItem;
         ArrayList<String> returnedStrings = new ArrayList<String>();
         while ((dictionaryItem = dictionary.getNextValue()) != null) {
@@ -96,7 +95,7 @@ public class DictionaryMatcherTest {
     public void testSingleWordQueryInStringFieldUsingScan() throws Exception {
 
         ArrayList<String> names = new ArrayList<String>(Arrays.asList("bruce"));
-        IDictionary dictionary = new Dictionary(names);
+        Dictionary dictionary = new Dictionary(names);
 
         // create a data tuple first
         List<Span> list = new ArrayList<Span>();
@@ -132,7 +131,7 @@ public class DictionaryMatcherTest {
     public void testSingleWordQueryInStringFieldUsingScanChinese() throws Exception {
 
         ArrayList<String> names = new ArrayList<String>(Arrays.asList("孔明"));
-        IDictionary dictionary = new Dictionary(names);
+        Dictionary dictionary = new Dictionary(names);
 
         // create a data tuple first
         List<Span> list = new ArrayList<Span>();
@@ -337,7 +336,7 @@ public class DictionaryMatcherTest {
     public void testSingleWordQueryInTextFieldUsingScan() throws Exception {
 
         ArrayList<String> names = new ArrayList<String>(Arrays.asList("tall"));
-        IDictionary dictionary = new Dictionary(names);
+        Dictionary dictionary = new Dictionary(names);
 
         // create a data tuple first
         List<Span> list = new ArrayList<Span>();
@@ -378,7 +377,7 @@ public class DictionaryMatcherTest {
     public void testSingleWordQueryInTextFieldUsingScanChinese() throws Exception {
 
         ArrayList<String> names = new ArrayList<String>(Arrays.asList("学院"));
-        IDictionary dictionary = new Dictionary(names);
+        Dictionary dictionary = new Dictionary(names);
 
         // create a data tuple first
         List<Span> list1 = new ArrayList<Span>();
@@ -425,7 +424,7 @@ public class DictionaryMatcherTest {
     public void testSingleWordQueryInTextFieldUsingKeyword() throws Exception {
 
         ArrayList<String> names = new ArrayList<String>(Arrays.asList("tall"));
-        IDictionary dictionary = new Dictionary(names);
+        Dictionary dictionary = new Dictionary(names);
 
         // create a data tuple first
         List<Span> list = new ArrayList<Span>();
@@ -466,7 +465,7 @@ public class DictionaryMatcherTest {
     public void testSingleWordQueryInTextFieldUsingKeywordChinese() throws Exception {
 
         ArrayList<String> names = new ArrayList<String>(Arrays.asList("北京大学"));
-        IDictionary dictionary = new Dictionary(names);
+        Dictionary dictionary = new Dictionary(names);
 
         // create a data tuple first
         List<Span> list = new ArrayList<Span>();
@@ -507,7 +506,7 @@ public class DictionaryMatcherTest {
     public void testSingleWordQueryInTextFieldUsingPhrase() throws Exception {
 
         ArrayList<String> names = new ArrayList<String>(Arrays.asList("tall"));
-        IDictionary dictionary = new Dictionary(names);
+        Dictionary dictionary = new Dictionary(names);
 
         // create a data tuple first
         List<Span> list = new ArrayList<Span>();
@@ -548,7 +547,7 @@ public class DictionaryMatcherTest {
     public void testSingleWordQueryInTextFieldUsingPhraseChinese() throws Exception {
 
         ArrayList<String> names = new ArrayList<String>(Arrays.asList("北京大学"));
-        IDictionary dictionary = new Dictionary(names);
+        Dictionary dictionary = new Dictionary(names);
 
         // create a data tuple first
         List<Span> list = new ArrayList<Span>();
@@ -590,7 +589,7 @@ public class DictionaryMatcherTest {
     public void testMultipleWordsQueryUsingScan() throws Exception {
 
         ArrayList<String> names = new ArrayList<String>(Arrays.asList("george lin lin"));
-        IDictionary dictionary = new Dictionary(names);
+        Dictionary dictionary = new Dictionary(names);
 
         // create a data tuple first
         List<Span> list = new ArrayList<Span>();
@@ -625,7 +624,7 @@ public class DictionaryMatcherTest {
     public void testMultipleWordsQueryUsingScanChinese() throws Exception {
 
         ArrayList<String> names = new ArrayList<String>(Arrays.asList("洛克贝尔"));
-        IDictionary dictionary = new Dictionary(names);
+        Dictionary dictionary = new Dictionary(names);
 
         // create a data tuple first
         List<Span> list = new ArrayList<Span>();
@@ -661,7 +660,7 @@ public class DictionaryMatcherTest {
     public void testMultipleWordsQueryUsingKeyword() throws Exception {
 
         ArrayList<String> names = new ArrayList<String>(Arrays.asList("george lin lin"));
-        IDictionary dictionary = new Dictionary(names);
+        Dictionary dictionary = new Dictionary(names);
 
         // create a data tuple first
         List<Span> list = new ArrayList<Span>();
@@ -696,7 +695,7 @@ public class DictionaryMatcherTest {
     public void testMultipleWordsQueryUsingKeywordChinese() throws Exception {
 
         ArrayList<String> names = new ArrayList<String>(Arrays.asList("洛克贝尔"));
-        IDictionary dictionary = new Dictionary(names);
+        Dictionary dictionary = new Dictionary(names);
 
         // create a data tuple first
         List<Span> list = new ArrayList<Span>();
@@ -733,7 +732,7 @@ public class DictionaryMatcherTest {
     public void testMultipleWordsQueryUsingPhrase() throws Exception {
 
         ArrayList<String> names = new ArrayList<String>(Arrays.asList("george lin lin"));
-        IDictionary dictionary = new Dictionary(names);
+        Dictionary dictionary = new Dictionary(names);
 
         // create a data tuple first
         List<Span> list = new ArrayList<Span>();
@@ -768,7 +767,7 @@ public class DictionaryMatcherTest {
     public void testMultipleWordsQueryUsingPhraseChinese() throws Exception {
 
         ArrayList<String> names = new ArrayList<String>(Arrays.asList("洛克贝尔"));
-        IDictionary dictionary = new Dictionary(names);
+        Dictionary dictionary = new Dictionary(names);
 
         // create a data tuple first
         List<Span> list = new ArrayList<Span>();
@@ -806,7 +805,7 @@ public class DictionaryMatcherTest {
     public void testWordInMultipleFieldsQueryUsingScan() throws Exception {
 
         ArrayList<String> names = new ArrayList<String>(Arrays.asList("lin clooney"));
-        IDictionary dictionary = new Dictionary(names);
+        Dictionary dictionary = new Dictionary(names);
         // create a data tuple first
         List<Span> list = new ArrayList<Span>();
         Span span1 = new Span("lastName", 0, 11, "lin clooney", "lin clooney");
@@ -845,7 +844,7 @@ public class DictionaryMatcherTest {
     public void testWordInMultipleFieldsQueryUsingKeyword() throws Exception {
 
         ArrayList<String> names = new ArrayList<String>(Arrays.asList("lin clooney"));
-        IDictionary dictionary = new Dictionary(names);
+        Dictionary dictionary = new Dictionary(names);
         // create a data tuple first
         List<Span> list = new ArrayList<Span>();
 
@@ -892,7 +891,7 @@ public class DictionaryMatcherTest {
     public void testWordInMultipleFieldsQueryUsingPhrase() throws Exception {
 
         ArrayList<String> names = new ArrayList<String>(Arrays.asList("lin clooney"));
-        IDictionary dictionary = new Dictionary(names);
+        Dictionary dictionary = new Dictionary(names);
         // create a data tuple first
         List<Span> list = new ArrayList<Span>();
         Span span1 = new Span("lastName", 0, 11, "lin clooney", "lin clooney");
@@ -930,7 +929,7 @@ public class DictionaryMatcherTest {
     public void testStopWordsInQueryUsingPhrase() throws Exception {
 
         ArrayList<String> names = new ArrayList<String>(Arrays.asList("lin and is angry"));
-        IDictionary dictionary = new Dictionary(names);
+        Dictionary dictionary = new Dictionary(names);
         // create a data tuple first
         List<Span> list = new ArrayList<>();
         Span span = new Span("description", 25, 45, "lin and is angry", "lin clooney is Angry");
@@ -958,7 +957,7 @@ public class DictionaryMatcherTest {
 
     public void testMatchingWithLimit() throws Exception {
         ArrayList<String> word = new ArrayList<String>(Arrays.asList("angry"));
-        IDictionary dictionary = new Dictionary(word);
+        Dictionary dictionary = new Dictionary(word);
 
         Attribute[] schemaAttributes = new Attribute[TestConstants.ATTRIBUTES_PEOPLE.length + 1];
         for (int count = 0; count < schemaAttributes.length - 1; count++) {
@@ -1017,7 +1016,7 @@ public class DictionaryMatcherTest {
     @Test
     public void testMatchingWithLimitOffset() throws Exception {
         ArrayList<String> word = new ArrayList<String>(Arrays.asList("angry"));
-        IDictionary dictionary = new Dictionary(word);
+        Dictionary dictionary = new Dictionary(word);
 
         Attribute[] schemaAttributes = new Attribute[TestConstants.ATTRIBUTES_PEOPLE.length + 1];
         for (int count = 0; count < schemaAttributes.length - 1; count++) {

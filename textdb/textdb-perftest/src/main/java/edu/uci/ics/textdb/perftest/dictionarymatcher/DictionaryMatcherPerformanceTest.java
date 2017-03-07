@@ -10,7 +10,6 @@ import java.util.List;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 
-import edu.uci.ics.textdb.api.common.IDictionary;
 import edu.uci.ics.textdb.api.common.Tuple;
 import edu.uci.ics.textdb.common.constants.DataConstants;
 import edu.uci.ics.textdb.common.constants.SchemaConstants;
@@ -22,7 +21,6 @@ import edu.uci.ics.textdb.dataflow.common.DictionaryPredicate;
 import edu.uci.ics.textdb.dataflow.dictionarymatcher.DictionaryMatcherSourceOperator;
 import edu.uci.ics.textdb.perftest.medline.MedlineIndexWriter;
 import edu.uci.ics.textdb.perftest.utils.PerfTestUtils;
-import edu.uci.ics.textdb.storage.RelationManager;
 
 /**
  * @author Hailey Pan
@@ -121,7 +119,7 @@ public class DictionaryMatcherPerformanceTest {
             String tableName) throws Exception {
         List<String> attributeNames = Arrays.asList(MedlineIndexWriter.ABSTRACT);
 
-        IDictionary dictionary = new Dictionary(queryList);
+        Dictionary dictionary = new Dictionary(queryList);
         DictionaryPredicate dictionaryPredicate = new DictionaryPredicate(dictionary, attributeNames, luceneAnalyzer,
                 opType);
         DictionaryMatcherSourceOperator dictionaryMatcher = new DictionaryMatcherSourceOperator(dictionaryPredicate,
