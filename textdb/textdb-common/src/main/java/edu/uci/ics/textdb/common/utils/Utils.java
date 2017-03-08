@@ -120,7 +120,7 @@ public class Utils {
      * @param field
      * @return
      */
-    public static AttributeType getFieldType(IField field) {
+    public static AttributeType getAttributeType(IField field) {
         if (field instanceof DateField) {
             return AttributeType.DATE;
         } else if (field instanceof DoubleField) {
