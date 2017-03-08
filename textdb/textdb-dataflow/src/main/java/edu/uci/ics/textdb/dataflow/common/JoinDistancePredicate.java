@@ -195,13 +195,13 @@ public class JoinDistancePredicate implements IJoinPredicate {
 	        Span outerSpan = outerSpanIter.next();
 	        // Check if the field matches the filed over which we want to join.
 	        // If not return null.
-	        if (!outerSpan.getFieldName().equals(this.joinAttributeName)) {
+	        if (!outerSpan.getAttributeName().equals(this.joinAttributeName)) {
 	            continue;
 	        }
 	        Iterator<Span> innerSpanIter = innerSpanList.iterator();
 	        while (innerSpanIter.hasNext()) {
 	            Span innerSpan = innerSpanIter.next();
-	            if (!innerSpan.getFieldName().equals(this.joinAttributeName)) {
+	            if (!innerSpan.getAttributeName().equals(this.joinAttributeName)) {
 	                continue;
 	            }
 	            Integer threshold = this.getThreshold();
@@ -209,11 +209,11 @@ public class JoinDistancePredicate implements IJoinPredicate {
 	                    && Math.abs(outerSpan.getEnd() - innerSpan.getEnd()) <= threshold) {
 	                Integer newSpanStartIndex = Math.min(outerSpan.getStart(), innerSpan.getStart());
 	                Integer newSpanEndIndex = Math.max(outerSpan.getEnd(), innerSpan.getEnd());
-	                String fieldName = this.joinAttributeName;
-	                String fieldValue = (String) innerTuple.getField(fieldName).getValue();
+	                String attributeName = this.joinAttributeName;
+	                String fieldValue = (String) innerTuple.getField(attributeName).getValue();
 	                String newFieldValue = fieldValue.substring(newSpanStartIndex, newSpanEndIndex);
 	                String spanKey = outerSpan.getKey() + "_" + innerSpan.getKey();
-	                Span newSpan = new Span(fieldName, newSpanStartIndex, newSpanEndIndex, spanKey, newFieldValue);
+	                Span newSpan = new Span(attributeName, newSpanStartIndex, newSpanEndIndex, spanKey, newFieldValue);
 	                newJoinSpanList.add(newSpan);
 	            }
 	        }
@@ -229,7 +229,7 @@ public class JoinDistancePredicate implements IJoinPredicate {
 	            outputAttrList.stream()
 	            .filter(attr -> ! attr.equals(SchemaConstants.SPAN_LIST_ATTRIBUTE))
 	            .map(attr -> attr.getAttributeName())
-	            .map(fieldName -> innerTuple.getField(fieldName, IField.class))
+	            .map(attributeName -> innerTuple.getField(attributeName, IField.class))
 	            .collect(Collectors.toList());
 	    
 	    outputFields.add(new ListField<>(newJoinSpanList));
@@ -242,12 +242,12 @@ public class JoinDistancePredicate implements IJoinPredicate {
 	 * 
 	 * @param innerTuple
 	 * @param outerTuple
-	 * @param fieldName
+	 * @param attributeName
 	 * @return True if both the tuples have the field and the values are equal.
 	 */
-	private boolean compareField(Tuple innerTuple, Tuple outerTuple, String fieldName) {  
-	    IField innerField = innerTuple.getField(fieldName);
-	    IField outerField = outerTuple.getField(fieldName);
+	private boolean compareField(Tuple innerTuple, Tuple outerTuple, String attributeName) {
+	    IField innerField = innerTuple.getField(attributeName);
+	    IField outerField = outerTuple.getField(attributeName);
 	    
 	    if (innerField == null ||  outerField == null) {
 	        return false;

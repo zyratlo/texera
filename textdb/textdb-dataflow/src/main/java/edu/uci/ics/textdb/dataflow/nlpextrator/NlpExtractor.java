@@ -102,7 +102,7 @@ public class NlpExtractor extends AbstractSingleInputOperator {
     
     /**
      * @param iField
-     * @param fieldName
+     * @param attributeName
      * @return
      * @about This function takes an IField(TextField) and a String (the field's
      *        name) as input and uses the Stanford NLP package to process the
@@ -137,7 +137,7 @@ public class NlpExtractor extends AbstractSingleInputOperator {
      *           <p>
      *           For Example: With TextField value: "Microsoft, Google and
      *           Facebook are organizations while Donald Trump and Barack Obama
-     *           are persons", with fieldName: Sentence1 and inputTokenType is
+     *           are persons", with attributeName: Sentence1 and inputTokenType is
      *           Organization. Since the inputTokenType require us to use
      *           NamedEntity Annotator in the Stanford NLP package, the
      *           nlpTypeIndicator would be set to "NE". The pipeline would set
@@ -151,7 +151,7 @@ public class NlpExtractor extends AbstractSingleInputOperator {
      *           to the returned list. In this case, token "Microsoft" would be
      *           span: ["Sentence1", 0, 9, Organization, "Microsoft"]
      */
-    private List<Span> extractNlpSpans(IField iField, String fieldName) {
+    private List<Span> extractNlpSpans(IField iField, String attributeName) {
         List<Span> spanList = new ArrayList<>();
         String text = (String) iField.getValue();
         Properties props = new Properties();
@@ -195,10 +195,10 @@ public class NlpExtractor extends AbstractSingleInputOperator {
                     int end = token.get(CoreAnnotations.CharacterOffsetEndAnnotation.class);
                     String word = token.get(CoreAnnotations.TextAnnotation.class);
 
-                    Span span = new Span(fieldName, start, end, thisNlpTokenType.toString(), word);
+                    Span span = new Span(attributeName, start, end, thisNlpTokenType.toString(), word);
                     if (spanList.size() >= 1 && (predicate.getNlpTypeIndicator().equals("NE_ALL"))) {
                         Span previousSpan = spanList.get(spanList.size() - 1);
-                        if (previousSpan.getFieldName().equals(span.getFieldName())
+                        if (previousSpan.getAttributeName().equals(span.getAttributeName())
                                 && (span.getStart() - previousSpan.getEnd() <= 1)
                                 && previousSpan.getKey().equals(span.getKey())) {
                             Span newSpan = mergeTwoSpans(previousSpan, span);
@@ -220,7 +220,7 @@ public class NlpExtractor extends AbstractSingleInputOperator {
      * @about This function takes two spans as input and merges them as a new
      *        span
      *        <p>
-     *        Two spans with fieldName, start, end, key, value: previousSpan:
+     *        Two spans with attributeName, start, end, key, value: previousSpan:
      *        "Doc1", 10, 13, "Location", "New" currentSpan : "Doc1", 14, 18,
      *        "Location", "York"
      *        <p>
@@ -228,12 +228,12 @@ public class NlpExtractor extends AbstractSingleInputOperator {
      *        <p>
      *        The caller needs to make sure: 1. The two spans are adjacent. 2.
      *        The two spans are in the same field. They should have the same
-     *        fieldName. 3. The two spans have the same key (Organization,
+     *        attributeName. 3. The two spans have the same key (Organization,
      *        Person,... etc)
      */
     private Span mergeTwoSpans(Span previousSpan, Span currentSpan) {
         String newWord = previousSpan.getValue() + " " + currentSpan.getValue();
-        return new Span(previousSpan.getFieldName(), previousSpan.getStart(), currentSpan.getEnd(),
+        return new Span(previousSpan.getAttributeName(), previousSpan.getStart(), currentSpan.getEnd(),
                 previousSpan.getKey(), newWord);
     }
 

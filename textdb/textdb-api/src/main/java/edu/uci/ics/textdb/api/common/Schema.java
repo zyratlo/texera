@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 
 public class Schema {
     private List<Attribute> attributes;
-    private Map<String, Integer> fieldNameVsIndex;
+    private Map<String, Integer> attributeNameVsIndex;
 
     public Schema(Attribute... attributes) {
         // Converting to java.util.Arrays.ArrayList
@@ -16,14 +16,14 @@ public class Schema {
         // This makes List<Attribute> partially immutable.
         // Partial because we can still replace an element at particular index.
         this.attributes = Arrays.asList(attributes);
-        populateFieldNameVsIndexMap();
+        populateAttributeNameVsIndexMap();
     }
 
-    private void populateFieldNameVsIndexMap() {
-        fieldNameVsIndex = new HashMap<String, Integer>();
+    private void populateAttributeNameVsIndexMap() {
+        attributeNameVsIndex = new HashMap<String, Integer>();
         for (int count = 0; count < attributes.size(); count++) {
-            String fieldName = attributes.get(count).getAttributeName();
-            fieldNameVsIndex.put(fieldName.toLowerCase(), count);
+            String attributeName = attributes.get(count).getAttributeName();
+            attributeNameVsIndex.put(attributeName.toLowerCase(), count);
         }
     }
 
@@ -35,20 +35,20 @@ public class Schema {
         return attributes.stream().map(attr -> attr.getAttributeName()).collect(Collectors.toList());
     }
 
-    public Integer getIndex(String fieldName) {
-        return fieldNameVsIndex.get(fieldName.toLowerCase());
+    public Integer getIndex(String attributeName) {
+        return attributeNameVsIndex.get(attributeName.toLowerCase());
     }
     
-    public Attribute getAttribute(String fieldName) {
-        Integer attrIndex = getIndex(fieldName);
+    public Attribute getAttribute(String attributeName) {
+        Integer attrIndex = getIndex(attributeName);
         if (attrIndex == null) {
             return null;
         }
         return attributes.get(attrIndex);
     }
 
-    public boolean containsField(String fieldName) {
-        return fieldNameVsIndex.keySet().contains(fieldName.toLowerCase());
+    public boolean containsField(String attributeName) {
+        return attributeNameVsIndex.keySet().contains(attributeName.toLowerCase());
     }
 
     @Override
@@ -56,7 +56,7 @@ public class Schema {
         final int prime = 31;
         int result = 1;
         result = prime * result + ((attributes == null) ? 0 : attributes.hashCode());
-        result = prime * result + ((fieldNameVsIndex == null) ? 0 : fieldNameVsIndex.hashCode());
+        result = prime * result + ((attributeNameVsIndex == null) ? 0 : attributeNameVsIndex.hashCode());
         return result;
     }
 
@@ -74,10 +74,10 @@ public class Schema {
                 return false;
         } else if (!attributes.equals(other.attributes))
             return false;
-        if (fieldNameVsIndex == null) {
-            if (other.fieldNameVsIndex != null)
+        if (attributeNameVsIndex == null) {
+            if (other.attributeNameVsIndex != null)
                 return false;
-        } else if (!fieldNameVsIndex.equals(other.fieldNameVsIndex))
+        } else if (!attributeNameVsIndex.equals(other.attributeNameVsIndex))
             return false;
         return true;
     }

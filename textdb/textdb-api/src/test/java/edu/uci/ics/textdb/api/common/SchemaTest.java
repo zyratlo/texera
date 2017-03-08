@@ -10,12 +10,12 @@ import org.junit.Test;
 
 public class SchemaTest {
     private Schema schema;
-    private String fieldName1 = "sampleField_1";
+    private String attributeName1 = "sampleAttribute_1";
     private AttributeType type1 = AttributeType.STRING;
-    private String fieldName2 = "sampleField_2";
+    private String attributeName2 = "sampleAttribute_2";
     private AttributeType type2 = AttributeType.STRING;
 
-    private Attribute[] attributes = { new Attribute(fieldName1, type1), new Attribute(fieldName2, type2) };;
+    private Attribute[] attributes = { new Attribute(attributeName1, type1), new Attribute(attributeName2, type2) };;
 
     @Before
     public void setUp() {
@@ -36,8 +36,8 @@ public class SchemaTest {
 
         int expectedIndex1 = 0;
         int expectedIndex2 = 1;
-        int retrievedIndex1 = schema.getIndex(fieldName1);
-        int retrievedIndex2 = schema.getIndex(fieldName2.toUpperCase());
+        int retrievedIndex1 = schema.getIndex(attributeName1);
+        int retrievedIndex2 = schema.getIndex(attributeName2.toUpperCase());
         Assert.assertEquals(expectedIndex1, retrievedIndex1);
         Assert.assertEquals(expectedIndex2, retrievedIndex2);
 
@@ -49,8 +49,8 @@ public class SchemaTest {
         Attribute expectedAttribute1 = new Attribute("sampleField_1", AttributeType.STRING);
         Attribute expectedAttribute2 = new Attribute("sampleField_2", AttributeType.STRING);
 
-        Attribute retrievedAttribute1 = schema.getAttribute(fieldName1);
-        Attribute retrievedAttribute2 = schema.getAttribute(fieldName2.toUpperCase());
+        Attribute retrievedAttribute1 = schema.getAttribute(attributeName1);
+        Attribute retrievedAttribute2 = schema.getAttribute(attributeName2.toUpperCase());
         
         Assert.assertEquals(expectedAttribute1, retrievedAttribute1);
         Assert.assertEquals(expectedAttribute2, retrievedAttribute2);

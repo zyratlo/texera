@@ -173,7 +173,7 @@ public class DataReader implements IOperator {
         ArrayList<Span> payloadSpanList = new ArrayList<>();
 
         for (Attribute attr : inputSchema.getAttributes()) {
-            String fieldName = attr.getAttributeName();
+            String attributeName = attr.getAttributeName();
             AttributeType attributeType = attr.getAttributeType();
 
             // We only store positional information for TEXT fields into
@@ -182,9 +182,9 @@ public class DataReader implements IOperator {
                 continue;
             }
 
-            String fieldValue = fields.get(inputSchema.getIndex(fieldName)).getValue().toString();
+            String fieldValue = fields.get(inputSchema.getIndex(attributeName)).getValue().toString();
 
-            Terms termVector = luceneIndexReader.getTermVector(docID, fieldName);
+            Terms termVector = luceneIndexReader.getTermVector(docID, attributeName);
             if (termVector == null) {
                 continue;
             }
@@ -205,7 +205,7 @@ public class DataReader implements IOperator {
                     String analyzedTermStr = termsEnum.term().utf8ToString();
                     String originalTermStr = fieldValue.substring(charStart, charEnd);
 
-                    Span span = new Span(fieldName, charStart, charEnd, analyzedTermStr, originalTermStr,
+                    Span span = new Span(attributeName, charStart, charEnd, analyzedTermStr, originalTermStr,
                             tokenPosition);
                     payloadSpanList.add(span);
                 }

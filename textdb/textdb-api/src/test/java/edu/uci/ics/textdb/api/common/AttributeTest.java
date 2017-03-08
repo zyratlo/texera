@@ -8,17 +8,17 @@ import org.junit.Test;
 public class AttributeTest {
 
     private Attribute attribute;
-    private String fieldName = "sampleFieldName";
+    private String attributeName = "sampleAttributeName";
     private AttributeType type = AttributeType.STRING;
 
     @Before
     public void setUp() {
-        attribute = new Attribute(fieldName, type);
+        attribute = new Attribute(attributeName, type);
     }
 
     @Test
     public void testGetterMethods() {
-        Assert.assertEquals(fieldName, attribute.getAttributeName());
+        Assert.assertEquals(attributeName, attribute.getAttributeName());
         Assert.assertEquals(type, attribute.getAttributeType());
     }
 }

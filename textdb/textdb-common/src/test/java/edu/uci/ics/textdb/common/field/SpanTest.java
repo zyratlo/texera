@@ -16,16 +16,16 @@ public class SpanTest {
 
     @Test
     public void testGetters() {
-        String fieldName = "description";
+        String attributeName = "description";
         int start = 10;
         int end = 20;
         String key = "location";
         String value = "new york";
-        span = new Span(fieldName, start, end, key, value);
+        span = new Span(attributeName, start, end, key, value);
         Assert.assertEquals(start, span.getStart());
         Assert.assertEquals(end, span.getEnd());
         Assert.assertEquals(key, span.getKey());
         Assert.assertEquals(value, span.getValue());
-        Assert.assertEquals(fieldName, span.getFieldName());
+        Assert.assertEquals(attributeName, span.getAttributeName());
     }
 }

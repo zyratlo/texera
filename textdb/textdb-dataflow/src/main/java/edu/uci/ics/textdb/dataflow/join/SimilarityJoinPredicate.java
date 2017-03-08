@@ -133,11 +133,11 @@ public class SimilarityJoinPredicate implements IJoinPredicate {
         // get the span list only with the joinAttributeName
         ListField<Span> innerSpanListField = innerTuple.getField(SchemaConstants.SPAN_LIST);
         List<Span> innerRelevantSpanList = innerSpanListField.getValue().stream()
-                .filter(span -> span.getFieldName().equals(innerJoinAttrName)).collect(Collectors.toList());
+                .filter(span -> span.getAttributeName().equals(innerJoinAttrName)).collect(Collectors.toList());
         
         ListField<Span> outerSpanListField = outerTuple.getField(SchemaConstants.SPAN_LIST);
         List<Span> outerRelevantSpanList = outerSpanListField.getValue().stream()
-                .filter(span -> span.getFieldName().equals(outerJoinAttrName)).collect(Collectors.toList());
+                .filter(span -> span.getAttributeName().equals(outerJoinAttrName)).collect(Collectors.toList());
         
         // get a set of span's values (since multiple spans may have the same value)
         Set<String> innerSpanValueSet = innerRelevantSpanList.stream()
@@ -211,7 +211,7 @@ public class SimilarityJoinPredicate implements IJoinPredicate {
     }
     
     private Span addFieldPrefix(Span span, String prefix) {
-        return new Span(prefix+span.getFieldName(), 
+        return new Span(prefix+span.getAttributeName(),
                 span.getStart(), span.getEnd(), span.getKey(), span.getValue(), span.getTokenOffset());
     }
 

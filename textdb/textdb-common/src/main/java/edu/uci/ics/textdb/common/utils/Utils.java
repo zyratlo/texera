@@ -71,24 +71,24 @@ public class Utils {
         return field;
     }
 
-    public static IndexableField getLuceneField(AttributeType attributeType, String fieldName, Object fieldValue) {
+    public static IndexableField getLuceneField(AttributeType attributeType, String attributeName, Object fieldValue) {
         IndexableField luceneField = null;
         switch (attributeType) {
         // _ID_TYPE is currently same as STRING
         case _ID_TYPE:
         case STRING:
-            luceneField = new org.apache.lucene.document.StringField(fieldName, (String) fieldValue, Store.YES);
+            luceneField = new org.apache.lucene.document.StringField(attributeName, (String) fieldValue, Store.YES);
             break;
         case INTEGER:
-            luceneField = new org.apache.lucene.document.IntField(fieldName, (Integer) fieldValue, Store.YES);
+            luceneField = new org.apache.lucene.document.IntField(attributeName, (Integer) fieldValue, Store.YES);
             break;
         case DOUBLE:
             double value = (Double) fieldValue;
-            luceneField = new org.apache.lucene.document.DoubleField(fieldName, value, Store.YES);
+            luceneField = new org.apache.lucene.document.DoubleField(attributeName, value, Store.YES);
             break;
         case DATE:
             String dateString = DateTools.dateToString((Date) fieldValue, Resolution.MILLISECOND);
-            luceneField = new org.apache.lucene.document.StringField(fieldName, dateString, Store.YES);
+            luceneField = new org.apache.lucene.document.StringField(attributeName, dateString, Store.YES);
             break;
         case TEXT:
             // By default we enable positional indexing in Lucene so that we can
@@ -103,7 +103,7 @@ public class Utils {
             luceneFieldType.setStoreTermVectorPositions(true);
             luceneFieldType.setTokenized(true);
 
-            luceneField = new org.apache.lucene.document.Field(fieldName, (String) fieldValue, luceneFieldType);
+            luceneField = new org.apache.lucene.document.Field(attributeName, (String) fieldValue, luceneFieldType);
 
             break;
         case LIST:
@@ -328,7 +328,7 @@ public class Utils {
         
         jsonObject.put("key", span.getKey());
         jsonObject.put("value", span.getValue());
-        jsonObject.put("field", span.getFieldName());
+        jsonObject.put("field", span.getAttributeName());
         jsonObject.put("start", span.getStart());
         jsonObject.put("end", span.getEnd());
         jsonObject.put("token offset", span.getTokenOffset());
@@ -402,7 +402,7 @@ public class Utils {
     public static String getSpanString(Span span) {
         StringBuilder sb = new StringBuilder();
 
-        sb.append("field: " + span.getFieldName() + "\n");
+        sb.append("field: " + span.getAttributeName() + "\n");
         sb.append("start: " + span.getStart() + "\n");
         sb.append("end:   " + span.getEnd() + "\n");
         sb.append("key:   " + span.getKey() + "\n");
@@ -435,7 +435,7 @@ public class Utils {
     public static Tuple removeFields(Tuple tuple, String... removeFields) {
         List<String> removeFieldList = Arrays.asList(removeFields);
         List<Integer> removedFeidsIndex = removeFieldList.stream()
-                .map(fieldName -> tuple.getSchema().getIndex(fieldName)).collect(Collectors.toList());
+                .map(attributeName -> tuple.getSchema().getIndex(attributeName)).collect(Collectors.toList());
         
         Attribute[] newAttrs = tuple.getSchema().getAttributes().stream()
                 .filter(attr -> (! removeFieldList.contains(attr.getAttributeName()))).toArray(Attribute[]::new);
@@ -452,7 +452,7 @@ public class Utils {
         List<Span> tuplePayload = tuple.getSchema().getAttributes().stream()
                 .filter(attr -> (attr.getAttributeType() == AttributeType.TEXT)) // generate payload only for TEXT field
                 .map(attr -> attr.getAttributeName())
-                .map(fieldName -> generatePayload(fieldName, tuple.getField(fieldName).getValue().toString(),
+                .map(attributeName -> generatePayload(attributeName, tuple.getField(attributeName).getValue().toString(),
                         luceneAnalyzer))
                 .flatMap(payload -> payload.stream()) // flatten a list of lists to a list
                 .collect(Collectors.toList());
@@ -460,7 +460,7 @@ public class Utils {
         return tuplePayload;
     }
 
-    public static List<Span> generatePayload(String fieldName, String fieldValue, Analyzer luceneAnalyzer) {
+    public static List<Span> generatePayload(String attributeName, String fieldValue, Analyzer luceneAnalyzer) {
         List<Span> payload = new ArrayList<>();
         
         try {
@@ -481,7 +481,7 @@ public class Utils {
                 String analyzedTermStr = charTermAttribute.toString();
                 String originalTermStr = fieldValue.substring(charStart, charEnd);
 
-                payload.add(new Span(fieldName, charStart, charEnd, analyzedTermStr, originalTermStr, tokenPosition));
+                payload.add(new Span(attributeName, charStart, charEnd, analyzedTermStr, originalTermStr, tokenPosition));
             }
             tokenStream.close();
         } catch (IOException e) {

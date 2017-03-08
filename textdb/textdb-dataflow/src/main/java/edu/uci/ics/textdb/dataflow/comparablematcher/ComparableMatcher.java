@@ -48,12 +48,12 @@ public class ComparableMatcher<T extends Comparable<T>> extends AbstractSingleIn
         Attribute attribute = predicate.getAttribute();
         DataConstants.NumberMatchingType operatorType = predicate.getMatchingType();
 
-        String fieldName = attribute.getAttributeName();
+        String attributeName = attribute.getAttributeName();
 
         T value;
         T threshold;
         try {
-            value = (T) inputTuple.getField(fieldName).getValue();
+            value = (T) inputTuple.getField(attributeName).getValue();
             threshold = (T) predicate.getThreshold();
         } catch (ClassCastException e) {
             return null;

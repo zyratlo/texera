@@ -2,7 +2,7 @@ package edu.uci.ics.textdb.common.field;
 
 public class Span {
     // The name of the field (in the tuple) where this span is present
-    private String fieldName;
+    private String attributeName;
     // The start position of the span, which is the offset of the gap before the
     // first character of the span.
     private int start;
@@ -25,8 +25,8 @@ public class Span {
 
     public static int INVALID_TOKEN_OFFSET = -1;
 
-    public Span(String fieldName, int start, int end, String key, String value) {
-        this.fieldName = fieldName;
+    public Span(String attributeName, int start, int end, String key, String value) {
+        this.attributeName = attributeName;
         this.start = start;
         this.end = end;
         this.key = key;
@@ -34,13 +34,13 @@ public class Span {
         this.tokenOffset = INVALID_TOKEN_OFFSET;
     }
 
-    public Span(String fieldName, int start, int end, String key, String value, int tokenOffset) {
-        this(fieldName, start, end, key, value);
+    public Span(String attributeName, int start, int end, String key, String value, int tokenOffset) {
+        this(attributeName, start, end, key, value);
         this.tokenOffset = tokenOffset;
     }
 
-    public String getFieldName() {
-        return fieldName;
+    public String getAttributeName() {
+        return attributeName;
     }
 
     public String getKey() {
@@ -68,7 +68,7 @@ public class Span {
         final int prime = 31;
         int result = 1;
         result = prime * result + end;
-        result = prime * result + ((fieldName == null) ? 0 : fieldName.hashCode());
+        result = prime * result + ((attributeName == null) ? 0 : attributeName.hashCode());
         result = prime * result + ((key == null) ? 0 : key.hashCode());
         result = prime * result + start;
         result = prime * result + ((value == null) ? 0 : value.hashCode());
@@ -86,10 +86,10 @@ public class Span {
             return false;
         Span other = (Span) obj;
 
-        if (fieldName == null) {
-            if (other.fieldName != null)
+        if (attributeName == null) {
+            if (other.attributeName != null)
                 return false;
-        } else if (!fieldName.equals(other.fieldName))
+        } else if (!attributeName.equals(other.attributeName))
             return false;
 
         if (start != other.start)

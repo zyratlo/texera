@@ -123,9 +123,9 @@ public class RegexMatcher extends AbstractSingleInputOperator {
 
         List<Span> matchingResults = new ArrayList<>();
 
-        for (String fieldName : attributeNames) {
-            AttributeType attributeType = inputSchema.getAttribute(fieldName).getAttributeType();
-            String fieldValue = inputTuple.getField(fieldName).getValue().toString();
+        for (String attributeName : attributeNames) {
+            AttributeType attributeType = inputSchema.getAttribute(attributeName).getAttributeType();
+            String fieldValue = inputTuple.getField(attributeName).getValue().toString();
 
             // types other than TEXT and STRING: throw Exception for now
             if (attributeType != AttributeType.STRING && attributeType != AttributeType.TEXT) {
@@ -134,10 +134,10 @@ public class RegexMatcher extends AbstractSingleInputOperator {
 
             switch (regexEngine) {
             case JavaRegex:
-                matchingResults.addAll(javaRegexMatch(fieldValue, fieldName));
+                matchingResults.addAll(javaRegexMatch(fieldValue, attributeName));
                 break;
             case RE2J:
-                matchingResults.addAll(re2jRegexMatch(fieldValue, fieldName));
+                matchingResults.addAll(re2jRegexMatch(fieldValue, attributeName));
                 break;
             }
         }
@@ -153,26 +153,26 @@ public class RegexMatcher extends AbstractSingleInputOperator {
         return inputTuple;
     }
 
-    private List<Span> javaRegexMatch(String fieldValue, String fieldName) {
+    private List<Span> javaRegexMatch(String fieldValue, String attributeName) {
         List<Span> matchingResults = new ArrayList<>();
         java.util.regex.Matcher javaMatcher = this.javaPattern.matcher(fieldValue);
         while (javaMatcher.find()) {
             int start = javaMatcher.start();
             int end = javaMatcher.end();
             matchingResults.add(
-                    new Span(fieldName, start, end, this.regexPredicate.getRegex(), fieldValue.substring(start, end)));
+                    new Span(attributeName, start, end, this.regexPredicate.getRegex(), fieldValue.substring(start, end)));
         }
         return matchingResults;
     }
 
-    private List<Span> re2jRegexMatch(String fieldValue, String fieldName) {
+    private List<Span> re2jRegexMatch(String fieldValue, String attributeName) {
         List<Span> matchingResults = new ArrayList<>();
         com.google.re2j.Matcher re2jMatcher = this.re2jPattern.matcher(fieldValue);
         while (re2jMatcher.find()) {
             int start = re2jMatcher.start();
             int end = re2jMatcher.end();
             matchingResults.add(
-                    new Span(fieldName, start, end, this.regexPredicate.getRegex(), fieldValue.substring(start, end)));
+                    new Span(attributeName, start, end, this.regexPredicate.getRegex(), fieldValue.substring(start, end)));
         }
         return matchingResults;
     }

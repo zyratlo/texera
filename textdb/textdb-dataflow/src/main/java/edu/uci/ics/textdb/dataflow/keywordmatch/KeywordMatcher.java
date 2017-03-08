@@ -97,9 +97,9 @@ public class KeywordMatcher extends AbstractSingleInputOperator {
         List<Span> relevantSpans = filterRelevantSpans(payload);
         List<Span> matchingResults = new ArrayList<>();
 
-        for (String fieldName : this.predicate.getAttributeNames()) {
-            AttributeType attributeType = this.inputSchema.getAttribute(fieldName).getAttributeType();
-            String fieldValue = sourceTuple.getField(fieldName).getValue().toString();
+        for (String attributeName : this.predicate.getAttributeNames()) {
+            AttributeType attributeType = this.inputSchema.getAttribute(attributeName).getAttributeType();
+            String fieldValue = sourceTuple.getField(attributeName).getValue().toString();
 
             // types other than TEXT and STRING: throw Exception for now
             if (attributeType != AttributeType.STRING && attributeType != AttributeType.TEXT) {
@@ -109,7 +109,7 @@ public class KeywordMatcher extends AbstractSingleInputOperator {
             // for STRING type, the query should match the fieldValue completely
             if (attributeType == AttributeType.STRING) {
                 if (fieldValue.equals(predicate.getQuery())) {
-                    Span span = new Span(fieldName, 0, predicate.getQuery().length(), predicate.getQuery(), fieldValue);
+                    Span span = new Span(attributeName, 0, predicate.getQuery().length(), predicate.getQuery(), fieldValue);
                     matchingResults.add(span);
                 }
             }
@@ -117,7 +117,7 @@ public class KeywordMatcher extends AbstractSingleInputOperator {
             // for TEXT type, every token in the query should be present in span
             // list for this field
             if (attributeType == AttributeType.TEXT) {
-                List<Span> fieldSpanList = relevantSpans.stream().filter(span -> span.getFieldName().equals(fieldName))
+                List<Span> fieldSpanList = relevantSpans.stream().filter(span -> span.getAttributeName().equals(attributeName))
                         .collect(Collectors.toList());
 
                 if (isAllQueryTokensPresent(fieldSpanList, predicate.getQueryTokenSet())) {
@@ -144,9 +144,9 @@ public class KeywordMatcher extends AbstractSingleInputOperator {
         List<Span> relevantSpans = filterRelevantSpans(payload);
         List<Span> matchingResults = new ArrayList<>();
 
-        for (String fieldName : this.predicate.getAttributeNames()) {
-            AttributeType attributeType = this.inputSchema.getAttribute(fieldName).getAttributeType();
-            String fieldValue = sourceTuple.getField(fieldName).getValue().toString();
+        for (String attributeName : this.predicate.getAttributeNames()) {
+            AttributeType attributeType = this.inputSchema.getAttribute(attributeName).getAttributeType();
+            String fieldValue = sourceTuple.getField(attributeName).getValue().toString();
 
             // types other than TEXT and STRING: throw Exception for now
             if (attributeType != AttributeType.STRING && attributeType != AttributeType.TEXT) {
@@ -156,14 +156,14 @@ public class KeywordMatcher extends AbstractSingleInputOperator {
             // for STRING type, the query should match the fieldValue completely
             if (attributeType == AttributeType.STRING) {
                 if (fieldValue.equals(predicate.getQuery())) {
-                    matchingResults.add(new Span(fieldName, 0, predicate.getQuery().length(), predicate.getQuery(), fieldValue));
+                    matchingResults.add(new Span(attributeName, 0, predicate.getQuery().length(), predicate.getQuery(), fieldValue));
                 }
             }
 
             // for TEXT type, spans need to be reconstructed according to the
             // phrase query
             if (attributeType == AttributeType.TEXT) {
-                List<Span> fieldSpanList = relevantSpans.stream().filter(span -> span.getFieldName().equals(fieldName))
+                List<Span> fieldSpanList = relevantSpans.stream().filter(span -> span.getAttributeName().equals(attributeName))
                         .collect(Collectors.toList());
 
                 if (!isAllQueryTokensPresent(fieldSpanList, predicate.getQueryTokenSet())) {
@@ -219,7 +219,7 @@ public class KeywordMatcher extends AbstractSingleInputOperator {
                     int combinedSpanStartIndex = fieldSpanList.get(iter).getStart();
                     int combinedSpanEndIndex = fieldSpanList.get(iter + queryTokenList.size() - 1).getEnd();
 
-                    Span combinedSpan = new Span(fieldName, combinedSpanStartIndex, combinedSpanEndIndex, predicate.getQuery(),
+                    Span combinedSpan = new Span(attributeName, combinedSpanStartIndex, combinedSpanEndIndex, predicate.getQuery(),
                             fieldValue.substring(combinedSpanStartIndex, combinedSpanEndIndex));
                     matchingResults.add(combinedSpan);
                     iter = iter + queryTokenList.size();
@@ -241,9 +241,9 @@ public class KeywordMatcher extends AbstractSingleInputOperator {
     private Tuple computeSubstringMatchingResult(Tuple sourceTuple) throws DataFlowException {
         List<Span> matchingResults = new ArrayList<>();
 
-        for (String fieldName : this.predicate.getAttributeNames()) {
-            AttributeType attributeType = this.inputSchema.getAttribute(fieldName).getAttributeType();
-            String fieldValue = sourceTuple.getField(fieldName).getValue().toString();
+        for (String attributeName : this.predicate.getAttributeNames()) {
+            AttributeType attributeType = this.inputSchema.getAttribute(attributeName).getAttributeType();
+            String fieldValue = sourceTuple.getField(attributeName).getValue().toString();
 
             // types other than TEXT and STRING: throw Exception for now
             if (attributeType != AttributeType.STRING && attributeType != AttributeType.TEXT) {
@@ -253,7 +253,7 @@ public class KeywordMatcher extends AbstractSingleInputOperator {
             // for STRING type, the query should match the fieldValue completely
             if (attributeType == AttributeType.STRING) {
                 if (fieldValue.equals(predicate.getQuery())) {
-                    matchingResults.add(new Span(fieldName, 0, predicate.getQuery().length(), predicate.getQuery(), fieldValue));
+                    matchingResults.add(new Span(attributeName, 0, predicate.getQuery().length(), predicate.getQuery(), fieldValue));
                 }
             }
 
@@ -265,7 +265,7 @@ public class KeywordMatcher extends AbstractSingleInputOperator {
                     int start = matcher.start();
                     int end = matcher.end();
 
-                    matchingResults.add(new Span(fieldName, start, end, predicate.getQuery(), fieldValue.substring(start, end)));
+                    matchingResults.add(new Span(attributeName, start, end, predicate.getQuery(), fieldValue.substring(start, end)));
                 }
             }
 
