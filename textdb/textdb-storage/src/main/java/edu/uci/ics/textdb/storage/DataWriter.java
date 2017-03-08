@@ -220,7 +220,7 @@ public class DataWriter {
         for (int count = 0; count < fields.size(); count++) {
             IField field = fields.get(count);
             Attribute attr = attributes.get(count);
-            FieldType fieldType = attr.getFieldType();
+            FieldType fieldType = attr.getAttributeType();
             doc.add(Utils.getLuceneField(fieldType, attr.getAttributeName(), field.getValue()));
         }
         return doc;
