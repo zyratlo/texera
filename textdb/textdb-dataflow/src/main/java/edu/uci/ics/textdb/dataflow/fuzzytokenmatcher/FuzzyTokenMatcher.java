@@ -11,6 +11,7 @@ import edu.uci.ics.textdb.api.common.Schema;
 import edu.uci.ics.textdb.common.constants.SchemaConstants;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
 import edu.uci.ics.textdb.api.exception.TextDBException;
+import edu.uci.ics.textdb.common.field.ListField;
 import edu.uci.ics.textdb.common.field.Span;
 import edu.uci.ics.textdb.common.utils.Utils;
 import edu.uci.ics.textdb.dataflow.common.AbstractSingleInputOperator;
@@ -77,7 +78,8 @@ public class FuzzyTokenMatcher extends AbstractSingleInputOperator {
 
     @Override
     public Tuple processOneInputTuple(Tuple inputTuple) throws TextDBException {
-        List<Span> payload = (List<Span>) inputTuple.getField(SchemaConstants.PAYLOAD).getValue();
+        ListField<Span> payloadField = inputTuple.getField(SchemaConstants.PAYLOAD);
+        List<Span> payload = payloadField.getValue();
         List<Span> relevantSpans = filterRelevantSpans(payload);
         List<Span> matchResults = new ArrayList<>();
 
@@ -110,7 +112,8 @@ public class FuzzyTokenMatcher extends AbstractSingleInputOperator {
             return null;
         }
 
-        List<Span> spanList = (List<Span>) inputTuple.getField(SchemaConstants.SPAN_LIST).getValue();
+        ListField<Span> spanListField = inputTuple.getField(SchemaConstants.SPAN_LIST);
+        List<Span> spanList = spanListField.getValue();
         spanList.addAll(matchResults);
 
         return inputTuple;

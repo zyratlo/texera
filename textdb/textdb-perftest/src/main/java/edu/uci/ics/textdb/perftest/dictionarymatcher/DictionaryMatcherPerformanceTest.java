@@ -130,7 +130,8 @@ public class DictionaryMatcherPerformanceTest {
         Tuple nextTuple = null;
         int counter = 0;
         while ((nextTuple = dictionaryMatcher.getNextTuple()) != null) {
-            List<Span> spanList = ((ListField<Span>) nextTuple.getField(SchemaConstants.SPAN_LIST)).getValue();
+            ListField<Span> spanListField = nextTuple.getField(SchemaConstants.SPAN_LIST);
+            List<Span> spanList = spanListField.getValue();
             counter += spanList.size();
         }
         dictionaryMatcher.close();

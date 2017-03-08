@@ -16,6 +16,7 @@ import edu.uci.ics.textdb.common.constants.DataConstants;
 import edu.uci.ics.textdb.common.constants.SchemaConstants;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
 import edu.uci.ics.textdb.api.exception.TextDBException;
+import edu.uci.ics.textdb.common.field.ListField;
 import edu.uci.ics.textdb.common.field.Span;
 import edu.uci.ics.textdb.common.utils.Utils;
 import edu.uci.ics.textdb.dataflow.common.AbstractSingleInputOperator;
@@ -91,7 +92,8 @@ public class KeywordMatcher extends AbstractSingleInputOperator {
     }
 
     private Tuple computeConjunctionMatchingResult(Tuple sourceTuple) throws DataFlowException {
-        List<Span> payload = (List<Span>) sourceTuple.getField(SchemaConstants.PAYLOAD).getValue();
+        ListField<Span> payloadField = sourceTuple.getField(SchemaConstants.PAYLOAD);
+        List<Span> payload = payloadField.getValue();
         List<Span> relevantSpans = filterRelevantSpans(payload);
         List<Span> matchingResults = new ArrayList<>();
 
@@ -129,14 +131,16 @@ public class KeywordMatcher extends AbstractSingleInputOperator {
             return null;
         }
 
-        List<Span> spanList = (List<Span>) sourceTuple.getField(SchemaConstants.SPAN_LIST).getValue();
+        ListField<Span> spanListField = sourceTuple.getField(SchemaConstants.SPAN_LIST);
+        List<Span> spanList = spanListField.getValue();
         spanList.addAll(matchingResults);
 
         return sourceTuple;
     }
 
     private Tuple computePhraseMatchingResult(Tuple sourceTuple) throws DataFlowException {
-        List<Span> payload = (List<Span>) sourceTuple.getField(SchemaConstants.PAYLOAD).getValue();
+        ListField<Span> payloadField = sourceTuple.getField(SchemaConstants.PAYLOAD);
+        List<Span> payload = payloadField.getValue();
         List<Span> relevantSpans = filterRelevantSpans(payload);
         List<Span> matchingResults = new ArrayList<>();
 
@@ -227,7 +231,8 @@ public class KeywordMatcher extends AbstractSingleInputOperator {
             return null;
         }
 
-        List<Span> spanList = (List<Span>) sourceTuple.getField(SchemaConstants.SPAN_LIST).getValue();
+        ListField<Span> spanListField = sourceTuple.getField(SchemaConstants.SPAN_LIST);
+        List<Span> spanList = spanListField.getValue();
         spanList.addAll(matchingResults);
 
         return sourceTuple;
@@ -269,7 +274,8 @@ public class KeywordMatcher extends AbstractSingleInputOperator {
             return null;
         }
 
-        List<Span> spanList = (List<Span>) sourceTuple.getField(SchemaConstants.SPAN_LIST).getValue();
+        ListField<Span> spanListField = sourceTuple.getField(SchemaConstants.SPAN_LIST);
+        List<Span> spanList = spanListField.getValue();
         spanList.addAll(matchingResults);
 
         return sourceTuple;

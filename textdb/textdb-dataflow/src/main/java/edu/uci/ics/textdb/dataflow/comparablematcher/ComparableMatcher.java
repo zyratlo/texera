@@ -11,7 +11,7 @@ import edu.uci.ics.textdb.dataflow.common.AbstractSingleInputOperator;
  *
  * @author Adrian Seungjin Lee
  */
-public class ComparableMatcher<T extends Comparable> extends AbstractSingleInputOperator {
+public class ComparableMatcher<T extends Comparable<T>> extends AbstractSingleInputOperator {
     private ComparablePredicate<T> predicate;
 
     private Schema inputSchema;
@@ -48,7 +48,6 @@ public class ComparableMatcher<T extends Comparable> extends AbstractSingleInput
         Attribute attribute = predicate.getAttribute();
         DataConstants.NumberMatchingType operatorType = predicate.getMatchingType();
 
-        FieldType fieldType = attribute.getFieldType();
         String fieldName = attribute.getFieldName();
 
         T value;

@@ -134,10 +134,13 @@ public class SimilarityJoinPredicate implements IJoinPredicate {
         }
         
         // get the span list only with the joinAttributeName
-        List<Span> innerRelevantSpanList = ((ListField<Span>) innerTuple.getField(SchemaConstants.SPAN_LIST))
-                .getValue().stream().filter(span -> span.getFieldName().equals(innerJoinAttrName)).collect(Collectors.toList());
-        List<Span> outerRelevantSpanList = ((ListField<Span>) outerTuple.getField(SchemaConstants.SPAN_LIST))
-                .getValue().stream().filter(span -> span.getFieldName().equals(outerJoinAttrName)).collect(Collectors.toList());
+        ListField<Span> innerSpanListField = innerTuple.getField(SchemaConstants.SPAN_LIST);
+        List<Span> innerRelevantSpanList = innerSpanListField.getValue().stream()
+                .filter(span -> span.getFieldName().equals(innerJoinAttrName)).collect(Collectors.toList());
+        
+        ListField<Span> outerSpanListField = outerTuple.getField(SchemaConstants.SPAN_LIST);
+        List<Span> outerRelevantSpanList = outerSpanListField.getValue().stream()
+                .filter(span -> span.getFieldName().equals(outerJoinAttrName)).collect(Collectors.toList());
         
         // get a set of span's values (since multiple spans may have the same value)
         Set<String> innerSpanValueSet = innerRelevantSpanList.stream()
@@ -190,8 +193,10 @@ public class SimilarityJoinPredicate implements IJoinPredicate {
                 resultFields.add(new ListField<Span>(mergeSpanList));
             // put the payload of two tuples together
             } else if (attrName.equals(SchemaConstants.PAYLOAD)) {
-                List<Span> innerPayload = ((ListField<Span>) innerTuple.getField(SchemaConstants.PAYLOAD)).getValue();
-                List<Span> outerPayload = ((ListField<Span>) outerTuple.getField(SchemaConstants.PAYLOAD)).getValue();
+                ListField<Span> innerPayloadField = innerTuple.getField(SchemaConstants.PAYLOAD);
+                List<Span> innerPayload = innerPayloadField.getValue();      
+                ListField<Span> outerPayloadField = outerTuple.getField(SchemaConstants.PAYLOAD);
+                List<Span> outerPayload = outerPayloadField.getValue();
                 
                 List<Span> resultPayload = new ArrayList<>();
                 resultPayload.addAll(innerPayload.stream().map(span -> addFieldPrefix(span, INNER_PREFIX)).collect(Collectors.toList()));

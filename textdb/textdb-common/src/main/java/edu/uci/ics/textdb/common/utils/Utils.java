@@ -305,7 +305,8 @@ public class Utils {
         
         for (String attrName : tuple.getSchema().getAttributeNames()) {
             if (attrName.equalsIgnoreCase(SchemaConstants.SPAN_LIST)) {
-                List<Span> spanList = ((ListField<Span>) tuple.getField(SchemaConstants.SPAN_LIST)).getValue();
+                ListField<Span> spanListField = tuple.getField(SchemaConstants.SPAN_LIST);
+                List<Span> spanList = spanListField.getValue();
                 jsonObject.put(attrName, getSpanListJSON(spanList));
             } else {
                 jsonObject.put(attrName, tuple.getField(attrName).getValue().toString());
@@ -359,7 +360,8 @@ public class Utils {
         Schema schema = tuple.getSchema();
         for (Attribute attribute : schema.getAttributes()) {
             if (attribute.getFieldName().equals(SchemaConstants.SPAN_LIST)) {
-                List<Span> spanList = ((ListField<Span>) tuple.getField(SchemaConstants.SPAN_LIST)).getValue();
+                ListField<Span> spanListField = tuple.getField(SchemaConstants.SPAN_LIST);
+                List<Span> spanList = spanListField.getValue();
                 sb.append(getSpanListString(spanList));
                 sb.append("\n");
             } else {
