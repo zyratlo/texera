@@ -46,8 +46,8 @@ public class SchemaTest {
     @Test
     public void testGetAttribute() {
         
-        Attribute expectedAttribute1 = new Attribute("sampleField_1", AttributeType.STRING);
-        Attribute expectedAttribute2 = new Attribute("sampleField_2", AttributeType.STRING);
+        Attribute expectedAttribute1 = new Attribute("sampleAttribute_1", AttributeType.STRING);
+        Attribute expectedAttribute2 = new Attribute("sampleAttribute_2", AttributeType.STRING);
 
         Attribute retrievedAttribute1 = schema.getAttribute(attributeName1);
         Attribute retrievedAttribute2 = schema.getAttribute(attributeName2.toUpperCase());
@@ -59,7 +59,7 @@ public class SchemaTest {
     
     @Test
     public void testGetAttributeNames() {
-        List<String> expectedAttrNames = Arrays.asList("sampleField_1", "sampleField_2");
+        List<String> expectedAttrNames = Arrays.asList("sampleAttribute_1", "sampleAttribute_2");
         List<String> actualAttrNames = schema.getAttributeNames();
         
         Assert.assertEquals(expectedAttrNames, actualAttrNames);
