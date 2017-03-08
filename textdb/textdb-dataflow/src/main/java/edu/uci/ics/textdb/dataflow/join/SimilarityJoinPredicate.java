@@ -3,11 +3,8 @@ package edu.uci.ics.textdb.dataflow.join;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import edu.uci.ics.textdb.api.common.Attribute;
-import edu.uci.ics.textdb.api.common.FieldType;
-import edu.uci.ics.textdb.api.common.IField;
-import edu.uci.ics.textdb.api.common.Tuple;
-import edu.uci.ics.textdb.api.common.Schema;
+import edu.uci.ics.textdb.api.common.*;
+import edu.uci.ics.textdb.api.common.AttributeType;
 import edu.uci.ics.textdb.common.constants.SchemaConstants;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
 import edu.uci.ics.textdb.common.field.IDField;
@@ -96,7 +93,7 @@ public class SimilarityJoinPredicate implements IJoinPredicate {
         
         for (Attribute attr : innerOperatorSchema.getAttributes()) {
             String attrName = attr.getAttributeName();
-            FieldType attrType = attr.getAttributeType();
+            AttributeType attrType = attr.getAttributeType();
             // ignore _id, spanList, and payload
             if (attrName.equals(SchemaConstants._ID) || attrName.equals(SchemaConstants.SPAN_LIST) 
                     || attrName.equals(SchemaConstants.PAYLOAD)) {
@@ -106,7 +103,7 @@ public class SimilarityJoinPredicate implements IJoinPredicate {
         }
         for (Attribute attr : outerOperatorSchema.getAttributes()) {
             String attrName = attr.getAttributeName();
-            FieldType attrType = attr.getAttributeType();
+            AttributeType attrType = attr.getAttributeType();
             // ignore _id, spanList, and payload
             if (attrName.equals(SchemaConstants._ID) || attrName.equals(SchemaConstants.SPAN_LIST) 
                     || attrName.equals(SchemaConstants.PAYLOAD)) {

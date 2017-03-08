@@ -5,11 +5,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import edu.uci.ics.textdb.api.common.Attribute;
-import edu.uci.ics.textdb.api.common.FieldType;
-import edu.uci.ics.textdb.api.common.IField;
-import edu.uci.ics.textdb.api.common.Tuple;
-import edu.uci.ics.textdb.api.common.Schema;
+import edu.uci.ics.textdb.api.common.*;
+import edu.uci.ics.textdb.api.common.AttributeType;
 import edu.uci.ics.textdb.common.constants.SchemaConstants;
 import edu.uci.ics.textdb.common.exception.DataFlowException;
 import edu.uci.ics.textdb.common.field.ListField;
@@ -135,8 +132,8 @@ public class JoinDistancePredicate implements IJoinPredicate {
         }
         
         // check if join attribute is TEXT or STRING
-        FieldType joinAttrType = intersectionSchema.getAttribute(this.joinAttributeName).getAttributeType();
-        if (joinAttrType != FieldType.TEXT && joinAttrType != FieldType.STRING) {
+        AttributeType joinAttrType = intersectionSchema.getAttribute(this.joinAttributeName).getAttributeType();
+        if (joinAttrType != AttributeType.TEXT && joinAttrType != AttributeType.STRING) {
             throw new DataFlowException(
                     String.format("Join attribute %s must be either TEXT or STRING.", this.joinAttributeName));
         }
