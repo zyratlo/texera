@@ -182,8 +182,8 @@ public class JoinTestHelper {
         List<IField> newFields = new ArrayList<>();
         for (int i = 0; i < originalAttributes.size(); i++) {
             if (i == fieldIndex) {
-                newAttributes.add(new Attribute(originalAttributes.get(i).getFieldName(), 
-                        Utils.getFieldType(newField)));
+                newAttributes.add(new Attribute(originalAttributes.get(i).getAttributeName(),
+                        Utils.getAttributeType(newField)));
                 newFields.add(newField);
             } else {
                 newAttributes.add(originalAttributes.get(i));
