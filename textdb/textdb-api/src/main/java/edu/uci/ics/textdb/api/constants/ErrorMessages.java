@@ -1,7 +1,7 @@
 /**
  * 
  */
-package edu.uci.ics.textdb.api.exception;
+package edu.uci.ics.textdb.api.constants;
 
 /**
  * @author sandeepreddy602

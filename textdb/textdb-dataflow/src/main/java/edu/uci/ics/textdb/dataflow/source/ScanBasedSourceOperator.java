@@ -1,7 +1,6 @@
 package edu.uci.ics.textdb.dataflow.source;
 
 import edu.uci.ics.textdb.api.exception.DataFlowException;
-import edu.uci.ics.textdb.api.exception.ErrorMessages;
 import edu.uci.ics.textdb.api.exception.StorageException;
 import edu.uci.ics.textdb.api.exception.TextDBException;
 import edu.uci.ics.textdb.api.schema.Schema;
@@ -9,6 +8,7 @@ import edu.uci.ics.textdb.api.tuple.Tuple;
 
 import org.apache.lucene.search.MatchAllDocsQuery;
 
+import edu.uci.ics.textdb.api.constants.ErrorMessages;
 import edu.uci.ics.textdb.api.dataflow.ISourceOperator;
 import edu.uci.ics.textdb.storage.DataReader;
 import edu.uci.ics.textdb.storage.RelationManager;

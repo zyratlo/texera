@@ -2,9 +2,9 @@ package edu.uci.ics.textdb.dataflow.dictionarymatcher;
 
 import java.util.ArrayList;
 
+import edu.uci.ics.textdb.api.constants.ErrorMessages;
 import edu.uci.ics.textdb.api.dataflow.IOperator;
 import edu.uci.ics.textdb.api.exception.DataFlowException;
-import edu.uci.ics.textdb.api.exception.ErrorMessages;
 import edu.uci.ics.textdb.api.exception.TextDBException;
 import edu.uci.ics.textdb.api.schema.Schema;
 import edu.uci.ics.textdb.api.tuple.Tuple;
