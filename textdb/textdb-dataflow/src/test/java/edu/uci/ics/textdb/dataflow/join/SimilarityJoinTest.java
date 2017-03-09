@@ -1,7 +1,5 @@
 package edu.uci.ics.textdb.dataflow.join;
 
-import edu.uci.ics.textdb.common.field.*;
-import edu.uci.ics.textdb.dataflow.regexmatch.RegexMatcher;
 import junit.framework.Assert;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -19,6 +17,7 @@ import edu.uci.ics.textdb.api.span.Span;
 import edu.uci.ics.textdb.api.tuple.Tuple;
 import edu.uci.ics.textdb.api.utils.TestUtils;
 import edu.uci.ics.textdb.api.utils.Utils;
+import edu.uci.ics.textdb.dataflow.regexmatch.RegexMatcher;
 
 import org.junit.Test;
 

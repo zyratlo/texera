@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.uci.ics.textdb.api.engine.Engine;
 import edu.uci.ics.textdb.api.engine.Plan;
 import edu.uci.ics.textdb.api.tuple.Tuple;
+import edu.uci.ics.textdb.api.utils.Utils;
 import edu.uci.ics.textdb.dataflow.sink.TupleStreamSink;
 import edu.uci.ics.textdb.dataflow.utils.DataflowUtils;
 import edu.uci.ics.textdb.web.request.QueryPlanRequest;

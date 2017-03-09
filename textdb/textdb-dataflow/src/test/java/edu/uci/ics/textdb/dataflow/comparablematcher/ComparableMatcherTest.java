@@ -13,7 +13,6 @@ import edu.uci.ics.textdb.api.field.TextField;
 import edu.uci.ics.textdb.api.schema.Attribute;
 import edu.uci.ics.textdb.api.tuple.Tuple;
 import edu.uci.ics.textdb.api.utils.TestUtils;
-import edu.uci.ics.textdb.common.field.*;
 import edu.uci.ics.textdb.dataflow.source.ScanBasedSourceOperator;
 import edu.uci.ics.textdb.storage.DataWriter;
 import edu.uci.ics.textdb.storage.RelationManager;

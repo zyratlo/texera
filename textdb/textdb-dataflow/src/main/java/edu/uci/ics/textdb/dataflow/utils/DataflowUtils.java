@@ -2,13 +2,9 @@ package edu.uci.ics.textdb.dataflow.utils;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.nio.file.*;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
@@ -21,7 +17,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import edu.uci.ics.textdb.api.constants.SchemaConstants;
-import edu.uci.ics.textdb.api.exception.StorageException;
 import edu.uci.ics.textdb.api.field.DateField;
 import edu.uci.ics.textdb.api.field.DoubleField;
 import edu.uci.ics.textdb.api.field.IDField;
