@@ -228,8 +228,8 @@ public class DictionaryMatcherSourceOperator implements ISourceOperator {
     }
 
     /*
-     * Match the key against the dataTuple. if there's no match, returns the
-     * original dataTuple object, if there's a match, return a new dataTuple
+     * Match the key against the Tuple. if there's no match, returns the
+     * original Tuple object, if there's a match, return a new Tuple
      * with span list added
      */
     private Tuple computeMatchingResult(String key, Tuple sourceTuple) throws TextDBException {

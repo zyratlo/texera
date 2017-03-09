@@ -70,7 +70,7 @@ public class Tuple {
     }
 
     public String toString() {
-        return "DataTuple [schema=" + schema + ", fields=" + fields + "]";
+        return "Tuple [schema=" + schema + ", fields=" + fields + "]";
     }
 
     public List<IField> getFields() {
