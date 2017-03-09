@@ -3,12 +3,15 @@ package edu.uci.ics.textdb.dataflow.keywordmatch;
 import java.util.Arrays;
 import java.util.List;
 
-import edu.uci.ics.textdb.api.common.*;
-import edu.uci.ics.textdb.api.common.AttributeType;
-import edu.uci.ics.textdb.common.field.DoubleField;
-import edu.uci.ics.textdb.common.field.IntegerField;
-import edu.uci.ics.textdb.common.field.StringField;
-import edu.uci.ics.textdb.common.field.TextField;
+import edu.uci.ics.textdb.api.field.DoubleField;
+import edu.uci.ics.textdb.api.field.IField;
+import edu.uci.ics.textdb.api.field.IntegerField;
+import edu.uci.ics.textdb.api.field.StringField;
+import edu.uci.ics.textdb.api.field.TextField;
+import edu.uci.ics.textdb.api.schema.Attribute;
+import edu.uci.ics.textdb.api.schema.AttributeType;
+import edu.uci.ics.textdb.api.schema.Schema;
+import edu.uci.ics.textdb.api.tuple.*;
 
 public class keywordTestConstants {
     public static final String PMID = "pmid";
