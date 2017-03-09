@@ -6,18 +6,19 @@ import java.util.ArrayList;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import edu.uci.ics.textdb.api.common.Attribute;
-import edu.uci.ics.textdb.api.common.AttributeType;
-import edu.uci.ics.textdb.api.common.IField;
-import edu.uci.ics.textdb.api.common.Tuple;
-import edu.uci.ics.textdb.api.common.Schema;
 import edu.uci.ics.textdb.api.dataflow.ISourceOperator;
+import edu.uci.ics.textdb.api.engine.Plan;
 import edu.uci.ics.textdb.api.exception.TextDBException;
-import edu.uci.ics.textdb.api.plan.Plan;
-import edu.uci.ics.textdb.common.utils.Utils;
+import edu.uci.ics.textdb.api.field.IField;
+import edu.uci.ics.textdb.api.schema.Attribute;
+import edu.uci.ics.textdb.api.schema.AttributeType;
+import edu.uci.ics.textdb.api.schema.Schema;
+import edu.uci.ics.textdb.api.tuple.Tuple;
 import edu.uci.ics.textdb.dataflow.sink.IndexSink;
 import edu.uci.ics.textdb.dataflow.source.FileSourceOperator;
+import edu.uci.ics.textdb.dataflow.utils.DataflowUtils;
 import edu.uci.ics.textdb.storage.RelationManager;
+import edu.uci.ics.textdb.storage.utils.StorageUtils;
 
 /*
  * This class defines Medline data schema.
@@ -62,7 +63,7 @@ public class MedlineIndexWriter {
         JSONObject json = new JSONObject(record);
         ArrayList<IField> fieldList = new ArrayList<IField>();
         for (Attribute attr : ATTRIBUTES_MEDLINE) {
-            fieldList.add(Utils.getField(attr.getAttributeType(), json.get(attr.getAttributeName()).toString()));
+            fieldList.add(StorageUtils.getField(attr.getAttributeType(), json.get(attr.getAttributeName()).toString()));
         }
         IField[] fieldArray = new IField[fieldList.size()];
         Tuple tuple = new Tuple(SCHEMA_MEDLINE, fieldList.toArray(fieldArray));

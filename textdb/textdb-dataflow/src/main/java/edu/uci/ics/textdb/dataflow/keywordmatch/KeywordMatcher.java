@@ -9,18 +9,19 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import edu.uci.ics.textdb.api.common.AttributeType;
-import edu.uci.ics.textdb.api.common.Tuple;
-import edu.uci.ics.textdb.api.common.Schema;
-import edu.uci.ics.textdb.common.constants.DataConstants;
-import edu.uci.ics.textdb.common.constants.SchemaConstants;
-import edu.uci.ics.textdb.common.exception.DataFlowException;
+import edu.uci.ics.textdb.api.constants.DataConstants;
+import edu.uci.ics.textdb.api.constants.SchemaConstants;
+import edu.uci.ics.textdb.api.exception.DataFlowException;
 import edu.uci.ics.textdb.api.exception.TextDBException;
-import edu.uci.ics.textdb.common.field.ListField;
-import edu.uci.ics.textdb.common.field.Span;
-import edu.uci.ics.textdb.common.utils.Utils;
+import edu.uci.ics.textdb.api.field.ListField;
+import edu.uci.ics.textdb.api.schema.AttributeType;
+import edu.uci.ics.textdb.api.schema.Schema;
+import edu.uci.ics.textdb.api.span.Span;
+import edu.uci.ics.textdb.api.tuple.Tuple;
+import edu.uci.ics.textdb.api.utils.Utils;
 import edu.uci.ics.textdb.dataflow.common.AbstractSingleInputOperator;
 import edu.uci.ics.textdb.dataflow.common.KeywordPredicate;
+import edu.uci.ics.textdb.dataflow.utils.DataflowUtils;
 
 public class KeywordMatcher extends AbstractSingleInputOperator {
 
@@ -67,11 +68,11 @@ public class KeywordMatcher extends AbstractSingleInputOperator {
         // checked before SPAN_LIST.
         // Therefore, PAYLOAD needs to be checked and added first
         if (!inputSchema.containsField(SchemaConstants.PAYLOAD)) {
-            inputTuple = Utils.getSpanTuple(inputTuple.getFields(),
-                    Utils.generatePayloadFromTuple(inputTuple, predicate.getLuceneAnalyzer()), outputSchema);
+            inputTuple = DataflowUtils.getSpanTuple(inputTuple.getFields(),
+                    DataflowUtils.generatePayloadFromTuple(inputTuple, predicate.getLuceneAnalyzer()), outputSchema);
         }
         if (!inputSchema.containsField(SchemaConstants.SPAN_LIST)) {
-            inputTuple = Utils.getSpanTuple(inputTuple.getFields(), new ArrayList<Span>(), outputSchema);
+            inputTuple = DataflowUtils.getSpanTuple(inputTuple.getFields(), new ArrayList<Span>(), outputSchema);
         }
 
         if (this.predicate.getOperatorType() == DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED) {

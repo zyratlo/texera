@@ -1,8 +1,8 @@
 package edu.uci.ics.textdb.perftest.promed;
 
-import edu.uci.ics.textdb.api.common.Attribute;
-import edu.uci.ics.textdb.api.common.AttributeType;
-import edu.uci.ics.textdb.api.common.Schema;
+import edu.uci.ics.textdb.api.schema.Attribute;
+import edu.uci.ics.textdb.api.schema.AttributeType;
+import edu.uci.ics.textdb.api.schema.Schema;
 
 public class PromedSchema {
     

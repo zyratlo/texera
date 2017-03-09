@@ -1,10 +1,10 @@
 package edu.uci.ics.textdb.planstore;
 
-import edu.uci.ics.textdb.api.common.Attribute;
-import edu.uci.ics.textdb.api.common.AttributeType;
-import edu.uci.ics.textdb.api.common.Schema;
-
 import java.util.regex.Pattern;
+
+import edu.uci.ics.textdb.api.schema.Attribute;
+import edu.uci.ics.textdb.api.schema.AttributeType;
+import edu.uci.ics.textdb.api.schema.Schema;
 
 /**
  * Variables used in PlanStore.java.

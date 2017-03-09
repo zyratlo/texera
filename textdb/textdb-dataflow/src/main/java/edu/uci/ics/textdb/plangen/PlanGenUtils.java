@@ -4,9 +4,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import edu.uci.ics.textdb.api.common.AttributeType;
 import edu.uci.ics.textdb.api.dataflow.IOperator;
-import edu.uci.ics.textdb.common.exception.PlanGenException;
+import edu.uci.ics.textdb.api.exception.PlanGenException;
+import edu.uci.ics.textdb.api.schema.AttributeType;
 import edu.uci.ics.textdb.plangen.operatorbuilder.DictionaryMatcherBuilder;
 import edu.uci.ics.textdb.plangen.operatorbuilder.DictionarySourceBuilder;
 import edu.uci.ics.textdb.plangen.operatorbuilder.FileSinkBuilder;
