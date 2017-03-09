@@ -54,8 +54,8 @@ public class IndexBasedSourceOperatorTest {
         relationManager.deleteTable(PEOPLE_TABLE);
     }
 
-    public List<Tuple> getQueryResults(String fieldName, String query) throws TextDBException, ParseException {
-        return getQueryResults(new TermQuery(new Term(fieldName, query)));
+    public List<Tuple> getQueryResults(String attributeName, String query) throws TextDBException, ParseException {
+        return getQueryResults(new TermQuery(new Term(attributeName, query)));
     }
     
     public List<Tuple> getQueryResults(Query query) throws TextDBException, ParseException {
