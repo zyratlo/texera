@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import edu.uci.ics.textdb.api.common.FieldType;
+import edu.uci.ics.textdb.api.common.AttributeType;
 import edu.uci.ics.textdb.api.common.Tuple;
 import edu.uci.ics.textdb.api.common.Schema;
 import edu.uci.ics.textdb.api.dataflow.ISourceOperator;
@@ -237,15 +237,15 @@ public class DictionaryMatcherSourceOperator implements ISourceOperator {
         List<String> attributeNames = predicate.getAttributeNames();
         List<Span> matchingResults = new ArrayList<>();
 
-        for (String fieldName : attributeNames) {
-            String fieldValue = sourceTuple.getField(fieldName).getValue().toString();
-            FieldType fieldType = inputSchema.getAttribute(fieldName).getFieldType();
+        for (String attributeName : attributeNames) {
+            String fieldValue = sourceTuple.getField(attributeName).getValue().toString();
+            AttributeType attributeType = inputSchema.getAttribute(attributeName).getAttributeType();
 
             // if attribute type is not TEXT, then key needs to match the
             // fieldValue exactly
-            if (fieldType != FieldType.TEXT) {
+            if (attributeType != AttributeType.TEXT) {
                 if (fieldValue.equals(key)) {
-                    matchingResults.add(new Span(fieldName, 0, fieldValue.length(), key, fieldValue));
+                    matchingResults.add(new Span(attributeName, 0, fieldValue.length(), key, fieldValue));
                 }
             }
             // if attribute type is TEXT, then key can match a substring of
@@ -258,7 +258,7 @@ public class DictionaryMatcherSourceOperator implements ISourceOperator {
                     int start = matcher.start();
                     int end = matcher.end();
 
-                    matchingResults.add(new Span(fieldName, start, end, key, fieldValue.substring(start, end)));
+                    matchingResults.add(new Span(attributeName, start, end, key, fieldValue.substring(start, end)));
                 }
             }
         }

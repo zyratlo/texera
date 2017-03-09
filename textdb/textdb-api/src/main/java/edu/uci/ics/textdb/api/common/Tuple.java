@@ -32,12 +32,12 @@ public class Tuple {
         return getField(index);
     }
 
-    public <T extends IField> T getField(String fieldName) {
-        return getField(schema.getIndex(fieldName));
+    public <T extends IField> T getField(String attributeName) {
+        return getField(schema.getIndex(attributeName));
     }
     
-    public <T extends IField> T getField(String fieldName, Class<T> fieldClass) {
-        return getField(schema.getIndex(fieldName));
+    public <T extends IField> T getField(String attributeName, Class<T> fieldClass) {
+        return getField(schema.getIndex(attributeName));
     }
 
     public int hashCode() {

@@ -10,7 +10,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import edu.uci.ics.textdb.api.common.Attribute;
-import edu.uci.ics.textdb.api.common.FieldType;
+import edu.uci.ics.textdb.api.common.AttributeType;
 import edu.uci.ics.textdb.api.common.IField;
 import edu.uci.ics.textdb.api.common.Tuple;
 import edu.uci.ics.textdb.api.common.Schema;
@@ -195,8 +195,8 @@ public class JoinDistanceTest {
         String fuzzyTokenQuery = "this writer writes well";
         double thresholdRatio = 0.25;
         List<String> textAttributeNames = JoinTestConstants.BOOK_SCHEMA.getAttributes().stream()
-                .filter(attr -> attr.getFieldType() != FieldType.TEXT)
-                .map(Attribute::getFieldName).collect(Collectors.toList());
+                .filter(attr -> attr.getAttributeType() != AttributeType.TEXT)
+                .map(Attribute::getAttributeName).collect(Collectors.toList());
         FuzzyTokenPredicate fuzzyPredicateInner = new FuzzyTokenPredicate(fuzzyTokenQuery, textAttributeNames,
                 LuceneAnalyzerConstants.getStandardAnalyzer(), thresholdRatio);
         FuzzyTokenMatcherSourceOperator fuzzyMatcherInner = new FuzzyTokenMatcherSourceOperator(fuzzyPredicateInner, BOOK_TABLE);
