@@ -152,7 +152,7 @@ public class SampleExtraction {
                 keywordPredicateZika, PROMED_SAMPLE_TABLE);
         
         ProjectionPredicate projectionPredicateIdAndContent = new ProjectionPredicate(
-                Arrays.asList(PromedSchema.ID, PromedSchema.CONTENT));
+                Arrays.asList(SchemaConstants._ID, PromedSchema.ID, PromedSchema.CONTENT));
         
         ProjectionOperator projectionOperatorIdAndContent1 = new ProjectionOperator(projectionPredicateIdAndContent);
         ProjectionOperator projectionOperatorIdAndContent2 = new ProjectionOperator(projectionPredicateIdAndContent);
@@ -169,7 +169,7 @@ public class SampleExtraction {
         Join joinPersonLocation = new Join(joinPredicatePersonLocation);
         
         ProjectionPredicate projectionPredicateIdAndSpan = new ProjectionPredicate(
-                Arrays.asList(PromedSchema.ID, SchemaConstants.SPAN_LIST));
+                Arrays.asList(SchemaConstants._ID, PromedSchema.ID, SchemaConstants.SPAN_LIST));
         ProjectionOperator projectionOperatorIdAndSpan = new ProjectionOperator(projectionPredicateIdAndSpan);
          
         SimpleDateFormat sdf = new SimpleDateFormat("MM-dd-yyyy-HH-mm-ss");
