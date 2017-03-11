@@ -18,6 +18,7 @@ import edu.uci.ics.textdb.api.tuple.*;
 /**
  * 
  * @author sripadks
+ * @author Zuozhi Wang
  *
  */
 public class JoinDistancePredicate implements IJoinPredicate {
@@ -35,7 +36,7 @@ public class JoinDistancePredicate implements IJoinPredicate {
      * JoinPredicate joinPre = new JoinPredicate(Attribute idAttr, Attribute
      * descriptionAttr, 10) <br>
      * will create a predicate that joins the spans of type descriptionAttr of
-     * outer and inner operators (that agree on the _id attributes) and
+     * inner and outer operators (that agree on the _id attributes) and
      * outputs tuples which satisfy the criteria of being within 10 characters
      * of each other.
      * </p>
@@ -97,8 +98,8 @@ public class JoinDistancePredicate implements IJoinPredicate {
         return this.threshold;
     }
     
-    public Schema generateOutputSchema(Schema outerOperatorSchema, Schema innerOperatorSchema) throws DataFlowException {
-        return generateIntersectionSchema(outerOperatorSchema, innerOperatorSchema);
+    public Schema generateOutputSchema(Schema innerOperatorSchema, Schema outerOperatorSchema) throws DataFlowException {
+        return generateIntersectionSchema(innerOperatorSchema, outerOperatorSchema);
     }
     
     /**
@@ -112,7 +113,7 @@ public class JoinDistancePredicate implements IJoinPredicate {
      * 
      * @return outputSchema
      */
-    private Schema generateIntersectionSchema(Schema outerOperatorSchema, Schema innerOperatorSchema) throws DataFlowException {
+    private Schema generateIntersectionSchema(Schema innerOperatorSchema, Schema outerOperatorSchema) throws DataFlowException {
         List<Attribute> innerAttributes = innerOperatorSchema.getAttributes();
         List<Attribute> outerAttributes = outerOperatorSchema.getAttributes();
         
@@ -150,7 +151,8 @@ public class JoinDistancePredicate implements IJoinPredicate {
      * 
      * @return New Tuple containing the result of join operation.
      */
-	public Tuple joinTuples(Tuple outerTuple, Tuple innerTuple, Schema outputSchema) throws Exception {
+    @Override
+	public Tuple joinTuples(Tuple innerTuple, Tuple outerTuple, Schema outputSchema) throws Exception {
 	    List<Span> newJoinSpanList = new ArrayList<>();
 
 	    /*
@@ -210,8 +212,8 @@ public class JoinDistancePredicate implements IJoinPredicate {
 	            Integer threshold = this.getThreshold();
 	            if (Math.abs(outerSpan.getStart() - innerSpan.getStart()) <= threshold
 	                    && Math.abs(outerSpan.getEnd() - innerSpan.getEnd()) <= threshold) {
-	                Integer newSpanStartIndex = Math.min(outerSpan.getStart(), innerSpan.getStart());
-	                Integer newSpanEndIndex = Math.max(outerSpan.getEnd(), innerSpan.getEnd());
+	                Integer newSpanStartIndex = Math.min(innerSpan.getStart(), outerSpan.getStart());
+	                Integer newSpanEndIndex = Math.max(innerSpan.getEnd(), outerSpan.getEnd());
 	                String attributeName = this.joinAttributeName;
 	                String fieldValue = (String) innerTuple.getField(attributeName).getValue();
 	                String newFieldValue = fieldValue.substring(newSpanStartIndex, newSpanEndIndex);
@@ -241,7 +243,7 @@ public class JoinDistancePredicate implements IJoinPredicate {
 	}
 
 	/**
-	 * Used to compare the value's of a field from the outer and inner tuples'.
+	 * Used to compare the value's of a field from the inner and outer tuples'.
 	 * 
 	 * @param innerTuple
 	 * @param outerTuple

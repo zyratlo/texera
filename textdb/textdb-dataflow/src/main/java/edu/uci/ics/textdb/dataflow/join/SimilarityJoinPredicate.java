@@ -71,15 +71,15 @@ public class SimilarityJoinPredicate implements IJoinPredicate {
         this(joinAttributeName, joinAttributeName, similarityThreshold);
     }
 
-    public SimilarityJoinPredicate(String outerJoinAttrName, String innerJoinAttrName, Double similarityThreshold) {
+    public SimilarityJoinPredicate(String innerJoinAttrName, String outerJoinAttrName, Double similarityThreshold) {
         if (similarityThreshold > 1) {
             similarityThreshold = 1.0;
         } else if (similarityThreshold < 0) {
             similarityThreshold = 0.0;
         }
         this.similarityThreshold = similarityThreshold;
-        this.outerJoinAttrName = outerJoinAttrName;
         this.innerJoinAttrName = innerJoinAttrName;
+        this.outerJoinAttrName = outerJoinAttrName;
         
         // initialize default similarity function to NormalizedLevenshtein
         // which is Levenshtein distance / length of longest string
@@ -88,7 +88,7 @@ public class SimilarityJoinPredicate implements IJoinPredicate {
 
     
     @Override
-    public Schema generateOutputSchema(Schema outerOperatorSchema, Schema innerOperatorSchema) throws DataFlowException {
+    public Schema generateOutputSchema(Schema innerOperatorSchema, Schema outerOperatorSchema) throws DataFlowException {
         List<Attribute> outputAttributeList = new ArrayList<>();
         
         // add _ID field first
@@ -128,7 +128,7 @@ public class SimilarityJoinPredicate implements IJoinPredicate {
     }
 
     @Override
-    public Tuple joinTuples(Tuple outerTuple, Tuple innerTuple, Schema outputSchema) throws DataFlowException {        
+    public Tuple joinTuples(Tuple innerTuple, Tuple outerTuple, Schema outputSchema) throws DataFlowException {        
         if (similarityThreshold == 0) {
             return null;
         }
@@ -177,11 +177,11 @@ public class SimilarityJoinPredicate implements IJoinPredicate {
             }
         }
                 
-        return mergeTuples(outerTuple, innerTuple, outputSchema, resultSpans);
+        return mergeTuples(innerTuple, outerTuple, outputSchema, resultSpans);
     }
     
     
-    private Tuple mergeTuples(Tuple outerTuple, Tuple innerTuple, Schema outputSchema, List<Span> mergeSpanList) {
+    private Tuple mergeTuples(Tuple innerTuple, Tuple outerTuple, Schema outputSchema, List<Span> mergeSpanList) {
         List<IField> resultFields = new ArrayList<>();
         for (String attrName : outputSchema.getAttributeNames()) {
             // generate a new _ID field for this tuple

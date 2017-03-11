@@ -149,7 +149,7 @@ public class JoinTestHelper {
      * @return
      * @throws TextDBException
      */
-    public static List<Tuple> getJoinDistanceResults(IOperator outerOp, IOperator innerOp,
+    public static List<Tuple> getJoinDistanceResults(IOperator innerOp, IOperator outerOp,
             IJoinPredicate joinPredicate, int limit, int offset) throws TextDBException {
         Join join = new Join(joinPredicate);
         join.setInnerInputOperator(innerOp);
