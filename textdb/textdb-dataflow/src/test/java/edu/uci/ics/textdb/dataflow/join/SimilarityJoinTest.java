@@ -91,7 +91,7 @@ public class SimilarityJoinTest {
 
         SimilarityJoinPredicate similarityJoinPredicate = new SimilarityJoinPredicate(JoinTestConstants.NEWS_BODY, 0.8);
         List<Tuple> results = JoinTestHelper.getJoinDistanceResults(
-                regexMatcherOuter, regexMatcherInner, similarityJoinPredicate, Integer.MAX_VALUE, 0);
+                regexMatcherInner, regexMatcherOuter, similarityJoinPredicate, Integer.MAX_VALUE, 0);
 
         Schema joinInputSchema = Utils.addAttributeToSchema(JoinTestConstants.NEWS_SCHEMA, SchemaConstants.SPAN_LIST_ATTRIBUTE);
         Schema resultSchema = similarityJoinPredicate.generateOutputSchema(joinInputSchema, joinInputSchema);
@@ -144,7 +144,7 @@ public class SimilarityJoinTest {
 
         SimilarityJoinPredicate similarityJoinPredicate = new SimilarityJoinPredicate(JoinTestConstants.NEWS_BODY, 0.9);
         List<Tuple> results = JoinTestHelper.getJoinDistanceResults(
-                regexMatcherOuter, regexMatcherInner, similarityJoinPredicate, Integer.MAX_VALUE, 0);
+                regexMatcherInner, regexMatcherOuter, similarityJoinPredicate, Integer.MAX_VALUE, 0);
 
         Assert.assertTrue(results.isEmpty());
     }
@@ -170,7 +170,7 @@ public class SimilarityJoinTest {
 
         SimilarityJoinPredicate similarityJoinPredicate = new SimilarityJoinPredicate(JoinTestConstants.NEWS_BODY, 0.5);
         List<Tuple> results = JoinTestHelper.getJoinDistanceResults(
-                regexMatcherOuter, regexMatcherInner, similarityJoinPredicate, Integer.MAX_VALUE, 0);
+                regexMatcherInner, regexMatcherOuter, similarityJoinPredicate, Integer.MAX_VALUE, 0);
 
         Schema joinInputSchema = Utils.addAttributeToSchema(JoinTestConstants.NEWS_SCHEMA, SchemaConstants.SPAN_LIST_ATTRIBUTE);
         Schema resultSchema = similarityJoinPredicate.generateOutputSchema(joinInputSchema, joinInputSchema);
@@ -222,7 +222,7 @@ public class SimilarityJoinTest {
 
         SimilarityJoinPredicate similarityJoinPredicate = new SimilarityJoinPredicate(JoinTestConstants.NEWS_BODY, 0.8);
         List<Tuple> results = JoinTestHelper.getJoinDistanceResults(
-                regexMatcherOuter, regexMatcherInner, similarityJoinPredicate, Integer.MAX_VALUE, 0);
+                regexMatcherInner, regexMatcherOuter, similarityJoinPredicate, Integer.MAX_VALUE, 0);
 
         Assert.assertTrue(results.isEmpty());
     }
