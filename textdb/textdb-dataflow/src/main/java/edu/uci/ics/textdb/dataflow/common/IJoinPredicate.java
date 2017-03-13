@@ -12,10 +12,10 @@ import edu.uci.ics.textdb.api.tuple.Tuple;
  */
 public interface IJoinPredicate {
 
-	Tuple joinTuples(Tuple outerTuple, Tuple innerTuple, Schema outputSchema)
+	Tuple joinTuples(Tuple innerTuple, Tuple outerTuple, Schema outputSchema)
 			throws Exception;
 	
-	Schema generateOutputSchema(Schema outerOperatorSchema, Schema innerOperatorSchema) throws DataFlowException;
+	Schema generateOutputSchema(Schema innerOperatorSchema, Schema outerOperatorSchema) throws DataFlowException;
 	
 	String getInnerAttributeName();
 	
