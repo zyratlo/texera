@@ -64,8 +64,11 @@ public class Sampler extends AbstractSingleInputOperator implements ISourceOpera
             if (count < predicate.getReservoirSize()) {
                 reservoirTupleBuffer.add(tuple);
             } else {
-                // In effect, for all tuples, the ith tuple is chosen to be included in the reservoir with probability
-                // ReservoirSize / i.
+                /*
+                 *  In effect, for all tuples, the ith tuple is chosen 
+                 *  to be included in the reservoir with probability
+                 *  ReservoirSize / i.
+                 */
                 int randomPos = genRandom.nextInt(count);
                 if (randomPos < predicate.getReservoirSize()) {
                     reservoirTupleBuffer.set(randomPos, tuple);
@@ -89,10 +92,15 @@ public class Sampler extends AbstractSingleInputOperator implements ISourceOpera
         if (bufferCursor == reservoirTupleBuffer.size())
             return null;
 
-        //If there is a buffer and cursor < reservoirTupleBuffer.size, get an output tuple.
+        /*
+         * If there is a buffer and cursor < reservoirTupleBuffer.size, 
+         * get an output tuple.
+         */
         Tuple resultTuple = reservoirTupleBuffer.get(bufferCursor);
         bufferCursor++;
-        // If it reaches the end of the buffer, reset the buffer cursor.
+        /*
+         * If it reaches the end of the buffer, reset the buffer cursor.
+         */
         if (bufferCursor == reservoirTupleBuffer.size()) {
             reservoirTupleBuffer = null;
             bufferCursor = 0;
@@ -115,7 +123,7 @@ public class Sampler extends AbstractSingleInputOperator implements ISourceOpera
     
     @Override
     public Tuple processOneInputTuple(Tuple inputTuple) throws TextDBException {
-        throw new RuntimeException("RegexSplit does not support process one tuple");
+        throw new RuntimeException("Sampler does not support process one tuple");
     }
 }
 

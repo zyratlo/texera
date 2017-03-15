@@ -28,16 +28,26 @@ public class HelloRandom {
                 // In effect, for all tuples, the ith tuple is chosen to be included in the reservoir with probability
                 // ReservoirSize / i.
                 int randomPos = genRandom.nextInt(j);
-                System.out.println("\n random = "+randomPos);
                 if (randomPos < revSize) {
                     list.set(randomPos, j);
                 }
             }
         }
         System.out.println(list);
-        for (int i = 0; i<10; i++){
-            System.out.println(genRandom.nextInt(10));
+        List<Integer> counter = null;
+        counter = new ArrayList<Integer>();
+        for (int i = 0; i<10; i++) {
+            counter.add(i,0);
         }
+        /*
+         * Randomly select a number between [1:n].
+         * See what is the distribution about.
+         */
+        for (int i = 0; i<10000; i++) {
+            int selector = genRandom.nextInt(4);
+            counter.set(selector, counter.get(selector)+1);
+        }
+        System.out.println(counter);
     }
 
 }
