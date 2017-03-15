@@ -10,6 +10,9 @@ public class SamplerPredicate implements IPredicate {
     
     
     private int reservoirSize;
+    SamplerPredicate(int size){
+        reservoirSize = size;
+    }
     
     public double getReservoirSize() {
         return reservoirSize;

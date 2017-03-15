@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Random;
 
 import edu.uci.ics.textdb.dataflow.common.AbstractSingleInputOperator;
-import junit.framework.Assert;
 
 /**
  * @author Qinhua Huang
@@ -39,13 +38,12 @@ public class Sampler extends AbstractSingleInputOperator implements ISourceOpera
     private int bufferCursor;
 ;
     private Schema inputSchema;
-    private Random rand;
-
+    
     public Sampler(SamplerPredicate predicate) {
         this.predicate = predicate;
         reservoirTupleBuffer = null;
         this.bufferCursor = -1;
-        rand = new Random(System.currentTimeMillis());
+
     }
 
     @Override
@@ -56,16 +54,19 @@ public class Sampler extends AbstractSingleInputOperator implements ISourceOpera
 
     public void sampleTuples() throws TextDBException {
         reservoirTupleBuffer = new ArrayList<Tuple>();
-        int count = 0;
-        final Random random = new Random();
+        
+        Random genRandom;
+        genRandom = new Random(System.currentTimeMillis());
+        
         Tuple tuple;
-        while ((tuple = inputOperator.getNextTuple()) != null){
+        int count = 0;
+        while ((tuple = inputOperator.getNextTuple()) != null) {
             if (count < predicate.getReservoirSize()) {
                 reservoirTupleBuffer.add(tuple);
             } else {
                 // In effect, for all tuples, the ith tuple is chosen to be included in the reservoir with probability
                 // ReservoirSize / i.
-                int randomPos = random.nextInt(count);
+                int randomPos = genRandom.nextInt(count);
                 if (randomPos < predicate.getReservoirSize()) {
                     reservoirTupleBuffer.set(randomPos, tuple);
                 }
@@ -76,15 +77,18 @@ public class Sampler extends AbstractSingleInputOperator implements ISourceOpera
 
     @Override
     protected Tuple computeNextMatchingTuple() throws TextDBException {
+        if (predicate.getReservoirSize() < 1) {
+            return null;
+        }
         if (reservoirTupleBuffer == null || reservoirTupleBuffer.size() == 0) {
             sampleTuples();
-            if (this.reservoirTupleBuffer.size() > 0){
+            if (this.reservoirTupleBuffer.size() > 0) {
                 this.bufferCursor = 0;
             }
         }
-        
-        Assert.assertEquals(bufferCursor < reservoirTupleBuffer.size(), true);
-        
+        if (bufferCursor == reservoirTupleBuffer.size())
+            return null;
+
         //If there is a buffer and cursor < reservoirTupleBuffer.size, get an output tuple.
         Tuple resultTuple = reservoirTupleBuffer.get(bufferCursor);
         bufferCursor++;
