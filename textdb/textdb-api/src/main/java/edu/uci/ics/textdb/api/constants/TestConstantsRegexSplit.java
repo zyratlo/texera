@@ -1,21 +1,21 @@
-package edu.uci.ics.textdb.common.constants;
+package edu.uci.ics.textdb.api.constants;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.List;
 
-import edu.uci.ics.textdb.api.common.Attribute;
-import edu.uci.ics.textdb.api.common.FieldType;
-import edu.uci.ics.textdb.api.common.IField;
-import edu.uci.ics.textdb.api.common.ITuple;
-import edu.uci.ics.textdb.api.common.Schema;
-import edu.uci.ics.textdb.common.field.DataTuple;
-import edu.uci.ics.textdb.common.field.DateField;
-import edu.uci.ics.textdb.common.field.DoubleField;
-import edu.uci.ics.textdb.common.field.IntegerField;
-import edu.uci.ics.textdb.common.field.StringField;
-import edu.uci.ics.textdb.common.field.TextField;
+import edu.uci.ics.textdb.api.field.DateField;
+import edu.uci.ics.textdb.api.field.DoubleField;
+import edu.uci.ics.textdb.api.field.IField;
+import edu.uci.ics.textdb.api.field.IntegerField;
+import edu.uci.ics.textdb.api.field.StringField;
+import edu.uci.ics.textdb.api.field.TextField;
+import edu.uci.ics.textdb.api.schema.Attribute;
+import edu.uci.ics.textdb.api.schema.AttributeType;
+import edu.uci.ics.textdb.api.schema.Schema;
+import edu.uci.ics.textdb.api.tuple.Tuple;
+
 
 /**
  * 
@@ -31,19 +31,19 @@ public class TestConstantsRegexSplit {
     public static final String DATE_OF_BIRTH = "dateOfBirth";
     public static final String DESCRIPTION = "description";
 
-    public static final Attribute FIRST_NAME_ATTR = new Attribute(FIRST_NAME, FieldType.STRING);
-    public static final Attribute LAST_NAME_ATTR = new Attribute(LAST_NAME, FieldType.STRING);
-    public static final Attribute AGE_ATTR = new Attribute(AGE, FieldType.INTEGER);
-    public static final Attribute HEIGHT_ATTR = new Attribute(HEIGHT, FieldType.DOUBLE);
-    public static final Attribute DATE_OF_BIRTH_ATTR = new Attribute(DATE_OF_BIRTH, FieldType.DATE);
-    public static final Attribute DESCRIPTION_ATTR = new Attribute(DESCRIPTION, FieldType.TEXT);
+    public static final Attribute FIRST_NAME_ATTR = new Attribute(FIRST_NAME, AttributeType.STRING);
+    public static final Attribute LAST_NAME_ATTR = new Attribute(LAST_NAME, AttributeType.STRING);
+    public static final Attribute AGE_ATTR = new Attribute(AGE, AttributeType.INTEGER);
+    public static final Attribute HEIGHT_ATTR = new Attribute(HEIGHT, AttributeType.DOUBLE);
+    public static final Attribute DATE_OF_BIRTH_ATTR = new Attribute(DATE_OF_BIRTH, AttributeType.DATE);
+    public static final Attribute DESCRIPTION_ATTR = new Attribute(DESCRIPTION, AttributeType.TEXT);
 
     // Sample Schema
     public static final Attribute[] ATTRIBUTES_PEOPLE = { FIRST_NAME_ATTR, LAST_NAME_ATTR, AGE_ATTR, HEIGHT_ATTR,
             DATE_OF_BIRTH_ATTR, DESCRIPTION_ATTR };
     public static final Schema SCHEMA_PEOPLE = new Schema(ATTRIBUTES_PEOPLE);
 
-    public static List<ITuple> getSamplePeopleTuples() {
+    public static List<Tuple> getSamplePeopleTuples() {
         
         try {
             IField[] fields1 = { new StringField("bruce"), new StringField("john Lee"), new IntegerField(46),
@@ -53,8 +53,8 @@ public class TestConstantsRegexSplit {
                     new DoubleField(5.95), new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-13-1971")),
                     new TextField("ABACBDCD") };
 
-            ITuple tuple1 = new DataTuple(SCHEMA_PEOPLE, fields1);
-            ITuple tuple2 = new DataTuple(SCHEMA_PEOPLE, fields2);
+            Tuple tuple1 = new Tuple(SCHEMA_PEOPLE, fields1);
+            Tuple tuple2 = new Tuple(SCHEMA_PEOPLE, fields2);
 
 
             return Arrays.asList(tuple1, tuple2);   

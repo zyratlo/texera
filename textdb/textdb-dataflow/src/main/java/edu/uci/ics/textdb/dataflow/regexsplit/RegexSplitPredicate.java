@@ -1,6 +1,6 @@
 package edu.uci.ics.textdb.dataflow.regexsplit;
 
-import edu.uci.ics.textdb.api.common.IPredicate;
+import edu.uci.ics.textdb.api.dataflow.IPredicate;
 
 /**
  * @author Qinhua Huang

@@ -1,22 +1,20 @@
 package edu.uci.ics.textdb.dataflow.regexsplit;
 
+import edu.uci.ics.textdb.api.exception.DataFlowException;
 import edu.uci.ics.textdb.api.exception.TextDBException;
+import edu.uci.ics.textdb.api.field.IField;
+import edu.uci.ics.textdb.api.field.StringField;
+import edu.uci.ics.textdb.api.field.TextField;
+import edu.uci.ics.textdb.api.schema.AttributeType;
+import edu.uci.ics.textdb.api.schema.Schema;
+import edu.uci.ics.textdb.api.tuple.Tuple;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import edu.uci.ics.textdb.api.common.FieldType;
-import edu.uci.ics.textdb.api.common.IField;
-import edu.uci.ics.textdb.api.common.ITuple;
-import edu.uci.ics.textdb.api.common.Schema;
+import org.apache.lucene.document.FieldType;
 import edu.uci.ics.textdb.api.dataflow.ISourceOperator;
-import edu.uci.ics.textdb.common.exception.DataFlowException;
-import edu.uci.ics.textdb.common.exception.ErrorMessages;
-import edu.uci.ics.textdb.common.field.DataTuple;
-import edu.uci.ics.textdb.common.field.StringField;
-import edu.uci.ics.textdb.common.field.TextField;
 import edu.uci.ics.textdb.dataflow.common.AbstractSingleInputOperator;
 import junit.framework.Assert;
 
@@ -50,7 +48,7 @@ public class RegexSplitOperator extends AbstractSingleInputOperator implements I
 
     private RegexSplitPredicate predicate;
 
-    private List<ITuple> outputTupleBuffer;
+    private List<Tuple> outputTupleBuffer;
     private int bufferCursor;
     private Schema inputSchema;
 
@@ -68,10 +66,10 @@ public class RegexSplitOperator extends AbstractSingleInputOperator implements I
 
 
     @Override
-    protected ITuple computeNextMatchingTuple() throws TextDBException {
+    protected Tuple computeNextMatchingTuple() throws TextDBException {
         // Keep fetching the next input tuple until finding a match.
         while (outputTupleBuffer == null || outputTupleBuffer.size() == 0) {
-            ITuple inputTuple = inputOperator.getNextTuple();
+            Tuple inputTuple = inputOperator.getNextTuple();
             if (inputTuple == null) {
                 return null;
             }
@@ -90,7 +88,7 @@ public class RegexSplitOperator extends AbstractSingleInputOperator implements I
         Assert.assertEquals(bufferCursor < outputTupleBuffer.size(), true);
         
         //If there is a buffer and cursor < bufferSize, get an output tuple.
-        ITuple resultTuple = outputTupleBuffer.get(bufferCursor);
+        Tuple resultTuple = outputTupleBuffer.get(bufferCursor);
         bufferCursor++;
         // If it reaches the end of the buffer, reset the buffer cursor.
         if (bufferCursor == outputTupleBuffer.size()) {
@@ -101,13 +99,13 @@ public class RegexSplitOperator extends AbstractSingleInputOperator implements I
         return resultTuple;
     }
 
-    private void populateOutputBuffer(ITuple inputTuple) throws TextDBException {
+    private void populateOutputBuffer(Tuple inputTuple) throws TextDBException {
         if (inputTuple == null) {
             return;
         }
         
-        FieldType fieldType = this.inputSchema.getAttribute(predicate.getAttributeToSplit()).getFieldType();
-        if (fieldType != FieldType.TEXT && fieldType != FieldType.STRING) {
+        AttributeType attributeType = this.inputSchema.getAttribute(predicate.getAttributeToSplit()).getAttributeType();
+        if (attributeType != AttributeType.TEXT && attributeType != AttributeType.STRING) {
             return;
         }
 
@@ -118,7 +116,7 @@ public class RegexSplitOperator extends AbstractSingleInputOperator implements I
             List<IField> tupleFieldList = new ArrayList<>();
             for (String attributeName : inputSchema.getAttributeNames()) {
                 if (attributeName.equals(predicate.getAttributeToSplit())) {
-                    if (fieldType == FieldType.TEXT) {
+                    if (attributeType == AttributeType.TEXT) {
                         tupleFieldList.add(new TextField(splitText));
                     } else {
                         tupleFieldList.add(new StringField(splitText));
@@ -127,7 +125,7 @@ public class RegexSplitOperator extends AbstractSingleInputOperator implements I
                     tupleFieldList.add(inputTuple.getField(attributeName));
                 }
             }
-            outputTupleBuffer.add(new DataTuple(inputSchema, tupleFieldList.stream().toArray(IField[]::new)));
+            outputTupleBuffer.add(new Tuple(inputSchema, tupleFieldList.stream().toArray(IField[]::new)));
         }
         
     }
@@ -178,7 +176,8 @@ public class RegexSplitOperator extends AbstractSingleInputOperator implements I
 
     
     @Override
-    public ITuple processOneInputTuple(ITuple inputTuple) throws TextDBException {
+    public Tuple processOneInputTuple(Tuple inputTuple) throws TextDBException {
         throw new RuntimeException("RegexSplit does not support process one tuple");
     }
+
 }
