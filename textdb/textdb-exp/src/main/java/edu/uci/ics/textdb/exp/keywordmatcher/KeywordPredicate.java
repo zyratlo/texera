@@ -5,7 +5,6 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import edu.uci.ics.textdb.api.dataflow.IOperator;
 import edu.uci.ics.textdb.exp.common.PredicateBase;
 import edu.uci.ics.textdb.storage.constants.LuceneAnalyzerConstants;
 import edu.uci.ics.textdb.exp.common.PropertyNameConstants;
@@ -26,33 +25,81 @@ public class KeywordPredicate extends PredicateBase {
      */
     private final String query;
     
-    private final List<String> attributes;
-    private final String luceneAnalyzer;
+    private final List<String> attributeNames;
+    private final String luceneAnalyzerString;
     private final KeywordMatchingType matchingType;
-    private final String spanListName;
+    private final Integer limit;
+    private final Integer offset;
     
+    /**
+     * Construct a KeywordPredicate with limit and offset set to default values.
+     * 
+     * @param query
+     * @param attributeNames
+     * @param luceneAnalyzerString
+     * @param matchingType
+     */
+    public KeywordPredicate(
+            String query,
+            List<String> attributeNames,
+            String luceneAnalyzerString, 
+            KeywordMatchingType matchingType) {
+        this(query, attributeNames, luceneAnalyzerString, matchingType, null, null);
+    }
+    
+    /**
+     * Construct a KeywordPredicate.
+     * 
+     * @param query, the keyword query
+     * @param attributeNames, a list of attribute names to perform keyword search on
+     * @param luceneAnalyzerString, a string indicating the lucene analyzer to be used. 
+     *   This field is optional, passing null will set it to default value "standard"
+     * @param matchingType, an Enum indicating the matching type (see KeywordMatchingType)
+     * @param limit, optional, passing null will set it to default value Integer.MAX_VALUE
+     * @param offset, optional, passing null will set it to default value 0
+     */
     @JsonCreator
     public KeywordPredicate(
             @JsonProperty(value=PropertyNameConstants.KEYWORD_QUERY, required=true)
             String query,
-            @JsonProperty(value=PropertyNameConstants.ATTRIBUTES, required=true)
-            List<String> attributes,
-            @JsonProperty(value=PropertyNameConstants.LUCENE_ANALYZER, required=false)
-            String luceneAnalyzer, 
+            @JsonProperty(value=PropertyNameConstants.ATTRIBUTE_NAMES, required=true)
+            List<String> attributeNames,
+            @JsonProperty(value=PropertyNameConstants.LUCENE_ANALYZER_STRING, required=false)
+            String luceneAnalyzerString, 
             @JsonProperty(value=PropertyNameConstants.KEYWORD_MATCHING_TYPE, required=true)
             KeywordMatchingType matchingType,
-            @JsonProperty(value=PropertyNameConstants.SPAN_LIST_NAME, required=false)
-            String spanListName) {
+            @JsonProperty(value=PropertyNameConstants.LIMIT, required = false)
+            Integer limit,
+            @JsonProperty(value=PropertyNameConstants.OFFSET, required=false)
+            Integer offset) {
         
         this.query = query;
-        this.attributes = attributes;
-        if (luceneAnalyzer == null) {
-            this.luceneAnalyzer = LuceneAnalyzerConstants.standardAnalyzerString();
+        this.attributeNames = attributeNames;
+        if (luceneAnalyzerString == null) {
+            this.luceneAnalyzerString = LuceneAnalyzerConstants.standardAnalyzerString();
         } else {
-            this.luceneAnalyzer = luceneAnalyzer;
+            this.luceneAnalyzerString = luceneAnalyzerString;
         }
         this.matchingType = matchingType;
-        this.spanListName = spanListName;
+        
+        if (limit == null) {
+            this.limit = Integer.MAX_VALUE;
+        } else if (limit < 0) {
+            this.limit = Integer.MAX_VALUE;
+            // TODO: throw exception if limit < 0
+        } else {
+            this.limit = limit;
+        }
+        
+        if (offset == null) {
+            this.offset = 0;
+        } else if (offset < 0) {
+            this.offset = 0;
+            // TODO: throw exception if offset < 0
+        } else {
+            this.offset = offset;
+        }
+        
     }
 
     @JsonProperty(PropertyNameConstants.KEYWORD_QUERY)
@@ -60,14 +107,14 @@ public class KeywordPredicate extends PredicateBase {
         return query;
     }
 
-    @JsonProperty(PropertyNameConstants.ATTRIBUTES)
-    public List<String> getAttributes() {
-        return attributes;
+    @JsonProperty(PropertyNameConstants.ATTRIBUTE_NAMES)
+    public List<String> getAttributeNames() {
+        return attributeNames;
     }
 
-    @JsonProperty(PropertyNameConstants.LUCENE_ANALYZER)
-    public String getLuceneAnalyzer() {
-        return luceneAnalyzer;
+    @JsonProperty(PropertyNameConstants.LUCENE_ANALYZER_STRING)
+    public String getLuceneAnalyzerString() {
+        return luceneAnalyzerString;
     }
 
     @JsonProperty(PropertyNameConstants.KEYWORD_MATCHING_TYPE)
@@ -75,9 +122,14 @@ public class KeywordPredicate extends PredicateBase {
         return matchingType;
     }
     
-    @JsonProperty(PropertyNameConstants.SPAN_LIST_NAME)
-    public String getSpanListName() {
-        return this.spanListName;
+    @JsonProperty(PropertyNameConstants.LIMIT)
+    public Integer getLimit() {
+        return this.limit;
+    }
+    
+    @JsonProperty(PropertyNameConstants.OFFSET)
+    public Integer getOffset() {
+        return this.offset;
     }
 
 }

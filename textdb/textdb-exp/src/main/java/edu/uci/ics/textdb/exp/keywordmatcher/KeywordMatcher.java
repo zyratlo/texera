@@ -2,6 +2,7 @@ package edu.uci.ics.textdb.exp.keywordmatcher;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -9,7 +10,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import edu.uci.ics.textdb.api.constants.DataConstants;
 import edu.uci.ics.textdb.api.constants.SchemaConstants;
 import edu.uci.ics.textdb.api.exception.DataFlowException;
 import edu.uci.ics.textdb.api.exception.TextDBException;
@@ -24,12 +24,24 @@ import edu.uci.ics.textdb.exp.utils.DataflowUtils;
 
 public class KeywordMatcher extends AbstractSingleInputOperator {
 
-    private KeywordPredicate predicate;
+    private final KeywordPredicate predicate;
 
     private Schema inputSchema;
+    
+    private final ArrayList<String> queryTokenList;
+    private final HashSet<String> queryTokenSet;
+    private final ArrayList<String> queryTokensWithStopwords;
 
     public KeywordMatcher(KeywordPredicate predicate) {
         this.predicate = predicate;
+        
+        this.limit = predicate.getLimit();
+        this.offset = predicate.getOffset();
+        this.queryTokenList = DataflowUtils.tokenizeQuery(predicate.getLuceneAnalyzerString(), predicate.getQuery());
+        this.queryTokenSet = new HashSet<>(this.queryTokenList);
+        
+        // TODO: standard analyzer is assumed here, rewrite it to deal with other analyzers
+        this.queryTokensWithStopwords = DataflowUtils.tokenizeQueryWithStopwords(predicate.getQuery());
     }
 
     @Override
@@ -68,19 +80,19 @@ public class KeywordMatcher extends AbstractSingleInputOperator {
         // Therefore, PAYLOAD needs to be checked and added first
         if (!inputSchema.containsField(SchemaConstants.PAYLOAD)) {
             inputTuple = DataflowUtils.getSpanTuple(inputTuple.getFields(),
-                    DataflowUtils.generatePayloadFromTuple(inputTuple, predicate.getLuceneAnalyzer()), outputSchema);
+                    DataflowUtils.generatePayloadFromTuple(inputTuple, predicate.getLuceneAnalyzerString()), outputSchema);
         }
         if (!inputSchema.containsField(SchemaConstants.SPAN_LIST)) {
             inputTuple = DataflowUtils.getSpanTuple(inputTuple.getFields(), new ArrayList<Span>(), outputSchema);
         }
 
-        if (this.predicate.getOperatorType() == DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED) {
+        if (this.predicate.getMatchingType() == KeywordMatchingType.CONJUNCTION_INDEXBASED) {
             resultTuple = computeConjunctionMatchingResult(inputTuple);
         }
-        if (this.predicate.getOperatorType() == DataConstants.KeywordMatchingType.PHRASE_INDEXBASED) {
+        if (this.predicate.getMatchingType() == KeywordMatchingType.PHRASE_INDEXBASED) {
             resultTuple = computePhraseMatchingResult(inputTuple);
         }
-        if (this.predicate.getOperatorType() == DataConstants.KeywordMatchingType.SUBSTRING_SCANBASED) {
+        if (this.predicate.getMatchingType() == KeywordMatchingType.SUBSTRING_SCANBASED) {
             resultTuple = computeSubstringMatchingResult(inputTuple);
         }
 
@@ -120,7 +132,7 @@ public class KeywordMatcher extends AbstractSingleInputOperator {
                 List<Span> fieldSpanList = relevantSpans.stream().filter(span -> span.getAttributeName().equals(attributeName))
                         .collect(Collectors.toList());
 
-                if (isAllQueryTokensPresent(fieldSpanList, predicate.getQueryTokenSet())) {
+                if (isAllQueryTokensPresent(fieldSpanList, queryTokenSet)) {
                     matchingResults.addAll(fieldSpanList);
                 }
             }
@@ -166,7 +178,7 @@ public class KeywordMatcher extends AbstractSingleInputOperator {
                 List<Span> fieldSpanList = relevantSpans.stream().filter(span -> span.getAttributeName().equals(attributeName))
                         .collect(Collectors.toList());
 
-                if (!isAllQueryTokensPresent(fieldSpanList, predicate.getQueryTokenSet())) {
+                if (!isAllQueryTokensPresent(fieldSpanList, queryTokenSet)) {
                     // move on to next field if not all query tokens are present
                     // in the spans
                     continue;
@@ -175,9 +187,7 @@ public class KeywordMatcher extends AbstractSingleInputOperator {
                 // Sort current field's span list by token offset for later use
                 Collections.sort(fieldSpanList, (span1, span2) -> span1.getTokenOffset() - span2.getTokenOffset());
 
-                List<String> queryTokenList = predicate.getQueryTokenList();
                 List<Integer> queryTokenOffset = new ArrayList<>();
-                List<String> queryTokensWithStopwords = predicate.getQueryTokensWithStopwords();
 
                 for (int i = 0; i < queryTokensWithStopwords.size(); i++) {
                     if (queryTokenList.contains(queryTokensWithStopwords.get(i))) {
@@ -292,7 +302,7 @@ public class KeywordMatcher extends AbstractSingleInputOperator {
         Iterator<Span> iterator = spanList.iterator();
         while (iterator.hasNext()) {
             Span span = iterator.next();
-            if (predicate.getQueryTokenSet().contains(span.getKey())) {
+            if (queryTokenSet.contains(span.getKey())) {
                 relevantSpans.add(span);
             }
         }

@@ -12,10 +12,12 @@ public class PropertyNameConstants {
     private PropertyNameConstants() {};
     
     // common property names
-    public static final String ATTRIBUTES = "attributes";
-    public static final String LUCENE_ANALYZER = "lucene_analzer";
+    public static final String ATTRIBUTE_NAMES = "attributes";
+    public static final String LUCENE_ANALYZER_STRING = "lucene_analzer";
     public static final String SPAN_LIST_NAME = "span_list_name";
     public static final String TABLE_NAME = "data_source";
+    public static final String LIMIT = "limit";
+    public static final String OFFSET = "offset";
     
     // related to keyword matcher
     public static final String KEYWORD_QUERY = "query";
