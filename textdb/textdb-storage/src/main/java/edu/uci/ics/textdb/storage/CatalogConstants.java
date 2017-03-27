@@ -5,15 +5,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.uci.ics.textdb.api.common.Attribute;
-import edu.uci.ics.textdb.api.common.FieldType;
-import edu.uci.ics.textdb.api.common.ITuple;
-import edu.uci.ics.textdb.api.common.Schema;
-import edu.uci.ics.textdb.common.exception.StorageException;
-import edu.uci.ics.textdb.common.field.DataTuple;
-import edu.uci.ics.textdb.common.field.IntegerField;
-import edu.uci.ics.textdb.common.field.StringField;
-import edu.uci.ics.textdb.common.utils.Utils;
+import edu.uci.ics.textdb.api.exception.StorageException;
+import edu.uci.ics.textdb.api.field.IntegerField;
+import edu.uci.ics.textdb.api.field.StringField;
+import edu.uci.ics.textdb.api.schema.Attribute;
+import edu.uci.ics.textdb.api.schema.AttributeType;
+import edu.uci.ics.textdb.api.schema.Schema;
+import edu.uci.ics.textdb.api.tuple.Tuple;
+import edu.uci.ics.textdb.api.utils.Utils;
 
 /**
  * CatalogConstants stores the schema and the initial tuples of the catalog manager
@@ -59,10 +58,10 @@ public class CatalogConstants {
     public static final String TABLE_DIRECTORY = "tableDirectory";
     public static final String TABLE_LUCENE_ANALYZER = "luceneAnalyzer";
 
-    public static final Attribute TABLE_NAME_ATTR = new Attribute(TABLE_NAME, FieldType.STRING);
-    public static final Attribute TABLE_DIRECTORY_ATTR = new Attribute(TABLE_DIRECTORY, FieldType.STRING);
+    public static final Attribute TABLE_NAME_ATTR = new Attribute(TABLE_NAME, AttributeType.STRING);
+    public static final Attribute TABLE_DIRECTORY_ATTR = new Attribute(TABLE_DIRECTORY, AttributeType.STRING);
     public static final Attribute TABLE_LUCENE_ANALYZER_ATTR = new Attribute(TABLE_LUCENE_ANALYZER,
-            FieldType.STRING);
+            AttributeType.STRING);
 
     public static final Schema TABLE_CATALOG_SCHEMA = new Schema(TABLE_NAME_ATTR, TABLE_DIRECTORY_ATTR,
             TABLE_LUCENE_ANALYZER_ATTR);
@@ -73,9 +72,9 @@ public class CatalogConstants {
     public static final String ATTR_TYPE = "attributeType";
     public static final String ATTR_POSITION = "attributePosition";
 
-    public static final Attribute ATTR_NAME_ATTR = new Attribute(ATTR_NAME, FieldType.STRING);
-    public static final Attribute ATTR_TYPE_ATTR = new Attribute(ATTR_TYPE, FieldType.STRING);
-    public static final Attribute ATTR_POSITION_ATTR = new Attribute(ATTR_POSITION, FieldType.INTEGER);
+    public static final Attribute ATTR_NAME_ATTR = new Attribute(ATTR_NAME, AttributeType.STRING);
+    public static final Attribute ATTR_TYPE_ATTR = new Attribute(ATTR_TYPE, AttributeType.STRING);
+    public static final Attribute ATTR_POSITION_ATTR = new Attribute(ATTR_POSITION, AttributeType.INTEGER);
 
     public static final Schema SCHEMA_CATALOG_SCHEMA = new Schema(TABLE_NAME_ATTR, ATTR_NAME_ATTR, ATTR_TYPE_ATTR,
             ATTR_POSITION_ATTR);
@@ -98,11 +97,11 @@ public class CatalogConstants {
      * @return
      * @throws StorageException
      */
-    public static ITuple getTableCatalogTuple(String tableName, String tableDirectory, String luceneAnalyzerStr) 
+    public static Tuple getTableCatalogTuple(String tableName, String tableDirectory, String luceneAnalyzerStr) 
             throws StorageException {
         try {
             String tableDirectoryAbsolute = new File(tableDirectory).getCanonicalPath();
-            return new DataTuple(TABLE_CATALOG_SCHEMA, 
+            return new Tuple(TABLE_CATALOG_SCHEMA, 
                     new StringField(tableName), 
                     new StringField(tableDirectoryAbsolute),
                     new StringField(luceneAnalyzerStr));
@@ -121,14 +120,14 @@ public class CatalogConstants {
      * @return
      * @throws StorageException
      */
-    public static List<ITuple> getSchemaCatalogTuples(String tableName, Schema tableSchema) {
-        List<ITuple> schemaCatalogTuples = new ArrayList<>();
+    public static List<Tuple> getSchemaCatalogTuples(String tableName, Schema tableSchema) {
+        List<Tuple> schemaCatalogTuples = new ArrayList<>();
         for (int i = 0; i < tableSchema.getAttributes().size(); i++) {
             Attribute attr = tableSchema.getAttributes().get(i);
-            ITuple schemaTuple = new DataTuple(SCHEMA_CATALOG_SCHEMA, 
+            Tuple schemaTuple = new Tuple(SCHEMA_CATALOG_SCHEMA, 
                     new StringField(tableName),
-                    new StringField(attr.getFieldName()),
-                    new StringField(attr.getFieldType().toString().toLowerCase()),
+                    new StringField(attr.getAttributeName()),
+                    new StringField(attr.getAttributeType().toString().toLowerCase()),
                     new IntegerField(i));
             schemaCatalogTuples.add(schemaTuple);
         }

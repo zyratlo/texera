@@ -10,17 +10,18 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
 
-import edu.uci.ics.textdb.api.common.Attribute;
-import edu.uci.ics.textdb.api.common.FieldType;
-import edu.uci.ics.textdb.api.common.IField;
-import edu.uci.ics.textdb.api.common.ITuple;
-import edu.uci.ics.textdb.api.common.Schema;
-import edu.uci.ics.textdb.common.constants.LuceneAnalyzerConstants;
-import edu.uci.ics.textdb.common.constants.SchemaConstants;
-import edu.uci.ics.textdb.common.exception.DataFlowException;
-import edu.uci.ics.textdb.common.exception.StorageException;
-import edu.uci.ics.textdb.common.field.IDField;
-import edu.uci.ics.textdb.common.utils.Utils;
+import edu.uci.ics.textdb.api.constants.SchemaConstants;
+import edu.uci.ics.textdb.api.exception.DataFlowException;
+import edu.uci.ics.textdb.api.exception.StorageException;
+import edu.uci.ics.textdb.api.field.IDField;
+import edu.uci.ics.textdb.api.field.IField;
+import edu.uci.ics.textdb.api.schema.Attribute;
+import edu.uci.ics.textdb.api.schema.AttributeType;
+import edu.uci.ics.textdb.api.schema.Schema;
+import edu.uci.ics.textdb.api.tuple.Tuple;
+import edu.uci.ics.textdb.api.utils.Utils;
+import edu.uci.ics.textdb.storage.constants.LuceneAnalyzerConstants;
+import edu.uci.ics.textdb.storage.utils.StorageUtils;
 
 public class RelationManager {
     
@@ -126,7 +127,7 @@ public class RelationManager {
         dataWriter.open();
         dataWriter.clearData();
         dataWriter.close();
-        Utils.deleteDirectory(getTableDirectory(tableName));
+        StorageUtils.deleteDirectory(getTableDirectory(tableName));
 
 
         // generate a query for the table name
@@ -156,7 +157,7 @@ public class RelationManager {
      * @return
      * @throws StorageException
      */
-    public ITuple getTupleByID(String tableName, IDField idField) throws StorageException {
+    public Tuple getTupleByID(String tableName, IDField idField) throws StorageException {
         // construct the ID query
         Query tupleIDQuery = new TermQuery(new Term(SchemaConstants._ID, idField.getValue().toString()));
         
@@ -165,7 +166,7 @@ public class RelationManager {
         dataReader.setPayloadAdded(false);
 
         dataReader.open(); 
-        ITuple tuple = dataReader.getNextTuple();
+        Tuple tuple = dataReader.getNextTuple();
         dataReader.close();
 
         return tuple;
@@ -227,7 +228,7 @@ public class RelationManager {
         tableCatalogDataReader.setPayloadAdded(false);
         
         tableCatalogDataReader.open();
-        ITuple nextTuple = tableCatalogDataReader.getNextTuple();
+        Tuple nextTuple = tableCatalogDataReader.getNextTuple();
         tableCatalogDataReader.close();
         
         // if the tuple is not found, then the table name is not found
@@ -255,8 +256,8 @@ public class RelationManager {
         
         // read the tuples into a list
         schemaCatalogDataReader.open();    
-        List<ITuple> tableAttributeTuples = new ArrayList<>();
-        ITuple nextTuple;
+        List<Tuple> tableAttributeTuples = new ArrayList<>();
+        Tuple nextTuple;
         while ((nextTuple = schemaCatalogDataReader.getNextTuple()) != null) {
             tableAttributeTuples.add(nextTuple);
         }
@@ -294,7 +295,7 @@ public class RelationManager {
         tableCatalogDataReader.setPayloadAdded(false);
         
         tableCatalogDataReader.open();
-        ITuple nextTuple = tableCatalogDataReader.getNextTuple();
+        Tuple nextTuple = tableCatalogDataReader.getNextTuple();
         tableCatalogDataReader.close();
         
         // if the tuple is not found, then the table name is not found
@@ -338,7 +339,7 @@ public class RelationManager {
         dataWriter = new DataWriter(schemaCatalogStore, LuceneAnalyzerConstants.getStandardAnalyzer());
         // each attribute in the table schema will be one row in schema catalog
         dataWriter.open();
-        for (ITuple tuple : CatalogConstants.getSchemaCatalogTuples(tableName, tableSchema)) {
+        for (Tuple tuple : CatalogConstants.getSchemaCatalogTuples(tableName, tableSchema)) {
             dataWriter.insertTuple(tuple);
         }
         dataWriter.close();
@@ -377,12 +378,12 @@ public class RelationManager {
     
     
     /*
-     * Converts a attributeTypeString to FieldType (case insensitive). 
+     * Converts a attributeTypeString to AttributeType (case insensitive).
      * It returns null if string is not a valid type.
      * 
      */
-    private static FieldType convertAttributeType(String attributeTypeStr) {
-        return Stream.of(FieldType.values())
+    private static AttributeType convertAttributeType(String attributeTypeStr) {
+        return Stream.of(AttributeType.values())
                 .filter(typeStr -> typeStr.toString().toLowerCase().equals(attributeTypeStr.toLowerCase()))
                 .findAny().orElse(null);
     }

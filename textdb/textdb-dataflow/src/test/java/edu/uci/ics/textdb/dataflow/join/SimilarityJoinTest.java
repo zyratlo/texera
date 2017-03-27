@@ -1,19 +1,24 @@
 package edu.uci.ics.textdb.dataflow.join;
 
-import edu.uci.ics.textdb.api.common.ITuple;
-import edu.uci.ics.textdb.api.common.Schema;
-import edu.uci.ics.textdb.common.constants.SchemaConstants;
-import edu.uci.ics.textdb.common.field.*;
-import edu.uci.ics.textdb.common.utils.Utils;
-import edu.uci.ics.textdb.dataflow.regexmatch.RegexMatcher;
-import edu.uci.ics.textdb.dataflow.utils.TestUtils;
 import junit.framework.Assert;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
+import edu.uci.ics.textdb.api.constants.SchemaConstants;
+import edu.uci.ics.textdb.api.constants.DataConstants.KeywordMatchingType;
 import edu.uci.ics.textdb.api.exception.TextDBException;
-import edu.uci.ics.textdb.common.constants.DataConstants.KeywordMatchingType;
+import edu.uci.ics.textdb.api.field.IDField;
+import edu.uci.ics.textdb.api.field.IntegerField;
+import edu.uci.ics.textdb.api.field.ListField;
+import edu.uci.ics.textdb.api.field.TextField;
+import edu.uci.ics.textdb.api.schema.Schema;
+import edu.uci.ics.textdb.api.span.Span;
+import edu.uci.ics.textdb.api.tuple.Tuple;
+import edu.uci.ics.textdb.api.utils.TestUtils;
+import edu.uci.ics.textdb.api.utils.Utils;
+import edu.uci.ics.textdb.dataflow.regexmatch.RegexMatcher;
+
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -85,8 +90,8 @@ public class SimilarityJoinTest {
                 trumpRegex, JoinTestConstants.NEWS_BODY);
 
         SimilarityJoinPredicate similarityJoinPredicate = new SimilarityJoinPredicate(JoinTestConstants.NEWS_BODY, 0.8);
-        List<ITuple> results = JoinTestHelper.getJoinDistanceResults(
-                regexMatcherOuter, regexMatcherInner, similarityJoinPredicate, Integer.MAX_VALUE, 0);
+        List<Tuple> results = JoinTestHelper.getJoinDistanceResults(
+                regexMatcherInner, regexMatcherOuter, similarityJoinPredicate, Integer.MAX_VALUE, 0);
 
         Schema joinInputSchema = Utils.addAttributeToSchema(JoinTestConstants.NEWS_SCHEMA, SchemaConstants.SPAN_LIST_ATTRIBUTE);
         Schema resultSchema = similarityJoinPredicate.generateOutputSchema(joinInputSchema, joinInputSchema);
@@ -96,7 +101,7 @@ public class SimilarityJoinTest {
                 new Span("outer_"+JoinTestConstants.NEWS_BODY, 18, 30, trumpRegex, "Donald Trump", -1)
         );
 
-        ITuple resultTuple = new DataTuple(resultSchema,
+        Tuple resultTuple = new Tuple(resultSchema,
                 new IDField(UUID.randomUUID().toString()),
                 new IntegerField(2),
                 new TextField("Alternative Facts and the Costs of Trump-Branded Reality"),
@@ -138,8 +143,8 @@ public class SimilarityJoinTest {
                 trumpRegex, JoinTestConstants.NEWS_BODY);
 
         SimilarityJoinPredicate similarityJoinPredicate = new SimilarityJoinPredicate(JoinTestConstants.NEWS_BODY, 0.9);
-        List<ITuple> results = JoinTestHelper.getJoinDistanceResults(
-                regexMatcherOuter, regexMatcherInner, similarityJoinPredicate, Integer.MAX_VALUE, 0);
+        List<Tuple> results = JoinTestHelper.getJoinDistanceResults(
+                regexMatcherInner, regexMatcherOuter, similarityJoinPredicate, Integer.MAX_VALUE, 0);
 
         Assert.assertTrue(results.isEmpty());
     }
@@ -164,8 +169,8 @@ public class SimilarityJoinTest {
                 phoneRegex, JoinTestConstants.NEWS_BODY);
 
         SimilarityJoinPredicate similarityJoinPredicate = new SimilarityJoinPredicate(JoinTestConstants.NEWS_BODY, 0.5);
-        List<ITuple> results = JoinTestHelper.getJoinDistanceResults(
-                regexMatcherOuter, regexMatcherInner, similarityJoinPredicate, Integer.MAX_VALUE, 0);
+        List<Tuple> results = JoinTestHelper.getJoinDistanceResults(
+                regexMatcherInner, regexMatcherOuter, similarityJoinPredicate, Integer.MAX_VALUE, 0);
 
         Schema joinInputSchema = Utils.addAttributeToSchema(JoinTestConstants.NEWS_SCHEMA, SchemaConstants.SPAN_LIST_ATTRIBUTE);
         Schema resultSchema = similarityJoinPredicate.generateOutputSchema(joinInputSchema, joinInputSchema);
@@ -175,7 +180,7 @@ public class SimilarityJoinTest {
                 new Span("outer_"+JoinTestConstants.NEWS_BODY, 21, 34, phoneRegex, "Galaxy Note 7", -1)
         );
 
-        ITuple resultTuple = new DataTuple(resultSchema,
+        Tuple resultTuple = new Tuple(resultSchema,
                 new IDField(UUID.randomUUID().toString()),
                 new IntegerField(4),
                 new TextField("This is how Samsung plans to prevent future phones from catching fire"),
@@ -216,8 +221,8 @@ public class SimilarityJoinTest {
                 phoneRegex, JoinTestConstants.NEWS_BODY);
 
         SimilarityJoinPredicate similarityJoinPredicate = new SimilarityJoinPredicate(JoinTestConstants.NEWS_BODY, 0.8);
-        List<ITuple> results = JoinTestHelper.getJoinDistanceResults(
-                regexMatcherOuter, regexMatcherInner, similarityJoinPredicate, Integer.MAX_VALUE, 0);
+        List<Tuple> results = JoinTestHelper.getJoinDistanceResults(
+                regexMatcherInner, regexMatcherOuter, similarityJoinPredicate, Integer.MAX_VALUE, 0);
 
         Assert.assertTrue(results.isEmpty());
     }

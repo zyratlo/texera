@@ -4,26 +4,25 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import edu.uci.ics.textdb.api.common.Attribute;
-import edu.uci.ics.textdb.api.common.IField;
-import edu.uci.ics.textdb.api.common.ITuple;
-import edu.uci.ics.textdb.api.common.Schema;
+import edu.uci.ics.textdb.api.constants.DataConstants.KeywordMatchingType;
 import edu.uci.ics.textdb.api.dataflow.IOperator;
+import edu.uci.ics.textdb.api.exception.DataFlowException;
+import edu.uci.ics.textdb.api.exception.StorageException;
 import edu.uci.ics.textdb.api.exception.TextDBException;
-import edu.uci.ics.textdb.common.constants.LuceneAnalyzerConstants;
-import edu.uci.ics.textdb.common.constants.DataConstants.KeywordMatchingType;
-import edu.uci.ics.textdb.common.exception.DataFlowException;
-import edu.uci.ics.textdb.common.exception.StorageException;
-import edu.uci.ics.textdb.common.field.DataTuple;
-import edu.uci.ics.textdb.common.utils.Utils;
+import edu.uci.ics.textdb.api.field.IField;
+import edu.uci.ics.textdb.api.schema.Attribute;
+import edu.uci.ics.textdb.api.schema.Schema;
+import edu.uci.ics.textdb.api.tuple.Tuple;
 import edu.uci.ics.textdb.dataflow.common.IJoinPredicate;
 import edu.uci.ics.textdb.dataflow.common.KeywordPredicate;
 import edu.uci.ics.textdb.dataflow.common.RegexPredicate;
 import edu.uci.ics.textdb.dataflow.keywordmatch.KeywordMatcherSourceOperator;
 import edu.uci.ics.textdb.dataflow.regexmatch.RegexMatcher;
 import edu.uci.ics.textdb.dataflow.source.ScanBasedSourceOperator;
+import edu.uci.ics.textdb.dataflow.utils.DataflowUtils;
 import edu.uci.ics.textdb.storage.DataWriter;
 import edu.uci.ics.textdb.storage.RelationManager;
+import edu.uci.ics.textdb.storage.constants.LuceneAnalyzerConstants;
 
 
 public class JoinTestHelper {
@@ -50,23 +49,23 @@ public class JoinTestHelper {
     
     }
 
-    public static void insertToTable(String tableName, ITuple... tuples) throws StorageException {
+    public static void insertToTable(String tableName, Tuple... tuples) throws StorageException {
         RelationManager relationManager = RelationManager.getRelationManager();
         
         DataWriter tableDataWriter = relationManager.getTableDataWriter(tableName);
         tableDataWriter.open();
-        for (ITuple tuple : Arrays.asList(tuples)) {
+        for (Tuple tuple : Arrays.asList(tuples)) {
             tableDataWriter.insertTuple(tuple);
         }
         tableDataWriter.close();
     }
 
-    public static void insertToTable(String tableName, List<ITuple> tuples) throws StorageException {
+    public static void insertToTable(String tableName, List<Tuple> tuples) throws StorageException {
         RelationManager relationManager = RelationManager.getRelationManager();
         
         DataWriter outerDataWriter = relationManager.getTableDataWriter(tableName);
         outerDataWriter.open();
-        for (ITuple tuple : tuples) {
+        for (Tuple tuple : tuples) {
             outerDataWriter.insertTuple(tuple);
         }
         outerDataWriter.close();
@@ -150,7 +149,7 @@ public class JoinTestHelper {
      * @return
      * @throws TextDBException
      */
-    public static List<ITuple> getJoinDistanceResults(IOperator outerOp, IOperator innerOp,
+    public static List<Tuple> getJoinDistanceResults(IOperator innerOp, IOperator outerOp,
             IJoinPredicate joinPredicate, int limit, int offset) throws TextDBException {
         Join join = new Join(joinPredicate);
         join.setInnerInputOperator(innerOp);
@@ -158,8 +157,8 @@ public class JoinTestHelper {
         join.setLimit(limit);
         join.setOffset(offset);
         
-        ITuple tuple;
-        List<ITuple> results = new ArrayList<>();
+        Tuple tuple;
+        List<Tuple> results = new ArrayList<>();
         
         join.open();
         while ((tuple = join.getNextTuple()) != null) {
@@ -177,21 +176,21 @@ public class JoinTestHelper {
      * @param newField
      * @return
      */
-    public static ITuple alterField(ITuple originalTuple, int fieldIndex, IField newField) {
+    public static Tuple alterField(Tuple originalTuple, int fieldIndex, IField newField) {
         List<Attribute> originalAttributes = originalTuple.getSchema().getAttributes();
         List<Attribute> newAttributes = new ArrayList<>();
         List<IField> newFields = new ArrayList<>();
         for (int i = 0; i < originalAttributes.size(); i++) {
             if (i == fieldIndex) {
-                newAttributes.add(new Attribute(originalAttributes.get(i).getFieldName(), 
-                        Utils.getFieldType(newField)));
+                newAttributes.add(new Attribute(originalAttributes.get(i).getAttributeName(),
+                        DataflowUtils.getAttributeType(newField)));
                 newFields.add(newField);
             } else {
                 newAttributes.add(originalAttributes.get(i));
                 newFields.add(originalTuple.getField(i));
             }
         }
-        return new DataTuple(new Schema(newAttributes.stream().toArray(Attribute[]::new)), 
+        return new Tuple(new Schema(newAttributes.stream().toArray(Attribute[]::new)), 
                 newFields.stream().toArray(IField[]::new));
     }
 

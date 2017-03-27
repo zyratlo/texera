@@ -2,12 +2,12 @@ package edu.uci.ics.textdb.dataflow.dictionarymatcher;
 
 import java.util.ArrayList;
 
-import edu.uci.ics.textdb.api.common.ITuple;
-import edu.uci.ics.textdb.api.common.Schema;
+import edu.uci.ics.textdb.api.constants.ErrorMessages;
 import edu.uci.ics.textdb.api.dataflow.IOperator;
-import edu.uci.ics.textdb.common.exception.DataFlowException;
-import edu.uci.ics.textdb.common.exception.ErrorMessages;
+import edu.uci.ics.textdb.api.exception.DataFlowException;
 import edu.uci.ics.textdb.api.exception.TextDBException;
+import edu.uci.ics.textdb.api.schema.Schema;
+import edu.uci.ics.textdb.api.tuple.Tuple;
 import edu.uci.ics.textdb.dataflow.common.DictionaryPredicate;
 import edu.uci.ics.textdb.dataflow.common.KeywordPredicate;
 import edu.uci.ics.textdb.dataflow.keywordmatch.KeywordMatcher;
@@ -77,7 +77,7 @@ public class DictionaryMatcher implements IOperator {
     }
 
     @Override
-    public ITuple getNextTuple() throws TextDBException {
+    public Tuple getNextTuple() throws TextDBException {
         if (cursor == CLOSED) {
             throw new DataFlowException(ErrorMessages.OPERATOR_NOT_OPENED);
         }
@@ -85,7 +85,7 @@ public class DictionaryMatcher implements IOperator {
             return null;
         }
 
-        ITuple sourceTuple;
+        Tuple sourceTuple;
         while (true) {
             // If there's result from current keywordMatcher, return it.
             if ((sourceTuple = keywordMatcher.getNextTuple()) != null) {
@@ -156,7 +156,7 @@ public class DictionaryMatcher implements IOperator {
         private IOperator inputOperator;
         private Schema outputSchema;
         
-        private ArrayList<ITuple> inputTupleList = new ArrayList<>();
+        private ArrayList<Tuple> inputTupleList = new ArrayList<>();
         
         private boolean isOpen = false;
         private boolean inputAllConsumed = false;
@@ -194,7 +194,7 @@ public class DictionaryMatcher implements IOperator {
         }
 
         @Override
-        public ITuple getNextTuple() throws TextDBException {
+        public Tuple getNextTuple() throws TextDBException {
             if (! isOpen) {
                 throw new DataFlowException(ErrorMessages.OPERATOR_NOT_OPENED);
             }
@@ -206,7 +206,7 @@ public class DictionaryMatcher implements IOperator {
                 // else, get the next tuple from input operator, 
                 // add it to tuple list, and advance cursor
                 } else {
-                    ITuple tuple = inputOperator.getNextTuple();
+                    Tuple tuple = inputOperator.getNextTuple();
                     if (tuple == null) {
                         inputAllConsumed = true;
                     } else {
@@ -217,7 +217,7 @@ public class DictionaryMatcher implements IOperator {
                 }
             // if we can get the tuple from the cache, retrieve it and advance cursor
             } else {
-                ITuple tuple = inputTupleList.get(cachedTupleCursor);
+                Tuple tuple = inputTupleList.get(cachedTupleCursor);
                 cachedTupleCursor++;
                 return tuple;
             }
