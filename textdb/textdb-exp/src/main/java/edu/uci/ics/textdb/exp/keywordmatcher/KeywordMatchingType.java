@@ -1,4 +1,4 @@
-package edu.uci.ics.textdb.exp.common;
+package edu.uci.ics.textdb.exp.keywordmatcher;
 
 /**
  * KeywordMatchingType: the type of keyword matching to perform. <br>
