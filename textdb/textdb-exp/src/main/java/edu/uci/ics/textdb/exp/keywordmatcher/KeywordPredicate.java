@@ -11,6 +11,12 @@ import edu.uci.ics.textdb.storage.constants.LuceneAnalyzerConstants;
 import edu.uci.ics.textdb.exp.common.PropertyNameConstants;
 
 
+/**
+ * @author Zuozhi Wang
+ * @author prakul
+ *
+ * KeywordPredicate contains all the properties needed by a Keyword Matcher.
+ */
 /*
  * KeywordPredicate is the predicate for KeywordMatcher.
  * It serves two purposes:
@@ -54,12 +60,6 @@ import edu.uci.ics.textdb.exp.common.PropertyNameConstants;
  *   
  *   5. Register the predicate class and its name in PredicateBase class
  *   
- */
-/**
- * @author Zuozhi Wang
- * @author prakul
- *
- * KeywordPredicate contains all the properties needed by a Keyword Matcher.
  */
 public class KeywordPredicate extends PredicateBase {
 
