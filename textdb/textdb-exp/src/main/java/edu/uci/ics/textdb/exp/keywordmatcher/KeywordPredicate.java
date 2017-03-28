@@ -1,5 +1,6 @@
 package edu.uci.ics.textdb.exp.keywordmatcher;
 
+import java.util.Collections;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -10,11 +11,55 @@ import edu.uci.ics.textdb.storage.constants.LuceneAnalyzerConstants;
 import edu.uci.ics.textdb.exp.common.PropertyNameConstants;
 
 
+/*
+ * KeywordPredicate is the predicate for KeywordMatcher.
+ * It serves two purposes:
+ *   1. It's used by other classes and code inside the engine.
+ *      For example, KeywordMatcher needs to access the properties.
+ *   
+ *   2. It corresponds to a JSON representation that describes this predicate.
+ *      For example, the JSON may look like this:
+ *      {
+ *        "query": "a_keyword",
+ *        "attributes": ["attr1", "attr2"],
+ *        "matching_type": "CONJUNCTION_INDEXBASED"
+ *      }
+ *      The JSON string can be deserialized to a predicate object, 
+ *      and the predicate can also be serialized to a JSON string.
+ * 
+ * 
+ * To achieve the requirements stated above, we use Jackson for processing JSON,
+ *   and the predicate classes need to follow the "Immutable Bean" style:
+ *   
+ *   1. The predicate ONLY contains properties needed by its operator, nothing else
+ *   
+ *   2. The predicate is immutable, which requires:
+ *        2.1 the fields need to be declared as "private final", they are only set in the constructor.
+ *        2.2 no setter is allowed.
+ *        2.3 use Collections.unmodifiable(List, Set, Map, ...) when dealing with collections.
+ *      (The reason is immutable objects are generally considered good for reducing programming errors)
+ *   
+ *   3. Deserialization (JSON -> Java Object) happens in the class constructor:
+ *        3.1 use "@JsonCreator" annotation to mark the constructor for JSON Deserialization
+ *        3.2 multiple constructors can exist, but ONLY ONE can be marked as @JsonCreator
+ *        3.3 use "@JsonProperty" annotation to mark an parameter as a JSON property
+ *            set "value=" to specify the key name of the property, use a string in PropertyNameConstants
+ *            set "required=" to specify if the parameter is required (if parameter is null, exception is thrown)
+ *        
+ *   
+ *   4. Serialization (Java Object -> JSON) happens in the getters:
+ *        4.1 use "@JsonProperty" to mark as a property, and specify the key name
+ *        4.2 Jackson will view ALL getters as JSON properties,
+ *            if you want a getter to not be included, use "@JsonIgnore" annotation
+ *   
+ *   5. Register the predicate class and its name in PredicateBase class
+ *   
+ */
 /**
  * @author Zuozhi Wang
  * @author prakul
  *
- * This class handles creation of predicate for querying using Keyword Matcher
+ * KeywordPredicate contains all the properties needed by a Keyword Matcher.
  */
 public class KeywordPredicate extends PredicateBase {
 
@@ -74,7 +119,7 @@ public class KeywordPredicate extends PredicateBase {
             Integer offset) {
         
         this.query = query;
-        this.attributeNames = attributeNames;
+        this.attributeNames = Collections.unmodifiableList(attributeNames);
         if (luceneAnalyzerString == null) {
             this.luceneAnalyzerString = LuceneAnalyzerConstants.standardAnalyzerString();
         } else {

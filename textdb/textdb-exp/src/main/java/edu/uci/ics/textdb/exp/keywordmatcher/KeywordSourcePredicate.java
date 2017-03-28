@@ -11,6 +11,7 @@ import edu.uci.ics.textdb.exp.common.PropertyNameConstants;
  * KeywordSourcePredicate is the predicate used by KeywordMatcherSourceOperator.
  * This predicate is based on KeywordPredicate, with an additional member "tableName".
  * 
+ * 
  * @author Zuozhi Wang
  *
  */
@@ -29,7 +30,7 @@ public class KeywordSourcePredicate extends KeywordPredicate {
         this.tableName = tableName;
     }
     
-    //TODO find a way to not write duplicate annotations
+    //TODO find a way to not write duplicate annotations (for fields declared in superclass)
     @JsonCreator
     public KeywordSourcePredicate(
             @JsonProperty(value=PropertyNameConstants.KEYWORD_QUERY, required=true)
