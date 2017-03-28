@@ -43,8 +43,8 @@ import edu.uci.ics.textdb.exp.common.PropertyNameConstants;
  *        3.1 use "@JsonCreator" annotation to mark the constructor for JSON Deserialization
  *        3.2 multiple constructors can exist, but ONLY ONE can be marked as @JsonCreator
  *        3.3 use "@JsonProperty" annotation to mark an parameter as a JSON property
- *            set "value=" to specify the key name of the property, use a string in PropertyNameConstants
- *            set "required=" to specify if the parameter is required (if parameter is null, exception is thrown)
+ *            set "value" to specify the key name of the property, use a string in PropertyNameConstants
+ *            set "required" to specify if the parameter is required (if parameter is null, exception is thrown)
  *        
  *   
  *   4. Serialization (Java Object -> JSON) happens in the getters:
@@ -105,17 +105,17 @@ public class KeywordPredicate extends PredicateBase {
      */
     @JsonCreator
     public KeywordPredicate(
-            @JsonProperty(value=PropertyNameConstants.KEYWORD_QUERY, required=true)
+            @JsonProperty(value = PropertyNameConstants.KEYWORD_QUERY, required = true)
             String query,
-            @JsonProperty(value=PropertyNameConstants.ATTRIBUTE_NAMES, required=true)
+            @JsonProperty(value = PropertyNameConstants.ATTRIBUTE_NAMES, required = true)
             List<String> attributeNames,
-            @JsonProperty(value=PropertyNameConstants.LUCENE_ANALYZER_STRING, required=false)
+            @JsonProperty(value = PropertyNameConstants.LUCENE_ANALYZER_STRING, required = false)
             String luceneAnalyzerString, 
-            @JsonProperty(value=PropertyNameConstants.KEYWORD_MATCHING_TYPE, required=true)
+            @JsonProperty(value = PropertyNameConstants.KEYWORD_MATCHING_TYPE, required = true)
             KeywordMatchingType matchingType,
-            @JsonProperty(value=PropertyNameConstants.LIMIT, required = false)
+            @JsonProperty(value = PropertyNameConstants.LIMIT, required = false)
             Integer limit,
-            @JsonProperty(value=PropertyNameConstants.OFFSET, required=false)
+            @JsonProperty(value = PropertyNameConstants.OFFSET, required = false)
             Integer offset) {
         
         this.query = query;

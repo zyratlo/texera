@@ -20,8 +20,8 @@ import edu.uci.ics.textdb.exp.keywordmatcher.KeywordSourcePredicate;
  *
  */
 @JsonTypeInfo(
-        use=JsonTypeInfo.Id.NAME, // logical user-defined type names are used (rather than Java class names)
-        include=JsonTypeInfo.As.PROPERTY, // make the type info as a property in the JSON representation
+        use = JsonTypeInfo.Id.NAME, // logical user-defined type names are used (rather than Java class names)
+        include = JsonTypeInfo.As.PROPERTY, // make the type info as a property in the JSON representation
         property = "operator_type" // the name of the JSON property indicating the type
 )
 @JsonSubTypes({ 

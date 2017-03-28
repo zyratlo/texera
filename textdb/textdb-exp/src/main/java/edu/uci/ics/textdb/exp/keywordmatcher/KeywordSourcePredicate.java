@@ -33,19 +33,19 @@ public class KeywordSourcePredicate extends KeywordPredicate {
     //TODO find a way to not write duplicate annotations (for fields declared in superclass)
     @JsonCreator
     public KeywordSourcePredicate(
-            @JsonProperty(value=PropertyNameConstants.KEYWORD_QUERY, required=true)
+            @JsonProperty(value = PropertyNameConstants.KEYWORD_QUERY, required = true)
             String query,
-            @JsonProperty(value=PropertyNameConstants.ATTRIBUTE_NAMES, required=true)
+            @JsonProperty(value = PropertyNameConstants.ATTRIBUTE_NAMES, required = true)
             List<String> attributeNames,
-            @JsonProperty(value=PropertyNameConstants.LUCENE_ANALYZER_STRING, required=false)
+            @JsonProperty(value = PropertyNameConstants.LUCENE_ANALYZER_STRING, required = false)
             String luceneAnalyzerString, 
-            @JsonProperty(value=PropertyNameConstants.KEYWORD_MATCHING_TYPE, required=false)
+            @JsonProperty(value = PropertyNameConstants.KEYWORD_MATCHING_TYPE, required = false)
             KeywordMatchingType matchingType,
-            @JsonProperty(value=PropertyNameConstants.TABLE_NAME, required=true)
+            @JsonProperty(value = PropertyNameConstants.TABLE_NAME, required = true)
             String tableName,
-            @JsonProperty(value=PropertyNameConstants.LIMIT, required=false)
+            @JsonProperty(value = PropertyNameConstants.LIMIT, required = false)
             Integer limit,
-            @JsonProperty(value=PropertyNameConstants.OFFSET, required=false)
+            @JsonProperty(value = PropertyNameConstants.OFFSET, required = false)
             Integer offset) {
         
         super(query, attributeNames, luceneAnalyzerString, matchingType, limit, offset);
