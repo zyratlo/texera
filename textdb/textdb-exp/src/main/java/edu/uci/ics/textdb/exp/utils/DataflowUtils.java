@@ -17,6 +17,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import edu.uci.ics.textdb.api.constants.SchemaConstants;
+import edu.uci.ics.textdb.api.exception.DataFlowException;
 import edu.uci.ics.textdb.api.field.DateField;
 import edu.uci.ics.textdb.api.field.DoubleField;
 import edu.uci.ics.textdb.api.field.IDField;
@@ -30,6 +31,7 @@ import edu.uci.ics.textdb.api.schema.AttributeType;
 import edu.uci.ics.textdb.api.schema.Schema;
 import edu.uci.ics.textdb.api.span.Span;
 import edu.uci.ics.textdb.api.tuple.*;
+import edu.uci.ics.textdb.storage.constants.LuceneAnalyzerConstants;
 
 public class DataflowUtils {
     
@@ -69,6 +71,15 @@ public class DataflowUtils {
 
         IField[] fieldsDuplicate = fieldListDuplicate.toArray(new IField[fieldListDuplicate.size()]);
         return new Tuple(spanSchema, fieldsDuplicate);
+    }
+    
+    public static ArrayList<String> tokenizeQuery(String luceneAnalyzer, String query) {
+        try {
+            return tokenizeQuery(LuceneAnalyzerConstants.getLuceneAnalyzer(luceneAnalyzer), query);
+        } catch (DataFlowException e) {
+            // TODO: discuss RuntimeException vs. Checked Exception
+            throw new RuntimeException(e);
+        }
     }
     
     /**
@@ -247,6 +258,10 @@ public class DataflowUtils {
         sb.append("token offset: " + span.getTokenOffset() + "\n");
 
         return sb.toString();
+    }
+    
+    public static List<Span> generatePayloadFromTuple(Tuple tuple, String luceneAnalyzer) throws DataFlowException {
+        return generatePayloadFromTuple(tuple, LuceneAnalyzerConstants.getLuceneAnalyzer(luceneAnalyzer));
     }
 
     public static List<Span> generatePayloadFromTuple(Tuple tuple, Analyzer luceneAnalyzer) {

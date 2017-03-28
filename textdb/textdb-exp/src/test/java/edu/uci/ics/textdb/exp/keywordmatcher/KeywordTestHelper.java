@@ -5,7 +5,6 @@ import java.util.List;
 
 import edu.uci.ics.textdb.api.constants.TestConstants;
 import edu.uci.ics.textdb.api.constants.TestConstantsChinese;
-import edu.uci.ics.textdb.api.constants.DataConstants.KeywordMatchingType;
 import edu.uci.ics.textdb.api.exception.DataFlowException;
 import edu.uci.ics.textdb.api.exception.TextDBException;
 import edu.uci.ics.textdb.api.tuple.Tuple;
@@ -121,10 +120,9 @@ public class KeywordTestHelper {
         ScanBasedSourceOperator scanSource = new ScanBasedSourceOperator(tableName);
         
         KeywordPredicate keywordPredicate = new KeywordPredicate(
-                keywordQuery, attributeNames, relationManager.getTableAnalyzer(tableName), matchingType);
+                keywordQuery, attributeNames, relationManager.getTableAnalyzerString(tableName), matchingType, 
+                limit, offset);
         KeywordMatcher keywordMatcher = new KeywordMatcher(keywordPredicate);
-        keywordMatcher.setLimit(limit);
-        keywordMatcher.setOffset(offset);
         
         keywordMatcher.setInputOperator(scanSource);
         
@@ -143,12 +141,11 @@ public class KeywordTestHelper {
     public static List<Tuple> getKeywordSourceResults(String tableName, String keywordQuery, List<String> attributeNames,
             KeywordMatchingType matchingType, int limit, int offset) throws TextDBException {
         RelationManager relationManager = RelationManager.getRelationManager();
-        KeywordPredicate keywordPredicate = new KeywordPredicate(
-                keywordQuery, attributeNames, relationManager.getTableAnalyzer(tableName), matchingType);
+        KeywordSourcePredicate keywordSourcePredicate = new KeywordSourcePredicate(
+                keywordQuery, attributeNames, relationManager.getTableAnalyzerString(tableName), matchingType, 
+                tableName, limit, offset);
         KeywordMatcherSourceOperator keywordSource = new KeywordMatcherSourceOperator(
-                keywordPredicate, tableName);
-        keywordSource.setLimit(limit);
-        keywordSource.setOffset(offset);
+                keywordSourcePredicate);
         
         Tuple tuple;
         List<Tuple> results = new ArrayList<>();
