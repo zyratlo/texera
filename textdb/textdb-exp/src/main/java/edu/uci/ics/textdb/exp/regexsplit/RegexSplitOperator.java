@@ -1,4 +1,4 @@
-package edu.uci.ics.textdb.dataflow.regexsplit;
+package edu.uci.ics.textdb.exp.regexsplit;
 
 import edu.uci.ics.textdb.api.exception.DataFlowException;
 import edu.uci.ics.textdb.api.exception.TextDBException;

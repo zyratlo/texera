@@ -1,4 +1,4 @@
-package edu.uci.ics.textdb.dataflow.regexsplit;
+package edu.uci.ics.textdb.exp.regexsplit;
 
 import java.util.ArrayList;
 import java.util.List;
