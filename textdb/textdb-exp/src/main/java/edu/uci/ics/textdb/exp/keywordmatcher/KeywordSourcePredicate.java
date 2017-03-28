@@ -54,7 +54,7 @@ public class KeywordSourcePredicate extends KeywordPredicate {
     
     @JsonProperty(PropertyNameConstants.TABLE_NAME)
     public String getTableName() {
-        return this.tableName;
+        return tableName;
     }
 
 }
