@@ -1,4 +1,4 @@
-package edu.uci.ics.textdb.dataflow.sampler;
+package edu.uci.ics.textdb.exp.sampler;
 
 
 import edu.uci.ics.textdb.api.dataflow.ISourceOperator;
