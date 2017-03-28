@@ -73,7 +73,10 @@ public class KeywordPredicate extends PredicateBase {
     private final List<String> attributeNames;
     private final String luceneAnalyzerString;
     private final KeywordMatchingType matchingType;
+    
+    private final Boolean limitNotNull; 
     private final Integer limit;
+    private final Boolean offsetNotNull; 
     private final Integer offset;
     
     /**
@@ -129,20 +132,26 @@ public class KeywordPredicate extends PredicateBase {
         
         if (limit == null) {
             this.limit = Integer.MAX_VALUE;
+            this.limitNotNull = false;
         } else if (limit < 0) {
             this.limit = Integer.MAX_VALUE;
+            this.limitNotNull = true;
             // TODO: throw exception if limit < 0
         } else {
             this.limit = limit;
+            this.limitNotNull = true;
         }
         
         if (offset == null) {
             this.offset = 0;
+            this.offsetNotNull = false;
         } else if (offset < 0) {
             this.offset = 0;
+            this.offsetNotNull = true;
             // TODO: throw exception if offset < 0
         } else {
             this.offset = offset;
+            this.offsetNotNull = true;
         }
         
     }
@@ -168,13 +177,29 @@ public class KeywordPredicate extends PredicateBase {
     }
     
     @JsonProperty(PropertyNameConstants.LIMIT)
-    public Integer getLimit() {
-        return this.limit;
+    private Integer getLimitJson() {
+        if (limitNotNull) {
+            return limit;
+        } else {
+            return null;
+        }
     }
     
     @JsonProperty(PropertyNameConstants.OFFSET)
+    private Integer getOffsetJson() {
+        if (offsetNotNull) {
+            return limit;
+        } else {
+            return null;
+        }
+    }
+    
+    public Integer getLimit() {
+        return limit;
+    }
+    
     public Integer getOffset() {
-        return this.offset;
+        return offset;
     }
 
 }
