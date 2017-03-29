@@ -1,5 +1,8 @@
 package edu.uci.ics.textdb.exp.keywordmatcher;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.ParseException;
@@ -10,7 +13,6 @@ import org.apache.lucene.search.PhraseQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
 
-import edu.uci.ics.textdb.api.constants.DataConstants.KeywordMatchingType;
 import edu.uci.ics.textdb.api.dataflow.IOperator;
 import edu.uci.ics.textdb.api.dataflow.ISourceOperator;
 import edu.uci.ics.textdb.api.exception.DataFlowException;
@@ -20,6 +22,7 @@ import edu.uci.ics.textdb.api.schema.AttributeType;
 import edu.uci.ics.textdb.api.schema.Schema;
 import edu.uci.ics.textdb.api.tuple.Tuple;
 import edu.uci.ics.textdb.exp.common.AbstractSingleInputOperator;
+import edu.uci.ics.textdb.exp.utils.DataflowUtils;
 import edu.uci.ics.textdb.storage.DataReader;
 import edu.uci.ics.textdb.storage.RelationManager;
 
@@ -32,34 +35,44 @@ import edu.uci.ics.textdb.storage.RelationManager;
  */
 public class KeywordMatcherSourceOperator extends AbstractSingleInputOperator implements ISourceOperator {
 
-    private KeywordPredicate predicate;
-    private String tableName;
+    private final KeywordPredicate predicate;
 
-    private String keywordQuery;
-
-    private DataReader dataReader;
-    private KeywordMatcher keywordMatcher;
+    private final DataReader dataReader;
+    private final KeywordMatcher keywordMatcher;
     
-    private Schema inputSchema;
+    private final Schema inputSchema;
+    
+    private final ArrayList<String> queryTokenList;
+    private final HashSet<String> queryTokenSet;
+    private ArrayList<String> queryTokensWithStopwords;
+    
 
-    public KeywordMatcherSourceOperator(KeywordPredicate predicate, String tableName) 
+    public KeywordMatcherSourceOperator(KeywordSourcePredicate predicate) 
             throws DataFlowException, StorageException {
         this.predicate = predicate;
-        this.tableName = tableName;
         
-        this.keywordQuery = predicate.getQuery();
+        this.limit = predicate.getLimit();
+        this.offset = predicate.getOffset();
+        this.queryTokenList = DataflowUtils.tokenizeQuery(predicate.getLuceneAnalyzerString(), predicate.getQuery());
+        this.queryTokenSet = new HashSet<>(this.queryTokenList);
         
+        // TODO: standard analyzer is assumed here, rewrite it to deal with other analyzers
+        this.queryTokensWithStopwords = DataflowUtils.tokenizeQueryWithStopwords(predicate.getQuery());
+                
         // input schema must be specified before creating query
-        this.inputSchema = RelationManager.getRelationManager().getTableDataStore(tableName).getSchema();
+        this.inputSchema = RelationManager.getRelationManager().getTableDataStore(predicate.getTableName()).getSchema();
         
         // generate dataReader
         Query luceneQuery = createLuceneQueryObject();
 
-        this.dataReader = RelationManager.getRelationManager().getTableDataReader(tableName, luceneQuery);
+        this.dataReader = RelationManager.getRelationManager().getTableDataReader(predicate.getTableName(), luceneQuery);
         this.dataReader.setPayloadAdded(true);
         
         // generate KeywordMatcher
-        keywordMatcher = new KeywordMatcher(predicate);
+        KeywordPredicate keywordPredicate = new KeywordPredicate(
+                predicate.getQuery(), predicate.getAttributeNames(), predicate.getLuceneAnalyzerString(), predicate.getMatchingType(),
+                null, null);
+        keywordMatcher = new KeywordMatcher(keywordPredicate);
         keywordMatcher.setInputOperator(dataReader);
         
         this.inputOperator = this.keywordMatcher;
@@ -100,10 +113,6 @@ public class KeywordMatcherSourceOperator extends AbstractSingleInputOperator im
     public KeywordPredicate getPredicate() {
         return this.predicate;
     }
-    
-    public String getTableName() {
-        return this.tableName;
-    }
 
     /**
      * Creates a Query object as a boolean Query on all attributes Example: For
@@ -117,13 +126,13 @@ public class KeywordMatcherSourceOperator extends AbstractSingleInputOperator im
      */
     private Query createLuceneQueryObject() throws DataFlowException {
         Query query = null;
-        if (this.predicate.getOperatorType() == KeywordMatchingType.CONJUNCTION_INDEXBASED) {
+        if (this.predicate.getMatchingType() == KeywordMatchingType.CONJUNCTION_INDEXBASED) {
             query = buildConjunctionQuery();
         }
-        if (this.predicate.getOperatorType() == KeywordMatchingType.PHRASE_INDEXBASED) {
+        if (this.predicate.getMatchingType() == KeywordMatchingType.PHRASE_INDEXBASED) {
             query = buildPhraseQuery();
         }
-        if (this.predicate.getOperatorType() == KeywordMatchingType.SUBSTRING_SCANBASED) {
+        if (this.predicate.getMatchingType() == KeywordMatchingType.SUBSTRING_SCANBASED) {
             query = buildScanQuery();
         }
 
@@ -143,12 +152,12 @@ public class KeywordMatcherSourceOperator extends AbstractSingleInputOperator im
             }
 
             if (attributeType == AttributeType.STRING) {
-                Query termQuery = new TermQuery(new Term(attributeName, this.keywordQuery));
+                Query termQuery = new TermQuery(new Term(attributeName, predicate.getQuery()));
                 booleanQueryBuilder.add(termQuery, BooleanClause.Occur.SHOULD);
             }
             if (attributeType == AttributeType.TEXT) {
                 BooleanQuery.Builder fieldQueryBuilder = new BooleanQuery.Builder();
-                for (String token : this.predicate.getQueryTokenSet()) {
+                for (String token : queryTokenSet) {
                     Query termQuery = new TermQuery(new Term(attributeName, token.toLowerCase()));
                     fieldQueryBuilder.add(termQuery, BooleanClause.Occur.MUST);
                 }
@@ -173,20 +182,20 @@ public class KeywordMatcherSourceOperator extends AbstractSingleInputOperator im
             }
 
             if (attributeType == AttributeType.STRING) {
-                Query termQuery = new TermQuery(new Term(attributeName, this.keywordQuery));
+                Query termQuery = new TermQuery(new Term(attributeName, predicate.getQuery()));
                 booleanQueryBuilder.add(termQuery, BooleanClause.Occur.SHOULD);
             }
             if (attributeType == AttributeType.TEXT) {
-                if (this.predicate.getQueryTokenList().size() == 1) {
-                    Query termQuery = new TermQuery(new Term(attributeName, this.keywordQuery.toLowerCase()));
+                if (queryTokenList.size() == 1) {
+                    Query termQuery = new TermQuery(new Term(attributeName, predicate.getQuery().toLowerCase()));
                     booleanQueryBuilder.add(termQuery, BooleanClause.Occur.SHOULD);
                 } else {
                     PhraseQuery.Builder phraseQueryBuilder = new PhraseQuery.Builder();
-                    for (int i = 0; i < this.predicate.getQueryTokensWithStopwords().size(); i++) {
+                    for (int i = 0; i < queryTokensWithStopwords.size(); i++) {
                         if (!StandardAnalyzer.STOP_WORDS_SET
-                                .contains(this.predicate.getQueryTokensWithStopwords().get(i))) {
+                                .contains(queryTokensWithStopwords.get(i))) {
                             phraseQueryBuilder.add(new Term(attributeName,
-                                    this.predicate.getQueryTokensWithStopwords().get(i).toLowerCase()), i);
+                                    queryTokensWithStopwords.get(i).toLowerCase()), i);
                         }
                     }
                     PhraseQuery phraseQuery = phraseQueryBuilder.build();
