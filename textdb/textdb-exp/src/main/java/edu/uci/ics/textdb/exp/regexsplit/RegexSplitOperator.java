@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.apache.lucene.document.FieldType;
 import edu.uci.ics.textdb.api.dataflow.ISourceOperator;
 import edu.uci.ics.textdb.dataflow.common.AbstractSingleInputOperator;
 import junit.framework.Assert;
@@ -25,25 +24,20 @@ import junit.framework.Assert;
  * This class is to divide an attribute of TextField or StringField by using a regex in order to get multiple tuples, 
  * with the other attributes unchanged.
  * 
- * Example:
+ * For example:
  * Source text: "Make America be Great America Again."
  * splitRegex = "America"
- * Split output can be 1 of the following 3, in terms of the SplitTypes:
+ * Split output can be one of the following three based on the SplitTypes:
  * 1. GROUP_RIGHT: ["Make ", "America be Great ", "America Again."]
  * 2. GROUP_LEFT: ["Make America", " be Great America"," Again."]
  * 3. STANDALONE: ["Make ", "America", " be Great ", "America", " Again."]
  * 
- * 
- * Overlaped patterns appeared in STANDALONE model:
- * When a string contains multiple repeated patterns, it will only return the largest one as pattern tuple.
- * Example:
- * Text = "ABACBDCD"
- * regex = "A.*B.*C.*D";
- * result list = <"ABACBDCD">
- *        
- * 
+ * When a string contains multiple repeated patterns, this operator will only return the longest pattern.
+ * For example:
+ * Text = "banana"
+ * regex = "b.*ana";
+ * result list = <"banana">
  */
-
 public class RegexSplitOperator extends AbstractSingleInputOperator implements ISourceOperator{
 
     private RegexSplitPredicate predicate;
@@ -54,7 +48,7 @@ public class RegexSplitOperator extends AbstractSingleInputOperator implements I
 
     public RegexSplitOperator(RegexSplitPredicate predicate) {
         this.predicate = predicate;
-        outputTupleBuffer = null;
+        this.outputTupleBuffer = null;
         this.bufferCursor = -1;
     }
 
@@ -75,16 +69,12 @@ public class RegexSplitOperator extends AbstractSingleInputOperator implements I
             }
 
             populateOutputBuffer(inputTuple);
-            if (this.outputTupleBuffer.size() > 0){
+            if (this.outputTupleBuffer.size() > 0) {
                 this.bufferCursor = 0;
                 break;
             }
         }
-        /*
-         * if (bufferCursor >= outputTupleBuffer.size()) {
-         *   return null;
-         * }
-         */
+        
         Assert.assertEquals(bufferCursor < outputTupleBuffer.size(), true);
         
         //If there is a buffer and cursor < bufferSize, get an output tuple.
@@ -110,16 +100,16 @@ public class RegexSplitOperator extends AbstractSingleInputOperator implements I
         }
 
         String strToSplit = inputTuple.getField(predicate.getAttributeToSplit()).getValue().toString();
-        List<String> stringList = getSplitText(strToSplit);
+        List<String> stringList = splitText(strToSplit);
         outputTupleBuffer = new ArrayList<>();
-        for (String splitText : stringList) {
+        for (String singleMatch : stringList) {
             List<IField> tupleFieldList = new ArrayList<>();
             for (String attributeName : inputSchema.getAttributeNames()) {
                 if (attributeName.equals(predicate.getAttributeToSplit())) {
                     if (attributeType == AttributeType.TEXT) {
-                        tupleFieldList.add(new TextField(splitText));
+                        tupleFieldList.add(new TextField(singleMatch));
                     } else {
-                        tupleFieldList.add(new StringField(splitText));
+                        tupleFieldList.add(new StringField(singleMatch));
                     }
                 } else {
                     tupleFieldList.add(inputTuple.getField(attributeName));
@@ -133,17 +123,17 @@ public class RegexSplitOperator extends AbstractSingleInputOperator implements I
     /*
      *  Process text into list.
      */
-    private List<String> getSplitText(String strText) throws TextDBException {
-        List<String> splitTextList = new ArrayList<>();
+    private List<String> splitText(String strText) throws TextDBException {
+        List<String> stringtList = new ArrayList<>();
         //Create a pattern using regex.
-        Pattern p = Pattern.compile(predicate.getRegex());
+        Pattern pattern = Pattern.compile(predicate.getRegex());
         
         // Match the pattern in the text.
-        Matcher regexMatcher = p.matcher(strText);
+        Matcher regexMatcher = pattern.matcher(strText);
         List<Integer> splitIndex = new ArrayList<Integer>();
         splitIndex.add(0);
         
-        while(regexMatcher.find()){
+        while(regexMatcher.find()) {
             if (predicate.getSplitType() == RegexSplitPredicate.SplitType.GROUP_RIGHT) {
                 splitIndex.add(regexMatcher.start());
             } else if (predicate.getSplitType() == RegexSplitPredicate.SplitType.GROUP_LEFT) {
@@ -158,10 +148,10 @@ public class RegexSplitOperator extends AbstractSingleInputOperator implements I
         
         for (int i = 0 ; i < splitIndex.size() - 1; i++) {
             if (splitIndex.get(i) < splitIndex.get(i+1)) {
-                splitTextList.add(strText.substring(splitIndex.get(i), splitIndex.get(i + 1)));
+                stringtList.add(strText.substring(splitIndex.get(i), splitIndex.get(i + 1)));
             } 
         }
-        return splitTextList;
+        return stringtList;
     }
     
     @Override
