@@ -62,17 +62,16 @@ public class RegexSplitOperator extends AbstractSingleInputOperator implements I
     @Override
     protected Tuple computeNextMatchingTuple() throws TextDBException {
         // Keep fetching the next input tuple until finding a match.
-        while (outputTupleBuffer == null || outputTupleBuffer.size() == 0) {
+        if (outputTupleBuffer == null) {
             Tuple inputTuple = inputOperator.getNextTuple();
             if (inputTuple == null) {
                 return null;
             }
 
             populateOutputBuffer(inputTuple);
-            if (this.outputTupleBuffer.size() > 0) {
-                this.bufferCursor = 0;
-                break;
-            }
+            Assert.assertTrue(this.outputTupleBuffer.size() > 0);
+            
+            this.bufferCursor = 0;
         }
         
         Assert.assertEquals(bufferCursor < outputTupleBuffer.size(), true);
@@ -83,12 +82,12 @@ public class RegexSplitOperator extends AbstractSingleInputOperator implements I
         // If it reaches the end of the buffer, reset the buffer cursor.
         if (bufferCursor == outputTupleBuffer.size()) {
             outputTupleBuffer = null;
-            bufferCursor = 0;
         }
         
         return resultTuple;
     }
-
+    
+    // If the regex does not have any match in the tuple, we return the whole string as the result.
     private void populateOutputBuffer(Tuple inputTuple) throws TextDBException {
         if (inputTuple == null) {
             return;

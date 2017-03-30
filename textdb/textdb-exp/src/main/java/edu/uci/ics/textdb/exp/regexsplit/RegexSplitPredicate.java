@@ -33,8 +33,6 @@ public class RegexSplitPredicate implements IPredicate {
         }
     }
     
-
-    
     private final String regex;
     private final String attributeToSplit;
     private final SplitType splitType;
@@ -73,5 +71,5 @@ public class RegexSplitPredicate implements IPredicate {
     public SplitType getSplitType() {
         return splitType;
     }
-
+    
 }

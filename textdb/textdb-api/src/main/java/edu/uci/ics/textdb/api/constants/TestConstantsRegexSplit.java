@@ -48,15 +48,14 @@ public class TestConstantsRegexSplit {
         try {
             IField[] fields1 = { new StringField("bruce"), new StringField("john Lee"), new IntegerField(46),
                     new DoubleField(5.50), new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-14-1970")),
-                    new TextField("ABCDEABCDFABCDGA") };
+                    new TextField("banana") };
             IField[] fields2 = { new StringField("tom hanks"), new StringField("cruise"), new IntegerField(45),
                     new DoubleField(5.95), new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-13-1971")),
-                    new TextField("ABACBDCD") };
-
+                    new TextField("mississippi") };
+            
             Tuple tuple1 = new Tuple(SCHEMA_PEOPLE, fields1);
             Tuple tuple2 = new Tuple(SCHEMA_PEOPLE, fields2);
-
-
+            
             return Arrays.asList(tuple1, tuple2);   
         } catch (ParseException e) {
             // exception should not happen because we know the data is correct

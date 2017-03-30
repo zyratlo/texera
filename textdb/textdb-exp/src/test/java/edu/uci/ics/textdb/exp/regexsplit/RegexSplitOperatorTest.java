@@ -14,6 +14,7 @@ import edu.uci.ics.textdb.api.constants.TestConstantsRegexSplit;
 import edu.uci.ics.textdb.api.exception.DataFlowException;
 import edu.uci.ics.textdb.api.exception.TextDBException;
 import edu.uci.ics.textdb.api.tuple.Tuple;
+import edu.uci.ics.textdb.api.utils.Utils;
 import edu.uci.ics.textdb.dataflow.source.ScanBasedSourceOperator;
 import edu.uci.ics.textdb.storage.DataWriter;
 import edu.uci.ics.textdb.storage.RelationManager;
@@ -26,12 +27,24 @@ import edu.uci.ics.textdb.storage.constants.LuceneAnalyzerConstants;
  */
 public class RegexSplitOperatorTest {
     
-    public static final String CHINESE_TABLE = "regex_split_test_chinese";
     public static final String REGEX_TABLE = "regex_split_test";
+    public static final String CHINESE_TABLE = "regex_split_test_chinese";
     
     @BeforeClass
     public static void setUp() throws TextDBException {
         RelationManager relationManager = RelationManager.getRelationManager();
+        
+        RelationManager.getRelationManager().deleteTable(REGEX_TABLE);
+        relationManager = RelationManager.getRelationManager();
+        relationManager.createTable(REGEX_TABLE, "../index/test_tables/" + REGEX_TABLE, 
+                TestConstantsRegexSplit.SCHEMA_PEOPLE, LuceneAnalyzerConstants.standardAnalyzerString());
+        DataWriter regexDataWriter = relationManager.getTableDataWriter(REGEX_TABLE);
+        regexDataWriter.open();
+        for (Tuple tuple : TestConstantsRegexSplit.getSamplePeopleTuples()) {
+            regexDataWriter.insertTuple(tuple);
+        }
+        regexDataWriter.close();
+        
         // create the people table and write tuples in Chinese
         relationManager.createTable(CHINESE_TABLE, "../index/test_tables/" + CHINESE_TABLE, 
                 TestConstantsChinese.SCHEMA_PEOPLE, LuceneAnalyzerConstants.chineseAnalyzerString());
@@ -41,17 +54,6 @@ public class RegexSplitOperatorTest {
             chineseDataWriter.insertTuple(tuple);
         }
         chineseDataWriter.close();
-        
-        RelationManager.getRelationManager().deleteTable(REGEX_TABLE);
-        RelationManager relationManager2 = RelationManager.getRelationManager();
-        relationManager2.createTable(REGEX_TABLE, "../index/test_tables/" + REGEX_TABLE, 
-                TestConstantsRegexSplit.SCHEMA_PEOPLE, LuceneAnalyzerConstants.standardAnalyzerString());
-        DataWriter regexDataWriter = relationManager2.getTableDataWriter(REGEX_TABLE);
-        regexDataWriter.open();
-        for (Tuple tuple : TestConstantsRegexSplit.getSamplePeopleTuples()) {
-            regexDataWriter.insertTuple(tuple);
-        }
-        regexDataWriter.close();
     }
     
     @AfterClass
@@ -60,18 +62,18 @@ public class RegexSplitOperatorTest {
         RelationManager.getRelationManager().deleteTable(REGEX_TABLE);
     }
     
-    public static List<Tuple> getRegexSplitResults(
-            String tableName, String splitRegex, String splitAttrName, RegexSplitPredicate.
-            SplitType splitType ) throws TextDBException{
+    public static List<Tuple> computeRegexSplitResults( String tableName, String splitAttrName,
+            String splitRegex, RegexSplitPredicate.SplitType splitType ) throws TextDBException {
+        
         ScanBasedSourceOperator scanSource = new ScanBasedSourceOperator(tableName);
         RegexSplitOperator regexSplit = new RegexSplitOperator(
                 new RegexSplitPredicate(splitRegex, splitAttrName, splitType));
         regexSplit.setInputOperator(scanSource);
         
         List<Tuple> results = new ArrayList<>();
-        Tuple tuple;
         
         regexSplit.open();
+        Tuple tuple;
         while((tuple = regexSplit.getNextTuple()) != null) {
             results.add(tuple);
         }
@@ -80,34 +82,76 @@ public class RegexSplitOperatorTest {
     }
     
     /*
-     *  To divide the non (TextField | StringField) field. 
-     *  This will fail.
+     *  To split a field that is not TextField nor StringField.
+     *  The split() will fail.
      */
     @Test(expected = DataFlowException.class)
     public void test1() throws TextDBException {
         String splitRegex = "19";
         String splitAttrName = TestConstantsChinese.DATE_OF_BIRTH;
-        boolean catchException = false;
-        List<Tuple> results = getRegexSplitResults(CHINESE_TABLE, splitRegex, splitAttrName, 
+        List<Tuple> results = computeRegexSplitResults(CHINESE_TABLE, splitAttrName, splitRegex, 
                 RegexSplitPredicate.SplitType.GROUP_RIGHT);
     }
     
     /*
-     * Overlaped patterns in STANDALONE model:
-     * When a string contains multiple patterns overlap in position, it will only return the largest one as tuple.
+     * No pattern found in field:
+     * It will not split the field and return the original filed as result tuple filed.
      */
     @Test
     public void test2() throws TextDBException {
-        String splitRegex = "A.*B.*C.*D";
+        String splitRegex = "hi";
         String splitAttrName = TestConstantsRegexSplit.DESCRIPTION;
         
         List<String> splitResult = new ArrayList<>();
-        splitResult.add("ABCDEABCDFABCD");
-        splitResult.add("GA");
-        splitResult.add("ABACBDCD");
+        splitResult.add("banana");
+        splitResult.add("mississippi");
         
-        List<Tuple> results = getRegexSplitResults(REGEX_TABLE, splitRegex, splitAttrName, 
+        List<Tuple> results = computeRegexSplitResults(REGEX_TABLE, splitAttrName, splitRegex, 
                 RegexSplitPredicate.SplitType.STANDALONE);
+        
+        List<String> splitStrings = results.stream()
+                .map(tuple -> tuple.getField(TestConstantsRegexSplit.DESCRIPTION).getValue().toString())
+                .collect(Collectors.toList());
+        Assert.assertEquals(splitResult, splitStrings);
+    }
+    /*
+     * Overlaped patterns in STANDALONE model:
+     * When a string contains multiple patterns overlap in position, it will only return the longest one as tuple.
+     */
+    @Test
+    public void test3() throws TextDBException {
+        String splitRegex = "b.*a";
+        String splitAttrName = TestConstantsRegexSplit.DESCRIPTION;
+        
+        List<String> splitResult = new ArrayList<>();
+        splitResult.add("banana");
+        splitResult.add("mississippi");
+        
+        List<Tuple> results = computeRegexSplitResults(REGEX_TABLE, splitAttrName, splitRegex, 
+                RegexSplitPredicate.SplitType.STANDALONE);
+        
+        List<String> splitStrings = results.stream()
+                .map(tuple -> tuple.getField(TestConstantsRegexSplit.DESCRIPTION).getValue().toString())
+                .collect(Collectors.toList());
+        Assert.assertEquals(splitResult, splitStrings);
+    }
+    
+    /*
+     * Overlaped patterns in GROUP_LEFT model:
+     * When a string contains multiple patterns overlap in position, it will only return the longest one as tuple.
+     */
+    @Test
+    public void test4() throws TextDBException {
+        String splitRegex = "a.*n";
+        String splitAttrName = TestConstantsRegexSplit.DESCRIPTION;
+        
+        List<String> splitResult = new ArrayList<>();
+        splitResult.add("banan");
+        splitResult.add("a");
+        splitResult.add("mississippi");
+        
+        List<Tuple> results = computeRegexSplitResults(REGEX_TABLE, splitAttrName, splitRegex, 
+                RegexSplitPredicate.SplitType.GROUP_LEFT);
         
         List<String> splitStrings = results.stream()
                 .map(tuple -> tuple.getField(TestConstantsRegexSplit.DESCRIPTION).getValue().toString())
@@ -119,18 +163,17 @@ public class RegexSplitOperatorTest {
      * Overlaped patterns in STANDALONE model:
      */
     @Test
-    public void test3() throws TextDBException {
-        String splitRegex = "A.{1,5}A";
+    public void test5() throws TextDBException {
+        String splitRegex = "ana";
         String splitAttrName = TestConstantsRegexSplit.DESCRIPTION;
         
         List<String> splitResult = new ArrayList<>();
-        splitResult.add("ABCDEA");
-        splitResult.add("BCDF");
-        splitResult.add("ABCDGA");
-        splitResult.add("ABA");
-        splitResult.add("CBDCD");
+        splitResult.add("b");
+        splitResult.add("ana");
+        splitResult.add("na");
+        splitResult.add("mississippi");
         
-        List<Tuple> results = getRegexSplitResults(REGEX_TABLE, splitRegex, splitAttrName, 
+        List<Tuple> results = computeRegexSplitResults(REGEX_TABLE, splitAttrName, splitRegex, 
                 RegexSplitPredicate.SplitType.STANDALONE);
         
         List<String> splitStrings = results.stream()
@@ -143,7 +186,7 @@ public class RegexSplitOperatorTest {
      *  Divide the String field.
      */
     @Test
-    public void test4() throws TextDBException {
+    public void test6() throws TextDBException {
         String splitRegex = "克";
         String splitAttrName = TestConstantsChinese.LAST_NAME;
         
@@ -154,7 +197,7 @@ public class RegexSplitOperatorTest {
         splitResult.add("贝尔");
         splitResult.add("建筑");
         
-        List<Tuple> results = getRegexSplitResults(CHINESE_TABLE, splitRegex, splitAttrName, 
+        List<Tuple> results = computeRegexSplitResults(CHINESE_TABLE, splitAttrName, splitRegex, 
                 RegexSplitPredicate.SplitType.STANDALONE);
         
         List<String> splitStrings = results.stream()
@@ -168,7 +211,7 @@ public class RegexSplitOperatorTest {
      *  Group the pattern string to right group for dividing TextField.
      */
     @Test
-    public void test5() throws TextDBException {
+    public void test7() throws TextDBException {
         String splitRegex = "学";
         String splitAttrName = TestConstantsChinese.DESCRIPTION;
         
@@ -181,7 +224,7 @@ public class RegexSplitOperatorTest {
         splitResult.add("学院");
         splitResult.add("伟大的建筑是历史的坐标，具有传承的价值。");
         
-        List<Tuple> results = getRegexSplitResults(CHINESE_TABLE, splitRegex, splitAttrName, 
+        List<Tuple> results = computeRegexSplitResults(CHINESE_TABLE, splitAttrName, splitRegex, 
                 RegexSplitPredicate.SplitType.GROUP_RIGHT);
         
         List<String> splitStrings = results.stream()
@@ -195,7 +238,7 @@ public class RegexSplitOperatorTest {
      * Group the pattern string to the left tuple for dividing TextField.
      */
     @Test
-    public void test6() throws TextDBException {
+    public void test8() throws TextDBException {
         String splitRegex = "学";
         String splitAttrName = TestConstantsChinese.DESCRIPTION;
         
@@ -208,7 +251,7 @@ public class RegexSplitOperatorTest {
         splitResult.add("院");
         splitResult.add("伟大的建筑是历史的坐标，具有传承的价值。");
         
-        List<Tuple> results = getRegexSplitResults(CHINESE_TABLE, splitRegex, splitAttrName, 
+        List<Tuple> results = computeRegexSplitResults(CHINESE_TABLE, splitAttrName, splitRegex, 
                 RegexSplitPredicate.SplitType.GROUP_LEFT);
         
         List<String> splitStrings = results.stream()
@@ -222,7 +265,7 @@ public class RegexSplitOperatorTest {
      * Group the pattern string to a standalone tuple for dividing TextField.
      */
     @Test
-    public void test7() throws TextDBException {
+    public void test9() throws TextDBException {
         String splitRegex = "学";
         String splitAttrName = TestConstantsChinese.DESCRIPTION;
         
@@ -239,7 +282,7 @@ public class RegexSplitOperatorTest {
         splitResult.add("院");
         splitResult.add("伟大的建筑是历史的坐标，具有传承的价值。");
         
-        List<Tuple> results = getRegexSplitResults(CHINESE_TABLE, splitRegex, splitAttrName, 
+        List<Tuple> results = computeRegexSplitResults(CHINESE_TABLE, splitAttrName, splitRegex, 
                 RegexSplitPredicate.SplitType.STANDALONE);
         
         List<String> splitStrings = results.stream()
@@ -254,7 +297,7 @@ public class RegexSplitOperatorTest {
      * It will return the whole text as a tuple field.
      */
     @Test
-    public void test8() throws TextDBException {
+    public void test10() throws TextDBException {
         String splitRegex = "北京大学电气工程学院";
         String splitAttrName = TestConstantsChinese.DESCRIPTION;
         
@@ -263,7 +306,7 @@ public class RegexSplitOperatorTest {
         splitResult.add("北京大学计算机学院");
         splitResult.add("伟大的建筑是历史的坐标，具有传承的价值。");
         
-        List<Tuple> results = getRegexSplitResults(CHINESE_TABLE, splitRegex, splitAttrName, 
+        List<Tuple> results = computeRegexSplitResults(CHINESE_TABLE, splitAttrName, splitRegex, 
                 RegexSplitPredicate.SplitType.STANDALONE);
         
         List<String> splitStrings = results.stream()
@@ -278,7 +321,7 @@ public class RegexSplitOperatorTest {
      * It will return the whole text as one tuple field.
      */
     @Test
-    public void test9() throws TextDBException {
+    public void test11() throws TextDBException {
         String splitRegex = "美利坚合众国";
         String splitAttrName = TestConstantsChinese.DESCRIPTION;
         
@@ -287,7 +330,7 @@ public class RegexSplitOperatorTest {
         splitResult.add("北京大学计算机学院");
         splitResult.add("伟大的建筑是历史的坐标，具有传承的价值。");
         
-        List<Tuple> results = getRegexSplitResults(CHINESE_TABLE, splitRegex, splitAttrName, 
+        List<Tuple> results = computeRegexSplitResults(CHINESE_TABLE, splitAttrName, splitRegex, 
                 RegexSplitPredicate.SplitType.STANDALONE);
         
         List<String> splitStrings = results.stream()
@@ -296,5 +339,5 @@ public class RegexSplitOperatorTest {
 
         Assert.assertEquals(splitResult, splitStrings);
     }
-
+    
 }
