@@ -11,7 +11,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import org.junit.Assert;
+
 import edu.uci.ics.textdb.dataflow.common.AbstractSingleInputOperator;
+import edu.uci.ics.textdb.exp.sampler.SamplerPredicate.SampleType;
 
 /**
  * @author Qinhua Huang
@@ -33,27 +36,26 @@ import edu.uci.ics.textdb.dataflow.common.AbstractSingleInputOperator;
 public class Sampler extends AbstractSingleInputOperator implements ISourceOperator{
 
     private SamplerPredicate predicate;
-
-    private List<Tuple> reservoirTupleBuffer;
+    private List<Tuple> sampleBuffer;
     private int bufferCursor;
-;
     private Schema inputSchema;
     
     public Sampler(SamplerPredicate predicate) {
         this.predicate = predicate;
-        reservoirTupleBuffer = null;
+        this.sampleBuffer = null;
         this.bufferCursor = -1;
-
+        
     }
 
     @Override
     protected void setUp() throws DataFlowException {
         inputSchema = inputOperator.getOutputSchema();
         outputSchema = inputSchema;
+        
     }
 
-    public void sampleTuples() throws TextDBException {
-        reservoirTupleBuffer = new ArrayList<Tuple>();
+    public void constructSampleBuffer() throws TextDBException {
+        sampleBuffer = new ArrayList<Tuple>();
         
         Random genRandom;
         genRandom = new Random(System.currentTimeMillis());
@@ -61,65 +63,59 @@ public class Sampler extends AbstractSingleInputOperator implements ISourceOpera
         Tuple tuple;
         int count = 0;
         while ((tuple = inputOperator.getNextTuple()) != null) {
-            if (count < predicate.getReservoirSize()) {
-                reservoirTupleBuffer.add(tuple);
+            if (count < predicate.getSampleSize()) {
+                sampleBuffer.add(tuple);
             } else {
+                // Exit the loop in topK mode.
+                if (this.predicate.getSampleType() == SampleType.FIRST_K_ARRIVAL) {
+                    break;
+                }
                 /*
+                 *  Using reservoir sampling method to sample tuples.
                  *  In effect, for all tuples, the ith tuple is chosen 
                  *  to be included in the reservoir with probability
-                 *  ReservoirSize / i.
+                 *  sampleSize / i.
                  */
-                int randomPos = genRandom.nextInt(count);
-                if (randomPos < predicate.getReservoirSize()) {
-                    reservoirTupleBuffer.set(randomPos, tuple);
+                if (this.predicate.getSampleType() == SampleType.RANDOM_SAMPLE) {
+                    int randomPos = genRandom.nextInt(count);
+                    if (randomPos < predicate.getSampleSize()) {
+                        sampleBuffer.set(randomPos, tuple);
+                    }
                 }
             }
             count++;
         }
     }
-
+    
     @Override
     protected Tuple computeNextMatchingTuple() throws TextDBException {
-        if (predicate.getReservoirSize() < 1) {
+        if (predicate.getSampleSize() < 1) {
             return null;
         }
-        if (reservoirTupleBuffer == null || reservoirTupleBuffer.size() == 0) {
-            sampleTuples();
-            if (this.reservoirTupleBuffer.size() > 0) {
-                this.bufferCursor = 0;
-            }
+        if (sampleBuffer == null) {
+            constructSampleBuffer();
+            this.bufferCursor = 0;
         }
-        if (bufferCursor == reservoirTupleBuffer.size())
+        if (sampleBuffer == null || bufferCursor == sampleBuffer.size()) {
             return null;
+        }
 
-        /*
-         * If there is a buffer and cursor < reservoirTupleBuffer.size, 
-         * get an output tuple.
-         */
-        Tuple resultTuple = reservoirTupleBuffer.get(bufferCursor);
+        // get an output tuple.
+        Tuple resultTuple = sampleBuffer.get(bufferCursor);
         bufferCursor++;
-        /*
-         * If it reaches the end of the buffer, reset the buffer cursor.
-         */
-        if (bufferCursor == reservoirTupleBuffer.size()) {
-            reservoirTupleBuffer = null;
-            bufferCursor = 0;
-        }
-        
+
         return resultTuple;
     }
     
-    
     @Override
     protected void cleanUp() throws TextDBException {
-        reservoirTupleBuffer = null;
-        bufferCursor = 0;
+        sampleBuffer = null;
+        bufferCursor = -1;
     }
     
     public SamplerPredicate getPredicate() {
         return this.predicate;
     }
-
     
     @Override
     public Tuple processOneInputTuple(Tuple inputTuple) throws TextDBException {
