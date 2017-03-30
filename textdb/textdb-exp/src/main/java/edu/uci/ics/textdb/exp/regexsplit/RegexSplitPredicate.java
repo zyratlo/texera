@@ -33,8 +33,8 @@ public class RegexSplitPredicate implements IPredicate {
         }
     }
     
-    private final String regex;
-    private final String attributeToSplit;
+    private final String splitRegex;
+    private final String splitAttribute;
     private final SplitType splitType;
     
     /**
@@ -46,25 +46,25 @@ public class RegexSplitPredicate implements IPredicate {
      */
     @JsonCreator
     public RegexSplitPredicate(
-            @JsonProperty(value=PropertyNameConstants.REGEX_QUERY, required=true)
-            String regex,            
-            @JsonProperty(value=PropertyNameConstants.ATTRIBUTE_TO_SPLIT, required=true)
-            String attributeToSplit,            
+            @JsonProperty(value=PropertyNameConstants.SPLIT_REGEX, required=true)
+            String splitRegex,
+            @JsonProperty(value=PropertyNameConstants.SPLIT_ATTRIBUTE, required=true)
+            String splitAttribute,
             @JsonProperty(value=PropertyNameConstants.SPLIT_TYPE, required=true)
             SplitType splitType ) {
-        this.regex = regex;
-        this.attributeToSplit = attributeToSplit;
+        this.splitRegex = splitRegex;
+        this.splitAttribute = splitAttribute;
         this.splitType = splitType;
     }
     
-    @JsonProperty(PropertyNameConstants.REGEX_QUERY)
+    @JsonProperty(PropertyNameConstants.SPLIT_REGEX)
     public String getRegex() {
-        return regex;
+        return splitRegex;
     }
     
-    @JsonProperty(PropertyNameConstants.ATTRIBUTE_TO_SPLIT)
+    @JsonProperty(PropertyNameConstants.SPLIT_ATTRIBUTE)
     public String getAttributeToSplit() {
-        return attributeToSplit;
+        return splitAttribute;
     }
     
     @JsonProperty(PropertyNameConstants.SPLIT_TYPE)

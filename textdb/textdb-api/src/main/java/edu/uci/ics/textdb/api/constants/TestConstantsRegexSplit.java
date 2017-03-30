@@ -43,7 +43,7 @@ public class TestConstantsRegexSplit {
             DATE_OF_BIRTH_ATTR, DESCRIPTION_ATTR };
     public static final Schema SCHEMA_PEOPLE = new Schema(ATTRIBUTES_PEOPLE);
 
-    public static List<Tuple> getSamplePeopleTuples() {
+    public static List<Tuple> constructSamplePeopleTuples() {
         
         try {
             IField[] fields1 = { new StringField("bruce"), new StringField("john Lee"), new IntegerField(46),

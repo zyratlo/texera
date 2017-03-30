@@ -40,7 +40,7 @@ public class RegexSplitOperatorTest {
                 TestConstantsRegexSplit.SCHEMA_PEOPLE, LuceneAnalyzerConstants.standardAnalyzerString());
         DataWriter regexDataWriter = relationManager.getTableDataWriter(REGEX_TABLE);
         regexDataWriter.open();
-        for (Tuple tuple : TestConstantsRegexSplit.getSamplePeopleTuples()) {
+        for (Tuple tuple : TestConstantsRegexSplit.constructSamplePeopleTuples()) {
             regexDataWriter.insertTuple(tuple);
         }
         regexDataWriter.close();
@@ -82,8 +82,8 @@ public class RegexSplitOperatorTest {
     }
     
     /*
-     *  To split a field that is not TextField nor StringField.
-     *  The split() will fail.
+     *  When splitting a field that is not TextField nor StringField, the 
+     *  operator will throw an exception.
      */
     @Test(expected = DataFlowException.class)
     public void test1() throws TextDBException {
@@ -94,8 +94,8 @@ public class RegexSplitOperatorTest {
     }
     
     /*
-     * No pattern found in field:
-     * It will not split the field and return the original filed as result tuple filed.
+     * If no pattern is found in the field, the operator will not split the field.
+     * Instead, it will return the original field as the result.
      */
     @Test
     public void test2() throws TextDBException {
@@ -115,8 +115,8 @@ public class RegexSplitOperatorTest {
         Assert.assertEquals(splitResult, splitStrings);
     }
     /*
-     * Overlaped patterns in STANDALONE model:
-     * When a string contains multiple patterns overlap in position, it will only return the longest one as tuple.
+     * In the STANDALONE mode, when a string contains multiple overlapping matching patterns, 
+     * the operator will only return the longest one as the result.
      */
     @Test
     public void test3() throws TextDBException {
@@ -137,8 +137,7 @@ public class RegexSplitOperatorTest {
     }
     
     /*
-     * GROUP_LEFT model:
-     * It will group the patterns to the left part.
+     * In the GROUP_LEFT mode, the operator will group the matching patterns to the left.
      */
     @Test
     public void test4() throws TextDBException {
@@ -160,8 +159,7 @@ public class RegexSplitOperatorTest {
     }
     
     /*
-     * GROUP_RIGHT model:
-      * It will group the patterns to the right part.
+     * In the GROUP_RIGHT mode, the operator will group the matching patterns to the right.
      */
     @Test
     public void test5() throws TextDBException {
@@ -183,7 +181,8 @@ public class RegexSplitOperatorTest {
     }
     
     /*
-     * Overlaped patterns in STANDALONE model:
+     * The word "banana" matches "ana" twice, but since the two matches overlap, the
+     * operator will only return the first match. It's a behavior of the Pattern.matcher(). 
      */
     @Test
     public void test6() throws TextDBException {
@@ -206,10 +205,10 @@ public class RegexSplitOperatorTest {
     }
     
     /*
-     *  Divide the String field.
+     * Chinese test: STANDALONE, string field.
      */
     @Test
-    public void test7() throws TextDBException {
+    public void testChinese1() throws TextDBException {
         String splitRegex = "克";
         String splitAttrName = TestConstantsChinese.LAST_NAME;
         
@@ -231,10 +230,10 @@ public class RegexSplitOperatorTest {
     }
     
     /*
-     *  Group the pattern string to right group for dividing TextField.
+     * Chinese test: GROUP_RIGHT, text field.
      */
     @Test
-    public void test8() throws TextDBException {
+    public void testChinese2() throws TextDBException {
         String splitRegex = "学";
         String splitAttrName = TestConstantsChinese.DESCRIPTION;
         
@@ -258,10 +257,10 @@ public class RegexSplitOperatorTest {
     }
     
     /*
-     * Group the pattern string to the left tuple for dividing TextField.
+     * Chinese test: GROUP_LEFT, text field.
      */
     @Test
-    public void test9() throws TextDBException {
+    public void testChinese3() throws TextDBException {
         String splitRegex = "学";
         String splitAttrName = TestConstantsChinese.DESCRIPTION;
         
@@ -285,10 +284,10 @@ public class RegexSplitOperatorTest {
     }
     
     /*
-     * Group the pattern string to a standalone tuple for dividing TextField.
+     * Chinese test: STANDALONE, text field.
      */
     @Test
-    public void test10() throws TextDBException {
+    public void testChinese4() throws TextDBException {
         String splitRegex = "学";
         String splitAttrName = TestConstantsChinese.DESCRIPTION;
         
@@ -316,11 +315,10 @@ public class RegexSplitOperatorTest {
     }
     
     /*
-     * Pattern was whole match to the text.
-     * It will return the whole text as a tuple field.
+     * Chinese test: STANDALONE, text field, matching the whole field.
      */
     @Test
-    public void test11() throws TextDBException {
+    public void testChinese5() throws TextDBException {
         String splitRegex = "北京大学电气工程学院";
         String splitAttrName = TestConstantsChinese.DESCRIPTION;
         
@@ -340,11 +338,10 @@ public class RegexSplitOperatorTest {
     }
 
     /*
-     * No match to the text.
-     * It will return the whole text as one tuple field.
+     * Chinese test: STANDALONE, text field, no matching.
      */
     @Test
-    public void test12() throws TextDBException {
+    public void testChinese6() throws TextDBException {
         String splitRegex = "美利坚合众国";
         String splitAttrName = TestConstantsChinese.DESCRIPTION;
         

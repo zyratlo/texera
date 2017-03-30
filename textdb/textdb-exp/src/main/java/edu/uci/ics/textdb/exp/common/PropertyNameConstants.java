@@ -33,7 +33,8 @@ public class PropertyNameConstants {
     public static final String FUZZY_TOKEN_QUERY = "query";
     
     // related to regex splitter
-    public static final String ATTRIBUTE_TO_SPLIT = "attributeToSplit";
+    public static final String SPLIT_ATTRIBUTE = "splitAttribute";
     public static final String SPLIT_TYPE = "splitType";
+    public static final String SPLIT_REGEX = "splitRegex";
 
 }
