@@ -17,9 +17,7 @@ import edu.uci.ics.textdb.storage.RelationManager;
 import edu.uci.ics.textdb.storage.constants.LuceneAnalyzerConstants;
 
 /**
- * 
  * @author Qinhua Huang
- *
  */
 
 public class SamplerTest {
@@ -29,7 +27,7 @@ public class SamplerTest {
     @BeforeClass
     public static void setUp() throws TextDBException {
         RelationManager relationManager = RelationManager.getRelationManager();
-        // create the people table and write tuples
+        // Create the people table and write tuples
         
         RelationManager.getRelationManager().deleteTable(SAMPLER_TABLE);
         RelationManager relationManager2 = RelationManager.getRelationManager();
@@ -50,7 +48,8 @@ public class SamplerTest {
         RelationManager.getRelationManager().deleteTable(SAMPLER_TABLE);
     }
     
-    public static List<Tuple> getSampleResults(String tableName, int k, SampleType sampleType ) throws TextDBException{
+    public static List<Tuple> computeSampleResults(String tableName, int k,
+            SampleType sampleType ) throws TextDBException{
         
         ScanBasedSourceOperator scanSource = new ScanBasedSourceOperator(tableName);
         Sampler tupleSampler = new Sampler(new SamplerPredicate(k, sampleType));
@@ -69,60 +68,58 @@ public class SamplerTest {
     
     
     /*
-     * Sample the first-arrived 0 tuple in FIRST_K_ARRIVAL mode
+     * Sample 0 tuple in FIRST_K_ARRIVAL mode
      */
-    
     @Test
     public void test1() throws TextDBException {
-        List<Tuple> results = getSampleResults(SAMPLER_TABLE,0, SampleType.FIRST_K_ARRIVAL);
+        List<Tuple> results = computeSampleResults(SAMPLER_TABLE,0, SampleType.FIRST_K_ARRIVAL);
         Assert.assertEquals(results.size(), 0);
     }
-    /*
-     * Sample the first-arrived 1 tuple in FIRST_K_ARRIVAL mode.
-     */
     
+    /*
+     * Sample the first tuple in FIRST_K_ARRIVAL mode.
+     */
     @Test
     public void test2() throws TextDBException {
-        List<Tuple> results = getSampleResults(SAMPLER_TABLE,1, SampleType.FIRST_K_ARRIVAL);
+        List<Tuple> results = computeSampleResults(SAMPLER_TABLE,1, SampleType.FIRST_K_ARRIVAL);
         Assert.assertEquals(results.size(), 1);
     }
     
     /*
-     * Sample the all tuples in FIRST_K_ARRIVAL mode.
+     * Sample all the tuples in FIRST_K_ARRIVAL mode.
      */
-    
     @Test
     public void test3() throws TextDBException {
-        List<Tuple> results = getSampleResults(SAMPLER_TABLE,indexSize, SampleType.FIRST_K_ARRIVAL);
+        List<Tuple> results = computeSampleResults(SAMPLER_TABLE,indexSize, SampleType.FIRST_K_ARRIVAL);
         Assert.assertEquals(results.size(), indexSize);
     }
     
     /*
-     * Sample more tuples than the index contained in FIRST_K_ARRIVAL mode.
+     * Try to sample tuples more than the previous operator can get in FIRST_K_ARRIVAL mode.
+     * It should return all tuples get from the previous operator as result.
      */
     
     @Test
     public void test4() throws TextDBException {
-        List<Tuple> results = getSampleResults(SAMPLER_TABLE,indexSize+1, SampleType.FIRST_K_ARRIVAL);
+        List<Tuple> results = computeSampleResults(SAMPLER_TABLE,indexSize+1, SampleType.FIRST_K_ARRIVAL);
         Assert.assertEquals(results.size(), indexSize);
     }
     
     /*
-     * Sample a middle number between [0, indexSize] in RANDOM_SAMPLE mode
+     * Sample tuples in number between 0 and indexSize in RANDOM_SAMPLE mode
      */
     @Test
     public void test5() throws TextDBException {
-        List<Tuple> results = getSampleResults(SAMPLER_TABLE,2, SampleType.RANDOM_SAMPLE);
+        List<Tuple> results = computeSampleResults(SAMPLER_TABLE,2, SampleType.RANDOM_SAMPLE);
         Assert.assertEquals(results.size(), 2);
-
     }
     
     /*
-     * Sample 0 tuples in RANDOM_SAMPLE mode.
+     * Sample zero tuple in RANDOM_SAMPLE mode.
      */
     @Test
     public void test6() throws TextDBException {
-        List<Tuple> results = getSampleResults(SAMPLER_TABLE,0, SampleType.RANDOM_SAMPLE);
+        List<Tuple> results = computeSampleResults(SAMPLER_TABLE,0, SampleType.RANDOM_SAMPLE);
         Assert.assertEquals(results.size(), 0);
     }
     
@@ -131,17 +128,17 @@ public class SamplerTest {
      */
     @Test
     public void test7() throws TextDBException {
-        List<Tuple> results = getSampleResults(SAMPLER_TABLE,indexSize, SampleType.RANDOM_SAMPLE);
+        List<Tuple> results = computeSampleResults(SAMPLER_TABLE,indexSize, SampleType.RANDOM_SAMPLE);
         Assert.assertEquals(results.size(), indexSize);
     }
     
     /*
-     * Sample more tuples than the index contained in RANDOM_SAMPLE mode.
-     * It will return all the tuples in the index.
+     * Try to sample tuples more than the previous operator can get in RANDOM_SAMPLE mode.
+     * It should return all tuples get from the previous operator as result.
      */
     @Test
     public void test8() throws TextDBException {
-        List<Tuple> results = getSampleResults(SAMPLER_TABLE,indexSize+1, SampleType.RANDOM_SAMPLE);
+        List<Tuple> results = computeSampleResults(SAMPLER_TABLE,indexSize+1, SampleType.RANDOM_SAMPLE);
         Assert.assertEquals(results.size(), indexSize);
     }
 }

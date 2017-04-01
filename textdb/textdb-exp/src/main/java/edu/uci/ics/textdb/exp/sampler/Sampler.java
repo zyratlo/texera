@@ -1,40 +1,33 @@
 package edu.uci.ics.textdb.exp.sampler;
 
-
 import edu.uci.ics.textdb.api.dataflow.ISourceOperator;
 import edu.uci.ics.textdb.api.exception.DataFlowException;
 import edu.uci.ics.textdb.api.exception.TextDBException;
 import edu.uci.ics.textdb.api.schema.Schema;
 import edu.uci.ics.textdb.api.tuple.Tuple;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-
-import org.junit.Assert;
-
 import edu.uci.ics.textdb.dataflow.common.AbstractSingleInputOperator;
 import edu.uci.ics.textdb.exp.sampler.SamplerPredicate.SampleType;
 
 /**
  * @author Qinhua Huang
  * 
- * This class is to sample k tuples from the tuples stream using reservoir sampling algorithm.
- * The probability of sampling for each tuple is k/sizeof(all tuples).
+ * This class is to sample tuples from the incoming stream tuples. It has two modes,
+ * first k-arrival and random. 
  * 
- * Example:
- * Tuples: 1,2,3,4,5,6,7,8,9,10
- * sample size k: 3
- * output:
- * the result is in randomly uniform distribution.
- * one possible result:
- *  1, 6, 2
- *        
+ * Here are two examples to sample 3 tuples from tuple source.
+ * 1. Example: SampleType.FIRST_K_ARRIVAL mode.
+ * Tuple source: A, B，C，D，E，F，G，H
+ * output: A，B，C
  * 
+ * 2. Example: SampleType.RANDOM_SAMPLE mode.
+ * Tuples source: A, B，C，D，E，F，G，H
+ * The result is in randomly distributed.
+ * One possible result: E, B, H
  */
-
 public class Sampler extends AbstractSingleInputOperator implements ISourceOperator{
-
     private SamplerPredicate predicate;
     private List<Tuple> sampleBuffer;
     private int bufferCursor;
@@ -44,21 +37,19 @@ public class Sampler extends AbstractSingleInputOperator implements ISourceOpera
         this.predicate = predicate;
         this.sampleBuffer = null;
         this.bufferCursor = -1;
-        
     }
-
+    
     @Override
     protected void setUp() throws DataFlowException {
-        inputSchema = inputOperator.getOutputSchema();
-        outputSchema = inputSchema;
-        
+        this.inputSchema = inputOperator.getOutputSchema();
+        this.outputSchema = this.inputSchema;
     }
-
+    
     public void constructSampleBuffer() throws TextDBException {
         sampleBuffer = new ArrayList<Tuple>();
         
-        Random genRandom;
-        genRandom = new Random(System.currentTimeMillis());
+        Random random;
+        random = new Random(System.currentTimeMillis());
         
         Tuple tuple;
         int count = 0;
@@ -66,18 +57,20 @@ public class Sampler extends AbstractSingleInputOperator implements ISourceOpera
             if (count < predicate.getSampleSize()) {
                 sampleBuffer.add(tuple);
             } else {
-                // Exit the loop in topK mode.
+                /* In SampleType.FIRST_K_ARRIVAL mode, when the samleBuffer is full,
+                 * it will finish constructing the buffer tuples and return.
+                 */
                 if (this.predicate.getSampleType() == SampleType.FIRST_K_ARRIVAL) {
                     break;
                 }
                 /*
-                 *  Using reservoir sampling method to sample tuples.
-                 *  In effect, for all tuples, the ith tuple is chosen 
-                 *  to be included in the reservoir with probability
-                 *  sampleSize / i.
+                 *  In SampleType.RANDOM_SAMPLE mode, the reservoir sampling algorithm is
+                 *  used to sample tuples.
+                 *  When the buffer is full, the ith incoming tuple is chosen to replace
+                 *  tuple the buffer with probability of bufferSize / i.
                  */
                 if (this.predicate.getSampleType() == SampleType.RANDOM_SAMPLE) {
-                    int randomPos = genRandom.nextInt(count);
+                    int randomPos = random.nextInt(count);
                     if (randomPos < predicate.getSampleSize()) {
                         sampleBuffer.set(randomPos, tuple);
                     }
@@ -91,19 +84,19 @@ public class Sampler extends AbstractSingleInputOperator implements ISourceOpera
     protected Tuple computeNextMatchingTuple() throws TextDBException {
         if (predicate.getSampleSize() < 1) {
             return null;
-        }
+        } 
         if (sampleBuffer == null) {
             constructSampleBuffer();
             this.bufferCursor = 0;
         }
-        if (sampleBuffer == null || bufferCursor == sampleBuffer.size()) {
+        if (bufferCursor == sampleBuffer.size()) {
             return null;
         }
-
-        // get an output tuple.
+        
+        // Compute one result tuple.
         Tuple resultTuple = sampleBuffer.get(bufferCursor);
         bufferCursor++;
-
+        
         return resultTuple;
     }
     
@@ -122,4 +115,3 @@ public class Sampler extends AbstractSingleInputOperator implements ISourceOpera
         throw new RuntimeException("Sampler does not support process one tuple");
     }
 }
-

@@ -6,11 +6,9 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 import edu.uci.ics.textdb.api.dataflow.IPredicate;
 import edu.uci.ics.textdb.exp.common.PropertyNameConstants;
-import edu.uci.ics.textdb.exp.keywordmatcher.KeywordMatchingType;
 
 /**
  * @author Qinhua Huang
- *
  */
 public class SamplerPredicate implements IPredicate {
     
@@ -53,5 +51,5 @@ public class SamplerPredicate implements IPredicate {
     public SampleType getSampleType() {
         return sampleType;
     }
-
+    
 }
