@@ -8,7 +8,8 @@ import edu.uci.ics.textdb.api.tuple.Tuple;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import edu.uci.ics.textdb.dataflow.common.AbstractSingleInputOperator;
+
+import edu.uci.ics.textdb.exp.common.AbstractSingleInputOperator;
 import edu.uci.ics.textdb.exp.sampler.SamplerPredicate.SampleType;
 
 /**
