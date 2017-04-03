@@ -55,7 +55,7 @@ public class ScanBasedSourceOperatorTest {
     public void testFlow() throws TextDBException, ParseException {
         List<Tuple> actualTuples = TestConstants.getSamplePeopleTuples();
         
-        ScanBasedSourceOperator scanBasedSourceOperator = new ScanBasedSourceOperator(PEOPLE_TABLE);
+        ScanBasedSourceOperator scanBasedSourceOperator = new ScanBasedSourceOperator(new ScanSourcePredicate(PEOPLE_TABLE));
         scanBasedSourceOperator.open();
         Tuple nextTuple = null;
         int numTuples = 0;
