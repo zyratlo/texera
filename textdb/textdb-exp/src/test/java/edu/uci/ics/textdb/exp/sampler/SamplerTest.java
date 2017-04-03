@@ -30,10 +30,9 @@ public class SamplerTest {
         // Create the people table and write tuples
         
         RelationManager.getRelationManager().deleteTable(SAMPLER_TABLE);
-        RelationManager relationManager2 = RelationManager.getRelationManager();
-        relationManager2.createTable(SAMPLER_TABLE, "../index/test_tables/" + SAMPLER_TABLE, 
+        relationManager.createTable(SAMPLER_TABLE, "../index/test_tables/" + SAMPLER_TABLE, 
                 TestConstants.SCHEMA_PEOPLE, LuceneAnalyzerConstants.standardAnalyzerString());
-        DataWriter regexDataWriter = relationManager2.getTableDataWriter(SAMPLER_TABLE);
+        DataWriter regexDataWriter = relationManager.getTableDataWriter(SAMPLER_TABLE);
         regexDataWriter.open();
         indexSize = 0;
         for (Tuple tuple : TestConstants.getSamplePeopleTuples()) {
