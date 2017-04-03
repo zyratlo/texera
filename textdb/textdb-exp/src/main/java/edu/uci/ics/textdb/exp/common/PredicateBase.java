@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import edu.uci.ics.textdb.api.dataflow.IPredicate;
 import edu.uci.ics.textdb.exp.keywordmatcher.KeywordPredicate;
 import edu.uci.ics.textdb.exp.keywordmatcher.KeywordSourcePredicate;
+import edu.uci.ics.textdb.exp.source.ScanSourcePredicate;
 
 
 /**
@@ -26,7 +27,9 @@ import edu.uci.ics.textdb.exp.keywordmatcher.KeywordSourcePredicate;
 )
 @JsonSubTypes({ 
         @Type(value = KeywordPredicate.class, name = "KeywordMatcher"), 
-        @Type(value = KeywordSourcePredicate.class, name = "KeywordSource") 
+        @Type(value = KeywordSourcePredicate.class, name = "KeywordSource"), 
+        
+        @Type(value = ScanSourcePredicate.class, name = "ScanSource")
 })
 public abstract class PredicateBase implements IPredicate {
     
