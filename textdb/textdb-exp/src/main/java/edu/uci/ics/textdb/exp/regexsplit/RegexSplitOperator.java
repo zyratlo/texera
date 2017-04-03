@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import edu.uci.ics.textdb.api.dataflow.ISourceOperator;
-import edu.uci.ics.textdb.dataflow.common.AbstractSingleInputOperator;
+import edu.uci.ics.textdb.exp.common.AbstractSingleInputOperator;
 import junit.framework.Assert;
 
 /**
