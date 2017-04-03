@@ -10,7 +10,7 @@ import org.junit.Test;
 import edu.uci.ics.textdb.api.constants.TestConstants;
 import edu.uci.ics.textdb.api.exception.TextDBException;
 import edu.uci.ics.textdb.api.tuple.Tuple;
-import edu.uci.ics.textdb.dataflow.source.ScanBasedSourceOperator;
+import edu.uci.ics.textdb.exp.source.ScanBasedSourceOperator;
 import edu.uci.ics.textdb.exp.sampler.SamplerPredicate.SampleType;
 import edu.uci.ics.textdb.storage.DataWriter;
 import edu.uci.ics.textdb.storage.RelationManager;
