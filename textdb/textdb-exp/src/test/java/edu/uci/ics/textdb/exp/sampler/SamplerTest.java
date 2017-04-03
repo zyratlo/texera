@@ -69,7 +69,7 @@ public class SamplerTest {
     }
     
     public static boolean areTuplesInTable(List<Tuple> sampleList) throws TextDBException {
-        // To test f tuple in the Table.
+        // To test if tuple in the Table.
         ScanBasedSourceOperator scanSource = 
                 new ScanBasedSourceOperator(new ScanSourcePredicate(SAMPLER_TABLE));
         
