@@ -8,9 +8,12 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import edu.uci.ics.textdb.api.constants.TestConstants;
+import edu.uci.ics.textdb.api.exception.DataFlowException;
 import edu.uci.ics.textdb.api.exception.TextDBException;
 import edu.uci.ics.textdb.api.tuple.Tuple;
+import edu.uci.ics.textdb.api.utils.TestUtils;
 import edu.uci.ics.textdb.exp.source.ScanBasedSourceOperator;
+import edu.uci.ics.textdb.exp.source.ScanSourcePredicate;
 import edu.uci.ics.textdb.exp.sampler.SamplerPredicate.SampleType;
 import edu.uci.ics.textdb.storage.DataWriter;
 import edu.uci.ics.textdb.storage.RelationManager;
@@ -50,7 +53,7 @@ public class SamplerTest {
     public static List<Tuple> computeSampleResults(String tableName, int k,
             SampleType sampleType ) throws TextDBException{
         
-        ScanBasedSourceOperator scanSource = new ScanBasedSourceOperator(tableName);
+        ScanBasedSourceOperator scanSource = new ScanBasedSourceOperator(new ScanSourcePredicate(tableName));
         Sampler tupleSampler = new Sampler(new SamplerPredicate(k, sampleType));
         tupleSampler.setInputOperator(scanSource);
         
@@ -65,6 +68,21 @@ public class SamplerTest {
         return results;
     }
     
+    public static boolean areTuplesInTable(List<Tuple> sampleList) throws TextDBException {
+        // To test f tuple in the Table.
+        ScanBasedSourceOperator scanSource = 
+                new ScanBasedSourceOperator(new ScanSourcePredicate(SAMPLER_TABLE));
+        
+        scanSource.open();
+        Tuple nextTuple = null;
+        List<Tuple> returnedTuples = new ArrayList<Tuple>();
+        while ((nextTuple = scanSource.getNextTuple()) != null) {
+            returnedTuples.add(nextTuple);
+        }
+        scanSource.close();
+        boolean contains = TestUtils.containsAll(returnedTuples, sampleList);
+        return contains;
+    }
     
     /*
      * Sample 0 tuple in FIRST_K_ARRIVAL mode
@@ -82,6 +100,7 @@ public class SamplerTest {
     public void test2() throws TextDBException {
         List<Tuple> results = computeSampleResults(SAMPLER_TABLE,1, SampleType.FIRST_K_ARRIVAL);
         Assert.assertEquals(results.size(), 1);
+        Assert.assertTrue(areTuplesInTable(results));
     }
     
     /*
@@ -91,6 +110,7 @@ public class SamplerTest {
     public void test3() throws TextDBException {
         List<Tuple> results = computeSampleResults(SAMPLER_TABLE,indexSize, SampleType.FIRST_K_ARRIVAL);
         Assert.assertEquals(results.size(), indexSize);
+        Assert.assertTrue(areTuplesInTable(results));
     }
     
     /*
@@ -102,6 +122,7 @@ public class SamplerTest {
     public void test4() throws TextDBException {
         List<Tuple> results = computeSampleResults(SAMPLER_TABLE,indexSize+1, SampleType.FIRST_K_ARRIVAL);
         Assert.assertEquals(results.size(), indexSize);
+        Assert.assertTrue(areTuplesInTable(results));
     }
     
     /*
@@ -111,6 +132,7 @@ public class SamplerTest {
     public void test5() throws TextDBException {
         List<Tuple> results = computeSampleResults(SAMPLER_TABLE,2, SampleType.RANDOM_SAMPLE);
         Assert.assertEquals(results.size(), 2);
+        Assert.assertTrue(areTuplesInTable(results));
     }
     
     /*
@@ -120,6 +142,7 @@ public class SamplerTest {
     public void test6() throws TextDBException {
         List<Tuple> results = computeSampleResults(SAMPLER_TABLE,0, SampleType.RANDOM_SAMPLE);
         Assert.assertEquals(results.size(), 0);
+        Assert.assertTrue(areTuplesInTable(results));
     }
     
     /*
@@ -129,6 +152,7 @@ public class SamplerTest {
     public void test7() throws TextDBException {
         List<Tuple> results = computeSampleResults(SAMPLER_TABLE,indexSize, SampleType.RANDOM_SAMPLE);
         Assert.assertEquals(results.size(), indexSize);
+        Assert.assertTrue(areTuplesInTable(results));
     }
     
     /*
@@ -139,5 +163,6 @@ public class SamplerTest {
     public void test8() throws TextDBException {
         List<Tuple> results = computeSampleResults(SAMPLER_TABLE,indexSize+1, SampleType.RANDOM_SAMPLE);
         Assert.assertEquals(results.size(), indexSize);
+        Assert.assertTrue(areTuplesInTable(results));
     }
 }
