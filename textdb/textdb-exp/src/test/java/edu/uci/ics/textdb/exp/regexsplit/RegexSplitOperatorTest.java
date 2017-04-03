@@ -15,6 +15,7 @@ import edu.uci.ics.textdb.api.exception.DataFlowException;
 import edu.uci.ics.textdb.api.exception.TextDBException;
 import edu.uci.ics.textdb.api.tuple.Tuple;
 import edu.uci.ics.textdb.exp.source.ScanBasedSourceOperator;
+import edu.uci.ics.textdb.exp.source.ScanSourcePredicate;
 import edu.uci.ics.textdb.storage.DataWriter;
 import edu.uci.ics.textdb.storage.RelationManager;
 import edu.uci.ics.textdb.storage.constants.LuceneAnalyzerConstants;
@@ -64,7 +65,7 @@ public class RegexSplitOperatorTest {
     public static List<Tuple> computeRegexSplitResults( String tableName, String splitAttrName,
             String splitRegex, RegexSplitPredicate.SplitType splitType ) throws TextDBException {
         
-        ScanBasedSourceOperator scanSource = new ScanBasedSourceOperator(tableName);
+        ScanBasedSourceOperator scanSource = new ScanBasedSourceOperator(new ScanSourcePredicate(tableName));
         RegexSplitOperator regexSplit = new RegexSplitOperator(
                 new RegexSplitPredicate(splitRegex, splitAttrName, splitType));
         regexSplit.setInputOperator(scanSource);
