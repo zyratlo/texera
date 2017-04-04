@@ -50,7 +50,7 @@ public class SamplerTest {
     }
     
     public static List<Tuple> computeSampleResults(String tableName, int k,
-            SampleType sampleType ) throws TextDBException{
+            SampleType sampleType) throws TextDBException {
         
         ScanBasedSourceOperator scanSource = new ScanBasedSourceOperator(new ScanSourcePredicate(tableName));
         Sampler tupleSampler = new Sampler(new SamplerPredicate(k, sampleType));
