@@ -86,10 +86,9 @@ public class SamplerTest {
     /*
      * Sample 0 tuple in FIRST_K_ARRIVAL mode
      */
-    @Test
+    @Test(expected = RuntimeException.class)
     public void test1() throws TextDBException {
         List<Tuple> results = computeSampleResults(SAMPLER_TABLE,0, SampleType.FIRST_K_ARRIVAL);
-        Assert.assertEquals(results.size(), 0);
     }
     
     /*
@@ -137,11 +136,9 @@ public class SamplerTest {
     /*
      * Sample zero tuple in RANDOM_SAMPLE mode.
      */
-    @Test
+    @Test(expected = RuntimeException.class)
     public void test6() throws TextDBException {
         List<Tuple> results = computeSampleResults(SAMPLER_TABLE,0, SampleType.RANDOM_SAMPLE);
-        Assert.assertEquals(results.size(), 0);
-        Assert.assertTrue(areTuplesInTable(results));
     }
     
     /*

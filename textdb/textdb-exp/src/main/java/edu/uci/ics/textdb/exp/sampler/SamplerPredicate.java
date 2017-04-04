@@ -38,6 +38,11 @@ public class SamplerPredicate implements IPredicate {
             int sampleSize,
             @JsonProperty(value = PropertyNameConstants.SAMPLE_TYPE, required = true)
             SampleType sampleType ) {
+        if (sampleSize < 1) {
+            //TODO: use TextDB RuntimeException
+            throw new RuntimeException("Sample size should be greater then 0.");
+        }
+        
         this.sampleSize = sampleSize;
         this.sampleType = sampleType;
     }

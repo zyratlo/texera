@@ -46,7 +46,7 @@ public class Sampler extends AbstractSingleInputOperator implements ISourceOpera
         this.outputSchema = this.inputSchema;
     }
     
-    public void constructSampleBuffer() throws TextDBException {
+    private void constructSampleBuffer() throws TextDBException {
         sampleBuffer = new ArrayList<Tuple>();
         
         Random random;
@@ -83,9 +83,6 @@ public class Sampler extends AbstractSingleInputOperator implements ISourceOpera
     
     @Override
     protected Tuple computeNextMatchingTuple() throws TextDBException {
-        if (predicate.getSampleSize() < 1) {
-            return null;
-        } 
         if (sampleBuffer == null) {
             constructSampleBuffer();
             this.bufferCursor = 0;
