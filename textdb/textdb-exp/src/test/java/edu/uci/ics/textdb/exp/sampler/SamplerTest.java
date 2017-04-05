@@ -89,19 +89,19 @@ public class SamplerTest {
     }
     
     /* 
-     * To test if the sampled tuples equal to the first K tuples of the sampler table 
-     * in both order and content.
+     * To test if the sampled tuples are equal to the first K tuples of the sampler table 
+     * in both the order and content.
      */
-    public static boolean isSameOrderWithTable(List<Tuple> sampleList) throws TextDBException {
+    public static boolean matchSamplerTable(List<Tuple> sampleList) throws TextDBException {
         ScanBasedSourceOperator scanSource = 
                 new ScanBasedSourceOperator(new ScanSourcePredicate(SAMPLER_TABLE));
         
         scanSource.open();
-        ListIterator<Tuple> itor = null;
-        itor = sampleList.listIterator();
-        while (itor.hasNext()) {
+        ListIterator<Tuple> iter = null;
+        iter = sampleList.listIterator();
+        while (iter.hasNext()) {
             Tuple nextTableTuple = scanSource.getNextTuple();
-            Tuple nextSampledTuple = itor.next();
+            Tuple nextSampledTuple = iter.next();
             
             if (!nextSampledTuple.equals(nextTableTuple)) {
                 scanSource.close();
@@ -121,41 +121,38 @@ public class SamplerTest {
     }
     
     /*
-     * Sample the first tuple in FIRST_K_ARRIVAL mode.
+     * FIRST_K_ARRIVAL mode: sample the first tuple.
      */
     @Test
     public void test2() throws TextDBException {
         List<Tuple> results = computeSampleResults(SAMPLER_TABLE,1, SampleType.FIRST_K_ARRIVAL);
         Assert.assertEquals(results.size(), 1);
-        Assert.assertTrue(containedInSamplerTable(results));
-        Assert.assertTrue(isSameOrderWithTable(results));
+        Assert.assertTrue(matchSamplerTable(results));
     }
     
     /*
-     * Sample all the tuples in FIRST_K_ARRIVAL mode.
+     * FIRST_K_ARRIVAL mode: Sample all the tuples.
      */
     @Test
     public void test3() throws TextDBException {
         List<Tuple> results = computeSampleResults(SAMPLER_TABLE,indexSize, SampleType.FIRST_K_ARRIVAL);
         Assert.assertEquals(results.size(), indexSize);
-        Assert.assertTrue(containedInSamplerTable(results));
-        Assert.assertTrue(isSameOrderWithTable(results));
+        Assert.assertTrue(matchSamplerTable(results));
     }
     
     /*
-     * Try to sample tuples more than the previous operator can get in FIRST_K_ARRIVAL mode.
-     * It should return all tuples get from the previous operator as result.
+     * FIRST_K_ARRIVAL mode: the number of sampled records is 1 more than the table size.
+     * It should return all the tuples from the table.
      */
     @Test
     public void test4() throws TextDBException {
         List<Tuple> results = computeSampleResults(SAMPLER_TABLE,indexSize+1, SampleType.FIRST_K_ARRIVAL);
         Assert.assertEquals(results.size(), indexSize);
-        Assert.assertTrue(containedInSamplerTable(results));
-        Assert.assertTrue(isSameOrderWithTable(results));
+        Assert.assertTrue(matchSamplerTable(results));
     }
     
     /*
-     * Sample tuples in number between 0 and indexSize in RANDOM_SAMPLE mode
+     * RANDOM_SAMPLE mode: # of sampled tuples is in [0, tableSize].
      */
     @Test
     public void test5() throws TextDBException {
@@ -165,7 +162,7 @@ public class SamplerTest {
     }
     
     /*
-     * Sample zero tuple in RANDOM_SAMPLE mode.
+     * RANDOM_SAMPLE mode: sample zero tuple.
      */
     @Test(expected = RuntimeException.class)
     public void test6() throws TextDBException {
@@ -173,26 +170,24 @@ public class SamplerTest {
     }
     
     /*
-     * Sample all tuples in RANDOM_SAMPLE mode.
-     * It should output all tuples get from previous operator in same order.
+     * RANDOM_SAMPLE mode: sample all tuples.
+     * It should output all the tuples get from the table.
      */
     @Test
     public void test7() throws TextDBException {
         List<Tuple> results = computeSampleResults(SAMPLER_TABLE,indexSize, SampleType.RANDOM_SAMPLE);
         Assert.assertEquals(results.size(), indexSize);
         Assert.assertTrue(containedInSamplerTable(results));
-        Assert.assertTrue(isSameOrderWithTable(results));
     }
     
     /*
-     * Try to sample tuples more than the previous operator can get in RANDOM_SAMPLE mode.
-     * It should return all tuples get from the previous operator as result in same order..
+     * RANDOM_SAMPLE: # of sampled records is 1 + tableSize.
+     * It should return all the tuples from the table.
      */
     @Test
     public void test8() throws TextDBException {
         List<Tuple> results = computeSampleResults(SAMPLER_TABLE,indexSize+1, SampleType.RANDOM_SAMPLE);
         Assert.assertEquals(results.size(), indexSize);
         Assert.assertTrue(containedInSamplerTable(results));
-        Assert.assertTrue(isSameOrderWithTable(results));
     }
 }
