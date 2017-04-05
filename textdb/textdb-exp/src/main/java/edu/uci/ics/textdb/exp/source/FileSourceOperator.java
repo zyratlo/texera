@@ -1,7 +1,11 @@
 package edu.uci.ics.textdb.exp.source;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Scanner;
 
 import edu.uci.ics.textdb.api.dataflow.ISourceOperator;
@@ -18,20 +22,27 @@ import edu.uci.ics.textdb.api.tuple.Tuple;
  */
 public class FileSourceOperator implements ISourceOperator {
 
-    @FunctionalInterface
-    public static interface ToTuple {
-        Tuple convertToTuple(String str) throws Exception;
-    }
+    private final FileSourcePredicate predicate;
+    // a list of files, 
+    private final List<File> fileList;
+    // filter non-exist files, directories and file that start with "."
+    private static final FileFilter fileFilter = 
+            (f -> f.exists() && (!f.isDirectory()) && (! f.getName().startsWith(".")));
 
-    private File file;
-    private Scanner scanner;
-    private ToTuple toTupleFunc;
-    private Schema outputSchema;
-
-    public FileSourceOperator(String filePath, ToTuple toTupleFunc, Schema schema) {
-        this.file = new File(filePath);
-        this.toTupleFunc = toTupleFunc;
-        this.outputSchema = schema;
+    public FileSourceOperator(FileSourcePredicate predicate) {
+        this.predicate = predicate;
+        File file = new File(predicate.getFilePath());
+        if (! file.exists()) {
+            throw new RuntimeException(String.format("file %s doesn't exist", predicate.getFilePath()));
+        }
+        this.fileList = new ArrayList<>();
+        if (file.isDirectory()) {
+            for (File subFile : Arrays.asList(file.listFiles(fileFilter))) {
+                
+            }
+        } else {
+            
+        }
     }
 
     @Override

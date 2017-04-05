@@ -13,6 +13,7 @@ public class PropertyNameConstants {
     
     // common property names
     public static final String ATTRIBUTE_NAMES = "attributes";
+    public static final String ATTRIBUTE_NAME = "attribute";
     public static final String LUCENE_ANALYZER_STRING = "lucene_analzer";
     public static final String SPAN_LIST_NAME = "span_list_name";
     public static final String TABLE_NAME = "data_source";
