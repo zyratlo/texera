@@ -98,7 +98,7 @@
                     <imageName>textdb</imageName>
                     <baseImage>java</baseImage>
                     <env></env>
-                    <entryPoint>["java", "-jar", "${project.build.finalName}.jar", "server", "sample-config.yml"]</entryPoint>
+                    <entryPoint>["java", "-Xmx2048m", "-jar", "${project.build.finalName}.jar", "server", "sample-config.yml"]</entryPoint>
                     <!-- copy the service's jar file from target into the root directory of the image -->
                     <resources>
                         <resource>
