@@ -9,6 +9,7 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import edu.uci.ics.textdb.api.constants.SchemaConstants;
 import edu.uci.ics.textdb.api.constants.TestConstantsChinese;
 import edu.uci.ics.textdb.api.constants.TestConstantsRegexSplit;
 import edu.uci.ics.textdb.api.exception.DataFlowException;
@@ -360,4 +361,42 @@ public class RegexSplitOperatorTest {
         Assert.assertEquals(splitResult, splitStrings);
     }
     
+    /*
+     * ID test: To test if each new tuple has a new ID.
+     */
+    @Test
+    public void test7() throws TextDBException {
+        String splitRegex = "ana";
+        String splitAttrName = TestConstantsRegexSplit.DESCRIPTION;
+        
+        List<Tuple> results = computeRegexSplitResults(REGEX_TABLE, splitAttrName, splitRegex, 
+                RegexSplitPredicate.SplitType.STANDALONE);
+        
+        for (Tuple tuple : results) {
+            tuple.getField(SchemaConstants._ID);
+        }
+    }
+    
+    /*
+     * ID test: To test if each newly-split tuple's ID has conflict with the old tuple.
+     */
+    @Test
+    public void test8() throws TextDBException {
+        String splitRegex = "ana";
+        String splitAttrName = TestConstantsRegexSplit.DESCRIPTION;
+        
+        List<Tuple> results = computeRegexSplitResults(REGEX_TABLE, splitAttrName, splitRegex, 
+                RegexSplitPredicate.SplitType.STANDALONE);
+        
+        ScanBasedSourceOperator scanSource = new ScanBasedSourceOperator(new ScanSourcePredicate(REGEX_TABLE));
+        
+        Tuple tupleTable;
+        scanSource.open();
+        while ((tupleTable = scanSource.getNextTuple()) != null) {
+            for (Tuple tuple : results) {
+                Assert.assertFalse(tuple.getField(SchemaConstants._ID).equals(tupleTable.getField(SchemaConstants._ID)));
+            }
+        }
+        scanSource.close();
+    }
 }
