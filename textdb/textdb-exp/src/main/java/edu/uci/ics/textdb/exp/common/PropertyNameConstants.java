@@ -37,4 +37,8 @@ public class PropertyNameConstants {
     public static final String SPLIT_TYPE = "splitType";
     public static final String SPLIT_REGEX = "splitRegex";
 
+    // related to sampler
+    public static final String SAMPLE_SIZE = "sample_size";
+    public static final String SAMPLE_TYPE = "sample_type";
+    
 }
