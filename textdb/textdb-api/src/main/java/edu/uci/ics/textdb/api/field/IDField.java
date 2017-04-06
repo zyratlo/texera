@@ -1,5 +1,7 @@
 package edu.uci.ics.textdb.api.field;
 
+import java.util.UUID;
+
 public class IDField implements IField {
     
     private final String _id;
@@ -32,6 +34,15 @@ public class IDField implements IField {
     @Override
     public String toString() {
         return "IDField [_id = " + _id + "]";
+    }
+    
+    /**
+     * Generates a new IDField with a random UUID.
+     * 
+     * @return
+     */
+    public static IDField newRandomID() {
+        return new IDField(UUID.randomUUID().toString());
     }
 
 }
