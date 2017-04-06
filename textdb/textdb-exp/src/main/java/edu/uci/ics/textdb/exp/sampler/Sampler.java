@@ -32,7 +32,6 @@ public class Sampler extends AbstractSingleInputOperator implements ISourceOpera
     private SamplerPredicate predicate;
     private List<Tuple> sampleBuffer;
     private int bufferCursor;
-    private Schema inputSchema;
     
     public Sampler(SamplerPredicate predicate) {
         this.predicate = predicate;
@@ -42,15 +41,13 @@ public class Sampler extends AbstractSingleInputOperator implements ISourceOpera
     
     @Override
     protected void setUp() throws DataFlowException {
-        this.inputSchema = inputOperator.getOutputSchema();
-        this.outputSchema = this.inputSchema;
+        this.outputSchema = inputOperator.getOutputSchema();
     }
     
     private void constructSampleBuffer() throws TextDBException {
         sampleBuffer = new ArrayList<Tuple>();
         
-        Random random;
-        random = new Random(System.currentTimeMillis());
+        Random random = new Random(System.currentTimeMillis());
         
         Tuple tuple;
         int count = 0;
