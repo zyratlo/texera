@@ -41,6 +41,8 @@ import junit.framework.Assert;
  * Text = "banana"
  * regex = "b.*ana";
  * result list = <"banana">
+ * 
+ * If the old tuple has an ID field, remove it.
  */
 public class RegexSplitOperator extends AbstractSingleInputOperator implements ISourceOperator{
 
@@ -111,8 +113,10 @@ public class RegexSplitOperator extends AbstractSingleInputOperator implements I
         outputTupleBuffer = new ArrayList<>();
         for (String singleMatch : stringList) {
             List<IField> tupleFieldList = new ArrayList<>();
+            // Generate the new UUID.
             tupleFieldList.add(IDField.newRandomID());
             for (String attributeName : inputSchema.getAttributeNames()) {
+                // Remove the old ID.
                 if (attributeName.equals(SchemaConstants._ID)) {
                     continue;
                 }
