@@ -31,5 +31,9 @@ public class PropertyNameConstants {
     
     // related to fuzzy token matcher
     public static final String FUZZY_TOKEN_QUERY = "query";
-
+    
+ // related to sampler
+    public static final String SAMPLE_SIZE = "sample_size";
+    public static final String SAMPLE_TYPE = "sample_type";
+    
 }
