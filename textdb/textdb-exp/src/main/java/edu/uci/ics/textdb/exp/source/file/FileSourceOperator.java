@@ -101,7 +101,7 @@ public class FileSourceOperator implements ISourceOperator {
                     "the filePath: %s doesn't contain any valid text files. " + 
                     "File extension must be one of %s .", 
                     filePath, supportedExtensions));
-        }
+        } 
     }
 
     @Override
