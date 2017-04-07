@@ -1,7 +1,6 @@
-package edu.uci.ics.textdb.exp.source;
+package edu.uci.ics.textdb.exp.source.file;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -32,6 +31,13 @@ public class FileSourceOperator implements ISourceOperator {
     // file must be a text file, and its extension must be one of the following
     public static final List<String> supportedExtensions = Arrays.asList(
             "txt", "json", "xml", "csv", "html");
+    
+    public static boolean isExtensionSupported(Path path) {       
+        return supportedExtensions.stream()
+            .map(ext -> "."+ext)
+            .filter(ext -> path.getFileName().toString().toLowerCase().endsWith(ext))
+            .findAny().isPresent();
+    }
     
     private final FileSourcePredicate predicate;
     // output schema of this file source operator
@@ -65,7 +71,7 @@ public class FileSourceOperator implements ISourceOperator {
         this.pathList = new ArrayList<>();
         
         Path filePath = Paths.get(predicate.getFilePath());
-        if (Files.exists(filePath)) {
+        if (! Files.exists(filePath)) {
             throw new RuntimeException(String.format("file %s doesn't exist", filePath));
         }
         
@@ -79,14 +85,13 @@ public class FileSourceOperator implements ISourceOperator {
         } else {
             pathList.add(filePath);
         }
-        
+                
         // filter directories, files that start with ".", 
         // and files that don't end with supportedExtensions
         this.pathList = pathList.stream()
-            .filter(path -> Files.isDirectory(path))
-            .filter(path -> path.getFileName().startsWith("."))
-            .filter(path -> supportedExtensions.stream().map(ext -> "."+ext)
-                    .filter(ext -> path.getFileName().endsWith(ext)).findAny().isPresent())
+            .filter(path -> ! Files.isDirectory(path))
+            .filter(path -> ! path.getFileName().startsWith("."))
+            .filter(path -> isExtensionSupported(path))
             .collect(Collectors.toList());
         
         // check if path list is empty
@@ -118,7 +123,7 @@ public class FileSourceOperator implements ISourceOperator {
         while (cursor < pathList.size()) {            
             try {
                 String content = new String(
-                        Files.readAllBytes(pathList.get(cursor)), Charset.defaultCharset());
+                        Files.readAllBytes(pathList.get(cursor)));
                 // create a tuple according to the string
                 // and assign a random ID to it
                 Tuple tuple = new Tuple(

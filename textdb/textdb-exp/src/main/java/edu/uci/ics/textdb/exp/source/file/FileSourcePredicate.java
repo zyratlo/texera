@@ -1,4 +1,4 @@
-package edu.uci.ics.textdb.exp.source;
+package edu.uci.ics.textdb.exp.source.file;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
