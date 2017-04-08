@@ -43,4 +43,8 @@ public class PropertyNameConstants {
     public static final String SAMPLE_SIZE = "sample_size";
     public static final String SAMPLE_TYPE = "sample_type";
     
+    // related to file source
+    public static final String FILE_MAX_DEPTH = "max_depth";
+    public static final String FILE_RECURSIVE = "recursive";
+    
 }

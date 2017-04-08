@@ -30,7 +30,7 @@ public class FileSourceOperator implements ISourceOperator {
     
     // file must be a text file, and its extension must be one of the following
     public static final List<String> supportedExtensions = Arrays.asList(
-            "txt", "json", "xml", "csv", "html");
+            "txt", "json", "xml", "csv", "html", "md");
     
     public static boolean isExtensionSupported(Path path) {       
         return supportedExtensions.stream()
@@ -53,8 +53,11 @@ public class FileSourceOperator implements ISourceOperator {
      * FileSourceOperator reads a file or files under a directory and converts one file to one tuple.
      * 
      * The filePath in predicate must be 1) a text file or 2) a directory
-     * In case of a directory, the files directly under this directory will be read.
-     * The file must have one of the supported extensions: {@code supportedExtensions}
+     * 
+     * In case of a directory, FileSourceOperator supports recursively reading files 
+     *   and specifying max recursive depth.
+     * 
+     * The files must have one of the supported extensions: {@code supportedExtensions}
      * 
      * FileSourceOperator reads all content of one file and convert them to one tuple,
      *   the tuple will have one column, the attributeName is defined in {@code FileSourcePredicate},
@@ -77,7 +80,12 @@ public class FileSourceOperator implements ISourceOperator {
         
         if (Files.isDirectory(filePath)) {
             try {
-                pathList.addAll(Files.list(filePath).collect(Collectors.toList()));
+                if (this.predicate.isRecursive()) {
+                    pathList.addAll(Files.walk(filePath, this.predicate.getMaxDepth()).collect(Collectors.toList()));
+                } else {
+                    pathList.addAll(Files.list(filePath).collect(Collectors.toList()));
+                }
+                
             } catch (IOException e) {
                 throw new RuntimeException(String.format(
                         "opening directory %s failed: " + e.getMessage(), filePath));
