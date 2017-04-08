@@ -46,5 +46,6 @@ public class PropertyNameConstants {
     // related to file source
     public static final String FILE_MAX_DEPTH = "max_depth";
     public static final String FILE_RECURSIVE = "recursive";
+    public static final String FILE_ALLOWED_EXTENSIONS = "allowed_extensions";
     
 }

@@ -5,7 +5,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,11 +28,15 @@ import edu.uci.ics.textdb.api.tuple.Tuple;
 public class FileSourceOperator implements ISourceOperator {
     
     // file must be a text file, and its extension must be one of the following
-    public static final List<String> supportedExtensions = Arrays.asList(
-            "txt", "json", "xml", "csv", "html", "md");
+
     
-    public static boolean isExtensionSupported(Path path) {       
-        return supportedExtensions.stream()
+    /*
+     * A helper function that returns if the file's extension is supported.
+     * The extensions are expected to NOT have the dot "." in the string.
+     * for example, extensions may contain "txt", but not ".txt"
+     */
+    private static boolean isExtensionAllowed(List<String> allowedExtensions, Path path) {       
+        return allowedExtensions.stream()
             .map(ext -> "."+ext)
             .filter(ext -> path.getFileName().toString().toLowerCase().endsWith(ext))
             .findAny().isPresent();
@@ -99,7 +102,7 @@ public class FileSourceOperator implements ISourceOperator {
         this.pathList = pathList.stream()
             .filter(path -> ! Files.isDirectory(path))
             .filter(path -> ! path.getFileName().startsWith("."))
-            .filter(path -> isExtensionSupported(path))
+            .filter(path -> isExtensionAllowed(this.predicate.getAllowedExtensions(), path))
             .collect(Collectors.toList());
         
         // check if path list is empty
@@ -108,7 +111,7 @@ public class FileSourceOperator implements ISourceOperator {
             throw new RuntimeException(String.format(
                     "the filePath: %s doesn't contain any valid text files. " + 
                     "File extension must be one of %s .", 
-                    filePath, supportedExtensions));
+                    filePath, this.predicate.getAllowedExtensions()));
         } 
     }
 
