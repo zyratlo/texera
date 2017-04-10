@@ -19,21 +19,30 @@ import edu.uci.ics.textdb.api.schema.Schema;
 import edu.uci.ics.textdb.api.tuple.Tuple;
 
 /**
- * FileSourceOperator treats files on disk as a source. FileSourceOperator reads
- * a file line by line. A user needs to provide a custom function to convert a
- * string to tuple.
+ * FileSourceOperator reads a file or files under a directory and converts one file to one tuple.
  * 
- * @author zuozhi
+ * The filePath in the predicate must be 1) a text file or 2) a directory
+ * 
+ * In case of a directory, FileSourceOperator supports recursively reading files 
+ *   and specifying a max recursive depth.
+ * 
+ * The files must have one of the supported extensions: {@code supportedExtensions}
+ * 
+ * FileSourceOperator reads all content of one file and convert them to one tuple.
+ *   The tuple will have one column, the attributeName as defined in {@code FileSourcePredicate},
+ *   with the attributeType as TEXT.
+ *   
+ * In case of a directory, if the directory doesn't contain any file that 
+ *   matches the allowed extensions, then an exception will be thrown.
+ * 
+ * @author Zuozhi Wang
  */
 public class FileSourceOperator implements ISourceOperator {
-    
-    // file must be a text file, and its extension must be one of the following
-
     
     /*
      * A helper function that returns if the file's extension is supported.
      * The extensions are expected to NOT have the dot "." in the string.
-     * for example, extensions may contain "txt", but not ".txt"
+     * For example, extensions may contain "txt", but not ".txt"
      */
     private static boolean isExtensionAllowed(List<String> allowedExtensions, Path path) {       
         return allowedExtensions.stream()
@@ -46,28 +55,13 @@ public class FileSourceOperator implements ISourceOperator {
     // output schema of this file source operator
     private final Schema outputSchema;
     
-    // a list of files, each is a valid text file
+    // a list of files, each of which is a valid text file
     private List<Path> pathList;
     
-    // cursor indicating current position
+    // cursor indicating the current position
     private Integer cursor = CLOSED;
 
-    /**
-     * FileSourceOperator reads a file or files under a directory and converts one file to one tuple.
-     * 
-     * The filePath in predicate must be 1) a text file or 2) a directory
-     * 
-     * In case of a directory, FileSourceOperator supports recursively reading files 
-     *   and specifying max recursive depth.
-     * 
-     * The files must have one of the supported extensions: {@code supportedExtensions}
-     * 
-     * FileSourceOperator reads all content of one file and convert them to one tuple,
-     *   the tuple will have one column, the attributeName is defined in {@code FileSourcePredicate},
-     *   and the attributeType is TEXT
-     * 
-     * @param predicate, a {@code FileSourcePredicate}
-     */
+    
     public FileSourceOperator(FileSourcePredicate predicate) {
         this.predicate = predicate;
         this.outputSchema = new Schema(
@@ -97,15 +91,15 @@ public class FileSourceOperator implements ISourceOperator {
             pathList.add(filePath);
         }
                 
-        // filter directories, files that start with ".", 
-        // and files that don't end with supportedExtensions
+        // filter directories, files starting with ".", 
+        //   and files that don't end with allowedExtensions
         this.pathList = pathList.stream()
             .filter(path -> ! Files.isDirectory(path))
             .filter(path -> ! path.getFileName().startsWith("."))
             .filter(path -> isExtensionAllowed(this.predicate.getAllowedExtensions(), path))
             .collect(Collectors.toList());
         
-        // check if path list is empty
+        // check if the path list is empty
         if (pathList.isEmpty()) {
             // TODO: change it to TextDB RuntimeException
             throw new RuntimeException(String.format(
@@ -130,7 +124,7 @@ public class FileSourceOperator implements ISourceOperator {
         }
         // keep iterating until 
         //   1) a file is converted to a tuple successfully
-        //   2) cursor reaches the end
+        //   2) the cursor reaches the end
         while (cursor < pathList.size()) {            
             try {
                 String content = new String(
@@ -144,7 +138,7 @@ public class FileSourceOperator implements ISourceOperator {
                 cursor++;
                 return tuple;
             } catch (IOException e) {
-                // if reading current path fails, increment cursor and continue
+                // if reading the current path fails, increment the cursor and continue
                 cursor++;
                 continue;
             }

@@ -128,9 +128,9 @@ public class FileSourceOperatorTest {
      * Test FileSourceOperator with a Directory.
      * Optional parameters are all set to default. (only list files directly in this folder)
      * 
-     * Only the files directly under this directory will be used. NOT nested files.
+     * Only the files directly under this directory will be used.
      *     
-     * expected: test1.txt and test2.txt will be included
+     * expected results: test1.txt and test2.txt will be included.
      */
     @Test
     public void test2() throws Exception {
@@ -159,9 +159,9 @@ public class FileSourceOperatorTest {
     /*
      * Test FileSourceOperator with a Directory with recursive = true and maxDepth = null.
      * 
-     * All the nested files directly under this directory will be used.
+     * All the files under the recursive sub-directories will be read.
      *     
-     * expected: test1.txt, test2.txt, test4.txt and test5.txt will be included
+     * expected results: test1.txt, test2.txt, test4.txt and test5.txt will be included
      */
     @Test
     public void test3() throws Exception {
@@ -192,9 +192,9 @@ public class FileSourceOperatorTest {
     /*
      * Test FileSourceOperator with a Directory with recursive = true and maxDepth = 2.
      * 
-     * All the nested files directly under this directory will be used.
+     * The files under the recursive sub-directories with recursive depth 2 will be read.
      *     
-     * expected: test1.txt, test2.txt and test4.txt will be included
+     * expected results: test1.txt, test2.txt and test4.txt will be included
      */
     @Test
     public void test4() throws Exception {
@@ -236,7 +236,7 @@ public class FileSourceOperatorTest {
     /*
      * Test FileSourceOperator with custom extensions.
      * 
-     * specify "tmp" as valid extension, only test3.tmp should be read.
+     * Specify "tmp" as q valid extension. Only test3.tmp should be read.
      */
     @Test
     public void test6() throws Exception {
