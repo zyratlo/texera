@@ -1,7 +1,5 @@
 package edu.uci.ics.textdb.storage;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -97,18 +95,11 @@ public class CatalogConstants {
      * @return
      * @throws StorageException
      */
-    public static Tuple getTableCatalogTuple(String tableName, String tableDirectory, String luceneAnalyzerStr) 
-            throws StorageException {
-        try {
-            String tableDirectoryAbsolute = new File(tableDirectory).getCanonicalPath();
-            return new Tuple(TABLE_CATALOG_SCHEMA, 
-                    new StringField(tableName), 
-                    new StringField(tableDirectoryAbsolute),
-                    new StringField(luceneAnalyzerStr));
-        } catch (IOException e) {
-            throw new StorageException(String.format("Error occurs when getting the canonical path of %s.", tableDirectory));
-        }
-
+    public static Tuple getTableCatalogTuple(String tableName, String tableDirectory, String luceneAnalyzerStr) {
+        return new Tuple(TABLE_CATALOG_SCHEMA, 
+                new StringField(tableName), 
+                new StringField(tableDirectory),
+                new StringField(luceneAnalyzerStr));
     }
     
     /**

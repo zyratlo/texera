@@ -1,5 +1,7 @@
 package edu.uci.ics.textdb.storage;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -52,11 +54,10 @@ public class RelationManager {
      */
     public boolean checkTableExistence(String tableName) {
         try {
-            getTableDirectory(tableName);
-            getTableSchema(tableName);
-            return true;
+            return getTableCatalogTuple(tableName) != null;
         } catch (StorageException e) {
-            return false;
+            // TODO: change it to textdb runtime exception
+            throw new RuntimeException(e);
         }
     }
 
@@ -82,6 +83,15 @@ public class RelationManager {
             throw new StorageException(String.format("Table %s already exists.", tableName));
         }
         
+        // convert the table name to lower case
+        tableName = tableName.toLowerCase();
+        // convert the index directory to its absolute path
+        try {
+            indexDirectory = new File(indexDirectory).getCanonicalPath();
+        } catch (IOException e) {
+            throw new StorageException(e);
+        }
+        
         // check if the indexDirectory overlaps with another table's index directory
         Query indexDirectoryQuery = new TermQuery(new Term(CatalogConstants.TABLE_DIRECTORY, indexDirectory));
         DataReader tableCatalogDataReader = new DataReader(CatalogConstants.TABLE_CATALOG_DATASTORE, indexDirectoryQuery);
@@ -93,7 +103,7 @@ public class RelationManager {
         
         // if the index directory is already taken by another table, throws an exception
         if (nextTuple != null) {
-            String overlapTableName = nextTuple.getField(CatalogConstants.TABLE_NAME);
+            String overlapTableName = nextTuple.getField(CatalogConstants.TABLE_NAME).getValue().toString();
             throw new StorageException(String.format(
                     "Table %s already takes the index directory %s. Please choose another directory.", 
                     overlapTableName, indexDirectory));
@@ -139,12 +149,11 @@ public class RelationManager {
         }
         
         // try to clear all data in the table
-        DataWriter dataWriter = new DataWriter(getTableDataStore(tableName), getTableAnalyzer(tableName));
+        DataWriter dataWriter = getTableDataWriter(tableName);
         dataWriter.open();
         dataWriter.clearData();
         dataWriter.close();
         StorageUtils.deleteDirectory(getTableDirectory(tableName));
-
 
         // generate a query for the table name
         Query catalogTableNameQuery = new TermQuery(new Term(CatalogConstants.TABLE_NAME, tableName));
@@ -155,13 +164,14 @@ public class RelationManager {
         tableCatalogWriter.open();
         tableCatalogWriter.deleteTuple(catalogTableNameQuery);
         tableCatalogWriter.close();
-        
+                
         // delete the table from schema catalog
         DataWriter schemaCatalogWriter = new DataWriter(CatalogConstants.SCHEMA_CATALOG_DATASTORE,
                 LuceneAnalyzerConstants.getStandardAnalyzer());
         schemaCatalogWriter.open();
         schemaCatalogWriter.deleteTuple(catalogTableNameQuery);
         schemaCatalogWriter.close();
+        
     }
     
     /**
@@ -239,21 +249,15 @@ public class RelationManager {
      */
     public String getTableDirectory(String tableName) throws StorageException {
         // get the tuples with tableName from the table catalog
-        Query tableNameQuery = new TermQuery(new Term(CatalogConstants.TABLE_NAME, tableName));
-        DataReader tableCatalogDataReader = new DataReader(CatalogConstants.TABLE_CATALOG_DATASTORE, tableNameQuery);
-        tableCatalogDataReader.setPayloadAdded(false);
-        
-        tableCatalogDataReader.open();
-        Tuple nextTuple = tableCatalogDataReader.getNextTuple();
-        tableCatalogDataReader.close();
+        Tuple tableCatalogTuple = getTableCatalogTuple(tableName);
         
         // if the tuple is not found, then the table name is not found
-        if (nextTuple == null) {
+        if (tableCatalogTuple == null) {
             throw new StorageException(String.format("The directory for table %s is not found.", tableName));
         }
-        
+
         // get the directory field
-        IField directoryField = nextTuple.getField(CatalogConstants.TABLE_DIRECTORY);
+        IField directoryField = tableCatalogTuple.getField(CatalogConstants.TABLE_DIRECTORY);
         return directoryField.getValue().toString();
     }
 
@@ -266,17 +270,7 @@ public class RelationManager {
      */
     public Schema getTableSchema(String tableName) throws StorageException {
         // get the tuples with tableName from the schema catalog
-        Query tableNameQuery = new TermQuery(new Term(CatalogConstants.TABLE_NAME, tableName));
-        DataReader schemaCatalogDataReader = new DataReader(CatalogConstants.SCHEMA_CATALOG_DATASTORE, tableNameQuery);
-        
-        
-        // read the tuples into a list
-        schemaCatalogDataReader.open();    
-        List<Tuple> tableAttributeTuples = new ArrayList<>();
-        Tuple nextTuple;
-        while ((nextTuple = schemaCatalogDataReader.getNextTuple()) != null) {
-            tableAttributeTuples.add(nextTuple);
-        }
+        List<Tuple> tableAttributeTuples = getSchemaCatalogTuples(tableName);
 
         // if the list is empty, then the schema is not found
         if (tableAttributeTuples.isEmpty()) {
@@ -305,22 +299,15 @@ public class RelationManager {
      */
     public String getTableAnalyzerString(String tableName) throws StorageException {
         // get the tuples with tableName from the table catalog
-        Query tableNameQuery = new TermQuery(new Term(CatalogConstants.TABLE_NAME, tableName));
-
-        DataReader tableCatalogDataReader = new DataReader(CatalogConstants.TABLE_CATALOG_DATASTORE, tableNameQuery);
-        tableCatalogDataReader.setPayloadAdded(false);
-        
-        tableCatalogDataReader.open();
-        Tuple nextTuple = tableCatalogDataReader.getNextTuple();
-        tableCatalogDataReader.close();
+        Tuple tableCatalogTuple = getTableCatalogTuple(tableName);
         
         // if the tuple is not found, then the table name is not found
-        if (nextTuple == null) {
+        if (tableCatalogTuple == null) {
             throw new StorageException(String.format("The analyzer for table %s is not found.", tableName));
         }
         
         // get the lucene analyzer string
-        IField analyzerField = nextTuple.getField(CatalogConstants.TABLE_LUCENE_ANALYZER);
+        IField analyzerField = tableCatalogTuple.getField(CatalogConstants.TABLE_LUCENE_ANALYZER);
         String analyzerString = analyzerField.getValue().toString();
         
         return analyzerString;
@@ -375,6 +362,50 @@ public class RelationManager {
     }
     
     /*
+     * Gets the a tuple of a table from table catalog.
+     */
+    private static Tuple getTableCatalogTuple(String tableName) throws StorageException {
+        Query tableNameQuery = new TermQuery(new Term(CatalogConstants.TABLE_NAME, tableName));
+        DataReader tableCatalogDataReader = new DataReader(CatalogConstants.TABLE_CATALOG_DATASTORE, tableNameQuery);
+        tableCatalogDataReader.setPayloadAdded(false);
+        
+        tableCatalogDataReader.open();
+        List<Tuple> tupleList = new ArrayList<>();
+        Tuple nextTuple;
+        while ((nextTuple = tableCatalogDataReader.getNextTuple()) != null) {
+            tupleList.add(nextTuple);
+        }
+        tableCatalogDataReader.close();
+        
+        if (tupleList.size() == 0) {
+            return null;
+        } else if (tupleList.size() == 1) {
+            return tupleList.get(0);
+        } else {
+            throw new StorageException("Catalog corrupted: duplicate table name found in catalog.");
+        }
+    }
+    
+    /*
+     * Gets the tuples of a table from schema catalog.
+     */
+    private static List<Tuple> getSchemaCatalogTuples(String tableName) throws StorageException {
+        Query tableNameQuery = new TermQuery(new Term(CatalogConstants.TABLE_NAME, tableName));
+        DataReader schemaCatalogDataReader = new DataReader(CatalogConstants.SCHEMA_CATALOG_DATASTORE, tableNameQuery);  
+        
+        // read the tuples into a list
+        schemaCatalogDataReader.open();    
+        List<Tuple> tupleList = new ArrayList<>();
+        Tuple nextTuple;
+        while ((nextTuple = schemaCatalogDataReader.getNextTuple()) != null) {
+            tupleList.add(nextTuple);
+        }
+        schemaCatalogDataReader.close();
+        
+        return tupleList;
+    }
+    
+    /*
      * This is a helper function to check if the system catalog tables exist physically on the disk.
      */
     private static boolean checkCatalogExistence() {
@@ -386,7 +417,8 @@ public class RelationManager {
      * This is a helper function to check if the table is a system catalog table.
      */
     private static boolean isSystemCatalog(String tableName) {
-        return tableName.equals(CatalogConstants.TABLE_CATALOG) || tableName.equals(CatalogConstants.SCHEMA_CATALOG);
+        return tableName.equalsIgnoreCase(CatalogConstants.TABLE_CATALOG) 
+                || tableName.equalsIgnoreCase(CatalogConstants.SCHEMA_CATALOG);
     }
     
     /*
