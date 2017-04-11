@@ -36,6 +36,11 @@ public class IDField implements IField {
         return "IDField [_id = " + _id + "]";
     }
     
+    /**
+     * Generates a new IDField with a random UUID.
+     * 
+     * @return
+     */
     public static IDField newRandomID() {
         return new IDField(UUID.randomUUID().toString());
     }
