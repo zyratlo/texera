@@ -45,17 +45,16 @@ public class RelationManager {
     }
 
     /**
-     * Checks if a table exists by looking it up in the catalog 
-     *   and checking the folder in file system.
+     * Checks if a table exists by looking it up in the catalog.
      * 
      * @param tableName
      * @return
      */
     public boolean checkTableExistence(String tableName) {
         try {
-            String tableDirectory = getTableDirectory(tableName);
+            getTableDirectory(tableName);
             getTableSchema(tableName);
-            return DataReader.checkIndexExistence(tableDirectory);
+            return true;
         } catch (StorageException e) {
             return false;
         }
@@ -82,7 +81,24 @@ public class RelationManager {
         if (checkTableExistence(tableName)) {
             throw new StorageException(String.format("Table %s already exists.", tableName));
         }
-
+        
+        // check if the indexDirectory overlaps with another table's index directory
+        Query indexDirectoryQuery = new TermQuery(new Term(CatalogConstants.TABLE_DIRECTORY, indexDirectory));
+        DataReader tableCatalogDataReader = new DataReader(CatalogConstants.TABLE_CATALOG_DATASTORE, indexDirectoryQuery);
+        tableCatalogDataReader.setPayloadAdded(false);
+        
+        tableCatalogDataReader.open();
+        Tuple nextTuple = tableCatalogDataReader.getNextTuple();
+        tableCatalogDataReader.close();
+        
+        // if the index directory is already taken by another table, throws an exception
+        if (nextTuple != null) {
+            String overlapTableName = nextTuple.getField(CatalogConstants.TABLE_NAME);
+            throw new StorageException(String.format(
+                    "Table %s already takes the index directory %s. Please choose another directory.", 
+                    overlapTableName, indexDirectory));
+        }
+        
         // check if the lucene analyzer string is valid
         Analyzer luceneAnalyzer = null;
         try {
@@ -91,7 +107,7 @@ public class RelationManager {
             throw new StorageException("Lucene Analyzer String is not valid.");
         }
         
-        // clear all data in the index directory
+        // create the directory and clear all data in the index directory
         Schema tableSchema = Utils.getSchemaWithID(schema);
         DataStore tableDataStore = new DataStore(indexDirectory, tableSchema);
         DataWriter dataWriter = new DataWriter(tableDataStore, luceneAnalyzer);
