@@ -429,16 +429,20 @@ public class RelationManager {
      * Initializes the system catalog tables.
      */
     private void initializeCatalog() throws StorageException {
-        // create table catalog
-        writeTableInfoToCatalog(CatalogConstants.TABLE_CATALOG, 
-                CatalogConstants.TABLE_CATALOG_DIRECTORY, 
-                CatalogConstants.TABLE_CATALOG_SCHEMA,
-                LuceneAnalyzerConstants.standardAnalyzerString());
-        // create schema catalog
-        writeTableInfoToCatalog(CatalogConstants.SCHEMA_CATALOG,
-                CatalogConstants.SCHEMA_CATALOG_DIRECTORY,
-                CatalogConstants.SCHEMA_CATALOG_SCHEMA,
-                LuceneAnalyzerConstants.standardAnalyzerString());
+        try {
+            // create table catalog
+            writeTableInfoToCatalog(CatalogConstants.TABLE_CATALOG.toLowerCase(), 
+                    new File(CatalogConstants.TABLE_CATALOG_DIRECTORY).getCanonicalPath(), 
+                    CatalogConstants.TABLE_CATALOG_SCHEMA,
+                    LuceneAnalyzerConstants.standardAnalyzerString());
+            // create schema catalog
+            writeTableInfoToCatalog(CatalogConstants.SCHEMA_CATALOG.toLowerCase(),
+                    new File(CatalogConstants.SCHEMA_CATALOG_DIRECTORY).getCanonicalPath(),
+                    CatalogConstants.SCHEMA_CATALOG_SCHEMA,
+                    LuceneAnalyzerConstants.standardAnalyzerString()); 
+        } catch (IOException e) {
+            throw new StorageException(e);
+        }
     }
     
     
@@ -449,7 +453,7 @@ public class RelationManager {
      */
     private static AttributeType convertAttributeType(String attributeTypeStr) {
         return Stream.of(AttributeType.values())
-                .filter(typeStr -> typeStr.toString().toLowerCase().equals(attributeTypeStr.toLowerCase()))
+                .filter(typeStr -> typeStr.toString().equalsIgnoreCase(attributeTypeStr))
                 .findAny().orElse(null);
     }
     
