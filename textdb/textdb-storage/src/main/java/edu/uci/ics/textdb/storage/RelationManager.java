@@ -365,6 +365,8 @@ public class RelationManager {
      * Gets the a tuple of a table from table catalog.
      */
     private static Tuple getTableCatalogTuple(String tableName) throws StorageException {
+        tableName = tableName.toLowerCase();
+        
         Query tableNameQuery = new TermQuery(new Term(CatalogConstants.TABLE_NAME, tableName));
         DataReader tableCatalogDataReader = new DataReader(CatalogConstants.TABLE_CATALOG_DATASTORE, tableNameQuery);
         tableCatalogDataReader.setPayloadAdded(false);
@@ -390,6 +392,8 @@ public class RelationManager {
      * Gets the tuples of a table from schema catalog.
      */
     private static List<Tuple> getSchemaCatalogTuples(String tableName) throws StorageException {
+        tableName = tableName.toLowerCase();
+        
         Query tableNameQuery = new TermQuery(new Term(CatalogConstants.TABLE_NAME, tableName));
         DataReader schemaCatalogDataReader = new DataReader(CatalogConstants.SCHEMA_CATALOG_DATASTORE, tableNameQuery);  
         
