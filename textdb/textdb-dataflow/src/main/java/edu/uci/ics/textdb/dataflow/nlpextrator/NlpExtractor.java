@@ -1,13 +1,12 @@
 package edu.uci.ics.textdb.dataflow.nlpextrator;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
-
 import edu.stanford.nlp.ling.CoreAnnotations;
 import edu.stanford.nlp.ling.CoreLabel;
+import edu.stanford.nlp.neural.rnn.RNNCoreAnnotations;
 import edu.stanford.nlp.pipeline.Annotation;
 import edu.stanford.nlp.pipeline.StanfordCoreNLP;
+import edu.stanford.nlp.sentiment.SentimentCoreAnnotations;
+import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.util.CoreMap;
 import edu.uci.ics.textdb.api.constants.SchemaConstants;
 import edu.uci.ics.textdb.api.exception.TextDBException;
@@ -20,6 +19,10 @@ import edu.uci.ics.textdb.api.utils.Utils;
 import edu.uci.ics.textdb.dataflow.common.AbstractSingleInputOperator;
 import edu.uci.ics.textdb.dataflow.nlpextrator.NlpPredicate.NlpTokenType;
 import edu.uci.ics.textdb.dataflow.utils.DataflowUtils;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
 
 /**
  * @author Feng Hong
@@ -43,6 +46,7 @@ public class NlpExtractor extends AbstractSingleInputOperator {
     
     private static StanfordCoreNLP posPipeline = null;
     private static StanfordCoreNLP nerPipeline = null;
+    private static StanfordCoreNLP senPipeline = null;
 
     /**
      * @param NlpPredicate
@@ -165,7 +169,14 @@ public class NlpExtractor extends AbstractSingleInputOperator {
                 posPipeline = new StanfordCoreNLP(props);
             }
             pipeline = posPipeline;
-        } else {
+        }else if(predicate.getNlpTypeIndicator().equals("SENTIMENT")){
+            props.setProperty("annotators", "tokenize, ssplit, parse, sentiment");
+            if(senPipeline == null){
+                senPipeline = new StanfordCoreNLP(props);
+            }
+            pipeline = senPipeline;
+        }
+        else  {
             props.setProperty("annotators", "tokenize, ssplit, pos, lemma, " + "ner");
             if (nerPipeline == null) {
                 nerPipeline = new StanfordCoreNLP(props);
@@ -175,39 +186,54 @@ public class NlpExtractor extends AbstractSingleInputOperator {
         Annotation documentAnnotation = new Annotation(text);
         pipeline.annotate(documentAnnotation);
         List<CoreMap> sentences = documentAnnotation.get(CoreAnnotations.SentencesAnnotation.class);
+        Integer mainSentiment=0;
+        int longest=0;
         for (CoreMap sentence : sentences) {
-            for (CoreLabel token : sentence.get(CoreAnnotations.TokensAnnotation.class)) {
-
-                String stanfordNlpConstant;
-
-                // Extract annotations based on nlpTypeIndicator
-                if (predicate.getNlpTypeIndicator().equals("POS")) {
-                    stanfordNlpConstant = token.get(CoreAnnotations.PartOfSpeechAnnotation.class);
-                } else {
-                    stanfordNlpConstant = token.get(CoreAnnotations.NamedEntityTagAnnotation.class);
+            if(predicate.getNlpTypeIndicator().equals("SENTIMENT")){
+                Tree tree = sentence.get(SentimentCoreAnnotations.SentimentAnnotatedTree.class);
+                int sentiment = RNNCoreAnnotations.getPredictedClass(tree);
+                String partText = sentence.toString();
+                if (partText.length() > longest) {
+                    mainSentiment = sentiment;
+                    longest = partText.length();
                 }
+                System.out.println(mainSentiment);
+                Span span = new Span(attributeName, 0, text.length(), predicate.getNlpTypeIndicator(),mainSentiment.toString());
+                spanList.add(span);
+            }else {
+                for (CoreLabel token : sentence.get(CoreAnnotations.TokensAnnotation.class)) {
 
-                NlpTokenType thisNlpTokenType = getNlpTokenType(stanfordNlpConstant);
-                if (thisNlpTokenType == null) {
-                    continue;
-                }
-                if (predicate.getNlpTokenType().equals(NlpTokenType.NE_ALL) || predicate.getNlpTokenType().equals(thisNlpTokenType)) {
-                    int start = token.get(CoreAnnotations.CharacterOffsetBeginAnnotation.class);
-                    int end = token.get(CoreAnnotations.CharacterOffsetEndAnnotation.class);
-                    String word = token.get(CoreAnnotations.TextAnnotation.class);
+                    String stanfordNlpConstant;
 
-                    Span span = new Span(attributeName, start, end, thisNlpTokenType.toString(), word);
-                    if (spanList.size() >= 1 && (predicate.getNlpTypeIndicator().equals("NE_ALL"))) {
-                        Span previousSpan = spanList.get(spanList.size() - 1);
-                        if (previousSpan.getAttributeName().equals(span.getAttributeName())
-                                && (span.getStart() - previousSpan.getEnd() <= 1)
-                                && previousSpan.getKey().equals(span.getKey())) {
-                            Span newSpan = mergeTwoSpans(previousSpan, span);
-                            span = newSpan;
-                            spanList.remove(spanList.size() - 1);
-                        }
+                    // Extract annotations based on nlpTypeIndicator
+                    if (predicate.getNlpTypeIndicator().equals("POS")) {
+                        stanfordNlpConstant = token.get(CoreAnnotations.PartOfSpeechAnnotation.class);
+                    } else {
+                        stanfordNlpConstant = token.get(CoreAnnotations.NamedEntityTagAnnotation.class);
                     }
-                    spanList.add(span);
+
+                    NlpTokenType thisNlpTokenType = getNlpTokenType(stanfordNlpConstant);
+                    if (thisNlpTokenType == null) {
+                        continue;
+                    }
+                    if (predicate.getNlpTokenType().equals(NlpTokenType.NE_ALL) || predicate.getNlpTokenType().equals(thisNlpTokenType)) {
+                        int start = token.get(CoreAnnotations.CharacterOffsetBeginAnnotation.class);
+                        int end = token.get(CoreAnnotations.CharacterOffsetEndAnnotation.class);
+                        String word = token.get(CoreAnnotations.TextAnnotation.class);
+
+                        Span span = new Span(attributeName, start, end, thisNlpTokenType.toString(), word);
+                        if (spanList.size() >= 1 && (predicate.getNlpTypeIndicator().equals("NE_ALL"))) {
+                            Span previousSpan = spanList.get(spanList.size() - 1);
+                            if (previousSpan.getAttributeName().equals(span.getAttributeName())
+                                    && (span.getStart() - previousSpan.getEnd() <= 1)
+                                    && previousSpan.getKey().equals(span.getKey())) {
+                                Span newSpan = mergeTwoSpans(previousSpan, span);
+                                span = newSpan;
+                                spanList.remove(spanList.size() - 1);
+                            }
+                        }
+                        spanList.add(span);
+                    }
                 }
             }
         }
