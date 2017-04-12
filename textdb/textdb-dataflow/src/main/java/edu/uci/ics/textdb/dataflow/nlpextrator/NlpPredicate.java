@@ -1,9 +1,8 @@
 package edu.uci.ics.textdb.dataflow.nlpextrator;
 
-import java.util.List;
-
 import edu.uci.ics.textdb.api.dataflow.IPredicate;
-import edu.uci.ics.textdb.api.schema.Attribute;
+
+import java.util.List;
 
 public class NlpPredicate implements IPredicate {
     
@@ -11,11 +10,12 @@ public class NlpPredicate implements IPredicate {
      * Named Entity Token Types: NE_ALL, Number, Location, Person, Organization,
      * Money, Percent, Date, Time. Part Of Speech Token Types: Noun, Verb,
      * Adjective, Adverb
+     *
      */
     public enum NlpTokenType {
         Noun, Verb, Adjective, Adverb,
 
-        NE_ALL, Number, Location, Person, Organization, Money, Percent, Date, Time;
+        NE_ALL, Number, Location, Person, Organization, Money, Percent, Date, Time,Sentiment;
     }
 
     private NlpTokenType nlpTokenType;
@@ -37,7 +37,9 @@ public class NlpPredicate implements IPredicate {
     public String getNlpTypeIndicator() {
         if (isPOSTokenType(nlpTokenType)) {
             return "POS";
-        } else {
+        } else if(isSentimentType(nlpTokenType)){
+            return "SENTIMENT";
+        }else {
             return "NE_ALL";
         }
     }
@@ -49,5 +51,11 @@ public class NlpPredicate implements IPredicate {
         } else {
             return false;
         }
+    }
+    private static boolean isSentimentType(NlpTokenType tokenType){
+        if(tokenType.equals(NlpTokenType.Sentiment)){
+            return true;
+        }
+        return false;
     }
 }
