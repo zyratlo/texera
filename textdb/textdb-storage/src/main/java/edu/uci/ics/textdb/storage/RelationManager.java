@@ -63,17 +63,17 @@ public class RelationManager {
 
     /**
      * Creates a new table. 
-     *   Table name must be unique.
+     *   Table name must be unique (case insensitive).
      *   LuceneAnalyzer must be a valid analyzer string.
      * 
      * The "_id" attribute will be added to the table schema.
      * System automatically generates a unique ID for each tuple inserted to a table,
      *   the generated ID will be in "_id" field.
      * 
-     * @param tableName
-     * @param indexDirectory
-     * @param schema
-     * @param luceneAnalyzerString
+     * @param tableName, the name of the table, must be unique, case is not sensitive
+     * @param indexDirectory, the directory to store the index and data, must not duplicate with other tables' directories
+     * @param schema, the schema of the table
+     * @param luceneAnalyzerString, the string representing the lucene analyzer used
      * @throws StorageException
      */
     public void createTable(String tableName, String indexDirectory, Schema schema, String luceneAnalyzerString)
@@ -135,7 +135,7 @@ public class RelationManager {
      * If the table doesn't exist, it won't do anything.
      * Deleting system catalog tables is prohibited.
      * 
-     * @param tableName
+     * @param tableName, the name of a table, case insensitive
      * @throws StorageException
      */
     public void deleteTable(String tableName) throws StorageException {
@@ -178,8 +178,8 @@ public class RelationManager {
      * Gets a tuple in a table by its _id field.
      * Returns null if the tuple doesn't exist.
      * 
-     * @param tableName
-     * @param idValue
+     * @param tableName, the name of the table, case insensitive
+     * @param idValue, the IDField to lookup
      * @return
      * @throws StorageException
      */
@@ -202,7 +202,7 @@ public class RelationManager {
      * Gets the DataWriter of a table. 
      * The DataWriter can be used to insert/delete/update tuples in a table.
      * 
-     * @param tableName
+     * @param tableName, the name of the table, case insensitive
      * @return
      * @throws StorageException
      */
@@ -217,8 +217,8 @@ public class RelationManager {
      * Gets a DataReader for a table based on a query.
      * DataReader can return tuples that match the query.
      * 
-     * @param tableName
-     * @param tupleQuery
+     * @param tableName, the name of a table, case insensitive
+     * @param tupleQuery, the query to run on the table
      * @return
      * @throws StorageException
      */
@@ -230,7 +230,7 @@ public class RelationManager {
     /**
      * Gets the DataStore(directory and schema) of a table.
      * 
-     * @param tableName
+     * @param tableName, the name of the table, case insensitive
      * @return
      * @throws StorageException
      */
@@ -243,7 +243,7 @@ public class RelationManager {
     /**
      * Gets the directory of a table.
      * 
-     * @param tableName
+     * @param tableName, the name of the table, case insensitive
      * @return
      * @throws StorageException
      */
@@ -264,7 +264,7 @@ public class RelationManager {
     /**
      * Gets the schema of a table.
      * 
-     * @param tableName
+     * @param tableName, the name of the table, case insensitive
      * @return
      * @throws StorageException
      */
@@ -293,7 +293,7 @@ public class RelationManager {
     /**
      * Gets the Lucene analyzer string of a table.
      *   
-     * @param tableName
+     * @param tableName, the name of the table, case insensitive
      * @return
      * @throws StorageException
      */
@@ -316,7 +316,7 @@ public class RelationManager {
     /**
      * Gets the Lucene analyzer of a table.
      *   
-     * @param tableName
+     * @param tableName, the name of the table, case insensitive
      * @return
      * @throws StorageException
      */
