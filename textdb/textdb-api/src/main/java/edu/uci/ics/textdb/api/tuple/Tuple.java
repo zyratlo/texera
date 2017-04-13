@@ -1,6 +1,7 @@
 package edu.uci.ics.textdb.api.tuple;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import edu.uci.ics.textdb.api.field.IField;
@@ -24,6 +25,15 @@ public class Tuple {
         // This makes List<IField> partially immutable.
         // Partial because we can still replace an element at particular index.
         this.fields = Arrays.asList(fields);
+    }
+    
+    public Tuple(Schema schema, List<IField> fields) {
+        this.schema = schema;
+        // Converting to java.util.Arrays.ArrayList
+        // so that the collection remains static and cannot be extended/shrunk
+        // This makes List<IField> partially immutable.
+        // Partial because we can still replace an element at particular index.
+        this.fields = fields;
     }
 
     @SuppressWarnings("unchecked")
@@ -77,7 +87,7 @@ public class Tuple {
     }
 
     public List<IField> getFields() {
-        return fields;
+        return Collections.unmodifiableList(fields);
     }
 
     public Schema getSchema() {
