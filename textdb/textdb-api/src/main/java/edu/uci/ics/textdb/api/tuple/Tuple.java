@@ -1,5 +1,6 @@
 package edu.uci.ics.textdb.api.tuple;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -83,7 +84,7 @@ public class Tuple {
     }
 
     public List<IField> getFields() {
-        return Collections.unmodifiableList(fields);
+        return new ArrayList<>(this.fields);
     }
 
     public Schema getSchema() {
