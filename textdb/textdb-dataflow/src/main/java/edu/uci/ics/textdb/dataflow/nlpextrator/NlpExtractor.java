@@ -197,7 +197,8 @@ public class NlpExtractor extends AbstractSingleInputOperator {
                     mainSentiment = sentiment;
                     longest = partText.length();
                 }
-                System.out.println(mainSentiment);
+                System.out.println(sentence);
+                System.out.println("Sentiment is "+mainSentiment);
                 Span span = new Span(attributeName, 0, text.length(), predicate.getNlpTypeIndicator(),mainSentiment.toString());
                 spanList.add(span);
             }else {
