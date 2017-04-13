@@ -29,10 +29,6 @@ public class Tuple {
     
     public Tuple(Schema schema, List<IField> fields) {
         this.schema = schema;
-        // Converting to java.util.Arrays.ArrayList
-        // so that the collection remains static and cannot be extended/shrunk
-        // This makes List<IField> partially immutable.
-        // Partial because we can still replace an element at particular index.
         this.fields = fields;
     }
 
