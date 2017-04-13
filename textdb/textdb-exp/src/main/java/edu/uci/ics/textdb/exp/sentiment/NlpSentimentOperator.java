@@ -79,7 +79,7 @@ public class NlpSentimentOperator implements IOperator {
         AttributeType targetAttributeType = 
                 inputSchema.getAttribute(predicate.getTargetAttributeName()).getAttributeType();
         boolean isValidType = targetAttributeType.equals(AttributeType.STRING) || 
-                targetAttributeType.equals(AttributeType.STRING);
+                targetAttributeType.equals(AttributeType.TEXT);
         if (! isValidType) {
             throw new RuntimeException(String.format(
                     "target attribute %s must have type String or Text, its actual type is %s",
