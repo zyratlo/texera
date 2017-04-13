@@ -1,5 +1,6 @@
 package edu.uci.ics.textdb.exp.sentiment;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
@@ -22,6 +23,21 @@ import edu.uci.ics.textdb.api.schema.Schema;
 import edu.uci.ics.textdb.api.tuple.Tuple;
 import edu.uci.ics.textdb.api.utils.Utils;
 
+/**
+ * This Operator performs sentiment analysis using Stanford NLP's sentiment analysis module.
+ * 
+ * The result is an integer indicating the sentiment score, which represents:
+ * 4 - very positive
+ * 3 - positive
+ * 2 - neutral
+ * 1 - negative
+ * 0 - very negative
+ * 
+ * The result will be put into an attribute with resultAttributeName specified in predicate, and type Integer.
+ * 
+ * @author Zuozhi Wang
+ *
+ */
 public class NlpSentimentOperator implements IOperator {
     
     private final NlpSentimentPredicate predicate;
@@ -108,7 +124,8 @@ public class NlpSentimentOperator implements IOperator {
             return null;
         }
         
-        List<IField> outputFields = inputTuple.getFields();
+        List<IField> outputFields = new ArrayList<>();
+        outputFields.addAll(inputTuple.getFields());
         outputFields.add(new IntegerField(computeSentimentScore(inputTuple)));
         
         return new Tuple(outputSchema, outputFields);
@@ -118,6 +135,7 @@ public class NlpSentimentOperator implements IOperator {
     private Integer computeSentimentScore(Tuple inputTuple) {
         String targetText = inputTuple.<IField>getField(predicate.getTargetAttributeName()).getValue().toString();
         Annotation documentAnnotation = new Annotation(targetText);
+        sentimentPipeline.annotate(documentAnnotation);
         
         // mainSentiment is calculated by the sentiment class of the longest sentence
         Integer mainSentiment = 0;
