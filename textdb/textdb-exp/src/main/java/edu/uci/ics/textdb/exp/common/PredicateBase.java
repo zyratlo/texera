@@ -10,6 +10,7 @@ import edu.uci.ics.textdb.exp.keywordmatcher.KeywordSourcePredicate;
 import edu.uci.ics.textdb.exp.regexsplit.RegexSplitPredicate;
 import edu.uci.ics.textdb.exp.sampler.SamplerPredicate;
 import edu.uci.ics.textdb.exp.sentiment.NlpSentimentPredicate;
+import edu.uci.ics.textdb.exp.sink.tuple.TupleSinkPredicate;
 import edu.uci.ics.textdb.exp.source.ScanSourcePredicate;
 import edu.uci.ics.textdb.exp.source.file.FileSourcePredicate;
 
@@ -38,8 +39,8 @@ import edu.uci.ics.textdb.exp.source.file.FileSourcePredicate;
         @Type(value = SamplerPredicate.class, name = "Sampler"),
         
         @Type(value = ScanSourcePredicate.class, name = "ScanSource"),
-        @Type(value = FileSourcePredicate.class, name = "FileSink"),
-        
+        @Type(value = FileSourcePredicate.class, name = "FileSink"),        
+        @Type(value = TupleSinkPredicate.class, name = "ViewResults"),
 })
 public abstract class PredicateBase implements IPredicate {
     
