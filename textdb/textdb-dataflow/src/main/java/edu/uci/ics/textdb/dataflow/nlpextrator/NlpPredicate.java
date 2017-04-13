@@ -15,7 +15,7 @@ public class NlpPredicate implements IPredicate {
     public enum NlpTokenType {
         Noun, Verb, Adjective, Adverb,
 
-        NE_ALL, Number, Location, Person, Organization, Money, Percent, Date, Time,Sentiment;
+        NE_ALL, Number, Location, Person, Organization, Money, Percent, Date, Time, Sentiment;
     }
 
     private NlpTokenType nlpTokenType;
