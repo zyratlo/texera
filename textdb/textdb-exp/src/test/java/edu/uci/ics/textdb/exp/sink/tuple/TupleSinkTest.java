@@ -1,4 +1,4 @@
-package edu.uci.ics.textdb.exp.sink;
+package edu.uci.ics.textdb.exp.sink.tuple;
 
 import java.io.FileNotFoundException;
 
@@ -13,11 +13,12 @@ import edu.uci.ics.textdb.api.schema.Attribute;
 import edu.uci.ics.textdb.api.schema.AttributeType;
 import edu.uci.ics.textdb.api.schema.Schema;
 import edu.uci.ics.textdb.api.tuple.Tuple;
+import edu.uci.ics.textdb.exp.sink.tuple.TupleSink;
 import junit.framework.Assert;
 
-public class TupleStreamSinkTest {
+public class TupleSinkTest {
     
-    private TupleStreamSink tupleStreamSink;
+    private TupleSink tupleSink;
     private IOperator inputOperator;
     private Schema inputSchema = new Schema(
             SchemaConstants._ID_ATTRIBUTE, new Attribute("content", AttributeType.TEXT), SchemaConstants.PAYLOAD_ATTRIBUTE);
@@ -27,8 +28,8 @@ public class TupleStreamSinkTest {
         inputOperator = Mockito.mock(IOperator.class);
         Mockito.when(inputOperator.getOutputSchema()).thenReturn(inputSchema);
         
-        tupleStreamSink = new TupleStreamSink();
-        tupleStreamSink.setInputOperator(inputOperator);
+        tupleSink = new TupleSink();
+        tupleSink.setInputOperator(inputOperator);
     }
 
     @After
@@ -37,16 +38,18 @@ public class TupleStreamSinkTest {
 
     @Test
     public void testOpen() throws Exception {
-        tupleStreamSink.open();
+        tupleSink.open();
         // verify that inputOperator called open() method
         Mockito.verify(inputOperator).open();
-        // assert that the tuple stream sink removes the _ID and PAYLOAD attribute
-        Assert.assertEquals(new Schema(new Attribute("content", AttributeType.TEXT)), tupleStreamSink.getOutputSchema());
+        // assert that the tuple stream sink removes the PAYLOAD attribute
+        Assert.assertEquals(
+                new Schema(SchemaConstants._ID_ATTRIBUTE, new Attribute("content", AttributeType.TEXT)), 
+                tupleSink.getOutputSchema());
     }
 
     @Test
     public void testClose() throws Exception {
-        tupleStreamSink.close();
+        tupleSink.close();
         // verify that inputOperator called close() method
         Mockito.verify(inputOperator).close();
     }
@@ -60,13 +63,13 @@ public class TupleStreamSinkTest {
         // first it returns some non-null tuple and second time it returns null
         Mockito.when(inputOperator.getNextTuple()).thenReturn(sampleTuple).thenReturn(null);
         
-        tupleStreamSink.open();
-        tupleStreamSink.getNextTuple();
+        tupleSink.open();
+        tupleSink.getNextTuple();
         
         // Verify that input operator's getNextTuple is called
         Mockito.verify(inputOperator, Mockito.times(1)).getNextTuple();
 
-        tupleStreamSink.close();
+        tupleSink.close();
     }
     
 }
