@@ -84,23 +84,23 @@ public class NlpSentimentOperator implements IOperator {
         Schema inputSchema = inputOperator.getOutputSchema();
         
         // check if input schema is present
-        if (! inputSchema.containsField(predicate.getTargetAttributeName())) {
+        if (! inputSchema.containsField(predicate.getInputAttributeName())) {
             throw new RuntimeException(String.format(
-                    "target attribute %s is not in the input schema %s",
-                    predicate.getTargetAttributeName(),
+                    "input attribute %s is not in the input schema %s",
+                    predicate.getInputAttributeName(),
                     inputSchema.getAttributeNames()));
         }
         
         // check if attribute type is valid
-        AttributeType targetAttributeType = 
-                inputSchema.getAttribute(predicate.getTargetAttributeName()).getAttributeType();
-        boolean isValidType = targetAttributeType.equals(AttributeType.STRING) || 
-                targetAttributeType.equals(AttributeType.TEXT);
+        AttributeType inputAttributeType = 
+                inputSchema.getAttribute(predicate.getInputAttributeName()).getAttributeType();
+        boolean isValidType = inputAttributeType.equals(AttributeType.STRING) || 
+                inputAttributeType.equals(AttributeType.TEXT);
         if (! isValidType) {
             throw new RuntimeException(String.format(
-                    "target attribute %s must have type String or Text, its actual type is %s",
-                    predicate.getTargetAttributeName(),
-                    targetAttributeType));
+                    "input attribute %s must have type String or Text, its actual type is %s",
+                    predicate.getInputAttributeName(),
+                    inputAttributeType));
         }
         
         // generate output schema by transforming the input schema
@@ -133,8 +133,8 @@ public class NlpSentimentOperator implements IOperator {
     
     
     private Integer computeSentimentScore(Tuple inputTuple) {
-        String targetText = inputTuple.<IField>getField(predicate.getTargetAttributeName()).getValue().toString();
-        Annotation documentAnnotation = new Annotation(targetText);
+        String inputText = inputTuple.<IField>getField(predicate.getInputAttributeName()).getValue().toString();
+        Annotation documentAnnotation = new Annotation(inputText);
         sentimentPipeline.annotate(documentAnnotation);
         
         // mainSentiment is calculated by the sentiment class of the longest sentence

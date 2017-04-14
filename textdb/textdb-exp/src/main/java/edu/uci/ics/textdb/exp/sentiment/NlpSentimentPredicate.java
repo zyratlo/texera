@@ -7,22 +7,22 @@ import edu.uci.ics.textdb.exp.common.PropertyNameConstants;
 
 public class NlpSentimentPredicate implements IPredicate {
     
-    private final String targetAttributeName;
+    private final String inputAttributeName;
     private final String resultAttributeName;
     
     public NlpSentimentPredicate(
             @JsonProperty(value = PropertyNameConstants.ATTRIBUTE_NAME, required = true)
-            String targetAttributeName,
+            String inputAttributeName,
             @JsonProperty(value = PropertyNameConstants.RESULT_ATTRIBUTE_NAME, required = true)
             String resultAttributeName
             ) {
-        this.targetAttributeName = targetAttributeName;
+        this.inputAttributeName = inputAttributeName;
         this.resultAttributeName = resultAttributeName;
     }
     
     @JsonProperty(PropertyNameConstants.ATTRIBUTE_NAME)
-    public String getTargetAttributeName() {
-        return this.targetAttributeName;
+    public String getInputAttributeName() {
+        return this.inputAttributeName;
     }
     
     @JsonProperty(PropertyNameConstants.RESULT_ATTRIBUTE_NAME)
