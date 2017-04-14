@@ -1,8 +1,9 @@
-package edu.uci.ics.textdb.exp.sink;
+package edu.uci.ics.textdb.exp.sink.tuple;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.uci.ics.textdb.api.constants.ErrorMessages;
 import edu.uci.ics.textdb.api.constants.SchemaConstants;
 import edu.uci.ics.textdb.api.dataflow.IOperator;
 import edu.uci.ics.textdb.api.dataflow.ISink;
@@ -17,27 +18,33 @@ import edu.uci.ics.textdb.api.utils.Utils;
  * @author Zuozhi Wang
  *
  */
-public class TupleStreamSink implements ISink {
+public class TupleSink implements ISink {
     
     private IOperator inputOperator;
     
     private Schema inputSchema;
     private Schema outputSchema;
     
-    private boolean isOpen = false;;
+    private int cursor = CLOSED;
 
     /**
      * TupleStreamSink is a sink that can be used to
      *   collect tuples to an in-memory list.
      *
-     * TupleStreamSink removes the _id attribute and payload attribute
+     * TupleStreamSink removes the payload attribute
      *   from the schema and each tuple.
      *
      */
-    public TupleStreamSink() {
+    public TupleSink() {
+    }
+    
+    public TupleSink(TupleSinkPredicate predicate) {
     }
     
     public void setInputOperator(IOperator inputOperator) {
+        if (cursor != CLOSED) {
+            throw new RuntimeException(ErrorMessages.INPUT_OPERATOR_CHANGED_AFTER_OPEN);
+        }
         this.inputOperator = inputOperator;
     }
     
@@ -52,13 +59,16 @@ public class TupleStreamSink implements ISink {
 
     @Override
     public void open() throws TextDBException {
-        if (isOpen) {
+        if (cursor != CLOSED) {
             return;
-        }     
+        }
+        if (inputOperator == null) {
+            throw new RuntimeException(ErrorMessages.INPUT_OPERATOR_NOT_SPECIFIED);
+        }
         inputOperator.open();
         inputSchema = inputOperator.getOutputSchema();
-        outputSchema = Utils.removeAttributeFromSchema(inputSchema, SchemaConstants._ID, SchemaConstants.PAYLOAD);
-        isOpen = true;
+        outputSchema = Utils.removeAttributeFromSchema(inputSchema, SchemaConstants.PAYLOAD);
+        cursor = OPENED;
     }
 
     @Override
@@ -68,19 +78,25 @@ public class TupleStreamSink implements ISink {
     
     @Override
     public Tuple getNextTuple() throws TextDBException {
+        if (cursor == CLOSED) {
+            return null;
+        }
         Tuple tuple = inputOperator.getNextTuple();
         if (tuple == null) {
             return null;
         }
-        return Utils.removeFields(tuple, SchemaConstants._ID, SchemaConstants.PAYLOAD);
+        cursor++;
+        return Utils.removeFields(tuple, SchemaConstants.PAYLOAD);
     }
 
     @Override
     public void close() throws TextDBException {
-        if (! isOpen) {
+        if (cursor == CLOSED) {
         }
-        inputOperator.close();
-        isOpen = false;        
+        if (inputOperator != null) {
+            inputOperator.close();
+        }
+        cursor = CLOSED;
     }
 
     /**
