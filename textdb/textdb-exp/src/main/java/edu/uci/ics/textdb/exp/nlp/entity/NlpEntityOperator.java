@@ -186,7 +186,7 @@ public class NlpEntityOperator extends AbstractSingleInputOperator {
                     stanfordNlpConstant = token.get(CoreAnnotations.NamedEntityTagAnnotation.class);
                 }
 
-                NlpEntityType nlpEntityType = getNlpEntityType(stanfordNlpConstant);
+                NlpEntityType nlpEntityType = mapNlpEntityType(stanfordNlpConstant);
                 if (nlpEntityType == null) {
                     continue;
                 }
@@ -264,7 +264,7 @@ public class NlpEntityOperator extends AbstractSingleInputOperator {
      *        Stanford Constant to only 4 types: Noun, Verb, Adjective and
      *        Adverb.
      */
-    private static NlpEntityType getNlpEntityType(String stanfordConstant) {
+    private static NlpEntityType mapNlpEntityType(String stanfordConstant) {
         switch (stanfordConstant) {
         case "NUMBER":
             return NlpEntityType.NUMBER;
@@ -315,7 +315,7 @@ public class NlpEntityOperator extends AbstractSingleInputOperator {
         case "VBZ":
             return NlpEntityType.VERB;
         default:
-            throw new RuntimeException("unsupported NlpEntityType");
+            return null;
         }
     }
 
