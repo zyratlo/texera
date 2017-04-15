@@ -8,7 +8,7 @@ import edu.uci.ics.textdb.api.dataflow.IPredicate;
 import edu.uci.ics.textdb.exp.keywordmatcher.KeywordPredicate;
 import edu.uci.ics.textdb.exp.keywordmatcher.KeywordSourcePredicate;
 import edu.uci.ics.textdb.exp.sink.tuple.TupleSinkPredicate;
-import edu.uci.ics.textdb.exp.source.ScanSourcePredicate;
+import edu.uci.ics.textdb.exp.source.scan.ScanSourcePredicate;
 
 
 /**
