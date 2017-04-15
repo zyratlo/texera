@@ -132,8 +132,7 @@ public class RegexMatcherTestHelper {
             int limit, int offset) throws TextDBException {
         ScanBasedSourceOperator scanSource = new ScanBasedSourceOperator(new ScanSourcePredicate(tableName));
         
-        RegexPredicate regexPredicate = new RegexPredicate(regex, attributeNames, 
-                RelationManager.getRelationManager().getTableAnalyzer(tableName));
+        RegexPredicate regexPredicate = new RegexPredicate(regex, attributeNames);
         RegexMatcher regexMatcher = new RegexMatcher(regexPredicate);
         
         regexMatcher.setLimit(limit);
@@ -155,9 +154,8 @@ public class RegexMatcherTestHelper {
     
     public static List<Tuple> getRegexSourceResults(String tableName, String regex, List<String> attributeNames,
             int limit, int offset) throws TextDBException {
-        RegexPredicate regexPredicate = new RegexPredicate(regex, attributeNames, 
-                RelationManager.getRelationManager().getTableAnalyzer(tableName));
-        RegexMatcherSourceOperator regexSource = new RegexMatcherSourceOperator(regexPredicate, tableName);
+        RegexSourcePredicate regexSourcePredicate = new RegexSourcePredicate(regex, attributeNames, tableName);
+        RegexMatcherSourceOperator regexSource = new RegexMatcherSourceOperator(regexSourcePredicate);
         
         regexSource.setLimit(limit);
         regexSource.setOffset(offset);
