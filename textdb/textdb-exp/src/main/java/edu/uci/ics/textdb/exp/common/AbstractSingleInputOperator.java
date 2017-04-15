@@ -125,6 +125,14 @@ public abstract class AbstractSingleInputOperator implements IOperator {
         return inputOperator;
     }
     
+    public void setLimit(int limit) {
+        this.limit = limit;
+    }
+    
+    public void setOffset(int offset) {
+        this.offset = offset;
+    }
+    
     public int getLimit() {
         return limit;
     }

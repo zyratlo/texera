@@ -1,4 +1,4 @@
-package edu.uci.ics.textdb.exp.source;
+package edu.uci.ics.textdb.exp.source.scan;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;

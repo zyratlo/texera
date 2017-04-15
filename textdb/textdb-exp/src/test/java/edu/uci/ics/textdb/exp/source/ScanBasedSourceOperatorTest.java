@@ -11,6 +11,8 @@ import edu.uci.ics.textdb.api.constants.TestConstants;
 import edu.uci.ics.textdb.api.exception.TextDBException;
 import edu.uci.ics.textdb.api.tuple.Tuple;
 import edu.uci.ics.textdb.api.utils.TestUtils;
+import edu.uci.ics.textdb.exp.source.scan.ScanBasedSourceOperator;
+import edu.uci.ics.textdb.exp.source.scan.ScanSourcePredicate;
 
 import org.junit.AfterClass;
 import org.junit.Assert;

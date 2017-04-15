@@ -1,4 +1,4 @@
-package edu.uci.ics.textdb.exp.source;
+package edu.uci.ics.textdb.exp.source.scan;
 
 import edu.uci.ics.textdb.api.exception.DataFlowException;
 import edu.uci.ics.textdb.api.exception.StorageException;

@@ -1,4 +1,4 @@
-package edu.uci.ics.textdb.exp.keywordmatcher;
+package edu.uci.ics.textdb.exp.dictionarymatcher;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,27 +9,19 @@ import edu.uci.ics.textdb.api.exception.DataFlowException;
 import edu.uci.ics.textdb.api.exception.TextDBException;
 import edu.uci.ics.textdb.api.tuple.Tuple;
 import edu.uci.ics.textdb.api.utils.TestUtils;
+import edu.uci.ics.textdb.exp.dictionarymatcher.Dictionary;
+import edu.uci.ics.textdb.exp.dictionarymatcher.DictionaryPredicate;
+import edu.uci.ics.textdb.exp.keywordmatcher.KeywordMatchingType;
 import edu.uci.ics.textdb.exp.source.scan.ScanBasedSourceOperator;
 import edu.uci.ics.textdb.exp.source.scan.ScanSourcePredicate;
 import edu.uci.ics.textdb.storage.DataWriter;
 import edu.uci.ics.textdb.storage.RelationManager;
 import edu.uci.ics.textdb.storage.constants.LuceneAnalyzerConstants;
 
-/**
- * A helper class for functions that are used in multiple keyword matcher tests.
- * This class contains functions that: 
- *   create and write test tables,
- *   delete test tables
- *   get the results from a keyword matcher
- * @author Zuozhi Wang
- * @author Qinhua Huang
- *
- */
-public class KeywordTestHelper {
+public class DictionaryMatcherTestHelper {
     
-    public static final String PEOPLE_TABLE = "keyword_test_people";
-    public static final String MEDLINE_TABLE = "keyword_test_medline";
-    public static final String CHINESE_TABLE = "keyword_test_chinese";
+    public static final String PEOPLE_TABLE = "dictionary_test_people";
+    public static final String CHINESE_TABLE = "dictionary_test_chinese";
     
     public static void writeTestTables() throws TextDBException {
         RelationManager relationManager = RelationManager.getRelationManager();
@@ -37,25 +29,14 @@ public class KeywordTestHelper {
         // create the people table and write tuples
         relationManager.createTable(PEOPLE_TABLE, "../index/test_tables/" + PEOPLE_TABLE, 
                 TestConstants.SCHEMA_PEOPLE, LuceneAnalyzerConstants.standardAnalyzerString());
-
+        
         DataWriter peopleDataWriter = relationManager.getTableDataWriter(PEOPLE_TABLE);
         peopleDataWriter.open();
         for (Tuple tuple : TestConstants.getSamplePeopleTuples()) {
             peopleDataWriter.insertTuple(tuple);
         }
         peopleDataWriter.close();
-        
-        // create the medline table and write tuples
-        relationManager.createTable(MEDLINE_TABLE, "../index/test_tables/" + MEDLINE_TABLE,
-                keywordTestConstants.SCHEMA_MEDLINE, LuceneAnalyzerConstants.standardAnalyzerString());
-   
-        DataWriter medDataWriter = relationManager.getTableDataWriter(MEDLINE_TABLE);
-        medDataWriter.open();
-        for (Tuple tuple : keywordTestConstants.getSampleMedlineRecord()) {
-            medDataWriter.insertTuple(tuple);
-        }
-        medDataWriter.close();
-        
+          
         // create the people table and write tuples in Chinese
         relationManager.createTable(CHINESE_TABLE, "../index/test_tables/" + CHINESE_TABLE, 
                 TestConstantsChinese.SCHEMA_PEOPLE, LuceneAnalyzerConstants.chineseAnalyzerString());
@@ -69,93 +50,129 @@ public class KeywordTestHelper {
     
     public static void deleteTestTables() throws TextDBException {
         RelationManager relationManager = RelationManager.getRelationManager();
-
         relationManager.deleteTable(PEOPLE_TABLE);
-        relationManager.deleteTable(MEDLINE_TABLE);
         relationManager.deleteTable(CHINESE_TABLE);
     }
     
-    public static List<Tuple> getQueryResults(String tableName, String keywordQuery, List<String> attributeNames,
+    public static List<Tuple> getQueryResults(String tableName, Dictionary dictionary, List<String> attributeNames,
             KeywordMatchingType matchingType) throws TextDBException {
-        return getQueryResults(tableName, keywordQuery, attributeNames, matchingType, Integer.MAX_VALUE, 0);
+        return getQueryResults(tableName, dictionary, attributeNames, matchingType, Integer.MAX_VALUE, 0);
     }
     
-    public static List<Tuple> getQueryResults(String tableName, String keywordQuery, List<String> attributeNames,
+    public static List<Tuple> getQueryResults(String tableName, Dictionary dictionary, List<String> attributeNames,
             KeywordMatchingType matchingType, int limit, int offset) throws TextDBException {
         
         // results from a scan on the table followed by a keyword match
-        List<Tuple> scanSourceResults = getScanSourceResults(tableName, keywordQuery, attributeNames,
+        List<Tuple> scanSourceResults = getScanSourceResults(tableName, dictionary, attributeNames,
                 matchingType, limit, offset);
+        // reset the dictionary's cursor after each run because the same dictionary may be used later.
+        dictionary.resetCursor();
         // results from index-based keyword search on the table
-        List<Tuple> keywordSourceResults = getKeywordSourceResults(tableName, keywordQuery, attributeNames,
+        List<Tuple> dictionarySourceResults = getDictionarySourceResults(tableName, dictionary, attributeNames,
                 matchingType, limit, offset);
+        dictionary.resetCursor();
         
         // if limit and offset are not relevant, the results from scan source and keyword source must be the same
         if (limit == Integer.MAX_VALUE && offset == 0) {
-            if (TestUtils.equals(scanSourceResults, keywordSourceResults)) {
+            if (TestUtils.equals(scanSourceResults, dictionarySourceResults)) {
                 return scanSourceResults;
             } else {
-                throw new DataFlowException("results from scanSource and keywordSource are inconsistent");
+                throw new DataFlowException("results from scanSource and dictionarySource are inconsistent");
             }
         }
         // if limit and offset are relevant, then the results can be different (since the order doesn't matter)
         // in this case, we get all the results and test if the whole result set contains both results
         else {
-            List<Tuple> allResults = getKeywordSourceResults(tableName, keywordQuery, attributeNames,
+            List<Tuple> allResults = getDictionarySourceResults(tableName, dictionary, attributeNames,
                     matchingType, Integer.MAX_VALUE, 0);
+            dictionary.resetCursor();
             
-            if (scanSourceResults.size() == keywordSourceResults.size() &&
+            if (scanSourceResults.size() == dictionarySourceResults.size() &&
                     TestUtils.containsAll(allResults, scanSourceResults) && 
-                    TestUtils.containsAll(allResults, keywordSourceResults)) {
+                    TestUtils.containsAll(allResults, dictionarySourceResults)) {
                 return scanSourceResults;
             } else {
-                throw new DataFlowException("results from scanSource and keywordSource are inconsistent");
+                throw new DataFlowException("results from scanSource and dictionarySource are inconsistent");
             }   
         }
     }
     
-    public static List<Tuple> getScanSourceResults(String tableName, String keywordQuery, List<String> attributeNames,
+    /**
+     * Get the results from a DictionaryMatcher with a ScanSource Operator 
+     *   (which scans the table first and then feeds the data into the dictionary matcher)
+     * 
+     * @param tableName
+     * @param dictionary
+     * @param attributeNames
+     * @param matchingType
+     * @param limit
+     * @param offset
+     * @return
+     * @throws TextDBException
+     */
+    public static List<Tuple> getScanSourceResults(String tableName, Dictionary dictionary, List<String> attributeNames,
             KeywordMatchingType matchingType, int limit, int offset) throws TextDBException {
+        
         RelationManager relationManager = RelationManager.getRelationManager();
+        String luceneAnalyzerStr = relationManager.getTableAnalyzerString(tableName);
         
         ScanBasedSourceOperator scanSource = new ScanBasedSourceOperator(new ScanSourcePredicate(tableName));
         
-        KeywordPredicate keywordPredicate = new KeywordPredicate(
-                keywordQuery, attributeNames, relationManager.getTableAnalyzerString(tableName), matchingType, 
-                limit, offset);
-        KeywordMatcher keywordMatcher = new KeywordMatcher(keywordPredicate);
+        DictionaryPredicate dictiaonryPredicate = new DictionaryPredicate(
+                dictionary, attributeNames, luceneAnalyzerStr, matchingType);
+        DictionaryMatcher dictionaryMatcher = new DictionaryMatcher(dictiaonryPredicate);
         
-        keywordMatcher.setInputOperator(scanSource);
+        dictionaryMatcher.setLimit(limit);
+        dictionaryMatcher.setOffset(offset);
+        
+        dictionaryMatcher.setInputOperator(scanSource);
         
         Tuple tuple;
         List<Tuple> results = new ArrayList<>();
         
-        keywordMatcher.open();
-        while ((tuple = keywordMatcher.getNextTuple()) != null) {
+        dictionaryMatcher.open();
+        while ((tuple = dictionaryMatcher.getNextTuple()) != null) {
             results.add(tuple);
         }  
-        keywordMatcher.close();
+        dictionaryMatcher.close();
         
         return results;
     }
     
-    public static List<Tuple> getKeywordSourceResults(String tableName, String keywordQuery, List<String> attributeNames,
+    /**
+     * Get the results from the DictionarySourceOperator 
+     *   (which performs a index-based lookup for each keyword in the dictionary)
+     * 
+     * @param tableName
+     * @param dictionary
+     * @param attributeNames
+     * @param matchingType
+     * @param limit
+     * @param offset
+     * @return
+     * @throws TextDBException
+     */
+    public static List<Tuple> getDictionarySourceResults(String tableName, Dictionary dictionary, List<String> attributeNames,
             KeywordMatchingType matchingType, int limit, int offset) throws TextDBException {
         RelationManager relationManager = RelationManager.getRelationManager();
-        KeywordSourcePredicate keywordSourcePredicate = new KeywordSourcePredicate(
-                keywordQuery, attributeNames, relationManager.getTableAnalyzerString(tableName), matchingType, 
-                tableName, limit, offset);
-        KeywordMatcherSourceOperator keywordSource = new KeywordMatcherSourceOperator(
-                keywordSourcePredicate);
+        String luceneAnalyzerStr = relationManager.getTableAnalyzerString(tableName);
+        
+        DictionaryPredicate dictiaonryPredicate = new DictionaryPredicate(
+                dictionary, attributeNames, luceneAnalyzerStr, matchingType);
+        DictionaryMatcherSourceOperator dictionarySource = new DictionaryMatcherSourceOperator(
+                dictiaonryPredicate, tableName);
+
+        dictionarySource.setLimit(limit);
+        dictionarySource.setOffset(offset);
         
         Tuple tuple;
         List<Tuple> results = new ArrayList<>();
         
-        keywordSource.open();
-        while ((tuple = keywordSource.getNextTuple()) != null) {
+        dictionarySource.open();
+        while ((tuple = dictionarySource.getNextTuple()) != null) {
             results.add(tuple);
         }
-        keywordSource.close();
+        dictionarySource.close();
         
         return results;
     }

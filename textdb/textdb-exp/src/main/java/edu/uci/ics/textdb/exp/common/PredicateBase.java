@@ -11,7 +11,7 @@ import edu.uci.ics.textdb.exp.regexsplit.RegexSplitPredicate;
 import edu.uci.ics.textdb.exp.sampler.SamplerPredicate;
 import edu.uci.ics.textdb.exp.sentiment.NlpSentimentPredicate;
 import edu.uci.ics.textdb.exp.sink.tuple.TupleSinkPredicate;
-import edu.uci.ics.textdb.exp.source.ScanSourcePredicate;
+import edu.uci.ics.textdb.exp.source.scan.ScanSourcePredicate;
 import edu.uci.ics.textdb.exp.source.file.FileSourcePredicate;
 
 
