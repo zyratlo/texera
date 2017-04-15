@@ -20,6 +20,7 @@ import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
@@ -87,20 +88,20 @@ public class PlanStore {
             throw new TextDBException("A plan with the same name already exists");
         }
 
-        // Converting the JSON String to a JSON Node to minimize space usage and to check validity of JSON string
-        Object jsonObject;
         try {
+            // Converting the JSON String to a JSON Node to minimize space usage and to check validity of JSON string
             ObjectMapper objectMapper = new ObjectMapper();
-            jsonObject = objectMapper.readValue(logicalPlanJson, Object.class);  
+            JsonNode jsonNode = objectMapper.readValue(logicalPlanJson, JsonNode.class);
+            logicalPlanJson = objectMapper.writeValueAsString(jsonNode);
         } catch (IOException e) {
             throw new StorageException("logical plan json is an invalid json string: " + logicalPlanJson);
         }
-
+        
         Tuple tuple = new Tuple(PlanStoreConstants.SCHEMA_PLAN,
                 new StringField(planName),
                 new StringField(description),
-                new StringField(jsonObject.toString()));
-
+                new StringField(logicalPlanJson));
+        
         DataWriter dataWriter = relationManager.getTableDataWriter(PlanStoreConstants.TABLE_NAME);
         dataWriter.open();
         IDField id = dataWriter.insertTuple(tuple);
@@ -224,15 +225,14 @@ public class PlanStore {
         // Checking if the logical plan JSON string needs to be updated
         if(logicalPlanJson != null) {
             // Compressing and checking the validity of the logical plan JSON string
-            Object jsonObject;
             try {
                 ObjectMapper objectMapper = new ObjectMapper();
-                jsonObject = objectMapper.readValue(logicalPlanJson, Object.class);  
+                JsonNode jsonNode = objectMapper.readValue(logicalPlanJson, JsonNode.class);
+                logicalPlanJson = objectMapper.writeValueAsString(jsonNode);
             } catch (IOException e) {
                 throw new StorageException("logical plan json is an invalid json string: " + logicalPlanJson);
             }
 
-            logicalPlanJson = jsonObject.toString();
         }
 
         // Getting the fields in order for performing the update
