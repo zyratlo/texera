@@ -1,4 +1,4 @@
-package edu.uci.ics.textdb.dataflow.nlpextractor;
+package edu.uci.ics.textdb.expnlpextractor;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,9 +15,10 @@ import edu.uci.ics.textdb.api.exception.TextDBException;
 import edu.uci.ics.textdb.api.tuple.Tuple;
 import edu.uci.ics.textdb.api.utils.TestUtils;
 import edu.uci.ics.textdb.api.utils.Utils;
-import edu.uci.ics.textdb.dataflow.nlpextrator.NlpExtractor;
-import edu.uci.ics.textdb.dataflow.nlpextrator.NlpPredicate;
-import edu.uci.ics.textdb.dataflow.source.ScanBasedSourceOperator;
+import edu.uci.ics.textdb.exp.nlpextrator.NlpExtractor;
+import edu.uci.ics.textdb.exp.nlpextrator.NlpPredicate;
+import edu.uci.ics.textdb.exp.source.scan.ScanBasedSourceOperator;
+import edu.uci.ics.textdb.exp.source.scan.ScanSourcePredicate;
 import edu.uci.ics.textdb.storage.DataWriter;
 import edu.uci.ics.textdb.storage.RelationManager;
 import edu.uci.ics.textdb.storage.constants.LuceneAnalyzerConstants;
@@ -80,7 +81,7 @@ public class NlpExtractorTest {
     public List<Tuple> getQueryResults(String tableName, List<String> attributeNames,
             NlpPredicate.NlpTokenType nlpTokenType, int limit, int offset) throws Exception {
         
-        ScanBasedSourceOperator scanSource = new ScanBasedSourceOperator(tableName);
+        ScanBasedSourceOperator scanSource = new ScanBasedSourceOperator(new ScanSourcePredicate(tableName));
 
         NlpPredicate nlpPredicate = new NlpPredicate(nlpTokenType, attributeNames);
         NlpExtractor nlpExtractor = new NlpExtractor(nlpPredicate);
