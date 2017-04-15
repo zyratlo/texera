@@ -63,6 +63,7 @@ public class PlanStore {
      */
     public void destroyPlanStore() throws TextDBException {
         relationManager.deleteTable(PlanStoreConstants.TABLE_NAME);
+        System.out.println("plan store deleted");
     }
 
     /**
