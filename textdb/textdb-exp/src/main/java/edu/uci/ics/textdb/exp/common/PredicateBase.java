@@ -7,9 +7,10 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import edu.uci.ics.textdb.api.dataflow.IPredicate;
 import edu.uci.ics.textdb.exp.keywordmatcher.KeywordPredicate;
 import edu.uci.ics.textdb.exp.keywordmatcher.KeywordSourcePredicate;
+import edu.uci.ics.textdb.exp.nlp.entity.NlpEntityPredicate;
+import edu.uci.ics.textdb.exp.nlp.sentiment.NlpSentimentPredicate;
 import edu.uci.ics.textdb.exp.regexsplit.RegexSplitPredicate;
 import edu.uci.ics.textdb.exp.sampler.SamplerPredicate;
-import edu.uci.ics.textdb.exp.sentiment.NlpSentimentPredicate;
 import edu.uci.ics.textdb.exp.sink.tuple.TupleSinkPredicate;
 import edu.uci.ics.textdb.exp.source.scan.ScanSourcePredicate;
 import edu.uci.ics.textdb.exp.source.file.FileSourcePredicate;
@@ -34,6 +35,7 @@ import edu.uci.ics.textdb.exp.source.file.FileSourcePredicate;
         @Type(value = KeywordPredicate.class, name = "KeywordMatcher"), 
         @Type(value = KeywordSourcePredicate.class, name = "KeywordSource"), 
         
+        @Type(value = NlpEntityPredicate.class, name = "NlpEntity"),
         @Type(value = NlpSentimentPredicate.class, name = "NlpSentiment"),
         @Type(value = RegexSplitPredicate.class, name = "RegexSplit"),
         @Type(value = SamplerPredicate.class, name = "Sampler"),

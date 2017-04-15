@@ -1,4 +1,4 @@
-package edu.uci.ics.textdb.exp.nlpextrator;
+package edu.uci.ics.textdb.exp.nlp.entity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,11 +19,10 @@ import edu.uci.ics.textdb.api.tuple.Tuple;
 import edu.uci.ics.textdb.api.utils.Utils;
 import edu.uci.ics.textdb.exp.common.AbstractSingleInputOperator;
 import edu.uci.ics.textdb.exp.utils.DataflowUtils;
-import edu.uci.ics.textdb.exp.nlpextrator.NlpPredicate.NlpTokenType;
 
 /**
  * @author Feng Hong
- * @about Wrap the Stanford NLP as an operator to extractor desired information
+ * @about Wrap the Stanford NLP as an operator to extract desired information
  *        (Named Entities, Part of Speech). This operator could recognize 7
  *        Named Entity classes: Location, Person, Organization, Money, Percent,
  *        Date and Time. It'll also detect 4 types of Part of Speech: Noun,
@@ -35,9 +34,9 @@ import edu.uci.ics.textdb.exp.nlpextrator.NlpPredicate.NlpTokenType;
  *        field for the returned tuple: ["sentence1,0,6,Google, Organization",
  *        "sentence2,24,37,Mountain View, Location"]
  */
-public class NlpExtractor extends AbstractSingleInputOperator {
+public class NlpEntityOperator extends AbstractSingleInputOperator {
 
-    private NlpPredicate predicate;
+    private NlpEntityPredicate predicate;
 
     private Schema inputSchema;
     
@@ -45,14 +44,14 @@ public class NlpExtractor extends AbstractSingleInputOperator {
     private static StanfordCoreNLP nerPipeline = null;
 
     /**
-     * @param NlpPredicate
-     * @about The constructor of the NlpExtractor.The operator will only search
+     * @param NlpEntityPredicate
+     * @about The constructor of the NlpEntityOperator.The operator will only search
      *        within the attributes specified in predicate and return the same tokens that are
      *        recognized as the same input inputNlpTokenType. If the input token
      *        type is NlpTokenType.NE_ALL, return all tokens that are recognized
      *        as NamedEntity Token Types.
      */
-    public NlpExtractor(NlpPredicate predicate) {
+    public NlpEntityOperator(NlpEntityPredicate predicate) {
         this.predicate = predicate;
     }
 
@@ -159,7 +158,7 @@ public class NlpExtractor extends AbstractSingleInputOperator {
 
         // Setup Stanford NLP pipeline based on nlpTypeIndicator
         StanfordCoreNLP pipeline = null;
-        if (predicate.getNlpTypeIndicator().equals("POS")) {
+        if (getNlpTypeIndicator(predicate.getNlpTokenType()).equals("POS")) {
             props.setProperty("annotators", "tokenize, ssplit, pos");
             if (posPipeline == null) {
                 posPipeline = new StanfordCoreNLP(props);
@@ -181,23 +180,23 @@ public class NlpExtractor extends AbstractSingleInputOperator {
                 String stanfordNlpConstant;
 
                 // Extract annotations based on nlpTypeIndicator
-                if (predicate.getNlpTypeIndicator().equals("POS")) {
+                if (getNlpTypeIndicator(predicate.getNlpTokenType()).equals("POS")) {
                     stanfordNlpConstant = token.get(CoreAnnotations.PartOfSpeechAnnotation.class);
                 } else {
                     stanfordNlpConstant = token.get(CoreAnnotations.NamedEntityTagAnnotation.class);
                 }
 
-                NlpTokenType thisNlpTokenType = getNlpTokenType(stanfordNlpConstant);
+                NlpEntityType thisNlpTokenType = getNlpTokenType(stanfordNlpConstant);
                 if (thisNlpTokenType == null) {
                     continue;
                 }
-                if (predicate.getNlpTokenType().equals(NlpTokenType.NE_ALL) || predicate.getNlpTokenType().equals(thisNlpTokenType)) {
+                if (predicate.getNlpTokenType().equals(NlpEntityType.NE_ALL) || predicate.getNlpTokenType().equals(thisNlpTokenType)) {
                     int start = token.get(CoreAnnotations.CharacterOffsetBeginAnnotation.class);
                     int end = token.get(CoreAnnotations.CharacterOffsetEndAnnotation.class);
                     String word = token.get(CoreAnnotations.TextAnnotation.class);
 
                     Span span = new Span(attributeName, start, end, thisNlpTokenType.toString(), word);
-                    if (spanList.size() >= 1 && (predicate.getNlpTypeIndicator().equals("NE_ALL"))) {
+                    if (spanList.size() >= 1 && (getNlpTypeIndicator(predicate.getNlpTokenType()).equals("NE_ALL"))) {
                         Span previousSpan = spanList.get(spanList.size() - 1);
                         if (previousSpan.getAttributeName().equals(span.getAttributeName())
                                 && (span.getStart() - previousSpan.getEnd() <= 1)
@@ -237,6 +236,23 @@ public class NlpExtractor extends AbstractSingleInputOperator {
         return new Span(previousSpan.getAttributeName(), previousSpan.getStart(), currentSpan.getEnd(),
                 previousSpan.getKey(), newWord);
     }
+    
+    private static String getNlpTypeIndicator(NlpEntityType nlpEntityType) {
+        if (isPOSTokenType(nlpEntityType)) {
+            return "POS";
+        } else {
+            return "NE_ALL";
+        }
+    }
+    
+    private static boolean isPOSTokenType(NlpEntityType nlpEntityType) {
+        if (nlpEntityType.equals(NlpEntityType.ADJECTIVE) || nlpEntityType.equals(NlpEntityType.ADVERB)
+                || nlpEntityType.equals(NlpEntityType.NOUN) || nlpEntityType.equals(NlpEntityType.VERB)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 
     /**
      * @param stanfordConstant
@@ -248,56 +264,56 @@ public class NlpExtractor extends AbstractSingleInputOperator {
      *        Stanford Constant to only 4 types: Noun, Verb, Adjective and
      *        Adverb.
      */
-    private NlpTokenType getNlpTokenType(String stanfordConstant) {
+    private NlpEntityType getNlpTokenType(String stanfordConstant) {
         switch (stanfordConstant) {
         case "NUMBER":
-            return NlpTokenType.Number;
+            return NlpEntityType.NUMBER;
         case "LOCATION":
-            return NlpTokenType.Location;
+            return NlpEntityType.LOCATION;
         case "PERSON":
-            return NlpTokenType.Person;
+            return NlpEntityType.PERSON;
         case "ORGANIZATION":
-            return NlpTokenType.Organization;
+            return NlpEntityType.ORGANIZATION;
         case "MONEY":
-            return NlpTokenType.Money;
+            return NlpEntityType.MONEY;
         case "PERCENT":
-            return NlpTokenType.Percent;
+            return NlpEntityType.PERCENT;
         case "DATE":
-            return NlpTokenType.Date;
+            return NlpEntityType.DATE;
         case "TIME":
-            return NlpTokenType.Time;
+            return NlpEntityType.TIME;
         case "JJ":
-            return NlpTokenType.Adjective;
+            return NlpEntityType.ADJECTIVE;
         case "JJR":
-            return NlpTokenType.Adjective;
+            return NlpEntityType.ADJECTIVE;
         case "JJS":
-            return NlpTokenType.Adjective;
+            return NlpEntityType.ADJECTIVE;
         case "RB":
-            return NlpTokenType.Adverb;
+            return NlpEntityType.ADVERB;
         case "RBR":
-            return NlpTokenType.Adverb;
+            return NlpEntityType.ADVERB;
         case "RBS":
-            return NlpTokenType.Adverb;
+            return NlpEntityType.ADVERB;
         case "NN":
-            return NlpTokenType.Noun;
+            return NlpEntityType.NOUN;
         case "NNS":
-            return NlpTokenType.Noun;
+            return NlpEntityType.NOUN;
         case "NNP":
-            return NlpTokenType.Noun;
+            return NlpEntityType.NOUN;
         case "NNPS":
-            return NlpTokenType.Noun;
+            return NlpEntityType.NOUN;
         case "VB":
-            return NlpTokenType.Verb;
+            return NlpEntityType.VERB;
         case "VBD":
-            return NlpTokenType.Verb;
+            return NlpEntityType.VERB;
         case "VBG":
-            return NlpTokenType.Verb;
+            return NlpEntityType.VERB;
         case "VBN":
-            return NlpTokenType.Verb;
+            return NlpEntityType.VERB;
         case "VBP":
-            return NlpTokenType.Verb;
+            return NlpEntityType.VERB;
         case "VBZ":
-            return NlpTokenType.Verb;
+            return NlpEntityType.VERB;
         default:
             return null;
         }
@@ -307,7 +323,7 @@ public class NlpExtractor extends AbstractSingleInputOperator {
     protected void cleanUp() throws TextDBException {
     }
 
-    public NlpPredicate getPredicate() {
+    public NlpEntityPredicate getPredicate() {
         return this.predicate;
     }
 
