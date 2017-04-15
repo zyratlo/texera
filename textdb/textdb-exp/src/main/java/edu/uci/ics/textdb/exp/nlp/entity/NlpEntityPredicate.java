@@ -1,5 +1,6 @@
 package edu.uci.ics.textdb.exp.nlp.entity;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -30,7 +31,7 @@ public class NlpEntityPredicate implements IPredicate {
 
     @JsonProperty(PropertyNameConstants.ATTRIBUTE_NAMES)
     public List<String> getAttributeNames() {
-        return attributeNames;
+        return new ArrayList<>(attributeNames);
     }
     
 }
