@@ -47,8 +47,8 @@ public class NlpEntityOperator extends AbstractSingleInputOperator {
      * @param NlpEntityPredicate
      * @about The constructor of the NlpEntityOperator.The operator will only search
      *        within the attributes specified in predicate and return the same tokens that are
-     *        recognized as the same input inputNlpTokenType. If the input token
-     *        type is NlpTokenType.NE_ALL, return all tokens that are recognized
+     *        recognized as the same input inputNlpEntityType. If the input token
+     *        type is NlpEntityType.NE_ALL, return all tokens that are recognized
      *        as NamedEntity Token Types.
      */
     public NlpEntityOperator(NlpEntityPredicate predicate) {
@@ -127,7 +127,7 @@ public class NlpEntityOperator extends AbstractSingleInputOperator {
      *           nlpTypeIndicator
      *           <p>
      *           For each Stanford NLP annotation, get it's corresponding
-     *           inputNlpTokenType that used in this package, then check if it
+     *           inputnlpEntityType that used in this package, then check if it
      *           equals to the input token type. If yes, makes it a span and add
      *           to the return list.
      *           <p>
@@ -158,7 +158,7 @@ public class NlpEntityOperator extends AbstractSingleInputOperator {
 
         // Setup Stanford NLP pipeline based on nlpTypeIndicator
         StanfordCoreNLP pipeline = null;
-        if (getNlpTypeIndicator(predicate.getNlpTokenType()).equals("POS")) {
+        if (getNlpTypeIndicator(predicate.getNlpEntityType()).equals("POS")) {
             props.setProperty("annotators", "tokenize, ssplit, pos");
             if (posPipeline == null) {
                 posPipeline = new StanfordCoreNLP(props);
@@ -180,23 +180,23 @@ public class NlpEntityOperator extends AbstractSingleInputOperator {
                 String stanfordNlpConstant;
 
                 // Extract annotations based on nlpTypeIndicator
-                if (getNlpTypeIndicator(predicate.getNlpTokenType()).equals("POS")) {
+                if (getNlpTypeIndicator(predicate.getNlpEntityType()).equals("POS")) {
                     stanfordNlpConstant = token.get(CoreAnnotations.PartOfSpeechAnnotation.class);
                 } else {
                     stanfordNlpConstant = token.get(CoreAnnotations.NamedEntityTagAnnotation.class);
                 }
 
-                NlpEntityType thisNlpTokenType = getNlpTokenType(stanfordNlpConstant);
-                if (thisNlpTokenType == null) {
+                NlpEntityType nlpEntityType = getNlpEntityType(stanfordNlpConstant);
+                if (nlpEntityType == null) {
                     continue;
                 }
-                if (predicate.getNlpTokenType().equals(NlpEntityType.NE_ALL) || predicate.getNlpTokenType().equals(thisNlpTokenType)) {
+                if (predicate.getNlpEntityType().equals(NlpEntityType.NE_ALL) || predicate.getNlpEntityType().equals(nlpEntityType)) {
                     int start = token.get(CoreAnnotations.CharacterOffsetBeginAnnotation.class);
                     int end = token.get(CoreAnnotations.CharacterOffsetEndAnnotation.class);
                     String word = token.get(CoreAnnotations.TextAnnotation.class);
 
-                    Span span = new Span(attributeName, start, end, thisNlpTokenType.toString(), word);
-                    if (spanList.size() >= 1 && (getNlpTypeIndicator(predicate.getNlpTokenType()).equals("NE_ALL"))) {
+                    Span span = new Span(attributeName, start, end, nlpEntityType.toString(), word);
+                    if (spanList.size() >= 1 && (getNlpTypeIndicator(predicate.getNlpEntityType()).equals("NE_ALL"))) {
                         Span previousSpan = spanList.get(spanList.size() - 1);
                         if (previousSpan.getAttributeName().equals(span.getAttributeName())
                                 && (span.getStart() - previousSpan.getEnd() <= 1)
@@ -260,11 +260,11 @@ public class NlpEntityOperator extends AbstractSingleInputOperator {
      * @about This function takes a Stanford NLP Constant (Named Entity 7
      *        classes: LOCATION,PERSON,ORGANIZATION,MONEY,PERCENT,DATE, TIME and
      *        NUMBER and Part of Speech Token Types) and returns the
-     *        corresponding enum NlpTokenType. (For Part of Speech, we match all
+     *        corresponding enum NlpEntityType. (For Part of Speech, we match all
      *        Stanford Constant to only 4 types: Noun, Verb, Adjective and
      *        Adverb.
      */
-    private NlpEntityType getNlpTokenType(String stanfordConstant) {
+    private static NlpEntityType getNlpEntityType(String stanfordConstant) {
         switch (stanfordConstant) {
         case "NUMBER":
             return NlpEntityType.NUMBER;
@@ -315,7 +315,7 @@ public class NlpEntityOperator extends AbstractSingleInputOperator {
         case "VBZ":
             return NlpEntityType.VERB;
         default:
-            return null;
+            throw new RuntimeException("unsupported NlpEntityType");
         }
     }
 

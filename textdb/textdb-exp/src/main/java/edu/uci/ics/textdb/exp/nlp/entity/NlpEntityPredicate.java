@@ -24,7 +24,7 @@ public class NlpEntityPredicate implements IPredicate {
     }
 
     @JsonProperty(PropertyNameConstants.NLP_ENTITY_TYPE)
-    public NlpEntityType getNlpTokenType() {
+    public NlpEntityType getNlpEntityType() {
         return nlpEntityType;
     }
 

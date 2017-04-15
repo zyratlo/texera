@@ -65,23 +65,23 @@ public class NlpEntityTest {
     /**
      * @param NLP_TEST_TABLE
      * @param attributes
-     * @param nlpTokenType
+     * @param nlpEntityType
      * @return
      * @throws Exception
      * @about Using nlpEntityOperator to get all returned results from
      *        NLP_TEST_TABLE, return as a list of tuples
      */
     public List<Tuple> getQueryResults(String tableName, List<String> attributeNames,
-            NlpEntityType nlpTokenType) throws Exception {
-        return getQueryResults(tableName, attributeNames, nlpTokenType, Integer.MAX_VALUE, 0);
+            NlpEntityType nlpEntityType) throws Exception {
+        return getQueryResults(tableName, attributeNames, nlpEntityType, Integer.MAX_VALUE, 0);
     }
     
     public List<Tuple> getQueryResults(String tableName, List<String> attributeNames,
-            NlpEntityType nlpTokenType, int limit, int offset) throws Exception {
+            NlpEntityType nlpEntityType, int limit, int offset) throws Exception {
         
         ScanBasedSourceOperator scanSource = new ScanBasedSourceOperator(new ScanSourcePredicate(tableName));
 
-        NlpEntityPredicate nlpEntityPredicate = new NlpEntityPredicate(nlpTokenType, attributeNames);
+        NlpEntityPredicate nlpEntityPredicate = new NlpEntityPredicate(nlpEntityType, attributeNames);
         NlpEntityOperator nlpEntityOperator = new NlpEntityOperator(nlpEntityPredicate);
         nlpEntityOperator.setInputOperator(scanSource);
 
@@ -102,7 +102,7 @@ public class NlpEntityTest {
 
     /**
      * Scenario 1: Test getNextTuple with only one span in the return list Text
-     * : Microsoft is a organization. Search for all NE_ALL token types
+     * : Microsoft is a organization. Search for all NE_ALL entity types
      *
      * @throws Exception
      */
@@ -131,7 +131,7 @@ public class NlpEntityTest {
     /**
      * Scenario 2: Test getNextTuple with more than one span in the return list
      * Text: Microsoft, Google and Facebook are organizations Search for all
-     * NE_ALL token types
+     * NE_ALL entity types
      */
     @Test
     public void getNextTupleTest2() throws Exception {
@@ -160,7 +160,7 @@ public class NlpEntityTest {
      * Scenario 3: Test getNextTuple with more than one span in the return list
      * and with different recognized classes. Text: Microsoft, Google and
      * Facebook are organizations and Donald Trump and Barack Obama are persons.
-     * Search for all NE_ALL token types
+     * Search for all NE_ALL entity types
      */
     @Test
     public void getNextTupleTest3() throws Exception {
@@ -191,7 +191,7 @@ public class NlpEntityTest {
      * source tuple.
      * <p>
      * Sentence1: Microsoft, Google and Facebook are organizations. Sentence2:
-     * Donald Trump and Barack Obama are persons. Search for all NE_ALL token
+     * Donald Trump and Barack Obama are persons. Search for all NE_ALL entity
      * types
      */
     @Test
@@ -226,7 +226,7 @@ public class NlpEntityTest {
      * Sentence1: Microsoft, Google and Facebook are organizations. Sentence2:
      * Donald Trump and Barack Obama are persons.
      * <p>
-     * Only search the second field for all NE_ALL token types
+     * Only search the second field for all NE_ALL entity types
      */
     @Test
     public void getNextTupleTest5() throws Exception {

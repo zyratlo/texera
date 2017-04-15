@@ -3,8 +3,8 @@ package edu.uci.ics.textdb.exp.nlp.entity;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 /**
- * Named Entity Token Types: NE_ALL, Number, Location, Person, Organization,
- * Money, Percent, Date, Time. Part Of Speech Token Types: Noun, Verb,
+ * Named Entity Types: NE_ALL, Number, Location, Person, Organization,
+ * Money, Percent, Date, Time. Part Of Speech Entity Types: Noun, Verb,
  * Adjective, Adverb
  */
 public enum NlpEntityType {
