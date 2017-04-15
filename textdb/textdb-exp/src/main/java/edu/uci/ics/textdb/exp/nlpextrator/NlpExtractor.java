@@ -17,8 +17,8 @@ import edu.uci.ics.textdb.api.schema.Schema;
 import edu.uci.ics.textdb.api.span.Span;
 import edu.uci.ics.textdb.api.tuple.Tuple;
 import edu.uci.ics.textdb.api.utils.Utils;
-import edu.uci.ics.textdb.dataflow.common.AbstractSingleInputOperator;
-import edu.uci.ics.textdb.dataflow.utils.DataflowUtils;
+import edu.uci.ics.textdb.exp.common.AbstractSingleInputOperator;
+import edu.uci.ics.textdb.exp.utils.DataflowUtils;
 import edu.uci.ics.textdb.exp.nlpextrator.NlpPredicate.NlpTokenType;
 
 /**

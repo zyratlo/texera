@@ -9,7 +9,7 @@ import edu.uci.ics.textdb.api.field.IField;
 import edu.uci.ics.textdb.api.schema.Attribute;
 import edu.uci.ics.textdb.api.schema.Schema;
 import edu.uci.ics.textdb.api.tuple.Tuple;
-import edu.uci.ics.textdb.dataflow.common.AbstractSingleInputOperator;
+import edu.uci.ics.textdb.exp.common.AbstractSingleInputOperator;
 
 public class ProjectionOperator extends AbstractSingleInputOperator {
     

@@ -43,6 +43,7 @@ public class ComparableMatcher<T extends Comparable<T>> extends AbstractSingleIn
         return resultTuple;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public Tuple processOneInputTuple(Tuple inputTuple) throws TextDBException {
         Tuple resultTuple = null;

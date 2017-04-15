@@ -90,7 +90,7 @@ public class RegexSplitOperatorTest {
     public void test1() throws TextDBException {
         String splitRegex = "19";
         String splitAttrName = TestConstantsChinese.DATE_OF_BIRTH;
-        List<Tuple> results = computeRegexSplitResults(CHINESE_TABLE, splitAttrName, splitRegex, 
+        computeRegexSplitResults(CHINESE_TABLE, splitAttrName, splitRegex, 
                 RegexSplitPredicate.SplitType.GROUP_RIGHT);
     }
     

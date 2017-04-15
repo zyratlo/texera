@@ -7,17 +7,6 @@ import java.util.stream.Stream;
 import edu.uci.ics.textdb.api.dataflow.IOperator;
 import edu.uci.ics.textdb.api.exception.PlanGenException;
 import edu.uci.ics.textdb.api.schema.AttributeType;
-import edu.uci.ics.textdb.plangen.operatorbuilder.DictionaryMatcherBuilder;
-import edu.uci.ics.textdb.plangen.operatorbuilder.DictionarySourceBuilder;
-import edu.uci.ics.textdb.plangen.operatorbuilder.FileSinkBuilder;
-import edu.uci.ics.textdb.plangen.operatorbuilder.FuzzyTokenMatcherBuilder;
-import edu.uci.ics.textdb.plangen.operatorbuilder.JoinBuilder;
-import edu.uci.ics.textdb.plangen.operatorbuilder.KeywordMatcherBuilder;
-import edu.uci.ics.textdb.plangen.operatorbuilder.KeywordSourceBuilder;
-import edu.uci.ics.textdb.plangen.operatorbuilder.NlpExtractorBuilder;
-import edu.uci.ics.textdb.plangen.operatorbuilder.ProjectionBuilder;
-import edu.uci.ics.textdb.plangen.operatorbuilder.RegexMatcherBuilder;
-import edu.uci.ics.textdb.plangen.operatorbuilder.TupleStreamSinkBuilder;
 
 /**
  * This class provides a set of helper functions that are commonly used in plan generation.
@@ -33,17 +22,6 @@ public class PlanGenUtils {
     
     public static Map<String, OperatorBuilder> operatorBuilderMap = new HashMap<>();
     static {
-        operatorBuilderMap.put("KeywordMatcher".toLowerCase(), KeywordMatcherBuilder::buildKeywordMatcher);
-        operatorBuilderMap.put("DictionaryMatcher".toLowerCase(), DictionaryMatcherBuilder::buildOperator);
-        operatorBuilderMap.put("RegexMatcher".toLowerCase(), RegexMatcherBuilder::buildRegexMatcher);
-        operatorBuilderMap.put("NlpExtractor".toLowerCase(), NlpExtractorBuilder::buildOperator);
-        operatorBuilderMap.put("FuzzyTokenMatcher".toLowerCase(), FuzzyTokenMatcherBuilder::buildOperator);
-        operatorBuilderMap.put("KeywordSource".toLowerCase(), KeywordSourceBuilder::buildSourceOperator);
-        operatorBuilderMap.put("DictionarySource".toLowerCase(), DictionarySourceBuilder::buildSourceOperator);
-        operatorBuilderMap.put("FileSink".toLowerCase(), FileSinkBuilder::buildSink);
-        operatorBuilderMap.put("TupleStreamSink".toLowerCase(), TupleStreamSinkBuilder::buildTupleStreamSink);
-        operatorBuilderMap.put("Join".toLowerCase(), JoinBuilder::buildOperator);
-        operatorBuilderMap.put("Projection".toLowerCase(), ProjectionBuilder::buildOperator);
     }
     
     public static IOperator buildOperator(String operatorType, Map<String, String> operatorProperties) throws PlanGenException {

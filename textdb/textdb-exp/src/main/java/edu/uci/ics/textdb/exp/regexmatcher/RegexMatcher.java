@@ -1,4 +1,4 @@
-package edu.uci.ics.textdb.exp.regexmatch;
+package edu.uci.ics.textdb.exp.regexmatcher;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,9 +12,8 @@ import edu.uci.ics.textdb.api.schema.Schema;
 import edu.uci.ics.textdb.api.span.Span;
 import edu.uci.ics.textdb.api.tuple.Tuple;
 import edu.uci.ics.textdb.api.utils.Utils;
-import edu.uci.ics.textdb.dataflow.common.AbstractSingleInputOperator;
-import edu.uci.ics.textdb.dataflow.common.RegexPredicate;
-import edu.uci.ics.textdb.dataflow.utils.DataflowUtils;
+import edu.uci.ics.textdb.exp.common.AbstractSingleInputOperator;
+import edu.uci.ics.textdb.exp.utils.DataflowUtils;
 
 /**
  * Created by chenli on 3/25/16.

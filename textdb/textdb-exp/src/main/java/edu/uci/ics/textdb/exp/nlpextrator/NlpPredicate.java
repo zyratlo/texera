@@ -3,7 +3,6 @@ package edu.uci.ics.textdb.exp.nlpextrator;
 import java.util.List;
 
 import edu.uci.ics.textdb.api.dataflow.IPredicate;
-import edu.uci.ics.textdb.api.schema.Attribute;
 
 public class NlpPredicate implements IPredicate {
     

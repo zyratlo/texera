@@ -1,8 +1,5 @@
 package edu.uci.ics.textdb.planstore;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-
 import edu.uci.ics.textdb.api.constants.SchemaConstants;
 import edu.uci.ics.textdb.api.exception.DataFlowException;
 import edu.uci.ics.textdb.api.exception.StorageException;
@@ -16,10 +13,14 @@ import edu.uci.ics.textdb.storage.DataWriter;
 import edu.uci.ics.textdb.storage.RelationManager;
 import edu.uci.ics.textdb.storage.constants.LuceneAnalyzerConstants;
 
+import java.io.IOException;
+
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * An implementation of query plan store.
@@ -87,8 +88,13 @@ public class PlanStore {
         }
 
         // Converting the JSON String to a JSON Node to minimize space usage and to check validity of JSON string
-        JsonParser jsonParser = new JsonParser();
-        JsonObject jsonObject = jsonParser.parse(logicalPlanJson).getAsJsonObject();
+        Object jsonObject;
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            jsonObject = objectMapper.readValue(logicalPlanJson, Object.class);  
+        } catch (IOException e) {
+            throw new StorageException("logical plan json is an invalid json string: " + logicalPlanJson);
+        }
 
         Tuple tuple = new Tuple(PlanStoreConstants.SCHEMA_PLAN,
                 new StringField(planName),
@@ -218,8 +224,14 @@ public class PlanStore {
         // Checking if the logical plan JSON string needs to be updated
         if(logicalPlanJson != null) {
             // Compressing and checking the validity of the logical plan JSON string
-            JsonParser jsonParser = new JsonParser();
-            JsonObject jsonObject = jsonParser.parse(logicalPlanJson).getAsJsonObject();
+            Object jsonObject;
+            try {
+                ObjectMapper objectMapper = new ObjectMapper();
+                jsonObject = objectMapper.readValue(logicalPlanJson, Object.class);  
+            } catch (IOException e) {
+                throw new StorageException("logical plan json is an invalid json string: " + logicalPlanJson);
+            }
+
             logicalPlanJson = jsonObject.toString();
         }
 

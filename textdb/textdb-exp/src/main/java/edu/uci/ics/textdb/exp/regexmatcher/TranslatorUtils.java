@@ -1,4 +1,4 @@
-package edu.uci.ics.textdb.exp.regexmatch;
+package edu.uci.ics.textdb.exp.regexmatcher;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -6,7 +6,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
-import edu.uci.ics.textdb.exp.regexmatch.GramBooleanQuery.QueryOp;
+import edu.uci.ics.textdb.exp.regexmatcher.GramBooleanQuery.QueryOp;
 
 /**
  * @author Zuozhi Wang

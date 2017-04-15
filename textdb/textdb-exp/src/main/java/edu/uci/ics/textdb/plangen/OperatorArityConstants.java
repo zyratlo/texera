@@ -16,7 +16,9 @@ public class OperatorArityConstants {
     /*
      * Input arity map for operators which have fixed input arity.
      */
-    public static Map<String, Integer> fixedInputArityMap = new HashMap<String, Integer>(){{
+    public static Map<String, Integer> fixedInputArityMap = new HashMap<String, Integer>(){
+        private static final long serialVersionUID = -8862415900149612610L;
+    {
         put("KeywordSource".toLowerCase(), 0);
         put("DictionarySource".toLowerCase(), 0);
         
@@ -37,7 +39,9 @@ public class OperatorArityConstants {
     /*
      * Output arity map for operators which have fixed output arity.
      */
-    public static Map<String, Integer> fixedOutputArityMap = new HashMap<String, Integer>(){{
+    public static Map<String, Integer> fixedOutputArityMap = new HashMap<String, Integer>(){
+        private static final long serialVersionUID = 6219178385774390710L;
+    {
         put("IndexSink".toLowerCase(), 0);
         put("FileSink".toLowerCase(), 0);
         put("TupleStreamSink".toLowerCase(), 0);

@@ -1,4 +1,4 @@
-package edu.uci.ics.textdb.exp.regexmatch;
+package edu.uci.ics.textdb.exp.regexmatcher;
 
 import java.util.ArrayList;
 import java.util.List;

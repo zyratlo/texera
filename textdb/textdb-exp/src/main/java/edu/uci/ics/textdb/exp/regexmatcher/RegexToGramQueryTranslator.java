@@ -1,4 +1,4 @@
-package edu.uci.ics.textdb.exp.regexmatch;
+package edu.uci.ics.textdb.exp.regexmatcher;
 
 import com.google.re2j.PublicParser;
 import com.google.re2j.PublicRE2;
