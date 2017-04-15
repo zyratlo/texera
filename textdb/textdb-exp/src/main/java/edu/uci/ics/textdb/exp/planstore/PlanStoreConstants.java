@@ -1,4 +1,4 @@
-package edu.uci.ics.textdb.planstore;
+package edu.uci.ics.textdb.exp.planstore;
 
 import java.util.regex.Pattern;
 

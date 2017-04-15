@@ -138,7 +138,6 @@ public class PlanStoreTest {
 
     @Test
     public void testUpdatePlan() throws TextDBException {
-        System.out.println("testUpdatePlan started");
         String planName1 = "plan1";
 
         planStore.addPlan(planName1, "basic dictionary source plan", logicalPlanJson1);

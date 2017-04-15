@@ -1,4 +1,4 @@
-package edu.uci.ics.textdb.planstore;
+package edu.uci.ics.textdb.exp.planstore;
 
 import edu.uci.ics.textdb.api.constants.SchemaConstants;
 import edu.uci.ics.textdb.api.exception.DataFlowException;
