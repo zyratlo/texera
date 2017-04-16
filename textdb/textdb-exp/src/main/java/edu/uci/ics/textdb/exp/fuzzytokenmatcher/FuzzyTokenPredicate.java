@@ -7,7 +7,7 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import edu.uci.ics.textdb.api.dataflow.IPredicate;
+import edu.uci.ics.textdb.exp.common.PredicateBase;
 import edu.uci.ics.textdb.exp.common.PropertyNameConstants;
 import edu.uci.ics.textdb.exp.utils.DataflowUtils;
 
@@ -18,7 +18,7 @@ import edu.uci.ics.textdb.exp.utils.DataflowUtils;
  * The threshold for boolean searches is taken input as a ratio with is converted to integer. 
  * In the worst case if this integer becomes 0, we will set it to 1. 
  */
-public class FuzzyTokenPredicate implements IPredicate {
+public class FuzzyTokenPredicate extends PredicateBase {
 
     private final String query;
     private final List<String> attributeNames;

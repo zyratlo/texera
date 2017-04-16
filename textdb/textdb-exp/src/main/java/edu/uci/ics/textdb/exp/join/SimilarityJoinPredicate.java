@@ -17,6 +17,7 @@ import edu.uci.ics.textdb.api.schema.AttributeType;
 import edu.uci.ics.textdb.api.schema.Schema;
 import edu.uci.ics.textdb.api.span.Span;
 import edu.uci.ics.textdb.api.tuple.*;
+import edu.uci.ics.textdb.exp.common.PredicateBase;
 import edu.uci.ics.textdb.exp.common.PropertyNameConstants;
 import info.debatty.java.stringsimilarity.NormalizedLevenshtein;
 
@@ -53,7 +54,7 @@ import info.debatty.java.stringsimilarity.NormalizedLevenshtein;
  * @author Zuozhi Wang
  *
  */
-public class SimilarityJoinPredicate implements IJoinPredicate {
+public class SimilarityJoinPredicate extends PredicateBase implements IJoinPredicate {
     
     public static final String INNER_PREFIX = "inner_";
     public static final String OUTER_PREFIX = "outer_";

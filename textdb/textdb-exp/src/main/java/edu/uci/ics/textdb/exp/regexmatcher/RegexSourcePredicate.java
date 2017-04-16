@@ -52,7 +52,7 @@ public class RegexSourcePredicate extends RegexPredicate {
         }
     }
     
-    @JsonProperty(PropertyNameConstants.REGEX_USE_INDEX)
+    @JsonProperty(PropertyNameConstants.TABLE_NAME)
     public String getTableName() {
         return this.tableName;
     }
