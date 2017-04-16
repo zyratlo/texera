@@ -35,6 +35,9 @@ public class PropertyNameConstants {
     // related to fuzzy token matcher
     public static final String FUZZY_TOKEN_QUERY = "query";
     
+    // related to nlp extractor
+    public static final String NLP_ENTITY_TYPE = "nlpEntityType";
+    
     // related to regex splitter
     public static final String SPLIT_ATTRIBUTE = "splitAttribute";
     public static final String SPLIT_TYPE = "splitType";

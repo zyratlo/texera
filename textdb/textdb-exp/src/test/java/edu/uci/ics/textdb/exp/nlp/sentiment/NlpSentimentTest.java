@@ -1,4 +1,4 @@
-package edu.uci.ics.textdb.exp.sentiment;
+package edu.uci.ics.textdb.exp.nlp.sentiment;
 
 import java.util.Arrays;
 import java.util.List;
