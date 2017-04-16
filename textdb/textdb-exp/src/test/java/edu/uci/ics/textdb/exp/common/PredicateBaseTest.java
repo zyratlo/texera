@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.junit.Test;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.uci.ics.textdb.exp.dictionarymatcher.Dictionary;
@@ -47,11 +48,12 @@ public class PredicateBaseTest {
         PredicateBase resultPredicate = objectMapper.readValue(predicateJson, PredicateBase.class);
         String resultPredicateJson = objectMapper.writeValueAsString(resultPredicate);
         
-        System.out.println(predicateJson);
-        System.out.println(resultPredicateJson);
+        JsonNode predicateJsonNode = objectMapper.readValue(predicateJson, JsonNode.class);
+        JsonNode resultPredicateJsonNode = objectMapper.readValue(resultPredicateJson, JsonNode.class);
 
-        Assert.assertEquals(predicateJson, resultPredicateJson);
+        Assert.assertEquals(predicateJsonNode, resultPredicateJsonNode);
         Assert.assertTrue(predicateJson.contains("operatorType"));
+        Assert.assertTrue(predicateJson.contains("operatorID"));
     }
     
     private static List<String> attributeNames = Arrays.asList("attr1", "attr2");
