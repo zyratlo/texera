@@ -157,10 +157,10 @@ public class DictionaryMatcherTestHelper {
         RelationManager relationManager = RelationManager.getRelationManager();
         String luceneAnalyzerStr = relationManager.getTableAnalyzerString(tableName);
         
-        DictionaryPredicate dictiaonryPredicate = new DictionaryPredicate(
-                dictionary, attributeNames, luceneAnalyzerStr, matchingType);
+        DictionarySourcePredicate dictiaonrySourcePredicate = new DictionarySourcePredicate(
+                dictionary, attributeNames, luceneAnalyzerStr, matchingType, tableName);
         DictionaryMatcherSourceOperator dictionarySource = new DictionaryMatcherSourceOperator(
-                dictiaonryPredicate, tableName);
+                dictiaonrySourcePredicate);
 
         dictionarySource.setLimit(limit);
         dictionarySource.setOffset(offset);

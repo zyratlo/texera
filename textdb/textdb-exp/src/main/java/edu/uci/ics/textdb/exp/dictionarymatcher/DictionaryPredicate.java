@@ -1,24 +1,39 @@
 package edu.uci.ics.textdb.exp.dictionarymatcher;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import edu.uci.ics.textdb.api.dataflow.IPredicate;
+import edu.uci.ics.textdb.exp.common.PropertyNameConstants;
 import edu.uci.ics.textdb.exp.keywordmatcher.KeywordMatchingType;
 
 public class DictionaryPredicate implements IPredicate {
 
-    private Dictionary dictionary;
-    private String luceneAnalyzerStr;
-    private List<String> attributeNames;
-    private KeywordMatchingType keywordMatchingType;
+    private final Dictionary dictionary;
+    private final List<String> attributeNames;
+    private final String luceneAnalyzerStr;
+    private final KeywordMatchingType keywordMatchingType;
 
-    /*
-     * dictionary refers to list of phrases to search for. For Ex. New York if
-     * searched in TextField, we would consider both tokens New and York; if
-     * searched in String field we search for Exact string.
+    /**
+     * DictionaryPredicate is used to create a DictionaryMatcher.
+     * 
+     * @param dictionary, the dictionary to be used
+     * @param attributeNames, the names of the attributes to match the dictionary
+     * @param luceneAnalyzerStr, the lucene analyzer to tokenize the dictionary entries
+     * @param keywordMatchingType, the keyword matching type ({@code KeywordMatchingType}
      */
-
-    public DictionaryPredicate(Dictionary dictionary, List<String> attributeNames, String luceneAnalyzerStr,
+    @JsonCreator
+    public DictionaryPredicate(
+            @JsonProperty(value = PropertyNameConstants.DICTIONARY, required = true)
+            Dictionary dictionary, 
+            @JsonProperty(value = PropertyNameConstants.ATTRIBUTE_NAMES, required = true)
+            List<String> attributeNames, 
+            @JsonProperty(value = PropertyNameConstants.LUCENE_ANALYZER_STRING, required = true)
+            String luceneAnalyzerStr,
+            @JsonProperty(value = PropertyNameConstants.KEYWORD_MATCHING_TYPE, required = true)
             KeywordMatchingType keywordMatchingType) {
 
         this.dictionary = dictionary;
@@ -26,28 +41,26 @@ public class DictionaryPredicate implements IPredicate {
         this.attributeNames = attributeNames;
         this.keywordMatchingType = keywordMatchingType;
     }
-
-    public KeywordMatchingType getKeywordMatchingType() {
-        return keywordMatchingType;
+    
+    @JsonProperty(value = PropertyNameConstants.DICTIONARY)
+    public Dictionary getDictionary() {
+        return dictionary;
     }
-
-    /**
-     * Reset the Dictionary Cursor to the beginning.
-     */
-    public void resetDictCursor() {
-        dictionary.resetCursor();
-    }
-
-    public String getNextDictionaryEntry() {
-        return dictionary.getNextValue();
-    }
-
+    
+    @JsonProperty(value = PropertyNameConstants.ATTRIBUTE_NAMES)
     public List<String> getAttributeNames() {
-        return attributeNames;
+        return new ArrayList<>(attributeNames);
     }
 
+    @JsonProperty(value = PropertyNameConstants.LUCENE_ANALYZER_STRING)
     public String getAnalyzerString() {
         return luceneAnalyzerStr;
     }
+    
+    @JsonProperty(value = PropertyNameConstants.KEYWORD_MATCHING_TYPE)
+    public KeywordMatchingType getKeywordMatchingType() {
+        return keywordMatchingType;
+    }
+    
 
 }
