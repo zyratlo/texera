@@ -1,4 +1,4 @@
-package edu.uci.ics.textdb.exp.sentiment;
+package edu.uci.ics.textdb.exp.nlp.sentiment;
 
 import edu.uci.ics.textdb.api.field.TextField;
 import edu.uci.ics.textdb.api.schema.Attribute;

@@ -31,10 +31,15 @@ public class PropertyNameConstants {
     public static final String DICTIONARY_ENTRIES = "dictionaryEntries";
     
     // related to regex matcher
-    public static final String REGEX_QUERY = "regex";
+    public static final String REGEX = "regex";
+    public static final String REGEX_IGNORE_CASE = "regexIgnoreCase";
+    public static final String REGEX_USE_INDEX = "regexUseIndex";
     
     // related to fuzzy token matcher
     public static final String FUZZY_TOKEN_QUERY = "query";
+    
+    // related to nlp extractor
+    public static final String NLP_ENTITY_TYPE = "nlpEntityType";
     
     // related to regex splitter
     public static final String SPLIT_ATTRIBUTE = "splitAttribute";
