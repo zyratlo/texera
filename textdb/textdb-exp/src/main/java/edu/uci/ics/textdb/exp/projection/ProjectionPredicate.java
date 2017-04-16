@@ -7,10 +7,10 @@ import java.util.stream.Collectors;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import edu.uci.ics.textdb.api.dataflow.IPredicate;
+import edu.uci.ics.textdb.exp.common.PredicateBase;
 import edu.uci.ics.textdb.exp.common.PropertyNameConstants;
 
-public class ProjectionPredicate implements IPredicate {
+public class ProjectionPredicate extends PredicateBase {
     
     private final List<String> projectionFields;
     

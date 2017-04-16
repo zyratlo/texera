@@ -4,13 +4,13 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 
-import edu.uci.ics.textdb.api.dataflow.IPredicate;
+import edu.uci.ics.textdb.exp.common.PredicateBase;
 import edu.uci.ics.textdb.exp.common.PropertyNameConstants;
 
 /**
  * @author Qinhua Huang
  */
-public class SamplerPredicate implements IPredicate {
+public class SamplerPredicate extends PredicateBase {
     
     public enum SampleType {
         RANDOM_SAMPLE("random"),
@@ -35,7 +35,7 @@ public class SamplerPredicate implements IPredicate {
     @JsonCreator
     public SamplerPredicate(
             @JsonProperty(value = PropertyNameConstants.SAMPLE_SIZE, required = true)
-            int sampleSize,
+            Integer sampleSize,
             @JsonProperty(value = PropertyNameConstants.SAMPLE_TYPE, required = true)
             SampleType sampleType ) {
         if (sampleSize < 1) {
@@ -48,7 +48,7 @@ public class SamplerPredicate implements IPredicate {
     }
     
     @JsonProperty(PropertyNameConstants.SAMPLE_SIZE)
-    public double getSampleSize() {
+    public Integer getSampleSize() {
         return sampleSize;
     }
     

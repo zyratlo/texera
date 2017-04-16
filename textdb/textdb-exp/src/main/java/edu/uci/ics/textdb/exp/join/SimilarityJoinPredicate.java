@@ -3,6 +3,10 @@ package edu.uci.ics.textdb.exp.join;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import edu.uci.ics.textdb.api.constants.SchemaConstants;
 import edu.uci.ics.textdb.api.exception.DataFlowException;
 import edu.uci.ics.textdb.api.field.IDField;
@@ -13,6 +17,8 @@ import edu.uci.ics.textdb.api.schema.AttributeType;
 import edu.uci.ics.textdb.api.schema.Schema;
 import edu.uci.ics.textdb.api.span.Span;
 import edu.uci.ics.textdb.api.tuple.*;
+import edu.uci.ics.textdb.exp.common.PredicateBase;
+import edu.uci.ics.textdb.exp.common.PropertyNameConstants;
 import info.debatty.java.stringsimilarity.NormalizedLevenshtein;
 
 /**
@@ -48,7 +54,7 @@ import info.debatty.java.stringsimilarity.NormalizedLevenshtein;
  * @author Zuozhi Wang
  *
  */
-public class SimilarityJoinPredicate implements IJoinPredicate {
+public class SimilarityJoinPredicate extends PredicateBase implements IJoinPredicate {
     
     public static final String INNER_PREFIX = "inner_";
     public static final String OUTER_PREFIX = "outer_";
@@ -69,8 +75,15 @@ public class SimilarityJoinPredicate implements IJoinPredicate {
     public SimilarityJoinPredicate(String joinAttributeName, Double similarityThreshold) {
         this(joinAttributeName, joinAttributeName, similarityThreshold);
     }
-
-    public SimilarityJoinPredicate(String innerJoinAttrName, String outerJoinAttrName, Double similarityThreshold) {
+    
+    @JsonCreator
+    public SimilarityJoinPredicate(
+            @JsonProperty(value = PropertyNameConstants.INNER_ATTRIBUTE_NAME, required = true)
+            String innerJoinAttrName, 
+            @JsonProperty(value = PropertyNameConstants.OUTER_ATTRIBUTE_NAME, required = true)
+            String outerJoinAttrName, 
+            @JsonProperty(value = PropertyNameConstants.JOIN_SIMILARITY_THRESHOLD, required = true)
+            Double similarityThreshold) {
         if (similarityThreshold > 1) {
             similarityThreshold = 1.0;
         } else if (similarityThreshold < 0) {
@@ -83,6 +96,23 @@ public class SimilarityJoinPredicate implements IJoinPredicate {
         // initialize default similarity function to NormalizedLevenshtein
         // which is Levenshtein distance / length of longest string
         this.similarityFunc = ((str1, str2) -> (1.0 - new NormalizedLevenshtein().distance(str1, str2)));
+    }
+    
+    @JsonProperty(value = PropertyNameConstants.INNER_ATTRIBUTE_NAME)
+    @Override
+    public String getInnerAttributeName() {
+        return this.innerJoinAttrName;
+    }
+
+    @JsonProperty(value = PropertyNameConstants.OUTER_ATTRIBUTE_NAME)
+    @Override
+    public String getOuterAttributeName() {
+        return this.outerJoinAttrName;
+    }
+    
+    @JsonProperty(value = PropertyNameConstants.JOIN_SIMILARITY_THRESHOLD)
+    public Double getThreshold() {
+        return this.similarityThreshold;
     }
 
     
@@ -216,21 +246,8 @@ public class SimilarityJoinPredicate implements IJoinPredicate {
         return new Span(prefix+span.getAttributeName(),
                 span.getStart(), span.getEnd(), span.getKey(), span.getValue(), span.getTokenOffset());
     }
-
-    @Override
-    public String getInnerAttributeName() {
-        return this.innerJoinAttrName;
-    }
-
-    @Override
-    public String getOuterAttributeName() {
-        return this.outerJoinAttrName;
-    }
     
-    public Double getThreshold() {
-        return this.similarityThreshold;
-    }
-    
+    @JsonIgnore
     public void setSimilarityFunction(SimilarityFunc similarityFunc) {
         this.similarityFunc = similarityFunc;
     }

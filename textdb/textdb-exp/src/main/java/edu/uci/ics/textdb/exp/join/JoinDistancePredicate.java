@@ -5,6 +5,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import edu.uci.ics.textdb.api.constants.SchemaConstants;
 import edu.uci.ics.textdb.api.exception.DataFlowException;
 import edu.uci.ics.textdb.api.field.IField;
@@ -14,6 +17,8 @@ import edu.uci.ics.textdb.api.schema.AttributeType;
 import edu.uci.ics.textdb.api.schema.Schema;
 import edu.uci.ics.textdb.api.span.Span;
 import edu.uci.ics.textdb.api.tuple.*;
+import edu.uci.ics.textdb.exp.common.PredicateBase;
+import edu.uci.ics.textdb.exp.common.PropertyNameConstants;
 
 /**
  * 
@@ -21,7 +26,7 @@ import edu.uci.ics.textdb.api.tuple.*;
  * @author Zuozhi Wang
  *
  */
-public class JoinDistancePredicate implements IJoinPredicate {
+public class JoinDistancePredicate extends PredicateBase implements IJoinPredicate {
 
     private String joinAttributeName;
     private Integer threshold;
@@ -89,15 +94,46 @@ public class JoinDistancePredicate implements IJoinPredicate {
      * @param threshold
      *            is the maximum distance (in characters) between any two spans
      */
-    public JoinDistancePredicate(String joinAttributeName, Integer threshold) {
+    public JoinDistancePredicate(
+            String joinAttributeName, 
+            Integer threshold) {
         this.joinAttributeName = joinAttributeName;
         this.threshold = threshold;
     }
-
+    
+    @JsonCreator
+    public JoinDistancePredicate(
+            @JsonProperty(value = PropertyNameConstants.INNER_ATTRIBUTE_NAME, required = true)
+            String innerAttributeName,
+            @JsonProperty(value = PropertyNameConstants.OUTER_ATTRIBUTE_NAME, required = true)
+            String outerAttributeName,
+            @JsonProperty(value = PropertyNameConstants.SPAN_DISTANCE, required = true)
+            Integer threshold) {
+        if (! innerAttributeName.equalsIgnoreCase(outerAttributeName)) {
+            throw new RuntimeException("inner attribute name and outer attribute name are different");
+        }
+        this.joinAttributeName = innerAttributeName;
+        this.threshold = threshold;
+    }
+    
+    @JsonProperty(value = PropertyNameConstants.INNER_ATTRIBUTE_NAME)
+    @Override
+    public String getInnerAttributeName() {
+        return this.joinAttributeName;
+    }
+    
+    @JsonProperty(value = PropertyNameConstants.OUTER_ATTRIBUTE_NAME)
+    @Override
+    public String getOuterAttributeName() {
+        return this.joinAttributeName;
+    }
+    
+    @JsonProperty(value = PropertyNameConstants.SPAN_DISTANCE)
     public Integer getThreshold() {
         return this.threshold;
     }
     
+    @Override
     public Schema generateOutputSchema(Schema innerOperatorSchema, Schema outerOperatorSchema) throws DataFlowException {
         return generateIntersectionSchema(innerOperatorSchema, outerOperatorSchema);
     }
@@ -261,13 +297,4 @@ public class JoinDistancePredicate implements IJoinPredicate {
 	    return innerField.getValue().equals(outerField.getValue());
 	}
 
-    @Override
-    public String getInnerAttributeName() {
-        return this.joinAttributeName;
-    }
-
-    @Override
-    public String getOuterAttributeName() {
-        return this.joinAttributeName;
-    }
 }

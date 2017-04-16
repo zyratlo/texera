@@ -2,10 +2,10 @@ package edu.uci.ics.textdb.exp.nlp.sentiment;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import edu.uci.ics.textdb.api.dataflow.IPredicate;
+import edu.uci.ics.textdb.exp.common.PredicateBase;
 import edu.uci.ics.textdb.exp.common.PropertyNameConstants;
 
-public class NlpSentimentPredicate implements IPredicate {
+public class NlpSentimentPredicate extends PredicateBase {
     
     private final String inputAttributeName;
     private final String resultAttributeName;

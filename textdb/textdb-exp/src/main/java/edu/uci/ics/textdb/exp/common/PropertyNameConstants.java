@@ -56,4 +56,11 @@ public class PropertyNameConstants {
     public static final String FILE_RECURSIVE = "recursive";
     public static final String FILE_ALLOWED_EXTENSIONS = "allowed_extensions";
     
+    // related to join
+    public static final String INNER_ATTRIBUTE_NAME = "innerAttribute";
+    public static final String OUTER_ATTRIBUTE_NAME = "outerAttribute";
+    public static final String SPAN_DISTANCE = "spanDistance";
+    public static final String JOIN_SIMILARITY_THRESHOLD = "similarityThreshold";
+
+    
 }
