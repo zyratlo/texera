@@ -105,7 +105,7 @@ public class FuzzyTokenMatcherTestHelper {
                 
         ScanBasedSourceOperator scanSource = new ScanBasedSourceOperator(new ScanSourcePredicate(tableName)); 
         FuzzyTokenPredicate fuzzyTokenPredicate = new FuzzyTokenPredicate(
-                query, attributeNames, RelationManager.getRelationManager().getTableAnalyzer(tableName), threshold);
+                query, attributeNames, RelationManager.getRelationManager().getTableAnalyzerString(tableName), threshold);
         FuzzyTokenMatcher fuzzyTokenMatcher = new FuzzyTokenMatcher(fuzzyTokenPredicate);
         
         fuzzyTokenMatcher.setLimit(limit);
@@ -131,11 +131,12 @@ public class FuzzyTokenMatcherTestHelper {
     public static List<Tuple> getFuzzyTokenSourceResults(String tableName, String query, double threshold, List<String> attributeNames,
             int limit, int offset) throws TextDBException {
         
-        FuzzyTokenPredicate fuzzyTokenPredicate = new FuzzyTokenPredicate(
-                query, attributeNames, RelationManager.getRelationManager().getTableAnalyzer(tableName), threshold);
+        FuzzyTokenSourcePredicate fuzzyTokenSourcePredicate = new FuzzyTokenSourcePredicate(
+                query, attributeNames, RelationManager.getRelationManager().getTableAnalyzerString(tableName), 
+                threshold, tableName);
         
         FuzzyTokenMatcherSourceOperator fuzzyTokenSource = new FuzzyTokenMatcherSourceOperator(
-                fuzzyTokenPredicate, tableName);
+                fuzzyTokenSourcePredicate);
         
         fuzzyTokenSource.setLimit(limit);
         fuzzyTokenSource.setOffset(offset);

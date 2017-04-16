@@ -34,6 +34,7 @@ public class PropertyNameConstants {
     
     // related to fuzzy token matcher
     public static final String FUZZY_TOKEN_QUERY = "query";
+    public static final String FUZZY_TOKEN_THRESHOLD_RATIO = "thresholdRatio";
     
     // related to regex splitter
     public static final String SPLIT_ATTRIBUTE = "splitAttribute";
