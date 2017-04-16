@@ -48,8 +48,8 @@ public class DictionaryMatcher implements IOperator {
                 throw new DataFlowException(ErrorMessages.INPUT_OPERATOR_NOT_SPECIFIED);
             }
 
-            predicate.resetDictCursor();
-            currentDictionaryEntry = predicate.getNextDictionaryEntry();
+            predicate.getDictionary().resetCursor();
+            currentDictionaryEntry = predicate.getDictionary().getNextEntry();
             if (currentDictionaryEntry == null) {
                 throw new DataFlowException("Dictionary is empty");
             }
@@ -97,7 +97,7 @@ public class DictionaryMatcher implements IOperator {
             // If all results from current keywordMatcher are consumed,
             // advance to next dictionary entry, and
             // return null if reach the end of dictionary.
-            if ((currentDictionaryEntry = predicate.getNextDictionaryEntry()) == null) {
+            if ((currentDictionaryEntry = predicate.getDictionary().getNextEntry()) == null) {
                 return null;
             }
 
