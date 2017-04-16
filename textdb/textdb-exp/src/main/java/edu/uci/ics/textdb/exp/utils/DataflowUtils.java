@@ -73,9 +73,9 @@ public class DataflowUtils {
         return new Tuple(spanSchema, fieldsDuplicate);
     }
     
-    public static ArrayList<String> tokenizeQuery(String luceneAnalyzer, String query) {
+    public static ArrayList<String> tokenizeQuery(String luceneAnalyzerStr, String query) {
         try {
-            return tokenizeQuery(LuceneAnalyzerConstants.getLuceneAnalyzer(luceneAnalyzer), query);
+            return tokenizeQuery(LuceneAnalyzerConstants.getLuceneAnalyzer(luceneAnalyzerStr), query);
         } catch (DataFlowException e) {
             // TODO: discuss RuntimeException vs. Checked Exception
             throw new RuntimeException(e);

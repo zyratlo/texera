@@ -40,8 +40,7 @@ public class DictionaryMatcherSourceOperator implements ISourceOperator {
     private Tuple sourceTuple;
     private String currentDictionaryEntry;
 
-    private final DictionaryPredicate predicate;
-    private String tableName;
+    private final DictionarySourcePredicate predicate;
 
     private int resultCursor;
     private int limit;
@@ -53,12 +52,11 @@ public class DictionaryMatcherSourceOperator implements ISourceOperator {
      * @param predicate
      * 
      */
-    public DictionaryMatcherSourceOperator(DictionaryPredicate predicate, String tableName) {
+    public DictionaryMatcherSourceOperator(DictionarySourcePredicate predicate) {
         this.resultCursor = -1;
         this.limit = Integer.MAX_VALUE;
         this.offset = 0;
         this.predicate = predicate;
-        this.tableName = tableName;
     }
 
     /**
@@ -68,14 +66,14 @@ public class DictionaryMatcherSourceOperator implements ISourceOperator {
     @Override
     public void open() throws DataFlowException {
         try {
-            currentDictionaryEntry = predicate.getNextDictionaryEntry();
+            currentDictionaryEntry = predicate.getDictionary().getNextEntry();
             if (currentDictionaryEntry == null) {
                 throw new DataFlowException("Dictionary is empty");
             }
 
             if (predicate.getKeywordMatchingType() == KeywordMatchingType.SUBSTRING_SCANBASED) {
                 // For Substring matching, create a scan source operator.
-                indexSource = new ScanBasedSourceOperator(new ScanSourcePredicate(tableName));
+                indexSource = new ScanBasedSourceOperator(new ScanSourcePredicate(predicate.getTableName()));
                 indexSource.open();
 
                 // Substring matching's output schema needs to contains span
@@ -95,7 +93,7 @@ public class DictionaryMatcherSourceOperator implements ISourceOperator {
                         predicate.getAttributeNames(),
                         predicate.getAnalyzerString(),
                         predicate.getKeywordMatchingType(),
-                        tableName));
+                        predicate.getTableName()));
                 keywordSource.open();
 
                 // Other keyword matching types uses a KeywordMatcher, so the
@@ -158,7 +156,7 @@ public class DictionaryMatcherSourceOperator implements ISourceOperator {
                 // If all results from current keywordMatcher are consumed,
                 // advance to next dictionary entry, and
                 // return null if reach the end of dictionary.
-                if ((currentDictionaryEntry = predicate.getNextDictionaryEntry()) == null) {
+                if ((currentDictionaryEntry = predicate.getDictionary().getNextEntry()) == null) {
                     return null;
                 }
 
@@ -175,7 +173,7 @@ public class DictionaryMatcherSourceOperator implements ISourceOperator {
                 KeywordSourcePredicate keywordSourcePredicate = new KeywordSourcePredicate(currentDictionaryEntry,
                         predicate.getAttributeNames(),
                         predicate.getAnalyzerString(), keywordMatchingType,
-                        tableName);
+                        predicate.getTableName());
 
                 keywordSource = new KeywordMatcherSourceOperator(keywordSourcePredicate);
                 keywordSource.open();
@@ -222,11 +220,11 @@ public class DictionaryMatcherSourceOperator implements ISourceOperator {
      * advance the cursor of tuples and reset dictionary
      */
     private void advanceDictionaryCursor() throws TextDBException {
-        if ((currentDictionaryEntry = predicate.getNextDictionaryEntry()) != null) {
+        if ((currentDictionaryEntry = predicate.getDictionary().getNextEntry()) != null) {
             return;
         }
-        predicate.resetDictCursor();
-        currentDictionaryEntry = predicate.getNextDictionaryEntry();
+        predicate.getDictionary().resetCursor();
+        currentDictionaryEntry = predicate.getDictionary().getNextEntry();
     }
 
     /*
@@ -303,10 +301,6 @@ public class DictionaryMatcherSourceOperator implements ISourceOperator {
 
     public DictionaryPredicate getPredicate() {
         return this.predicate;
-    }
-
-    public String getTableName() {
-        return this.tableName;
     }
     
 }

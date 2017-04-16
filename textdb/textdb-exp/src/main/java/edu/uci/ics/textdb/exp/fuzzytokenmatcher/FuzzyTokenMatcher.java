@@ -26,16 +26,12 @@ import edu.uci.ics.textdb.exp.utils.DataflowUtils;
  */
 public class FuzzyTokenMatcher extends AbstractSingleInputOperator {
     
-    private FuzzyTokenPredicate predicate;
-    private int threshold;
-    private ArrayList<String> queryTokens;
+    private final FuzzyTokenPredicate predicate;
     
     private Schema inputSchema;
     
     public FuzzyTokenMatcher(FuzzyTokenPredicate predicate) {
         this.predicate = predicate;
-        this.threshold = predicate.getThreshold();
-        this.queryTokens = predicate.getQueryTokens();
     }
 
     @Override
@@ -61,7 +57,7 @@ public class FuzzyTokenMatcher extends AbstractSingleInputOperator {
             // Therefore, PAYLOAD needs to be checked and added first
             if (!inputSchema.containsField(SchemaConstants.PAYLOAD)) {
                 inputTuple = DataflowUtils.getSpanTuple(inputTuple.getFields(),
-                        DataflowUtils.generatePayloadFromTuple(inputTuple, predicate.getLuceneAnalyzer()), outputSchema);
+                        DataflowUtils.generatePayloadFromTuple(inputTuple, predicate.getLuceneAnalyzerStr()), outputSchema);
             }
             if (!inputSchema.containsField(SchemaConstants.SPAN_LIST)) {
                 inputTuple = DataflowUtils.getSpanTuple(inputTuple.getFields(), new ArrayList<Span>(), outputSchema);
@@ -100,10 +96,10 @@ public class FuzzyTokenMatcher extends AbstractSingleInputOperator {
             List<Span> fieldSpans = 
                     relevantSpans.stream()
                     .filter(span -> span.getAttributeName().equals(attributeName))
-                    .filter(span -> queryTokens.contains(span.getKey()))
+                    .filter(span -> predicate.getQueryTokens().contains(span.getKey()))
                     .collect(Collectors.toList());
             
-            if (fieldSpans.size() >= threshold) {
+            if (fieldSpans.size() >= predicate.getThreshold()) {
                 matchResults.addAll(fieldSpans);
             }          
         }
