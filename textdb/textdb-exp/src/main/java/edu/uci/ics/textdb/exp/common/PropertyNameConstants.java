@@ -30,7 +30,9 @@ public class PropertyNameConstants {
     public static final String DICTIONARY = "dictionary";
     
     // related to regex matcher
-    public static final String REGEX_QUERY = "regex";
+    public static final String REGEX = "regex";
+    public static final String REGEX_IGNORE_CASE = "regexIgnoreCase";
+    public static final String REGEX_USE_INDEX = "regexUseIndex";
     
     // related to fuzzy token matcher
     public static final String FUZZY_TOKEN_QUERY = "query";
