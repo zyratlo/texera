@@ -62,7 +62,7 @@ public class DictionaryMatcherTest {
         Dictionary dictionary = new Dictionary(expectedStrings);
         String dictionaryItem;
         ArrayList<String> returnedStrings = new ArrayList<String>();
-        while ((dictionaryItem = dictionary.getNextValue()) != null) {
+        while ((dictionaryItem = dictionary.getNextEntry()) != null) {
             returnedStrings.add(dictionaryItem);
         }
         Assert.assertEquals(expectedStrings, returnedStrings);
@@ -80,7 +80,7 @@ public class DictionaryMatcherTest {
         Dictionary dictionary = new Dictionary(expectedStrings);
         String dictionaryItem;
         ArrayList<String> returnedStrings = new ArrayList<String>();
-        while ((dictionaryItem = dictionary.getNextValue()) != null) {
+        while ((dictionaryItem = dictionary.getNextEntry()) != null) {
             returnedStrings.add(dictionaryItem);
         }
         Assert.assertEquals(expectedStrings, returnedStrings);

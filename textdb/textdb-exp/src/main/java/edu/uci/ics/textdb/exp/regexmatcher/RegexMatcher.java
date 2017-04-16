@@ -23,11 +23,7 @@ import edu.uci.ics.textdb.exp.utils.DataflowUtils;
  */
 public class RegexMatcher extends AbstractSingleInputOperator {
     
-    private RegexPredicate regexPredicate;
-    private String regex;
-    private List<String> attributeNames;
-
-    private boolean isCaseInsensitive = false;
+    private final RegexPredicate predicate;
 
     // two available regex engines, RegexMatcher will try RE2J first
     private enum RegexEngine {
@@ -40,11 +36,8 @@ public class RegexMatcher extends AbstractSingleInputOperator {
     
     private Schema inputSchema;
 
-
     public RegexMatcher(RegexPredicate predicate) {
-        this.regexPredicate = predicate;
-        this.regex = regexPredicate.getRegex();
-        this.attributeNames = regexPredicate.getAttributeNames();
+        this.predicate = predicate;
     }
     
     @Override
@@ -58,22 +51,24 @@ public class RegexMatcher extends AbstractSingleInputOperator {
         
         // try Java Regex first
         try {
-            if (isCaseInsensitive) {
-                this.javaPattern = java.util.regex.Pattern.compile(regex, java.util.regex.Pattern.CASE_INSENSITIVE);
+            if (this.predicate.isIgnoreCase()) {
+                this.javaPattern = java.util.regex.Pattern.compile(predicate.getRegex(), 
+                        java.util.regex.Pattern.CASE_INSENSITIVE);
                 this.regexEngine = RegexEngine.JavaRegex; 
             } else {
-                this.javaPattern = java.util.regex.Pattern.compile(regex);
+                this.javaPattern = java.util.regex.Pattern.compile(predicate.getRegex());
                 this.regexEngine = RegexEngine.JavaRegex; 
             }
 
             // if Java Regex fails, try RE2J
         } catch (java.util.regex.PatternSyntaxException javaException) {
             try {
-                if (isCaseInsensitive) {
-                    this.re2jPattern = com.google.re2j.Pattern.compile(regexPredicate.getRegex(), com.google.re2j.Pattern.CASE_INSENSITIVE);
+                if (this.predicate.isIgnoreCase()) {
+                    this.re2jPattern = com.google.re2j.Pattern.compile(predicate.getRegex(), 
+                            com.google.re2j.Pattern.CASE_INSENSITIVE);
                     this.regexEngine = RegexEngine.RE2J;
                 } else {
-                    this.re2jPattern = com.google.re2j.Pattern.compile(regexPredicate.getRegex());
+                    this.re2jPattern = com.google.re2j.Pattern.compile(predicate.getRegex());
                     this.regexEngine = RegexEngine.RE2J;                    
                 }
 
@@ -123,7 +118,7 @@ public class RegexMatcher extends AbstractSingleInputOperator {
 
         List<Span> matchingResults = new ArrayList<>();
 
-        for (String attributeName : attributeNames) {
+        for (String attributeName : predicate.getAttributeNames()) {
             AttributeType attributeType = inputSchema.getAttribute(attributeName).getAttributeType();
             String fieldValue = inputTuple.getField(attributeName).getValue().toString();
 
@@ -160,7 +155,7 @@ public class RegexMatcher extends AbstractSingleInputOperator {
             int start = javaMatcher.start();
             int end = javaMatcher.end();
             matchingResults.add(
-                    new Span(attributeName, start, end, this.regexPredicate.getRegex(), fieldValue.substring(start, end)));
+                    new Span(attributeName, start, end, this.predicate.getRegex(), fieldValue.substring(start, end)));
         }
         return matchingResults;
     }
@@ -172,60 +167,9 @@ public class RegexMatcher extends AbstractSingleInputOperator {
             int start = re2jMatcher.start();
             int end = re2jMatcher.end();
             matchingResults.add(
-                    new Span(attributeName, start, end, this.regexPredicate.getRegex(), fieldValue.substring(start, end)));
+                    new Span(attributeName, start, end, this.predicate.getRegex(), fieldValue.substring(start, end)));
         }
         return matchingResults;
-    }
-
-    /**
-     * Use Java's built-in Regex Engine. <br>
-     * RegexMatcher is set to use Java Regex Engine by default. <br>
-     * 
-     * @throws java.util.regex.PatternSyntaxException
-     */
-    public void setRegexEngineToJava() throws java.util.regex.PatternSyntaxException {
-        if (this.regexEngine == RegexEngine.JavaRegex) {
-            return;
-        } else {
-            this.javaPattern = java.util.regex.Pattern.compile(this.regex);
-            this.regexEngine = RegexEngine.JavaRegex;
-        }
-    }
-
-    /**
-     * Use RE2J Regex Engine. <br>
-     * RegexMatcher is set to use Java Regex Engine by default. Because Java
-     * Regex is usually faster than RE2J <br>
-     * 
-     * @throws java.util.regex.PatternSyntaxException
-     */
-    public void setRegexEngineToRE2J() throws java.util.regex.PatternSyntaxException {
-        if (this.regexEngine == RegexEngine.RE2J) {
-            return;
-        } else {
-            try {
-                this.re2jPattern = com.google.re2j.Pattern.compile(this.regex);
-                this.regexEngine = RegexEngine.RE2J;
-            } catch (com.google.re2j.PatternSyntaxException e) {
-                throw new java.util.regex.PatternSyntaxException(e.getDescription(), e.getPattern(), e.getIndex());
-            }
-        }
-    }
-    
-    public boolean getIsCaseInsensitive() {
-        return isCaseInsensitive;
-    }
-    
-    public void setIsCaseInsensitive(boolean isCaseInsensitive) {
-        this.isCaseInsensitive = isCaseInsensitive;
-    }
-
-    public String getRegexEngineString() {
-        return this.regexEngine.toString();
-    }
-
-    public String getRegex() {
-        return this.regex;
     }
 
     @Override
@@ -233,7 +177,7 @@ public class RegexMatcher extends AbstractSingleInputOperator {
     }
 
     public RegexPredicate getPredicate() {
-        return this.regexPredicate;
+        return this.predicate;
     }
     
 }

@@ -2,6 +2,7 @@ package edu.uci.ics.textdb.exp.regexmatcher;
 
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.queryparser.classic.ParseException;
+import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.Query;
 
 import edu.uci.ics.textdb.api.constants.DataConstants;
@@ -16,18 +17,21 @@ import edu.uci.ics.textdb.storage.RelationManager;
 
 public class RegexMatcherSourceOperator extends AbstractSingleInputOperator implements ISourceOperator {
     
-    private RegexPredicate predicate;
-    private String tableName;
+    private final RegexSourcePredicate predicate;
 
-    private DataReader dataReader;
-    private RegexMatcher regexMatcher;
+    private final DataReader dataReader;
+    private final RegexMatcher regexMatcher;
     
-    public RegexMatcherSourceOperator(RegexPredicate predicate, String tableName) throws StorageException, DataFlowException {
+    public RegexMatcherSourceOperator(RegexSourcePredicate predicate) throws StorageException, DataFlowException {
         this.predicate = predicate;
-        this.tableName = tableName;
         
-        this.dataReader = RelationManager.getRelationManager().getTableDataReader(this.tableName, 
-                createLuceneQuery(this.predicate));
+        if (this.predicate.isUseIndex()) {
+            this.dataReader = RelationManager.getRelationManager().getTableDataReader(this.predicate.getTableName(), 
+                    createLuceneQuery(this.predicate));
+        } else {
+            this.dataReader = RelationManager.getRelationManager().getTableDataReader(this.predicate.getTableName(), 
+                    new MatchAllDocsQuery());
+        }
         
         regexMatcher = new RegexMatcher(this.predicate);
         regexMatcher.setInputOperator(dataReader);
@@ -54,7 +58,7 @@ public class RegexMatcherSourceOperator extends AbstractSingleInputOperator impl
     protected void cleanUp() throws TextDBException {
     }
     
-    public static Query createLuceneQuery(RegexPredicate predicate) throws DataFlowException {
+    public static Query createLuceneQuery(RegexSourcePredicate predicate) throws StorageException {
         Query luceneQuery;
         String queryString;
         
@@ -68,10 +72,11 @@ public class RegexMatcherSourceOperator extends AbstractSingleInputOperator impl
         // Try to parse the query string. It if fails, raise an exception.
         try {
             luceneQuery = new MultiFieldQueryParser(
-                    predicate.getAttributeNames().stream().toArray(String[]::new), predicate.getLuceneAnalyzer())
+                    predicate.getAttributeNames().stream().toArray(String[]::new), 
+                    RelationManager.getRelationManager().getTableAnalyzer(predicate.getTableName()))
                     .parse(queryString);
         } catch (ParseException e) {
-            throw new DataFlowException(e);
+            throw new StorageException (e);
         }
         
         return luceneQuery;
