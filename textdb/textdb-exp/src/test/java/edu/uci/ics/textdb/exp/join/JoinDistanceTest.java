@@ -23,7 +23,7 @@ import edu.uci.ics.textdb.api.span.Span;
 import edu.uci.ics.textdb.api.tuple.Tuple;
 import edu.uci.ics.textdb.api.utils.TestUtils;
 import edu.uci.ics.textdb.api.utils.Utils;
-import edu.uci.ics.textdb.exp.fuzzytokenmatcher.FuzzyTokenPredicate;
+import edu.uci.ics.textdb.exp.fuzzytokenmatcher.FuzzyTokenSourcePredicate;
 import edu.uci.ics.textdb.exp.join.Join;
 import edu.uci.ics.textdb.exp.join.JoinDistancePredicate;
 import edu.uci.ics.textdb.exp.fuzzytokenmatcher.FuzzyTokenMatcherSourceOperator;
@@ -198,9 +198,9 @@ public class JoinDistanceTest {
         List<String> textAttributeNames = JoinTestConstants.BOOK_SCHEMA.getAttributes().stream()
                 .filter(attr -> attr.getAttributeType() != AttributeType.TEXT)
                 .map(Attribute::getAttributeName).collect(Collectors.toList());
-        FuzzyTokenPredicate fuzzyPredicateInner = new FuzzyTokenPredicate(fuzzyTokenQuery, textAttributeNames,
-                LuceneAnalyzerConstants.getStandardAnalyzer(), thresholdRatio);
-        FuzzyTokenMatcherSourceOperator fuzzyMatcherInner = new FuzzyTokenMatcherSourceOperator(fuzzyPredicateInner, BOOK_TABLE);
+        FuzzyTokenSourcePredicate fuzzySourcePredicateInner = new FuzzyTokenSourcePredicate(fuzzyTokenQuery, textAttributeNames,
+                LuceneAnalyzerConstants.standardAnalyzerString(), thresholdRatio, BOOK_TABLE);
+        FuzzyTokenMatcherSourceOperator fuzzyMatcherInner = new FuzzyTokenMatcherSourceOperator(fuzzySourcePredicateInner);
         
         ProjectionPredicate removeSpanListPredicate = new ProjectionPredicate(
                 JoinTestConstants.BOOK_SCHEMA.getAttributeNames());

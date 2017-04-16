@@ -37,6 +37,7 @@ public class PropertyNameConstants {
     
     // related to fuzzy token matcher
     public static final String FUZZY_TOKEN_QUERY = "query";
+    public static final String FUZZY_TOKEN_THRESHOLD_RATIO = "thresholdRatio";
     
     // related to nlp extractor
     public static final String NLP_ENTITY_TYPE = "nlpEntityType";

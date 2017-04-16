@@ -1,12 +1,14 @@
 package edu.uci.ics.textdb.exp.fuzzytokenmatcher;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
-import org.apache.lucene.analysis.Analyzer;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import edu.uci.ics.textdb.api.dataflow.IPredicate;
-import edu.uci.ics.textdb.api.exception.DataFlowException;
+import edu.uci.ics.textdb.exp.common.PropertyNameConstants;
 import edu.uci.ics.textdb.exp.utils.DataflowUtils;
 
 /*
@@ -18,57 +20,75 @@ import edu.uci.ics.textdb.exp.utils.DataflowUtils;
  */
 public class FuzzyTokenPredicate implements IPredicate {
 
-    private String query;
-    private ArrayList<String> tokens;
-    private List<String> attributeNames;
-    private Analyzer luceneAnalyzer;
-    private double thresholdRatio;
-    private int threshold;
+    private final String query;
+    private final List<String> attributeNames;
+    private final String luceneAnalyzerStr;
+    private final Double thresholdRatio;
+    
+    // fields not included in json properties
+    private final List<String> queryTokens;
+    private final Integer threshold;
 
-    public FuzzyTokenPredicate(String query, List<String> attributeNames, Analyzer analyzer,
-            double thresholdRatio) throws DataFlowException {
-        this.thresholdRatio = thresholdRatio;
-        this.luceneAnalyzer = analyzer;
+    public FuzzyTokenPredicate(
+            @JsonProperty(value = PropertyNameConstants.FUZZY_TOKEN_QUERY, required = true)
+            String query, 
+            @JsonProperty(value = PropertyNameConstants.ATTRIBUTE_NAMES, required = true)
+            List<String> attributeNames,
+            @JsonProperty(value = PropertyNameConstants.LUCENE_ANALYZER_STRING, required = true)
+            String luceneAnalyzerStr,
+            @JsonProperty(value = PropertyNameConstants.FUZZY_TOKEN_THRESHOLD_RATIO, required = true)
+            Double thresholdRatio) {
         this.query = query;
-        this.tokens = DataflowUtils.tokenizeQuery(analyzer, query);
-        this.computeThreshold();
         this.attributeNames = attributeNames;
+        this.luceneAnalyzerStr = luceneAnalyzerStr;
+        this.thresholdRatio = thresholdRatio;
+        
+        this.queryTokens = DataflowUtils.tokenizeQuery(this.luceneAnalyzerStr, this.query);
+        this.threshold = computeThreshold(this.thresholdRatio, queryTokens.size());
     }
 
+    @JsonProperty(value = PropertyNameConstants.FUZZY_TOKEN_QUERY)
+    public String getQuery() {
+        return this.query;
+    }
+    
+    @JsonProperty(value = PropertyNameConstants.ATTRIBUTE_NAMES)
     public List<String> getAttributeNames() {
-        return this.attributeNames;
+        return new ArrayList<>(this.attributeNames);
     }
 
-    public int getThreshold() {
+    @JsonProperty(value = PropertyNameConstants.LUCENE_ANALYZER_STRING)
+    public String getLuceneAnalyzerStr() {
+        return this.luceneAnalyzerStr;
+    }
+
+    @JsonProperty(value = PropertyNameConstants.FUZZY_TOKEN_THRESHOLD_RATIO)
+    public Double getThresholdRatio() {
+        return this.thresholdRatio;
+    }
+    
+    @JsonIgnore
+    protected Collection<String> getQueryTokens() {
+        return this.queryTokens;
+    }
+    
+    @JsonIgnore
+    protected Integer getThreshold() {
         return this.threshold;
     }
-
-    public ArrayList<String> getQueryTokens() {
-        return this.tokens;
-    }
-
-    public Analyzer getLuceneAnalyzer() {
-        return luceneAnalyzer;
-    }
-
+    
     /*
      * The input threshold given by the end-user (thresholdRatio data member) is
      * a ratio but boolean search query requires integer as a threshold. In case
      * if the the threshold becomes 0, we will set it by default to 1.
      */
-    public void computeThreshold() {
-        this.threshold = (int) (this.thresholdRatio * this.tokens.size());
-        if (this.threshold == 0) {
-            this.threshold = 1;
+    @JsonIgnore
+    public static int computeThreshold(double thresholdRatio, int tokenSize) {
+        int threshold = (int) (thresholdRatio * tokenSize);
+        if (threshold == 0) {
+            threshold = 1;
         }
-    }
-
-    public String getQuery() {
-        return this.query;
-    }
-
-    public double getThresholdRatio() {
-        return this.thresholdRatio;
+        return threshold; 
     }
 
 }

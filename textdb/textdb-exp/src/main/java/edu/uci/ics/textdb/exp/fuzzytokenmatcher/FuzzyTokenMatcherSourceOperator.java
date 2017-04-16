@@ -14,21 +14,23 @@ import edu.uci.ics.textdb.api.tuple.Tuple;
 import edu.uci.ics.textdb.exp.common.AbstractSingleInputOperator;
 import edu.uci.ics.textdb.storage.DataReader;
 import edu.uci.ics.textdb.storage.RelationManager;
+import edu.uci.ics.textdb.storage.constants.LuceneAnalyzerConstants;
 
 public class FuzzyTokenMatcherSourceOperator extends AbstractSingleInputOperator implements ISourceOperator {
     
-    private FuzzyTokenPredicate predicate;
+    private FuzzyTokenSourcePredicate predicate;
 
     private DataReader dataReader;
     private FuzzyTokenMatcher fuzzyTokenMatcher;
     
-    public FuzzyTokenMatcherSourceOperator(FuzzyTokenPredicate predicate, String tableName) 
+    public FuzzyTokenMatcherSourceOperator(FuzzyTokenSourcePredicate predicate) 
             throws DataFlowException, StorageException {
         this.predicate = predicate;
 
         // generate dataReader
         Query luceneQuery = createLuceneQueryObject(this.predicate);   
-        this.dataReader = RelationManager.getRelationManager().getTableDataReader(tableName, luceneQuery);
+        this.dataReader = RelationManager.getRelationManager().getTableDataReader(
+                this.predicate.getTableName(), luceneQuery);
         this.dataReader.setPayloadAdded(true);
         
         // generate FuzzyTokenMatcher
@@ -70,7 +72,7 @@ public class FuzzyTokenMatcherSourceOperator extends AbstractSingleInputOperator
             builder.setMinimumNumberShouldMatch(predicate.getThreshold());
             MultiFieldQueryParser qp = new MultiFieldQueryParser(
                     predicate.getAttributeNames().stream().toArray(String[]::new),
-                    predicate.getLuceneAnalyzer());
+                    LuceneAnalyzerConstants.getLuceneAnalyzer(predicate.getLuceneAnalyzerStr()));
             for (String s : predicate.getQueryTokens()) {
                 builder.add(qp.parse(s), Occur.SHOULD);
             }
