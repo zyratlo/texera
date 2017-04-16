@@ -1,5 +1,8 @@
 package edu.uci.ics.textdb.exp.common;
 
+import java.util.UUID;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -64,5 +67,18 @@ import edu.uci.ics.textdb.exp.source.scan.ScanSourcePredicate;
         @Type(value = TupleSinkPredicate.class, name = "ViewResults"),
 })
 public abstract class PredicateBase implements IPredicate {
+    
+    // default id is random uuid (internal code doesn't care about id)
+    private String id = UUID.randomUUID().toString();
+    
+    @JsonProperty("operatorID")
+    public void setID(String id) {
+        this.id = id;
+    }
+    
+    @JsonProperty("operatorID")
+    public String getID() {
+        return id;
+    }
     
 }

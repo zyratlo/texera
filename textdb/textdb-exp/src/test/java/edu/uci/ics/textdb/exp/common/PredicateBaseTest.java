@@ -38,7 +38,7 @@ public class PredicateBaseTest {
      *   serialized / deserialized correctly
      *   by converting predicate to json, then back to predicate, then back to json again,
      *   assert two json strings are the same, (test if anything changed between conversions)
-     *   and the json contains "operatorType". (test if the predicate is registered in PredicateBase)
+     *   and the json contains "operatorType" and "id". (test if the predicate is registered in PredicateBase)
      *   
      */
     public static void testPredicate(PredicateBase predicate) throws Exception {  
@@ -47,8 +47,8 @@ public class PredicateBaseTest {
         PredicateBase resultPredicate = objectMapper.readValue(predicateJson, PredicateBase.class);
         String resultPredicateJson = objectMapper.writeValueAsString(resultPredicate);
         
-//        System.out.println(predicateJson);
-//        System.out.println(resultPredicateJson);
+        System.out.println(predicateJson);
+        System.out.println(resultPredicateJson);
 
         Assert.assertEquals(predicateJson, resultPredicateJson);
         Assert.assertTrue(predicateJson.contains("operatorType"));
