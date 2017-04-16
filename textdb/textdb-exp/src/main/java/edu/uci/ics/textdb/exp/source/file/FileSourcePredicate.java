@@ -7,9 +7,10 @@ import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import edu.uci.ics.textdb.exp.common.PredicateBase;
 import edu.uci.ics.textdb.exp.common.PropertyNameConstants;
 
-public class FileSourcePredicate {
+public class FileSourcePredicate extends PredicateBase {
     
     public static final List<String> defaultAllowedExtensions = Arrays.asList(
             "txt", "json", "xml", "csv", "html", "md");

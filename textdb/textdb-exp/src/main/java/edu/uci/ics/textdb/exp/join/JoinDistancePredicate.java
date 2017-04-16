@@ -17,6 +17,7 @@ import edu.uci.ics.textdb.api.schema.AttributeType;
 import edu.uci.ics.textdb.api.schema.Schema;
 import edu.uci.ics.textdb.api.span.Span;
 import edu.uci.ics.textdb.api.tuple.*;
+import edu.uci.ics.textdb.exp.common.PredicateBase;
 import edu.uci.ics.textdb.exp.common.PropertyNameConstants;
 
 /**
@@ -25,7 +26,7 @@ import edu.uci.ics.textdb.exp.common.PropertyNameConstants;
  * @author Zuozhi Wang
  *
  */
-public class JoinDistancePredicate implements IJoinPredicate {
+public class JoinDistancePredicate extends PredicateBase implements IJoinPredicate {
 
     private String joinAttributeName;
     private Integer threshold;

@@ -6,10 +6,10 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import edu.uci.ics.textdb.api.dataflow.IPredicate;
+import edu.uci.ics.textdb.exp.common.PredicateBase;
 import edu.uci.ics.textdb.exp.common.PropertyNameConstants;
 
-public class NlpEntityPredicate implements IPredicate {
+public class NlpEntityPredicate extends PredicateBase {
     
     private NlpEntityType nlpEntityType;
     private List<String> attributeNames;

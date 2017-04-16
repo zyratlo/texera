@@ -6,11 +6,11 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import edu.uci.ics.textdb.api.dataflow.IPredicate;
+import edu.uci.ics.textdb.exp.common.PredicateBase;
 import edu.uci.ics.textdb.exp.common.PropertyNameConstants;
 import edu.uci.ics.textdb.exp.keywordmatcher.KeywordMatchingType;
 
-public class DictionaryPredicate implements IPredicate {
+public class DictionaryPredicate extends PredicateBase {
 
     private final Dictionary dictionary;
     private final List<String> attributeNames;
