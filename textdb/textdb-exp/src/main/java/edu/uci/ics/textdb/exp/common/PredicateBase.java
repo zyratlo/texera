@@ -35,7 +35,6 @@ import edu.uci.ics.textdb.exp.source.file.FileSourcePredicate;
         @Type(value = KeywordPredicate.class, name = "KeywordMatcher"), 
         @Type(value = KeywordSourcePredicate.class, name = "KeywordSource"), 
         
-        @Type(value = NlpEntityPredicate.class, name = "NlpEntity"),
         @Type(value = NlpSentimentPredicate.class, name = "NlpSentiment"),
         @Type(value = RegexSplitPredicate.class, name = "RegexSplit"),
         @Type(value = SamplerPredicate.class, name = "Sampler"),
