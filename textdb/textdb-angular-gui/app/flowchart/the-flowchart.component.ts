@@ -10,7 +10,7 @@ declare var jQuery: any;
 			<div id="the-flowchart"></div>
 		</div>
 	`,
-	styleUrls: ['style.css'],
+	styleUrls: ['../style.css'],
 })
 export class TheFlowchartComponent {
 	TheOperatorNumNow : number;

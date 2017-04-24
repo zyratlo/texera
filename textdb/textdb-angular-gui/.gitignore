@@ -1,5 +1,5 @@
-app/*.js
-app/*.map
+*.js
+*.map
 e2e/*.map
 node_modules
 jspm_packages

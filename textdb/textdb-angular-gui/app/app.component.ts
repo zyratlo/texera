@@ -3,7 +3,7 @@ import { Component, ViewChild } from '@angular/core';
 import { MockDataService } from './services/mock-data-service';
 import { CurrentDataService } from './services/current-data-service';
 
-import { TheFlowchartComponent } from './the-flowchart.component';
+import { TheFlowchartComponent } from './flowchart/the-flowchart.component';
 
 declare var jQuery: any;
 
