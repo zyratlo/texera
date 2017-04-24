@@ -4,9 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import edu.uci.ics.textdb.api.exception.PlanGenException;
-import edu.uci.ics.textdb.exp.aggregation.AggregationPredicate;
 import edu.uci.ics.textdb.exp.common.PredicateBase;
-import edu.uci.ics.textdb.exp.comparablematcher.ComparablePredicate;
 import edu.uci.ics.textdb.exp.dictionarymatcher.DictionaryPredicate;
 import edu.uci.ics.textdb.exp.dictionarymatcher.DictionarySourcePredicate;
 import edu.uci.ics.textdb.exp.fuzzytokenmatcher.FuzzyTokenPredicate;
@@ -22,7 +20,6 @@ import edu.uci.ics.textdb.exp.regexmatcher.RegexPredicate;
 import edu.uci.ics.textdb.exp.regexmatcher.RegexSourcePredicate;
 import edu.uci.ics.textdb.exp.regexsplit.RegexSplitPredicate;
 import edu.uci.ics.textdb.exp.sampler.SamplerPredicate;
-import edu.uci.ics.textdb.exp.sink.json.JsonSinkPredicate;
 import edu.uci.ics.textdb.exp.sink.tuple.TupleSinkPredicate;
 import edu.uci.ics.textdb.exp.source.file.FileSourcePredicate;
 import edu.uci.ics.textdb.exp.source.scan.ScanSourcePredicate;
@@ -54,14 +51,11 @@ public class OperatorArityConstants {
         fixedInputArityMap.put(ProjectionPredicate.class, 1);
         fixedInputArityMap.put(RegexSplitPredicate.class, 1);
         fixedInputArityMap.put(SamplerPredicate.class, 1);
-        fixedInputArityMap.put(ComparablePredicate.class, 1);
-        fixedInputArityMap.put(AggregationPredicate.class, 1);
 
         fixedInputArityMap.put(ScanSourcePredicate.class, 0);
         fixedInputArityMap.put(FileSourcePredicate.class, 0);
         
         fixedInputArityMap.put(TupleSinkPredicate.class, 1);
-        fixedInputArityMap.put(JsonSinkPredicate.class, 1);
         
     }
     
@@ -84,14 +78,11 @@ public class OperatorArityConstants {
         fixedOutputArityMap.put(ProjectionPredicate.class, 1);
         fixedOutputArityMap.put(RegexSplitPredicate.class, 1);
         fixedOutputArityMap.put(SamplerPredicate.class, 1);
-        fixedOutputArityMap.put(ComparablePredicate.class, 1);
-        fixedOutputArityMap.put(AggregationPredicate.class, 1);
 
         fixedOutputArityMap.put(ScanSourcePredicate.class, 1);
         fixedOutputArityMap.put(FileSourcePredicate.class, 1);
         
         fixedOutputArityMap.put(TupleSinkPredicate.class, 0);
-        fixedOutputArityMap.put(JsonSinkPredicate.class, 0);
         
     }
     
