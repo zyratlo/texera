@@ -44,6 +44,7 @@ public class LogicalPlanTest {
     
     @BeforeClass
     public static void setUp() throws StorageException {
+        cleanUp();
         RelationManager.getRelationManager().createTable(
                 TEST_TABLE, "../index/test_tables/"+TEST_TABLE,
                 TEST_SCHEMA, LuceneAnalyzerConstants.standardAnalyzerString());
