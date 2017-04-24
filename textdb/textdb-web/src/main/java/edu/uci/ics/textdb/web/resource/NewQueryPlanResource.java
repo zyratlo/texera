@@ -16,7 +16,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.uci.ics.textdb.api.dataflow.ISink;
 import edu.uci.ics.textdb.api.engine.Engine;
 import edu.uci.ics.textdb.api.engine.Plan;
-import edu.uci.ics.textdb.api.exception.TextDBException;
 import edu.uci.ics.textdb.api.tuple.Tuple;
 import edu.uci.ics.textdb.dataflow.utils.DataflowUtils;
 import edu.uci.ics.textdb.exp.plangen.LogicalPlan;
@@ -55,7 +54,7 @@ public class NewQueryPlanResource {
                 return new TextdbWebResponse(0, "plan sucessfully executed");
             }
             
-        } catch (TextDBException | IOException | RuntimeException e) {
+        } catch ( IOException | RuntimeException e) {
             // TODO remove RuntimeException after the exception refactor
             System.out.println(e.getMessage());
             throw new TextdbWebException(e.getMessage());
