@@ -57,13 +57,13 @@ public class PropertyNameConstants {
     public static final String SPLIT_REGEX = "splitRegex";
 
     // related to sampler
-    public static final String SAMPLE_SIZE = "sample_size";
-    public static final String SAMPLE_TYPE = "sample_type";
+    public static final String SAMPLE_SIZE = "sampleSize";
+    public static final String SAMPLE_TYPE = "sampleType";
     
     // related to file source
-    public static final String FILE_MAX_DEPTH = "max_depth";
+    public static final String FILE_MAX_DEPTH = "maxDepth";
     public static final String FILE_RECURSIVE = "recursive";
-    public static final String FILE_ALLOWED_EXTENSIONS = "allowed_extensions";
+    public static final String FILE_ALLOWED_EXTENSIONS = "allowedExtensions";
     
     // related to join
     public static final String INNER_ATTRIBUTE_NAME = "innerAttribute";
