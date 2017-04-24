@@ -42,4 +42,9 @@ public class DictionarySourcePredicate extends DictionaryPredicate {
         return this.tableName;
     }
     
+    @Override
+    public IOperator newOperator() {
+        return new DictionaryMatcherSourceOperator(this);
+    }
+    
 }

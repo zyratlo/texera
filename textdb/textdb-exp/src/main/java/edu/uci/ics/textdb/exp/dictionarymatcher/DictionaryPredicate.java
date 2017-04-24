@@ -62,5 +62,9 @@ public class DictionaryPredicate extends PredicateBase {
         return keywordMatchingType;
     }
     
+    @Override
+    public IOperator newOperator() {
+        return new DictionaryMatcher(this);
+    }
 
 }

@@ -50,10 +50,12 @@ public class PredicateBaseTest {
         
         JsonNode predicateJsonNode = objectMapper.readValue(predicateJson, JsonNode.class);
         JsonNode resultPredicateJsonNode = objectMapper.readValue(resultPredicateJson, JsonNode.class);
+        
+        System.out.println(resultPredicateJson);
 
         Assert.assertEquals(predicateJsonNode, resultPredicateJsonNode);
-        Assert.assertTrue(predicateJson.contains("operatorType"));
-        Assert.assertTrue(predicateJson.contains("operatorID"));
+        Assert.assertTrue(predicateJson.contains(PropertyNameConstants.OPERATOR_TYPE));
+        Assert.assertTrue(predicateJson.contains(PropertyNameConstants.OPERATOR_ID));
     }
     
     private static List<String> attributeNames = Arrays.asList("attr1", "attr2");
