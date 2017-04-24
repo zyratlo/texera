@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { CurrentDataService } from './current-data-service';
+import { CurrentDataService } from '../services/current-data-service';
 
 declare var jQuery: any;
 @Component({
@@ -17,7 +17,6 @@ export class TheFlowchartComponent {
 	constructor(private currentDataService : CurrentDataService) {
 		currentDataService.newAddition$.subscribe(
 			data => {
-				console.log("IN NEW ADDITION : " + data.operatorNum);
 				this.TheOperatorNumNow =  data.operatorNum;
 			}
 		);
@@ -30,10 +29,6 @@ export class TheFlowchartComponent {
 
 		// unselect operator when user click other div
 		jQuery('html').mouseup(function(e){
-			// var container = jQuery(".form-control");
-			// if (container.is(e.target)){
-			// 	jQuery("#the-flowchart").flowchart("unselectOperator");
-			// }
 		});
 
 		jQuery('html').keyup(function(e){ //key binding function

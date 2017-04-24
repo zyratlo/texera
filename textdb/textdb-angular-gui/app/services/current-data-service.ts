@@ -27,7 +27,6 @@ let clean_data = {
 export class CurrentDataService {
     currentData : Data;
     TEXTDBJSON: any;
-    returnedData: any;
 
     private newAddition = new Subject<any>();
     newAddition$ = this.newAddition.asObservable();
@@ -36,7 +35,7 @@ export class CurrentDataService {
     checkPressed$ = this.checkPressed.asObservable();
 
 
-    private textdbUrl = 'http://localhost:8080/queryplan/execute';
+    private textdbUrl = 'http://localhost:8080/newqueryplan/execute';
 
     constructor(private http: Http) { }
 
@@ -68,15 +67,25 @@ export class CurrentDataService {
         this.TEXTDBJSON = {operators: {}, links: {}};
         var operators = [];
         var links = [];
+        
+        var listAttributes : string[] = ["attributes", "dictionaryEntries"]
 
         for (var operatorIndex in this.currentData.jsonData.operators) {
             var currentOperator = this.currentData.jsonData['operators'];
             if (currentOperator.hasOwnProperty(operatorIndex)) {
                 var attributes = {};
-                attributes["operator_id"] = operatorIndex;
+                attributes["operatorID"] = operatorIndex;
                 for (var attribute in currentOperator[operatorIndex]['properties']['attributes']) {
                     if (currentOperator[operatorIndex]['properties']['attributes'].hasOwnProperty(attribute)) {
                         attributes[attribute] = currentOperator[operatorIndex]['properties']['attributes'][attribute];
+                        // if attribute is an array property, and it's not an array
+                        if (jQuery.inArray(attribute, listAttributes) != -1 && ! Array.isArray(attributes[attribute])) {
+                          attributes[attribute] = attributes[attribute].split(",").map((item) => item.trim());
+                        }
+                        // if the value is a string and can be converted to a boolean value
+                        if (attributes[attribute] instanceof String && Boolean(attributes[attribute])) {
+                          attributes[attribute] = (attributes[attribute].toLowerCase() === 'true')
+                        }
                     }
                 }
                 operators.push(attributes);
@@ -86,82 +95,34 @@ export class CurrentDataService {
             var destination = {};
             var currentLink = this.currentData.jsonData['links'];
             if (currentLink[link].hasOwnProperty("fromOperator")){
-                destination["from"] = currentLink[link]['fromOperator'].toString();
-                destination["to"] = currentLink[link]['toOperator'].toString();
+                destination["origin"] = currentLink[link]['fromOperator'].toString();
+                destination["destination"] = currentLink[link]['toOperator'].toString();
                 links.push(destination);
             }
         }
 
         this.TEXTDBJSON.operators = operators;
         this.TEXTDBJSON.links = links;
+        console.log("about to send request")
         this.sendRequest();
     }
 
     private sendRequest(): void {
-        this.returnedData = {};
-        let sampleData = {
-            operators: {
-                operator1: {
-                    top: 20,
-                    left: 20,
-                    properties: {
-                        title: 'Operator 1',
-                        inputs: {},
-                        outputs: {
-                            output_1: {
-                                label: 'Output 1',
-                            }
-                        }
-                    }
-                },
-                operator2: {
-                    top: 80,
-                    left: 300,
-                    properties: {
-                        title: 'Operator 2',
-                        inputs: {
-                            input_1: {
-                                label: 'Input 1',
-                            },
-                            input_2: {
-                                label: 'Input 2',
-                            },
-                        },
-                        outputs: {}
-                    }
-                },
-            },
-            links: {
-                link_1: {
-                    fromOperator: 'operator1',
-                    fromConnector: 'output_1',
-                    toOperator: 'operator2',
-                    toConnector: 'input_2',
-                },
-            }
-        };
-
-        if (this.TEXTDBJSON.links.length === 0){
-          console.log("No links available");
-          this.checkPressed.next({returnedData: JSON.stringify(sampleData)});
-        } else {
-          let headers = new Headers({ 'Content-Type': 'application/json' });
-          console.log("TextDB JSON is:");
-          console.log(JSON.stringify(this.TEXTDBJSON));
-          this.http.post(this.textdbUrl, JSON.stringify(this.TEXTDBJSON), {headers: headers})
-              .subscribe(
-                  data => {
+        let headers = new Headers({ 'Content-Type': 'application/json' });
+        console.log("TextDB JSON is:");
+        console.log(JSON.stringify(this.TEXTDBJSON));
+        this.http.post(this.textdbUrl, JSON.stringify(this.TEXTDBJSON), {headers: headers})
+            .subscribe(
+                data => {
                     console.log("OKAY in getting server data");
-
-                      this.returnedData = data;
-                      this.checkPressed.next({returnedData: data});
-                  },
-                  err => {
-                      console.log("Error in getting server data");
-                      this.checkPressed.next({returnedData: JSON.stringify(sampleData)});
-                  }
-              );
-        }
+                    this.checkPressed.next(data.json());
+                },
+                err => {
+                    console.log("Error in getting server data");
+                    console.log(err);
+                    this.checkPressed.next(err.json());
+                }
+            );
     }
 
     private handleError(error: any): Promise<any> {
