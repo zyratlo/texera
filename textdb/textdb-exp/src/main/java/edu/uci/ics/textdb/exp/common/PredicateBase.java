@@ -10,8 +10,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import edu.uci.ics.textdb.api.dataflow.IOperator;
 import edu.uci.ics.textdb.api.dataflow.IPredicate;
-import edu.uci.ics.textdb.exp.aggregation.AggregationPredicate;
-import edu.uci.ics.textdb.exp.comparablematcher.ComparablePredicate;
 import edu.uci.ics.textdb.exp.dictionarymatcher.DictionaryPredicate;
 import edu.uci.ics.textdb.exp.dictionarymatcher.DictionarySourcePredicate;
 import edu.uci.ics.textdb.exp.fuzzytokenmatcher.FuzzyTokenPredicate;
@@ -27,7 +25,6 @@ import edu.uci.ics.textdb.exp.regexmatcher.RegexPredicate;
 import edu.uci.ics.textdb.exp.regexmatcher.RegexSourcePredicate;
 import edu.uci.ics.textdb.exp.regexsplit.RegexSplitPredicate;
 import edu.uci.ics.textdb.exp.sampler.SamplerPredicate;
-import edu.uci.ics.textdb.exp.sink.json.JsonSinkPredicate;
 import edu.uci.ics.textdb.exp.sink.tuple.TupleSinkPredicate;
 import edu.uci.ics.textdb.exp.source.file.FileSourcePredicate;
 import edu.uci.ics.textdb.exp.source.scan.ScanSourcePredicate;
@@ -66,13 +63,10 @@ import edu.uci.ics.textdb.exp.source.scan.ScanSourcePredicate;
         @Type(value = ProjectionPredicate.class, name = "Projection"),
         @Type(value = RegexSplitPredicate.class, name = "RegexSplit"),
         @Type(value = SamplerPredicate.class, name = "Sampler"),
-        @Type(value = ComparablePredicate.class, name = "CompareNumber"),
-        @Type(value = AggregationPredicate.class, name = "Aggregation"),
         
         @Type(value = ScanSourcePredicate.class, name = "ScanSource"),
         @Type(value = FileSourcePredicate.class, name = "FileSink"),        
         @Type(value = TupleSinkPredicate.class, name = "ViewResults"),
-        @Type(value = JsonSinkPredicate.class, name = "JsonSink"),
         
 })
 public abstract class PredicateBase implements IPredicate {
