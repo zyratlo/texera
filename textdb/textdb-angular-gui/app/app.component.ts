@@ -1,7 +1,7 @@
 import { Component, ViewChild } from '@angular/core';
 
-import { MockDataService } from './mock-data-service';
-import { CurrentDataService } from './current-data-service';
+import { MockDataService } from './services/mock-data-service';
+import { CurrentDataService } from './services/current-data-service';
 
 declare var jQuery: any;
 
