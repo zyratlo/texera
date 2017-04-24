@@ -2,11 +2,13 @@ package edu.uci.ics.textdb.exp.common;
 
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import edu.uci.ics.textdb.api.dataflow.IOperator;
 import edu.uci.ics.textdb.api.dataflow.IPredicate;
 import edu.uci.ics.textdb.exp.dictionarymatcher.DictionaryPredicate;
 import edu.uci.ics.textdb.exp.dictionarymatcher.DictionarySourcePredicate;
@@ -65,6 +67,7 @@ import edu.uci.ics.textdb.exp.source.scan.ScanSourcePredicate;
         @Type(value = ScanSourcePredicate.class, name = "ScanSource"),
         @Type(value = FileSourcePredicate.class, name = "FileSink"),        
         @Type(value = TupleSinkPredicate.class, name = "ViewResults"),
+        
 })
 public abstract class PredicateBase implements IPredicate {
     
@@ -80,5 +83,8 @@ public abstract class PredicateBase implements IPredicate {
     public String getID() {
         return id;
     }
+    
+    @JsonIgnore
+    public abstract IOperator newOperator();
     
 }
