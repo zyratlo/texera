@@ -93,7 +93,8 @@ public class DictionaryMatcherSourceOperator implements ISourceOperator {
                         predicate.getAttributeNames(),
                         predicate.getAnalyzerString(),
                         predicate.getKeywordMatchingType(),
-                        predicate.getTableName()));
+                        predicate.getTableName(),
+                        predicate.getSpanListName()));
                 keywordSource.open();
 
                 // Other keyword matching types uses a KeywordMatcher, so the
@@ -173,7 +174,8 @@ public class DictionaryMatcherSourceOperator implements ISourceOperator {
                 KeywordSourcePredicate keywordSourcePredicate = new KeywordSourcePredicate(currentDictionaryEntry,
                         predicate.getAttributeNames(),
                         predicate.getAnalyzerString(), keywordMatchingType,
-                        predicate.getTableName());
+                        predicate.getTableName(),
+                        predicate.getSpanListName());
 
                 keywordSource = new KeywordMatcherSourceOperator(keywordSourcePredicate);
                 keywordSource.open();

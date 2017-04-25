@@ -3,6 +3,7 @@ package edu.uci.ics.textdb.exp.dictionarymatcher;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.uci.ics.textdb.api.constants.SchemaConstants;
 import edu.uci.ics.textdb.api.constants.TestConstants;
 import edu.uci.ics.textdb.api.constants.TestConstantsChinese;
 import edu.uci.ics.textdb.api.exception.DataFlowException;
@@ -119,7 +120,7 @@ public class DictionaryMatcherTestHelper {
         ScanBasedSourceOperator scanSource = new ScanBasedSourceOperator(new ScanSourcePredicate(tableName));
         
         DictionaryPredicate dictiaonryPredicate = new DictionaryPredicate(
-                dictionary, attributeNames, luceneAnalyzerStr, matchingType);
+                dictionary, attributeNames, luceneAnalyzerStr, matchingType, SchemaConstants.SPAN_LIST);
         DictionaryMatcher dictionaryMatcher = new DictionaryMatcher(dictiaonryPredicate);
         
         dictionaryMatcher.setLimit(limit);
@@ -158,7 +159,7 @@ public class DictionaryMatcherTestHelper {
         String luceneAnalyzerStr = relationManager.getTableAnalyzerString(tableName);
         
         DictionarySourcePredicate dictiaonrySourcePredicate = new DictionarySourcePredicate(
-                dictionary, attributeNames, luceneAnalyzerStr, matchingType, tableName);
+                dictionary, attributeNames, luceneAnalyzerStr, matchingType, tableName, SchemaConstants.SPAN_LIST);
         DictionaryMatcherSourceOperator dictionarySource = new DictionaryMatcherSourceOperator(
                 dictiaonrySourcePredicate);
 

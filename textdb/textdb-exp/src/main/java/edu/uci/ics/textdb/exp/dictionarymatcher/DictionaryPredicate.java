@@ -18,6 +18,7 @@ public class DictionaryPredicate extends PredicateBase {
     private final List<String> attributeNames;
     private final String luceneAnalyzerStr;
     private final KeywordMatchingType keywordMatchingType;
+    private final String spanListName;
 
     /**
      * DictionaryPredicate is used to create a DictionaryMatcher.
@@ -36,12 +37,15 @@ public class DictionaryPredicate extends PredicateBase {
             @JsonProperty(value = PropertyNameConstants.LUCENE_ANALYZER_STRING, required = true)
             String luceneAnalyzerStr,
             @JsonProperty(value = PropertyNameConstants.KEYWORD_MATCHING_TYPE, required = true)
-            KeywordMatchingType keywordMatchingType) {
+            KeywordMatchingType keywordMatchingType,
+            @JsonProperty(value = PropertyNameConstants.SPAN_LIST_NAME, required = false)
+            String spanListName) {
 
         this.dictionary = dictionary;
         this.luceneAnalyzerStr = luceneAnalyzerStr;
         this.attributeNames = attributeNames;
         this.keywordMatchingType = keywordMatchingType;
+        this.spanListName = spanListName;
     }
     
     @JsonUnwrapped
@@ -63,6 +67,11 @@ public class DictionaryPredicate extends PredicateBase {
     @JsonProperty(value = PropertyNameConstants.KEYWORD_MATCHING_TYPE)
     public KeywordMatchingType getKeywordMatchingType() {
         return keywordMatchingType;
+    }
+    
+    @JsonProperty(value = PropertyNameConstants.SPAN_LIST_NAME)
+    public String getSpanListName() {
+        return spanListName;
     }
     
     @Override

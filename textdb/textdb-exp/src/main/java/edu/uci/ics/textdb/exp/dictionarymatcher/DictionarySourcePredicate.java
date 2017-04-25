@@ -34,8 +34,10 @@ public class DictionarySourcePredicate extends DictionaryPredicate {
             @JsonProperty(value = PropertyNameConstants.KEYWORD_MATCHING_TYPE, required = true)
             KeywordMatchingType keywordMatchingType,
             @JsonProperty(value = PropertyNameConstants.TABLE_NAME, required = true)
-            String tableName) {
-        super(dictionary, attributeNames, luceneAnalyzerStr, keywordMatchingType);
+            String tableName,
+            @JsonProperty(value = PropertyNameConstants.SPAN_LIST_NAME, required = false)
+            String spanListName) {
+        super(dictionary, attributeNames, luceneAnalyzerStr, keywordMatchingType, spanListName);
         this.tableName = tableName;
     }
     

@@ -14,6 +14,7 @@ import edu.uci.ics.textdb.api.constants.SchemaConstants;
 import edu.uci.ics.textdb.api.exception.DataFlowException;
 import edu.uci.ics.textdb.api.exception.TextDBException;
 import edu.uci.ics.textdb.api.field.ListField;
+import edu.uci.ics.textdb.api.schema.Attribute;
 import edu.uci.ics.textdb.api.schema.AttributeType;
 import edu.uci.ics.textdb.api.schema.Schema;
 import edu.uci.ics.textdb.api.span.Span;
@@ -51,8 +52,14 @@ public class KeywordMatcher extends AbstractSingleInputOperator {
         if (!inputSchema.containsField(SchemaConstants.PAYLOAD)) {
             outputSchema = Utils.addAttributeToSchema(outputSchema, SchemaConstants.PAYLOAD_ATTRIBUTE);
         }
-        if (!inputSchema.containsField(SchemaConstants.SPAN_LIST)) {
-            outputSchema = Utils.addAttributeToSchema(outputSchema, SchemaConstants.SPAN_LIST_ATTRIBUTE);
+        if (predicate.getSpanListName() != null) {
+            if (inputSchema.containsField(predicate.getSpanListName())) {
+                throw new DataFlowException(String.format(
+                        "span list name: %s is already contained in the schema: ", 
+                        inputSchema.getAttributeNames()));
+            }
+            outputSchema = Utils.addAttributeToSchema(outputSchema, 
+                    new Attribute(predicate.getSpanListName(), AttributeType.LIST));
         }
     }
 
@@ -82,7 +89,7 @@ public class KeywordMatcher extends AbstractSingleInputOperator {
             inputTuple = DataflowUtils.getSpanTuple(inputTuple.getFields(),
                     DataflowUtils.generatePayloadFromTuple(inputTuple, predicate.getLuceneAnalyzerString()), outputSchema);
         }
-        if (!inputSchema.containsField(SchemaConstants.SPAN_LIST)) {
+        if (predicate.getSpanListName() != null) {
             inputTuple = DataflowUtils.getSpanTuple(inputTuple.getFields(), new ArrayList<Span>(), outputSchema);
         }
 
@@ -142,10 +149,12 @@ public class KeywordMatcher extends AbstractSingleInputOperator {
         if (matchingResults.isEmpty()) {
             return null;
         }
-
-        ListField<Span> spanListField = sourceTuple.getField(SchemaConstants.SPAN_LIST);
-        List<Span> spanList = spanListField.getValue();
-        spanList.addAll(matchingResults);
+        
+        if (predicate.getSpanListName() != null) {
+            ListField<Span> spanListField = sourceTuple.getField(predicate.getSpanListName());
+            List<Span> spanList = spanListField.getValue();
+            spanList.addAll(matchingResults);
+        }
 
         return sourceTuple;
     }
@@ -241,9 +250,11 @@ public class KeywordMatcher extends AbstractSingleInputOperator {
             return null;
         }
 
-        ListField<Span> spanListField = sourceTuple.getField(SchemaConstants.SPAN_LIST);
-        List<Span> spanList = spanListField.getValue();
-        spanList.addAll(matchingResults);
+        if (predicate.getSpanListName() != null) {
+            ListField<Span> spanListField = sourceTuple.getField(predicate.getSpanListName());
+            List<Span> spanList = spanListField.getValue();
+            spanList.addAll(matchingResults);
+        }
 
         return sourceTuple;
     }
@@ -284,9 +295,11 @@ public class KeywordMatcher extends AbstractSingleInputOperator {
             return null;
         }
 
-        ListField<Span> spanListField = sourceTuple.getField(SchemaConstants.SPAN_LIST);
-        List<Span> spanList = spanListField.getValue();
-        spanList.addAll(matchingResults);
+        if (predicate.getSpanListName() != null) {
+            ListField<Span> spanListField = sourceTuple.getField(predicate.getSpanListName());
+            List<Span> spanList = spanListField.getValue();
+            spanList.addAll(matchingResults);
+        }
 
         return sourceTuple;
     }
