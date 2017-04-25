@@ -348,5 +348,31 @@ public class RelationManagerTest {
         relationManager.getTableDataWriter(CatalogConstants.SCHEMA_CATALOG);           
     }
     
+    @Test
+    public void test15() throws Exception {
+        String tableName1 = "relation_manager_test_table_15_1";
+        String tableName2 = "relation_manager_test_table_15_2";
+        
+        String indexDirectory = "./index/test_table/relation_manager_test_table_15";
+        Schema schema = new Schema(new Attribute("content", AttributeType.TEXT));
+        String luceneAnalyzerString = "standard";
+        
+        relationManager.deleteTable(tableName1);
+        relationManager.deleteTable(tableName2);
+        
+        relationManager.createTable(tableName1, indexDirectory, schema, luceneAnalyzerString);
+        
+        // create another table with the same directory should fail
+        try {
+            relationManager.createTable(tableName2, indexDirectory, schema, luceneAnalyzerString);
+            System.out.println(relationManager.getTableDirectory(tableName1));
+            System.out.println(relationManager.getTableDirectory(tableName2));
+            Assert.fail("Storage exception should be thrown because of duplicate index directories");
+        } catch (StorageException e) {
+        }
+        
+        relationManager.deleteTable(tableName1);  
+    }
+    
     
 }

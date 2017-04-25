@@ -1,12 +1,9 @@
 import { Component, ViewChild } from '@angular/core';
 
-import { MockDataService } from './mock-data-service';
-import { CurrentDataService } from './current-data-service';
+import { MockDataService } from './services/mock-data-service';
+import { CurrentDataService } from './services/current-data-service';
 
-import { TheFlowchartComponent } from './the-flowchart.component';
-// import { OperatorBarComponent } from './operator-bar.component';
-
-
+import { TheFlowchartComponent } from './flowchart/the-flowchart.component';
 
 declare var jQuery: any;
 
@@ -14,7 +11,7 @@ declare var jQuery: any;
     moduleId: module.id,
     selector: 'my-app',
     template: `
-		<nav the-navbar id="css-navbar" class="navbar navbar-toggleable-md navbar-light bg-faded"></nav>
+    <nav the-navbar id="css-navbar" class="navbar navbar-toggleable-md navbar-light bg-faded"></nav>
 		<div id="wrapper">
 		    <flowchart-container class="container fill" #theFlowchart></flowchart-container>
 		</div>
@@ -28,24 +25,14 @@ export class AppComponent {
     constructor(private currentDataService: CurrentDataService, private mockDataService: MockDataService) { }
 
     @ViewChild('theFlowchart') theFlowchart: TheFlowchartComponent;
-    // @ViewChild('theOperatorBar') theOperatorBar: OperatorBarComponent;
 
     ngAfterViewInit() {
         var current = this;
-        current.mockDataService.getData().then(
-            data => {
-                current.currentDataService.setData(data);
-                var loadingData = data[0].jsonData;
-                jQuery(document).ready(function() {
-                    current.theFlowchart.initialize(loadingData);
-                    // current.theOperatorBar.initialize();
+        
+        jQuery(document).ready(function() {
+            current.theFlowchart.initialize({});
 
+        });
 
-                });
-            },
-            error => {
-                console.log(error);
-            }
-        );
     }
 }
