@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { CurrentDataService } from '../services/current-data-service';
 
 declare var jQuery: any;
+
 @Component({
 	moduleId: module.id,
 	selector: 'flowchart-container',
@@ -12,8 +13,11 @@ declare var jQuery: any;
 	`,
 	styleUrls: ['../style.css'],
 })
+
 export class TheFlowchartComponent {
+	
 	TheOperatorNumNow : number;
+	
 	constructor(private currentDataService : CurrentDataService) {
 		currentDataService.newAddition$.subscribe(
 			data => {
@@ -21,11 +25,10 @@ export class TheFlowchartComponent {
 			}
 		);
 	}
+	
+	
 	initialize(data: any) {
-
-
 		var current = this;
-
 
 		// unselect operator when user click other div
 		jQuery('html').mouseup(function(e){
