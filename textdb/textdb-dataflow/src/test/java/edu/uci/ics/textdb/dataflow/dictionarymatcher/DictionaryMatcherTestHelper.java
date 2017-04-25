@@ -23,7 +23,7 @@ public class DictionaryMatcherTestHelper {
     
     public static final String PEOPLE_TABLE = "dictionary_test_people";
     public static final String CHINESE_TABLE = "dictionary_test_chinese";
-    
+        
     public static void writeTestTables() throws TextDBException {
         RelationManager relationManager = RelationManager.getRelationManager();
         

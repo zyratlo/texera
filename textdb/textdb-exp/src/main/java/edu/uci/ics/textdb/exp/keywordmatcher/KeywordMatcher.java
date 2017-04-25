@@ -10,6 +10,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import edu.uci.ics.textdb.api.constants.ErrorMessages;
 import edu.uci.ics.textdb.api.constants.SchemaConstants;
 import edu.uci.ics.textdb.api.exception.DataFlowException;
 import edu.uci.ics.textdb.api.exception.TextDBException;
@@ -52,12 +53,9 @@ public class KeywordMatcher extends AbstractSingleInputOperator {
         if (!inputSchema.containsField(SchemaConstants.PAYLOAD)) {
             outputSchema = Utils.addAttributeToSchema(outputSchema, SchemaConstants.PAYLOAD_ATTRIBUTE);
         }
-        if (predicate.getSpanListName() != null) {
-            if (inputSchema.containsField(predicate.getSpanListName())) {
-                throw new DataFlowException(String.format(
-                        "span list name: %s is already contained in the schema: ", 
-                        inputSchema.getAttributeNames()));
-            }
+        if (inputSchema.containsField(predicate.getSpanListName())) {
+            throw new DataFlowException(ErrorMessages.DUPLICATE_ATTRIBUTE(predicate.getSpanListName(), inputSchema));
+        } else {
             outputSchema = Utils.addAttributeToSchema(outputSchema, 
                     new Attribute(predicate.getSpanListName(), AttributeType.LIST));
         }
@@ -93,15 +91,24 @@ public class KeywordMatcher extends AbstractSingleInputOperator {
             inputTuple = DataflowUtils.getSpanTuple(inputTuple.getFields(), new ArrayList<Span>(), outputSchema);
         }
 
+        List<Span> matchingResults = new ArrayList<>();
         if (this.predicate.getMatchingType() == KeywordMatchingType.CONJUNCTION_INDEXBASED) {
-            resultTuple = computeConjunctionMatchingResult(inputTuple);
+            matchingResults = computeConjunctionMatchingResult(inputTuple);
         }
         if (this.predicate.getMatchingType() == KeywordMatchingType.PHRASE_INDEXBASED) {
-            resultTuple = computePhraseMatchingResult(inputTuple);
+            matchingResults = computePhraseMatchingResult(inputTuple);
         }
         if (this.predicate.getMatchingType() == KeywordMatchingType.SUBSTRING_SCANBASED) {
-            resultTuple = computeSubstringMatchingResult(inputTuple);
+            matchingResults = computeSubstringMatchingResult(inputTuple);
         }
+        
+        if (matchingResults.isEmpty()) {
+            return null;
+        }
+        
+        ListField<Span> spanListField = inputTuple.getField(predicate.getSpanListName());
+        List<Span> spanList = spanListField.getValue();
+        spanList.addAll(matchingResults);
 
         return resultTuple;
     }
@@ -110,15 +117,15 @@ public class KeywordMatcher extends AbstractSingleInputOperator {
     protected void cleanUp() {
     }
 
-    private Tuple computeConjunctionMatchingResult(Tuple sourceTuple) throws DataFlowException {
-        ListField<Span> payloadField = sourceTuple.getField(SchemaConstants.PAYLOAD);
+    private List<Span> computeConjunctionMatchingResult(Tuple inputTuple) throws DataFlowException {
+        ListField<Span> payloadField = inputTuple.getField(SchemaConstants.PAYLOAD);
         List<Span> payload = payloadField.getValue();
         List<Span> relevantSpans = filterRelevantSpans(payload);
         List<Span> matchingResults = new ArrayList<>();
 
         for (String attributeName : this.predicate.getAttributeNames()) {
             AttributeType attributeType = this.inputSchema.getAttribute(attributeName).getAttributeType();
-            String fieldValue = sourceTuple.getField(attributeName).getValue().toString();
+            String fieldValue = inputTuple.getField(attributeName).getValue().toString();
 
             // types other than TEXT and STRING: throw Exception for now
             if (attributeType != AttributeType.STRING && attributeType != AttributeType.TEXT) {
@@ -143,31 +150,20 @@ public class KeywordMatcher extends AbstractSingleInputOperator {
                     matchingResults.addAll(fieldSpanList);
                 }
             }
-
         }
 
-        if (matchingResults.isEmpty()) {
-            return null;
-        }
-        
-        if (predicate.getSpanListName() != null) {
-            ListField<Span> spanListField = sourceTuple.getField(predicate.getSpanListName());
-            List<Span> spanList = spanListField.getValue();
-            spanList.addAll(matchingResults);
-        }
-
-        return sourceTuple;
+        return matchingResults;
     }
 
-    private Tuple computePhraseMatchingResult(Tuple sourceTuple) throws DataFlowException {
-        ListField<Span> payloadField = sourceTuple.getField(SchemaConstants.PAYLOAD);
+    private List<Span> computePhraseMatchingResult(Tuple inputTuple) throws DataFlowException {
+        ListField<Span> payloadField = inputTuple.getField(SchemaConstants.PAYLOAD);
         List<Span> payload = payloadField.getValue();
         List<Span> relevantSpans = filterRelevantSpans(payload);
         List<Span> matchingResults = new ArrayList<>();
 
         for (String attributeName : this.predicate.getAttributeNames()) {
             AttributeType attributeType = this.inputSchema.getAttribute(attributeName).getAttributeType();
-            String fieldValue = sourceTuple.getField(attributeName).getValue().toString();
+            String fieldValue = inputTuple.getField(attributeName).getValue().toString();
 
             // types other than TEXT and STRING: throw Exception for now
             if (attributeType != AttributeType.STRING && attributeType != AttributeType.TEXT) {
@@ -246,25 +242,15 @@ public class KeywordMatcher extends AbstractSingleInputOperator {
             }
         }
 
-        if (matchingResults.isEmpty()) {
-            return null;
-        }
-
-        if (predicate.getSpanListName() != null) {
-            ListField<Span> spanListField = sourceTuple.getField(predicate.getSpanListName());
-            List<Span> spanList = spanListField.getValue();
-            spanList.addAll(matchingResults);
-        }
-
-        return sourceTuple;
+        return matchingResults;
     }
 
-    private Tuple computeSubstringMatchingResult(Tuple sourceTuple) throws DataFlowException {
+    private List<Span> computeSubstringMatchingResult(Tuple inputTuple) throws DataFlowException {
         List<Span> matchingResults = new ArrayList<>();
 
         for (String attributeName : this.predicate.getAttributeNames()) {
             AttributeType attributeType = this.inputSchema.getAttribute(attributeName).getAttributeType();
-            String fieldValue = sourceTuple.getField(attributeName).getValue().toString();
+            String fieldValue = inputTuple.getField(attributeName).getValue().toString();
 
             // types other than TEXT and STRING: throw Exception for now
             if (attributeType != AttributeType.STRING && attributeType != AttributeType.TEXT) {
@@ -291,17 +277,10 @@ public class KeywordMatcher extends AbstractSingleInputOperator {
             }
 
         }
-        if (matchingResults.isEmpty()) {
-            return null;
-        }
-
-        if (predicate.getSpanListName() != null) {
-            ListField<Span> spanListField = sourceTuple.getField(predicate.getSpanListName());
-            List<Span> spanList = spanListField.getValue();
-            spanList.addAll(matchingResults);
-        }
-
-        return sourceTuple;
+        System.out.println("tuple: ");
+        System.out.println(DataflowUtils.getTupleString(inputTuple));
+        System.out.println("scan matching results: " + matchingResults);
+        return matchingResults;
     }
 
     private boolean isAllQueryTokensPresent(List<Span> fieldSpanList, Set<String> queryTokenSet) {

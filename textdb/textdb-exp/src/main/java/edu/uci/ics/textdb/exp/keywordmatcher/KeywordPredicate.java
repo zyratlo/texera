@@ -107,6 +107,8 @@ public class KeywordPredicate extends PredicateBase {
      * @param luceneAnalyzerString, a string indicating the lucene analyzer to be used. 
      *   This field is optional, passing null will set it to default value "standard"
      * @param matchingType, an Enum indicating the matching type (see KeywordMatchingType)
+     * @param spanListName, optional, the name of the attribute where the results (a list of spans) will be in, 
+     *          default value is the id of the predicate
      * @param limit, optional, passing null will set it to default value Integer.MAX_VALUE
      * @param offset, optional, passing null will set it to default value 0
      */
@@ -137,7 +139,7 @@ public class KeywordPredicate extends PredicateBase {
         this.matchingType = matchingType;
         
         if (spanListName == null || spanListName.trim().isEmpty()) {
-            this.spanListName = null;
+            this.spanListName = this.getID();
         } else {
             this.spanListName = spanListName;
         }

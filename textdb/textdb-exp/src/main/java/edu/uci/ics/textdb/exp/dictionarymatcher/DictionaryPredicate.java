@@ -27,6 +27,8 @@ public class DictionaryPredicate extends PredicateBase {
      * @param attributeNames, the names of the attributes to match the dictionary
      * @param luceneAnalyzerStr, the lucene analyzer to tokenize the dictionary entries
      * @param keywordMatchingType, the keyword matching type ({@code KeywordMatchingType}
+     * @param spanListName, optional, the name of the attribute where the results (a list of spans) will be in, 
+     *          default value is the id of the predicate
      */
     @JsonCreator
     public DictionaryPredicate(
@@ -45,7 +47,12 @@ public class DictionaryPredicate extends PredicateBase {
         this.luceneAnalyzerStr = luceneAnalyzerStr;
         this.attributeNames = attributeNames;
         this.keywordMatchingType = keywordMatchingType;
-        this.spanListName = spanListName;
+        
+        if (spanListName == null || spanListName.trim().isEmpty()) {
+            this.spanListName = this.getID();
+        } else {
+            this.spanListName = spanListName;
+        }
     }
     
     @JsonUnwrapped
