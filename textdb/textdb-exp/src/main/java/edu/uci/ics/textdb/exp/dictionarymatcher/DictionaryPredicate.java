@@ -78,5 +78,5 @@ public class DictionaryPredicate extends PredicateBase {
     public IOperator newOperator() {
         return new DictionaryMatcher(this);
     }
-
+    
 }
