@@ -1,5 +1,5 @@
 import { Component, ViewChild  } from '@angular/core';
-import { CurrentDataService } from './current-data-service';
+import { CurrentDataService } from '../services/current-data-service';
 
 declare var jQuery: any;
 
@@ -7,7 +7,7 @@ declare var jQuery: any;
     moduleId: module.id,
     selector: '[the-navbar]',
     templateUrl: './navigation-bar.component.html',
-    styleUrls: ['style.css']
+    styleUrls: ['../style.css']
 })
 export class NavigationBarComponent {
   operatorId: number;
@@ -23,10 +23,9 @@ export class NavigationBarComponent {
 
   onClick(event) {
         this.currentDataService.setData(jQuery('#the-flowchart').flowchart('getData'));
-        // this.currentDataService.processData();
   }
 
-	DeleteOp(data : any){
+	deleteOperator() {
         jQuery("#the-flowchart").flowchart("deleteOperator", this.operatorId);
         this.currentDataService.clearData();
         this.currentDataService.setData(jQuery('#the-flowchart').flowchart('getData'));
