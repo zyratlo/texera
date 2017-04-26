@@ -61,14 +61,14 @@ export class OperatorBarComponent {
       }
 
     });
-    // // panzoom end
+    // panzoom end
   }
 
   initializeOperators(container: any) {
-    var default_matchers;
+    let defaultMatchers;
     this.mockDataService.getMatchers().then(
       matchers => {
-        default_matchers = matchers;
+        defaultMatchers = matchers;
       },
       error => {
         console.log(error);
@@ -86,13 +86,22 @@ export class OperatorBarComponent {
       helper: function(e) {
         var dragged = jQuery(this);
         var matcherId = parseInt(dragged.data('matcher-type'));
-        var data = default_matchers[matcherId].jsonData;
+        var data;
+        for (let entry of defaultMatchers) {
+          if (entry.id === matcherId) {
+            data = entry.jsonData;
+          }
+        }
+        if (data == null) {
+          console.log("matcherId" + matcherId + "not found");
+        }
         return jQuery('#the-flowchart').flowchart('getOperatorElement', data);
       },
+      
       stop: function(e, ui) {
         var dragged = jQuery(this);
         var matcherId = parseInt(dragged.data('matcher-type'));
-        var data = default_matchers[matcherId].jsonData;
+        var data = defaultMatchers[matcherId].jsonData;
 
         var new_data = {
           top: 0,
