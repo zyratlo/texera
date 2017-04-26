@@ -78,8 +78,6 @@ public class KeywordMatcher extends AbstractSingleInputOperator {
 
     @Override
     public Tuple processOneInputTuple(Tuple inputTuple) throws TextDBException {
-        Tuple resultTuple = null;
-
         // There's an implicit assumption that, in open() method, PAYLOAD is
         // checked before SPAN_LIST.
         // Therefore, PAYLOAD needs to be checked and added first
@@ -91,7 +89,7 @@ public class KeywordMatcher extends AbstractSingleInputOperator {
             inputTuple = DataflowUtils.getSpanTuple(inputTuple.getFields(), new ArrayList<Span>(), outputSchema);
         }
 
-        List<Span> matchingResults = new ArrayList<>();
+        List<Span> matchingResults = null;
         if (this.predicate.getMatchingType() == KeywordMatchingType.CONJUNCTION_INDEXBASED) {
             matchingResults = computeConjunctionMatchingResult(inputTuple);
         }
@@ -101,7 +99,9 @@ public class KeywordMatcher extends AbstractSingleInputOperator {
         if (this.predicate.getMatchingType() == KeywordMatchingType.SUBSTRING_SCANBASED) {
             matchingResults = computeSubstringMatchingResult(inputTuple);
         }
-        
+        if (matchingResults == null) {
+            throw new DataFlowException("no matching result is provided");
+        }
         if (matchingResults.isEmpty()) {
             return null;
         }
@@ -110,7 +110,7 @@ public class KeywordMatcher extends AbstractSingleInputOperator {
         List<Span> spanList = spanListField.getValue();
         spanList.addAll(matchingResults);
 
-        return resultTuple;
+        return inputTuple;
     }
 
     @Override
@@ -277,9 +277,6 @@ public class KeywordMatcher extends AbstractSingleInputOperator {
             }
 
         }
-        System.out.println("tuple: ");
-        System.out.println(DataflowUtils.getTupleString(inputTuple));
-        System.out.println("scan matching results: " + matchingResults);
         return matchingResults;
     }
 

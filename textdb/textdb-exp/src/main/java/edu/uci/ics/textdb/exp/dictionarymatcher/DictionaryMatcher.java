@@ -84,10 +84,8 @@ public class DictionaryMatcher implements IOperator {
             return null;
         }
 
-        System.out.println(resultCursor);
         Tuple sourceTuple;
         while (true) {
-            System.out.println(currentDictionaryEntry);
             // If there's result from current keywordMatcher, return it.
             if ((sourceTuple = keywordMatcher.getNextTuple()) != null) {
                 resultCursor++;

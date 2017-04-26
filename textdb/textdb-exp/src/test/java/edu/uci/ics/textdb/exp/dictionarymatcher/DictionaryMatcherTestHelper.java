@@ -80,9 +80,9 @@ public class DictionaryMatcherTestHelper {
             if (TestUtils.equals(scanSourceResults, dictionarySourceResults)) {
                 return scanSourceResults;
             } else {
-                System.out.println("scan src");
+                System.out.println("scan count: " + scanSourceResults.size());
                 System.out.println(DataflowUtils.getTupleListString(scanSourceResults));
-                System.out.println("dict src");
+                System.out.println("dict count: " + dictionarySourceResults.size());
                 System.out.println(DataflowUtils.getTupleListString(dictionarySourceResults));
                 throw new DataFlowException("results from scanSource and dictionarySource are inconsistent");
             }
