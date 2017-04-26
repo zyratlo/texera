@@ -75,6 +75,7 @@ public class KeywordPredicate extends PredicateBase {
     private final List<String> attributeNames;
     private final String luceneAnalyzerString;
     private final KeywordMatchingType matchingType;
+    private final String spanListName;
     
     private final Boolean limitNotNull; 
     private final Integer limit;
@@ -93,8 +94,9 @@ public class KeywordPredicate extends PredicateBase {
             String query,
             List<String> attributeNames,
             String luceneAnalyzerString, 
-            KeywordMatchingType matchingType) {
-        this(query, attributeNames, luceneAnalyzerString, matchingType, null, null);
+            KeywordMatchingType matchingType,
+            String spanListName) {
+        this(query, attributeNames, luceneAnalyzerString, matchingType, spanListName, null, null);
     }
     
     /**
@@ -105,6 +107,8 @@ public class KeywordPredicate extends PredicateBase {
      * @param luceneAnalyzerString, a string indicating the lucene analyzer to be used. 
      *   This field is optional, passing null will set it to default value "standard"
      * @param matchingType, an Enum indicating the matching type (see KeywordMatchingType)
+     * @param spanListName, optional, the name of the attribute where the results (a list of spans) will be in, 
+     *          default value is the id of the predicate
      * @param limit, optional, passing null will set it to default value Integer.MAX_VALUE
      * @param offset, optional, passing null will set it to default value 0
      */
@@ -118,6 +122,8 @@ public class KeywordPredicate extends PredicateBase {
             String luceneAnalyzerString, 
             @JsonProperty(value = PropertyNameConstants.KEYWORD_MATCHING_TYPE, required = true)
             KeywordMatchingType matchingType,
+            @JsonProperty(value = PropertyNameConstants.SPAN_LIST_NAME, required = false)
+            String spanListName,
             @JsonProperty(value = PropertyNameConstants.LIMIT, required = false)
             Integer limit,
             @JsonProperty(value = PropertyNameConstants.OFFSET, required = false)
@@ -131,6 +137,12 @@ public class KeywordPredicate extends PredicateBase {
             this.luceneAnalyzerString = luceneAnalyzerString;
         }
         this.matchingType = matchingType;
+        
+        if (spanListName == null || spanListName.trim().isEmpty()) {
+            this.spanListName = this.getID();
+        } else {
+            this.spanListName = spanListName;
+        }
         
         if (limit == null) {
             this.limit = Integer.MAX_VALUE;
@@ -176,6 +188,11 @@ public class KeywordPredicate extends PredicateBase {
     @JsonProperty(PropertyNameConstants.KEYWORD_MATCHING_TYPE)
     public KeywordMatchingType getMatchingType() {
         return matchingType;
+    }
+    
+    @JsonProperty(PropertyNameConstants.SPAN_LIST_NAME)
+    public String getSpanListName() {
+        return spanListName;
     }
     
     @JsonProperty(PropertyNameConstants.LIMIT)

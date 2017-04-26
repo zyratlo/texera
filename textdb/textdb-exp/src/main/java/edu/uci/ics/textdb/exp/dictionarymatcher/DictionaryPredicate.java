@@ -18,6 +18,7 @@ public class DictionaryPredicate extends PredicateBase {
     private final List<String> attributeNames;
     private final String luceneAnalyzerStr;
     private final KeywordMatchingType keywordMatchingType;
+    private final String spanListName;
 
     /**
      * DictionaryPredicate is used to create a DictionaryMatcher.
@@ -26,6 +27,8 @@ public class DictionaryPredicate extends PredicateBase {
      * @param attributeNames, the names of the attributes to match the dictionary
      * @param luceneAnalyzerStr, the lucene analyzer to tokenize the dictionary entries
      * @param keywordMatchingType, the keyword matching type ({@code KeywordMatchingType}
+     * @param spanListName, optional, the name of the attribute where the results (a list of spans) will be in, 
+     *          default value is the id of the predicate
      */
     @JsonCreator
     public DictionaryPredicate(
@@ -36,12 +39,20 @@ public class DictionaryPredicate extends PredicateBase {
             @JsonProperty(value = PropertyNameConstants.LUCENE_ANALYZER_STRING, required = true)
             String luceneAnalyzerStr,
             @JsonProperty(value = PropertyNameConstants.KEYWORD_MATCHING_TYPE, required = true)
-            KeywordMatchingType keywordMatchingType) {
+            KeywordMatchingType keywordMatchingType,
+            @JsonProperty(value = PropertyNameConstants.SPAN_LIST_NAME, required = false)
+            String spanListName) {
 
         this.dictionary = dictionary;
         this.luceneAnalyzerStr = luceneAnalyzerStr;
         this.attributeNames = attributeNames;
         this.keywordMatchingType = keywordMatchingType;
+        
+        if (spanListName == null || spanListName.trim().isEmpty()) {
+            this.spanListName = this.getID();
+        } else {
+            this.spanListName = spanListName;
+        }
     }
     
     @JsonUnwrapped
@@ -65,9 +76,14 @@ public class DictionaryPredicate extends PredicateBase {
         return keywordMatchingType;
     }
     
+    @JsonProperty(value = PropertyNameConstants.SPAN_LIST_NAME)
+    public String getSpanListName() {
+        return spanListName;
+    }
+    
     @Override
     public IOperator newOperator() {
         return new DictionaryMatcher(this);
     }
-
+    
 }
