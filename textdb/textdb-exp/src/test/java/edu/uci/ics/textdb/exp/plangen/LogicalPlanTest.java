@@ -60,7 +60,8 @@ public class LogicalPlanTest {
             Arrays.asList("city", "location", "content"),
             LuceneAnalyzerConstants.standardAnalyzerString(),
             KeywordMatchingType.PHRASE_INDEXBASED,
-            TEST_TABLE);
+            TEST_TABLE,
+            "keywordSourceResults");
     public static String KEYWORD_SOURCE_ID = "keyword source";
     
     public static RegexPredicate regexPredicate = new RegexPredicate(

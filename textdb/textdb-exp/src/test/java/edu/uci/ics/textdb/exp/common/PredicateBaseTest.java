@@ -65,7 +65,8 @@ public class PredicateBaseTest {
                 new Dictionary(Arrays.asList("entry1", "entry2")),
                 attributeNames,
                 "standard",
-                KeywordMatchingType.CONJUNCTION_INDEXBASED);
+                KeywordMatchingType.CONJUNCTION_INDEXBASED,
+                "dictResults");
         testPredicate(dictionaryPredicate);
         
         DictionarySourcePredicate dictionarySourcePredicate = new DictionarySourcePredicate(
@@ -73,7 +74,8 @@ public class PredicateBaseTest {
                 attributeNames,
                 "standard",
                 KeywordMatchingType.CONJUNCTION_INDEXBASED, 
-                "tableName");
+                "tableName",
+                "dictSourceResults");
         testPredicate(dictionarySourcePredicate);
     }
     
@@ -113,7 +115,8 @@ public class PredicateBaseTest {
                 "keyword",
                 attributeNames,
                 "standard",
-                KeywordMatchingType.CONJUNCTION_INDEXBASED);
+                KeywordMatchingType.CONJUNCTION_INDEXBASED,
+                "keywordResults");
         testPredicate(keywordPredicate);
         
         KeywordSourcePredicate keywordSourcePredicate = new KeywordSourcePredicate(
@@ -121,7 +124,8 @@ public class PredicateBaseTest {
                 attributeNames,
                 "standard",
                 KeywordMatchingType.CONJUNCTION_INDEXBASED,
-                "tableName");
+                "tableName",
+                "keywordSourceResults");
         testPredicate(keywordSourcePredicate);
     }
     
