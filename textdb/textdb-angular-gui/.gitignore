@@ -1,3 +1,5 @@
+app/*.js
+app/*.map
 e2e/*.map
 node_modules
 jspm_packages

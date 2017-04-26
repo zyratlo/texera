@@ -11,6 +11,7 @@ declare var jQuery: any;
     moduleId: module.id,
     selector: 'my-app',
     template: `
+    <nav the-navbar id="css-navbar" class="navbar navbar-toggleable-md navbar-light bg-faded"></nav>
 		<div id="wrapper">
 		    <flowchart-container class="container fill" #theFlowchart></flowchart-container>
 		</div>
