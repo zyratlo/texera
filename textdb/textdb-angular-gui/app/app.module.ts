@@ -4,6 +4,7 @@ import { FormsModule }   from '@angular/forms';
 import { HttpModule }    from '@angular/http';
 
 import { AppComponent }  from './app.component';
+import { TheFlowchartComponent }   from './flowchart/the-flowchart.component';
 
 import { BsDropdownModule } from 'ng2-bootstrap/';
 import { Ng2Bs3ModalModule } from 'ng2-bs3-modal/ng2-bs3-modal';
@@ -15,7 +16,8 @@ import { Ng2Bs3ModalModule } from 'ng2-bs3-modal/ng2-bs3-modal';
       HttpModule,
       Ng2Bs3ModalModule,
 	],
-  declarations: [ AppComponent
+  declarations: [ AppComponent,
+    TheFlowchartComponent
 	],
   bootstrap:    [ AppComponent ]
 })
