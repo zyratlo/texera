@@ -105,6 +105,45 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>com.spotify</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+                <version>0.4.13</version>
+                <configuration>
+                    <imageName>textdb</imageName>
+                    <baseImage>java</baseImage>
+                    <env></env>
+                    <entryPoint>["java", "-Xmx2048m", "-jar", "${project.build.finalName}.jar", "server", "sample-config.yml"]</entryPoint>
+                    <!-- copy the service's jar file from target into the root directory of the image -->
+                    <resources>
+                        <resource>
+                            <targetPath>/</targetPath>
+                            <directory>${project.build.directory}</directory>
+                            <include>${project.build.finalName}.jar</include>
+                        </resource>
+                        <resource>
+                            <targetPath>/</targetPath>
+                            <directory>${project.basedir}</directory>
+                            <include>sample-config.yml</include>
+                        </resource>
+                        <resource>
+                            <targetPath>/textdb-perftest/src/main/resources/sample-data-files/</targetPath>
+                            <directory>${project.basedir}/../textdb-perftest/src/main/resources/sample-data-files/</directory>
+                            <include>*</include>
+                        </resource>
+                        <resource>
+                            <targetPath>/textdb-perftest/src/main/resources/sample-data-files/promed/</targetPath>
+                            <directory>${project.basedir}/../textdb-perftest/src/main/resources/sample-data-files/promed/</directory>
+                            <include>*</include>
+                        </resource>
+                        <resource>
+                            <targetPath>/textdb-perftest/src/main/resources/index/standard/promed/</targetPath>
+                            <directory>${project.basedir}/../textdb-perftest/src/main/resources/index/standard/promed/</directory>
+                            <include>*</include>
+                        </resource>
+                    </resources>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 </project>
