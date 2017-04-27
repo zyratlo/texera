@@ -23,6 +23,7 @@ export class NavigationBarComponent {
 
   onClick(event) {
         this.currentDataService.setAllOperatorData(jQuery('#the-flowchart').flowchart('getData'));
+        this.currentDataService.processData();
   }
 
 	deleteOperator() {

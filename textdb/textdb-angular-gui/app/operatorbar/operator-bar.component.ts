@@ -63,12 +63,23 @@ export class OperatorBarComponent {
     });
     // panzoom end
   }
+  
 
   initializeOperators(container: any) {
-    let defaultMatchers;
-    this.mockDataService.getMatchers().then(
-      matchers => {
-        defaultMatchers = matchers;
+    var findOperatorData = function(opeartorId: number, opeatorList: [any]): any {
+      for (let operator of opeatorList) {
+        if (operator.id === opeartorId) {
+          return operator.jsonData;
+        }
+      }
+      return null;
+    }
+
+    
+    let operatorList;
+    this.mockDataService.getOperatorList().then(
+      data => {
+        operatorList = data;
       },
       error => {
         console.log(error);
@@ -85,28 +96,22 @@ export class OperatorBarComponent {
 
       helper: function(e) {
         var dragged = jQuery(this);
-        var matcherId = parseInt(dragged.data('matcher-type'));
-        var data;
-        for (let entry of defaultMatchers) {
-          if (entry.id === matcherId) {
-            data = entry.jsonData;
-          }
-        }
-        if (data == null) {
-          console.log("matcherId" + matcherId + "not found");
-        }
-        return jQuery('#the-flowchart').flowchart('getOperatorElement', data);
+        var operatorId = parseInt(dragged.data('matcher-type'));
+        var operatorData = findOperatorData(operatorId, operatorList);        
+
+        return jQuery('#the-flowchart').flowchart('getOperatorElement', operatorData);
       },
       
       stop: function(e, ui) {
         var dragged = jQuery(this);
-        var matcherId = parseInt(dragged.data('matcher-type'));
-        var data = defaultMatchers[matcherId].jsonData;
+        
+        var operatorId = parseInt(dragged.data('matcher-type'));
+        var operatorData = findOperatorData(operatorId, operatorList);     
 
-        var new_data = {
+        var newData = {
           top: 0,
           left: 20,
-          properties: data.properties
+          properties: operatorData.properties
         }
 
         var elOffset = ui.offset;
@@ -125,10 +130,10 @@ export class OperatorBarComponent {
           relativeLeft /= positionRatio;
           relativeTop /= positionRatio;
 
-          new_data.left = relativeLeft;
-          new_data.top = relativeTop;
+          newData.left = relativeLeft;
+          newData.top = relativeTop;
 
-          var operatorNum = jQuery('#the-flowchart').flowchart('addOperator', new_data);
+          var operatorNum = jQuery('#the-flowchart').flowchart('addOperator', newData);
 
           jQuery('#the-flowchart').flowchart('selectOperator', operatorNum); // select the created operator
         }
