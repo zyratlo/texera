@@ -60,12 +60,10 @@ export class TheFlowchartComponent {
       data: data,
       multipleLinksOnOutput: true,
       onOperatorSelect: function(operatorId) {
-        console.log("operator is selected");
         current.currentDataService.selectData(operatorId);
         return true;
       },
       onOperatorUnselect: function(operatorId) {
-        console.log("operator is unselected");
         return true;
       }
     });

@@ -96,12 +96,9 @@ export class CurrentDataService {
         this.http.post(textdbUrl, JSON.stringify(textdbJson), {headers: headers})
             .subscribe(
                 data => {
-                    console.log("OKAY in getting server data");
                     this.checkPressed.next(data.json());
                 },
                 err => {
-                    console.log("Error in getting server data");
-                    console.log(err);
                     this.checkPressed.next(err.json());
                 }
             );

@@ -209,7 +209,7 @@ let projection = {
       }
     },
     attributes : {
-        "operatorType": "projection",
+        "operatorType": "Projection",
         "attributes": ["attr1", "attr2"]
     }
   }
@@ -281,7 +281,7 @@ let dictionarySource = {
       }
     },
     attributes : {
-        "operatorType": "dictionarySource",
+        "operatorType": "DictionarySource",
         "dictionaryEntries": ["entry1", "entry2"],
         "attributes": ["attr1", "attr2"],
         "luceneAnalyzer": "standard",
