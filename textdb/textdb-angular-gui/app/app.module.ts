@@ -6,6 +6,7 @@ import { HttpModule }    from '@angular/http';
 import { AppComponent }  from './app.component';
 import { TheFlowchartComponent }   from './flowchart/the-flowchart.component';
 import { NavigationBarComponent }   from './navigation/navigation-bar.component';
+import { OperatorBarComponent }   from './operatorbar/operator-bar.component';
 
 import { BsDropdownModule } from 'ng2-bootstrap/';
 import { Ng2Bs3ModalModule } from 'ng2-bs3-modal/ng2-bs3-modal';
@@ -20,6 +21,7 @@ import { Ng2Bs3ModalModule } from 'ng2-bs3-modal/ng2-bs3-modal';
   declarations: [ AppComponent,
     TheFlowchartComponent,
     NavigationBarComponent,
+    OperatorBarComponent,
 	],
   bootstrap:    [ AppComponent ]
 })
