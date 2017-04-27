@@ -3,17 +3,13 @@ import { Subject }    from 'rxjs/Subject';
 import { Response, Http } from '@angular/http';
 import { Headers } from '@angular/http';
 
-import 'rxjs/add/operator/catch';
-import 'rxjs/add/operator/map';
-import 'rxjs/add/operator/toPromise';
-
-
 import { Data } from './data';
 
 declare var jQuery: any;
 
+const textdbUrl = 'http://localhost:8080/newqueryplan/execute';
 
-let clean_data = {
+const defaultData = {
     top: 20,
     left: 20,
     properties: {
@@ -25,8 +21,7 @@ let clean_data = {
 
 @Injectable()
 export class CurrentDataService {
-    currentData : Data;
-    TEXTDBJSON: any;
+    allOperatorData : Data;
 
     private newAddition = new Subject<any>();
     newAddition$ = this.newAddition.asObservable();
@@ -34,44 +29,32 @@ export class CurrentDataService {
     private checkPressed = new Subject<any>();
     checkPressed$ = this.checkPressed.asObservable();
 
-
-    private textdbUrl = 'http://localhost:8080/newqueryplan/execute';
-
     constructor(private http: Http) { }
 
-
-
-    getData(): any {
-        return this.currentData;
-    }
-
-    setData(data : any): void {
-        this.currentData = {id: 1, jsonData: data};
-    }
-
-    addData(operatorData : any, operatorNum: number, allData : any): void {
-        this.newAddition.next({operatorNum: operatorNum, operatorData: operatorData});
-        this.setData(allData);
+    setAllOperatorData(operatorData : any): void {
+        this.allOperatorData = {id: 1, jsonData: operatorData};
     }
 
     selectData(operatorNum : number): void {
       var data_now = jQuery("#the-flowchart").flowchart("getOperatorData",operatorNum);
       this.newAddition.next({operatorNum: operatorNum, operatorData: data_now});
-      this.setData(jQuery("#the-flowchart").flowchart("getData"));
+      this.setAllOperatorData(jQuery("#the-flowchart").flowchart("getData"));
     }
 
     clearData() : void {
-      this.newAddition.next({operatorNum : 0, operatorData: clean_data});
+      this.newAddition.next({operatorNum : 0, operatorData: defaultData});
     }
+    
     processData(): void {
-        this.TEXTDBJSON = {operators: {}, links: {}};
+      
+        let textdbJson = {operators: {}, links: {}};
         var operators = [];
         var links = [];
         
         var listAttributes : string[] = ["attributes", "dictionaryEntries"]
 
-        for (var operatorIndex in this.currentData.jsonData.operators) {
-            var currentOperator = this.currentData.jsonData['operators'];
+        for (var operatorIndex in this.allOperatorData.jsonData.operators) {
+            var currentOperator = this.allOperatorData.jsonData['operators'];
             if (currentOperator.hasOwnProperty(operatorIndex)) {
                 var attributes = {};
                 attributes["operatorID"] = operatorIndex;
@@ -91,9 +74,9 @@ export class CurrentDataService {
                 operators.push(attributes);
             }
         }
-        for(var link in this.currentData.jsonData.links){
+        for(var link in this.allOperatorData.jsonData.links){
             var destination = {};
-            var currentLink = this.currentData.jsonData['links'];
+            var currentLink = this.allOperatorData.jsonData['links'];
             if (currentLink[link].hasOwnProperty("fromOperator")){
                 destination["origin"] = currentLink[link]['fromOperator'].toString();
                 destination["destination"] = currentLink[link]['toOperator'].toString();
@@ -101,17 +84,16 @@ export class CurrentDataService {
             }
         }
 
-        this.TEXTDBJSON.operators = operators;
-        this.TEXTDBJSON.links = links;
-        console.log("about to send request")
-        this.sendRequest();
+        textdbJson.operators = operators;
+        textdbJson.links = links;
+        this.sendRequest(textdbJson);
     }
 
-    private sendRequest(): void {
+    private sendRequest(textdbJson: any): void {
         let headers = new Headers({ 'Content-Type': 'application/json' });
         console.log("TextDB JSON is:");
-        console.log(JSON.stringify(this.TEXTDBJSON));
-        this.http.post(this.textdbUrl, JSON.stringify(this.TEXTDBJSON), {headers: headers})
+        console.log(JSON.stringify(textdbJson));
+        this.http.post(textdbUrl, JSON.stringify(textdbJson), {headers: headers})
             .subscribe(
                 data => {
                     console.log("OKAY in getting server data");
@@ -125,15 +107,4 @@ export class CurrentDataService {
             );
     }
 
-    private handleError(error: any): Promise<any> {
-        console.error('An error occurred', error); // for demo purposes only
-        return Promise.reject(error.message || error);
-    }
-
-    getDataSlowly(): Promise<Data[]> {
-        return new Promise(resolve => {
-            // Simulate server latency with 2 second delay
-            setTimeout(() => resolve(this.getData()), 2000);
-        });
-    }
 }
