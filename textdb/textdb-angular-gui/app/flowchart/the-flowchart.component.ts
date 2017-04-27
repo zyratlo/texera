@@ -40,14 +40,14 @@ export class TheFlowchartComponent {
 				if (current_id !== null){
 					jQuery('#the-flowchart').flowchart('deleteSelected');
 					current.currentDataService.clearData();
-					current.currentDataService.setData(jQuery('#the-flowchart').flowchart('getData'));
+					current.currentDataService.setAllOperatorData(jQuery('#the-flowchart').flowchart('getData'));
 				}
 			} else if (e.keyCode === 46){ //delete
 				var current_id = jQuery('#the-flowchart').flowchart('getSelectedOperatorId');
 				if (current_id !== null){
 					jQuery('#the-flowchart').flowchart('deleteSelected');
 					current.currentDataService.clearData();
-					current.currentDataService.setData(jQuery('#the-flowchart').flowchart('getData'));
+					current.currentDataService.setAllOperatorData(jQuery('#the-flowchart').flowchart('getData'));
 				}
 			}
 		})
