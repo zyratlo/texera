@@ -15,6 +15,7 @@ declare var jQuery: any;
     <nav the-navbar id="css-navbar" class="navbar navbar-toggleable-md navbar-light bg-faded"></nav>
     <nav operator-bar id="css-operator-bar" class="navbar navbar-toggleable-md navbar-light bg-faded" #theOperatorBar></nav>
 		<div id="wrapper">
+        <side-bar-container class="container fill"></side-bar-container>
 		    <flowchart-container class="container fill" #theFlowchart></flowchart-container>
 		</div>
 	`,

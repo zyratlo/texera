@@ -22,12 +22,13 @@ export class NavigationBarComponent {
 
 
   onClick(event) {
-        this.currentDataService.setData(jQuery('#the-flowchart').flowchart('getData'));
+        this.currentDataService.setAllOperatorData(jQuery('#the-flowchart').flowchart('getData'));
+        this.currentDataService.processData();
   }
 
 	deleteOperator() {
         jQuery("#the-flowchart").flowchart("deleteOperator", this.operatorId);
         this.currentDataService.clearData();
-        this.currentDataService.setData(jQuery('#the-flowchart').flowchart('getData'));
+        this.currentDataService.setAllOperatorData(jQuery('#the-flowchart').flowchart('getData'));
 	}
 }
