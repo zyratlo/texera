@@ -72,14 +72,16 @@ export class SideBarComponent {
         this.inSavedWindow = false;
 
         if (data.code === 0) {
+          console.log("code === 0")
           var node = new PrettyJSON.view.Node({
             el: jQuery("#elem"),
             data: JSON.parse(data.message)
           });
         } else {
+          console.log("code === 1")
           var node = new PrettyJSON.view.Node({
             el: jQuery("#elem"),
-            data: data.message
+            data: {"message": data.message}
           });
         }
 
