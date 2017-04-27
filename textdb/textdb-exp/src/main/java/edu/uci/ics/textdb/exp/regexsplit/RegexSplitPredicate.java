@@ -4,14 +4,15 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 
-import edu.uci.ics.textdb.api.dataflow.IPredicate;
+import edu.uci.ics.textdb.api.dataflow.IOperator;
+import edu.uci.ics.textdb.exp.common.PredicateBase;
 import edu.uci.ics.textdb.exp.common.PropertyNameConstants;
 
 /**
  * @author Qinhua Huang
  *
  */
-public class RegexSplitPredicate implements IPredicate {
+public class RegexSplitPredicate extends PredicateBase {
     
     public enum SplitType {
         GROUP_LEFT("left"), // the regex is grouped with the text on its left
@@ -70,6 +71,11 @@ public class RegexSplitPredicate implements IPredicate {
     @JsonProperty(PropertyNameConstants.SPLIT_TYPE)
     public SplitType getSplitType() {
         return splitType;
+    }
+    
+    @Override
+    public IOperator newOperator() {
+        return new RegexSplitOperator(this);
     }
     
 }

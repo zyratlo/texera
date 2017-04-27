@@ -13,9 +13,9 @@ import edu.uci.ics.textdb.api.constants.TestConstants;
 import edu.uci.ics.textdb.api.exception.TextDBException;
 import edu.uci.ics.textdb.api.tuple.Tuple;
 import edu.uci.ics.textdb.api.utils.TestUtils;
-import edu.uci.ics.textdb.exp.source.ScanBasedSourceOperator;
-import edu.uci.ics.textdb.exp.source.ScanSourcePredicate;
 import edu.uci.ics.textdb.exp.sampler.SamplerPredicate.SampleType;
+import edu.uci.ics.textdb.exp.source.scan.ScanBasedSourceOperator;
+import edu.uci.ics.textdb.exp.source.scan.ScanSourcePredicate;
 import edu.uci.ics.textdb.storage.DataWriter;
 import edu.uci.ics.textdb.storage.RelationManager;
 import edu.uci.ics.textdb.storage.constants.LuceneAnalyzerConstants;
@@ -116,7 +116,7 @@ public class SamplerTest {
      */
     @Test(expected = RuntimeException.class)
     public void test1() throws TextDBException {
-        List<Tuple> results = computeSampleResults(SAMPLER_TABLE,0, SampleType.FIRST_K_ARRIVAL);
+        computeSampleResults(SAMPLER_TABLE,0, SampleType.FIRST_K_ARRIVAL);
     }
     
     /*
@@ -165,7 +165,7 @@ public class SamplerTest {
      */
     @Test(expected = RuntimeException.class)
     public void test6() throws TextDBException {
-        List<Tuple> results = computeSampleResults(SAMPLER_TABLE,0, SampleType.RANDOM_SAMPLE);
+        computeSampleResults(SAMPLER_TABLE,0, SampleType.RANDOM_SAMPLE);
     }
     
     /*

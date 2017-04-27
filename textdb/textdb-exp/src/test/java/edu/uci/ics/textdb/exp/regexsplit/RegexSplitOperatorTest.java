@@ -15,8 +15,8 @@ import edu.uci.ics.textdb.api.constants.TestConstantsRegexSplit;
 import edu.uci.ics.textdb.api.exception.DataFlowException;
 import edu.uci.ics.textdb.api.exception.TextDBException;
 import edu.uci.ics.textdb.api.tuple.Tuple;
-import edu.uci.ics.textdb.exp.source.ScanBasedSourceOperator;
-import edu.uci.ics.textdb.exp.source.ScanSourcePredicate;
+import edu.uci.ics.textdb.exp.source.scan.ScanBasedSourceOperator;
+import edu.uci.ics.textdb.exp.source.scan.ScanSourcePredicate;
 import edu.uci.ics.textdb.storage.DataWriter;
 import edu.uci.ics.textdb.storage.RelationManager;
 import edu.uci.ics.textdb.storage.constants.LuceneAnalyzerConstants;
@@ -90,7 +90,7 @@ public class RegexSplitOperatorTest {
     public void test1() throws TextDBException {
         String splitRegex = "19";
         String splitAttrName = TestConstantsChinese.DATE_OF_BIRTH;
-        List<Tuple> results = computeRegexSplitResults(CHINESE_TABLE, splitAttrName, splitRegex, 
+        computeRegexSplitResults(CHINESE_TABLE, splitAttrName, splitRegex, 
                 RegexSplitPredicate.SplitType.GROUP_RIGHT);
     }
     
