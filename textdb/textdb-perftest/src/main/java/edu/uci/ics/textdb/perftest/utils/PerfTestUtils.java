@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -15,9 +14,10 @@ import java.util.Scanner;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 
+import edu.uci.ics.textdb.api.constants.DataConstants;
 import edu.uci.ics.textdb.api.engine.Engine;
+import edu.uci.ics.textdb.api.exception.TextDBException;
 import edu.uci.ics.textdb.perftest.medline.MedlineIndexWriter;
-import edu.uci.ics.textdb.storage.DataStore;
 import edu.uci.ics.textdb.storage.RelationManager;
 import edu.uci.ics.textdb.storage.constants.LuceneAnalyzerConstants;
 
@@ -33,22 +33,47 @@ public class PerfTestUtils {
      * These default paths work only when the program is run from the directory,
      * textdb-perftest
      */
-    public static String fileFolder;
-    public static String standardIndexFolder;
-    public static String trigramIndexFolder;
-    public static String resultFolder;
-    public static String queryFolder;
-
-
-    static {
+    public static String fileFolder = getResourcePath("/sample-data-files");
+    public static String standardIndexFolder = getResourcePath("/index/standard");
+    public static String trigramIndexFolder = getResourcePath("/index/trigram");
+    public static String resultFolder = getResourcePath("/perftest-files/results");
+    public static String queryFolder = getResourcePath("/perftest-files/queries");
+    
+    /**
+     * Find the path of resource files under textdb-perftest by:
+     *   1): try to use TEXTDB_HOME environment variable, 
+     *   if it fails then:
+     *   2): compare if the current directory is textdb-perftest, 
+     *   if it's not then:
+     *   3): compare if the current directory is textdb, 
+     *   if it's not then:
+     *   This function will fail.
+     * 
+     * @param resourcePath
+     * @return
+     */
+    public static String getResourcePath(String resourcePath) {
         try {
-            fileFolder = Paths.get(PerfTestUtils.class.getResource("/sample-data-files").toURI()).toString() + "/";
-            standardIndexFolder = Paths.get(PerfTestUtils.class.getResource("/index/standard").toURI()).toString() + "/";
-            trigramIndexFolder = Paths.get(PerfTestUtils.class.getResource("/index/trigram").toURI()).toString() + "/";
-            resultFolder = "./src/main/resources/perftest-files/results/";
-            queryFolder = Paths.get(PerfTestUtils.class.getResource("/perftest-files/queries").toURI()).toString() + "/";
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
+            // try use TEXTDB_HOME environment variable first
+            if (System.getenv(DataConstants.TEXTDB_HOME) != null) {
+                String textdbHome = System.getenv(DataConstants.TEXTDB_HOME);
+                return Paths.get(textdbHome, "/textdb-perftest/src/main/resources", resourcePath)
+                        .toRealPath().toString();
+            } else {
+                // if environment is not found, try if the current directory is 
+                String currentWorkingDirectory = Paths.get("").toRealPath().toString();
+                if (currentWorkingDirectory.endsWith("textdb-perftest")) {
+                    return Paths.get(currentWorkingDirectory, "/src/main/resources", resourcePath)
+                            .toRealPath().toString();
+                } else if (currentWorkingDirectory.endsWith("textdb")){
+                    return Paths.get(currentWorkingDirectory, "/textdb-perftest/src/main/resources", resourcePath)
+                            .toRealPath().toString();
+                }
+                throw new TextDBException(
+                        "Finding perftest resource failed. Current working directory is " + currentWorkingDirectory);
+            }
+        } catch (IOException e) {
+            throw new TextDBException(e);
         }
     }
 

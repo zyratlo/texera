@@ -9,6 +9,8 @@ package edu.uci.ics.textdb.api.constants;
  *
  */
 public class DataConstants {
+    public static final String TEXTDB_HOME = "TEXTDB_HOME";
+    
     public static final String INDEX_DIR = "../index";
     public static final String SCAN_QUERY = "*:*";
     public static final int MAX_RESULTS = 100;
