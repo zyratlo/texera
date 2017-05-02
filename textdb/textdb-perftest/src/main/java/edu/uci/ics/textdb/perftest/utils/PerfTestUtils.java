@@ -32,14 +32,14 @@ public class PerfTestUtils {
      * These default paths work only when the program is run from the directory,
      * textdb-perftest
      */
-    public static String fileFolder = findResourcePath("/sample-data-files");
-    public static String standardIndexFolder = findResourcePath("/index/standard");
-    public static String trigramIndexFolder = findResourcePath("/index/trigram");
-    public static String resultFolder = findResourcePath("/perftest-files/results");
-    public static String queryFolder = findResourcePath("/perftest-files/queries");
+    public static String fileFolder = getResourcePath("/sample-data-files");
+    public static String standardIndexFolder = getResourcePath("/index/standard");
+    public static String trigramIndexFolder = getResourcePath("/index/trigram");
+    public static String resultFolder = getResourcePath("/perftest-files/results");
+    public static String queryFolder = getResourcePath("/perftest-files/queries");
     
-    public static String findResourcePath(String resourcePath) {
-        return Utils.findResourcePath(resourcePath, TextdbProject.TEXTDB_PERFTEST);
+    public static String getResourcePath(String resourcePath) {
+        return Utils.getResourcePath(resourcePath, TextdbProject.TEXTDB_PERFTEST);
     }
 
     /**

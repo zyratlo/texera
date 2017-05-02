@@ -41,9 +41,9 @@ public class SampleExtraction {
     
     public static final String PROMED_SAMPLE_TABLE = "promed";
         
-    public static String promedFilesDirectory = PerfTestUtils.findResourcePath("/sample-data-files/promed");
-    public static String promedIndexDirectory = PerfTestUtils.findResourcePath("/index/standard/promed");
-    public static String sampleDataFilesDirectory = PerfTestUtils.findResourcePath("sample-data-files");        
+    public static String promedFilesDirectory = PerfTestUtils.getResourcePath("/sample-data-files/promed");
+    public static String promedIndexDirectory = PerfTestUtils.getResourcePath("/index/standard/promed");
+    public static String sampleDataFilesDirectory = PerfTestUtils.getResourcePath("sample-data-files");        
     
     
     public static void main(String[] args) throws Exception {

@@ -20,28 +20,41 @@ import edu.uci.ics.textdb.api.tuple.Tuple;
 public class Utils {
     
     /**
-     * Find the path of resource files under textdb-perftest by:
+     * Gets the path of resource files under the a subproject's resource folder (in src/main/resources)
+     * 
+     * @param resourcePath, the path to a resource relative to textdb-xxx/src/main/resources
+     * @param subProject, the sub project where the resource is located
+     * @return the path to the resource
+     * @throws StorageException if finding fails
+     */
+    public static String getResourcePath(String resourcePath, TextdbProject subProject) throws StorageException {
+        return Paths.get(
+                getTextdbHomePath(), 
+                subProject.getProjectName(), 
+                "/src/main/resources", 
+                resourcePath).toString();
+    }
+    
+    /**
+     * Gets the path of the textdb home directory by:
      *   1): try to use TEXTDB_HOME environment variable, 
      *   if it fails then:
      *   2): compare if the current directory is textdb (where TEXTDB_HOME should be), 
      *   if it's not then:
      *   3): compare if the current directory is a textdb subproject, 
      *   if it's not then:
-
-     *   Finding resources will fail
+     *   
+     *   Finding textdb home directory will fail
      * 
-     * @param resourcePath, the path to a resource relative to textdb-xxx/src/main/resources
-     * @param subProject, the sub project where the resource is located
-     * @return the real absolute path to the resource
-     * @throws StorageException if finding fails
+     * @return the real absolute path to textdb home directory
+     * @throws StorageException if can not find textdb home
      */
-    public static String findResourcePath(String resourcePath, TextdbProject subProject) throws StorageException{
+    public static String getTextdbHomePath() throws StorageException {
         try {
             // try use TEXTDB_HOME environment variable first
             if (System.getenv(DataConstants.TEXTDB_HOME) != null) {
                 String textdbHome = System.getenv(DataConstants.TEXTDB_HOME);
-                return Paths.get(textdbHome, subProject.getProjectName(), "/src/main/resources", resourcePath)
-                        .toRealPath().toString();
+                return Paths.get(textdbHome).toRealPath().toString();
             } else {
                 // if environment is not found, try if the current directory is 
                 String currentWorkingDirectory = Paths.get("").toRealPath().toString();
@@ -54,15 +67,13 @@ public class Utils {
                     .filter(project -> currentWorkingDirectory.endsWith(project)).findAny().isPresent();
                 
                 if (isTextdbHome) {
-                    return Paths.get(currentWorkingDirectory, subProject.getProjectName(), "/src/main/resources", resourcePath)
-                            .toRealPath().toString();
+                    return Paths.get(currentWorkingDirectory).toRealPath().toString();
                 }
                 if (isSubProject) {
-                    return Paths.get(currentWorkingDirectory, "../", subProject.getProjectName(), "/src/main/resources", resourcePath)
-                            .toRealPath().toString(); 
+                    return Paths.get(currentWorkingDirectory, "../").toRealPath().toString(); 
                 }
                 throw new StorageException(
-                        "Finding perftest resource failed. Current working directory is " + currentWorkingDirectory);
+                        "Finding textdb home path failed. Current working directory is " + currentWorkingDirectory);
             }
         } catch (IOException e) {
             throw new StorageException(e);
