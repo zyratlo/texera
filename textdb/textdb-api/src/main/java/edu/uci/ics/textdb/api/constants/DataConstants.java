@@ -3,12 +3,6 @@
  */
 package edu.uci.ics.textdb.api.constants;
 
-import java.io.IOException;
-import java.nio.file.Paths;
-import java.util.Arrays;
-
-import edu.uci.ics.textdb.api.exception.TextDBException;
-
 /**
  * @author sandeepreddy602
  * @author Zuozhi Wang (zuozhi)

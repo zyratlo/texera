@@ -11,7 +11,7 @@ import java.util.stream.IntStream;
 import edu.uci.ics.textdb.api.constants.DataConstants;
 import edu.uci.ics.textdb.api.constants.SchemaConstants;
 import edu.uci.ics.textdb.api.constants.DataConstants.TextdbProject;
-import edu.uci.ics.textdb.api.exception.TextDBException;
+import edu.uci.ics.textdb.api.exception.StorageException;
 import edu.uci.ics.textdb.api.field.IField;
 import edu.uci.ics.textdb.api.schema.Attribute;
 import edu.uci.ics.textdb.api.schema.Schema;
@@ -19,7 +19,23 @@ import edu.uci.ics.textdb.api.tuple.Tuple;
 
 public class Utils {
     
-    public static String findResourcePath(String resourcePath, TextdbProject subProject) {
+    /**
+     * Find the path of resource files under textdb-perftest by:
+     *   1): try to use TEXTDB_HOME environment variable, 
+     *   if it fails then:
+     *   2): compare if the current directory is textdb (where TEXTDB_HOME should be), 
+     *   if it's not then:
+     *   3): compare if the current directory is a textdb subproject, 
+     *   if it's not then:
+
+     *   Finding resources will fail
+     * 
+     * @param resourcePath, the path to a resource relative to textdb-xxx/src/main/resources
+     * @param subProject, the sub project where the resource is located
+     * @return the real absolute path to the resource
+     * @throws StorageException if finding fails
+     */
+    public static String findResourcePath(String resourcePath, TextdbProject subProject) throws StorageException{
         try {
             // try use TEXTDB_HOME environment variable first
             if (System.getenv(DataConstants.TEXTDB_HOME) != null) {
@@ -45,11 +61,11 @@ public class Utils {
                     return Paths.get(currentWorkingDirectory, "../", subProject.getProjectName(), "/src/main/resources", resourcePath)
                             .toRealPath().toString(); 
                 }
-                throw new TextDBException(
+                throw new StorageException(
                         "Finding perftest resource failed. Current working directory is " + currentWorkingDirectory);
             }
         } catch (IOException e) {
-            throw new TextDBException(e);
+            throw new StorageException(e);
         }
     }
     
