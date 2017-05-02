@@ -22,7 +22,7 @@ public class Utils {
     /**
      * Gets the path of resource files under the a subproject's resource folder (in src/main/resources)
      * 
-     * @param resourcePath, the path to a resource relative to textdb-xxx/src/main/resources
+     * @param resourcePath, the path to a resource relative to subproject/src/main/resources
      * @param subProject, the sub project where the resource is located
      * @return the path to the resource
      * @throws StorageException if finding fails
@@ -51,16 +51,16 @@ public class Utils {
      */
     public static String getTextdbHomePath() throws StorageException {
         try {
-            // try use TEXTDB_HOME environment variable first
-            if (System.getenv(DataConstants.TEXTDB_HOME) != null) {
-                String textdbHome = System.getenv(DataConstants.TEXTDB_HOME);
+            // try to use TEXTDB_HOME environment variable first
+            if (System.getenv(DataConstants.HOME_ENV_VAR) != null) {
+                String textdbHome = System.getenv(DataConstants.HOME_ENV_VAR);
                 return Paths.get(textdbHome).toRealPath().toString();
             } else {
-                // if environment is not found, try if the current directory is 
+                // if the environment variable is not found, try if the current directory is textdb
                 String currentWorkingDirectory = Paths.get("").toRealPath().toString();
                 
                 // if the current directory ends with textdb (TEXTDB_HOME location)
-                boolean isTextdbHome = currentWorkingDirectory.endsWith("textdb");
+                boolean isTextdbHome = currentWorkingDirectory.endsWith(DataConstants.HOME_FOLDER_NAME);
                 // if the current directory is one of the sub-projects
                 boolean isSubProject = Arrays.asList(TextdbProject.values()).stream()
                     .map(project -> project.getProjectName())
