@@ -9,6 +9,29 @@ package edu.uci.ics.textdb.api.constants;
  *
  */
 public class DataConstants {
+    public static final String TEXTDB_HOME = "TEXTDB_HOME";
+    
+    public enum TextdbProject {
+        TEXTDB_API("textdb-api"),
+        TEXTDB_DATAFLOW("textdb-dataflow"),
+        TEXTDB_EXP("textdb-exp"),
+        TEXTDB_PERFTEST("textdb-perftest"),
+        TEXTDB_SANDBOX("textdb-sandbox"),
+        TEXTDB_STORAGE("textdb-storage"),
+        TEXTDB_TEXTQL("textdb-textql"),
+        TEXTDB_WEB("textdb-web");
+        
+        private String projectName;
+        
+        TextdbProject(String projectName) {
+            this.projectName = projectName;
+        }
+        
+        public String getProjectName() {
+            return this.projectName;
+        }
+    }
+    
     public static final String INDEX_DIR = "../index";
     public static final String SCAN_QUERY = "*:*";
     public static final int MAX_RESULTS = 100;
