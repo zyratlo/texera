@@ -1,18 +1,57 @@
 package edu.uci.ics.textdb.api.utils;
 
+import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import edu.uci.ics.textdb.api.constants.DataConstants;
 import edu.uci.ics.textdb.api.constants.SchemaConstants;
+import edu.uci.ics.textdb.api.constants.DataConstants.TextdbProject;
+import edu.uci.ics.textdb.api.exception.TextDBException;
 import edu.uci.ics.textdb.api.field.IField;
 import edu.uci.ics.textdb.api.schema.Attribute;
 import edu.uci.ics.textdb.api.schema.Schema;
 import edu.uci.ics.textdb.api.tuple.Tuple;
 
 public class Utils {
+    
+    public static String findResourcePath(String resourcePath, TextdbProject subProject) {
+        try {
+            // try use TEXTDB_HOME environment variable first
+            if (System.getenv(DataConstants.TEXTDB_HOME) != null) {
+                String textdbHome = System.getenv(DataConstants.TEXTDB_HOME);
+                return Paths.get(textdbHome, subProject.getProjectName(), "/src/main/resources", resourcePath)
+                        .toRealPath().toString();
+            } else {
+                // if environment is not found, try if the current directory is 
+                String currentWorkingDirectory = Paths.get("").toRealPath().toString();
+                
+                // if the current directory ends with textdb (TEXTDB_HOME location)
+                boolean isTextdbHome = currentWorkingDirectory.endsWith("textdb");
+                // if the current directory is one of the sub-projects
+                boolean isSubProject = Arrays.asList(TextdbProject.values()).stream()
+                    .map(project -> project.getProjectName())
+                    .filter(project -> currentWorkingDirectory.endsWith(project)).findAny().isPresent();
+                
+                if (isTextdbHome) {
+                    return Paths.get(currentWorkingDirectory, subProject.getProjectName(), "/src/main/resources", resourcePath)
+                            .toRealPath().toString();
+                }
+                if (isSubProject) {
+                    return Paths.get(currentWorkingDirectory, "../", subProject.getProjectName(), "/src/main/resources", resourcePath)
+                            .toRealPath().toString(); 
+                }
+                throw new TextDBException(
+                        "Finding perftest resource failed. Current working directory is " + currentWorkingDirectory);
+            }
+        } catch (IOException e) {
+            throw new TextDBException(e);
+        }
+    }
     
     /**
     *
