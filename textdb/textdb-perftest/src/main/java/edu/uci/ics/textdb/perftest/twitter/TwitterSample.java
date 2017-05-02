@@ -15,7 +15,7 @@ import edu.uci.ics.textdb.storage.constants.LuceneAnalyzerConstants;
 
 public class TwitterSample {
     
-    public static String twitterFilePath = PerfTestUtils.getResourcePath("/twitter/tweets.json");
+    public static String twitterFilePath = PerfTestUtils.getResourcePath("/sample-data-files/twitter/tweets.json");
     public static String twitterClimateTable = "twitter";
     
     public static void main(String[] args) throws Exception {
@@ -45,7 +45,6 @@ public class TwitterSample {
                         new StringField(createAt),
                         new StringField(userName),
                         new TextField(text));
-                System.out.println(tuple.getField("id").getValue());
                 dataWriter.insertTuple(tuple);
                 counter++;
             } catch (Exception e) {
