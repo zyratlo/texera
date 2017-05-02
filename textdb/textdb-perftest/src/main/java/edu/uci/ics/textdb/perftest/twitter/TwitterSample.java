@@ -8,13 +8,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.uci.ics.textdb.api.field.StringField;
 import edu.uci.ics.textdb.api.field.TextField;
 import edu.uci.ics.textdb.api.tuple.Tuple;
+import edu.uci.ics.textdb.perftest.utils.PerfTestUtils;
 import edu.uci.ics.textdb.storage.DataWriter;
 import edu.uci.ics.textdb.storage.RelationManager;
 import edu.uci.ics.textdb.storage.constants.LuceneAnalyzerConstants;
 
 public class TwitterSample {
     
-    public static String twitterFilePath = "/Users/georgewang/Desktop/twitter_data/data/climate_change_tweets.json";
+    public static String twitterFilePath = PerfTestUtils.getResourcePath("/twitter/tweets.json");
     public static String twitterClimateTable = "twitter";
     
     public static void main(String[] args) throws Exception {
