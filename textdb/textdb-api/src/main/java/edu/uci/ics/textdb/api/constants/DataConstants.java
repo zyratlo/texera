@@ -9,7 +9,9 @@ package edu.uci.ics.textdb.api.constants;
  *
  */
 public class DataConstants {
-    public static final String TEXTDB_HOME = "TEXTDB_HOME";
+    
+    public static final String HOME_ENV_VAR = "TEXTDB_HOME";
+    public static final String HOME_FOLDER_NAME = "textdb";
     
     public enum TextdbProject {
         TEXTDB_API("textdb-api"),
