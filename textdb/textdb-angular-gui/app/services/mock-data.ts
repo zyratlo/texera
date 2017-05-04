@@ -71,6 +71,7 @@ let dictionaryMatcher = {
         "attributes": ["attr1", "attr2"],
         "luceneAnalyzer": "standard",
         "matchingType": "phrase",
+        "spanListName": " "
     }
   }
 }
@@ -286,7 +287,8 @@ let dictionarySource = {
         "attributes": ["attr1", "attr2"],
         "luceneAnalyzer": "standard",
         "matchingType": "phrase",
-        "tableName": "tableName"
+        "tableName": "tableName",
+        "spanListName": " "
     }
   }
 }
