@@ -78,7 +78,8 @@ public class LogicalPlanTest {
     
     public static NlpEntityPredicate nlpEntityPredicate = new NlpEntityPredicate(
             NlpEntityType.LOCATION,
-            Arrays.asList("content"));
+            Arrays.asList("content"),
+            "nlpEntityResults");
     public static String NLP_ENTITY_ID = "nlp eneity";
     
     public static JoinDistancePredicate joinDistancePredicate = new JoinDistancePredicate(

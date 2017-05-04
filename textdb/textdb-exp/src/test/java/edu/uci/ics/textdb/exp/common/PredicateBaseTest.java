@@ -133,7 +133,8 @@ public class PredicateBaseTest {
     public void testNlpEntity() throws Exception {
         NlpEntityPredicate nlpEntityPredicate = new NlpEntityPredicate(
                 NlpEntityType.LOCATION,
-                attributeNames);
+                attributeNames,
+                "nlpEntityResults");
         testPredicate(nlpEntityPredicate);
     }
     
