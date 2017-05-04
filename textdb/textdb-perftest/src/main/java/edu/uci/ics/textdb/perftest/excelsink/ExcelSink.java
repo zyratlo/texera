@@ -1,4 +1,4 @@
-package edu.uci.ics.textdb.perftest.sink;
+package edu.uci.ics.textdb.perftest.excelsink;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -23,10 +23,12 @@ import edu.uci.ics.textdb.api.field.IField;
 import edu.uci.ics.textdb.api.schema.Schema;
 import edu.uci.ics.textdb.api.tuple.Tuple;
 import edu.uci.ics.textdb.api.utils.Utils;
+import edu.uci.ics.textdb.perftest.utils.PerfTestUtils;
 
 /**
  * ExcelSink is a sink that can write a list of tuples into an excel file
- * setInputOperator -> open -> collectAllTuples -> close
+ * setInputOperator -> open -> collectAllTuples -> close -> deleteFile
+ * The path of saved files is "textdb/textdb/textdb-perftest/src/main/resources/index/excel/"
  * @author Jinggang Diao
  *
  */
@@ -43,7 +45,7 @@ public class ExcelSink implements ISink {
     private FileOutputStream fileOut;
     Sheet sheet;
     Row row;
-    
+    public static String excelIndexDirectory = PerfTestUtils.getResourcePath("/index/excel/") + "/";
     private String fileName;
 
     
@@ -81,7 +83,7 @@ public class ExcelSink implements ISink {
             DateFormat df = new SimpleDateFormat("YYYYMMDD_HH_mm_ss_SSSS");
             Date dateobj = new Date();
             fileName = df.format(dateobj) + ".xlsx";
-        	fileOut = new FileOutputStream(fileName);
+        	fileOut = new FileOutputStream(excelIndexDirectory + fileName);
         	sheet = wb.createSheet("new sheet");
         	row = sheet.createRow((short)0);
         	List<String> attributeNames = outputSchema.getAttributeNames();
@@ -155,7 +157,7 @@ public class ExcelSink implements ISink {
     	if(isOpen){
     		close();
     	}
-    	File file = new File(fileName);
+    	File file = new File(excelIndexDirectory + fileName);
     	file.delete();
     }
     

@@ -1,4 +1,4 @@
-package edu.uci.ics.textdb.perftest.sink;
+package edu.uci.ics.textdb.perftest.excelsink;
 
 import java.io.FileNotFoundException;
 import java.text.ParseException;
