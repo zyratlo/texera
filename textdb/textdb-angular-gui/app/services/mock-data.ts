@@ -415,6 +415,8 @@ let result = {
     },
     attributes : {
         "operatorType": "ViewResults",
+        "limit": 10,
+        "offset": 0,
     }
   }
 }
