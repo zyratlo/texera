@@ -1,4 +1,4 @@
-package edu.uci.ics.textdb.perftest.excelsink;
+package edu.uci.ics.textdb.exp.sink;
 
 import java.io.FileNotFoundException;
 import java.text.ParseException;
@@ -129,6 +129,7 @@ public class ExcelSinkTest {
         excelSink.open();
         excelSink.collectAllTuples();
         excelSink.close();
+//        excelSink.deleteFile();
     }
     
 }
