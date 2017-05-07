@@ -85,7 +85,8 @@ public class PredicateBaseTest {
                 "token1 token2 token3",
                 attributeNames,
                 "standard",
-                0.8);
+                0.8,
+                "spanListName");
         testPredicate(fuzzyTokenPredicate);
         
         FuzzyTokenSourcePredicate fuzzyTokenSourcePredicate = new FuzzyTokenSourcePredicate(
@@ -93,7 +94,8 @@ public class PredicateBaseTest {
                 attributeNames,
                 "standard",
                 0.8,
-                "tableName");
+                "tableName",
+                "spanListName");
         testPredicate(fuzzyTokenSourcePredicate);
     }
     

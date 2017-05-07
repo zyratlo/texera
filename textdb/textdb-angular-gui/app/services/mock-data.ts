@@ -96,7 +96,8 @@ let fuzzyMatcher = {
         "query": "token1 token2 token3",
         "attributes": ["attr1", "attr2"],
         "luceneAnalyzer": "standard",
-        "thresholdRatio": 0.8
+        "thresholdRatio": 0.8,
+        "spanListName": " ",
     }
   }
 }
@@ -340,7 +341,8 @@ let fuzzyTokenSource = {
         "attributes": ["attr1", "attr2"],
         "luceneAnalyzer": "standard",
         "thresholdRatio": 0.8,
-        "tableName": "tableName"
+        "tableName": "tableName",
+        "spanListName": " ",
     }
   }
 }
