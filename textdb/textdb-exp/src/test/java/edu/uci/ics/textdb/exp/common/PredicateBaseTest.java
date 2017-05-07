@@ -85,7 +85,8 @@ public class PredicateBaseTest {
                 "token1 token2 token3",
                 attributeNames,
                 "standard",
-                0.8);
+                0.8,
+                "spanListName");
         testPredicate(fuzzyTokenPredicate);
         
         FuzzyTokenSourcePredicate fuzzyTokenSourcePredicate = new FuzzyTokenSourcePredicate(
@@ -93,7 +94,8 @@ public class PredicateBaseTest {
                 attributeNames,
                 "standard",
                 0.8,
-                "tableName");
+                "tableName",
+                "spanListName");
         testPredicate(fuzzyTokenSourcePredicate);
     }
     
@@ -133,7 +135,8 @@ public class PredicateBaseTest {
     public void testNlpEntity() throws Exception {
         NlpEntityPredicate nlpEntityPredicate = new NlpEntityPredicate(
                 NlpEntityType.LOCATION,
-                attributeNames);
+                attributeNames,
+                "nlpEntityResults");
         testPredicate(nlpEntityPredicate);
     }
     
@@ -155,13 +158,15 @@ public class PredicateBaseTest {
     public void testRegexMatcher() throws Exception {
         RegexPredicate regexPredicate = new RegexPredicate(
                 "regex",
-                attributeNames);
+                attributeNames,
+                "spanListName");
         testPredicate(regexPredicate);
         
         RegexSourcePredicate regexSourcePredicate = new RegexSourcePredicate(
                 "regex",
                 attributeNames,
-                "tableName");
+                "tableName",
+                "spanListName");
         testPredicate(regexSourcePredicate);
     }
     
