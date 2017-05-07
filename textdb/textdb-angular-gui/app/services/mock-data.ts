@@ -120,7 +120,8 @@ let nlpEntity = {
     attributes : {
         "operatorType": "NlpEntity",
         "nlpEntityType": "location",
-        "attributes": ["attr1", "attr2"]
+        "attributes": ["attr1", "attr2"],
+        "spanListName": " "
     }
   }
 }
