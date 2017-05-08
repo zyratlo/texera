@@ -1,5 +1,6 @@
 package edu.uci.ics.textdb.exp.wordcount;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import edu.uci.ics.textdb.api.dataflow.IOperator;
@@ -15,6 +16,7 @@ public class WordCountIndexSourcePredicate extends PredicateBase {
     private final String attribute;
     private final String tableName;
     
+    @JsonCreator
     public WordCountIndexSourcePredicate(
             @JsonProperty(value = PropertyNameConstants.COUNT_TABLE, required = true)
             String tableName,

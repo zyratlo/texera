@@ -70,8 +70,8 @@ import edu.uci.ics.textdb.exp.wordcount.WordCountPayLoadPredicate;
         @Type(value = FileSourcePredicate.class, name = "FileSink"),        
         @Type(value = TupleSinkPredicate.class, name = "ViewResults"),
         
-        @Type(value = WordCountIndexSourcePredicate.class, name = "WordCountSource"),
-        @Type(value = WordCountPayLoadPredicate.class, name = "WordCount"),
+        @Type(value = WordCountIndexSourcePredicate.class, name = "WordCountIndexSource"),
+        @Type(value = WordCountPayLoadPredicate.class, name = "WordCountPayLoad"),
         
 })
 public abstract class PredicateBase implements IPredicate {

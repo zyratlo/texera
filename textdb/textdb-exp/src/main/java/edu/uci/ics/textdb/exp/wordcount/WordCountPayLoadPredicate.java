@@ -1,5 +1,6 @@
 package edu.uci.ics.textdb.exp.wordcount;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import edu.uci.ics.textdb.api.dataflow.IOperator;
@@ -15,7 +16,7 @@ public class WordCountPayLoadPredicate extends PredicateBase {
     private final String attribute;
     private final String analyzer;
     
-    
+    @JsonCreator
     public WordCountPayLoadPredicate(
             @JsonProperty(value = PropertyNameConstants.COUNT_ATTRIBUTE, required = true)
             String attribute,
@@ -31,6 +32,7 @@ public class WordCountPayLoadPredicate extends PredicateBase {
         return this.attribute;
     }
     
+    @JsonProperty(PropertyNameConstants.COUNT_ANALYZER)
     public String getLuceneAnalyzerString() {
         return this.analyzer;
     }
