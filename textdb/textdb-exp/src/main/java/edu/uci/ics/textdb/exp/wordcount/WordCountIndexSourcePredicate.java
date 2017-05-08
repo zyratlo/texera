@@ -18,9 +18,9 @@ public class WordCountIndexSourcePredicate extends PredicateBase {
     
     @JsonCreator
     public WordCountIndexSourcePredicate(
-            @JsonProperty(value = PropertyNameConstants.COUNT_TABLE, required = true)
+            @JsonProperty(value = PropertyNameConstants.TABLE_NAME, required = true)
             String tableName,
-            @JsonProperty(value = PropertyNameConstants.COUNT_ATTRIBUTE, required = true)
+            @JsonProperty(value = PropertyNameConstants.ATTRIBUTE_NAME, required = true)
             String attribute) {
         
         this.tableName = tableName;
@@ -28,12 +28,12 @@ public class WordCountIndexSourcePredicate extends PredicateBase {
         
     }
     
-    @JsonProperty(PropertyNameConstants.COUNT_TABLE)
+    @JsonProperty(PropertyNameConstants.TABLE_NAME)
     public String getTableName() {
         return this.tableName;
     }
     
-    @JsonProperty(PropertyNameConstants.COUNT_ATTRIBUTE)
+    @JsonProperty(PropertyNameConstants.ATTRIBUTE_NAME)
     public String getAttribute() {
         return this.attribute;
     }

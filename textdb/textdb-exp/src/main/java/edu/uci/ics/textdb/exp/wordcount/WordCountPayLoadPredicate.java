@@ -18,21 +18,21 @@ public class WordCountPayLoadPredicate extends PredicateBase {
     
     @JsonCreator
     public WordCountPayLoadPredicate(
-            @JsonProperty(value = PropertyNameConstants.COUNT_ATTRIBUTE, required = true)
+            @JsonProperty(value = PropertyNameConstants.ATTRIBUTE_NAME, required = true)
             String attribute,
-            @JsonProperty(value = PropertyNameConstants.COUNT_ANALYZER, required = true)
+            @JsonProperty(value = PropertyNameConstants.LUCENE_ANALYZER_STRING, required = true)
             String analyzer) {
         
         this.attribute = attribute;
         this.analyzer = analyzer;
     }
     
-    @JsonProperty(PropertyNameConstants.COUNT_ATTRIBUTE)
+    @JsonProperty(PropertyNameConstants.ATTRIBUTE_NAME)
     public String getAttribute() {
         return this.attribute;
     }
     
-    @JsonProperty(PropertyNameConstants.COUNT_ANALYZER)
+    @JsonProperty(PropertyNameConstants.LUCENE_ANALYZER_STRING)
     public String getLuceneAnalyzerString() {
         return this.analyzer;
     }

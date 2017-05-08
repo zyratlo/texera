@@ -71,10 +71,5 @@ public class PropertyNameConstants {
     public static final String SPAN_DISTANCE = "spanDistance";
     public static final String JOIN_SIMILARITY_THRESHOLD = "similarityThreshold";
     
-    //related to word count
-    public static final String COUNT_ATTRIBUTE = "countAttribute";
-    public static final String COUNT_ANALYZER = "countAnalyzer";
-    public static final String COUNT_TABLE = "countAnalyzer";
-
     
 }
