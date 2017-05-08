@@ -350,6 +350,52 @@ let fuzzyTokenSource = {
   }
 }
 
+let wordCountSource = {
+  top : 20,
+  left : 20,
+  properties : {
+    title : 'WordCountSource',
+    inputs : {
+      input_1 : {
+        label : "Input (:i)",
+      }
+    },
+    outputs : {
+      output_1 : {
+        label : "Output (:i)",
+      }
+    },
+    attributes : {
+        "operatorType": "WordCountIndexSource",
+        "tableName": "tableName",
+        "attribute": "attr1",
+    }
+  }
+}
+
+let wordCount = {
+  top : 20,
+  left : 20,
+  properties : {
+    title : 'WordCount',
+    inputs : {
+      input_1 : {
+        label : "Input (:i)",
+      }
+    },
+    outputs : {
+      output_1 : {
+        label : "Output (:i)",
+      }
+    },
+    attributes : {
+        "operatorType": "WordCount",
+        "attribute": "attr1",
+	"luceneAnalyzer": "standard",
+    }
+  }
+}
+
 let characterDistanceJoin = {
   top : 20,
   left : 20,
@@ -444,6 +490,8 @@ export const DEFAULT_MATCHERS: Data[] = [
     {id: 13, jsonData: fuzzyTokenSource},
     {id: 14, jsonData: characterDistanceJoin},
     {id: 15, jsonData: similarityJoin},
+    {id: 16, jsonData: wordCountSource},
+    {id: 17, jsonData: wordCount},
     {id: 19, jsonData: result},
 
 ];

@@ -84,6 +84,7 @@ public class WordCountOperator extends AbstractSingleInputOperator implements IS
         while ((tuple = this.inputOperator.getNextTuple()) != null) {
             ListField<Span> payloadField = tuple.getField("payload");
             List<Span> payloadSpanList = payloadField.getValue();
+            
             for (Span span : payloadSpanList) {
                 if (span.getAttributeName().equals(predicate.getAttribute())) {
                     String key = span.getValue().toLowerCase();

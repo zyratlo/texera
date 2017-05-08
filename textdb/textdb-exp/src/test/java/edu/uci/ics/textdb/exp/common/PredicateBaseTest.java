@@ -217,8 +217,8 @@ public class PredicateBaseTest {
     
     @Test
     public void testWordCountOperator() throws Exception {
-        WordCountOperatorPredicate wordCountPayloadPredicate = new WordCountOperatorPredicate("attr1", "standard");
-        testPredicate(wordCountPayloadPredicate);
+        WordCountOperatorPredicate wordCountPredicate = new WordCountOperatorPredicate("attr1", "standard");
+        testPredicate(wordCountPredicate);
     }
 
 }
