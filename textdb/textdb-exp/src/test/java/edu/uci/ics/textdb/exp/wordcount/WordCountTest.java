@@ -1,11 +1,7 @@
 package edu.uci.ics.textdb.exp.wordcount;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
 import org.apache.lucene.analysis.Analyzer;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -17,7 +13,6 @@ import edu.uci.ics.textdb.exp.wordcount.WordCountIndexSource;
 import edu.uci.ics.textdb.exp.wordcount.WordCountIndexSourcePredicate;
 import edu.uci.ics.textdb.exp.wordcount.WordCountPayLoadPredicate;
 import edu.uci.ics.textdb.api.constants.TestConstants;
-import edu.uci.ics.textdb.api.constants.TestConstantsChinese;
 import edu.uci.ics.textdb.api.constants.TestConstantsChineseWordCount;
 import edu.uci.ics.textdb.api.exception.TextDBException;
 import edu.uci.ics.textdb.api.tuple.Tuple;
@@ -27,6 +22,10 @@ import edu.uci.ics.textdb.exp.utils.DataflowUtils;
 import edu.uci.ics.textdb.storage.DataWriter;
 import edu.uci.ics.textdb.storage.RelationManager;
 import edu.uci.ics.textdb.storage.constants.LuceneAnalyzerConstants;
+
+/**
+ * @author Qinhua Huang
+ */
 
 public class WordCountTest {
     public static final String COUNT_TABLE = "wordcount_test";
@@ -145,23 +144,6 @@ public class WordCountTest {
         return resultHashMap;
     }
     
-    //Check the equality of two HashMaps.
-    public static boolean compareHashMap(Map<String, Integer> hm1, Map<String, Integer> hm2) {
-        Map<String, Integer> hm3 = new HashMap<String, Integer>();
-        
-        if (hm1.size() != hm2.size()) {
-            return false;
-        }
-        for (String key : hm1.keySet()) {
-            if (hm2.containsKey(key)) {
-                if (hm1.get(key) != hm2.get(key)) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-    
     // Test counting by reading disk index method.
     @Test
     public void test1() throws TextDBException {
@@ -183,8 +165,6 @@ public class WordCountTest {
     public void test3() throws TextDBException {
         HashMap<String, Integer> results = computeWordCountIndexSourceResult(COUNT_CHINESE_TABLE,
                 TestConstantsChineseWordCount.DESCRIPTION);
-//        printHashMap(results);
-//        printHashMap(resultInConstantsChinese);
         Assert.assertTrue(results.equals(expectedResultChinese));
     }
     
@@ -193,21 +173,7 @@ public class WordCountTest {
     public void test4() throws TextDBException {
         HashMap<String, Integer> results = computePayLoadWordCount(COUNT_CHINESE_TABLE,
                 TestConstantsChineseWordCount.DESCRIPTION);
-//        printHashMap(results);
-//        printHashMap(resultInConstantsChinese);
         Assert.assertTrue(results.equals(expectedResultChinese));
     }
     
-    public void printHashMap(HashMap<String, Integer> results) {
-        Iterator<Entry<String, Integer>> itor = results.entrySet().iterator();
-        System.out.println("\n================================\n "
-                + "Print Hash Table elements.\n"
-                + "=====================");
-        while (itor.hasNext()) {
-            Entry<String, Integer> entry = itor.next();
-            System.out.println(entry.getKey() + ":" + entry.getValue());
-//            Map.Entry pair = (Map.Entry)itor.next();
-//            System.out.println(pair.getKey() + " = " + pair.getValue());
-        }
-    }
 }

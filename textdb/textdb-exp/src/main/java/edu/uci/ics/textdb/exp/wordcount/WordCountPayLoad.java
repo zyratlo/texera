@@ -24,6 +24,10 @@ import edu.uci.ics.textdb.api.utils.Utils;
 import edu.uci.ics.textdb.exp.common.AbstractSingleInputOperator;
 import edu.uci.ics.textdb.exp.utils.DataflowUtils;
 
+/**
+ * @author Qinhua Huang
+ */
+
 public class WordCountPayLoad extends AbstractSingleInputOperator implements ISourceOperator{
     private WordCountPayLoadPredicate predicate;
     

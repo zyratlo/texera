@@ -6,6 +6,10 @@ import edu.uci.ics.textdb.api.dataflow.IOperator;
 import edu.uci.ics.textdb.exp.common.PredicateBase;
 import edu.uci.ics.textdb.exp.common.PropertyNameConstants;
 
+/**
+ * @author Qinhua Huang
+ */
+
 public class WordCountIndexSourcePredicate extends PredicateBase {
 
     private final String attribute;

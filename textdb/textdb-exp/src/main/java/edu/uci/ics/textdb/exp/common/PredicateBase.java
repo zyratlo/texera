@@ -28,6 +28,8 @@ import edu.uci.ics.textdb.exp.sampler.SamplerPredicate;
 import edu.uci.ics.textdb.exp.sink.tuple.TupleSinkPredicate;
 import edu.uci.ics.textdb.exp.source.file.FileSourcePredicate;
 import edu.uci.ics.textdb.exp.source.scan.ScanSourcePredicate;
+import edu.uci.ics.textdb.exp.wordcount.WordCountIndexSourcePredicate;
+import edu.uci.ics.textdb.exp.wordcount.WordCountPayLoadPredicate;
 
 
 /**
@@ -67,6 +69,9 @@ import edu.uci.ics.textdb.exp.source.scan.ScanSourcePredicate;
         @Type(value = ScanSourcePredicate.class, name = "ScanSource"),
         @Type(value = FileSourcePredicate.class, name = "FileSink"),        
         @Type(value = TupleSinkPredicate.class, name = "ViewResults"),
+        
+        @Type(value = WordCountIndexSourcePredicate.class, name = "WordCountSource"),
+        @Type(value = WordCountPayLoadPredicate.class, name = "WordCount"),
         
 })
 public abstract class PredicateBase implements IPredicate {
