@@ -1,6 +1,7 @@
 package edu.uci.ics.textdb.web.resource;
 
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.List;
 
 import javax.ws.rs.Consumes;
@@ -49,7 +50,7 @@ public class NewQueryPlanResource {
                 
                 JSONArray tupleJson = DataflowUtils.getTupleListJSON(results);
                 JSONObject resultJson = new JSONObject();
-                String excelFilePath = excelSink.getFilePath();
+                String excelFilePath = Paths.get(excelSink.getFilePath()).getFileName().toString();
                 resultJson.put("timeStamp", excelFilePath.substring(0, excelFilePath.length()-".xlsx".length()));
                 resultJson.put("results", tupleJson);
                 

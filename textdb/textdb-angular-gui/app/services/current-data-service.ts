@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core';
 import { Subject }    from 'rxjs/Subject';
 import { Response, Http } from '@angular/http';
 import { Headers } from '@angular/http';
+import 'rxjs/add/operator/toPromise';
+
 
 import { Data } from './data';
 
