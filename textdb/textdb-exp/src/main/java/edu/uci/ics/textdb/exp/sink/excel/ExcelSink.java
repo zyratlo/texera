@@ -1,8 +1,9 @@
-package edu.uci.ics.textdb.exp.sink;
+package edu.uci.ics.textdb.exp.sink.excel;
 
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -15,7 +16,6 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-import java.io.File;
 import edu.uci.ics.textdb.api.constants.SchemaConstants;
 import edu.uci.ics.textdb.api.constants.DataConstants.TextdbProject;
 import edu.uci.ics.textdb.api.dataflow.IOperator;
@@ -26,42 +26,37 @@ import edu.uci.ics.textdb.api.field.DateField;
 import edu.uci.ics.textdb.api.field.DoubleField;
 import edu.uci.ics.textdb.api.field.IField;
 import edu.uci.ics.textdb.api.field.IntegerField;
+import edu.uci.ics.textdb.api.schema.Attribute;
+import edu.uci.ics.textdb.api.schema.AttributeType;
 import edu.uci.ics.textdb.api.schema.Schema;
 import edu.uci.ics.textdb.api.tuple.Tuple;
 import edu.uci.ics.textdb.api.utils.Utils;
 
 /**
  * ExcelSink is a sink that can write a list of tuples into an excel file
- * setInputOperator -> open -> collectAllTuples -> close -> deleteFile
  * The path of saved files is "textdb/textdb/textdb-perftest/src/main/resources/index/excel/"
  * @author Jinggang Diao
  *
  */
 public class ExcelSink implements ISink {
     
+    private ExcelSinkPredicate predicate;
     private IOperator inputOperator;
     
     private Schema inputSchema;
     private Schema outputSchema;
-    
-    private boolean isOpen;
-    
+        
     private Workbook wb;
     private FileOutputStream fileOut;
     private Sheet sheet;
-    private int rowCursor;
+    private int cursor = CLOSED;
     
-    private static String excelIndexDirectory = Utils.getResourcePath("/index/excel/", TextdbProject.TEXTDB_EXP) + "/";
+    private String excelIndexDirectory = Utils.getResourcePath("/index/excel/", TextdbProject.TEXTDB_EXP);
     private String fileName;
 
     
-    public ExcelSink() {
-    	isOpen = false;
-    	rowCursor = 0;
-    }
-    
-    public boolean getIsOpen(){
-    	return isOpen;
+    public ExcelSink(ExcelSinkPredicate predicate) {
+        this.predicate = predicate;
     }
     
     public void setInputOperator(IOperator inputOperator) {
@@ -79,29 +74,36 @@ public class ExcelSink implements ISink {
 
     @Override
     public void open() throws TextDBException{
-        if (isOpen) {
+        if (cursor != CLOSED) {
             return;
-        }     
+        }
         inputOperator.open();
         inputSchema = inputOperator.getOutputSchema();
-        outputSchema = Utils.removeAttributeFromSchema(inputSchema, SchemaConstants._ID, SchemaConstants.PAYLOAD);
+        outputSchema = new Schema(inputSchema.getAttributes().stream()
+                .filter(attr -> ! attr.getAttributeName().equalsIgnoreCase(SchemaConstants._ID))
+                .filter(attr -> ! attr.getAttributeName().equalsIgnoreCase(SchemaConstants.PAYLOAD))
+                .filter(attr -> ! attr.getAttributeType().equals(AttributeType.LIST))
+                .toArray(Attribute[]::new));
+        
         wb = new XSSFWorkbook();
-        DateFormat df = new SimpleDateFormat("YYYYMMDD_HH_mm_ss_SSSS");
-        Date dateobj = new Date();
-        fileName = df.format(dateobj) + ".xlsx";
+        DateFormat df = new SimpleDateFormat("yyyyMMdd-HHmmss");
+        fileName = df.format(new Date()) + ".xlsx";
     	try {
-			fileOut = new FileOutputStream(excelIndexDirectory + fileName);
-		} catch (FileNotFoundException e) {
-			throw new DataFlowException("Fail to find the file: "+excelIndexDirectory + fileName, e);
+    	    if (Files.notExists(Paths.get(excelIndexDirectory))) {
+    	        Files.createDirectories(Paths.get(excelIndexDirectory));
+    	    }
+			fileOut = new FileOutputStream(Paths.get(excelIndexDirectory, fileName).toString());
+		} catch (IOException e) {
+			throw new DataFlowException(e);
 		}
     	sheet = wb.createSheet("new sheet");
-    	Row row = sheet.createRow(rowCursor++);
+    	Row row = sheet.createRow(0);
     	List<String> attributeNames = outputSchema.getAttributeNames();
-    	for(int i = 0; i < attributeNames.size(); i++){
+    	for(int i = 0; i < attributeNames.size(); i++) {
     		String attributeName = attributeNames.get(i);
         	row.createCell(i).setCellValue(attributeName);
     	}
-        isOpen = true;
+        cursor = OPENED;
     }
 
     @Override
@@ -116,31 +118,48 @@ public class ExcelSink implements ISink {
      */
     @Override
     public Tuple getNextTuple() throws TextDBException {
-    	Tuple inputTuple = inputOperator.getNextTuple();
-        if (inputTuple == null) {
+        if (cursor == CLOSED) {
+            return null;
+        }        
+        if (cursor >= predicate.getLimit() + predicate.getOffset()) {
             return null;
         }
-        Tuple tuple = Utils.removeFields(inputTuple, SchemaConstants._ID, SchemaConstants.PAYLOAD);
-    	Row row = sheet.createRow(rowCursor++);
-    	List<IField> fields = tuple.getFields();
-    	for(int i = 0; i < fields.size(); i++){
-    		this.writeCell(row.createCell(i), fields.get(i));
+        Tuple inputTuple = null;
+        while (true) {
+            inputTuple = inputOperator.getNextTuple();
+            if (inputTuple == null) {
+                return null;
+            }
+            cursor++;
+            if (cursor > predicate.getOffset()) {
+                break;
+            }
+        }
+        
+        Tuple resultTuple = Utils.removeFields(inputTuple, SchemaConstants._ID, SchemaConstants.PAYLOAD);
+    	Row row = sheet.createRow(cursor + 1);
+    	
+    	for (int i = 0; i < outputSchema.getAttributeNames().size(); i++) {    	    
+    	    writeCell(row.createCell(i), resultTuple.getField(outputSchema.getAttributeNames().get(i)));
     	}
-        return tuple;
+    	
+    	cursor++;
+        return resultTuple;
     }
 
     @Override
     public void close() throws TextDBException {
-        if (isOpen) {
-        	inputOperator.close();
-            try {
-                wb.write(fileOut);
-    			fileOut.close();
-                isOpen = false; 
-    		} catch (IOException e) {
-            	System.out.println("ExcelSink::open  "+e.getMessage());
-    		}
+        if (cursor == CLOSED) {
+            return;
         }
+    	inputOperator.close();
+        try {
+            wb.write(fileOut);
+			fileOut.close();
+            cursor = CLOSED; 
+		} catch (IOException e) {
+		    throw new DataFlowException(e);
+		}
     }
 
     
@@ -155,21 +174,9 @@ public class ExcelSink implements ISink {
         ArrayList<Tuple> results = new ArrayList<>();
         Tuple tuple;
         while ((tuple = this.getNextTuple()) != null) {
-            results.add(Utils.removeFields(tuple, SchemaConstants._ID, SchemaConstants.PAYLOAD));
+            results.add(tuple);
         }
         return results;
-    }
-
-    /**
-     * delete the file created by ExcelSink operator
-     * @throws FileNotFoundException
-     */
-    public void deleteFile(){
-    	if(isOpen){
-    		close();
-    	}
-    	File file = new File(excelIndexDirectory + fileName);
-    	file.delete();
     }
     
     /*
@@ -179,21 +186,24 @@ public class ExcelSink implements ISink {
      * 		Excel-String <-> All other fields, including ListField
      * Special case: a null field will be written as an empty string
      */
-    private void writeCell(Cell cell, IField field){
+    private static void writeCell(Cell cell, IField field){
     	if(field == null){
     		cell.setCellValue("");
     		return;
     	}
-    	Object fieldClass = field.getClass();
-    	if(fieldClass instanceof DoubleField || fieldClass instanceof IntegerField){
-    		cell.setCellValue((double) field.getValue());
-    	}
-    	else if(fieldClass instanceof DateField){
-    		cell.setCellValue((Date)field.getValue());
-    	}
-    	else{
+    	if (field instanceof DoubleField) {
+    	    cell.setCellValue((double) field.getValue());
+    	} else if (field instanceof IntegerField) {
+    	    cell.setCellValue((double) (int) field.getValue());
+    	} else if(field instanceof DateField){
+    		cell.setCellValue((Date) field.getValue());
+    	} else{
     		cell.setCellValue(field.getValue().toString());
     	}
+    }
+    
+    public String getFilePath() {
+        return Paths.get(excelIndexDirectory, fileName).toString();
     }
     
 }

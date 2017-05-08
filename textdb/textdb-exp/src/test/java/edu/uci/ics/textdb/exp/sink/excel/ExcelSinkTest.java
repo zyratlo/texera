@@ -1,21 +1,20 @@
-package edu.uci.ics.textdb.exp.sink;
+package edu.uci.ics.textdb.exp.sink.excel;
 
 import java.io.FileNotFoundException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
-import java.util.Stack;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.stubbing.OngoingStubbing;
-
-import com.graphbuilder.struc.LinkedList;
 
 import edu.uci.ics.textdb.api.constants.SchemaConstants;
 import edu.uci.ics.textdb.api.constants.TestConstants;
@@ -45,7 +44,7 @@ public class ExcelSinkTest {
     public void setUp() throws FileNotFoundException {
         inputOperator = Mockito.mock(IOperator.class);
         Mockito.when(inputOperator.getOutputSchema()).thenReturn(inputSchema);
-        excelSink = new ExcelSink();
+        excelSink = new ExcelSink(new ExcelSinkPredicate());
         excelSink.setInputOperator(inputOperator);
     }
 
@@ -62,7 +61,7 @@ public class ExcelSinkTest {
         Assert.assertEquals(new Schema(new Attribute("content", AttributeType.TEXT)), excelSink.getOutputSchema());
     
     	excelSink.close();
-        excelSink.deleteFile();
+        Files.deleteIfExists(Paths.get(excelSink.getFilePath()));
     }
 
     @Test
@@ -71,7 +70,7 @@ public class ExcelSinkTest {
     	excelSink.close();
         // verify that inputOperator called close() method
         Mockito.verify(inputOperator).close();
-        excelSink.deleteFile();
+        Files.deleteIfExists(Paths.get(excelSink.getFilePath()));
     }
 
     @Test
@@ -90,7 +89,7 @@ public class ExcelSinkTest {
         Mockito.verify(inputOperator, Mockito.times(1)).getNextTuple();
 
         excelSink.close();
-        excelSink.deleteFile();
+        Files.deleteIfExists(Paths.get(excelSink.getFilePath()));
     }
     
     /**
@@ -98,7 +97,7 @@ public class ExcelSinkTest {
      * @throws ParseException
      */
     @Test
-    public void writeSampleExcelFile() throws ParseException{
+    public void writeSampleExcelFile() throws Exception {
         ArrayList<String> attributeNames = new ArrayList<>();
         attributeNames.add(TestConstants.FIRST_NAME);
         attributeNames.add(TestConstants.LAST_NAME);
@@ -130,12 +129,12 @@ public class ExcelSinkTest {
         Mockito.when(inputOperator.getOutputSchema()).thenReturn(new Schema(schemaAttributes)).thenReturn(null);
         Mockito.when(inputOperator.getNextTuple()).thenReturn(tuple1).thenReturn(tuple2).thenReturn(null);
 
-    	excelSink = new ExcelSink();
+    	excelSink = new ExcelSink(new ExcelSinkPredicate());
         excelSink.setInputOperator(inputOperator);
         excelSink.open();
         excelSink.collectAllTuples();
         excelSink.close();
-        excelSink.deleteFile();
+        Files.deleteIfExists(Paths.get(excelSink.getFilePath()));
     }
      
     
@@ -146,7 +145,7 @@ public class ExcelSinkTest {
 	 * Uncomment excelSink.deleteFile() to check the content of excel file
      */
     // writing 10000 tuples
-    public void attributeTypeTest() throws ParseException{
+    public void attributeTypeTest() throws Exception {
         ArrayList<String> attributeNames = new ArrayList<>();
         attributeNames.add(TestConstants.FIRST_NAME);
         attributeNames.add(TestConstants.LAST_NAME);
@@ -175,19 +174,19 @@ public class ExcelSinkTest {
         
         IOperator inputOperator = Mockito.mock(IOperator.class);
         Mockito.when(inputOperator.getOutputSchema()).thenReturn(new Schema(schemaAttributes));
-        OngoingStubbing stubbing = Mockito.when(inputOperator.getNextTuple());
+        OngoingStubbing<Tuple> stubbing = Mockito.when(inputOperator.getNextTuple());
         for(Tuple t : tupleList) {
             stubbing = stubbing.thenReturn(t);
         }
         stubbing = stubbing.thenReturn(null);
         
         // excel writing test
-    	excelSink = new ExcelSink();
+    	excelSink = new ExcelSink(new ExcelSinkPredicate());
         excelSink.setInputOperator(inputOperator);
         excelSink.open();
         excelSink.collectAllTuples();
         excelSink.close();
-        excelSink.deleteFile();
+        Files.deleteIfExists(Paths.get(excelSink.getFilePath()));
     }
     
 	public static String getRandomString() {
