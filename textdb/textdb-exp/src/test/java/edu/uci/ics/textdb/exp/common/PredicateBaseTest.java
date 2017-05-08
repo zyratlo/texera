@@ -31,6 +31,8 @@ import edu.uci.ics.textdb.exp.sampler.SamplerPredicate.SampleType;
 import edu.uci.ics.textdb.exp.sink.tuple.TupleSinkPredicate;
 import edu.uci.ics.textdb.exp.source.file.FileSourcePredicate;
 import edu.uci.ics.textdb.exp.source.scan.ScanSourcePredicate;
+import edu.uci.ics.textdb.exp.wordcount.WordCountIndexSourcePredicate;
+import edu.uci.ics.textdb.exp.wordcount.WordCountPayLoadPredicate;
 import junit.framework.Assert;
 
 public class PredicateBaseTest {
@@ -205,6 +207,18 @@ public class PredicateBaseTest {
     public void testTupleSink() throws Exception {
         TupleSinkPredicate tupleSinkPredicate = new TupleSinkPredicate();
         testPredicate(tupleSinkPredicate);
+    }
+    
+    @Test
+    public void testWordCountIndexSource() throws Exception {
+        WordCountIndexSourcePredicate wordCountIndexSourcePredicate = new WordCountIndexSourcePredicate("tableName", "attr1");
+        testPredicate(wordCountIndexSourcePredicate);
+    }
+    
+    @Test
+    public void testWordCountPayload() throws Exception {
+        WordCountPayLoadPredicate wordCountPayloadPredicate = new WordCountPayLoadPredicate("attr1", "standard");
+        testPredicate(wordCountPayloadPredicate);
     }
 
 }

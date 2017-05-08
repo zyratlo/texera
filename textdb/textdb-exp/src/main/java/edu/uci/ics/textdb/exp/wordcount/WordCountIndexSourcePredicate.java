@@ -13,8 +13,8 @@ import edu.uci.ics.textdb.exp.common.PropertyNameConstants;
 
 public class WordCountIndexSourcePredicate extends PredicateBase {
 
-    private final String attribute;
     private final String tableName;
+    private final String attribute;
     
     @JsonCreator
     public WordCountIndexSourcePredicate(
