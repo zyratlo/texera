@@ -67,8 +67,7 @@ import edu.uci.ics.textdb.exp.source.scan.ScanSourcePredicate;
         
         @Type(value = ScanSourcePredicate.class, name = "ScanSource"),
         @Type(value = FileSourcePredicate.class, name = "FileSink"),        
-        @Type(value = TupleSinkPredicate.class, name = "ViewResults"),
-        @Type(value = ExcelSinkPredicate.class, name = "ExcelSink"),
+        @Type(value = ExcelSinkPredicate.class, name = "ViewResults"),
         
 })
 public abstract class PredicateBase implements IPredicate {

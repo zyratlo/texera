@@ -10,6 +10,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import org.json.JSONArray;
+import org.json.JSONObject;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -19,6 +20,7 @@ import edu.uci.ics.textdb.api.engine.Plan;
 import edu.uci.ics.textdb.api.tuple.Tuple;
 import edu.uci.ics.textdb.dataflow.utils.DataflowUtils;
 import edu.uci.ics.textdb.exp.plangen.LogicalPlan;
+import edu.uci.ics.textdb.exp.sink.excel.ExcelSink;
 import edu.uci.ics.textdb.exp.sink.tuple.TupleSink;
 import edu.uci.ics.textdb.web.TextdbWebException;
 import edu.uci.ics.textdb.web.response.TextdbWebResponse;
@@ -39,13 +41,16 @@ public class NewQueryPlanResource {
             ISink sink = plan.getRoot();
             
             // send response back to frontend
-            if (sink instanceof TupleSink) {
-                TupleSink tupleSink = (TupleSink) sink;
+            if (sink instanceof ExcelSink) {
+                ExcelSink tupleSink = (ExcelSink) sink;
                 tupleSink.open();
                 List<Tuple> results = tupleSink.collectAllTuples();
                 tupleSink.close();
                 
-                JSONArray resultJson = DataflowUtils.getTupleListJSON(results);
+                JSONArray tupleJson = DataflowUtils.getTupleListJSON(results);
+                JSONObject resultJson = new JSONObject();
+                resultJson.append("timeStamp", resultJson);
+                resultJson.append("results", tupleJson);
                 
                 return new TextdbWebResponse(0, resultJson.toString());
             } else {

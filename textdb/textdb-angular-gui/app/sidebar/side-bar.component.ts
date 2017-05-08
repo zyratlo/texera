@@ -1,4 +1,5 @@
 import { Component, ViewChild} from '@angular/core';
+import { Response, Http } from '@angular/http';
 
 import { CurrentDataService } from '../services/current-data-service';
 import { ModalComponent } from 'ng2-bs3-modal/ng2-bs3-modal';
@@ -16,8 +17,10 @@ declare var PrettyJSON: any;
 })
 
 export class SideBarComponent {
+  http: Http;
   data: any;
   attributes: string[] = [];
+  currentResultTimeStamp: string = "";
 
   inSavedWindow = false;
 
@@ -44,6 +47,14 @@ export class SideBarComponent {
   }
   ModalClose() {
     this.modal.close();
+  }
+  
+  downloadExcel() {
+    if (this.currentResultTimeStamp == null) {
+      console.log("currentResultTimeStamp is null")
+    } else {
+      this.http.get("http://localhost:8080/api/download/" + this.currentResultTimeStamp);
+    }
   }
 
   checkInHidden(name: string) {
@@ -74,7 +85,7 @@ export class SideBarComponent {
         if (data.code === 0) {
           var node = new PrettyJSON.view.Node({
             el: jQuery("#elem"),
-            data: JSON.parse(data.message)
+            data: JSON.parse(data.message).results
           });
         } else {
           var node = new PrettyJSON.view.Node({
