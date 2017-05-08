@@ -137,13 +137,12 @@ public class ExcelSink implements ISink {
         }
         
         Tuple resultTuple = Utils.removeFields(inputTuple, SchemaConstants._ID, SchemaConstants.PAYLOAD);
-    	Row row = sheet.createRow(cursor + 1);
+    	Row row = sheet.createRow(cursor);
     	
     	for (int i = 0; i < outputSchema.getAttributeNames().size(); i++) {    	    
     	    writeCell(row.createCell(i), resultTuple.getField(outputSchema.getAttributeNames().get(i)));
     	}
     	
-    	cursor++;
         return resultTuple;
     }
 
