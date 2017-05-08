@@ -18,10 +18,10 @@ let keywordMatcher = {
         attributes: {
             "operatorType": "KeywordMatcher",
             "query": "keyword",
-            "attributes": ["attr1", "attr2"],
+            "attributes": ["text"],
             "luceneAnalyzer": "standard",
-            "matchingType": "conjunction",
-            "spanListName": ""
+            "matchingType": "phrase",
+            "spanListName": " "
         }
     }
 };
@@ -71,7 +71,8 @@ let dictionaryMatcher = {
         "dictionaryEntries": ["entry1", "entry2"],
         "attributes": ["attr1", "attr2"],
         "luceneAnalyzer": "standard",
-        "matchingType": "conjunction"
+        "matchingType": "phrase",
+        "spanListName": " "
     }
   }
 }
@@ -235,7 +236,7 @@ let scanSource = {
     },
     attributes : {
         "operatorType": "ScanSource",
-        "tableName": "promed"
+        "tableName": "tableName"
     }
   }
 }
@@ -260,9 +261,9 @@ let keywordSource = {
         "query": "keyword",
         "attributes": ["attr1", "attr2"],
         "luceneAnalyzer": "standard",
-        "matchingType": "conjunction",
+        "matchingType": "phrase",
         "tableName": "tableName",
-        "spanListName": ""
+        "spanListName": " "
     }
   }
 }
@@ -288,8 +289,9 @@ let dictionarySource = {
         "dictionaryEntries": ["entry1", "entry2"],
         "attributes": ["attr1", "attr2"],
         "luceneAnalyzer": "standard",
-        "matchingType": "conjunction",
-        "tableName": "tableName"
+        "matchingType": "phrase",
+        "tableName": "tableName",
+        "spanListName": " "
     }
   }
 }
