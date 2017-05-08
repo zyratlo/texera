@@ -10,10 +10,12 @@ import edu.uci.ics.textdb.dataflow.sink.TupleStreamSink;
 import edu.uci.ics.textdb.perftest.sample.SampleExtraction;
 import edu.uci.ics.textdb.perftest.twitter.TwitterSample;
 import edu.uci.ics.textdb.plangen.LogicalPlan;
+import edu.uci.ics.textdb.storage.RelationManager;
 import edu.uci.ics.textdb.web.healthcheck.SampleHealthCheck;
 import edu.uci.ics.textdb.web.request.beans.KeywordSourceBean;
 import edu.uci.ics.textdb.web.request.beans.NlpExtractorBean;
 import edu.uci.ics.textdb.web.request.beans.TupleStreamSinkBean;
+import edu.uci.ics.textdb.web.resource.DownloadFileResource;
 import edu.uci.ics.textdb.web.resource.NewQueryPlanResource;
 import edu.uci.ics.textdb.web.resource.PlanStoreResource;
 import edu.uci.ics.textdb.web.resource.QueryPlanResource;
@@ -65,6 +67,9 @@ public class TextdbWebApplication extends Application<TextdbWebConfiguration> {
         final PlanStoreResource planStoreResource = new PlanStoreResource();
         // Registers the PlanStoreResource with Jersey
         environment.jersey().register(planStoreResource);
+        
+        final DownloadFileResource downloadFileResource = new DownloadFileResource();
+        environment.jersey().register(downloadFileResource);
 
         // Creates an instance of the HealthCheck and registers it with the environment
         final SampleHealthCheck sampleHealthCheck = new SampleHealthCheck();
@@ -86,37 +91,18 @@ public class TextdbWebApplication extends Application<TextdbWebConfiguration> {
         cors.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), true, "/*");
     }
 
-    private static void loadStanfordNLP() throws TextDBException{
-
-        // Creating a simple logical plan with a Stanford NLP Extractor operator
-        LogicalPlan logicalPlan = new LogicalPlan();
-        logicalPlan.addOperator(KEYWORD_SOURCE_BEAN.getOperatorID(), KEYWORD_SOURCE_BEAN.getOperatorType(),
-                KEYWORD_SOURCE_BEAN.getOperatorProperties());
-        logicalPlan.addOperator(NLP_EXTRACTOR_BEAN.getOperatorID(), NLP_EXTRACTOR_BEAN.getOperatorType(),
-                NLP_EXTRACTOR_BEAN.getOperatorProperties());
-        logicalPlan.addOperator(TUPLE_STREAM_SINK_BEAN.getOperatorID(), TUPLE_STREAM_SINK_BEAN.getOperatorType(),
-                TUPLE_STREAM_SINK_BEAN.getOperatorProperties());
-        logicalPlan.addLink(KEYWORD_SOURCE_BEAN.getOperatorID(), NLP_EXTRACTOR_BEAN.getOperatorID());
-        logicalPlan.addLink(NLP_EXTRACTOR_BEAN.getOperatorID(), TUPLE_STREAM_SINK_BEAN.getOperatorID());
-
-        // Triggering the execution of the above query plan
-        Plan plan = logicalPlan.buildQueryPlan();
-        TupleStreamSink sink = (TupleStreamSink) plan.getRoot();
-        sink.open();
-        sink.collectAllTuples();
-        sink.close();
-    }
-
     public static void main(String args[]) throws Exception {
-        System.out.println("Writing Sample Index");
-        SampleExtraction.writeSampleIndex();
-        System.out.println("Completed Writing Sample Index");
-        System.out.println("Started Loading Stanford NLP");
-        loadStanfordNLP();
-        System.out.println("Finished Loading Stanford NLP");
-        System.out.println("Writing twitter index");
-        TwitterSample.writeTwitterIndex();
-        System.out.println("Finished writing twitter index");
+        RelationManager relationManager = RelationManager.getRelationManager();
+        if (! relationManager.checkTableExistence(SampleExtraction.PROMED_SAMPLE_TABLE)) {
+            System.out.println("Writing Sample Index");
+            SampleExtraction.writeSampleIndex();
+            System.out.println("Completed Writing Sample Index");
+        }
+        if (! relationManager.checkTableExistence(TwitterSample.twitterClimateTable)) {
+            System.out.println("Writing twitter index");
+            TwitterSample.writeTwitterIndex();
+            System.out.println("Finished writing twitter index");
+        }
         new TextdbWebApplication().run(args);
     }
 }

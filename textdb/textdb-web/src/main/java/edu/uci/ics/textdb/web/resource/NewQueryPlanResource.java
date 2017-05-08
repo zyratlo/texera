@@ -42,15 +42,16 @@ public class NewQueryPlanResource {
             
             // send response back to frontend
             if (sink instanceof ExcelSink) {
-                ExcelSink tupleSink = (ExcelSink) sink;
-                tupleSink.open();
-                List<Tuple> results = tupleSink.collectAllTuples();
-                tupleSink.close();
+                ExcelSink excelSink = (ExcelSink) sink;
+                excelSink.open();
+                List<Tuple> results = excelSink.collectAllTuples();
+                excelSink.close();
                 
                 JSONArray tupleJson = DataflowUtils.getTupleListJSON(results);
                 JSONObject resultJson = new JSONObject();
-                resultJson.append("timeStamp", resultJson);
-                resultJson.append("results", tupleJson);
+                String excelFilePath = excelSink.getFilePath();
+                resultJson.put("timeStamp", excelFilePath.substring(0, excelFilePath.length()-".xlsx".length()));
+                resultJson.put("results", tupleJson);
                 
                 return new TextdbWebResponse(0, resultJson.toString());
             } else {

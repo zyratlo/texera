@@ -17,7 +17,6 @@ declare var PrettyJSON: any;
 })
 
 export class SideBarComponent {
-  http: Http;
   data: any;
   attributes: string[] = [];
   currentResultTimeStamp: string = "";
@@ -50,10 +49,13 @@ export class SideBarComponent {
   }
   
   downloadExcel() {
-    if (this.currentResultTimeStamp == null) {
-      console.log("currentResultTimeStamp is null")
+    if (this.currentResultTimeStamp === "") {
+      console.log("currentResultTimeStamp is empty")
     } else {
-      this.http.get("http://localhost:8080/api/download/" + this.currentResultTimeStamp);
+      console.log("proceed to http request")
+      let downloadUrl = "http://localhost:8080/api/download/" + this.currentResultTimeStamp;
+      console.log(downloadUrl)
+      this.http.get(downloadUrl);
     }
   }
 
@@ -64,7 +66,7 @@ export class SideBarComponent {
     return jQuery.inArray(name, this.selectorList);
   }
 
-  constructor(private currentDataService: CurrentDataService) {
+  constructor(private currentDataService: CurrentDataService, private http: Http) {
     currentDataService.newAddition$.subscribe(
       data => {
         this.inSavedWindow = false;
@@ -83,9 +85,11 @@ export class SideBarComponent {
         this.inSavedWindow = false;
 
         if (data.code === 0) {
+          var jsonMessage = JSON.parse(data.message);
+          this.currentResultTimeStamp = jsonMessage.timeStamp;
           var node = new PrettyJSON.view.Node({
             el: jQuery("#elem"),
-            data: JSON.parse(data.message).results
+            data: jsonMessage.results
           });
         } else {
           var node = new PrettyJSON.view.Node({
