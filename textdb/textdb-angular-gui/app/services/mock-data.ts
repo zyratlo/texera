@@ -18,10 +18,10 @@ let keywordMatcher = {
         attributes: {
             "operatorType": "KeywordMatcher",
             "query": "keyword",
-            "attributes": ["attr1", "attr2"],
+            "attributes": ["text"],
             "luceneAnalyzer": "standard",
-            "matchingType": "conjunction",
-            "spanListName": ""
+            "matchingType": "phrase",
+            "spanListName": " "
         }
     }
 };
@@ -45,7 +45,8 @@ let regexMatcher = {
         "operatorType": "RegexMatcher",
         "regex": "regex",
         "attributes": ["attr1", "attr2"],
-        "regexIgnoreCase": false
+        "regexIgnoreCase": false,
+        "spanListName": " "
     }
   }
 };
@@ -70,7 +71,8 @@ let dictionaryMatcher = {
         "dictionaryEntries": ["entry1", "entry2"],
         "attributes": ["attr1", "attr2"],
         "luceneAnalyzer": "standard",
-        "matchingType": "conjunction"
+        "matchingType": "phrase",
+        "spanListName": " "
     }
   }
 }
@@ -95,7 +97,8 @@ let fuzzyMatcher = {
         "query": "token1 token2 token3",
         "attributes": ["attr1", "attr2"],
         "luceneAnalyzer": "standard",
-        "thresholdRatio": 0.8
+        "thresholdRatio": 0.8,
+        "spanListName": " ",
     }
   }
 }
@@ -118,7 +121,8 @@ let nlpEntity = {
     attributes : {
         "operatorType": "NlpEntity",
         "nlpEntityType": "location",
-        "attributes": ["attr1", "attr2"]
+        "attributes": ["attr1", "attr2"],
+        "spanListName": " "
     }
   }
 }
@@ -232,7 +236,7 @@ let scanSource = {
     },
     attributes : {
         "operatorType": "ScanSource",
-        "tableName": "promed"
+        "tableName": "tableName"
     }
   }
 }
@@ -257,9 +261,9 @@ let keywordSource = {
         "query": "keyword",
         "attributes": ["attr1", "attr2"],
         "luceneAnalyzer": "standard",
-        "matchingType": "conjunction",
+        "matchingType": "phrase",
         "tableName": "tableName",
-        "spanListName": ""
+        "spanListName": " "
     }
   }
 }
@@ -285,8 +289,9 @@ let dictionarySource = {
         "dictionaryEntries": ["entry1", "entry2"],
         "attributes": ["attr1", "attr2"],
         "luceneAnalyzer": "standard",
-        "matchingType": "conjunction",
-        "tableName": "tableName"
+        "matchingType": "phrase",
+        "tableName": "tableName",
+        "spanListName": " "
     }
   }
 }
@@ -312,7 +317,8 @@ let regexSource = {
         "attributes": ["attr1", "attr2"],
         "regexIgnoreCase": false,
         "tableName": "tableName",
-        "regexUseIndex": true
+        "regexUseIndex": true,
+        "spanListName": " "
     } 
   }
 }
@@ -338,7 +344,8 @@ let fuzzyTokenSource = {
         "attributes": ["attr1", "attr2"],
         "luceneAnalyzer": "standard",
         "thresholdRatio": 0.8,
-        "tableName": "tableName"
+        "tableName": "tableName",
+        "spanListName": " ",
     }
   }
 }

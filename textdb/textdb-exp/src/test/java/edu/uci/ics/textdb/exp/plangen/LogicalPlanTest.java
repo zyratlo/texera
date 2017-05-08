@@ -66,19 +66,22 @@ public class LogicalPlanTest {
     
     public static RegexPredicate regexPredicate = new RegexPredicate(
             "ca(lifornia)?",
-            Arrays.asList("location", "content"));
+            Arrays.asList("location", "content"),
+            "regexResults");
     public static String REGEX_ID = "regex";
     
     public static FuzzyTokenPredicate fuzzyTokenPredicate = new FuzzyTokenPredicate(
             "university college school",
             Arrays.asList("content"),
             LuceneAnalyzerConstants.standardAnalyzerString(),
-            0.5);
+            0.5,
+            "fuzzyTokenResults");
     public static String FUZZY_TOKEN_ID = "fuzzy token";
     
     public static NlpEntityPredicate nlpEntityPredicate = new NlpEntityPredicate(
             NlpEntityType.LOCATION,
-            Arrays.asList("content"));
+            Arrays.asList("content"),
+            "nlpEntityResults");
     public static String NLP_ENTITY_ID = "nlp eneity";
     
     public static JoinDistancePredicate joinDistancePredicate = new JoinDistancePredicate(
