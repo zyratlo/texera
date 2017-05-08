@@ -32,7 +32,7 @@ import edu.uci.ics.textdb.exp.sink.tuple.TupleSinkPredicate;
 import edu.uci.ics.textdb.exp.source.file.FileSourcePredicate;
 import edu.uci.ics.textdb.exp.source.scan.ScanSourcePredicate;
 import edu.uci.ics.textdb.exp.wordcount.WordCountIndexSourcePredicate;
-import edu.uci.ics.textdb.exp.wordcount.WordCountPayLoadPredicate;
+import edu.uci.ics.textdb.exp.wordcount.WordCountOperatorPredicate;
 import junit.framework.Assert;
 
 public class PredicateBaseTest {
@@ -216,8 +216,8 @@ public class PredicateBaseTest {
     }
     
     @Test
-    public void testWordCountPayload() throws Exception {
-        WordCountPayLoadPredicate wordCountPayloadPredicate = new WordCountPayLoadPredicate("attr1", "standard");
+    public void testWordCountOperator() throws Exception {
+        WordCountOperatorPredicate wordCountPayloadPredicate = new WordCountOperatorPredicate("attr1", "standard");
         testPredicate(wordCountPayloadPredicate);
     }
 

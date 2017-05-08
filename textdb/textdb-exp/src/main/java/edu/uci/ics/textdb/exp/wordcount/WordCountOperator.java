@@ -28,8 +28,8 @@ import edu.uci.ics.textdb.exp.utils.DataflowUtils;
  * @author Qinhua Huang
  */
 
-public class WordCountPayLoad extends AbstractSingleInputOperator implements ISourceOperator{
-    private WordCountPayLoadPredicate predicate;
+public class WordCountOperator extends AbstractSingleInputOperator implements ISourceOperator{
+    private WordCountOperatorPredicate predicate;
     
     public static final String WORD = "word";
     public static final String COUNT = "count";
@@ -42,7 +42,7 @@ public class WordCountPayLoad extends AbstractSingleInputOperator implements ISo
     private Schema inputSchema;
     private Schema tmpSchema;
     
-    public WordCountPayLoad(WordCountPayLoadPredicate predicate) {
+    public WordCountOperator(WordCountOperatorPredicate predicate) {
         this.predicate = predicate;
     }
     

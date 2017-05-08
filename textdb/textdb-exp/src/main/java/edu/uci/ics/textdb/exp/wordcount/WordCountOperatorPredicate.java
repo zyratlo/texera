@@ -11,13 +11,13 @@ import edu.uci.ics.textdb.exp.common.PropertyNameConstants;
  * @author Qinhua Huang
  */
 
-public class WordCountPayLoadPredicate extends PredicateBase {
+public class WordCountOperatorPredicate extends PredicateBase {
         
     private final String attribute;
     private final String analyzer;
     
     @JsonCreator
-    public WordCountPayLoadPredicate(
+    public WordCountOperatorPredicate(
             @JsonProperty(value = PropertyNameConstants.ATTRIBUTE_NAME, required = true)
             String attribute,
             @JsonProperty(value = PropertyNameConstants.LUCENE_ANALYZER_STRING, required = true)
@@ -40,7 +40,7 @@ public class WordCountPayLoadPredicate extends PredicateBase {
     @Override
     public IOperator newOperator() {
         // TODO Auto-generated method stub
-        return new WordCountPayLoad(this);
+        return new WordCountOperator(this);
     }
     
 }

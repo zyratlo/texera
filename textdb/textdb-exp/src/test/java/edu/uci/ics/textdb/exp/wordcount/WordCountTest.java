@@ -8,10 +8,10 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import edu.uci.ics.textdb.exp.wordcount.WordCountPayLoad;
+import edu.uci.ics.textdb.exp.wordcount.WordCountOperator;
 import edu.uci.ics.textdb.exp.wordcount.WordCountIndexSource;
 import edu.uci.ics.textdb.exp.wordcount.WordCountIndexSourcePredicate;
-import edu.uci.ics.textdb.exp.wordcount.WordCountPayLoadPredicate;
+import edu.uci.ics.textdb.exp.wordcount.WordCountOperatorPredicate;
 import edu.uci.ics.textdb.api.constants.TestConstants;
 import edu.uci.ics.textdb.api.constants.TestConstantsChineseWordCount;
 import edu.uci.ics.textdb.api.exception.TextDBException;
@@ -79,14 +79,14 @@ public class WordCountTest {
     public static HashMap<String, Integer> computePayLoadWordCount(String tableName,
             String attribute) throws TextDBException {
         ScanBasedSourceOperator scanSource = new ScanBasedSourceOperator(new ScanSourcePredicate(tableName));
-        WordCountPayLoad wordCount = null;
+        WordCountOperator wordCount = null;
         HashMap<String, Integer> result = new HashMap<String, Integer>();
         
         if (tableName.equals(COUNT_TABLE)) {
-            wordCount = new WordCountPayLoad(new WordCountPayLoadPredicate(TestConstants.DESCRIPTION,
+            wordCount = new WordCountOperator(new WordCountOperatorPredicate(TestConstants.DESCRIPTION,
                     LuceneAnalyzerConstants.standardAnalyzerString()));
         } else if (tableName.equals(COUNT_CHINESE_TABLE)) {
-            wordCount = new WordCountPayLoad(new WordCountPayLoadPredicate(TestConstantsChineseWordCount.DESCRIPTION,
+            wordCount = new WordCountOperator(new WordCountOperatorPredicate(TestConstantsChineseWordCount.DESCRIPTION,
                     LuceneAnalyzerConstants.chineseAnalyzerString()) );
         }
         wordCount.setInputOperator(scanSource);
@@ -94,8 +94,8 @@ public class WordCountTest {
         wordCount.open();
         Tuple tuple;
         while ((tuple = wordCount.getNextTuple()) != null) {
-            result.put((String) tuple.getField(WordCountPayLoad.WORD).getValue(), 
-                    (Integer) tuple.getField(WordCountPayLoad.COUNT).getValue());
+            result.put((String) tuple.getField(WordCountOperator.WORD).getValue(), 
+                    (Integer) tuple.getField(WordCountOperator.COUNT).getValue());
         }
         wordCount.close();
 
