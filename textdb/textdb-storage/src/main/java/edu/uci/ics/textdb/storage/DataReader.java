@@ -240,4 +240,8 @@ public class DataReader implements IOperator {
         }
     }
     
+    public IndexReader getLuceneIndexReader() {
+        return this.luceneIndexReader;
+    }
+    
 }
