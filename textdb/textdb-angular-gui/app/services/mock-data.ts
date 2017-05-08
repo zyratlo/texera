@@ -45,7 +45,8 @@ let regexMatcher = {
         "operatorType": "RegexMatcher",
         "regex": "regex",
         "attributes": ["attr1", "attr2"],
-        "regexIgnoreCase": false
+        "regexIgnoreCase": false,
+        "spanListName": " "
     }
   }
 };
@@ -96,7 +97,8 @@ let fuzzyMatcher = {
         "query": "token1 token2 token3",
         "attributes": ["attr1", "attr2"],
         "luceneAnalyzer": "standard",
-        "thresholdRatio": 0.8
+        "thresholdRatio": 0.8,
+        "spanListName": " ",
     }
   }
 }
@@ -119,7 +121,8 @@ let nlpEntity = {
     attributes : {
         "operatorType": "NlpEntity",
         "nlpEntityType": "location",
-        "attributes": ["attr1", "attr2"]
+        "attributes": ["attr1", "attr2"],
+        "spanListName": " "
     }
   }
 }
@@ -314,7 +317,8 @@ let regexSource = {
         "attributes": ["attr1", "attr2"],
         "regexIgnoreCase": false,
         "tableName": "tableName",
-        "regexUseIndex": true
+        "regexUseIndex": true,
+        "spanListName": " "
     } 
   }
 }
@@ -340,7 +344,8 @@ let fuzzyTokenSource = {
         "attributes": ["attr1", "attr2"],
         "luceneAnalyzer": "standard",
         "thresholdRatio": 0.8,
-        "tableName": "tableName"
+        "tableName": "tableName",
+        "spanListName": " ",
     }
   }
 }
