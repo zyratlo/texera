@@ -143,6 +143,7 @@ public class ExcelSink implements ISink {
         }
     }
 
+    
     /**
      * Collects ALL the tuples to an in-memory list
      * also add all tuples into the excel file by calling this.getNextTuple
