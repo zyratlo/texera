@@ -473,6 +473,29 @@ let result = {
   }
 }
 
+let excelSink = {
+  top : 20,
+  left : 20,
+  properties : {
+    title : 'View Results',
+    inputs : {
+      input_1 : {
+        label : "Input (:i)",
+      }
+    },
+    outputs : {
+      output_1 : {
+        label : "Output (:i)",
+      }
+    },
+    attributes : {
+        "operatorType": "ExcelSink",
+        "limit": 10,
+        "offset": 0,
+    }
+  }
+}
+
 export const DEFAULT_MATCHERS: Data[] = [
     {id: 0, jsonData: regexMatcher},
     {id: 1, jsonData: keywordMatcher},
@@ -493,5 +516,6 @@ export const DEFAULT_MATCHERS: Data[] = [
     {id: 16, jsonData: wordCountSource},
     {id: 17, jsonData: wordCount},
     {id: 19, jsonData: result},
+    {id: 20, jsonData: excelSink}
 
 ];

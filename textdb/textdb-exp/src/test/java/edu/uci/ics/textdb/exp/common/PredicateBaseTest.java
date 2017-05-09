@@ -28,6 +28,7 @@ import edu.uci.ics.textdb.exp.regexsplit.RegexSplitPredicate;
 import edu.uci.ics.textdb.exp.regexsplit.RegexSplitPredicate.SplitType;
 import edu.uci.ics.textdb.exp.sampler.SamplerPredicate;
 import edu.uci.ics.textdb.exp.sampler.SamplerPredicate.SampleType;
+import edu.uci.ics.textdb.exp.sink.excel.ExcelSinkPredicate;
 import edu.uci.ics.textdb.exp.sink.tuple.TupleSinkPredicate;
 import edu.uci.ics.textdb.exp.source.file.FileSourcePredicate;
 import edu.uci.ics.textdb.exp.source.scan.ScanSourcePredicate;
@@ -210,6 +211,7 @@ public class PredicateBaseTest {
     }
     
     @Test
+
     public void testWordCountIndexSource() throws Exception {
         WordCountIndexSourcePredicate wordCountIndexSourcePredicate = new WordCountIndexSourcePredicate("tableName", "attr1");
         testPredicate(wordCountIndexSourcePredicate);
@@ -219,6 +221,11 @@ public class PredicateBaseTest {
     public void testWordCountOperator() throws Exception {
         WordCountOperatorPredicate wordCountPredicate = new WordCountOperatorPredicate("attr1", "standard");
         testPredicate(wordCountPredicate);
+
+    public void testExcelSink() throws Exception {
+    	ExcelSinkPredicate excelSinkPredicate = new ExcelSinkPredicate(10, 10);
+    	testPredicate(excelSinkPredicate);
+      
     }
 
 }
