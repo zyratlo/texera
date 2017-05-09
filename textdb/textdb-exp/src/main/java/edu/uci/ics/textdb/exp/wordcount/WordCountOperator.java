@@ -96,7 +96,6 @@ public class WordCountOperator extends AbstractSingleInputOperator implements IS
 
     @Override
     public Tuple processOneInputTuple(Tuple inputTuple) throws TextDBException {
-        // TODO Auto-generated method stub
         if (!inputSchema.containsField(SchemaConstants.PAYLOAD)) {
             inputTuple = DataflowUtils.getSpanTuple(inputTuple.getFields(),
                     DataflowUtils.generatePayloadFromTuple(inputTuple, predicate.getLuceneAnalyzerString()), tmpSchema);

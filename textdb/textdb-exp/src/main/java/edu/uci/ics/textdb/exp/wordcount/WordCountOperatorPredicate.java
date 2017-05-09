@@ -39,7 +39,6 @@ public class WordCountOperatorPredicate extends PredicateBase {
 
     @Override
     public IOperator newOperator() {
-        // TODO Auto-generated method stub
         return new WordCountOperator(this);
     }
     
