@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.Terms;
@@ -42,8 +43,8 @@ public class WordCountIndexSource implements ISourceOperator {
     private WordCountIndexSourcePredicate predicate;
     private int cursor = CLOSED;
     
-    private HashMap<String, Integer> wordCountMap = null;
-    private Iterator<Entry<String, Integer>> wordCountIterator = null;
+    private List<Entry<String, Integer>> sortedWordCountMap;
+    private Iterator<Entry<String, Integer>> wordCountIterator;
     
     public WordCountIndexSource(WordCountIndexSourcePredicate predicate) {
         this.predicate = predicate;
@@ -59,18 +60,16 @@ public class WordCountIndexSource implements ISourceOperator {
 
     @Override
     public Tuple getNextTuple() throws TextDBException {
-        if (cursor != CLOSED) {
+        if (cursor == CLOSED) {
             throw new DataFlowException(ErrorMessages.OPERATOR_NOT_OPENED);
         }
         return computeNextMatchingTuple();
     }
 
     private Tuple computeNextMatchingTuple() throws TextDBException {
-        if (wordCountMap == null) {
-            wordCountMap = new HashMap<String, Integer>();
+        if (sortedWordCountMap == null) {
             computeWordCount();
-            wordCountIterator = wordCountMap.entrySet().iterator();
-        }        
+        }
         if (wordCountIterator.hasNext()) {
             Entry<String, Integer> entry = wordCountIterator.next();
             List<IField> tupleFieldList = new ArrayList<>();
@@ -87,6 +86,7 @@ public class WordCountIndexSource implements ISourceOperator {
     
     private void computeWordCount() throws TextDBException {
         try {
+            HashMap<String, Integer> wordCountMap = new HashMap<>();
             DataReader dataReader = RelationManager.getRelationManager().getTableDataReader(
                     predicate.getTableName(), new MatchAllDocsQuery());
             
@@ -108,6 +108,12 @@ public class WordCountIndexSource implements ISourceOperator {
             
             luceneIndexReader.close();
             dataReader.close();
+            
+            sortedWordCountMap = wordCountMap.entrySet().stream()
+                    .sorted((e1, e2) -> e2.getValue().compareTo(e1.getValue()))
+                    .collect(Collectors.toList());
+            wordCountIterator = sortedWordCountMap.iterator();
+            
         } catch (IOException e) {
             throw new DataFlowException(e);
         }

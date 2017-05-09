@@ -221,6 +221,7 @@ public class PredicateBaseTest {
     public void testWordCountOperator() throws Exception {
         WordCountOperatorPredicate wordCountPredicate = new WordCountOperatorPredicate("attr1", "standard");
         testPredicate(wordCountPredicate);
+    }
 
     public void testExcelSink() throws Exception {
     	ExcelSinkPredicate excelSinkPredicate = new ExcelSinkPredicate(10, 10);

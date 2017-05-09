@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 import edu.uci.ics.textdb.api.constants.SchemaConstants;
 import edu.uci.ics.textdb.api.dataflow.ISourceOperator;
@@ -37,8 +38,9 @@ public class WordCountOperator extends AbstractSingleInputOperator implements IS
     public static final Attribute COUNT_ATTR = new Attribute(COUNT, AttributeType.INTEGER);
     public static final Schema SCHEMA_WORD_COUNT = new Schema(SchemaConstants._ID_ATTRIBUTE, WORD_ATTR, COUNT_ATTR);
     
-    private HashMap<String, Integer> wordCountMap = null;
-    private Iterator<Entry<String, Integer>> wordCountIterator = null;
+    private List<Entry<String, Integer>> sortedWordCountMap;
+    private Iterator<Entry<String, Integer>> wordCountIterator;
+    
     private Schema inputSchema;
     private Schema tmpSchema;
     
@@ -58,10 +60,8 @@ public class WordCountOperator extends AbstractSingleInputOperator implements IS
     
     @Override
     protected Tuple computeNextMatchingTuple() throws TextDBException {
-        if (wordCountMap == null) {
-            wordCountMap = new HashMap<String, Integer>();
+        if (sortedWordCountMap == null) {
             computeWordCount();
-            wordCountIterator = wordCountMap.entrySet().iterator();
         }
         
         if (wordCountIterator.hasNext()) {
@@ -81,6 +81,7 @@ public class WordCountOperator extends AbstractSingleInputOperator implements IS
     
     private void computeWordCount() throws TextDBException {
         Tuple tuple;
+        HashMap<String, Integer> wordCountMap = new HashMap<>();
         while ((tuple = this.inputOperator.getNextTuple()) != null) {
             ListField<Span> payloadField = tuple.getField("payload");
             List<Span> payloadSpanList = payloadField.getValue();
@@ -92,6 +93,10 @@ public class WordCountOperator extends AbstractSingleInputOperator implements IS
                 }
             }
         }
+        sortedWordCountMap = wordCountMap.entrySet().stream()
+                .sorted((e1, e2) -> e2.getValue().compareTo(e1.getValue()))
+                .collect(Collectors.toList());
+        wordCountIterator = sortedWordCountMap.iterator();
     }
 
     @Override
