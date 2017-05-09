@@ -104,9 +104,7 @@ public class WordCountTest {
     
     //Compute result by scanning disk index.
     public static HashMap<String, Integer> computeWordCountIndexSourceResult(String tableName, String attribute)
-            throws TextDBException {
-        ScanBasedSourceOperator scanSource = new ScanBasedSourceOperator(new ScanSourcePredicate(tableName));
-        
+            throws TextDBException {        
         WordCountIndexSource wordCountIndexSource = null;
         HashMap<String, Integer> result = new HashMap<String, Integer>();
         
@@ -116,7 +114,6 @@ public class WordCountTest {
             wordCountIndexSource = new WordCountIndexSource(new WordCountIndexSourcePredicate(
                     tableName, TestConstantsChineseWordCount.DESCRIPTION));
         }
-        wordCountIndexSource.setInputOperator(scanSource);
         
         wordCountIndexSource.open();
         Tuple tuple;

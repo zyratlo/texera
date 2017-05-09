@@ -11,6 +11,8 @@ import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.Terms;
 import org.apache.lucene.index.TermsEnum;
 import org.apache.lucene.search.MatchAllDocsQuery;
+
+import edu.uci.ics.textdb.api.constants.ErrorMessages;
 import edu.uci.ics.textdb.api.constants.SchemaConstants;
 import edu.uci.ics.textdb.api.dataflow.ISourceOperator;
 import edu.uci.ics.textdb.api.exception.DataFlowException;
@@ -23,22 +25,22 @@ import edu.uci.ics.textdb.api.schema.Attribute;
 import edu.uci.ics.textdb.api.schema.AttributeType;
 import edu.uci.ics.textdb.api.schema.Schema;
 import edu.uci.ics.textdb.api.tuple.Tuple;
-import edu.uci.ics.textdb.exp.common.AbstractSingleInputOperator;
 import edu.uci.ics.textdb.storage.DataReader;
 import edu.uci.ics.textdb.storage.RelationManager;
 
 /**
  * @author Qinhua Huang
  */
-
-public class WordCountIndexSource extends AbstractSingleInputOperator implements ISourceOperator{
-    private WordCountIndexSourcePredicate predicate;
+public class WordCountIndexSource implements ISourceOperator {
     
     public static final String WORD = "word";
     public static final String COUNT = "count";
     public static final Attribute WORD_ATTR = new Attribute(WORD, AttributeType.STRING);
     public static final Attribute COUNT_ATTR = new Attribute(COUNT, AttributeType.INTEGER);
     public static final Schema SCHEMA_WORD_COUNT = new Schema(SchemaConstants._ID_ATTRIBUTE, WORD_ATTR, COUNT_ATTR);
+    
+    private WordCountIndexSourcePredicate predicate;
+    private int cursor = CLOSED;
     
     private HashMap<String, Integer> wordCountMap = null;
     private Iterator<Entry<String, Integer>> wordCountIterator = null;
@@ -48,12 +50,22 @@ public class WordCountIndexSource extends AbstractSingleInputOperator implements
     }
     
     @Override
-    protected void setUp() throws DataFlowException {
-        this.outputSchema = SCHEMA_WORD_COUNT;
+    public void open() throws TextDBException {
+        if (cursor != CLOSED) {
+            return;
+        }
+        cursor = OPENED;
     }
-    
+
     @Override
-    protected Tuple computeNextMatchingTuple() throws TextDBException {
+    public Tuple getNextTuple() throws TextDBException {
+        if (cursor != CLOSED) {
+            throw new DataFlowException(ErrorMessages.OPERATOR_NOT_OPENED);
+        }
+        return computeNextMatchingTuple();
+    }
+
+    private Tuple computeNextMatchingTuple() throws TextDBException {
         if (wordCountMap == null) {
             wordCountMap = new HashMap<String, Integer>();
             computeWordCount();
@@ -67,7 +79,8 @@ public class WordCountIndexSource extends AbstractSingleInputOperator implements
             tupleFieldList.add(new StringField(entry.getKey()));
             tupleFieldList.add(new IntegerField(entry.getValue()));
             
-            return new Tuple(outputSchema, tupleFieldList);
+            cursor++;
+            return new Tuple(SCHEMA_WORD_COUNT, tupleFieldList);
         }
         return null;
     }
@@ -101,12 +114,17 @@ public class WordCountIndexSource extends AbstractSingleInputOperator implements
         
     }
     
+
     @Override
-    public Tuple processOneInputTuple(Tuple inputTuple) throws TextDBException {
-        throw new DataFlowException("not supported");
+    public void close() throws TextDBException {
+        if (cursor == CLOSED) {
+            return;
+        }
+        cursor = CLOSED;
     }
-    
+
     @Override
-    protected void cleanUp() throws TextDBException {
+    public Schema getOutputSchema() {
+        return SCHEMA_WORD_COUNT;
     }
 }
