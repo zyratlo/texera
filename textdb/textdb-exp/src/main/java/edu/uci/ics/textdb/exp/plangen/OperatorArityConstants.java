@@ -24,6 +24,8 @@ import edu.uci.ics.textdb.exp.sink.excel.ExcelSinkPredicate;
 import edu.uci.ics.textdb.exp.sink.tuple.TupleSinkPredicate;
 import edu.uci.ics.textdb.exp.source.file.FileSourcePredicate;
 import edu.uci.ics.textdb.exp.source.scan.ScanSourcePredicate;
+import edu.uci.ics.textdb.exp.wordcount.WordCountIndexSourcePredicate;
+import edu.uci.ics.textdb.exp.wordcount.WordCountOperatorPredicate;
 
 /**
  * OperatorArityConstants class includes the input and output arity constraints of each operator.
@@ -52,6 +54,9 @@ public class OperatorArityConstants {
         fixedInputArityMap.put(ProjectionPredicate.class, 1);
         fixedInputArityMap.put(RegexSplitPredicate.class, 1);
         fixedInputArityMap.put(SamplerPredicate.class, 1);
+        fixedInputArityMap.put(WordCountIndexSourcePredicate.class, 0);
+        fixedInputArityMap.put(WordCountOperatorPredicate.class, 1);
+                
 
         fixedInputArityMap.put(ScanSourcePredicate.class, 0);
         fixedInputArityMap.put(FileSourcePredicate.class, 0);
@@ -80,6 +85,8 @@ public class OperatorArityConstants {
         fixedOutputArityMap.put(ProjectionPredicate.class, 1);
         fixedOutputArityMap.put(RegexSplitPredicate.class, 1);
         fixedOutputArityMap.put(SamplerPredicate.class, 1);
+        fixedOutputArityMap.put(WordCountIndexSourcePredicate.class, 1);
+        fixedOutputArityMap.put(WordCountOperatorPredicate.class, 1);
 
         fixedOutputArityMap.put(ScanSourcePredicate.class, 1);
         fixedOutputArityMap.put(FileSourcePredicate.class, 1);
