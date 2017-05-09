@@ -258,11 +258,11 @@ let keywordSource = {
     },
     attributes : {
         "operatorType": "KeywordSource",
+        "tableName": "tableName",
         "query": "keyword",
         "attributes": ["attr1", "attr2"],
         "luceneAnalyzer": "standard",
         "matchingType": "phrase",
-        "tableName": "tableName",
         "spanListName": " "
     }
   }
@@ -286,11 +286,11 @@ let dictionarySource = {
     },
     attributes : {
         "operatorType": "DictionarySource",
+        "tableName": "tableName",
         "dictionaryEntries": ["entry1", "entry2"],
         "attributes": ["attr1", "attr2"],
         "luceneAnalyzer": "standard",
         "matchingType": "phrase",
-        "tableName": "tableName",
         "spanListName": " "
     }
   }
@@ -313,10 +313,10 @@ let regexSource = {
     },
     attributes : {
         "operatorType": "RegexSource",
+        "tableName": "tableName",
         "regex": "regex",
         "attributes": ["attr1", "attr2"],
         "regexIgnoreCase": false,
-        "tableName": "tableName",
         "regexUseIndex": true,
         "spanListName": " "
     } 
@@ -340,11 +340,11 @@ let fuzzyTokenSource = {
     },
     attributes : {
         "operatorType": "FuzzyTokenSource",
+        "tableName": "tableName",
         "query": "token1 token2 token3",
         "attributes": ["attr1", "attr2"],
         "luceneAnalyzer": "standard",
         "thresholdRatio": 0.8,
-        "tableName": "tableName",
         "spanListName": " ",
     }
   }
