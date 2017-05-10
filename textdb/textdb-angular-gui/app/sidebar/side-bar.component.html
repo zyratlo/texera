@@ -26,7 +26,7 @@
                 <div *ngIf="attribute === 'attributes'">
                     <select class="form-control" name="{{attribute}}+Selector" [(ngModel)]="selectedAttribute" (ngModelChange)="selected($event)">
                         <option selected hidden value="-">Select attributes</option>
-                        <option *ngFor="let attritute of attributeItems" [value] = "attritute">{{attritute}}</option>
+                        <option *ngFor="let attribute of attributeItems" [value] = "attribute">{{attribute}}</option>
                     </select>
                     <input class="form-control" id="{{attribute}}" placeholder="Enter attributes" [ngModel]="selectedAttributesList.toString()" (ngModelChange)="manuallyAdded($event)" name="{{attribute}}" #{{attribute}}="ngModel">
                 </div>
