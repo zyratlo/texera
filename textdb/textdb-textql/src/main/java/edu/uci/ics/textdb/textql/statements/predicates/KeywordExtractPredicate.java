@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
-import edu.uci.ics.textdb.web.request.beans.KeywordMatcherBean;
+import edu.uci.ics.textdb.exp.keywordmatcher.KeywordPredicate;
 
 /**
  * Object representation of a "KEYWORDEXTRACT(...)" predicate inside a { @code SelectExtractStatement }.
@@ -106,10 +106,13 @@ public class KeywordExtractPredicate implements ExtractPredicate {
      * @return this operator converted to a KeywordMatcherBean.
      */
     @Override
-    public KeywordMatcherBean generateOperatorBean(String extractionOperatorId) {
+    public KeywordPredicate generateOperatorBean(String extractionOperatorId) {
         String matchingFieldsAsString = String.join(",", this.matchingFields);
-        return new KeywordMatcherBean(extractionOperatorId, "KeywordMatcher", matchingFieldsAsString,
-                    null, null, this.keywords, this.matchingType);
+        KeywordPredicate keywordPredicate = new KeywordPredicate(
+                this.keywords, this.matchingFields, null, this.matchingType
+                matchingFieldsAsString,
+                null, null, this.keywords, this.matchingType);
+        
     }
   
 
