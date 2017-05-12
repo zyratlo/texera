@@ -11,7 +11,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import edu.uci.ics.textdb.api.constants.JsonConstants;
-import edu.uci.ics.textdb.api.exception.TextDBException;
 
 public class Schema {
     private List<Attribute> attributes;
@@ -19,6 +18,14 @@ public class Schema {
 
     public Schema(Attribute... attributes) {
         this(Arrays.asList(attributes));
+    }
+    
+    @JsonCreator
+    public Schema(
+            @JsonProperty(value = JsonConstants.ATTRIBUTES, required = true)
+            List<Attribute> attributes) {
+        this.attributes = attributes;
+        populateAttributeNameVsIndexMap();
     }
 
     private void populateAttributeNameVsIndexMap() {
@@ -34,6 +41,7 @@ public class Schema {
         return attributes;
     }
     
+    @JsonIgnore
     public List<String> getAttributeNames() {
         return attributes.stream().map(attr -> attr.getAttributeName()).collect(Collectors.toList());
     }

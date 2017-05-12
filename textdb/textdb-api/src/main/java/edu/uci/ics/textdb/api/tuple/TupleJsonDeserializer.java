@@ -35,8 +35,8 @@ public class TupleJsonDeserializer extends StdDeserializer<Tuple> {
         
         Schema schema = new ObjectMapper().treeToValue(schemaNode, Schema.class);
         ArrayList<IField> fields = new ArrayList<>();
-        for (int i = 0; i < schema.size(); i++) {
-            AttributeType attributeType = schema.getAttribute(i).getAttributeType();
+        for (int i = 0; i < schema.getAttributes().size(); i++) {
+            AttributeType attributeType = schema.getAttributes().get(i).getAttributeType();
             JsonNode fieldNode = fieldsNode.get(i);
             IField field = new ObjectMapper().treeToValue(fieldNode, attributeType.getFieldClass());
             fields.add(field);

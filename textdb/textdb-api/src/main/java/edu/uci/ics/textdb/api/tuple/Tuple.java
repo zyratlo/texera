@@ -9,7 +9,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import edu.uci.ics.textdb.api.constants.JsonConstants;
-import edu.uci.ics.textdb.api.exception.TextDBException;
 import edu.uci.ics.textdb.api.field.IField;
 import edu.uci.ics.textdb.api.schema.Schema;
 
@@ -35,7 +34,6 @@ public class Tuple {
             Schema schema, 
             @JsonProperty(value = JsonConstants.FIELDS, required = true)
             List<IField> fields) {
-        validateTuple(schema, fields);
         this.schema = schema;
         this.fields = fields;
     }
@@ -99,12 +97,5 @@ public class Tuple {
     public String toString() {
         return "Tuple [schema=" + schema + ", fields=" + fields + "]";
     }
-
-    public List<IField> getFields() {
-        return new ArrayList<>(this.fields);
-    }
-
-    public Schema getSchema() {
-        return schema;
-    }
+    
 }
