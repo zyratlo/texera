@@ -25,9 +25,12 @@ import edu.uci.ics.textdb.exp.regexmatcher.RegexPredicate;
 import edu.uci.ics.textdb.exp.regexmatcher.RegexSourcePredicate;
 import edu.uci.ics.textdb.exp.regexsplit.RegexSplitPredicate;
 import edu.uci.ics.textdb.exp.sampler.SamplerPredicate;
+import edu.uci.ics.textdb.exp.sink.excel.ExcelSinkPredicate;
 import edu.uci.ics.textdb.exp.sink.tuple.TupleSinkPredicate;
 import edu.uci.ics.textdb.exp.source.file.FileSourcePredicate;
 import edu.uci.ics.textdb.exp.source.scan.ScanSourcePredicate;
+import edu.uci.ics.textdb.exp.wordcount.WordCountIndexSourcePredicate;
+import edu.uci.ics.textdb.exp.wordcount.WordCountOperatorPredicate;
 
 
 /**
@@ -67,6 +70,10 @@ import edu.uci.ics.textdb.exp.source.scan.ScanSourcePredicate;
         @Type(value = ScanSourcePredicate.class, name = "ScanSource"),
         @Type(value = FileSourcePredicate.class, name = "FileSink"),        
         @Type(value = TupleSinkPredicate.class, name = "ViewResults"),
+        @Type(value = ExcelSinkPredicate.class, name = "ExcelSink"),
+        
+        @Type(value = WordCountIndexSourcePredicate.class, name = "WordCountIndexSource"),
+        @Type(value = WordCountOperatorPredicate.class, name = "WordCount"),
         
 })
 public abstract class PredicateBase implements IPredicate {

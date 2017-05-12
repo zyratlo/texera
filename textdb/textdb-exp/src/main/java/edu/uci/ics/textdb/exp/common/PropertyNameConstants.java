@@ -70,6 +70,5 @@ public class PropertyNameConstants {
     public static final String OUTER_ATTRIBUTE_NAME = "outerAttribute";
     public static final String SPAN_DISTANCE = "spanDistance";
     public static final String JOIN_SIMILARITY_THRESHOLD = "similarityThreshold";
-
     
 }

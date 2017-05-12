@@ -28,9 +28,12 @@ import edu.uci.ics.textdb.exp.regexsplit.RegexSplitPredicate;
 import edu.uci.ics.textdb.exp.regexsplit.RegexSplitPredicate.SplitType;
 import edu.uci.ics.textdb.exp.sampler.SamplerPredicate;
 import edu.uci.ics.textdb.exp.sampler.SamplerPredicate.SampleType;
+import edu.uci.ics.textdb.exp.sink.excel.ExcelSinkPredicate;
 import edu.uci.ics.textdb.exp.sink.tuple.TupleSinkPredicate;
 import edu.uci.ics.textdb.exp.source.file.FileSourcePredicate;
 import edu.uci.ics.textdb.exp.source.scan.ScanSourcePredicate;
+import edu.uci.ics.textdb.exp.wordcount.WordCountIndexSourcePredicate;
+import edu.uci.ics.textdb.exp.wordcount.WordCountOperatorPredicate;
 import junit.framework.Assert;
 
 public class PredicateBaseTest {
@@ -85,7 +88,8 @@ public class PredicateBaseTest {
                 "token1 token2 token3",
                 attributeNames,
                 "standard",
-                0.8);
+                0.8,
+                "spanListName");
         testPredicate(fuzzyTokenPredicate);
         
         FuzzyTokenSourcePredicate fuzzyTokenSourcePredicate = new FuzzyTokenSourcePredicate(
@@ -93,7 +97,8 @@ public class PredicateBaseTest {
                 attributeNames,
                 "standard",
                 0.8,
-                "tableName");
+                "tableName",
+                "spanListName");
         testPredicate(fuzzyTokenSourcePredicate);
     }
     
@@ -133,7 +138,8 @@ public class PredicateBaseTest {
     public void testNlpEntity() throws Exception {
         NlpEntityPredicate nlpEntityPredicate = new NlpEntityPredicate(
                 NlpEntityType.LOCATION,
-                attributeNames);
+                attributeNames,
+                "nlpEntityResults");
         testPredicate(nlpEntityPredicate);
     }
     
@@ -155,13 +161,15 @@ public class PredicateBaseTest {
     public void testRegexMatcher() throws Exception {
         RegexPredicate regexPredicate = new RegexPredicate(
                 "regex",
-                attributeNames);
+                attributeNames,
+                "spanListName");
         testPredicate(regexPredicate);
         
         RegexSourcePredicate regexSourcePredicate = new RegexSourcePredicate(
                 "regex",
                 attributeNames,
-                "tableName");
+                "tableName",
+                "spanListName");
         testPredicate(regexSourcePredicate);
     }
     
@@ -200,6 +208,25 @@ public class PredicateBaseTest {
     public void testTupleSink() throws Exception {
         TupleSinkPredicate tupleSinkPredicate = new TupleSinkPredicate();
         testPredicate(tupleSinkPredicate);
+    }
+    
+    @Test
+
+    public void testWordCountIndexSource() throws Exception {
+        WordCountIndexSourcePredicate wordCountIndexSourcePredicate = new WordCountIndexSourcePredicate("tableName", "attr1");
+        testPredicate(wordCountIndexSourcePredicate);
+    }
+    
+    @Test
+    public void testWordCountOperator() throws Exception {
+        WordCountOperatorPredicate wordCountPredicate = new WordCountOperatorPredicate("attr1", "standard");
+        testPredicate(wordCountPredicate);
+    }
+
+    public void testExcelSink() throws Exception {
+    	ExcelSinkPredicate excelSinkPredicate = new ExcelSinkPredicate(10, 10);
+    	testPredicate(excelSinkPredicate);
+      
     }
 
 }
