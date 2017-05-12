@@ -6,17 +6,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import edu.uci.ics.textdb.api.constants.JsonConstants;
+import edu.uci.ics.textdb.api.exception.TextDBException;
+
 public class Schema {
     private List<Attribute> attributes;
     private Map<String, Integer> attributeNameVsIndex;
 
     public Schema(Attribute... attributes) {
-        // Converting to java.util.Arrays.ArrayList
-        // so that the collection remains static and cannot be extended/shrunk
-        // This makes List<Attribute> partially immutable.
-        // Partial because we can still replace an element at particular index.
-        this.attributes = Arrays.asList(attributes);
-        populateAttributeNameVsIndexMap();
+        this(Arrays.asList(attributes));
     }
 
     private void populateAttributeNameVsIndexMap() {
@@ -27,6 +29,7 @@ public class Schema {
         }
     }
 
+    @JsonProperty(value = JsonConstants.ATTRIBUTES)
     public List<Attribute> getAttributes() {
         return attributes;
     }
@@ -47,6 +50,7 @@ public class Schema {
         return attributes.get(attrIndex);
     }
 
+    @JsonIgnore
     public boolean containsField(String attributeName) {
         return attributeNameVsIndex.keySet().contains(attributeName.toLowerCase());
     }
