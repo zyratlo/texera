@@ -1,16 +1,13 @@
 package edu.uci.ics.textdb.api;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Date;
 
 import org.junit.Test;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.uci.ics.textdb.api.constants.JsonConstants;
-import edu.uci.ics.textdb.api.exception.TextDBException;
 import edu.uci.ics.textdb.api.field.DateField;
 import edu.uci.ics.textdb.api.field.DoubleField;
 import edu.uci.ics.textdb.api.field.IDField;
@@ -22,46 +19,22 @@ import edu.uci.ics.textdb.api.schema.AttributeType;
 import edu.uci.ics.textdb.api.schema.Schema;
 import edu.uci.ics.textdb.api.span.Span;
 import edu.uci.ics.textdb.api.tuple.Tuple;
+import edu.uci.ics.textdb.api.utils.TestUtils;
 import junit.framework.Assert;
 
 public class JsonSerializationTest {
     
-    public static JsonNode testJsonSerialization(Object object) {
-        return testJsonSerialization(object, false);
-    }
-    
-    public static JsonNode testJsonSerialization(Object object, boolean printResults) {
-        try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            String json = objectMapper.writeValueAsString(object);
-            Object resultObject = objectMapper.readValue(json, object.getClass());
-            String resultJson = objectMapper.writeValueAsString(resultObject);
-            
-            JsonNode jsonNode = objectMapper.readValue(json, JsonNode.class);
-            JsonNode resultJsonNode = objectMapper.readValue(resultJson, JsonNode.class);
-            
-            if (printResults) {
-                System.out.println(resultJson);
-            }
-            
-            Assert.assertEquals(jsonNode, resultJsonNode);
-            return jsonNode;
-        } catch (IOException e) {
-            throw new TextDBException(e);
-        }
-    }
-    
     @Test
     public void testAttributeType() {
         for (AttributeType attributeType : Arrays.asList(AttributeType.values())) {
-            testJsonSerialization(attributeType);
+            TestUtils.testJsonSerialization(attributeType);
         }
     }
     
     @Test
     public void testAttribute() {
         Attribute attribute = new Attribute("attrName", AttributeType.TEXT);
-        testJsonSerialization(attribute);
+        TestUtils.testJsonSerialization(attribute);
     }
     
     @Test
@@ -70,13 +43,13 @@ public class JsonSerializationTest {
                 new Attribute("_id", AttributeType._ID_TYPE),
                 new Attribute("text", AttributeType.TEXT),
                 new Attribute("payload", AttributeType.LIST)));
-        testJsonSerialization(schema);
+        TestUtils.testJsonSerialization(schema);
     }
     
     @Test
     public void testSpan() {
         Span span = new Span("attrName", 0, 10, "key", "value", 0);
-        testJsonSerialization(span);
+        TestUtils.testJsonSerialization(span);
     }
     
     @Test
@@ -84,34 +57,34 @@ public class JsonSerializationTest {
         ListField<Span> spanListField = new ListField<Span>(Arrays.asList(
                 new Span("attrName", 0, 10, "key1", "value1", 0),
                 new Span("attrName", 11, 20, "key2", "value2", 1)));
-        testJsonSerialization(spanListField);
+        TestUtils.testJsonSerialization(spanListField);
     }
     
     @Test
     public void testTextField() {
         TextField textField = new TextField("text field test");
-        JsonNode jsonNode = testJsonSerialization(textField);
+        JsonNode jsonNode = TestUtils.testJsonSerialization(textField);
         Assert.assertTrue(jsonNode.get(JsonConstants.FIELD_VALUE).isTextual());
     }
     
     @Test
     public void testIntegerField() {
         IntegerField integerField = new IntegerField(100);
-        JsonNode jsonNode = testJsonSerialization(integerField);
+        JsonNode jsonNode = TestUtils.testJsonSerialization(integerField);
         Assert.assertTrue(jsonNode.get(JsonConstants.FIELD_VALUE).isInt());
     }
     
     @Test
     public void testDoubleField() {
         DoubleField doubleField = new DoubleField(11.11);
-        JsonNode jsonNode = testJsonSerialization(doubleField);
+        JsonNode jsonNode = TestUtils.testJsonSerialization(doubleField);
         Assert.assertTrue(jsonNode.get(JsonConstants.FIELD_VALUE).isFloatingPointNumber());
     }
     
     @Test
     public void testDateField() {
         DateField dateField = new DateField(new Date());
-        testJsonSerialization(dateField);
+        TestUtils.testJsonSerialization(dateField);
     } 
 
     @Test
@@ -121,7 +94,7 @@ public class JsonSerializationTest {
                 new Attribute("text", AttributeType.TEXT)));
         Tuple tuple = new Tuple(schema, Arrays.asList(
                 IDField.newRandomID(), new TextField("tuple test text")));
-        testJsonSerialization(tuple);
+        TestUtils.testJsonSerialization(tuple);
     }
     
     
