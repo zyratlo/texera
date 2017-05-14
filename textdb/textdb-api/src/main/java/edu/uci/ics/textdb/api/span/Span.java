@@ -1,5 +1,10 @@
 package edu.uci.ics.textdb.api.span;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import edu.uci.ics.textdb.api.constants.JsonConstants;
+
 public class Span {
     // The name of the field (in the tuple) where this span is present
     private String attributeName;
@@ -22,43 +27,60 @@ public class Span {
      * index of character 'n'+ 1 OR start+length Both of then result in same
      * values. tokenOffset = 2 position of word 'brown'
      */
-
     public static int INVALID_TOKEN_OFFSET = -1;
 
-    public Span(String attributeName, int start, int end, String key, String value) {
+    @JsonCreator
+    public Span(
+            @JsonProperty(value = JsonConstants.ATTRIBUTE_NAME, required = true)
+            String attributeName, 
+            @JsonProperty(value = JsonConstants.SPAN_START, required = true)
+            int start, 
+            @JsonProperty(value = JsonConstants.SPAN_END, required = true)
+            int end, 
+            @JsonProperty(value = JsonConstants.SPAN_KEY, required = true)
+            String key, 
+            @JsonProperty(value = JsonConstants.SPAN_VALUE, required = true)
+            String value,
+            @JsonProperty(value = JsonConstants.SPAN_TOKEN_OFFSET, required = true)
+            int tokenOffset) {
         this.attributeName = attributeName;
         this.start = start;
         this.end = end;
         this.key = key;
         this.value = value;
-        this.tokenOffset = INVALID_TOKEN_OFFSET;
-    }
-
-    public Span(String attributeName, int start, int end, String key, String value, int tokenOffset) {
-        this(attributeName, start, end, key, value);
         this.tokenOffset = tokenOffset;
     }
 
+    public Span(String attributeName, int start, int end, String key, String value) {
+        this(attributeName, start, end, key, value, INVALID_TOKEN_OFFSET);
+    }
+
+    @JsonProperty(value = JsonConstants.ATTRIBUTE_NAME)
     public String getAttributeName() {
         return attributeName;
     }
 
-    public String getKey() {
-        return key;
-    }
-
-    public String getValue() {
-        return value;
-    }
-
+    @JsonProperty(value = JsonConstants.SPAN_START)
     public int getStart() {
         return start;
     }
 
+    @JsonProperty(value = JsonConstants.SPAN_END)
     public int getEnd() {
         return end;
     }
+    
+    @JsonProperty(value = JsonConstants.SPAN_KEY)
+    public String getKey() {
+        return key;
+    }
 
+    @JsonProperty(value = JsonConstants.SPAN_VALUE)
+    public String getValue() {
+        return value;
+    }
+
+    @JsonProperty(value = JsonConstants.SPAN_TOKEN_OFFSET)
     public int getTokenOffset() {
         return tokenOffset;
     }
