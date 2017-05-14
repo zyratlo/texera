@@ -41,6 +41,7 @@ export class SideBarComponent {
   tableNameItems:Array<string> = [];
   selectedAttributesList:Array<string> = [];
   selectedAttribute:string = "";
+  selectedTablesList:Array<string> = [];
 
   @ViewChild('MyModal')
   modal: ModalComponent;
@@ -144,6 +145,10 @@ export class SideBarComponent {
     this.selectedAttributesList.push(event);
   }
 
+  selectedTable (event:string) {
+    this.selectedTablesList.push(event);
+  }
+
   manuallyAdded (event:string) {
     if (event.length === 0) {
       // removed all attributes
@@ -152,4 +157,14 @@ export class SideBarComponent {
       this.selectedAttributesList = event.split(",");
     }
   }
+
+  manuallyAddedTable (event:string) {
+    if (event.length === 0) {
+      // removed all tables
+      this.selectedTablesList = [];
+    } else {
+      this.selectedTablesList = event.split(",");
+    }
+  }
+
 }
