@@ -14,7 +14,6 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 
 import edu.uci.ics.textdb.api.constants.DataConstants.TextdbProject;
-import edu.uci.ics.textdb.api.engine.Engine;
 import edu.uci.ics.textdb.api.utils.Utils;
 import edu.uci.ics.textdb.perftest.medline.MedlineIndexWriter;
 import edu.uci.ics.textdb.storage.RelationManager;
@@ -213,13 +212,14 @@ public class PerfTestUtils {
             relationManager.deleteTable(tableName);
             relationManager.createTable(tableName, getTrigramIndexPath(tableName), 
                     MedlineIndexWriter.SCHEMA_MEDLINE, LuceneAnalyzerConstants.nGramAnalyzerString(3));
-            Engine.getEngine().evaluate(MedlineIndexWriter.getMedlineIndexPlan(fileFolder + fileName, tableName));
+            
+            MedlineIndexWriter.writeMedlineIndex(fileFolder + fileName, tableName);
             
         } else if (indexType.equalsIgnoreCase("standard")) {
             relationManager.deleteTable(tableName);
             relationManager.createTable(tableName, getIndexPath(tableName), 
                     MedlineIndexWriter.SCHEMA_MEDLINE, LuceneAnalyzerConstants.standardAnalyzerString());
-            Engine.getEngine().evaluate(MedlineIndexWriter.getMedlineIndexPlan(fileFolder + fileName, tableName));
+            MedlineIndexWriter.writeMedlineIndex(fileFolder + fileName, tableName);
         } else {
             System.out.println("Index is not successfully written.");
             System.out.println("IndexType has to be either \"standard\" or \"trigram\"  ");

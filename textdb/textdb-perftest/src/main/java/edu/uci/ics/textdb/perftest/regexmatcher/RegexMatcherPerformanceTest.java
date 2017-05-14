@@ -11,14 +11,11 @@ import edu.uci.ics.textdb.api.exception.TextDBException;
 import edu.uci.ics.textdb.api.field.ListField;
 import edu.uci.ics.textdb.api.span.Span;
 import edu.uci.ics.textdb.api.tuple.Tuple;
+import edu.uci.ics.textdb.exp.regexmatcher.RegexMatcherSourceOperator;
+import edu.uci.ics.textdb.exp.regexmatcher.RegexSourcePredicate;
 
-import org.apache.lucene.analysis.Analyzer;
-
-import edu.uci.ics.textdb.dataflow.common.RegexPredicate;
-import edu.uci.ics.textdb.dataflow.regexmatch.RegexMatcherSourceOperator;
 import edu.uci.ics.textdb.perftest.medline.MedlineIndexWriter;
 import edu.uci.ics.textdb.perftest.utils.PerfTestUtils;
-import edu.uci.ics.textdb.storage.constants.LuceneAnalyzerConstants;
 
 /*
  * 
@@ -96,10 +93,8 @@ public class RegexMatcherPerformanceTest {
         for(String regex: regexes){
 	        // analyzer should generate grams all in lower case to build a lower
 	        // case index.
-	        Analyzer luceneAnalyzer = LuceneAnalyzerConstants.getNGramAnalyzer(3);
-	        RegexPredicate regexPredicate = new RegexPredicate(regex, attributeNames, luceneAnalyzer);
-	        
-	        RegexMatcherSourceOperator regexSource = new RegexMatcherSourceOperator(regexPredicate, tableName);
+	        RegexSourcePredicate predicate = new RegexSourcePredicate(regex, attributeNames, tableName, null);
+	        RegexMatcherSourceOperator regexSource = new RegexMatcherSourceOperator(predicate);
 	
 	        long startMatchTime = System.currentTimeMillis();
 	        regexSource.open();

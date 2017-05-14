@@ -14,14 +14,11 @@ import edu.uci.ics.textdb.api.exception.TextDBException;
 import edu.uci.ics.textdb.api.field.ListField;
 import edu.uci.ics.textdb.api.span.Span;
 import edu.uci.ics.textdb.api.tuple.Tuple;
-
-import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
-
-import edu.uci.ics.textdb.dataflow.common.FuzzyTokenPredicate;
-import edu.uci.ics.textdb.dataflow.fuzzytokenmatcher.FuzzyTokenMatcherSourceOperator;
+import edu.uci.ics.textdb.exp.fuzzytokenmatcher.FuzzyTokenMatcherSourceOperator;
+import edu.uci.ics.textdb.exp.fuzzytokenmatcher.FuzzyTokenSourcePredicate;
 import edu.uci.ics.textdb.perftest.medline.MedlineIndexWriter;
 import edu.uci.ics.textdb.perftest.utils.PerfTestUtils;
+import edu.uci.ics.textdb.storage.constants.LuceneAnalyzerConstants;
 
 /**
  * @author Qing Tang
@@ -90,7 +87,7 @@ public class FuzzyTokenMatcherPerformanceTest {
                 fileWriter.append(file.getName() + delimiter);
                 fileWriter.append(Double.toString(threshold) + delimiter);
                 resetStats();
-                match(queries, threshold, new StandardAnalyzer(), tableName, bool);
+                match(queries, threshold, LuceneAnalyzerConstants.standardAnalyzerString(), tableName, bool);
                 avgTime = PerfTestUtils.calculateAverage(timeResults);
                 fileWriter.append(Collections.min(timeResults) + "," + Collections.max(timeResults) + "," + avgTime
                         + "," + PerfTestUtils.calculateSTD(timeResults, avgTime) + ","
@@ -113,15 +110,15 @@ public class FuzzyTokenMatcherPerformanceTest {
     /*
      * This function does match for a list of queries
      */
-    public static void match(ArrayList<String> queryList, double threshold, Analyzer luceneAnalyzer,
+    public static void match(ArrayList<String> queryList, double threshold, String luceneAnalyzerStr,
             String tableName, boolean bool) throws TextDBException, IOException {
 
         List<String> attributeNames = Arrays.asList(MedlineIndexWriter.ABSTRACT);
 
         for (String query : queryList) {
-            FuzzyTokenPredicate predicate = new FuzzyTokenPredicate(query, attributeNames, luceneAnalyzer,
-                    threshold);
-            FuzzyTokenMatcherSourceOperator fuzzyTokenSource = new FuzzyTokenMatcherSourceOperator(predicate, tableName);
+            FuzzyTokenSourcePredicate predicate = new FuzzyTokenSourcePredicate(query, attributeNames, luceneAnalyzerStr,
+                    threshold, tableName, null);
+            FuzzyTokenMatcherSourceOperator fuzzyTokenSource = new FuzzyTokenMatcherSourceOperator(predicate);
 
             long startMatchTime = System.currentTimeMillis();
             fuzzyTokenSource.open();
