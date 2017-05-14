@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
+import edu.uci.ics.textdb.exp.keywordmatcher.KeywordMatchingType;
 import edu.uci.ics.textdb.exp.keywordmatcher.KeywordPredicate;
 
 /**
@@ -107,12 +108,11 @@ public class KeywordExtractPredicate implements ExtractPredicate {
      */
     @Override
     public KeywordPredicate generateOperatorBean(String extractionOperatorId) {
-        String matchingFieldsAsString = String.join(",", this.matchingFields);
         KeywordPredicate keywordPredicate = new KeywordPredicate(
-                this.keywords, this.matchingFields, null, this.matchingType
-                matchingFieldsAsString,
-                null, null, this.keywords, this.matchingType);
-        
+                this.keywords, this.matchingFields, null, 
+                KeywordMatchingType.fromName(this.matchingType), extractionOperatorId);
+        keywordPredicate.setID(extractionOperatorId);
+        return keywordPredicate;
     }
   
 

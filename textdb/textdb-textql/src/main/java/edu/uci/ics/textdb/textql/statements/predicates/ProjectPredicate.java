@@ -1,6 +1,6 @@
 package edu.uci.ics.textdb.textql.statements.predicates;
 
-import edu.uci.ics.textdb.web.request.beans.OperatorBean;
+import edu.uci.ics.textdb.exp.common.PredicateBase;
 
 /**
  * Interface for representation of a "SELECT (...)" predicate inside a { @code SelectExtractStatement }.
@@ -17,6 +17,6 @@ public interface ProjectPredicate {
      * Return this operator converted to an { @code OperatorBean }.
      * @param projectOperatorId The ID of the OperatorBean to be created.
      */
-    public OperatorBean generateOperatorBean(String projectOperatorId);
+    public PredicateBase generateOperatorBean(String projectOperatorId);
     
 }
