@@ -102,7 +102,7 @@ export class SideBarComponent {
         // Currently, it only shows attributes of promed table.
         let metadata: (Array<TableMetadata>) = data;
         metadata.forEach(x => {
-          if (x.tableName === 'promed') {
+          if (x.tableName === 'promed' || x.tableName === 'twitter') {
             this.tableNameItems.push((x.tableName));
             x.attributes.forEach(
               y => {
