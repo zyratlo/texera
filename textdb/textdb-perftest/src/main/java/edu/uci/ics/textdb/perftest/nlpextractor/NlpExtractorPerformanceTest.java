@@ -1,7 +1,9 @@
 package edu.uci.ics.textdb.perftest.nlpextractor;
 
+import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 import java.util.List;
 
@@ -68,7 +70,8 @@ public class NlpExtractorPerformanceTest {
             String tableName = file.getName().replace(".txt", "");
 
             PerfTestUtils.createFile(PerfTestUtils.getResultPath(csvFile), HEADER);
-            FileWriter fileWriter = new FileWriter(PerfTestUtils.getResultPath(csvFile), true);
+            BufferedWriter fileWriter = Files.newBufferedWriter
+                    (PerfTestUtils.getResultPath(csvFile), StandardOpenOption.APPEND);
             fileWriter.append(newLine);
             fileWriter.append(currentTime + delimiter);
             fileWriter.append(file.getName() + delimiter);

@@ -1,9 +1,10 @@
 package edu.uci.ics.textdb.perftest.fuzzytokenmatcher;
 
+import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
-
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -66,7 +67,6 @@ public class FuzzyTokenMatcherPerformanceTest {
 
         // Reads queries from query file into a list
         ArrayList<String> queries = PerfTestUtils.readQueries(PerfTestUtils.getQueryPath(queryFileName));
-        FileWriter fileWriter = null;
 
         // Gets the current time
         String currentTime = PerfTestUtils.formatTime(System.currentTimeMillis());
@@ -81,7 +81,8 @@ public class FuzzyTokenMatcherPerformanceTest {
                 String tableName = file.getName().replace(".txt", "");
 
                 PerfTestUtils.createFile(PerfTestUtils.getResultPath(csvFile), HEADER);
-                fileWriter = new FileWriter(PerfTestUtils.getResultPath(csvFile), true);
+                BufferedWriter fileWriter = Files.newBufferedWriter
+                        (PerfTestUtils.getResultPath(csvFile), StandardOpenOption.APPEND);
                 fileWriter.append(newLine);
                 fileWriter.append(currentTime + delimiter);
                 fileWriter.append(file.getName() + delimiter);

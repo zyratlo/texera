@@ -1,8 +1,10 @@
 package edu.uci.ics.textdb.perftest.regexmatcher;
 
+import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 import java.util.List;
 
@@ -52,10 +54,7 @@ public class RegexMatcherPerformanceTest {
      * 
      */
     public static void runTest(List<String> regexQueries)
-            throws TextDBException, IOException {
-
-        FileWriter fileWriter = null;
-         
+            throws TextDBException, IOException {         
         // Gets the current time for naming the cvs file
         String currentTime = PerfTestUtils.formatTime(System.currentTimeMillis());
 
@@ -66,11 +65,12 @@ public class RegexMatcherPerformanceTest {
             if (file.getName().startsWith(".")) {
                 continue;
             }
-            String tableName = file.getName().replace(".txt", "") + "_trigram";
+            System.out.println(file.getName());
 
             PerfTestUtils.createFile(PerfTestUtils.getResultPath(csvFile), HEADER);
-            fileWriter = new FileWriter(PerfTestUtils.getResultPath(csvFile),true);
-            matchRegex(regexQueries, tableName);
+            BufferedWriter fileWriter = Files.newBufferedWriter
+                    (PerfTestUtils.getResultPath(csvFile), StandardOpenOption.APPEND);
+            matchRegex(regexQueries, file.getName());
             fileWriter.append("\n");
             fileWriter.append(currentTime + delimiter);
             fileWriter.append(file.getName() + delimiter);

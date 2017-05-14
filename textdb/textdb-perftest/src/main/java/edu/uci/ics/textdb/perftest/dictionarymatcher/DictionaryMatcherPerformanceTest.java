@@ -1,8 +1,9 @@
 package edu.uci.ics.textdb.perftest.dictionarymatcher;
 
+import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
-
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -96,7 +97,8 @@ public class DictionaryMatcherPerformanceTest {
             ArrayList<String> dictionary, KeywordMatchingType opType, String tableName) throws Exception {
 
         PerfTestUtils.createFile(PerfTestUtils.getResultPath(resultFile), HEADER);
-        FileWriter fileWriter = new FileWriter(PerfTestUtils.getResultPath(resultFile), true);
+        BufferedWriter fileWriter = Files.newBufferedWriter
+                (PerfTestUtils.getResultPath(resultFile), StandardOpenOption.APPEND);
         fileWriter.append(newLine);
         fileWriter.append(currentTime + commaDelimiter);
         fileWriter.append(recordNum + commaDelimiter);

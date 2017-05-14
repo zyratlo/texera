@@ -1,10 +1,11 @@
 
 package edu.uci.ics.textdb.perftest.keywordmatcher;
 
+import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
-
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -101,7 +102,8 @@ public class KeywordMatcherPerformanceTest {
             KeywordMatchingType opType, String tableName) throws Exception {
         double avgTime = 0.0;
         PerfTestUtils.createFile(PerfTestUtils.getResultPath(resultFile), HEADER);
-        FileWriter fileWriter = new FileWriter(PerfTestUtils.getResultPath(resultFile), true);
+        BufferedWriter fileWriter = Files.newBufferedWriter(
+                PerfTestUtils.getResultPath(resultFile), StandardOpenOption.APPEND);
         fileWriter.append(newLine);
         fileWriter.append(currentTime + delimiter);
         fileWriter.append(recordNum + delimiter);

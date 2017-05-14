@@ -43,7 +43,7 @@ public class RunPerftests {
             PerfTestUtils.setTrigramIndexFolder(args[2]);
             PerfTestUtils.setQueryFolder(args[3]);
         } catch (ArrayIndexOutOfBoundsException e){
-            e.printStackTrace();
+            System.out.println("missing arguments will be set to default");
         }
 
         try {

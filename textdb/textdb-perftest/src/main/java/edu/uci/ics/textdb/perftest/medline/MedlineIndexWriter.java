@@ -3,7 +3,7 @@ package edu.uci.ics.textdb.perftest.medline;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.text.ParseException;
 import java.util.ArrayList;
 
@@ -42,7 +42,7 @@ public class MedlineIndexWriter {
     public static final String ABSTRACT = "abstract";
     public static final String ZIPF_SCORE = "zipf_score";
 
-    public static final Attribute PMID_ATTR = new Attribute(PMID, AttributeType.INTEGER);
+    public static final Attribute PMID_ATTR = new Attribute(PMID, AttributeType.STRING);
     public static final Attribute AFFILIATION_ATTR = new Attribute(AFFILIATION, AttributeType.TEXT);
     public static final Attribute ARTICLE_TITLE_ATTR = new Attribute(ARTICLE_TITLE, AttributeType.TEXT);
     public static final Attribute AUTHORS_ATTR = new Attribute(AUTHORS, AttributeType.TEXT);
@@ -70,15 +70,19 @@ public class MedlineIndexWriter {
         return tuple;
     }
     
-    public static void writeMedlineIndex(String medlineFilepath, String tableName) throws IOException, StorageException, ParseException {
+    public static void writeMedlineIndex(Path medlineFilepath, String tableName) throws IOException, StorageException, ParseException {
         RelationManager relationManager = RelationManager.getRelationManager();
         DataWriter dataWriter = relationManager.getTableDataWriter(tableName);
         dataWriter.open();
         
-        BufferedReader reader = Files.newBufferedReader(Paths.get(medlineFilepath));
+        BufferedReader reader = Files.newBufferedReader(medlineFilepath);
         String line;
         while ((line = reader.readLine()) != null) {
-            dataWriter.insertTuple(recordToTuple(line));
+            try {
+                dataWriter.insertTuple(recordToTuple(line));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         reader.close();
         dataWriter.close(); 
