@@ -2,35 +2,28 @@ package edu.uci.ics.textdb.exp.nlp.splitter;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.Queue;
 import java.io.Reader;
 import java.io.StringReader;
 
-import edu.stanford.nlp.ling.CoreAnnotations;
-import edu.stanford.nlp.neural.rnn.RNNCoreAnnotations;
-import edu.stanford.nlp.pipeline.Annotation;
-import edu.stanford.nlp.pipeline.StanfordCoreNLP;
-import edu.stanford.nlp.sentiment.SentimentCoreAnnotations;
-import edu.stanford.nlp.trees.Tree;
-import edu.stanford.nlp.util.CoreMap;
 import edu.stanford.nlp.process.DocumentPreprocessor;
+import edu.stanford.nlp.international.french.process.FrenchTokenizer;
+import edu.stanford.nlp.international.Language;
 import edu.stanford.nlp.ling.HasWord;
 import edu.stanford.nlp.ling.Sentence;
+
 import edu.uci.ics.textdb.api.constants.ErrorMessages;
 import edu.uci.ics.textdb.api.dataflow.IOperator;
 import edu.uci.ics.textdb.api.exception.DataFlowException;
 import edu.uci.ics.textdb.api.exception.TextDBException;
 import edu.uci.ics.textdb.api.field.IField;
-import edu.uci.ics.textdb.api.field.IntegerField;
+import edu.uci.ics.textdb.api.field.TextField;
 import edu.uci.ics.textdb.api.field.ListField;
 import edu.uci.ics.textdb.api.schema.Attribute;
 import edu.uci.ics.textdb.api.schema.AttributeType;
 import edu.uci.ics.textdb.api.schema.Schema;
 import edu.uci.ics.textdb.api.tuple.Tuple;
 import edu.uci.ics.textdb.api.utils.Utils;
-import edu.uci.ics.textdb.exp.regexsplit.RegexSplitPredicate;
 
 /**
  * This Operator splits the input string using Stanford core NLP's ssplit annotation.
@@ -39,7 +32,7 @@ import edu.uci.ics.textdb.exp.regexsplit.RegexSplitPredicate;
  * 
  * The result will be put into an attribute with resultAttributeName specified in predicate, and type List<String>.
  * 
- * @author Zuozhi Wang
+ * @author Venkata Raj Kiran Kollimarla, Vinay Bagade
  *
  */
 public class NlpSplitOperator implements IOperator {
@@ -48,8 +41,13 @@ public class NlpSplitOperator implements IOperator {
     private IOperator inputOperator;
     private Schema outputSchema;
     private int cursor = CLOSED;
+    //A flag to keep track of any remaining sentences fro the previous input tuple
+//    private boolean sentenceListIsEmpty = true;
+    //A tuple that persists between method calls
+    private Tuple currentTuple;
+    //A list of sentences generated from the current tuple
+    private List<TextField> currentSentenceList = new ArrayList<TextField>();
     
-//    StanfordCoreNLP splitterPipeline;
     
     public NlpSplitOperator(NlpSplitPredicate predicate) {
         this.predicate = predicate;
@@ -113,11 +111,7 @@ public class NlpSplitOperator implements IOperator {
         outputSchema = transformSchema(inputOperator.getOutputSchema());
         
         cursor = OPENED;
-        
-        // setup NLP sentiment analysis pipeline
-//        Properties props = new Properties();
-//        props.setProperty("annotators", "ssplit");
-//        splitterPipeline = new StanfordCoreNLP(props);
+
     }
 
     @Override
@@ -125,28 +119,53 @@ public class NlpSplitOperator implements IOperator {
         if (cursor == CLOSED) {
             return null;
         }
-        Tuple inputTuple = inputOperator.getNextTuple();
-        if (inputTuple == null) {
-            return null;
-        }
         
         List<IField> outputFields = new ArrayList<>();
-        outputFields.addAll(inputTuple.getFields());
-        outputFields.add(new ListField<String>(getSentenceList(inputTuple)));
+        
+        if(predicate.getOutputType() == NLPOutputType.ONE_TO_ONE) {
+            currentTuple = inputOperator.getNextTuple();
+            if (currentTuple == null) {
+                return null;
+            }
+            currentSentenceList = getSentenceList(currentTuple);
+            outputFields.addAll(currentTuple.getFields());
+            outputFields.add(new ListField<TextField>(currentSentenceList));
+        }
+        
+        else if (predicate.getOutputType() == NLPOutputType.ONE_TO_MANY) {
+            if(currentSentenceList.isEmpty()) {
+                currentTuple = inputOperator.getNextTuple();
+                if (currentTuple == null) return null;
+                currentSentenceList = getSentenceList(currentTuple);
+            }
+            
+            outputFields.addAll(currentTuple.getFields());
+            //Add the sentences from the current sentence list one by one in the order in which
+            //they were generated in the getSentenceList function
+            outputFields.add(currentSentenceList.remove(0)); //Append a TextField to the output tuple    
+        }
         
         return new Tuple(outputSchema, outputFields);
+        
     }
     
     
-    private List<String> getSentenceList(Tuple inputTuple) {
+    private List<TextField> getSentenceList(Tuple inputTuple) {
+        
         String inputText = inputTuple.<IField>getField(predicate.getInputAttributeName()).getValue().toString();
         Reader reader = new StringReader(inputText);
         DocumentPreprocessor dp = new DocumentPreprocessor(reader);
-        List<String> sentenceList = new ArrayList<String>();
+        
+        //The default value for get language should be English
+        if(!predicate.getLanguage().equals(Language.English))
+            dp.setTokenizerFactory(predicate.getTokenizerFactory());
+        
+//        dp.setTokenizerFactory(FrenchTokenizer.factory());
+        List<TextField> sentenceList = new ArrayList<TextField>();
         
         for (List<HasWord> sentence : dp) {
-            String sentenceString = Sentence.listToString(sentence);
-            sentenceList.add(sentenceString);
+            TextField sentenceText = new TextField(Sentence.listToString(sentence));
+            sentenceList.add(sentenceText);
          }
         
         return sentenceList;
