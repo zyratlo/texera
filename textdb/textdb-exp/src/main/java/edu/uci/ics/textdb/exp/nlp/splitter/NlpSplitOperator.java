@@ -2,13 +2,10 @@ package edu.uci.ics.textdb.exp.nlp.splitter;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Queue;
 import java.io.Reader;
 import java.io.StringReader;
 
 import edu.stanford.nlp.process.DocumentPreprocessor;
-import edu.stanford.nlp.international.french.process.FrenchTokenizer;
-import edu.stanford.nlp.international.Language;
 import edu.stanford.nlp.ling.HasWord;
 import edu.stanford.nlp.ling.Sentence;
 
@@ -41,7 +38,7 @@ public class NlpSplitOperator implements IOperator {
     private IOperator inputOperator;
     private Schema outputSchema;
     private int cursor = CLOSED;
-    //A flag to keep track of any remaining sentences fro the previous input tuple
+    //A flag to keep track of any remaining sentences from the previous input tuple
 //    private boolean sentenceListIsEmpty = true;
     //A tuple that persists between method calls
     private Tuple currentTuple;
@@ -155,12 +152,6 @@ public class NlpSplitOperator implements IOperator {
         String inputText = inputTuple.<IField>getField(predicate.getInputAttributeName()).getValue().toString();
         Reader reader = new StringReader(inputText);
         DocumentPreprocessor dp = new DocumentPreprocessor(reader);
-        
-        //The default value for get language should be English
-        if(!predicate.getLanguage().equals(Language.English))
-            dp.setTokenizerFactory(predicate.getTokenizerFactory());
-        
-//        dp.setTokenizerFactory(FrenchTokenizer.factory());
         List<TextField> sentenceList = new ArrayList<TextField>();
         
         for (List<HasWord> sentence : dp) {
@@ -187,7 +178,4 @@ public class NlpSplitOperator implements IOperator {
     public Schema getOutputSchema() {
         return this.outputSchema;
     }
-    
-    
-
 }
