@@ -22,9 +22,7 @@ import java.util.List;
 public class SystemResource {
     @GET
     public TextdbWebResponse getMetadata() throws Exception {
-        ObjectMapper objectMapper = new ObjectMapper();
-
         List<TableMetadata> tableMetadata = RelationManager.getRelationManager().getMetaData();
-        return new TextdbWebResponse(0, DataflowUtils.getMetadataJSON(tableMetadata).toString());
+        return new TextdbWebResponse(0, new ObjectMapper().writeValueAsString(tableMetadata));
     }
 }
