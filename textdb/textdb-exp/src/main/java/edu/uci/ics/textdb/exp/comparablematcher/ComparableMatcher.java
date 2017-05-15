@@ -10,7 +10,6 @@ import edu.uci.ics.textdb.api.field.DoubleField;
 import edu.uci.ics.textdb.api.field.IntegerField;
 import edu.uci.ics.textdb.api.field.StringField;
 import edu.uci.ics.textdb.api.schema.AttributeType;
-import edu.uci.ics.textdb.api.schema.Schema;
 import edu.uci.ics.textdb.api.tuple.*;
 import edu.uci.ics.textdb.exp.common.AbstractSingleInputOperator;
 
@@ -26,21 +25,18 @@ public class ComparableMatcher extends AbstractSingleInputOperator {
     private ComparablePredicate predicate;
     private AttributeType inputAttrType;
 
-    private Schema inputSchema;
-
     public ComparableMatcher(ComparablePredicate predicate) {
         this.predicate = predicate;
     }
 
     @Override
     protected void setUp() throws DataFlowException {
-        inputSchema = inputOperator.getOutputSchema();
-        outputSchema = inputSchema;
-        if (!inputSchema.containsField(predicate.getAttributeName())) {
+        outputSchema = inputOperator.getOutputSchema();
+        if (! outputSchema.containsField(predicate.getAttributeName())) {
             throw new DataFlowException(String.format("attribute %s not contained in input schema %s",
-                    predicate.getAttributeName(), inputSchema.getAttributeNames()));
+                    predicate.getAttributeName(), outputSchema.getAttributeNames()));
         }
-        inputAttrType = inputOperator.getOutputSchema().getAttribute(predicate.getAttributeName()).getAttributeType();
+        inputAttrType = outputSchema.getAttribute(predicate.getAttributeName()).getAttributeType();
     }
 
     @Override
@@ -107,8 +103,7 @@ public class ComparableMatcher extends AbstractSingleInputOperator {
             return compareValues(value, (double) compareToObject, predicate.getComparisonType());
         } else if (compareToType.equals(String.class)) {
             try {
-                Double compareToValue = Double.parseDouble(inputTuple.getField(
-                        predicate.getAttributeName(), StringField.class).getValue());
+                Double compareToValue = Double.parseDouble((String) predicate.getCompareToValue());
                 return compareValues(value, compareToValue, predicate.getComparisonType());
             } catch (NumberFormatException e) {
                 throw new DataFlowException("Unable to parse to number " + e.getMessage());
@@ -129,8 +124,7 @@ public class ComparableMatcher extends AbstractSingleInputOperator {
             return compareValues((double) value, (double) compareToObject, predicate.getComparisonType());
         } else if (compareToType.equals(String.class)) {
             try {
-                Double compareToValue = Double.parseDouble(inputTuple.getField(
-                        predicate.getAttributeName(), StringField.class).getValue());
+                Double compareToValue = Double.parseDouble((String) predicate.getCompareToValue());
                 return compareValues((double) value, compareToValue, predicate.getComparisonType());
             } catch (NumberFormatException e) {
                 throw new DataFlowException("Unable to parse to number " + e.getMessage());

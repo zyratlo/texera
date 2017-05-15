@@ -72,7 +72,7 @@ public class PropertyNameConstants {
     public static final String JOIN_SIMILARITY_THRESHOLD = "similarityThreshold";
     
     // related to ComparableMatcher
-    public static final String COMPARE_TYPE = "compareType";
+    public static final String COMPARISON_TYPE = "comparisonType";
     public static final String COMPARE_TO_VALUE = "compareTo";
     
 }

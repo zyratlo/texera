@@ -22,7 +22,7 @@ public class ComparablePredicate extends PredicateBase {
     public ComparablePredicate(
             @JsonProperty(value = PropertyNameConstants.ATTRIBUTE_NAME, required = true)
             String attributeName,
-            @JsonProperty(value = PropertyNameConstants.COMPARE_TYPE, required = true)
+            @JsonProperty(value = PropertyNameConstants.COMPARISON_TYPE, required = true)
             ComparisonType matchingType,
             @JsonProperty(value = PropertyNameConstants.COMPARE_TO_VALUE, required = true)
             Object compareToValue) {
@@ -36,7 +36,7 @@ public class ComparablePredicate extends PredicateBase {
         return attributeName;
     }
 
-    @JsonProperty(value = PropertyNameConstants.COMPARE_TYPE)
+    @JsonProperty(value = PropertyNameConstants.COMPARISON_TYPE)
     public ComparisonType getComparisonType() {
         return matchingType;
     }
