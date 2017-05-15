@@ -71,4 +71,8 @@ public class PropertyNameConstants {
     public static final String SPAN_DISTANCE = "spanDistance";
     public static final String JOIN_SIMILARITY_THRESHOLD = "similarityThreshold";
     
+    // related to ComparableMatcher
+    public static final String COMPARE_TYPE = "compareType";
+    public static final String COMPARE_TO_VALUE = "compareTo";
+    
 }

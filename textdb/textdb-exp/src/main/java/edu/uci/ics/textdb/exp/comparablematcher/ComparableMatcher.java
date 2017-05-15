@@ -1,24 +1,34 @@
 package edu.uci.ics.textdb.exp.comparablematcher;
 
-import edu.uci.ics.textdb.api.constants.DataConstants;
+import java.text.DateFormat;
+import java.util.Date;
+
 import edu.uci.ics.textdb.api.exception.DataFlowException;
 import edu.uci.ics.textdb.api.exception.TextDBException;
-import edu.uci.ics.textdb.api.schema.Attribute;
+import edu.uci.ics.textdb.api.field.DateField;
+import edu.uci.ics.textdb.api.field.DoubleField;
+import edu.uci.ics.textdb.api.field.IntegerField;
+import edu.uci.ics.textdb.api.field.StringField;
+import edu.uci.ics.textdb.api.schema.AttributeType;
 import edu.uci.ics.textdb.api.schema.Schema;
 import edu.uci.ics.textdb.api.tuple.*;
 import edu.uci.ics.textdb.exp.common.AbstractSingleInputOperator;
 
 /**
- * ComparableMatcher is matcher for comparison query on any field which deals with Comparable.
+ * ComparableMatcher is matcher for comparison query on any field which deals
+ * with Comparable.
  *
  * @author Adrian Seungjin Lee
+ * @author Zuozhi Wang
  */
-public class ComparableMatcher<T extends Comparable<T>> extends AbstractSingleInputOperator {
-    private ComparablePredicate<T> predicate;
+public class ComparableMatcher extends AbstractSingleInputOperator {
+    
+    private ComparablePredicate predicate;
+    private AttributeType inputAttrType;
 
     private Schema inputSchema;
 
-    public ComparableMatcher(ComparablePredicate<T> predicate) {
+    public ComparableMatcher(ComparablePredicate predicate) {
         this.predicate = predicate;
     }
 
@@ -26,81 +36,152 @@ public class ComparableMatcher<T extends Comparable<T>> extends AbstractSingleIn
     protected void setUp() throws DataFlowException {
         inputSchema = inputOperator.getOutputSchema();
         outputSchema = inputSchema;
+        if (!inputSchema.containsField(predicate.getAttributeName())) {
+            throw new DataFlowException(String.format("attribute %s not contained in input schema %s",
+                    predicate.getAttributeName(), inputSchema.getAttributeNames()));
+        }
+        inputAttrType = inputOperator.getOutputSchema().getAttribute(predicate.getAttributeName()).getAttributeType();
     }
 
     @Override
     protected Tuple computeNextMatchingTuple() throws TextDBException {
-        Tuple inputTuple = null;
-        Tuple resultTuple = null;
-
+        Tuple inputTuple;
         while ((inputTuple = inputOperator.getNextTuple()) != null) {
-            resultTuple = processOneInputTuple(inputTuple);
-
+            Tuple resultTuple = processOneInputTuple(inputTuple);
             if (resultTuple != null) {
-                break;
+                return resultTuple;
             }
         }
-        return resultTuple;
+        return null;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public Tuple processOneInputTuple(Tuple inputTuple) throws TextDBException {
-        Tuple resultTuple = null;
-
-        Attribute attribute = predicate.getAttribute();
-        DataConstants.NumberMatchingType operatorType = predicate.getMatchingType();
-
-        String attributeName = attribute.getAttributeName();
-
-        T value;
-        T threshold;
-        try {
-            value = (T) inputTuple.getField(attributeName).getValue();
-            threshold = (T) predicate.getThreshold();
-        } catch (ClassCastException e) {
-            return null;
+        boolean conditionSatisfied = false;
+        switch (this.inputAttrType) {
+        case DATE:
+            conditionSatisfied = compareDate(inputTuple);
+            break;
+        case DOUBLE:
+            conditionSatisfied = compareDouble(inputTuple);
+            break;
+        case INTEGER:
+            conditionSatisfied = compareInt(inputTuple);
+            break;
+        case STRING:
+        case TEXT:
+        case _ID_TYPE:
+            conditionSatisfied = compareString(inputTuple);
+            break;
+        case LIST:
+            throw new DataFlowException("Unable to do comparison: LIST type is not supported");
+        default:
+            throw new DataFlowException("Unable to do comparison: unknown type " + inputAttrType.getName());
         }
-
-        if (compareValues(value, threshold, operatorType)) {
-            resultTuple = inputTuple;
-        }
-        return resultTuple;
+        return conditionSatisfied ? inputTuple : null;
     }
 
-    private boolean compareValues(T value, T threshold, DataConstants.NumberMatchingType operatorType) {
-        int compareResult = value.compareTo(threshold);
-        switch (operatorType) {
-            case EQUAL_TO:
-                if (compareResult == 0) {
-                    return true;
-                }
-                break;
-            case GREATER_THAN:
-                if (compareResult == 1) {
-                    return true;
-                }
-                break;
-            case GREATER_THAN_OR_EQUAL_TO:
-                if (compareResult == 0 || compareResult == 1) {
-                    return true;
-                }
-                break;
-            case LESS_THAN:
-                if (compareResult == -1) {
-                    return true;
-                }
-                break;
-            case LESS_THAN_OR_EQUAL_TO:
-                if (compareResult == 0 || compareResult == -1) {
-                    return true;
-                }
-                break;
-            case NOT_EQUAL_TO:
-                if (compareResult != 0) {
-                    return true;
-                }
-                break;
+    private boolean compareDate(Tuple inputTuple) throws DataFlowException {     
+        if (predicate.getCompareToValue().getClass().equals(String.class)) {
+            try {
+                String compareTo = (String) predicate.getCompareToValue();
+                Date compareToDate = DateFormat.getDateInstance(DateFormat.MEDIUM).parse(compareTo);
+                Date date = inputTuple.getField(predicate.getAttributeName(), DateField.class).getValue();
+                return compareValues(date, compareToDate, predicate.getComparisonType());
+            } catch (java.text.ParseException e) {
+                throw new DataFlowException("Unable to parse date: " + e.getMessage());
+            }
+        } else {
+            throw new DataFlowException("Value " + predicate.getCompareToValue() + " is not a string");
+        }
+    }
+
+    private boolean compareDouble(Tuple inputTuple) {
+        Object compareToObject = predicate.getCompareToValue();
+        Class<?> compareToType = compareToObject.getClass();
+        Double value = inputTuple.getField(predicate.getAttributeName(), DoubleField.class).getValue();
+        
+        if (compareToType.equals(Integer.class)) {
+            return compareValues(value, (double) (int) compareToObject, predicate.getComparisonType()); 
+        } else if (compareToType.equals(Double.class)) {
+            return compareValues(value, (double) compareToObject, predicate.getComparisonType());
+        } else if (compareToType.equals(String.class)) {
+            try {
+                Double compareToValue = Double.parseDouble(inputTuple.getField(
+                        predicate.getAttributeName(), StringField.class).getValue());
+                return compareValues(value, compareToValue, predicate.getComparisonType());
+            } catch (NumberFormatException e) {
+                throw new DataFlowException("Unable to parse to number " + e.getMessage());
+            }
+        } else {
+            throw new DataFlowException("Value " + predicate.getCompareToValue() + " is not a valid number type");
+        }
+    }
+
+    private boolean compareInt(Tuple inputTuple) {
+        Object compareToObject = predicate.getCompareToValue();
+        Class<?> compareToType = compareToObject.getClass();
+        Integer value = inputTuple.getField(predicate.getAttributeName(), IntegerField.class).getValue();
+        
+        if (compareToType.equals(Integer.class)) {
+            return compareValues(value, (int) compareToObject, predicate.getComparisonType()); 
+        } else if (compareToType.equals(Double.class)) {
+            return compareValues((double) value, (double) compareToObject, predicate.getComparisonType());
+        } else if (compareToType.equals(String.class)) {
+            try {
+                Double compareToValue = Double.parseDouble(inputTuple.getField(
+                        predicate.getAttributeName(), StringField.class).getValue());
+                return compareValues((double) value, compareToValue, predicate.getComparisonType());
+            } catch (NumberFormatException e) {
+                throw new DataFlowException("Unable to parse to number " + e.getMessage());
+            }
+        } else {
+            throw new DataFlowException("Value " + predicate.getCompareToValue() + " is not a valid number type");
+        }
+    }
+
+    private boolean compareString(Tuple inputTuple) {
+        return compareValues(
+                inputTuple.getField(predicate.getAttributeName(), StringField.class).getValue(),
+                predicate.getCompareToValue().toString(), predicate.getComparisonType());
+    }
+
+    private static <T extends Comparable<T>> boolean compareValues(T value, T compareToValue, ComparisonType comparisonType) {
+        int compareResult = value.compareTo(compareToValue);
+        switch (comparisonType) {
+        case EQUAL_TO:
+            if (compareResult == 0) {
+                return true;
+            }
+            break;
+        case GREATER_THAN:
+            if (compareResult == 1) {
+                return true;
+            }
+            break;
+        case GREATER_THAN_OR_EQUAL_TO:
+            if (compareResult == 0 || compareResult == 1) {
+                return true;
+            }
+            break;
+        case LESS_THAN:
+            if (compareResult == -1) {
+                return true;
+            }
+            break;
+        case LESS_THAN_OR_EQUAL_TO:
+            if (compareResult == 0 || compareResult == -1) {
+                return true;
+            }
+            break;
+        case NOT_EQUAL_TO:
+            if (compareResult != 0) {
+                return true;
+            }
+            break;
+        default:
+            throw new DataFlowException(
+                    "Unable to do comparison: unknown comparison type: " + comparisonType);
         }
         return false;
     }

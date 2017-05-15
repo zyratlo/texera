@@ -8,6 +8,8 @@ import org.junit.Test;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import edu.uci.ics.textdb.api.utils.TestUtils;
+import edu.uci.ics.textdb.exp.comparablematcher.ComparablePredicate;
+import edu.uci.ics.textdb.exp.comparablematcher.ComparisonType;
 import edu.uci.ics.textdb.exp.dictionarymatcher.Dictionary;
 import edu.uci.ics.textdb.exp.dictionarymatcher.DictionaryPredicate;
 import edu.uci.ics.textdb.exp.dictionarymatcher.DictionarySourcePredicate;
@@ -215,10 +217,15 @@ public class PredicateBaseTest {
         testPredicate(wordCountPredicate);
     }
 
+    @Test
     public void testExcelSink() throws Exception {
     	ExcelSinkPredicate excelSinkPredicate = new ExcelSinkPredicate(10, 10);
     	testPredicate(excelSinkPredicate);
-      
+    }
+    
+    @Test
+    public void testComparable() throws Exception {
+        testPredicate(new ComparablePredicate("attr", ComparisonType.EQUAL_TO, 1));
     }
 
 }
