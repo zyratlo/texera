@@ -17,10 +17,11 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
 
-@Path("/metadata")
+@Path("/resources")
 @Produces(MediaType.APPLICATION_JSON)
 public class SystemResource {
     @GET
+    @Path("/metadata")
     public TextdbWebResponse getMetadata() throws Exception {
         List<TableMetadata> tableMetadata = RelationManager.getRelationManager().getMetaData();
         return new TextdbWebResponse(0, new ObjectMapper().writeValueAsString(tableMetadata));
