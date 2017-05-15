@@ -1,6 +1,6 @@
 package edu.uci.ics.textdb.textql.statements.predicates;
 
-import edu.uci.ics.textdb.web.request.beans.OperatorBean;
+import edu.uci.ics.textdb.exp.common.PredicateBase;
 
 /**
  * Interface for representation of an extraction predicate such as "KEYWORDEXTRACT(...)" predicate 
@@ -18,6 +18,6 @@ public interface ExtractPredicate {
      * @param extractionOperatorId The ID of the OperatorBean to be created.
      * @return The bean operator representation of this { @code ExtractPredicate }.
      */
-    public OperatorBean generateOperatorBean(String extractionOperatorId);
+    public PredicateBase generateOperatorBean(String extractionOperatorId);
     
 }
