@@ -1,9 +1,10 @@
 package edu.uci.ics.textdb.perftest.fuzzytokenmatcher;
 
+import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
-
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -14,14 +15,11 @@ import edu.uci.ics.textdb.api.exception.TextDBException;
 import edu.uci.ics.textdb.api.field.ListField;
 import edu.uci.ics.textdb.api.span.Span;
 import edu.uci.ics.textdb.api.tuple.Tuple;
-
-import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
-
-import edu.uci.ics.textdb.dataflow.common.FuzzyTokenPredicate;
-import edu.uci.ics.textdb.dataflow.fuzzytokenmatcher.FuzzyTokenMatcherSourceOperator;
+import edu.uci.ics.textdb.exp.fuzzytokenmatcher.FuzzyTokenMatcherSourceOperator;
+import edu.uci.ics.textdb.exp.fuzzytokenmatcher.FuzzyTokenSourcePredicate;
 import edu.uci.ics.textdb.perftest.medline.MedlineIndexWriter;
 import edu.uci.ics.textdb.perftest.utils.PerfTestUtils;
+import edu.uci.ics.textdb.storage.constants.LuceneAnalyzerConstants;
 
 /**
  * @author Qing Tang
@@ -69,7 +67,6 @@ public class FuzzyTokenMatcherPerformanceTest {
 
         // Reads queries from query file into a list
         ArrayList<String> queries = PerfTestUtils.readQueries(PerfTestUtils.getQueryPath(queryFileName));
-        FileWriter fileWriter = null;
 
         // Gets the current time
         String currentTime = PerfTestUtils.formatTime(System.currentTimeMillis());
@@ -84,13 +81,14 @@ public class FuzzyTokenMatcherPerformanceTest {
                 String tableName = file.getName().replace(".txt", "");
 
                 PerfTestUtils.createFile(PerfTestUtils.getResultPath(csvFile), HEADER);
-                fileWriter = new FileWriter(PerfTestUtils.getResultPath(csvFile), true);
+                BufferedWriter fileWriter = Files.newBufferedWriter
+                        (PerfTestUtils.getResultPath(csvFile), StandardOpenOption.APPEND);
                 fileWriter.append(newLine);
                 fileWriter.append(currentTime + delimiter);
                 fileWriter.append(file.getName() + delimiter);
                 fileWriter.append(Double.toString(threshold) + delimiter);
                 resetStats();
-                match(queries, threshold, new StandardAnalyzer(), tableName, bool);
+                match(queries, threshold, LuceneAnalyzerConstants.standardAnalyzerString(), tableName, bool);
                 avgTime = PerfTestUtils.calculateAverage(timeResults);
                 fileWriter.append(Collections.min(timeResults) + "," + Collections.max(timeResults) + "," + avgTime
                         + "," + PerfTestUtils.calculateSTD(timeResults, avgTime) + ","
@@ -113,15 +111,15 @@ public class FuzzyTokenMatcherPerformanceTest {
     /*
      * This function does match for a list of queries
      */
-    public static void match(ArrayList<String> queryList, double threshold, Analyzer luceneAnalyzer,
+    public static void match(ArrayList<String> queryList, double threshold, String luceneAnalyzerStr,
             String tableName, boolean bool) throws TextDBException, IOException {
 
         List<String> attributeNames = Arrays.asList(MedlineIndexWriter.ABSTRACT);
 
         for (String query : queryList) {
-            FuzzyTokenPredicate predicate = new FuzzyTokenPredicate(query, attributeNames, luceneAnalyzer,
-                    threshold);
-            FuzzyTokenMatcherSourceOperator fuzzyTokenSource = new FuzzyTokenMatcherSourceOperator(predicate, tableName);
+            FuzzyTokenSourcePredicate predicate = new FuzzyTokenSourcePredicate(query, attributeNames, luceneAnalyzerStr,
+                    threshold, tableName, null);
+            FuzzyTokenMatcherSourceOperator fuzzyTokenSource = new FuzzyTokenMatcherSourceOperator(predicate);
 
             long startMatchTime = System.currentTimeMillis();
             fuzzyTokenSource.open();
