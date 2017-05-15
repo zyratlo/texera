@@ -167,8 +167,8 @@ let regexSplit = {
     },
     attributes : {
         "operatorType": "RegexSplit",
-        "splitRegex": "regex",
         "splitAttribute": "attr1",
+        "splitRegex": "regex",
         "splitType": "standalone"
     }
   }
@@ -315,8 +315,8 @@ let regexSource = {
         "operatorType": "RegexSource",
         "regex": "regex",
         "attributes": [],
-        "regexIgnoreCase": false,
         "tableName": "tableName",
+        "regexIgnoreCase": false,
         "regexUseIndex": true,
         "spanListName": " "
     } 
@@ -342,9 +342,9 @@ let fuzzyTokenSource = {
         "operatorType": "FuzzyTokenSource",
         "query": "token1 token2 token3",
         "attributes": [],
+        "tableName": "tableName",
         "luceneAnalyzer": "standard",
         "thresholdRatio": 0.8,
-        "tableName": "tableName",
         "spanListName": " ",
     }
   }

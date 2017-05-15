@@ -294,26 +294,4 @@ public class DataflowUtils {
 
         return payload;
     }
-
-    public static JSONArray getMetadataJSON(List<TableMetadata> list) {
-        JSONArray jsonArray = new JSONArray();
-
-        for (TableMetadata t : list) {
-            JSONObject metadataObject = new JSONObject();
-            metadataObject.put("tableName", t.getTableName());
-
-            JSONArray attributeArray = new JSONArray();
-            for (Attribute attribute : t.getSchema().getAttributes()) {
-                JSONObject attributeObject = new JSONObject();
-                attributeObject.put("attributeName", attribute.getAttributeName());
-                attributeObject.put("attributeType", attribute.getAttributeType());
-                attributeArray.put(attributeObject);
-            }
-
-            metadataObject.put("attributes", attributeArray);
-            jsonArray.put(metadataObject);
-        }
-
-        return jsonArray;
-    }
 }

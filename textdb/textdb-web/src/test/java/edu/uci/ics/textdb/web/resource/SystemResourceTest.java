@@ -33,8 +33,6 @@ public class SystemResourceTest {
 						.request()
 						.get();
 
-		System.out.println("resposne is: " + response);
-
 		assertThat(response.getStatus()).isEqualTo(200);
 
 	}

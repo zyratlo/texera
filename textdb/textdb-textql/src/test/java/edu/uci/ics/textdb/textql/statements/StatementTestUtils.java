@@ -7,10 +7,10 @@ import java.util.stream.Collectors;
 
 import org.junit.Assert;
 
-import edu.uci.ics.textdb.textql.planbuilder.beans.PassThroughBean;
+import edu.uci.ics.textdb.exp.common.PredicateBase;
+import edu.uci.ics.textdb.exp.plangen.OperatorLink;
+import edu.uci.ics.textdb.textql.planbuilder.beans.PassThroughPredicate;
 import edu.uci.ics.textdb.textql.statements.Statement;
-import edu.uci.ics.textdb.web.request.beans.OperatorBean;
-import edu.uci.ics.textdb.web.request.beans.OperatorLinkBean;
 
 /**
  * This class contain helper methods for the purpose of testing Statement class and its implementations.
@@ -40,27 +40,27 @@ public class StatementTestUtils {
      * @param statement The statement to build the beans to be checked.
      * @param expectedOperators The list of the expected OperatorBeans to be build by the statement.
      */
-    public static void assertGeneratedBeans(Statement statement, List<OperatorBean> expectedOperators){        
+    public static void assertGeneratedBeans(Statement statement, List<PredicateBase> expectedOperators){        
         // Get operators and links from statement
-        List<OperatorBean> operators = statement.getInternalOperatorBeans();
-        List<OperatorLinkBean> links = statement.getInternalLinkBeans();
+        List<PredicateBase> operators = statement.getInternalOperatorBeans();
+        List<OperatorLink> links = statement.getInternalLinkBeans();
         // Assert all statements have an unique id (check whether two operators have the same ID)
         boolean uniqueIds = operators.stream()
-                                     .collect(Collectors.groupingBy(op -> op.getOperatorID(), Collectors.counting()))
+                                     .collect(Collectors.groupingBy(op -> op.getID(), Collectors.counting()))
                                      .values()
                                      .stream()
                                      .allMatch( count -> (count==1) );
         Assert.assertTrue(uniqueIds);
 
         // Iterate the graph (string of nodes) to look for the expected beans
-        HashSet<OperatorBean> visitedOperators = new HashSet<>();
-        HashSet<OperatorLinkBean> visitedLinks = new HashSet<>();
+        HashSet<PredicateBase> visitedOperators = new HashSet<>();
+        HashSet<OperatorLink> visitedLinks = new HashSet<>();
         
         String initialNode = statement.getInputNodeID();
         String finalNode = statement.getOutputNodeID();
                 
-        Iterator<OperatorBean> expectedOperatorsIterator = expectedOperators.iterator();
-        OperatorBean nextExpectedOperator = null;
+        Iterator<PredicateBase> expectedOperatorsIterator = expectedOperators.iterator();
+        PredicateBase nextExpectedOperator = null;
 
         // Start from the initial node and stop when the final node is reached (or an Assert fail)
         String currentBeanId = initialNode;
@@ -71,8 +71,8 @@ public class StatementTestUtils {
             }
             // Get the current bean by ID
             String currentLookingBeanId = currentBeanId;
-            OperatorBean currentOperatorBean = operators.stream()
-                                                        .filter( op -> op.getOperatorID().equals(currentLookingBeanId) )
+            PredicateBase currentOperatorBean = operators.stream()
+                                                        .filter( op -> op.getID().equals(currentLookingBeanId) )
                                                         .findAny()
                                                         .orElse(null);
             Assert.assertNotNull(currentOperatorBean);
@@ -81,10 +81,10 @@ public class StatementTestUtils {
             // Compare the current bean with the next expected bean
             if(nextExpectedOperator!=null && currentOperatorBean.getClass()==nextExpectedOperator.getClass()){
                 // Copy the id of the current bean to the bean we are looking for and assert they are equal
-                nextExpectedOperator.setOperatorID(currentOperatorBean.getOperatorID());
+                nextExpectedOperator.setID(currentOperatorBean.getID());
                 Assert.assertEquals(nextExpectedOperator, currentOperatorBean);
                 nextExpectedOperator = null;
-            }else if(!(currentOperatorBean instanceof PassThroughBean)){
+            }else if(!(currentOperatorBean instanceof PassThroughPredicate)){
                 // Found a bean that is not PassThrough and is not the expected operator!
                 Assert.fail();
             }
@@ -93,16 +93,16 @@ public class StatementTestUtils {
                 break;
             }
             // Get outgoing links for the current bean
-            List<OperatorLinkBean> currentOperatorBeanOutgoingLinks = links.stream()
-                                    .filter(link -> link.getFromOperatorID().equals(currentOperatorBean.getOperatorID()) )
+            List<OperatorLink> currentOperatorBeanOutgoingLinks = links.stream()
+                                    .filter(link -> link.getOrigin().equals(currentOperatorBean.getID()) )
                                     .collect(Collectors.toList());
             // Assert there is only one outgoing link
             Assert.assertEquals(currentOperatorBeanOutgoingLinks.size(), 1);
-            OperatorLinkBean currentOperatorBeanOutgoingLink = currentOperatorBeanOutgoingLinks.get(0);
+            OperatorLink currentOperatorBeanOutgoingLink = currentOperatorBeanOutgoingLinks.get(0);
             // Add the outgoing link to the set of visited links and assert it hasn't been visited yet (cycle and duplicate check)
             Assert.assertTrue(visitedLinks.add(currentOperatorBeanOutgoingLink));
             // Set the current bean id to the next bean
-            currentBeanId = currentOperatorBeanOutgoingLink.getToOperatorID();
+            currentBeanId = currentOperatorBeanOutgoingLink.getDestination();
         }
 
         // Assert there are no more expected operators to look for

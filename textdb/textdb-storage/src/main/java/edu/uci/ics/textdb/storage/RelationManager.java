@@ -2,6 +2,9 @@ package edu.uci.ics.textdb.storage;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -86,9 +89,15 @@ public class RelationManager {
         if (checkTableExistence(tableName)) {
             throw new StorageException(String.format("Table %s already exists.", tableName));
         }
-        // convert the index directory to its absolute path
+        
+        // create folder if it's not there
+        // and convert the index directory to its absolute path
         try {
-            indexDirectory = new File(indexDirectory).getCanonicalPath();
+            Path indexPath = Paths.get(indexDirectory);
+            if (Files.notExists(indexPath)) {
+                Files.createDirectories(indexPath);
+            }
+            indexDirectory = indexPath.toRealPath().toString();
         } catch (IOException e) {
             throw new StorageException(e);
         }

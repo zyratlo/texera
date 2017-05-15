@@ -2,6 +2,10 @@ package edu.uci.ics.textdb.exp.common;
 
 import java.util.UUID;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
@@ -93,5 +97,23 @@ public abstract class PredicateBase implements IPredicate {
     
     @JsonIgnore
     public abstract IOperator newOperator();
+    
+    @Override
+    public int hashCode() {
+        // TODO: evaluate performance impact using reflection
+        return HashCodeBuilder.reflectionHashCode(this);
+    }
+    
+    @Override
+    public boolean equals(Object that) {
+        // TODO: evaluate performance impact using reflection
+        return EqualsBuilder.reflectionEquals(this, that);
+    }
+    
+    @Override
+    public String toString() {
+        // TODO: evaluate performance impact using reflection
+        return ToStringBuilder.reflectionToString(this);
+    }
     
 }

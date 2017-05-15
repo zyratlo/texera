@@ -16,34 +16,9 @@
     </properties>
     <dependencies>
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>${junit.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-core</artifactId>
-            <version>${lucene.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-analyzers-common</artifactId>
-            <version>${lucene.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-queryparser</artifactId>
-            <version>${lucene.version}</version>
-        </dependency>
-        <dependency>
             <groupId>de.julielab</groupId>
             <artifactId>aliasi-lingpipe</artifactId>
             <version>4.1.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.json</groupId>
-            <artifactId>json</artifactId>
-            <version>${org.json.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.opennlp</groupId>
@@ -52,17 +27,7 @@
         </dependency>
         <dependency>
             <groupId>edu.uci.ics.textdb</groupId>
-            <artifactId>textdb-api</artifactId>
-            <version>${textdb.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>edu.uci.ics.textdb</groupId>
-            <artifactId>textdb-dataflow</artifactId>
-            <version>${textdb.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>edu.uci.ics.textdb</groupId>
-            <artifactId>textdb-storage</artifactId>
+            <artifactId>textdb-exp</artifactId>
             <version>${textdb.version}</version>
         </dependency>
     </dependencies>
