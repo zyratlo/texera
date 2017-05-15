@@ -49,24 +49,11 @@
         </dependency>
         <dependency>
             <groupId>edu.uci.ics.textdb</groupId>
-            <artifactId>textdb-api</artifactId>
-            <version>${textdb.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>edu.uci.ics.textdb</groupId>
-            <artifactId>textdb-dataflow</artifactId>
-            <version>${textdb.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>edu.uci.ics.textdb</groupId>
             <artifactId>textdb-exp</artifactId>
             <version>${textdb.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>edu.uci.ics.textdb</groupId>
-            <artifactId>textdb-storage</artifactId>
-            <version>${textdb.version}</version>
-        </dependency>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>   
         <dependency>
             <groupId>edu.uci.ics.textdb</groupId>
             <artifactId>textdb-perftest</artifactId>
