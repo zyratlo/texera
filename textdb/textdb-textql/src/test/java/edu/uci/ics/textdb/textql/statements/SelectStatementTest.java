@@ -7,16 +7,16 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
-import edu.uci.ics.textdb.api.constants.DataConstants.KeywordMatchingType;
+import edu.uci.ics.textdb.exp.common.PredicateBase;
+import edu.uci.ics.textdb.exp.keywordmatcher.KeywordMatchingType;
+import edu.uci.ics.textdb.exp.keywordmatcher.KeywordPredicate;
+import edu.uci.ics.textdb.exp.projection.ProjectionPredicate;
 import edu.uci.ics.textdb.textql.statements.SelectStatement;
 import edu.uci.ics.textdb.textql.statements.predicates.ExtractPredicate;
 import edu.uci.ics.textdb.textql.statements.predicates.KeywordExtractPredicate;
 import edu.uci.ics.textdb.textql.statements.predicates.ProjectAllFieldsPredicate;
 import edu.uci.ics.textdb.textql.statements.predicates.ProjectPredicate;
 import edu.uci.ics.textdb.textql.statements.predicates.ProjectSomeFieldsPredicate;
-import edu.uci.ics.textdb.web.request.beans.KeywordMatcherBean;
-import edu.uci.ics.textdb.web.request.beans.OperatorBean;
-import edu.uci.ics.textdb.web.request.beans.ProjectionBean;
 
 /**
  * This class contains test cases for the SelectStatement.
@@ -206,7 +206,7 @@ public class SelectStatementTest {
     /**
      * Test the correctness of the generated beans by a SelectStatement without a
      * ProjectPredicate nor ExtractPredicate.
-     * Get a graph by calling getInternalOperatorBeans() and getInternalLinkBeans()
+     * Get a graph by calling getInternalPredicateBases() and getInternalLinkBeans()
      * methods and check if the generated path form the node getInputNodeID() to 
      * the node getOutputNodeID() is correct. Also check whether getInputViews()
      * is returning the correct dependencies.  
@@ -216,7 +216,7 @@ public class SelectStatementTest {
         SelectStatement selectStatement = new SelectStatement("id", null, null, "tableX", null,
                 null);
 
-        List<OperatorBean> expectedGeneratedBeans = Collections.emptyList();
+        List<PredicateBase> expectedGeneratedBeans = Collections.emptyList();
         List<String> dependencies = Arrays.asList("tableX");
 
         Assert.assertEquals(selectStatement.getInputViews(), dependencies);
@@ -226,7 +226,7 @@ public class SelectStatementTest {
     /**
      * Test the correctness of the generated beans by a SelectStatement with a
      * ProjectAllFieldsPredicate.
-     * Get a graph by calling getInternalOperatorBeans() and getInternalLinkBeans()
+     * Get a graph by calling getInternalPredicateBases() and getInternalLinkBeans()
      * methods and check if the generated path form the node getInputNodeID() to 
      * the node getOutputNodeID() is correct. Also check whether getInputViews()
      * is returning the correct dependencies.  
@@ -237,7 +237,7 @@ public class SelectStatementTest {
         SelectStatement selectStatement = new SelectStatement("id", projectPredicate, null, "Table",
                 null, null);
 
-        List<OperatorBean> expectedGeneratedBeans = Collections.emptyList();
+        List<PredicateBase> expectedGeneratedBeans = Collections.emptyList();
         List<String> dependencies = Arrays.asList("Table");
 
         Assert.assertEquals(selectStatement.getInputViews(), dependencies);
@@ -247,7 +247,7 @@ public class SelectStatementTest {
     /**
      * Test the correctness of the generated beans by a SelectStatement with a
      * ProjectSomeFieldsPredicate.
-     * Get a graph by calling getInternalOperatorBeans() and getInternalLinkBeans()
+     * Get a graph by calling getInternalPredicateBases() and getInternalLinkBeans()
      * methods and check if the generated path form the node getInputNodeID() to 
      * the node getOutputNodeID() is correct. Also check whether getInputViews()
      * is returning the correct dependencies.  
@@ -258,8 +258,8 @@ public class SelectStatementTest {
         SelectStatement selectStatement = new SelectStatement("idX", projectPredicate, null, "from",
                 null, null);
 
-        List<OperatorBean> expectedGeneratedBeans = Arrays.asList(
-                new ProjectionBean("", "Projection", "a,b", null, null)
+        List<PredicateBase> expectedGeneratedBeans = Arrays.asList(
+                new ProjectionPredicate(Arrays.asList("a", "b"))
             );
         List<String> dependencies = Arrays.asList("from");
 
@@ -270,7 +270,7 @@ public class SelectStatementTest {
     /**
      * Test the correctness of the generated beans by a SelectStatement with a
      * KeywordExtractPredicate.
-     * Get a graph by calling getInternalOperatorBeans() and getInternalLinkBeans()
+     * Get a graph by calling getInternalPredicateBases() and getInternalLinkBeans()
      * methods and check if the generated path form the node getInputNodeID() to 
      * the node getOutputNodeID() is correct. Also check whether getInputViews()
      * is returning the correct dependencies.  
@@ -282,9 +282,9 @@ public class SelectStatementTest {
         SelectStatement selectStatement = new SelectStatement("id", null, extractPredicate, 
                 "TableP9", null, null);
 
-        List<OperatorBean> expectedGeneratedBeans = Arrays.asList(
-                new KeywordMatcherBean("", "KeywordMatcher", "c,d", null, null, "word",
-                        KeywordMatchingType.SUBSTRING_SCANBASED.toString())
+        List<PredicateBase> expectedGeneratedBeans = Arrays.asList(
+                new KeywordPredicate("word", Arrays.asList("c", "d"), null, 
+                        KeywordMatchingType.SUBSTRING_SCANBASED, "id_e")
             );
         List<String> dependencies = Arrays.asList("TableP9");
 
@@ -295,7 +295,7 @@ public class SelectStatementTest {
     /**
      * Test the correctness of the generated beans by a SelectStatement with a
      * ProjectAllFieldsPredicate and a KeywordExtractPredicate.
-     * Get a graph by calling getInternalOperatorBeans() and getInternalLinkBeans()
+     * Get a graph by calling getInternalPredicateBases() and getInternalLinkBeans()
      * methods and check if the generated path form the node getInputNodeID() to 
      * the node getOutputNodeID() is correct. Also check whether getInputViews()
      * is returning the correct dependencies.  
@@ -308,9 +308,9 @@ public class SelectStatementTest {
         SelectStatement selectStatement = new SelectStatement("id", projectPredicate,
                 extractPredicate, "source", null, null);
 
-        List<OperatorBean> expectedGeneratedBeans = Arrays.asList(
-                    new KeywordMatcherBean("", "KeywordMatcher", "f1", null, null, "keyword", 
-                            KeywordMatchingType.CONJUNCTION_INDEXBASED.toString())
+        List<PredicateBase> expectedGeneratedBeans = Arrays.asList(
+                    new KeywordPredicate("keyword", Arrays.asList("f1"), null, 
+                            KeywordMatchingType.CONJUNCTION_INDEXBASED, "id_e")
                 );
         List<String> dependencies = Arrays.asList("source");
 
@@ -321,7 +321,7 @@ public class SelectStatementTest {
     /**
      * Test the correctness of the generated beans by a SelectStatement with a
      * ProjectAllFieldsPredicate and a KeywordExtractPredicate.
-     * Get a graph by calling getInternalOperatorBeans() and getInternalLinkBeans()
+     * Get a graph by calling getInternalPredicateBases() and getInternalLinkBeans()
      * methods and check if the generated path form the node getInputNodeID() to 
      * the node getOutputNodeID() is correct. Also check whether getInputViews()
      * is returning the correct dependencies.  
@@ -334,10 +334,10 @@ public class SelectStatementTest {
         SelectStatement selectStatement = new SelectStatement("_sid4", projectPredicate,
                 extractPredicate, "from", null, null);
 
-        List<OperatorBean> expectedGeneratedBeans = Arrays.asList(
-                new KeywordMatcherBean("", "KeywordMatcher", "a,b", null, null, "x",
-                        KeywordMatchingType.SUBSTRING_SCANBASED.toString()),
-                new ProjectionBean("", "Projection", "a,b", null, null)
+        List<PredicateBase> expectedGeneratedBeans = Arrays.asList(
+                new KeywordPredicate("x", Arrays.asList("a", "b"), null,
+                        KeywordMatchingType.SUBSTRING_SCANBASED, "_sid4_e"),
+                new ProjectionPredicate(Arrays.asList("a", "b"))
             );
         List<String> dependencies = Arrays.asList("from");
 

@@ -3,8 +3,8 @@ package edu.uci.ics.textdb.textql.statements.predicates;
 import org.junit.Assert;
 import org.junit.Test;
 
-import edu.uci.ics.textdb.textql.planbuilder.beans.PassThroughBean;
-import edu.uci.ics.textdb.web.request.beans.OperatorBean;
+import edu.uci.ics.textdb.exp.common.PredicateBase;
+import edu.uci.ics.textdb.textql.planbuilder.beans.PassThroughPredicate;
 
 /**
  * This class contains test cases for the SelectAllFieldsPredicate class.
@@ -24,16 +24,15 @@ public class ProjectAllFieldsPredicateTest {
     @Test
     public void testGenerateOperatorBean() {
         ProjectAllFieldsPredicate projectAllFieldsPredicate = new ProjectAllFieldsPredicate();
-        OperatorBean projectionBean;
-        String operatorId;
+        PredicateBase projectionBean;
         
-        operatorId = "xxx";
-        projectionBean = projectAllFieldsPredicate.generateOperatorBean(operatorId);
-        Assert.assertEquals(projectionBean, new PassThroughBean(operatorId, "PassThrough"));
+        final String operatorId1 = "xxx";
+        projectionBean = projectAllFieldsPredicate.generateOperatorBean(operatorId1);
+        Assert.assertEquals(projectionBean, new PassThroughPredicate(operatorId1));
 
-        operatorId = "y0a9";
-        projectionBean = projectAllFieldsPredicate.generateOperatorBean(operatorId);
-        Assert.assertEquals(projectionBean, new PassThroughBean(operatorId, "PassThrough"));
+        final String operatorId2 = "y0a9";
+        projectionBean = projectAllFieldsPredicate.generateOperatorBean(operatorId2);
+        Assert.assertEquals(projectionBean, new PassThroughPredicate(operatorId2));
     }
     
 }

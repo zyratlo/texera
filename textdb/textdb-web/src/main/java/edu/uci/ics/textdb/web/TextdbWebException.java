@@ -12,6 +12,9 @@ import javax.ws.rs.core.Response;
  * Created by kishorenarendran on 2/24/17.
  */
 public class TextdbWebException extends WebApplicationException {
+    
+    private static final long serialVersionUID = 4321691337540833526L;
+
     public TextdbWebException() {
         super(Response.status(400).build());
     }

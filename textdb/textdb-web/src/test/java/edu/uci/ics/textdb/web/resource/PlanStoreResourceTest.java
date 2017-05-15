@@ -2,9 +2,12 @@ package edu.uci.ics.textdb.web.resource;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import edu.uci.ics.textdb.exp.plangen.LogicalPlanTest;
 import edu.uci.ics.textdb.web.TextdbWebApplication;
 import edu.uci.ics.textdb.web.TextdbWebConfiguration;
-import edu.uci.ics.textdb.web.response.QueryPlanResponse;
+import edu.uci.ics.textdb.web.response.planstore.QueryPlanBean;
+import edu.uci.ics.textdb.web.response.planstore.QueryPlanListBean;
 import io.dropwizard.client.JerseyClientBuilder;
 import io.dropwizard.testing.ResourceHelpers;
 import io.dropwizard.testing.junit.DropwizardAppRule;
@@ -33,98 +36,27 @@ public class PlanStoreResourceTest {
     public static Client client;
     
     public static String planStoreEndpoint = "http://localhost:%d/api/planstore";
+    
+    
+    public static String queryPlan1;
+    public static String updatedQueryPlan1;
+    public static String queryPlan2;
+    
+    static {
+        try {
+            queryPlan1 = new ObjectMapper().writeValueAsString(
+                    new QueryPlanBean("plan1", "plan 1 description", LogicalPlanTest.getLogicalPlan1()));
+            
+            updatedQueryPlan1 = new ObjectMapper().writeValueAsString(
+                    new QueryPlanBean("plan1", "updated plan 1 description", LogicalPlanTest.getLogicalPlan1()));
+            
+            queryPlan2 = new ObjectMapper().writeValueAsString(
+                    new QueryPlanBean("plan2", "plan 2 description", LogicalPlanTest.getLogicalPlan2()));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
 
-    public static final String queryPlan1 = "  {\n" +
-            "  \"name\": \"plan1\",\n" +
-            "  \"description\": \"basic dictionary source plan\",\n" +
-            "  \"query_plan\": {\n" +
-            "    \"operators\": [\n" +
-            "      {\n" +
-            "        \"operator_type\": \"DictionarySource\",\n" +
-            "        \"operator_id\": \"operator1\",\n" +
-            "        \"attributes\": \"attributes\",\n" +
-            "        \"limit\": \"10\",\n" +
-            "        \"offset\": \"100\",\n" +
-            "        \"dictionary\": \"dict1\",\n" +
-            "        \"matching_type\": \"PHRASE_INDEXBASED\",\n" +
-            "        \"data_source\": \"query_plan_resource_test_table\"\n" +
-            "      },\n" +
-            "      {\n" +
-            "        \"operator_type\": \"TupleStreamSink\",\n" +
-            "        \"operator_id\": \"operator2\",\n" +
-            "        \"attributes\": \"attributes\",\n" +
-            "        \"limit\": \"10\",\n" +
-            "        \"offset\": \"100\"\n" +
-            "      }\n" +
-            "    ],\n" +
-            "    \"links\": [\n" +
-            "      {\n" +
-            "        \"from\": \"operator1\",\n" +
-            "        \"to\": \"operator2\"\n" +
-            "      }\n" +
-            "    ]\n" +
-            "  }\n" +
-            "}";
-
-    public static final String updatedQueryPlan1 = "  {\n" +
-            "  \"name\": \"plan1\",\n" +
-            "  \"description\": \"basic plan\",\n" +
-            "  \"query_plan\": {\n" +
-            "    \"operators\": [\n" +
-            "      {\n" +
-            "        \"operator_type\": \"DictionarySource\",\n" +
-            "        \"operator_id\": \"operator1\",\n" +
-            "        \"attributes\": \"attributes\",\n" +
-            "        \"dictionary\": \"changed_dict\",\n" +
-            "        \"matching_type\": \"PHRASE_INDEXBASED\",\n" +
-            "        \"data_source\": \"query_plan_resource_test_table\"\n" +
-            "      },\n" +
-            "      {\n" +
-            "        \"operator_type\": \"TupleStreamSink\",\n" +
-            "        \"operator_id\": \"operator2\",\n" +
-            "        \"attributes\": \"attributes\"\n" +
-            "      }\n" +
-            "    ],\n" +
-            "    \"links\": [\n" +
-            "      {\n" +
-            "        \"from\": \"operator1\",\n" +
-            "        \"to\": \"operator2\"\n" +
-            "      }\n" +
-            "    ]\n" +
-            "  }\n" +
-            "}";
-
-    public static final String queryPlan2 = "{\n" +
-            "      \"name\": \"plan2\",\n" +
-            "      \"description\": \"basic dictionary source plan\",\n" +
-            "      \"query_plan\": {\n" +
-            "        \"operators\": [\n" +
-            "          {\n" +
-            "            \"operator_type\": \"DictionarySource\",\n" +
-            "            \"operator_id\": \"operator1\",\n" +
-            "            \"attributes\": \"attributes\",\n" +
-            "            \"limit\": \"10\",\n" +
-            "            \"offset\": \"100\",\n" +
-            "            \"dictionary\": \"dict1\",\n" +
-            "            \"matching_type\": \"PHRASE_INDEXBASED\",\n" +
-            "            \"data_source\": \"query_plan_resource_test_table\"\n" +
-            "          },\n" +
-            "          {\n" +
-            "            \"operator_type\": \"TupleStreamSink\",\n" +
-            "            \"operator_id\": \"operator2\",\n" +
-            "            \"attributes\": \"attributes\",\n" +
-            "            \"limit\": \"10\",\n" +
-            "            \"offset\": \"100\"\n" +
-            "          }\n" +
-            "        ],\n" +
-            "        \"links\": [\n" +
-            "          {\n" +
-            "            \"from\": \"operator1\",\n" +
-            "            \"to\": \"operator2\"\n" +
-            "          }\n" +
-            "        ]\n" +
-            "      }\n" +
-            "    }";
+    }
 
     public static boolean checkJsonEquivalence(String json1, String json2) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
@@ -154,11 +86,13 @@ public class PlanStoreResourceTest {
 
     @Test
     public void checkAddOnePlan() throws IOException{
+        System.out.println("check add one plan started");
         Response response = client.target(
                 String.format(planStoreEndpoint, RULE.getLocalPort()))
                 .request()
                 .post(Entity.entity(queryPlan1, MediaType.APPLICATION_JSON));
 
+        System.out.println(response);
         assertThat(response.getStatus()).isEqualTo(200);
 
         response = client.target(
@@ -235,9 +169,9 @@ public class PlanStoreResourceTest {
                 .get();
 
         ObjectMapper mapper = new ObjectMapper();
-        QueryPlanResponse queryPlanResponse = mapper.readValue(response.readEntity(String.class),
-                QueryPlanResponse.class);
+        QueryPlanListBean queryPlanResponse = mapper.readValue(response.readEntity(String.class),
+                QueryPlanListBean.class);
         assertThat(response.getStatus()).isEqualTo(200);
-        assertThat(queryPlanResponse.getQueryPlans().size() == 2);
+        assertThat(queryPlanResponse.getQueryPlanList().size() == 2);
     }
 }

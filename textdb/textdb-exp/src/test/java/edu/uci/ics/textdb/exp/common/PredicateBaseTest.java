@@ -6,8 +6,8 @@ import java.util.List;
 import org.junit.Test;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
+import edu.uci.ics.textdb.api.utils.TestUtils;
 import edu.uci.ics.textdb.exp.dictionarymatcher.Dictionary;
 import edu.uci.ics.textdb.exp.dictionarymatcher.DictionaryPredicate;
 import edu.uci.ics.textdb.exp.dictionarymatcher.DictionarySourcePredicate;
@@ -47,17 +47,9 @@ public class PredicateBaseTest {
      *   
      */
     public static void testPredicate(PredicateBase predicate) throws Exception {  
-        ObjectMapper objectMapper = new ObjectMapper();
-        String predicateJson = objectMapper.writeValueAsString(predicate);
-        PredicateBase resultPredicate = objectMapper.readValue(predicateJson, PredicateBase.class);
-        String resultPredicateJson = objectMapper.writeValueAsString(resultPredicate);
-        
-        JsonNode predicateJsonNode = objectMapper.readValue(predicateJson, JsonNode.class);
-        JsonNode resultPredicateJsonNode = objectMapper.readValue(resultPredicateJson, JsonNode.class);
-        
-        Assert.assertEquals(predicateJsonNode, resultPredicateJsonNode);
-        Assert.assertTrue(predicateJson.contains(PropertyNameConstants.OPERATOR_TYPE));
-        Assert.assertTrue(predicateJson.contains(PropertyNameConstants.OPERATOR_ID));
+        JsonNode jsonNode = TestUtils.testJsonSerialization(predicate);
+        Assert.assertTrue(jsonNode.has(PropertyNameConstants.OPERATOR_TYPE));
+        Assert.assertTrue(jsonNode.has(PropertyNameConstants.OPERATOR_ID));
     }
     
     private static List<String> attributeNames = Arrays.asList("attr1", "attr2");

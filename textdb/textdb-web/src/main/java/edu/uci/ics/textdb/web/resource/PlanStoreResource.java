@@ -1,20 +1,19 @@
 package edu.uci.ics.textdb.web.resource;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.uci.ics.textdb.api.exception.TextDBException;
 import edu.uci.ics.textdb.api.tuple.Tuple;
-import edu.uci.ics.textdb.planstore.PlanStore;
-import edu.uci.ics.textdb.planstore.PlanStoreConstants;
+import edu.uci.ics.textdb.exp.plangen.LogicalPlan;
+import edu.uci.ics.textdb.exp.planstore.PlanStore;
+import edu.uci.ics.textdb.exp.planstore.PlanStoreConstants;
 import edu.uci.ics.textdb.storage.DataReader;
 import edu.uci.ics.textdb.web.TextdbWebException;
-import edu.uci.ics.textdb.web.request.QueryPlanRequest;
-import edu.uci.ics.textdb.web.request.beans.QueryPlanBean;
-import edu.uci.ics.textdb.web.response.QueryPlanResponse;
 import edu.uci.ics.textdb.web.response.TextdbWebResponse;
+import edu.uci.ics.textdb.web.response.planstore.QueryPlanBean;
+import edu.uci.ics.textdb.web.response.planstore.QueryPlanListBean;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -46,7 +45,7 @@ public class PlanStoreResource {
     }
 
     @GET
-    public QueryPlanResponse getAllQueryPlans() {
+    public QueryPlanListBean getAllQueryPlans() {
         ArrayList<QueryPlanBean> queryPlans = new ArrayList<>();
 
         try {
@@ -61,17 +60,18 @@ public class PlanStoreResource {
                 String description = tuple.getField(PlanStoreConstants.DESCRIPTION).getValue().toString();
                 String logicalPlanJson = tuple.getField(PlanStoreConstants.LOGICAL_PLAN_JSON).getValue().toString();
                 queryPlans.add(new QueryPlanBean(name, description,
-                        mapper.readValue(logicalPlanJson, QueryPlanRequest.class)));
+                        mapper.readValue(logicalPlanJson, LogicalPlan.class)));
             }
         }
         catch(TextDBException e) {
+            e.printStackTrace();
             throw new TextdbWebException(e.getMessage());
         }
         catch(IOException e) {
             e.printStackTrace();
+            throw new TextdbWebException("fail to parse json:\n" + e.getMessage());
         }
-        QueryPlanResponse queryPlanResponse = new QueryPlanResponse(queryPlans);
-        return queryPlanResponse;
+        return new QueryPlanListBean(queryPlans);
     }
 
     @GET
@@ -84,7 +84,7 @@ public class PlanStoreResource {
             }
             QueryPlanBean queryPlanBean = new QueryPlanBean(tuple.getField(PlanStoreConstants.NAME).getValue().toString(),
                     tuple.getField(PlanStoreConstants.DESCRIPTION).getValue().toString(),
-                    mapper.readValue(tuple.getField(PlanStoreConstants.LOGICAL_PLAN_JSON).getValue().toString(), QueryPlanRequest.class));
+                    mapper.readValue(tuple.getField(PlanStoreConstants.LOGICAL_PLAN_JSON).getValue().toString(), LogicalPlan.class));
             return queryPlanBean;
         }
         catch(TextDBException e) {
@@ -97,8 +97,9 @@ public class PlanStoreResource {
     }
 
     @POST
-    public TextdbWebResponse addQueryPlan(QueryPlanBean queryPlanBean) {
+    public TextdbWebResponse addQueryPlan(String queryPlanBeanJson) {
         try {
+            QueryPlanBean queryPlanBean = new ObjectMapper().readValue(queryPlanBeanJson, QueryPlanBean.class);
             // Adding the query plan to the PlanStore
             planStore.addPlan(queryPlanBean.getName(), queryPlanBean.getDescription(),
                     mapper.writeValueAsString(queryPlanBean.getQueryPlan()));
@@ -127,13 +128,14 @@ public class PlanStoreResource {
 
     @PUT
     @Path("/{plan_name}")
-    public TextdbWebResponse updateQueryPlan(@PathParam("plan_name") String planName, QueryPlanBean queryPlanBean) {
+    public TextdbWebResponse updateQueryPlan(@PathParam("plan_name") String planName, String queryPlanBeanJson) {
         try {
+            QueryPlanBean queryPlanBean = new ObjectMapper().readValue(queryPlanBeanJson, QueryPlanBean.class);
             // Updating the plan in the plan store
             planStore.updatePlan(planName, queryPlanBean.getDescription(),
                     mapper.writeValueAsString(queryPlanBean.getQueryPlan()));
         }
-        catch(JsonProcessingException | TextDBException e) {
+        catch(IOException | TextDBException e) {
             throw new TextdbWebException(e.getMessage());
         }
         return new TextdbWebResponse(0, "Success");

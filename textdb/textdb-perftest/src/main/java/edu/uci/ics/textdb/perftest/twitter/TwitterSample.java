@@ -5,6 +5,7 @@ import java.io.File;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import edu.uci.ics.textdb.api.field.IntegerField;
 import edu.uci.ics.textdb.api.field.StringField;
 import edu.uci.ics.textdb.api.field.TextField;
 import edu.uci.ics.textdb.api.tuple.Tuple;
@@ -35,19 +36,37 @@ public class TwitterSample {
         JsonNode jsonNode = new ObjectMapper().readTree(new File(twitterFilePath));
         for (JsonNode tweet : jsonNode) {
             try {
-                Long id = tweet.get("id").asLong();
-                System.out.println(id.toString());
-                String createAt = tweet.get("create_at").asText();
-                String userName = tweet.get("user").get("screen_name").asText();
                 String text = tweet.get("text").asText();
+                Long id = tweet.get("id").asLong();
+                String tweetLink = "https://twitter.com/statuses/" + id;
+                JsonNode userNode = tweet.get("user");
+                String userScreenName = userNode.get("screen_name").asText();
+                String userLink = "https://twitter.com/" + userScreenName;
+                String userName = userNode.get("name").asText();
+                String userDescription = userNode.get("description").asText();
+                Integer userFollowersCount = userNode.get("followers_count").asInt();
+                Integer userFriendsCount = userNode.get("friends_count").asInt();
+                JsonNode geoTagNode = tweet.get("geo_tag");
+                String state = geoTagNode.get("stateName").asText();
+                String county = geoTagNode.get("countyName").asText();
+                String city = geoTagNode.get("cityName").asText();
+                String createAt = tweet.get("create_at").asText();
                 Tuple tuple = new Tuple(TwitterSchema.TWITTER_SCHEMA,
-                        new StringField(id.toString()),
-                        new StringField(createAt),
-                        new StringField(userName),
-                        new TextField(text));
+                        new TextField(text),
+                        new StringField(tweetLink),
+                        new StringField(userLink),
+                        new TextField(userScreenName),
+                        new TextField(userName),
+                        new TextField(userDescription),
+                        new IntegerField(userFollowersCount),
+                        new IntegerField(userFriendsCount),
+                        new TextField(state),
+                        new TextField(county),
+                        new TextField(city),
+                        new StringField(createAt));
                 dataWriter.insertTuple(tuple);
                 counter++;
-            } catch (Exception e) {
+            } catch (RuntimeException e) {
                 e.printStackTrace();
                 continue;
             }

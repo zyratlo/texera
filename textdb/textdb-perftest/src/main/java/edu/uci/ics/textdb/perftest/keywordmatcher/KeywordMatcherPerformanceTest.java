@@ -1,32 +1,28 @@
 
 package edu.uci.ics.textdb.perftest.keywordmatcher;
 
+import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
-
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
-
-import edu.uci.ics.textdb.api.constants.DataConstants;
 import edu.uci.ics.textdb.api.constants.SchemaConstants;
-import edu.uci.ics.textdb.api.constants.DataConstants.KeywordMatchingType;
 import edu.uci.ics.textdb.api.exception.TextDBException;
 import edu.uci.ics.textdb.api.field.ListField;
 import edu.uci.ics.textdb.api.schema.Attribute;
 import edu.uci.ics.textdb.api.span.Span;
 import edu.uci.ics.textdb.api.tuple.Tuple;
 import edu.uci.ics.textdb.api.utils.Utils;
-import edu.uci.ics.textdb.dataflow.common.KeywordPredicate;
-import edu.uci.ics.textdb.dataflow.keywordmatch.KeywordMatcherSourceOperator;
-import edu.uci.ics.textdb.dataflow.utils.DataflowUtils;
+import edu.uci.ics.textdb.exp.keywordmatcher.KeywordMatcherSourceOperator;
+import edu.uci.ics.textdb.exp.keywordmatcher.KeywordMatchingType;
+import edu.uci.ics.textdb.exp.keywordmatcher.KeywordSourcePredicate;
 import edu.uci.ics.textdb.perftest.medline.MedlineIndexWriter;
 import edu.uci.ics.textdb.perftest.utils.PerfTestUtils;
-import edu.uci.ics.textdb.storage.RelationManager;
+import edu.uci.ics.textdb.storage.constants.LuceneAnalyzerConstants;
 
 /**
  * @author Hailey Pan
@@ -81,9 +77,9 @@ public class KeywordMatcherPerformanceTest {
             }
             String tableName = file.getName().replace(".txt", "");
                     
-            csvWriter(conjunctionCsv, file.getName(), queries, DataConstants.KeywordMatchingType.CONJUNCTION_INDEXBASED, tableName);
-            csvWriter(phraseCsv, file.getName(), queries, DataConstants.KeywordMatchingType.PHRASE_INDEXBASED, tableName);
-            csvWriter(scanCsv, file.getName(), queries, DataConstants.KeywordMatchingType.SUBSTRING_SCANBASED, tableName);
+            csvWriter(conjunctionCsv, file.getName(), queries, KeywordMatchingType.CONJUNCTION_INDEXBASED, tableName);
+            csvWriter(phraseCsv, file.getName(), queries, KeywordMatchingType.PHRASE_INDEXBASED, tableName);
+            csvWriter(scanCsv, file.getName(), queries, KeywordMatchingType.SUBSTRING_SCANBASED, tableName);
 
         }
 
@@ -106,12 +102,13 @@ public class KeywordMatcherPerformanceTest {
             KeywordMatchingType opType, String tableName) throws Exception {
         double avgTime = 0.0;
         PerfTestUtils.createFile(PerfTestUtils.getResultPath(resultFile), HEADER);
-        FileWriter fileWriter = new FileWriter(PerfTestUtils.getResultPath(resultFile), true);
+        BufferedWriter fileWriter = Files.newBufferedWriter(
+                PerfTestUtils.getResultPath(resultFile), StandardOpenOption.APPEND);
         fileWriter.append(newLine);
         fileWriter.append(currentTime + delimiter);
         fileWriter.append(recordNum + delimiter);
         resetStats();
-        match(queries, opType, new StandardAnalyzer(), tableName);
+        match(queries, opType, LuceneAnalyzerConstants.standardAnalyzerString(), tableName);
         avgTime = PerfTestUtils.calculateAverage(timeResults);
         fileWriter.append(Collections.min(timeResults) + delimiter + Collections.max(timeResults) + delimiter + avgTime
                 + delimiter + PerfTestUtils.calculateSTD(timeResults, avgTime) + delimiter
@@ -131,20 +128,21 @@ public class KeywordMatcherPerformanceTest {
     /*
      * This function does match for a list of queries
      */
-    public static void match(ArrayList<String> queryList, KeywordMatchingType opType, Analyzer luceneAnalyzer,
+    public static void match(ArrayList<String> queryList, KeywordMatchingType opType, String luceneAnalyzerStr,
             String tableName) throws TextDBException, IOException {
 
         Attribute[] attributeList = new Attribute[] { MedlineIndexWriter.ABSTRACT_ATTR };
 
         for (String query : queryList) {
-            KeywordPredicate keywordPredicate = new KeywordPredicate(
+            KeywordSourcePredicate predicate = new KeywordSourcePredicate(
                     query,
                     Utils.getAttributeNames(attributeList),
-                    luceneAnalyzer, 
-                    opType);
+                    luceneAnalyzerStr, 
+                    opType, 
+                    tableName,
+                    null);
 
-            KeywordMatcherSourceOperator keywordSource = new KeywordMatcherSourceOperator(
-                    keywordPredicate, tableName);
+            KeywordMatcherSourceOperator keywordSource = new KeywordMatcherSourceOperator(predicate);
 
             long startMatchTime = System.currentTimeMillis();
             keywordSource.open();

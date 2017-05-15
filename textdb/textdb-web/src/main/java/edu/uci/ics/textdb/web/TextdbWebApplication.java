@@ -4,20 +4,12 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.github.dirkraft.dropwizard.fileassets.FileAssetsBundle;
 
-import edu.uci.ics.textdb.api.engine.Plan;
-import edu.uci.ics.textdb.api.exception.TextDBException;
-import edu.uci.ics.textdb.dataflow.sink.TupleStreamSink;
 import edu.uci.ics.textdb.perftest.sample.SampleExtraction;
 import edu.uci.ics.textdb.perftest.twitter.TwitterSample;
-import edu.uci.ics.textdb.plangen.LogicalPlan;
 import edu.uci.ics.textdb.web.healthcheck.SampleHealthCheck;
-import edu.uci.ics.textdb.web.request.beans.KeywordSourceBean;
-import edu.uci.ics.textdb.web.request.beans.NlpExtractorBean;
-import edu.uci.ics.textdb.web.request.beans.TupleStreamSinkBean;
 import edu.uci.ics.textdb.web.resource.SystemResource;
 import edu.uci.ics.textdb.web.resource.NewQueryPlanResource;
 import edu.uci.ics.textdb.web.resource.PlanStoreResource;
-import edu.uci.ics.textdb.web.resource.QueryPlanResource;
 import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
@@ -34,16 +26,6 @@ import java.util.EnumSet;
  */
 public class TextdbWebApplication extends Application<TextdbWebConfiguration> {
 
-
-    // Defining some simple operators for a simple query plan to trigger Stanford NLP loading
-    private static final KeywordSourceBean KEYWORD_SOURCE_BEAN = new KeywordSourceBean("KeywordSource_0", "KeywordSource",
-            "content", "100", "0", "Cleide Moreira, Director of Epidemiological Surveillance of SESAU", "conjunction",
-            "promed");
-    private static final NlpExtractorBean NLP_EXTRACTOR_BEAN = new NlpExtractorBean("NlpExtractor_0", "NlpExtractor",
-            "content", "100", "0", "location");
-    private static final TupleStreamSinkBean TUPLE_STREAM_SINK_BEAN = new TupleStreamSinkBean("TupleStreamSink_0",
-            "TupleStreamSink", "content", "100", "0");
-
     @Override
     public void initialize(Bootstrap<TextdbWebConfiguration> bootstrap) {
         // serve static frontend GUI files
@@ -54,10 +36,6 @@ public class TextdbWebApplication extends Application<TextdbWebConfiguration> {
     public void run(TextdbWebConfiguration textdbWebConfiguration, Environment environment) throws Exception {
         // serve backend at /api
         environment.jersey().setUrlPattern("/api/*");
-        // Creates an instance of the QueryPlanResource class to register with Jersey
-        final QueryPlanResource queryPlanResource = new QueryPlanResource();
-        // Registers the QueryPlanResource with Jersey
-        environment.jersey().register(queryPlanResource);
         
         final NewQueryPlanResource newQueryPlanResource = new NewQueryPlanResource();
         environment.jersey().register(newQueryPlanResource);
@@ -92,34 +70,11 @@ public class TextdbWebApplication extends Application<TextdbWebConfiguration> {
         cors.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), true, "/*");
     }
 
-    private static void loadStanfordNLP() throws TextDBException{
-
-        // Creating a simple logical plan with a Stanford NLP Extractor operator
-        LogicalPlan logicalPlan = new LogicalPlan();
-        logicalPlan.addOperator(KEYWORD_SOURCE_BEAN.getOperatorID(), KEYWORD_SOURCE_BEAN.getOperatorType(),
-                KEYWORD_SOURCE_BEAN.getOperatorProperties());
-        logicalPlan.addOperator(NLP_EXTRACTOR_BEAN.getOperatorID(), NLP_EXTRACTOR_BEAN.getOperatorType(),
-                NLP_EXTRACTOR_BEAN.getOperatorProperties());
-        logicalPlan.addOperator(TUPLE_STREAM_SINK_BEAN.getOperatorID(), TUPLE_STREAM_SINK_BEAN.getOperatorType(),
-                TUPLE_STREAM_SINK_BEAN.getOperatorProperties());
-        logicalPlan.addLink(KEYWORD_SOURCE_BEAN.getOperatorID(), NLP_EXTRACTOR_BEAN.getOperatorID());
-        logicalPlan.addLink(NLP_EXTRACTOR_BEAN.getOperatorID(), TUPLE_STREAM_SINK_BEAN.getOperatorID());
-
-        // Triggering the execution of the above query plan
-        Plan plan = logicalPlan.buildQueryPlan();
-        TupleStreamSink sink = (TupleStreamSink) plan.getRoot();
-        sink.open();
-        sink.collectAllTuples();
-        sink.close();
-    }
 
     public static void main(String args[]) throws Exception {
-        System.out.println("Writing Sample Index");
+        System.out.println("Writing promed Index");
         SampleExtraction.writeSampleIndex();
-        System.out.println("Completed Writing Sample Index");
-        System.out.println("Started Loading Stanford NLP");
-        loadStanfordNLP();
-        System.out.println("Finished Loading Stanford NLP");
+        System.out.println("Finished Writing promed Index");
         System.out.println("Writing twitter index");
         TwitterSample.writeTwitterIndex();
         System.out.println("Finished writing twitter index");

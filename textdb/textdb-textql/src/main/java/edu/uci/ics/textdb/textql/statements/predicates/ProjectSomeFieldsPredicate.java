@@ -4,8 +4,8 @@ import java.util.List;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
-import edu.uci.ics.textdb.web.request.beans.OperatorBean;
-import edu.uci.ics.textdb.web.request.beans.ProjectionBean;
+import edu.uci.ics.textdb.exp.common.PredicateBase;
+import edu.uci.ics.textdb.exp.projection.ProjectionPredicate;
 
 /**
  * Object representation of a "SELECT a, b, c, ..." predicate inside a { @code SelectExtractStatement },
@@ -51,12 +51,10 @@ public class ProjectSomeFieldsPredicate implements ProjectPredicate {
      * Return this operator converted to an { @code OperatorBean }.
      * @param projectOperatorId The ID of the OperatorBean to be created.
      */
-    public OperatorBean generateOperatorBean(String projectOperatorId) {
-        ProjectionBean projectionBean = new ProjectionBean();
-        projectionBean.setOperatorID(projectOperatorId);
-        projectionBean.setOperatorType("Projection");
-        projectionBean.setAttributes(String.join(",", this.getProjectedFields()));
-        return projectionBean;
+    public PredicateBase generateOperatorBean(String projectOperatorId) {
+        ProjectionPredicate projectionPredicate = new ProjectionPredicate(this.getProjectedFields());
+        projectionPredicate.setID(projectOperatorId);
+        return projectionPredicate;
     }
 
     
