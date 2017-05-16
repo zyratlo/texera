@@ -10,7 +10,7 @@ import any = jasmine.any;
 declare var jQuery: any;
 
 const textdbUrl = 'http://localhost:8080/api/newqueryplan/execute';
-const metadataUrl = 'http://localhost:8080/api/metadata';
+const metadataUrl = 'http://localhost:8080/api/resources/metadata';
 
 const defaultData = {
     top: 20,

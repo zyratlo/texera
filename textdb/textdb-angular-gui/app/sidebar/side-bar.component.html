@@ -23,7 +23,7 @@
                   <option *ngFor="let agg of aggregationList" [value] = "agg">{{agg}}</option>
                 </select>
 
-                <div *ngIf="attribute === 'attributes'">
+                <div *ngIf="attribute === 'attributes' || attribute === ' attribute'">
                     <select class="form-control" name="{{attribute}}+Selector" [(ngModel)]="selectedAttribute" (ngModelChange)="selected($event)">
                         <option selected hidden value="-">Select attributes</option>
                         <option *ngFor="let attribute of attributeItems" [value] = "attribute">{{attribute}}</option>
