@@ -158,4 +158,14 @@ export class SideBarComponent {
       }
     });
   }
+
+  /* TODO:: for now, only source operators support attribute autocomplete.
+  * Later, to enable autocomplete for the rest operators,
+  * remove this function as well as *ngIf in side-bar.component.html
+  */
+  isSourceOperator(): boolean {
+    if (this.operatorTitle.toLowerCase().search(".*source*") === 0) {
+      return true;
+    } else return false;
+  }
 }
