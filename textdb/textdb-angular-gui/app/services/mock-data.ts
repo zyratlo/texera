@@ -144,7 +144,7 @@ let nlpSentiment = {
     },
     attributes : {
         "operatorType": "NlpSentiment",
-        "attribute": "inputAttr",
+        "attributes": [],
         "resultAttribute": "resultAttr"
     }
   }
@@ -236,7 +236,7 @@ let scanSource = {
     },
     attributes : {
         "operatorType": "ScanSource",
-        "tableName": "tableName"
+        "tableName": ""
     }
   }
 }
@@ -315,7 +315,7 @@ let regexSource = {
         "operatorType": "RegexSource",
         "regex": "regex",
         "attributes": [],
-        "tableName": "tableName",
+        "tableName": "",
         "regexIgnoreCase": false,
         "regexUseIndex": true,
         "spanListName": " "
@@ -342,7 +342,7 @@ let fuzzyTokenSource = {
         "operatorType": "FuzzyTokenSource",
         "query": "token1 token2 token3",
         "attributes": [],
-        "tableName": "tableName",
+        "tableName": "",
         "luceneAnalyzer": "standard",
         "thresholdRatio": 0.8,
         "spanListName": " ",
@@ -367,8 +367,8 @@ let wordCountSource = {
     },
     attributes : {
         "operatorType": "WordCountIndexSource",
-        "tableName": "tableName",
-        "attribute": "attr1",
+        "tableName": "",
+        "attributes": [],
     }
   }
 }
@@ -390,8 +390,8 @@ let wordCount = {
     },
     attributes : {
         "operatorType": "WordCount",
-        "attribute": "attr1",
-	"luceneAnalyzer": "standard",
+        "attributes": [],
+	      "luceneAnalyzer": "standard",
     }
   }
 }
