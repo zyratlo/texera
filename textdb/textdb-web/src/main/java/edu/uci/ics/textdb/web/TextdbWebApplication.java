@@ -7,6 +7,7 @@ import com.github.dirkraft.dropwizard.fileassets.FileAssetsBundle;
 import edu.uci.ics.textdb.perftest.sample.SampleExtraction;
 import edu.uci.ics.textdb.perftest.twitter.TwitterSample;
 import edu.uci.ics.textdb.web.healthcheck.SampleHealthCheck;
+import edu.uci.ics.textdb.web.resource.SystemResource;
 import edu.uci.ics.textdb.web.resource.NewQueryPlanResource;
 import edu.uci.ics.textdb.web.resource.PlanStoreResource;
 import io.dropwizard.Application;
@@ -48,6 +49,11 @@ public class TextdbWebApplication extends Application<TextdbWebConfiguration> {
         final SampleHealthCheck sampleHealthCheck = new SampleHealthCheck();
         // Registering the SampleHealthCheck with the environment
         environment.healthChecks().register("sample", sampleHealthCheck);
+
+        // Creates an instance of the InitSystemResource class to register with Jersey
+        final SystemResource systemResource = new SystemResource();
+        // Registers the systemResource with Jersey
+        environment.jersey().register(systemResource);
 
         // Configuring the object mapper used by Dropwizard
         environment.getObjectMapper().configure(MapperFeature.USE_GETTERS_AS_SETTERS, false);
