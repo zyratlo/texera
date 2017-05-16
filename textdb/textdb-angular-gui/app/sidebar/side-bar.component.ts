@@ -65,6 +65,7 @@ export class SideBarComponent {
 
     currentDataService.checkPressed$.subscribe(
       data => {
+        jQuery.hideLoading();
         console.log(data);
         if (data.code === 0) {
           var node = new PrettyJSON.view.Node({
