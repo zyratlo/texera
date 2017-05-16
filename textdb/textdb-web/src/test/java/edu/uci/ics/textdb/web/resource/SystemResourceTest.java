@@ -29,7 +29,7 @@ public class SystemResourceTest {
 		client.property(ClientProperties.READ_TIMEOUT, 5000);
 
 		Response response = client.target(
-						String.format("http://localhost:%d/api/metadata", RULE.getLocalPort()))
+						String.format("http://localhost:%d/api/resources/metadata", RULE.getLocalPort()))
 						.request()
 						.get();
 
