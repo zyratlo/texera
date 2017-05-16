@@ -3,7 +3,7 @@
     <div>
         <h3 *ngIf="attributes.length === 0" class="sidebar-brand">Edit Operator</h3>
         <h3 *ngIf="attributes.length !== 0" class="sidebar-brand">{{operator}}</h3>
-        <form [hidden]="attributes.length === 0" (ngSubmit)="onSubmit()" #editOperatorForm="ngForm">
+        <form [hidden]="attributes.length === 0" #editOperatorForm="ngForm">
             <div class="form-group" *ngFor="let attribute of attributes">
                 <label *ngIf="checkInHidden(attribute) === -1" for="{{attribute}}" class="attribute-type">{{humanize(attribute)}}</label>
 
@@ -26,7 +26,6 @@
 
                 <input *ngIf="checkInSelector(attribute) === -1" [(ngModel)]="data.properties.attributes[attribute]" (ngModelChange)="onFormChange(attribute)" name="{{attribute}}" type="text" class="form-control" id="{{attribute}}" value="{{data.properties.attributes[attribute]}}" #{{attribute}}="ngModel" required>
             </div>
-            <button type="button" class="btn btn-success" [disabled]="!editOperatorForm.form.valid" style="display:none">Save</button>
             <button type="button" class="btn btn-default" (click) = "onDelete()">Delete</button>
         </form>
     </div>
