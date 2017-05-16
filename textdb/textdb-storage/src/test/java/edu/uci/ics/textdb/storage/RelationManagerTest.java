@@ -400,7 +400,7 @@ public class RelationManagerTest {
 
     /*
 	* Test on getMetaData() to see if it successfully get metadata from "relation_manager_test_table"
-	*/
+    */
     @Test
     public void test17() throws Exception {
         String tableName = "relation_manager_test_table";
