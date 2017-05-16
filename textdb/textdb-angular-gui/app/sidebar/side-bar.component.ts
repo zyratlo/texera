@@ -68,6 +68,7 @@ export class SideBarComponent {
 
     currentDataService.checkPressed$.subscribe(
       data => {
+        jQuery.hideLoading();
         console.log(data);
         this.inSavedWindow = false;
 
