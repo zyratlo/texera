@@ -8,7 +8,7 @@
                 <label *ngIf="checkInHidden(attribute) === -1" for="{{attribute}}" class="attribute-type">{{humanize(attribute)}}</label>
 
                 <select *ngIf="attribute === 'nlpEntityType'" class="form-control" id="{{attribute}}" required  [(ngModel)]="data.properties.attributes[attribute]" name="{{attribute}}" #{{attribute}}="ngModel">
-                    <option *ngFor="let nlp of nlpEntityList" [value] = "nlp">{{nlp}}</option>
+                  <option *ngFor="let nlp of nlpEntityList" [value] = "nlp">{{nlp}}</option>
                 </select>
                 <select *ngIf="attribute === 'splitType'" class="form-control" id="{{attribute}}" required  [(ngModel)]="data.properties.attributes[attribute]" name="{{attribute}}" #{{attribute}}="ngModel">
                   <option *ngFor="let split of regexSplitList" [value] = "split">{{split}}</option>
