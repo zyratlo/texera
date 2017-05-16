@@ -30,32 +30,6 @@ export class TheFlowchartComponent {
   initialize(data: any) {
     var current = this;
 
-    // unselect operator when user click other div
-    jQuery('html').mouseup(function(e) {
-      var container = jQuery(".form-control");
-      if (container.is(e.target)) {
-        jQuery("#the-flowchart").flowchart("unselectOperator");
-      }
-    });
-
-    jQuery('html').keyup(function(e) { //key binding function
-      if (e.keyCode === 8) { //backspace
-        var current_id = jQuery('#the-flowchart').flowchart('getSelectedOperatorId');
-        if (current_id !== null) {
-          jQuery('#the-flowchart').flowchart('deleteSelected');
-          current.currentDataService.clearData();
-          current.currentDataService.setAllOperatorData(jQuery('#the-flowchart').flowchart('getData'));
-        }
-      } else if (e.keyCode === 46) { //delete
-        var current_id = jQuery('#the-flowchart').flowchart('getSelectedOperatorId');
-        if (current_id !== null) {
-          jQuery('#the-flowchart').flowchart('deleteSelected');
-          current.currentDataService.clearData();
-          current.currentDataService.setAllOperatorData(jQuery('#the-flowchart').flowchart('getData'));
-        }
-      }
-    })
-
     jQuery('#the-flowchart').flowchart({
       data: data,
       multipleLinksOnOutput: true,
