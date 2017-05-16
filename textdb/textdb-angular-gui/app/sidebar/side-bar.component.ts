@@ -19,8 +19,6 @@ export class SideBarComponent {
   data: any;
   attributes: string[] = [];
 
-  inSavedWindow = false;
-
   operatorId: number;
   operatorTitle: string;
 
@@ -56,7 +54,6 @@ export class SideBarComponent {
   constructor(private currentDataService: CurrentDataService) {
     currentDataService.newAddition$.subscribe(
       data => {
-        this.inSavedWindow = false;
         this.data = data.operatorData;
         this.operatorId = data.operatorNum;
         this.operatorTitle = data.operatorData.properties.title;
@@ -68,9 +65,8 @@ export class SideBarComponent {
 
     currentDataService.checkPressed$.subscribe(
       data => {
+        jQuery.hideLoading();
         console.log(data);
-        this.inSavedWindow = false;
-
         if (data.code === 0) {
           var node = new PrettyJSON.view.Node({
             el: jQuery("#elem"),
@@ -98,14 +94,11 @@ export class SideBarComponent {
     return frags.join(' ');
   }
 
-  onSubmit() {
-    this.inSavedWindow = true;
-    jQuery('#the-flowchart').flowchart('setOperatorData', this.operatorId, this.data);
-    this.currentDataService.setAllOperatorData(jQuery('#the-flowchart').flowchart('getData'));
+  onFormChange (attribute: string) {
+    jQuery("#the-flowchart").flowchart("setOperatorData", this.operatorId, this.data);
   }
 
   onDelete() {
-    this.inSavedWindow = false;
     this.operatorTitle = "Operator";
     this.attributes = [];
     jQuery("#the-flowchart").flowchart("deleteOperator", this.operatorId);
