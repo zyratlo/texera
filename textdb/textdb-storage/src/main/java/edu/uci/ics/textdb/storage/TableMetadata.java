@@ -12,9 +12,9 @@ public class TableMetadata {
 	@JsonCreator
 	public TableMetadata(
 					@JsonProperty(value = JsonConstants.TABLE_NAME, required = true)
-									String tableName,
+					String tableName,
 					@JsonProperty(value = JsonConstants.SCHEMA, required = true)
-									Schema schema) {
+					Schema schema) {
 		this.tableName = tableName;
 		this.schema = schema;
 	}

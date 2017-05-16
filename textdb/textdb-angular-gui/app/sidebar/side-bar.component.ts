@@ -41,6 +41,7 @@ export class SideBarComponent {
   tableNameItems:Array<string> = [];
   selectedAttributesList:Array<string> = [];
   selectedAttribute:string = "";
+  metadataList:Array<TableMetadata> = [];
 
   @ViewChild('MyModal')
   modal: ModalComponent;
@@ -71,7 +72,6 @@ export class SideBarComponent {
           this.attributes.push(attribute);
         }
         this.selectedAttributesList = data.operatorData.properties.attributes.attributes;
-        this.selectedAttribute = "-";
       });
 
     currentDataService.checkPressed$.subscribe(
@@ -97,19 +97,10 @@ export class SideBarComponent {
 
     currentDataService.metadataRetrieved$.subscribe(
       data => {
-        //TODO:: show attributes according to the source table.
-        // Currently, it only shows attributes of promed table.
+        this.metadataList = data;
         let metadata: (Array<TableMetadata>) = data;
         metadata.forEach(x => {
-          if (x.tableName === 'promed') {
-            this.tableNameItems.push((x.tableName));
-            x.attributes.forEach(
-              y => {
-                if (!y.attributeName.startsWith("_")) {
-                  this.attributeItems.push(y.attributeName);
-                }
-              });
-          }
+          this.tableNameItems.push((x.tableName));
         });
       }
     )
@@ -140,7 +131,7 @@ export class SideBarComponent {
     this.currentDataService.setAllOperatorData(jQuery('#the-flowchart').flowchart('getData'));
   }
 
-  selected (event:string) {
+  attributeSelected (event:string) {
     this.selectedAttributesList.push(event);
   }
 
@@ -151,5 +142,20 @@ export class SideBarComponent {
     } else {
       this.selectedAttributesList = event.split(",");
     }
+  }
+
+  selectTable (event:string) {
+    this.attributeItems = [];
+
+    this.metadataList.forEach(x => {
+      if (x.tableName === event) {
+        x.attributes.forEach(
+          y => {
+            if (!y.attributeName.startsWith("_")) {
+              this.attributeItems.push(y.attributeName);
+            }
+          });
+      }
+    });
   }
 }

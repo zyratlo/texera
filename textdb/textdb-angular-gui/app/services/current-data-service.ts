@@ -118,7 +118,7 @@ export class CurrentDataService {
                     let result = (JSON.parse(data.json().message));
                     let metadata: Array<TableMetadata> = [];
                     result.forEach((x, y) =>
-                        metadata.push(new TableMetadata(x.tableName, x.attributes))
+                        metadata.push(new TableMetadata(x.tableName, x.schema.attributes))
                     );
                     this.metadataRetrieved.next(metadata);
                 },
