@@ -68,7 +68,13 @@ export class SideBarComponent {
         for (var attribute in data.operatorData.properties.attributes) {
           this.attributes.push(attribute);
         }
+
+        // initialize selected attributes
+        this.selectedAttribute = "";
+
+        // and load previously saved attributes and proper attributes for the selected table
         this.selectedAttributesList = data.operatorData.properties.attributes.attributes;
+        this.getAttributesForTable(data.operatorData.properties.attributes.tableName);
       });
 
     currentDataService.checkPressed$.subscribe(
@@ -113,7 +119,6 @@ export class SideBarComponent {
   }
 
   onFormChange (attribute: string) {
-    this.data.properties.attributes.attributes = this.selectedAttributesList;
     jQuery("#the-flowchart").flowchart("setOperatorData", this.operatorId, this.data);
   }
 
@@ -124,8 +129,10 @@ export class SideBarComponent {
     this.currentDataService.setAllOperatorData(jQuery('#the-flowchart').flowchart('getData'));
   }
 
-  attributeSelected (event:string) {
-    this.selectedAttributesList.push(event);
+  attributeSelected () {
+    this.selectedAttributesList.push(this.selectedAttribute);
+    this.data.properties.attributes.attributes = this.selectedAttributesList;
+    this.onFormChange("attributes");
   }
 
   manuallyAdded (event:string) {
@@ -135,9 +142,12 @@ export class SideBarComponent {
     } else {
       this.selectedAttributesList = event.split(",");
     }
+
+    this.data.properties.attributes.attributes = this.selectedAttributesList;
+    this.onFormChange("attributes");
   }
 
-  selectTable (event:string) {
+  getAttributesForTable (event:string) {
     this.attributeItems = [];
 
     this.metadataList.forEach(x => {
@@ -150,6 +160,8 @@ export class SideBarComponent {
           });
       }
     });
+
+    this.onFormChange("tableName");
   }
 
   /* TODO:: for now, only source operators support attribute autocomplete.
