@@ -150,5 +150,6 @@ export class OperatorBarComponent {
 
   onUploadButton() {
     console.log("The Upload Button is clicked!");
+    this.currentDataService.uploadDict(21);
   }
 }

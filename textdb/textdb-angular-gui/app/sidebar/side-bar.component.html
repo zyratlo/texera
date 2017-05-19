@@ -39,7 +39,9 @@
 
                 <input *ngIf="checkInSelector(attribute) === -1" [(ngModel)]="data.properties.attributes[attribute]" (ngModelChange)="onFormChange(attribute)" name="{{attribute}}" type="text" class="form-control" id="{{attribute}}" value="{{data.properties.attributes[attribute]}}" #{{attribute}}="ngModel" required>
             </div>
-            <button type="button" class="btn btn-default" (click) = "onDelete()">Delete</button>
+            <div *ngIf="!checkOperatorNameIsUploadDict()">
+                <button type="button" class="btn btn-default" (click) = "onDelete()">Delete</button>
+            </div>
         </form>
     </div>
 

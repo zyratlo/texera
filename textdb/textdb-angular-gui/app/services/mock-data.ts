@@ -503,6 +503,7 @@ let uploadDictionary = {
     title : 'UploadDictionary',
     attributes : {
       "operatorType": "UploadDictionary",
+      "File": "test.txt",
     }
   }
 }

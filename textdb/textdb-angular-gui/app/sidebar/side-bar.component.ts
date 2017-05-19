@@ -58,6 +58,10 @@ export class SideBarComponent {
     return jQuery.inArray(name, this.selectorList);
   }
 
+  checkOperatorNameIsUploadDict() {
+    return this.operatorId === 21;
+  }
+
   constructor(private currentDataService: CurrentDataService) {
     currentDataService.newAddition$.subscribe(
       data => {
@@ -105,7 +109,8 @@ export class SideBarComponent {
           this.tableNameItems.push((x.tableName));
         });
       }
-    )
+    );
+
   }
 
   humanize(name: string): string {
@@ -148,6 +153,10 @@ export class SideBarComponent {
   }
 
   getAttributesForTable (event:string) {
+    if (!event) {
+      return;
+    }
+
     this.attributeItems = [];
 
     this.metadataList.forEach(x => {

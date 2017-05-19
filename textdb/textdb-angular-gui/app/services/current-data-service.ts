@@ -5,6 +5,7 @@ import { Headers } from '@angular/http';
 
 import { Data } from './data';
 import {TableMetadata} from "./table-metadata";
+import { MockDataService } from "./mock-data-service";
 import any = jasmine.any;
 
 declare var jQuery: any;
@@ -25,6 +26,7 @@ const defaultData = {
 @Injectable()
 export class CurrentDataService {
     allOperatorData : Data;
+    mockDataService = new MockDataService();
 
     private newAddition = new Subject<any>();
     newAddition$ = this.newAddition.asObservable();
@@ -47,12 +49,17 @@ export class CurrentDataService {
       this.setAllOperatorData(jQuery("#the-flowchart").flowchart("getData"));
     }
 
+    uploadDict(operatorNum: number): void {
+        let data_now = this.mockDataService.findOperatorData(operatorNum);
+        this.newAddition.next({operatorNum: operatorNum, operatorData: data_now });
+    }
+
     clearData() : void {
       this.newAddition.next({operatorNum : 0, operatorData: defaultData});
     }
-    
+
     processData(): void {
-      
+
         let textdbJson = {operators: {}, links: {}};
         var operators = [];
         var links = [];
