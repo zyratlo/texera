@@ -1,4 +1,7 @@
 import {Component, ViewChild, OnInit} from '@angular/core';
+import { FileUploader, FileDropDirective } from 'ng2-file-upload/ng2-file-upload';
+import {FileItem} from "ng2-file-upload/file-upload/file-item.class";
+import {ParsedResponseHeaders} from "ng2-file-upload/file-upload/file-uploader.class";
 
 import { CurrentDataService } from '../services/current-data-service';
 import { ModalComponent } from 'ng2-bs3-modal/ng2-bs3-modal';
