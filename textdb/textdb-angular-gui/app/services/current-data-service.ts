@@ -1,17 +1,19 @@
 import { Injectable } from '@angular/core';
 import { Subject }    from 'rxjs/Subject';
-import { Response, Http } from '@angular/http';
+import {Response, Http, RequestOptions} from '@angular/http';
 import { Headers } from '@angular/http';
 
 import { Data } from './data';
 import {TableMetadata} from "./table-metadata";
 import { MockDataService } from "./mock-data-service";
 import any = jasmine.any;
+import {Observable} from "rxjs";
 
 declare var jQuery: any;
 
 const textdbUrl = 'http://localhost:8080/api/newqueryplan/execute';
 const metadataUrl = 'http://localhost:8080/api/resources/metadata';
+const uploadDictionaryUrl = "http://localhost:8080/api/upload/dictionary";
 
 const defaultData = {
     top: 20,
@@ -47,11 +49,6 @@ export class CurrentDataService {
       var data_now = jQuery("#the-flowchart").flowchart("getOperatorData",operatorNum);
       this.newAddition.next({operatorNum: operatorNum, operatorData: data_now});
       this.setAllOperatorData(jQuery("#the-flowchart").flowchart("getData"));
-    }
-
-    uploadDict(operatorNum: number): void {
-        let data_now = this.mockDataService.findOperatorData(operatorNum);
-        this.newAddition.next({operatorNum: operatorNum, operatorData: data_now });
     }
 
     clearData() : void {
@@ -133,5 +130,18 @@ export class CurrentDataService {
                     console.log("Error at getMetadata() in current-data-service.ts \n Error: "+err);
                 }
             );
+    }
+
+    uploadDictionary(file: File) {
+        let formData:FormData = new FormData();
+        formData.append('file', file, file.name);
+        this.http.post(uploadDictionaryUrl, formData, null)
+          .subscribe(
+            data => alert(file.name + ' is uploaded'),
+            err => {
+                alert('Error occurred while uploading ' + file.name);
+                console.log('Error occurred while uploading ' + file.name + '\nError message: ' + err);
+            }
+          )
     }
 }

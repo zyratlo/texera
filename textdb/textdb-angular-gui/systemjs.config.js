@@ -29,7 +29,6 @@
         'moment': 'npm:moment/moment.js',
         'ng2-bootstrap': 'npm:ng2-bootstrap/bundles/ngx-bootstrap.umd.js',
         'ng2-bs3-modal': 'npm:ng2-bs3-modal',
-        'ng2-file-upload': 'npm:ng2-file-upload'
       },
       // packages tells the System loader how to load when no filename and/or no extension
       packages: {
@@ -46,9 +45,6 @@
         'ng2-bs3-modal': {
           defaultExtension: 'js'
         },
-        'ng2-file-upload': {
-          defaultExtension: 'js'
-        }
       }
   });
 })(this);
