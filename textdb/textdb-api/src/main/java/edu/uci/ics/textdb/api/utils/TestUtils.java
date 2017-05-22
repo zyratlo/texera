@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.uci.ics.textdb.api.constants.SchemaConstants;
 import edu.uci.ics.textdb.api.exception.TextDBException;
+import edu.uci.ics.textdb.api.span.Span;
 import edu.uci.ics.textdb.api.tuple.Tuple;
 import junit.framework.Assert;
 
@@ -71,7 +72,29 @@ public class TestUtils {
         
         return expectedResults.containsAll(exactResults) && exactResults.containsAll(expectedResults);
     }
-    
+
+    /**
+     * Compare to two tuples for given span list names
+     * @param expectedResults
+     * @param exactResults
+     * @param spanListNames
+     * @return true if all span values are equal otherwise false
+     */
+    public static boolean equals(List<Tuple> expectedResults, List<Tuple> exactResults, List<String> spanListNames) {
+        if(expectedResults.size()!=exactResults.size())
+            return false;
+
+        for(int i = 0; i<expectedResults.size(); i++) {
+            for (String spanListName : spanListNames) {
+                List<Span> expectedSpanList = (List<Span>) expectedResults.get(i).getField(spanListName).getValue();
+                List<Span> exactSpanList = (List<Span>) exactResults.get(i).getField(spanListName).getValue();
+                if (!(expectedSpanList.containsAll(exactSpanList) && exactSpanList.containsAll(expectedSpanList)))
+                    return false;
+            }
+        }
+        return true;
+    }
+
     public static JsonNode testJsonSerialization(Object object) {
         return testJsonSerialization(object, false);
     }
