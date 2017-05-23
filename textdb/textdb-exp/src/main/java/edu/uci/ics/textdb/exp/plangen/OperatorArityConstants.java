@@ -23,6 +23,7 @@ import edu.uci.ics.textdb.exp.regexsplit.RegexSplitPredicate;
 import edu.uci.ics.textdb.exp.sampler.SamplerPredicate;
 import edu.uci.ics.textdb.exp.sink.excel.ExcelSinkPredicate;
 import edu.uci.ics.textdb.exp.sink.tuple.TupleSinkPredicate;
+import edu.uci.ics.textdb.exp.source.asterix.AsterixSourcePredicate;
 import edu.uci.ics.textdb.exp.source.file.FileSourcePredicate;
 import edu.uci.ics.textdb.exp.source.scan.ScanSourcePredicate;
 import edu.uci.ics.textdb.exp.wordcount.WordCountIndexSourcePredicate;
@@ -58,6 +59,9 @@ public class OperatorArityConstants {
         fixedInputArityMap.put(WordCountIndexSourcePredicate.class, 0);
         fixedInputArityMap.put(WordCountOperatorPredicate.class, 1);
         fixedInputArityMap.put(ComparablePredicate.class, 1); 
+        
+        fixedInputArityMap.put(AsterixSourcePredicate.class, 0);
+
 
         fixedInputArityMap.put(ScanSourcePredicate.class, 0);
         fixedInputArityMap.put(FileSourcePredicate.class, 0);
@@ -89,6 +93,8 @@ public class OperatorArityConstants {
         fixedOutputArityMap.put(WordCountIndexSourcePredicate.class, 1);
         fixedOutputArityMap.put(WordCountOperatorPredicate.class, 1);
         fixedOutputArityMap.put(ComparablePredicate.class, 1); 
+        
+        fixedOutputArityMap.put(AsterixSourcePredicate.class, 1);
 
         fixedOutputArityMap.put(ScanSourcePredicate.class, 1);
         fixedOutputArityMap.put(FileSourcePredicate.class, 1);
