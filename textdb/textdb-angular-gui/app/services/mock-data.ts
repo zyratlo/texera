@@ -215,6 +215,9 @@ let projection = {
     attributes : {
         "operatorType": "Projection",
         "attributes": ["attr1", "attr2"]
+      }
+    }
+  }
 
 let asterixSource = {
   top : 20,
@@ -238,7 +241,7 @@ let asterixSource = {
         "dataverse": "twitter",
         "dataset": "ds_tweet",
         "queryField": "text",
-        "keyword": "drug",
+        "query": "drug",
         "limit": 100000,
     }
   }
