@@ -396,6 +396,30 @@ let wordCount = {
   }
 }
 
+let comparison = {
+  top : 20,
+  left : 20,
+  properties : {
+    title : 'Comparison',
+    inputs : {
+      input_1 : {
+        label : "Input (:i)",
+      }
+    },
+    outputs : {
+      output_1 : {
+        label : "Output (:i)",
+      }
+    },
+    attributes : {
+        "operatorType": "Comparison",
+        "attribute": [],
+        "comparisonType": "=",
+        "compareTo": "",
+    }
+  }
+}
+
 let characterDistanceJoin = {
   top : 20,
   left : 20,
@@ -497,25 +521,25 @@ let excelSink = {
 }
 
 export const DEFAULT_MATCHERS: Data[] = [
-  {id: 0, jsonData: regexMatcher},
-  {id: 1, jsonData: keywordMatcher},
-  {id: 2, jsonData: dictionaryMatcher},
-  {id: 3, jsonData: fuzzyMatcher},
-  {id: 4, jsonData: nlpEntity},
-  {id: 5, jsonData: nlpSentiment},
-  {id: 6, jsonData: regexSplit},
-  {id: 7, jsonData: sampler},
-  {id: 8, jsonData: projection},
-  {id: 9, jsonData: scanSource},
-  {id: 10, jsonData: keywordSource},
-  {id: 11, jsonData: dictionarySource},
-  {id: 12, jsonData: regexSource},
-  {id: 13, jsonData: fuzzyTokenSource},
-  {id: 14, jsonData: characterDistanceJoin},
-  {id: 15, jsonData: similarityJoin},
-  {id: 16, jsonData: wordCountSource},
-  {id: 17, jsonData: wordCount},
-  {id: 19, jsonData: result},
-  {id: 20, jsonData: excelSink}
-
+    {id: 0, jsonData: regexMatcher},
+    {id: 1, jsonData: keywordMatcher},
+    {id: 2, jsonData: dictionaryMatcher},
+    {id: 3, jsonData: fuzzyMatcher},
+    {id: 4, jsonData: nlpEntity},
+    {id: 5, jsonData: nlpSentiment},
+    {id: 6, jsonData: regexSplit},
+    {id: 7, jsonData: sampler},
+    {id: 8, jsonData: projection},
+    {id: 9, jsonData: scanSource},
+    {id: 10, jsonData: keywordSource},
+    {id: 11, jsonData: dictionarySource},
+    {id: 12, jsonData: regexSource},
+    {id: 13, jsonData: fuzzyTokenSource},
+    {id: 14, jsonData: characterDistanceJoin},
+    {id: 15, jsonData: similarityJoin},
+    {id: 16, jsonData: wordCountSource},
+    {id: 17, jsonData: wordCount},
+    {id: 19, jsonData: result},
+    {id: 20, jsonData: excelSink},
+    {id: 21, jsonData: comparison},
 ];

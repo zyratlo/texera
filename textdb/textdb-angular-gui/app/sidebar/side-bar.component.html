@@ -16,7 +16,7 @@
                 <select *ngIf="attribute === 'sampleType'" class="form-control" id="{{attribute}}" required  [(ngModel)]="data.properties.attributes[attribute]" (ngModelChange)="onFormChange(attribute)" name="{{attribute}}" #{{attribute}}="ngModel">
                   <option *ngFor="let sample of samplerList" [value] = "sample">{{sample}}</option>
                 </select>
-                <select *ngIf="attribute === 'compareNumber'" class="form-control" id="{{attribute}}" required  [(ngModel)]="data.properties.attributes[attribute]" (ngModelChange)="onFormChange(attribute)" name="{{attribute}}" #{{attribute}}="ngModel">
+                <select *ngIf="attribute === 'comparisonType'" class="form-control" id="{{attribute}}" required  [(ngModel)]="data.properties.attributes[attribute]" (ngModelChange)="onFormChange(attribute)" name="{{attribute}}" #{{attribute}}="ngModel">
                   <option *ngFor="let compare of compareList" [value] = "compare">{{compare}}</option>
                 </select>
                 <select *ngIf="attribute === 'aggregationType'" class="form-control" id="{{attribute}}" required  [(ngModel)]="data.properties.attributes[attribute]" (ngModelChange)="onFormChange(attribute)" name="{{attribute}}" #{{attribute}}="ngModel">
