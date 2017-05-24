@@ -13,6 +13,7 @@ import edu.uci.ics.textdb.api.constants.ErrorMessages;
 import edu.uci.ics.textdb.api.dataflow.IOperator;
 import edu.uci.ics.textdb.api.exception.DataFlowException;
 import edu.uci.ics.textdb.api.exception.TextDBException;
+import edu.uci.ics.textdb.api.span.Span;
 import edu.uci.ics.textdb.api.field.IField;
 import edu.uci.ics.textdb.api.field.TextField;
 import edu.uci.ics.textdb.api.field.ListField;
@@ -21,6 +22,8 @@ import edu.uci.ics.textdb.api.schema.AttributeType;
 import edu.uci.ics.textdb.api.schema.Schema;
 import edu.uci.ics.textdb.api.tuple.Tuple;
 import edu.uci.ics.textdb.api.utils.Utils;
+
+import edu.uci.ics.textdb.exp.common.PropertyNameConstants;
 
 /**
  * This Operator splits the input string using Stanford core NLP's ssplit annotation.
@@ -43,16 +46,16 @@ public class NlpSplitOperator implements IOperator {
     //A tuple that persists between method calls
     private Tuple currentTuple;
     //A list of sentences generated from the current tuple
-    private List<TextField> currentSentenceList = new ArrayList<TextField>();
+    private List<Span> currentSentenceList = new ArrayList<Span>();
     
     
     public NlpSplitOperator(NlpSplitPredicate predicate) {
         this.predicate = predicate;
     }
     
-    public void setInputOperator(IOperator operator) {
+    public void setInputOperator(IOperator operator) throws DataFlowException {
         if (cursor != CLOSED) {  
-            throw new RuntimeException("Cannot link this operator to other operator after the operator is opened");
+            throw new DataFlowException("Cannot link this operator to other operator after the operator is opened");
         }
         this.inputOperator = operator;
     }
@@ -60,15 +63,15 @@ public class NlpSplitOperator implements IOperator {
     /*
      * adds a new field to the schema, with name resultAttributeName and type list of strings
      */
-    private Schema transformSchema(Schema inputSchema) {
-        if (inputSchema.containsField(predicate.getResultAttributeName())) {
-            throw new RuntimeException(String.format(
-                    "result attribute name %s is already in the original schema %s", 
-                    predicate.getResultAttributeName(),
+    private Schema transformSchema(Schema inputSchema) throws DataFlowException {
+        if (inputSchema.containsField(predicate.getResultAttributeName()))
+            throw new DataFlowException(String.format("result attribute name %s is already in the original schema %s",
+                    predicate.getInputAttributeName(),
                     inputSchema.getAttributeNames()));
-        }
-        return Utils.addAttributeToSchema(inputSchema, 
-                new Attribute(predicate.getResultAttributeName(), AttributeType.LIST));
+        if(predicate.getOutputType() == NLPOutputType.ONE_TO_ONE)
+            return Utils.addAttributeToSchema(inputSchema, new Attribute(predicate.getResultAttributeName(), AttributeType.LIST));
+        else
+            return Utils.addAttributeToSchema(inputSchema, new Attribute(predicate.getResultAttributeName(), AttributeType.TEXT));
     }
       
 
@@ -85,28 +88,27 @@ public class NlpSplitOperator implements IOperator {
         
         // check if input schema is present
         if (! inputSchema.containsField(predicate.getInputAttributeName())) {
-            throw new RuntimeException(String.format(
+            throw new DataFlowException(String.format(
                     "input attribute %s is not in the input schema %s",
                     predicate.getInputAttributeName(),
                     inputSchema.getAttributeNames()));
         }
         
         // check if attribute type is valid
-        AttributeType inputAttributeType = 
-                //Does predicate give the correct input attribute name?
+        AttributeType inputAttributeType =
                 inputSchema.getAttribute(predicate.getInputAttributeName()).getAttributeType();
         boolean isValidType = inputAttributeType.equals(AttributeType.STRING) || 
                 inputAttributeType.equals(AttributeType.TEXT);
         if (! isValidType) {
-            throw new RuntimeException(String.format(
+            throw new DataFlowException(String.format(
                     "input attribute %s must have type String or Text, its actual type is %s",
                     predicate.getInputAttributeName(),
                     inputAttributeType));
         }
         
-        // generate output schema by transforming the input schema
+        // generate output schema by transforming the input schema based on what output format
+        // is chosen (OneToOne vs. OneToMany)
         outputSchema = transformSchema(inputOperator.getOutputSchema());
-        
         cursor = OPENED;
 
     }
@@ -121,12 +123,11 @@ public class NlpSplitOperator implements IOperator {
         
         if(predicate.getOutputType() == NLPOutputType.ONE_TO_ONE) {
             currentTuple = inputOperator.getNextTuple();
-            if (currentTuple == null) {
-                return null;
-            }
-            currentSentenceList = getSentenceList(currentTuple);
+            if (currentTuple == null) return null;
+//            currentSentenceList = getSentenceList(currentTuple);
             outputFields.addAll(currentTuple.getFields());
-            outputFields.add(new ListField<TextField>(currentSentenceList));
+            outputFields.add(new ListField<Span>(getSentenceList(currentTuple)));
+//            outputFields.add(new ListField<Span>(currentSentenceList));
         }
         
         else if (predicate.getOutputType() == NLPOutputType.ONE_TO_MANY) {
@@ -138,8 +139,9 @@ public class NlpSplitOperator implements IOperator {
             
             outputFields.addAll(currentTuple.getFields());
             //Add the sentences from the current sentence list one by one in the order in which
-            //they were generated in the getSentenceList function
-            outputFields.add(currentSentenceList.remove(0)); //Append a TextField to the output tuple    
+            //they were generated in the getSentenceList function, append a TextField to the output 
+            // tuple and add the string contained in the current span
+            outputFields.add(new TextField(currentSentenceList.remove(0).getValue()));    
         }
         
         return new Tuple(outputSchema, outputFields);
@@ -147,16 +149,24 @@ public class NlpSplitOperator implements IOperator {
     }
     
     
-    private List<TextField> getSentenceList(Tuple inputTuple) {
+    private List<Span> getSentenceList(Tuple inputTuple) {
         
         String inputText = inputTuple.<IField>getField(predicate.getInputAttributeName()).getValue().toString();
         Reader reader = new StringReader(inputText);
         DocumentPreprocessor dp = new DocumentPreprocessor(reader);
-        List<TextField> sentenceList = new ArrayList<TextField>();
+        List<Span> sentenceList = new ArrayList<Span>();
         
+        int start = 0; int end = 0; 
+        String key=PropertyNameConstants.NLP_SPLIT_KEY;
+        String attributeName = predicate.getInputAttributeName();
         for (List<HasWord> sentence : dp) {
-            TextField sentenceText = new TextField(Sentence.listToString(sentence));
-            sentenceList.add(sentenceText);
+//            TextField sentenceText = new TextField(Sentence.listToString(sentence));
+            String sentenceText = Sentence.listToString(sentence);
+            //Make span
+            end = start + sentenceText.length(); 
+            Span span = new Span(attributeName, start, end, key, sentenceText);
+            sentenceList.add(span);
+            start = end + 1;
          }
         
         return sentenceList;

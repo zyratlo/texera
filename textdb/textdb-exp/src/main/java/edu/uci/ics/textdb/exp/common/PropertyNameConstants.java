@@ -44,7 +44,8 @@ public class PropertyNameConstants {
     
     // related to nlp splitter
     public static final String NLP_LANGUAGE = "nlpLanguage";
-    public static final String NLP_OUTPUT_TYPE = "outputType";
+    public static final String NLP_OUTPUT_TYPE = "sentenceText";
+    public static final String NLP_SPLIT_KEY = "NLPSplit";
     
     // related to regex splitter
     public static final String SPLIT_ATTRIBUTE = "splitAttribute";
