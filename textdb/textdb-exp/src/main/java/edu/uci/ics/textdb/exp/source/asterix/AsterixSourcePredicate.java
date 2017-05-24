@@ -6,7 +6,6 @@ import java.text.SimpleDateFormat;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import edu.stanford.nlp.ling.CoreAnnotations.BeginIndexAnnotation;
 import edu.uci.ics.textdb.exp.common.PredicateBase;
 import edu.uci.ics.textdb.exp.common.PropertyNameConstants;
 

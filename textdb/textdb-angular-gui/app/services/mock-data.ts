@@ -215,6 +215,31 @@ let projection = {
     attributes : {
         "operatorType": "Projection",
         "attributes": ["attr1", "attr2"]
+
+let asterixSource = {
+  top : 20,
+  left : 20,
+  properties : {
+    title : 'AsterixSource',
+    inputs : {
+      input_1 : {
+        label : "Input (:i)",
+      }
+    },
+    outputs : {
+      output_1 : {
+        label : "Output (:i)",
+      }
+    },
+    attributes : {
+        "operatorType": "AsterixSource",
+        "host": "textdb.ics.uci.edu",
+        "port": 19002,
+        "dataverse": "twitter",
+        "dataset": "ds_tweet",
+        "queryField": "text",
+        "keyword": "drug",
+        "limit": 100000,
     }
   }
 }
@@ -542,5 +567,6 @@ export const DEFAULT_MATCHERS: Data[] = [
     {id: 19, jsonData: result},
     {id: 20, jsonData: excelSink},
     {id: 21, jsonData: comparison},
+    {id: 22, jsonData: asterixSource},
 
 ];
