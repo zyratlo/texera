@@ -10,10 +10,12 @@ import edu.stanford.nlp.ling.HasWord;
 import edu.stanford.nlp.ling.Sentence;
 
 import edu.uci.ics.textdb.api.constants.ErrorMessages;
+import edu.uci.ics.textdb.api.constants.SchemaConstants;
 import edu.uci.ics.textdb.api.dataflow.IOperator;
 import edu.uci.ics.textdb.api.exception.DataFlowException;
 import edu.uci.ics.textdb.api.exception.TextDBException;
 import edu.uci.ics.textdb.api.span.Span;
+import edu.uci.ics.textdb.api.field.IDField;
 import edu.uci.ics.textdb.api.field.IField;
 import edu.uci.ics.textdb.api.field.TextField;
 import edu.uci.ics.textdb.api.field.ListField;
@@ -42,7 +44,6 @@ public class NlpSplitOperator implements IOperator {
     private Schema outputSchema;
     private int cursor = CLOSED;
     //A flag to keep track of any remaining sentences from the previous input tuple
-//    private boolean sentenceListIsEmpty = true;
     //A tuple that persists between method calls
     private Tuple currentTuple;
     //A list of sentences generated from the current tuple
@@ -124,10 +125,8 @@ public class NlpSplitOperator implements IOperator {
         if(predicate.getOutputType() == NLPOutputType.ONE_TO_ONE) {
             currentTuple = inputOperator.getNextTuple();
             if (currentTuple == null) return null;
-//            currentSentenceList = getSentenceList(currentTuple);
             outputFields.addAll(currentTuple.getFields());
             outputFields.add(new ListField<Span>(getSentenceList(currentTuple)));
-//            outputFields.add(new ListField<Span>(currentSentenceList));
         }
         
         else if (predicate.getOutputType() == NLPOutputType.ONE_TO_MANY) {
@@ -137,7 +136,14 @@ public class NlpSplitOperator implements IOperator {
                 currentSentenceList = getSentenceList(currentTuple);
             }
             
-            outputFields.addAll(currentTuple.getFields());
+            //Add new ID for each new tuple created
+            outputFields.add(IDField.newRandomID());
+            //Skip the ID field in the input tuple
+            for (String attributeName : currentTuple.getSchema().getAttributeNames()) {
+                if(!attributeName.equals(SchemaConstants._ID))
+                    outputFields.add(currentTuple.getField(attributeName));
+            }
+            
             //Add the sentences from the current sentence list one by one in the order in which
             //they were generated in the getSentenceList function, append a TextField to the output 
             // tuple and add the string contained in the current span
@@ -160,7 +166,6 @@ public class NlpSplitOperator implements IOperator {
         String key=PropertyNameConstants.NLP_SPLIT_KEY;
         String attributeName = predicate.getInputAttributeName();
         for (List<HasWord> sentence : dp) {
-//            TextField sentenceText = new TextField(Sentence.listToString(sentence));
             String sentenceText = Sentence.listToString(sentence);
             //Make span
             end = start + sentenceText.length(); 

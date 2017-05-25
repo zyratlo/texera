@@ -1,18 +1,23 @@
 package edu.uci.ics.textdb.exp.nlp.splitter;
 
 import java.text.ParseException;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.Assert;
 import org.junit.Test;
 
 import edu.uci.ics.textdb.api.constants.SchemaConstants;
 import edu.uci.ics.textdb.api.exception.TextDBException;
+import edu.uci.ics.textdb.api.field.IDField;
 import edu.uci.ics.textdb.api.tuple.Tuple;
 import edu.uci.ics.textdb.api.utils.TestUtils;
 import edu.uci.ics.textdb.exp.common.PropertyNameConstants;
 import edu.uci.ics.textdb.exp.sink.tuple.TupleSink;
 import edu.uci.ics.textdb.exp.source.tuple.TupleSourceOperator;
+
+
 
 
 public class NlpSplitTest {
@@ -49,5 +54,11 @@ public class NlpSplitTest {
         List<Tuple> results = tupleSink.collectAllTuples();
         tupleSink.close();
         Assert.assertTrue(TestUtils.equals(NlpSplitTestConstants.getOneToManyResultTuple(), results));
+        Set<IDField> compset = new HashSet<IDField>();
+        for(Tuple result : results) {
+            Assert.assertFalse(compset.contains(result.getField(SchemaConstants._ID)));
+            compset.add(result.getField(SchemaConstants._ID));
+        }
+        
     }
 }
