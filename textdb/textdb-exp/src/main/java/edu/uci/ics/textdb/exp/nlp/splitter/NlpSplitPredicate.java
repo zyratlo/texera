@@ -43,4 +43,9 @@ public class NlpSplitPredicate extends PredicateBase {
         return this.resultAttributeName;
     }
 
+    @Override
+    public NlpSplitOperator newOperator() {
+        return new NlpSplitOperator(this);
+    }
+
 }

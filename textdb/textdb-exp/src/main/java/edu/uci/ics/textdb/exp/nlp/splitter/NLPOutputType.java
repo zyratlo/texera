@@ -6,7 +6,7 @@ public enum NLPOutputType {
     ONE_TO_ONE("oneToOne"),
     ONE_TO_MANY("oneToMany");
     
-private final String name;
+    private final String name;
     
     private NLPOutputType(String name) {
         this.name = name;
