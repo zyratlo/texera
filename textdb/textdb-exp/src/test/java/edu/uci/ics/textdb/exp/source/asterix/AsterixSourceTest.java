@@ -23,9 +23,5 @@ public class AsterixSourceTest {
         
         System.out.println(results);
     }
-    
-    public static void main(String[] args){
-    	test1();
-    }
 
 }
