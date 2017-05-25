@@ -87,7 +87,7 @@ public class OperatorArityConstants {
         fixedOutputArityMap.put(NlpSentimentPredicate.class, 1);
         fixedOutputArityMap.put(ProjectionPredicate.class, 1);
         fixedOutputArityMap.put(RegexSplitPredicate.class, 1);
-        fixedOutputArityMap.put(RegexSplitPredicate.class, 1);
+        fixedOutputArityMap.put(NlpSplitPredicate.class, 1);
         fixedOutputArityMap.put(SamplerPredicate.class, 1);
         fixedOutputArityMap.put(WordCountIndexSourcePredicate.class, 1);
         fixedOutputArityMap.put(WordCountOperatorPredicate.class, 1);
