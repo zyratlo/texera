@@ -8,6 +8,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import edu.uci.ics.textdb.api.constants.DataConstants.KeywordMatchingType;
+import edu.uci.ics.textdb.exp.common.PredicateBase;
 import edu.uci.ics.textdb.textql.statements.CreateViewStatement;
 import edu.uci.ics.textdb.textql.statements.SelectStatement;
 import edu.uci.ics.textdb.textql.statements.Statement;
@@ -16,7 +17,6 @@ import edu.uci.ics.textdb.textql.statements.predicates.KeywordExtractPredicate;
 import edu.uci.ics.textdb.textql.statements.predicates.ProjectAllFieldsPredicate;
 import edu.uci.ics.textdb.textql.statements.predicates.ProjectPredicate;
 import edu.uci.ics.textdb.textql.statements.predicates.ProjectSomeFieldsPredicate;
-import edu.uci.ics.textdb.web.request.beans.OperatorBean;
 
 /**
  * This class contains test cases for the CreateViewStatement.
@@ -135,7 +135,7 @@ public class CreateViewStatementTest {
         Statement subStatement = new SelectStatement("id2", null, null, "from", null, null);
         CreateViewStatement createViewStatement = new CreateViewStatement("idx", subStatement);
 
-        List<OperatorBean> expectedGeneratedBeans = Collections.emptyList();
+        List<PredicateBase> expectedGeneratedBeans = Collections.emptyList();
         List<String> dependencies = Arrays.asList(subStatement.getId());
 
         Assert.assertEquals(createViewStatement.getInputViews(), dependencies);
@@ -160,7 +160,7 @@ public class CreateViewStatementTest {
                 null);
         CreateViewStatement createViewStatement = new CreateViewStatement("idx", subStatement);
 
-        List<OperatorBean> expectedGeneratedBeans = Collections.emptyList();
+        List<PredicateBase> expectedGeneratedBeans = Collections.emptyList();
         List<String> dependencies = Arrays.asList(subStatement.getId());
 
         Assert.assertEquals(createViewStatement.getInputViews(), dependencies);

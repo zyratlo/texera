@@ -2,12 +2,19 @@ package edu.uci.ics.textdb.exp.common;
 
 import java.util.UUID;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import edu.uci.ics.textdb.api.dataflow.IOperator;
 import edu.uci.ics.textdb.api.dataflow.IPredicate;
+import edu.uci.ics.textdb.exp.comparablematcher.ComparablePredicate;
 import edu.uci.ics.textdb.exp.dictionarymatcher.DictionaryPredicate;
 import edu.uci.ics.textdb.exp.dictionarymatcher.DictionarySourcePredicate;
 import edu.uci.ics.textdb.exp.fuzzytokenmatcher.FuzzyTokenPredicate;
@@ -23,9 +30,12 @@ import edu.uci.ics.textdb.exp.regexmatcher.RegexPredicate;
 import edu.uci.ics.textdb.exp.regexmatcher.RegexSourcePredicate;
 import edu.uci.ics.textdb.exp.regexsplit.RegexSplitPredicate;
 import edu.uci.ics.textdb.exp.sampler.SamplerPredicate;
+import edu.uci.ics.textdb.exp.sink.excel.ExcelSinkPredicate;
 import edu.uci.ics.textdb.exp.sink.tuple.TupleSinkPredicate;
 import edu.uci.ics.textdb.exp.source.file.FileSourcePredicate;
 import edu.uci.ics.textdb.exp.source.scan.ScanSourcePredicate;
+import edu.uci.ics.textdb.exp.wordcount.WordCountIndexSourcePredicate;
+import edu.uci.ics.textdb.exp.wordcount.WordCountOperatorPredicate;
 
 
 /**
@@ -41,7 +51,7 @@ import edu.uci.ics.textdb.exp.source.scan.ScanSourcePredicate;
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME, // logical user-defined type names are used (rather than Java class names)
         include = JsonTypeInfo.As.PROPERTY, // make the type info as a property in the JSON representation
-        property = "operatorType" // the name of the JSON property indicating the type
+        property = PropertyNameConstants.OPERATOR_TYPE // the name of the JSON property indicating the type
 )
 @JsonSubTypes({ 
         @Type(value = DictionaryPredicate.class, name = "DictionaryMatcher"), 
@@ -62,23 +72,51 @@ import edu.uci.ics.textdb.exp.source.scan.ScanSourcePredicate;
         @Type(value = RegexSplitPredicate.class, name = "RegexSplit"),
         @Type(value = SamplerPredicate.class, name = "Sampler"),
         
+        @Type(value = ComparablePredicate.class, name = "Comparison"),
+        
         @Type(value = ScanSourcePredicate.class, name = "ScanSource"),
         @Type(value = FileSourcePredicate.class, name = "FileSink"),        
         @Type(value = TupleSinkPredicate.class, name = "ViewResults"),
+        @Type(value = ExcelSinkPredicate.class, name = "ExcelSink"),
+        
+        @Type(value = WordCountIndexSourcePredicate.class, name = "WordCountIndexSource"),
+        @Type(value = WordCountOperatorPredicate.class, name = "WordCount"),
+        
 })
 public abstract class PredicateBase implements IPredicate {
     
     // default id is random uuid (internal code doesn't care about id)
     private String id = UUID.randomUUID().toString();
     
-    @JsonProperty("operatorID")
+    @JsonProperty(PropertyNameConstants.OPERATOR_ID)
     public void setID(String id) {
         this.id = id;
     }
     
-    @JsonProperty("operatorID")
+    @JsonProperty(PropertyNameConstants.OPERATOR_ID)
     public String getID() {
         return id;
+    }
+    
+    @JsonIgnore
+    public abstract IOperator newOperator();
+    
+    @Override
+    public int hashCode() {
+        // TODO: evaluate performance impact using reflection
+        return HashCodeBuilder.reflectionHashCode(this);
+    }
+    
+    @Override
+    public boolean equals(Object that) {
+        // TODO: evaluate performance impact using reflection
+        return EqualsBuilder.reflectionEquals(this, that);
+    }
+    
+    @Override
+    public String toString() {
+        // TODO: evaluate performance impact using reflection
+        return ToStringBuilder.reflectionToString(this);
     }
     
 }

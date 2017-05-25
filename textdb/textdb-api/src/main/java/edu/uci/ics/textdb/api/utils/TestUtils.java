@@ -1,9 +1,15 @@
 package edu.uci.ics.textdb.api.utils;
 
+import java.io.IOException;
 import java.util.List;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import edu.uci.ics.textdb.api.constants.SchemaConstants;
+import edu.uci.ics.textdb.api.exception.TextDBException;
 import edu.uci.ics.textdb.api.tuple.Tuple;
+import junit.framework.Assert;
 
 /**
  * @author sandeepreddy602
@@ -64,6 +70,31 @@ public class TestUtils {
             return false;
         
         return expectedResults.containsAll(exactResults) && exactResults.containsAll(expectedResults);
+    }
+    
+    public static JsonNode testJsonSerialization(Object object) {
+        return testJsonSerialization(object, false);
+    }
+    
+    public static JsonNode testJsonSerialization(Object object, boolean printResults) {
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            String json = objectMapper.writeValueAsString(object);
+            Object resultObject = objectMapper.readValue(json, object.getClass());
+            String resultJson = objectMapper.writeValueAsString(resultObject);
+            
+            JsonNode jsonNode = objectMapper.readValue(json, JsonNode.class);
+            JsonNode resultJsonNode = objectMapper.readValue(resultJson, JsonNode.class);
+            
+            if (printResults) {
+                System.out.println(resultJson);
+            }
+            
+            Assert.assertEquals(jsonNode, resultJsonNode);
+            return jsonNode;
+        } catch (IOException e) {
+            throw new TextDBException(e);
+        }
     }
     
 }

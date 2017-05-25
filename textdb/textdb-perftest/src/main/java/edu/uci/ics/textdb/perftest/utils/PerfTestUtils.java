@@ -1,23 +1,22 @@
 package edu.uci.ics.textdb.perftest.utils;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Scanner;
+import java.util.stream.Collectors;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 
-import edu.uci.ics.textdb.api.engine.Engine;
+import edu.uci.ics.textdb.api.constants.DataConstants.TextdbProject;
+import edu.uci.ics.textdb.api.utils.Utils;
 import edu.uci.ics.textdb.perftest.medline.MedlineIndexWriter;
-import edu.uci.ics.textdb.storage.DataStore;
 import edu.uci.ics.textdb.storage.RelationManager;
 import edu.uci.ics.textdb.storage.constants.LuceneAnalyzerConstants;
 
@@ -33,23 +32,14 @@ public class PerfTestUtils {
      * These default paths work only when the program is run from the directory,
      * textdb-perftest
      */
-    public static String fileFolder;
-    public static String standardIndexFolder;
-    public static String trigramIndexFolder;
-    public static String resultFolder;
-    public static String queryFolder;
-
-
-    static {
-        try {
-            fileFolder = Paths.get(PerfTestUtils.class.getResource("/sample-data-files").toURI()).toString() + "/";
-            standardIndexFolder = Paths.get(PerfTestUtils.class.getResource("/index/standard").toURI()).toString() + "/";
-            trigramIndexFolder = Paths.get(PerfTestUtils.class.getResource("/index/trigram").toURI()).toString() + "/";
-            resultFolder = "./src/main/resources/perftest-files/results/";
-            queryFolder = Paths.get(PerfTestUtils.class.getResource("/perftest-files/queries").toURI()).toString() + "/";
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-        }
+    public static String fileFolder = getResourcePath("/sample-data-files");
+    public static String standardIndexFolder = getResourcePath("/index/standard");
+    public static String trigramIndexFolder = getResourcePath("/index/trigram");
+    public static String resultFolder = getResourcePath("/perftest-files/results");
+    public static String queryFolder = getResourcePath("/perftest-files/queries");
+    
+    public static String getResourcePath(String resourcePath) {
+        return Utils.getResourcePath(resourcePath, TextdbProject.TEXTDB_PERFTEST);
     }
 
     /**
@@ -57,15 +47,11 @@ public class PerfTestUtils {
      * Checks whether the given file exists. If not, create such a file with a
      * header written into it.
      */
-    public static void createFile(String filePath, String header) throws IOException {
-        File file = new File(filePath);
-        if (!file.exists()) {
-            file.createNewFile();
-            FileWriter fileWriter = new FileWriter(filePath, true);
-            fileWriter.write(header);
-            fileWriter.close();
+    public static void createFile(Path filePath, String header) throws IOException {
+        if (Files.notExists(filePath)) {
+            Files.createFile(filePath);
+            Files.write(filePath, header.getBytes());
         }
-
     }
 
     /*
@@ -174,13 +160,12 @@ public class PerfTestUtils {
     public static void writeStandardAnalyzerIndices() throws Exception {
         File files = new File(fileFolder);
         for (File file : files.listFiles()) {
-            if (file.getName().startsWith(".")) {
-                continue;
-            }
             if (file.isDirectory()) {
                 continue;
             }
-            writeIndex(file.getName(), new StandardAnalyzer(), "standard");
+            if (file.getName().startsWith("abstract")) {
+                writeIndex(file.getName(), new StandardAnalyzer(), "standard");
+            }
         }
     }
 
@@ -221,15 +206,16 @@ public class PerfTestUtils {
         if (indexType.equalsIgnoreCase("trigram")) {
             tableName = tableName + "_trigram";
             relationManager.deleteTable(tableName);
-            relationManager.createTable(tableName, getTrigramIndexPath(tableName), 
+            relationManager.createTable(tableName, getTrigramIndexPath(tableName).toString(), 
                     MedlineIndexWriter.SCHEMA_MEDLINE, LuceneAnalyzerConstants.nGramAnalyzerString(3));
-            Engine.getEngine().evaluate(MedlineIndexWriter.getMedlineIndexPlan(fileFolder + fileName, tableName));
+            
+            MedlineIndexWriter.writeMedlineIndex(Paths.get(fileFolder, fileName), tableName);
             
         } else if (indexType.equalsIgnoreCase("standard")) {
             relationManager.deleteTable(tableName);
-            relationManager.createTable(tableName, getIndexPath(tableName), 
+            relationManager.createTable(tableName, getIndexPath(tableName).toString(), 
                     MedlineIndexWriter.SCHEMA_MEDLINE, LuceneAnalyzerConstants.standardAnalyzerString());
-            Engine.getEngine().evaluate(MedlineIndexWriter.getMedlineIndexPlan(fileFolder + fileName, tableName));
+            MedlineIndexWriter.writeMedlineIndex(Paths.get(fileFolder, fileName), tableName);
         } else {
             System.out.println("Index is not successfully written.");
             System.out.println("IndexType has to be either \"standard\" or \"trigram\"  ");
@@ -242,16 +228,12 @@ public class PerfTestUtils {
      * 
      * @param filePath
      * @return a list of strings
-     * @throws FileNotFoundException
+     * @throws IOException 
      */
-    public static ArrayList<String> readQueries(String filePath) throws FileNotFoundException {
-        ArrayList<String> queries = new ArrayList<String>();
-        Scanner scanner = new Scanner(new File(filePath));
-        while (scanner.hasNextLine()) {
-            queries.add(scanner.nextLine().trim());
-        }
-        scanner.close();
-        return queries;
+    public static ArrayList<String> readQueries(Path queryFilePath) throws IOException {
+        return Files.readAllLines(queryFilePath).stream()
+                .map(str -> str.trim())
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     /**
@@ -259,8 +241,8 @@ public class PerfTestUtils {
      * @param indexName
      * @return a path of an index in ./index/standard/
      */
-    public static String getIndexPath(String indexName) {
-        return standardIndexFolder + indexName;
+    public static Path getIndexPath(String indexName) {
+        return Paths.get(standardIndexFolder, indexName);
     }
 
     /**
@@ -268,8 +250,8 @@ public class PerfTestUtils {
      * @param indexName
      * @return a path of a trigram index in ./index/trigram/
      */
-    public static String getTrigramIndexPath(String indexName) {
-        return trigramIndexFolder + indexName;
+    public static Path getTrigramIndexPath(String indexName) {
+        return Paths.get(trigramIndexFolder, indexName);
     }
 
     /**
@@ -277,8 +259,8 @@ public class PerfTestUtils {
      * @param resultFileName
      * @return a path of a result file in ./data-files/results/
      */
-    public static String getResultPath(String resultFileName) {
-        return resultFolder + resultFileName;
+    public static Path getResultPath(String resultFileName) {
+        return Paths.get(resultFolder, resultFileName);
     }
 
     /**
@@ -286,8 +268,8 @@ public class PerfTestUtils {
      * @param queryFileName
      * @return a path of a data file in ./data-files/queries/
      */
-    public static String getQueryPath(String queryFileName) {
-        return queryFolder + queryFileName;
+    public static Path getQueryPath(String queryFileName) {
+        return Paths.get(queryFolder, queryFileName);
 
     }
 

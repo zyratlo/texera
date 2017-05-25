@@ -1,8 +1,10 @@
 package edu.uci.ics.textdb.perftest.regexmatcher;
 
+import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 import java.util.List;
 
@@ -11,14 +13,11 @@ import edu.uci.ics.textdb.api.exception.TextDBException;
 import edu.uci.ics.textdb.api.field.ListField;
 import edu.uci.ics.textdb.api.span.Span;
 import edu.uci.ics.textdb.api.tuple.Tuple;
+import edu.uci.ics.textdb.exp.regexmatcher.RegexMatcherSourceOperator;
+import edu.uci.ics.textdb.exp.regexmatcher.RegexSourcePredicate;
 
-import org.apache.lucene.analysis.Analyzer;
-
-import edu.uci.ics.textdb.dataflow.common.RegexPredicate;
-import edu.uci.ics.textdb.dataflow.regexmatch.RegexMatcherSourceOperator;
 import edu.uci.ics.textdb.perftest.medline.MedlineIndexWriter;
 import edu.uci.ics.textdb.perftest.utils.PerfTestUtils;
-import edu.uci.ics.textdb.storage.constants.LuceneAnalyzerConstants;
 
 /*
  * 
@@ -55,10 +54,7 @@ public class RegexMatcherPerformanceTest {
      * 
      */
     public static void runTest(List<String> regexQueries)
-            throws TextDBException, IOException {
-
-        FileWriter fileWriter = null;
-         
+            throws TextDBException, IOException {         
         // Gets the current time for naming the cvs file
         String currentTime = PerfTestUtils.formatTime(System.currentTimeMillis());
 
@@ -69,11 +65,12 @@ public class RegexMatcherPerformanceTest {
             if (file.getName().startsWith(".")) {
                 continue;
             }
-            String tableName = file.getName().replace(".txt", "") + "_trigram";
+            System.out.println(file.getName());
 
             PerfTestUtils.createFile(PerfTestUtils.getResultPath(csvFile), HEADER);
-            fileWriter = new FileWriter(PerfTestUtils.getResultPath(csvFile),true);
-            matchRegex(regexQueries, tableName);
+            BufferedWriter fileWriter = Files.newBufferedWriter
+                    (PerfTestUtils.getResultPath(csvFile), StandardOpenOption.APPEND);
+            matchRegex(regexQueries, file.getName());
             fileWriter.append("\n");
             fileWriter.append(currentTime + delimiter);
             fileWriter.append(file.getName() + delimiter);
@@ -96,10 +93,8 @@ public class RegexMatcherPerformanceTest {
         for(String regex: regexes){
 	        // analyzer should generate grams all in lower case to build a lower
 	        // case index.
-	        Analyzer luceneAnalyzer = LuceneAnalyzerConstants.getNGramAnalyzer(3);
-	        RegexPredicate regexPredicate = new RegexPredicate(regex, attributeNames, luceneAnalyzer);
-	        
-	        RegexMatcherSourceOperator regexSource = new RegexMatcherSourceOperator(regexPredicate, tableName);
+	        RegexSourcePredicate predicate = new RegexSourcePredicate(regex, attributeNames, tableName, null);
+	        RegexMatcherSourceOperator regexSource = new RegexMatcherSourceOperator(predicate);
 	
 	        long startMatchTime = System.currentTimeMillis();
 	        regexSource.open();

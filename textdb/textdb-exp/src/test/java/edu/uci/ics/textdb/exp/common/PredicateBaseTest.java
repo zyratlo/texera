@@ -6,8 +6,10 @@ import java.util.List;
 import org.junit.Test;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
+import edu.uci.ics.textdb.api.utils.TestUtils;
+import edu.uci.ics.textdb.exp.comparablematcher.ComparablePredicate;
+import edu.uci.ics.textdb.exp.comparablematcher.ComparisonType;
 import edu.uci.ics.textdb.exp.dictionarymatcher.Dictionary;
 import edu.uci.ics.textdb.exp.dictionarymatcher.DictionaryPredicate;
 import edu.uci.ics.textdb.exp.dictionarymatcher.DictionarySourcePredicate;
@@ -28,8 +30,12 @@ import edu.uci.ics.textdb.exp.regexsplit.RegexSplitPredicate;
 import edu.uci.ics.textdb.exp.regexsplit.RegexSplitPredicate.SplitType;
 import edu.uci.ics.textdb.exp.sampler.SamplerPredicate;
 import edu.uci.ics.textdb.exp.sampler.SamplerPredicate.SampleType;
+import edu.uci.ics.textdb.exp.sink.excel.ExcelSinkPredicate;
+import edu.uci.ics.textdb.exp.sink.tuple.TupleSinkPredicate;
 import edu.uci.ics.textdb.exp.source.file.FileSourcePredicate;
 import edu.uci.ics.textdb.exp.source.scan.ScanSourcePredicate;
+import edu.uci.ics.textdb.exp.wordcount.WordCountIndexSourcePredicate;
+import edu.uci.ics.textdb.exp.wordcount.WordCountOperatorPredicate;
 import junit.framework.Assert;
 
 public class PredicateBaseTest {
@@ -43,17 +49,9 @@ public class PredicateBaseTest {
      *   
      */
     public static void testPredicate(PredicateBase predicate) throws Exception {  
-        ObjectMapper objectMapper = new ObjectMapper();
-        String predicateJson = objectMapper.writeValueAsString(predicate);
-        PredicateBase resultPredicate = objectMapper.readValue(predicateJson, PredicateBase.class);
-        String resultPredicateJson = objectMapper.writeValueAsString(resultPredicate);
-        
-        JsonNode predicateJsonNode = objectMapper.readValue(predicateJson, JsonNode.class);
-        JsonNode resultPredicateJsonNode = objectMapper.readValue(resultPredicateJson, JsonNode.class);
-
-        Assert.assertEquals(predicateJsonNode, resultPredicateJsonNode);
-        Assert.assertTrue(predicateJson.contains("operatorType"));
-        Assert.assertTrue(predicateJson.contains("operatorID"));
+        JsonNode jsonNode = TestUtils.testJsonSerialization(predicate);
+        Assert.assertTrue(jsonNode.has(PropertyNameConstants.OPERATOR_TYPE));
+        Assert.assertTrue(jsonNode.has(PropertyNameConstants.OPERATOR_ID));
     }
     
     private static List<String> attributeNames = Arrays.asList("attr1", "attr2");
@@ -64,7 +62,8 @@ public class PredicateBaseTest {
                 new Dictionary(Arrays.asList("entry1", "entry2")),
                 attributeNames,
                 "standard",
-                KeywordMatchingType.CONJUNCTION_INDEXBASED);
+                KeywordMatchingType.CONJUNCTION_INDEXBASED,
+                "dictResults");
         testPredicate(dictionaryPredicate);
         
         DictionarySourcePredicate dictionarySourcePredicate = new DictionarySourcePredicate(
@@ -72,7 +71,8 @@ public class PredicateBaseTest {
                 attributeNames,
                 "standard",
                 KeywordMatchingType.CONJUNCTION_INDEXBASED, 
-                "tableName");
+                "tableName",
+                "dictSourceResults");
         testPredicate(dictionarySourcePredicate);
     }
     
@@ -82,7 +82,8 @@ public class PredicateBaseTest {
                 "token1 token2 token3",
                 attributeNames,
                 "standard",
-                0.8);
+                0.8,
+                "spanListName");
         testPredicate(fuzzyTokenPredicate);
         
         FuzzyTokenSourcePredicate fuzzyTokenSourcePredicate = new FuzzyTokenSourcePredicate(
@@ -90,7 +91,8 @@ public class PredicateBaseTest {
                 attributeNames,
                 "standard",
                 0.8,
-                "tableName");
+                "tableName",
+                "spanListName");
         testPredicate(fuzzyTokenSourcePredicate);
     }
     
@@ -112,7 +114,8 @@ public class PredicateBaseTest {
                 "keyword",
                 attributeNames,
                 "standard",
-                KeywordMatchingType.CONJUNCTION_INDEXBASED);
+                KeywordMatchingType.CONJUNCTION_INDEXBASED,
+                "keywordResults");
         testPredicate(keywordPredicate);
         
         KeywordSourcePredicate keywordSourcePredicate = new KeywordSourcePredicate(
@@ -120,7 +123,8 @@ public class PredicateBaseTest {
                 attributeNames,
                 "standard",
                 KeywordMatchingType.CONJUNCTION_INDEXBASED,
-                "tableName");
+                "tableName",
+                "keywordSourceResults");
         testPredicate(keywordSourcePredicate);
     }
     
@@ -128,7 +132,8 @@ public class PredicateBaseTest {
     public void testNlpEntity() throws Exception {
         NlpEntityPredicate nlpEntityPredicate = new NlpEntityPredicate(
                 NlpEntityType.LOCATION,
-                attributeNames);
+                attributeNames,
+                "nlpEntityResults");
         testPredicate(nlpEntityPredicate);
     }
     
@@ -150,13 +155,15 @@ public class PredicateBaseTest {
     public void testRegexMatcher() throws Exception {
         RegexPredicate regexPredicate = new RegexPredicate(
                 "regex",
-                attributeNames);
+                attributeNames,
+                "spanListName");
         testPredicate(regexPredicate);
         
         RegexSourcePredicate regexSourcePredicate = new RegexSourcePredicate(
                 "regex",
                 attributeNames,
-                "tableName");
+                "tableName",
+                "spanListName");
         testPredicate(regexSourcePredicate);
     }
     
@@ -187,8 +194,38 @@ public class PredicateBaseTest {
     
     @Test
     public void testScanSource() throws Exception {
-        ScanSourcePredicate ScanSourcePredicate = new ScanSourcePredicate("tableName");
-        testPredicate(ScanSourcePredicate);
+        ScanSourcePredicate scanSourcePredicate = new ScanSourcePredicate("tableName");
+        testPredicate(scanSourcePredicate);
+    }
+    
+    @Test
+    public void testTupleSink() throws Exception {
+        TupleSinkPredicate tupleSinkPredicate = new TupleSinkPredicate();
+        testPredicate(tupleSinkPredicate);
+    }
+    
+    @Test
+
+    public void testWordCountIndexSource() throws Exception {
+        WordCountIndexSourcePredicate wordCountIndexSourcePredicate = new WordCountIndexSourcePredicate("tableName", "attr1");
+        testPredicate(wordCountIndexSourcePredicate);
+    }
+    
+    @Test
+    public void testWordCountOperator() throws Exception {
+        WordCountOperatorPredicate wordCountPredicate = new WordCountOperatorPredicate("attr1", "standard");
+        testPredicate(wordCountPredicate);
+    }
+
+    @Test
+    public void testExcelSink() throws Exception {
+    	ExcelSinkPredicate excelSinkPredicate = new ExcelSinkPredicate(10, 10);
+    	testPredicate(excelSinkPredicate);
+    }
+    
+    @Test
+    public void testComparable() throws Exception {
+        testPredicate(new ComparablePredicate("attr", ComparisonType.EQUAL_TO, 1));
     }
 
 }

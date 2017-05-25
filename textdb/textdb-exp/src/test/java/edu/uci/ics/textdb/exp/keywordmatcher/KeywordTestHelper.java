@@ -31,6 +31,8 @@ public class KeywordTestHelper {
     public static final String MEDLINE_TABLE = "keyword_test_medline";
     public static final String CHINESE_TABLE = "keyword_test_chinese";
     
+    public static final String RESULTS = "dictionary test results";
+    
     public static void writeTestTables() throws TextDBException {
         RelationManager relationManager = RelationManager.getRelationManager();
         
@@ -122,7 +124,7 @@ public class KeywordTestHelper {
         
         KeywordPredicate keywordPredicate = new KeywordPredicate(
                 keywordQuery, attributeNames, relationManager.getTableAnalyzerString(tableName), matchingType, 
-                limit, offset);
+                RESULTS, limit, offset);
         KeywordMatcher keywordMatcher = new KeywordMatcher(keywordPredicate);
         
         keywordMatcher.setInputOperator(scanSource);
@@ -144,7 +146,7 @@ public class KeywordTestHelper {
         RelationManager relationManager = RelationManager.getRelationManager();
         KeywordSourcePredicate keywordSourcePredicate = new KeywordSourcePredicate(
                 keywordQuery, attributeNames, relationManager.getTableAnalyzerString(tableName), matchingType, 
-                tableName, limit, offset);
+                tableName, RESULTS, limit, offset);
         KeywordMatcherSourceOperator keywordSource = new KeywordMatcherSourceOperator(
                 keywordSourcePredicate);
         
