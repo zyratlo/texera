@@ -32,7 +32,7 @@ export class SideBarComponent {
   regexSplitList: string[] = ["left", "right", "standalone"];
   samplerList: string[] = ["random", "firstk"];
 
-  compareList: string[] = ["=", ">", ">=", "<", "<=", "!="];
+  compareList: string[] = ["=", ">", ">=", "<", "<=", "≠"];
   aggregationList: string[] = ["min", "max", "count", "sum", "average"];
 
   attributeItems:Array<string> = [];
