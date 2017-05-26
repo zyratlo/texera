@@ -44,7 +44,7 @@ public class FileUploadResource {
 		return new TextdbWebResponse(0, "Dictionary is uploaded");
 	}
 
-	// save uploaded file to new location
+	// save uploaded file to a new location
 	private void writeToFile(InputStream uploadedInputStream, String uploadedFileLocation) {
 		try {
 			OutputStream out = new FileOutputStream(new File(uploadedFileLocation));
