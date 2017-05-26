@@ -480,7 +480,8 @@ public class RelationManager {
             String tableName = (String) t.getField(CatalogConstants.TABLE_NAME).getValue();
 
             if (!tableName.equals(CatalogConstants.SCHEMA_CATALOG.toLowerCase())
-                    && !tableName.equals(CatalogConstants.TABLE_CATALOG.toLowerCase())) {
+                    && !tableName.equals(CatalogConstants.TABLE_CATALOG.toLowerCase())
+                    && !tableName.equals("dictionary")) {
                 result.add(new TableMetadata(tableName, getTableSchema(tableName)));
             }
         }
