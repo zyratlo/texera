@@ -33,6 +33,10 @@
 
                 <div *ngIf="attribute === 'dictionaryEntries'">
                     <!--TDOO: Build a selection list and input area for DictionaryEntries -->
+                    <select class="form-control">
+                        <option selected hidden value="">Select Dictionary</option>
+                    </select>
+                    <!--<input>-->
                 </div>
 
                 <select *ngIf="attribute === 'tableName'" class="form-control" id="{{attribute}}" [(ngModel)]="data.properties.attributes[attribute]" (ngModelChange)="getAttributesForTable($event)" name="{{attribute}}" #{{attribute}}="ngModel">
