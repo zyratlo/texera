@@ -144,7 +144,7 @@ let nlpSentiment = {
     },
     attributes : {
       "operatorType": "NlpSentiment",
-      "attributes": [],
+      "attributes": "inputAttr",
       "resultAttribute": "resultAttr"
     }
   }
@@ -368,7 +368,7 @@ let wordCountSource = {
     attributes : {
       "operatorType": "WordCountIndexSource",
       "tableName": "",
-      "attributes": [],
+      "attributes": "attr1",
     }
   }
 }
@@ -390,32 +390,8 @@ let wordCount = {
     },
     attributes : {
       "operatorType": "WordCount",
-      "attributes": [],
+      "attributes": "attr1",
       "luceneAnalyzer": "standard",
-    }
-  }
-}
-
-let comparison = {
-  top : 20,
-  left : 20,
-  properties : {
-    title : 'Comparison',
-    inputs : {
-      input_1 : {
-        label : "Input (:i)",
-      }
-    },
-    outputs : {
-      output_1 : {
-        label : "Output (:i)",
-      }
-    },
-    attributes : {
-        "operatorType": "Comparison",
-        "attribute": [],
-        "comparisonType": "=",
-        "compareTo": "",
     }
   }
 }
@@ -541,5 +517,4 @@ export const DEFAULT_MATCHERS: Data[] = [
     {id: 17, jsonData: wordCount},
     {id: 19, jsonData: result},
     {id: 20, jsonData: excelSink},
-    {id: 21, jsonData: comparison},
 ];
