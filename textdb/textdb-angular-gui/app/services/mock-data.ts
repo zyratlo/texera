@@ -144,7 +144,7 @@ let nlpSentiment = {
     },
     attributes : {
       "operatorType": "NlpSentiment",
-      "attributes": [],
+      "attributes": "inputAttr",
       "resultAttribute": "resultAttr"
     }
   }
@@ -368,7 +368,7 @@ let wordCountSource = {
     attributes : {
       "operatorType": "WordCountIndexSource",
       "tableName": "",
-      "attributes": [],
+      "attributes": "attr1",
     }
   }
 }
@@ -390,7 +390,7 @@ let wordCount = {
     },
     attributes : {
       "operatorType": "WordCount",
-      "attributes": [],
+      "attributes": "attr1",
       "luceneAnalyzer": "standard",
     }
   }
@@ -530,5 +530,4 @@ export const DEFAULT_MATCHERS: Data[] = [
   {id: 19, jsonData: result},
   {id: 20, jsonData: excelSink},
   {id: 21, jsonData: uploadDictionary}
-
 ];
