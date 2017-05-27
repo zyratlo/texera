@@ -478,7 +478,7 @@ public class RegexMatcherTest {
 
     @Test
     public void testDisjunctionLabeledRegex() throws Exception {
-        String query = "<lab1|lab2>";
+        String query = "<lab1>|<lab2>";
         List<Tuple> exactResults = RegexMatcherTestHelper.getQueryResults(
                 PEOPLE_TABLE, query, "short", Arrays.asList(TestConstants.DESCRIPTION), "lab1", false, Integer.MAX_VALUE, 0, "angry", "lab2");
 

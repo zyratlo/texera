@@ -1,9 +1,6 @@
 package edu.uci.ics.textdb.exp.regexmatcher;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 import edu.uci.ics.textdb.api.constants.ErrorMessages;
 import edu.uci.ics.textdb.api.constants.SchemaConstants;
@@ -38,9 +35,15 @@ public class RegexMatcher extends AbstractSingleInputOperator {
     private com.google.re2j.Pattern re2jPattern;
     private java.util.regex.Pattern javaPattern;
     private static final String labelSyntax = "<[^<>\\\\]*>";
-    private HashMap<Integer, HashSet<String>> idLabelMapping;
+    private Set<String> labelsList;
     private String cleanedRegex = "";
-    
+
+    private enum RegexType {
+        NO_LABELS, LABELED_WITHOUT_QUALIFIER, LABELED_WITH_QUALIFIERS
+    }
+
+    private RegexType regexType;
+
     private Schema inputSchema;
 
     public RegexMatcher(RegexPredicate predicate) {
@@ -58,10 +61,9 @@ public class RegexMatcher extends AbstractSingleInputOperator {
         outputSchema = Utils.addAttributeToSchema(inputSchema, 
                 new Attribute(predicate.getSpanListName(), AttributeType.LIST));
 
-        this.idLabelMapping = new HashMap<>();
         this.cleanedRegex = extractLabels(predicate.getRegex());
         // Check if labelled or unlabelled
-        if(this.idLabelMapping.size()==0) {
+        if(this.regexType==RegexType.NO_LABELS) {
             // No labels in regex, compile regex only one time
             compileRegexPattern(predicate.getRegex());
         }
@@ -102,7 +104,7 @@ public class RegexMatcher extends AbstractSingleInputOperator {
             return null;
         }
 
-        if(this.idLabelMapping.size() == 0) {
+        if(this.regexType == RegexType.NO_LABELS) {
             // Unlabelled regex
             return processUnlabelledRegex(inputTuple);
         }
@@ -135,8 +137,8 @@ public class RegexMatcher extends AbstractSingleInputOperator {
      * @return tuple with matching regex pattern
      */
     private Tuple processLabelledRegex(Tuple inputTuple) {
-        HashMap<Integer, HashSet<String>> labelSpanList = fetchLabelledSpanListValues(inputTuple);
-        String regexWithVal = getModifiedRegex(this.cleanedRegex, labelSpanList);
+        Map<String, Set<String>> labelAttrValueList = fetchLabelledSpanListValues(inputTuple);
+        String regexWithVal = getModifiedRegex(this.cleanedRegex, labelAttrValueList);
         compileRegexPattern(regexWithVal);
         List<Span> matchingResults = findRegexMatch(inputTuple);
         if (matchingResults.isEmpty()) {
@@ -210,55 +212,52 @@ public class RegexMatcher extends AbstractSingleInputOperator {
      * @return cleaned regex containing ids instead of labels
      */
     private String extractLabels(String generalRegexPattern) {
-        this.idLabelMapping = new HashMap<>();
-        java.util.regex.Pattern patt = java.util.regex.Pattern.compile(this.labelSyntax,
+        this.labelsList = new HashSet<>();
+        java.util.regex.Pattern pattern = java.util.regex.Pattern.compile(this.labelSyntax,
                 java.util.regex.Pattern.CASE_INSENSITIVE);
-        java.util.regex.Matcher match = patt.matcher(generalRegexPattern);
-
-        int id = 1;
-        String regexMod = generalRegexPattern;
-        while(match.find()) {
-            int start = match.start();
-            int end = match.end();
-
-            String substr = generalRegexPattern.substring(start+1, end-1);
-            String substrWithoutSpace = substr.replaceAll("\\s+", "");
-
-            this.idLabelMapping.put(id, new HashSet<String>());
-
-            if(substrWithoutSpace.contains("|")) {
-                // Multiple value separated by OR operator
-                String[] sublabs = substrWithoutSpace.split("[|]");
-                for(String lab : sublabs)
-                    this.idLabelMapping.get(id).add(lab);
-            } else {
-                this.idLabelMapping.get(id).add(substrWithoutSpace);
-            }
-            regexMod = regexMod.replace("<"+substr+">", "<"+id+">");
-            id++;
+        java.util.regex.Matcher matcher = pattern.matcher(generalRegexPattern);
+        // Extracting labels from regex
+        String cleanedRegex = generalRegexPattern;
+        while(matcher.find()) {
+            String substr = generalRegexPattern.substring(matcher.start() + 1, matcher.end() - 1);
+            String substrTrimmed = substr.trim();
+            this.labelsList.add(substrTrimmed);
+            cleanedRegex = cleanedRegex.replace("<" + substr + ">", "<" + substrTrimmed + ">");
         }
-        return regexMod;
+        if(this.labelsList.size() == 0)
+            regexType = RegexType.NO_LABELS;
+        else {
+            // Check if regex contains qualifiers
+            pattern = java.util.regex.Pattern.compile("[^a-zA-Z0-9<> ]",
+                    java.util.regex.Pattern.CASE_INSENSITIVE);
+            matcher = pattern.matcher(generalRegexPattern);
+            if(matcher.find())
+                regexType = RegexType.LABELED_WITH_QUALIFIERS;
+            else
+                regexType = RegexType.LABELED_WITHOUT_QUALIFIER;
+        }
+        return cleanedRegex;
     }
 
 
     /**
-     * Create Map of label id and corresponding span values
+     * Create Map of label id and corresponding attribute values
      * @param inputTuple
-     * @return map of label id and corresponding span values
+     * @return map of label id and corresponding attribute values
      */
-    private HashMap<Integer, HashSet<String>> fetchLabelledSpanListValues(Tuple inputTuple) {
-        HashMap<Integer, HashSet<String>> labelSpanList = new HashMap<Integer, HashSet<String>>();
-        for (int id : this.idLabelMapping.keySet()) {
-            HashSet<String> labels = this.idLabelMapping.get(id);
-            HashSet<String> values = new HashSet<String>();
-            for (String oneField : labels) {
-                ListField<Span> spanListField = inputTuple.getField(oneField);
-                List<Span> spanList = spanListField.getValue();
-                for (Span span : spanList) {
+    private Map<String, Set<String>> fetchLabelledSpanListValues(Tuple inputTuple) {
+        Map<String, Set<String>> labelSpanList = new HashMap();
+        for (String label : this.labelsList) {
+            Set<String> values = new HashSet();
+            ListField<Span> spanListField = inputTuple.getField(label);
+            List<Span> spanList = spanListField.getValue();
+            for (Span span : spanList) {
+                if(this.predicate.isIgnoreCase())
+                    values.add(span.getValue().toLowerCase());
+                else
                     values.add(span.getValue());
-                }
             }
-            labelSpanList.put(id, values);
+            labelSpanList.put(label, values);
         }
         return labelSpanList;
     }
@@ -268,16 +267,11 @@ public class RegexMatcher extends AbstractSingleInputOperator {
      * @param inputTuple
      * @return map of label id and corresponding span
      */
-    private HashMap<Integer, List<Span>> fetchLabelledSpanList(Tuple inputTuple) {
-        HashMap<Integer, List<Span>> labelSpanList = new HashMap<Integer, List<Span>>();
-        for (int id : this.idLabelMapping.keySet()) {
-            HashSet<String> labels = this.idLabelMapping.get(id);
-            HashSet<String> values = new HashSet<String>();
-            labelSpanList.put(id, new ArrayList<>());
-            for (String oneField : labels) {
-                ListField<Span> spanListField = inputTuple.getField(oneField);
-                labelSpanList.get(id).addAll(spanListField.getValue());
-            }
+    private Map<String, List<Span>> fetchLabelledSpanList(Tuple inputTuple) {
+        Map<String, List<Span>> labelSpanList = new HashMap();
+        for (String label : this.labelsList) {
+            ListField<Span> spanListField = inputTuple.getField(label);
+            labelSpanList.put(label, new ArrayList<>(spanListField.getValue()));
         }
         return labelSpanList;
     }
@@ -319,21 +313,20 @@ public class RegexMatcher extends AbstractSingleInputOperator {
 
     /**
      * Replace labels with actual values in labelled regex
-     * @param regexMod
-     * @param labelSpanList
+     * @param cleanedRegex
+     * @param labelAttrValuesList
      * @return regex with actual span values
      */
-    private String getModifiedRegex(String regexMod, HashMap<Integer, HashSet<String>> labelSpanList) {
-        for(HashMap.Entry<Integer, HashSet<String>> entry : labelSpanList.entrySet()){
-            int id = entry.getKey();
+    private String getModifiedRegex(String cleanedRegex, Map<String, Set<String>> labelAttrValuesList) {
+        for(Map.Entry<String, Set<String>> entry : labelAttrValuesList.entrySet()){
             Object[] values = entry.getValue().toArray();
             String repVal = (String) values[0];
             for(int i = 1; i<values.length; i++)
                 repVal += "|"+ values[i];
             repVal = "("+repVal+")";
-            regexMod = regexMod.replaceAll("<"+id+">", repVal);
+            cleanedRegex = cleanedRegex.replaceAll("<"+entry.getKey()+">", repVal);
         }
-        return regexMod;
+        return cleanedRegex;
     }
 
 
