@@ -23,14 +23,21 @@
                   <option *ngFor="let agg of aggregationList" [value] = "agg">{{agg}}</option>
                 </select>
 
-                <div *ngIf="attribute === 'attributes' || attribute === 'attribute'">
-                    <select class="form-control" name="{{attribute}}+Selector" [(ngModel)]="selectedAttribute" (ngModelChange)="attributeSelected()">
+                <div *ngIf="attribute === 'attributes'">
+                    <select class="form-control" name="{{attribute}}+Selector" [(ngModel)]="selectedAttribute" (ngModelChange)="attributeAdded()">
                         <option selected hidden value="">Select attributes</option>
                         <option *ngFor="let attribute of attributeItems" [value] = "attribute">{{attribute}}</option>
                     </select>
                     <input class="form-control" id="{{attribute}}" placeholder="Enter attributes" [ngModel]="selectedAttributesList.toString()" (ngModelChange)="manuallyAdded($event)" name="{{attribute}}" #{{attribute}}="ngModel">
                 </div>
-
+                
+                <div *ngIf="attribute === 'attribute'">
+                    <select class="form-control" name="{{attribute}}+Selector" [(ngModel)]="data.properties.attributes[attribute]" (ngModelChange)="onFormChange(attribute)">
+                        <option selected hidden value="">Select attributes</option>
+                        <option *ngFor="let attribute of attributeItems" [value] = "attribute">{{attribute}}</option>
+                    </select>
+                    <input class="form-control" id="{{attribute}}" placeholder="Enter attributes" [ngModel]="data.properties.attributes[attribute]" (ngModelChange)="onFormChange(attribute)" name="{{attribute}}" #{{attribute}}="ngModel">
+                </div>
 
                 <select *ngIf="attribute === 'tableName'" class="form-control" id="{{attribute}}" [(ngModel)]="data.properties.attributes[attribute]" (ngModelChange)="getAttributesForTable($event)" name="{{attribute}}" #{{attribute}}="ngModel">
                     <option selected hidden value="">Select table</option>
