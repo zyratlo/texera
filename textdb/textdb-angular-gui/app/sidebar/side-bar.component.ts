@@ -38,8 +38,10 @@ export class SideBarComponent {
   attributeItems:Array<string> = [];
   tableNameItems:Array<string> = [];
   selectedAttributesList:Array<string> = [];
-  selectedAttribute:string = "";
+  selectedAttributeMulti:string = "";
+  selectedAttributeSingle:string = "";
   metadataList:Array<TableMetadata> = [];
+
 
   @ViewChild('MyModal')
   modal: ModalComponent;
@@ -70,9 +72,9 @@ export class SideBarComponent {
         }
 
         // initialize selected attributes
-        this.selectedAttribute = "";
+        this.selectedAttributeMulti = "";
+        this.selectedAttributeSingle = "";
 
-        // and load previously saved attributes and proper attributes for the selected table
         this.selectedAttributesList = data.operatorData.properties.attributes.attributes;
         this.getAttributesForTable(data.operatorData.properties.attributes.tableName);
       });
@@ -129,10 +131,15 @@ export class SideBarComponent {
     this.currentDataService.setAllOperatorData(jQuery('#the-flowchart').flowchart('getData'));
   }
 
-  attributeAdded () {
-    this.selectedAttributesList.push(this.selectedAttribute);
-    this.data.properties.attributes.attributes = this.selectedAttributesList;
-    this.onFormChange("attributes");
+  attributeAdded (type: string) {
+    if (type === "multi") {
+      this.selectedAttributesList.push(this.selectedAttributeMulti);
+      this.data.properties.attributes.attributes = this.selectedAttributesList;
+      this.onFormChange("attributes");
+    } else if (type === "single") {
+      this.data.properties.attributes.attribute = this.selectedAttributeSingle;
+      this.onFormChange("attribute");
+    }
   }
 
   manuallyAdded (event:string) {
