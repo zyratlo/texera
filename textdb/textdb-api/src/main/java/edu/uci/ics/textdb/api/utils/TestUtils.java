@@ -8,7 +8,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.uci.ics.textdb.api.constants.SchemaConstants;
 import edu.uci.ics.textdb.api.exception.TextDBException;
-import edu.uci.ics.textdb.api.span.Span;
 import edu.uci.ics.textdb.api.tuple.Tuple;
 import junit.framework.Assert;
 
@@ -75,6 +74,10 @@ public class TestUtils {
 
     /**
      * Compare attributes value of two tuples
+     * TODO: make this function insensitive to order
+     *       1) write attributeContains(List<Tuple>, Tuple, List<String>)
+     *       2) write attributeContainsAll(List<Tuple>, List<Tuple>, List<String>)
+     *       3) use two way attributeContainsAll in this attributeEquals
      * @param expectedResults
      * @param exactResults
      * @param attributeNames
