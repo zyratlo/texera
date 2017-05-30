@@ -75,8 +75,14 @@ export class SideBarComponent {
         this.selectedAttributeMulti = "";
         this.selectedAttributeSingle = "";
 
-        this.selectedAttributesList = data.operatorData.properties.attributes.attributes;
-        this.getAttributesForTable(data.operatorData.properties.attributes.tableName);
+        if (data.operatorData.properties.attributes.attributes) {
+          this.selectedAttributesList = data.operatorData.properties.attributes.attributes;
+        } else if (data.operatorData.properties.attributes.attribute) {
+          this.selectedAttributesList = [data.operatorData.properties.attributes.attribute]
+        }
+        if (data.operatorData.properties.attributes.tableName) {
+          this.getAttributesForTable(data.operatorData.properties.attributes.tableName);
+        }
       });
 
     currentDataService.checkPressed$.subscribe(
