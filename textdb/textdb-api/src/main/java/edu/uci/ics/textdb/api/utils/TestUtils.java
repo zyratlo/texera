@@ -74,21 +74,21 @@ public class TestUtils {
     }
 
     /**
-     * Compare to two tuples for given span list names
+     * Compare attributes value of two tuples
      * @param expectedResults
      * @param exactResults
-     * @param spanListNames
-     * @return true if all span values are equal otherwise false
+     * @param attributeNames
+     * @return True if two tuples have same values for given attribute, otherwise false
      */
-    public static boolean equals(List<Tuple> expectedResults, List<Tuple> exactResults, List<String> spanListNames) {
+    public static boolean attributeEquals(List<Tuple> expectedResults, List<Tuple> exactResults, List<String> attributeNames) {
         if(expectedResults.size()!=exactResults.size())
             return false;
 
         for(int i = 0; i<expectedResults.size(); i++) {
-            for (String spanListName : spanListNames) {
-                List<Span> expectedSpanList = (List<Span>) expectedResults.get(i).getField(spanListName).getValue();
-                List<Span> exactSpanList = (List<Span>) exactResults.get(i).getField(spanListName).getValue();
-                if (!(expectedSpanList.containsAll(exactSpanList) && exactSpanList.containsAll(expectedSpanList)))
+            for(String attribute : attributeNames) {
+                Object expectedValue = expectedResults.get(i).getField(attribute);
+                Object exactValue = exactResults.get(i).getField(attribute);
+                if (!(expectedValue.equals(exactValue) && exactValue.equals(expectedValue)))
                     return false;
             }
         }

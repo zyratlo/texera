@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import edu.uci.ics.textdb.api.constants.SchemaConstants;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -408,9 +407,9 @@ public class RegexMatcherTest {
         fields.add(spanField);
         expectedResults.add(new Tuple(spanSchema, fields.toArray(new IField[fields.size()])));
 
-        List<String> spanListNames = new ArrayList<String>();
-        spanListNames.add(RESULTS);
-        Assert.assertTrue(TestUtils.equals(expectedResults, exactResults, spanListNames));
+        List<String> attributeNames = new ArrayList<String>();
+        attributeNames.add(RESULTS);
+        Assert.assertTrue(TestUtils.attributeEquals(expectedResults, exactResults, attributeNames));
     }
 
     @Test
@@ -432,9 +431,9 @@ public class RegexMatcherTest {
         fields.add(spanField);
         expectedResults.add(new Tuple(spanSchema, fields.toArray(new IField[fields.size()])));
 
-        List<String> spanListNames = new ArrayList<String>();
-        spanListNames.add(RESULTS);
-        Assert.assertTrue(TestUtils.equals(expectedResults, exactResults, spanListNames));
+        List<String> attributeNames = new ArrayList<String>();
+        attributeNames.add(RESULTS);
+        Assert.assertTrue(TestUtils.attributeEquals(expectedResults, exactResults, attributeNames));
     }
 
     @Test
@@ -471,9 +470,10 @@ public class RegexMatcherTest {
         fields = new ArrayList<IField>(data.get(3).getFields());
         fields.add(spanField);
         expectedResults.add(new Tuple(spanSchema, fields.toArray(new IField[fields.size()])));
-        List<String> spanListNames = new ArrayList<String>();
-        spanListNames.add(RESULTS);
-        Assert.assertTrue(TestUtils.equals(expectedResults, exactResults, spanListNames));
+
+        List<String> attributeNames = new ArrayList<String>();
+        attributeNames.add(RESULTS);
+        Assert.assertTrue(TestUtils.attributeEquals(expectedResults, exactResults, attributeNames));
     }
 
     @Test
@@ -502,9 +502,10 @@ public class RegexMatcherTest {
         fields = new ArrayList<IField>(data.get(5).getFields());
         fields.add(spanField);
         expectedResults.add(new Tuple(spanSchema, fields.toArray(new IField[fields.size()])));
-        List<String> spanListNames = new ArrayList<String>();
-        spanListNames.add(RESULTS);
-        Assert.assertTrue(TestUtils.equals(expectedResults, exactResults, spanListNames));
+
+        List<String> attributeNames = new ArrayList<String>();
+        attributeNames.add(RESULTS);
+        Assert.assertTrue(TestUtils.attributeEquals(expectedResults, exactResults, attributeNames));
     }
 
     // @Test

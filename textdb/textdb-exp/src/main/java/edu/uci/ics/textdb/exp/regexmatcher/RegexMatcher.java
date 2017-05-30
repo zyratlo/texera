@@ -34,16 +34,21 @@ public class RegexMatcher extends AbstractSingleInputOperator {
     private RegexEngine regexEngine;
     private com.google.re2j.Pattern re2jPattern;
     private java.util.regex.Pattern javaPattern;
+
+    /**
+     * Regex pattern for extracting labels.
+     * Eg. Regex:- <drug> [^./</>] cure <disease>
+     *     For above regex, only 'drug' and 'disease' are treated as label
+     *     Skipping '/</>'
+     */
     private static final String labelSyntax = "<[^<>\\\\]*>";
     private Set<String> labelsList;
     private String cleanedRegex = "";
-
     private enum RegexType {
         NO_LABELS, LABELED_WITHOUT_QUALIFIER, LABELED_WITH_QUALIFIERS
     }
 
     private RegexType regexType;
-
     private Schema inputSchema;
 
     public RegexMatcher(RegexPredicate predicate) {
@@ -137,7 +142,7 @@ public class RegexMatcher extends AbstractSingleInputOperator {
      * @return tuple with matching regex pattern
      */
     private Tuple processLabelledRegex(Tuple inputTuple) {
-        Map<String, Set<String>> labelAttrValueList = fetchLabelledSpanListValues(inputTuple);
+        Map<String, Set<String>> labelAttrValueList = fetchAttributeValues(inputTuple);
         String regexWithVal = getModifiedRegex(this.cleanedRegex, labelAttrValueList);
         compileRegexPattern(regexWithVal);
         List<Span> matchingResults = findRegexMatch(inputTuple);
@@ -245,17 +250,30 @@ public class RegexMatcher extends AbstractSingleInputOperator {
      * @param inputTuple
      * @return map of label id and corresponding attribute values
      */
-    private Map<String, Set<String>> fetchLabelledSpanListValues(Tuple inputTuple) {
+    private Map<String, Set<String>> fetchAttributeValues(Tuple inputTuple) {
         Map<String, Set<String>> labelSpanList = new HashMap();
         for (String label : this.labelsList) {
             Set<String> values = new HashSet();
             ListField<Span> spanListField = inputTuple.getField(label);
             List<Span> spanList = spanListField.getValue();
             for (Span span : spanList) {
+                String attrValue = span.getValue();
+                // Replace special characters in the values (which might interfere with
+                // the RegexPattern) with their escape sequence
+                StringBuilder modifiedAttrValue = new StringBuilder();
+
+                for(int i = 0; i<attrValue.length(); i++) {
+                    if(!Character.isLetterOrDigit(attrValue.charAt(i))) {
+                        modifiedAttrValue.append("\\" + attrValue.charAt(i));
+                    } else {
+                        modifiedAttrValue.append(attrValue.charAt(i));
+                    }
+                }
+
                 if(this.predicate.isIgnoreCase())
-                    values.add(span.getValue().toLowerCase());
+                    values.add(modifiedAttrValue.toString().toLowerCase());
                 else
-                    values.add(span.getValue());
+                    values.add(modifiedAttrValue.toString());
             }
             labelSpanList.put(label, values);
         }
@@ -267,7 +285,7 @@ public class RegexMatcher extends AbstractSingleInputOperator {
      * @param inputTuple
      * @return map of label id and corresponding span
      */
-    private Map<String, List<Span>> fetchLabelledSpanList(Tuple inputTuple) {
+    private Map<String, List<Span>> fetchAttributeSpanList(Tuple inputTuple) {
         Map<String, List<Span>> labelSpanList = new HashMap();
         for (String label : this.labelsList) {
             ListField<Span> spanListField = inputTuple.getField(label);
