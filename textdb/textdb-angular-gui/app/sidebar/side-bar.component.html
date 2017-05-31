@@ -23,20 +23,26 @@
                   <option *ngFor="let agg of aggregationList" [value] = "agg">{{agg}}</option>
                 </select>
 
-                <div *ngIf="attribute === 'attributes' || attribute === 'attribute'">
-                    <select *ngIf="isSourceOperator()" class="form-control" name="{{attribute}}+Selector" [(ngModel)]="selectedAttribute" (ngModelChange)="attributeSelected()">
+                <div *ngIf="attribute === 'attributes'">
+                    <select class="form-control" name="{{attribute}}+Selector" [(ngModel)]="selectedAttributeMulti" (ngModelChange)="attributeAdded('multi')">
                         <option selected hidden value="">Select attributes</option>
                         <option *ngFor="let attribute of attributeItems" [value] = "attribute">{{attribute}}</option>
                     </select>
                     <input class="form-control" id="{{attribute}}" placeholder="Enter attributes" [ngModel]="selectedAttributesList.toString()" (ngModelChange)="manuallyAdded($event)" name="{{attribute}}" #{{attribute}}="ngModel">
                 </div>
-
                 <div *ngIf="attribute === 'dictionaryEntries'">
                     <!--TDOO: Build a selection list and input area for DictionaryEntries -->
                     <select class="form-control">
                         <option selected hidden value="">Select Dictionary</option>
                     </select>
                     <!--<input>-->
+                </div>
+                <div *ngIf="attribute === 'attribute'">
+                    <select class="form-control" name="{{attribute}}+Selector" [(ngModel)]="selectedAttributeSingle" (ngModelChange)="attributeAdded('single')">
+                        <option selected hidden value="">Select attributes</option>
+                        <option *ngFor="let attribute of attributeItems" [value] = "attribute">{{attribute}}</option>
+                    </select>
+                    <input class="form-control" id="{{attribute}}" placeholder="Enter attributes" [(ngModel)]="data.properties.attributes[attribute]" (ngModelChange)="onFormChange(attribute)" name="{{attribute}}" #{{attribute}}="ngModel">
                 </div>
 
                 <select *ngIf="attribute === 'tableName'" class="form-control" id="{{attribute}}" [(ngModel)]="data.properties.attributes[attribute]" (ngModelChange)="getAttributesForTable($event)" name="{{attribute}}" #{{attribute}}="ngModel">

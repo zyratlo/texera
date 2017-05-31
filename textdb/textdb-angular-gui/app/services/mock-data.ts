@@ -1,29 +1,29 @@
 import { Data } from './data';
 
 let keywordMatcher = {
-  top: 20,
-  left: 20,
-  properties: {
-    title: 'KeywordMatcher',
-    inputs: {
-      input_1: {
-        label: 'Input (:i)',
-      }
-    },
-    outputs: {
-      output_1: {
-        label: 'Output (:i)',
-      }
-    },
-    attributes: {
-      "operatorType": "KeywordMatcher",
-      "attributes": [],
-      "query": "keyword",
-      "luceneAnalyzer": "standard",
-      "matchingType": "phrase",
-      "spanListName": " "
+    top: 20,
+    left: 20,
+    properties: {
+        title: 'KeywordMatcher',
+        inputs: {
+            input_1: {
+                label: 'Input (:i)',
+            }
+        },
+        outputs: {
+            output_1: {
+                label: 'Output (:i)',
+            }
+        },
+        attributes: {
+            "operatorType": "KeywordMatcher",
+            "attributes": [],
+            "query": "keyword",
+            "luceneAnalyzer": "standard",
+            "matchingType": "phrase",
+            "spanListName": " "
+        }
     }
-  }
 };
 
 let regexMatcher = {
@@ -42,11 +42,11 @@ let regexMatcher = {
       }
     },
     attributes : {
-      "operatorType": "RegexMatcher",
-      "attributes": [],
-      "regex": "regex",
-      "regexIgnoreCase": false,
-      "spanListName": " "
+        "operatorType": "RegexMatcher",
+        "attributes": [],
+        "regex": "regex",
+        "regexIgnoreCase": false,
+        "spanListName": " "
     }
   }
 };
@@ -67,12 +67,12 @@ let dictionaryMatcher = {
       }
     },
     attributes :  {
-      "operatorType": "DictionaryMatcher",
-      "attributes": [],
-      "dictionaryEntries": ["entry1", "entry2"],
-      "luceneAnalyzer": "standard",
-      "matchingType": "phrase",
-      "spanListName": " "
+        "operatorType": "DictionaryMatcher",
+        "attributes": [],
+        "dictionaryEntries": ["entry1", "entry2"],
+        "luceneAnalyzer": "standard",
+        "matchingType": "phrase",
+        "spanListName": " "
     }
   }
 }
@@ -93,12 +93,12 @@ let fuzzyMatcher = {
       }
     },
     attributes : {
-      "operatorType": "FuzzyTokenMatcher",
-      "attributes": [],
-      "query": "token1 token2 token3",
-      "luceneAnalyzer": "standard",
-      "thresholdRatio": 0.8,
-      "spanListName": " ",
+        "operatorType": "FuzzyTokenMatcher",
+        "attributes": [],
+        "query": "token1 token2 token3",
+        "luceneAnalyzer": "standard",
+        "thresholdRatio": 0.8,
+        "spanListName": " ",
     }
   }
 }
@@ -119,10 +119,10 @@ let nlpEntity = {
       }
     },
     attributes : {
-      "operatorType": "NlpEntity",
-      "attributes": [],
-      "nlpEntityType": "location",
-      "spanListName": " "
+        "operatorType": "NlpEntity",
+        "attributes": [],
+        "nlpEntityType": "location",
+        "spanListName": " "
     }
   }
 }
@@ -143,9 +143,9 @@ let nlpSentiment = {
       }
     },
     attributes : {
-      "operatorType": "NlpSentiment",
-      "attributes": "inputAttr",
-      "resultAttribute": "resultAttr"
+        "operatorType": "NlpSentiment",
+        "attribute": "",
+        "resultAttribute": "resultAttr"
     }
   }
 }
@@ -166,10 +166,10 @@ let regexSplit = {
       }
     },
     attributes : {
-      "operatorType": "RegexSplit",
-      "splitAttribute": "attr1",
-      "splitRegex": "regex",
-      "splitType": "standalone"
+        "operatorType": "RegexSplit",
+        "splitAttribute": "attr1",
+        "splitRegex": "regex",
+        "splitType": "standalone"
     }
   }
 }
@@ -190,9 +190,9 @@ let sampler = {
       }
     },
     attributes : {
-      "operatorType": "Sampler",
-      "sampleSize": 10,
-      "sampleType": "firstk"
+        "operatorType": "Sampler",
+        "sampleSize": 10,
+        "sampleType": "firstk"
     }
   }
 }
@@ -213,8 +213,8 @@ let projection = {
       }
     },
     attributes : {
-      "operatorType": "Projection",
-      "attributes": []
+        "operatorType": "Projection",
+        "attributes": []
     }
   }
 }
@@ -235,8 +235,8 @@ let scanSource = {
       }
     },
     attributes : {
-      "operatorType": "ScanSource",
-      "tableName": ""
+        "operatorType": "ScanSource",
+        "tableName": ""
     }
   }
 }
@@ -257,13 +257,13 @@ let keywordSource = {
       }
     },
     attributes : {
-      "operatorType": "KeywordSource",
-      "tableName": "",
-      "attributes": [],
-      "query": "keyword",
-      "luceneAnalyzer": "standard",
-      "matchingType": "phrase",
-      "spanListName": " "
+        "operatorType": "KeywordSource",
+        "tableName": "",
+        "attributes": [],
+        "query": "keyword",
+        "luceneAnalyzer": "standard",
+        "matchingType": "phrase",
+        "spanListName": " "
     }
   }
 }
@@ -285,13 +285,13 @@ let dictionarySource = {
       }
     },
     attributes : {
-      "operatorType": "DictionarySource",
-      "tableName": "",
-      "attributes": [],
-      "dictionaryEntries": ["entry1", "entry2"],
-      "luceneAnalyzer": "standard",
-      "matchingType": "phrase",
-      "spanListName": " "
+        "operatorType": "DictionarySource",
+        "tableName": "",
+        "attributes": [],
+        "dictionaryEntries": ["entry1", "entry2"],
+        "luceneAnalyzer": "standard",
+        "matchingType": "phrase",
+        "spanListName": " "
     }
   }
 }
@@ -312,14 +312,14 @@ let regexSource = {
       }
     },
     attributes : {
-      "operatorType": "RegexSource",
-      "tableName": "",
-      "attributes": [],
-      "regex": "regex",
-      "regexIgnoreCase": false,
-      "regexUseIndex": true,
-      "spanListName": " "
-    }
+        "operatorType": "RegexSource",
+        "tableName": "",
+        "attributes": [],
+        "regex": "regex",
+        "regexIgnoreCase": false,
+        "regexUseIndex": true,
+        "spanListName": " "
+    } 
   }
 }
 
@@ -339,13 +339,13 @@ let fuzzyTokenSource = {
       }
     },
     attributes : {
-      "operatorType": "FuzzyTokenSource",
-      "tableName": "",
-      "attributes": [],
-      "query": "token1 token2 token3",
-      "luceneAnalyzer": "standard",
-      "thresholdRatio": 0.8,
-      "spanListName": " ",
+        "operatorType": "FuzzyTokenSource",
+        "tableName": "",
+        "attributes": [],
+        "query": "token1 token2 token3",
+        "luceneAnalyzer": "standard",
+        "thresholdRatio": 0.8,
+        "spanListName": " ",
     }
   }
 }
@@ -366,9 +366,9 @@ let wordCountSource = {
       }
     },
     attributes : {
-      "operatorType": "WordCountIndexSource",
-      "tableName": "",
-      "attributes": "attr1",
+        "operatorType": "WordCountIndexSource",
+        "tableName": "",
+        "attribute": "",
     }
   }
 }
@@ -389,9 +389,33 @@ let wordCount = {
       }
     },
     attributes : {
-      "operatorType": "WordCount",
-      "attributes": "attr1",
-      "luceneAnalyzer": "standard",
+        "operatorType": "WordCount",
+        "attribute": "",
+	      "luceneAnalyzer": "standard",
+    }
+  }
+}
+
+let comparison = {
+  top : 20,
+  left : 20,
+  properties : {
+    title : 'Comparison',
+    inputs : {
+      input_1 : {
+        label : "Input (:i)",
+      }
+    },
+    outputs : {
+      output_1 : {
+        label : "Output (:i)",
+      }
+    },
+    attributes : {
+        "operatorType": "Comparison",
+        "attribute": "",
+        "comparisonType": "=",
+	      "compareTo": "",
     }
   }
 }
@@ -415,10 +439,10 @@ let characterDistanceJoin = {
       }
     },
     attributes : {
-      "operatorType": "JoinDistance",
-      "innerAttribute": "attr1",
-      "outerAttribute": "attr1",
-      "spanDistance": 100
+        "operatorType": "JoinDistance",
+        "innerAttribute": "attr1",
+        "outerAttribute": "attr1",
+        "spanDistance": 100
     }
   }
 }
@@ -442,10 +466,10 @@ let similarityJoin = {
       }
     },
     attributes : {
-      "operatorType": "SimilarityJoin",
-      "innerAttribute": "attr1",
-      "outerAttribute": "attr1",
-      "similarityThreshold": 0.8
+        "operatorType": "SimilarityJoin",
+        "innerAttribute": "attr1",
+        "outerAttribute": "attr1",
+        "similarityThreshold": 0.8
     }
   }
 }
@@ -466,9 +490,9 @@ let result = {
       }
     },
     attributes : {
-      "operatorType": "ViewResults",
-      "limit": 10,
-      "offset": 0,
+        "operatorType": "ViewResults",
+        "limit": 10,
+        "offset": 0,
     }
   }
 }
@@ -489,9 +513,9 @@ let excelSink = {
       }
     },
     attributes : {
-      "operatorType": "ExcelSink",
-      "limit": 10,
-      "offset": 0,
+        "operatorType": "ExcelSink",
+        "limit": 10,
+        "offset": 0,
     }
   }
 }
@@ -529,5 +553,6 @@ export const DEFAULT_MATCHERS: Data[] = [
   {id: 17, jsonData: wordCount},
   {id: 19, jsonData: result},
   {id: 20, jsonData: excelSink},
-  {id: 21, jsonData: uploadDictionary}
+  {id: 21, jsonData: comparison},
+  {id: 22, jsonData: uploadDictionary}
 ];

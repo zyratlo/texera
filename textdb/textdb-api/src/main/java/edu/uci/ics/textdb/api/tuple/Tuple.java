@@ -6,7 +6,10 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import edu.uci.ics.textdb.api.constants.JsonConstants;
 import edu.uci.ics.textdb.api.field.IField;
@@ -96,6 +99,14 @@ public class Tuple {
 
     public String toString() {
         return "Tuple [schema=" + schema + ", fields=" + fields + "]";
+    }
+    
+    public ObjectNode getReadableJson() {
+        ObjectNode objectNode = new ObjectMapper().createObjectNode();
+        for (String attrName : this.schema.getAttributeNames()) {
+            objectNode.set(attrName, JsonNodeFactory.instance.pojoNode(this.getField(attrName).getValue()));
+        }
+        return objectNode;
     }
     
 }

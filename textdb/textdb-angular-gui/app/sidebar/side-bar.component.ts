@@ -28,7 +28,7 @@ export class SideBarComponent {
 
   hiddenList: string[] = ["operatorType", "luceneAnalyzer", "matchingType", "spanListName"];
 
-  selectorList: string[] = ["matchingType", "nlpEntityType", "splitType", "sampleType", "compareNumber", "aggregationType", "attributes", "tableName", "attribute"].concat(this.hiddenList);
+  selectorList: string[] = ["matchingType", "nlpEntityType", "splitType", "sampleType", "comparisonType", "aggregationType", "attributes", "tableName", "attribute"].concat(this.hiddenList);
 
   matcherList: string[] = ["conjunction", "phrase", "substring"];
   nlpEntityList: string[] = ["noun", "verb", "adjective", "adverb", "ne_all", "number", "location", "person", "organization", "money", "percent", "date", "time"];
@@ -41,8 +41,10 @@ export class SideBarComponent {
   attributeItems:Array<string> = [];
   tableNameItems:Array<string> = [];
   selectedAttributesList:Array<string> = [];
-  selectedAttribute:string = "";
+  selectedAttributeMulti:string = "";
+  selectedAttributeSingle:string = "";
   metadataList:Array<TableMetadata> = [];
+
 
   @ViewChild('MyModal')
   modal: ModalComponent;
@@ -77,11 +79,17 @@ export class SideBarComponent {
         }
 
         // initialize selected attributes
-        this.selectedAttribute = "";
+        this.selectedAttributeMulti = "";
+        this.selectedAttributeSingle = "";
 
-        // and load previously saved attributes and proper attributes for the selected table
-        this.selectedAttributesList = data.operatorData.properties.attributes.attributes;
-        this.getAttributesForTable(data.operatorData.properties.attributes.tableName);
+        if (data.operatorData.properties.attributes.attributes) {
+          this.selectedAttributesList = data.operatorData.properties.attributes.attributes;
+        } else if (data.operatorData.properties.attributes.attribute) {
+          this.selectedAttributesList = [data.operatorData.properties.attributes.attribute]
+        }
+        if (data.operatorData.properties.attributes.tableName) {
+          this.getAttributesForTable(data.operatorData.properties.attributes.tableName);
+        }
       });
 
     currentDataService.checkPressed$.subscribe(
@@ -137,10 +145,15 @@ export class SideBarComponent {
     this.currentDataService.setAllOperatorData(jQuery('#the-flowchart').flowchart('getData'));
   }
 
-  attributeSelected () {
-    this.selectedAttributesList.push(this.selectedAttribute);
-    this.data.properties.attributes.attributes = this.selectedAttributesList;
-    this.onFormChange("attributes");
+  attributeAdded (type: string) {
+    if (type === "multi") {
+      this.selectedAttributesList.push(this.selectedAttributeMulti);
+      this.data.properties.attributes.attributes = this.selectedAttributesList;
+      this.onFormChange("attributes");
+    } else if (type === "single") {
+      this.data.properties.attributes.attribute = this.selectedAttributeSingle;
+      this.onFormChange("attribute");
+    }
   }
 
   manuallyAdded (event:string) {
@@ -174,13 +187,5 @@ export class SideBarComponent {
     });
 
     this.onFormChange("tableName");
-  }
-
-  /* TODO:: for now, only source operators support attribute autocomplete.
-  * Later, to enable autocomplete for the rest operators,
-  * remove this function as well as *ngIf in side-bar.component.html
-  */
-  isSourceOperator(): boolean {
-    return this.operatorTitle.toLowerCase().search(".*source*") === 0;
   }
 }
