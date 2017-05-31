@@ -126,14 +126,14 @@ public class NlpSplitOperator implements IOperator {
             currentTuple = inputOperator.getNextTuple();
             if (currentTuple == null) return null;
             outputFields.addAll(currentTuple.getFields());
-            outputFields.add(new ListField<Span>(getSentenceList(currentTuple)));
+            outputFields.add(new ListField<Span>(computeSentenceList(currentTuple)));
         }
         
         else if (predicate.getOutputType() == NLPOutputType.ONE_TO_MANY) {
             if(currentSentenceList.isEmpty()) {
                 currentTuple = inputOperator.getNextTuple();
                 if (currentTuple == null) return null;
-                currentSentenceList = getSentenceList(currentTuple);
+                currentSentenceList = computeSentenceList(currentTuple);
             }
             
             //Add new ID for each new tuple created
@@ -151,21 +151,19 @@ public class NlpSplitOperator implements IOperator {
         }
         
         return new Tuple(outputSchema, outputFields);
-        
     }
     
     
-    private List<Span> getSentenceList(Tuple inputTuple) {
-        
+    private List<Span> computeSentenceList(Tuple inputTuple) {
         String inputText = inputTuple.<IField>getField(predicate.getInputAttributeName()).getValue().toString();
         Reader reader = new StringReader(inputText);
-        DocumentPreprocessor dp = new DocumentPreprocessor(reader);
+        DocumentPreprocessor documentPreprocessor = new DocumentPreprocessor(reader);
         List<Span> sentenceList = new ArrayList<Span>();
         
         int start = 0; int end = 0; 
         String key=PropertyNameConstants.NLP_SPLIT_KEY;
         String attributeName = predicate.getInputAttributeName();
-        for (List<HasWord> sentence : dp) {
+        for (List<HasWord> sentence : documentPreprocessor) {
             String sentenceText = Sentence.listToString(sentence);
             //Make span
             end = start + sentenceText.length(); 
