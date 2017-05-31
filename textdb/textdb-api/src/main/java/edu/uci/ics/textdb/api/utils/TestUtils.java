@@ -1,6 +1,7 @@
 package edu.uci.ics.textdb.api.utils;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -86,15 +87,17 @@ public class TestUtils {
         if(exactResults.size() == 0)
             return true;
         // Remove all unwanted attributes from expectedResults
-        for(String attrName : expectedResults.get(0).getSchema().getAttributeNames()) {
-            if(!attributeNames.contains(attrName))
-                expectedResults = Utils.removeFields(expectedResults, attrName);
-        }
+        List<String> expectedResultAttrs = new ArrayList<>(expectedResults.get(0).getSchema().getAttributeNames());
+        expectedResultAttrs.removeAll(attributeNames);
+        String[] expectedResultsArr = expectedResultAttrs.toArray(new String[expectedResultAttrs.size()]);
+        expectedResults = Utils.removeFields(expectedResults, expectedResultsArr);
+
         // Remove all unwanted attributes from exactResults
-        for(String attrName : exactResults.get(0).getSchema().getAttributeNames()) {
-            if(!attributeNames.contains(attrName))
-                exactResults = Utils.removeFields(exactResults, attrName);
-        }
+        List<String> exactResultAttrs = new ArrayList<>(exactResults.get(0).getSchema().getAttributeNames());
+        exactResultAttrs.removeAll(attributeNames);
+        String[] exactResultsArr = exactResultAttrs.toArray(new String[exactResultAttrs.size()]);
+        exactResults = Utils.removeFields(exactResults, exactResultsArr);
+
         // 2-way comparision between expectedResults and exactResults
         return expectedResults.containsAll(exactResults) && exactResults.containsAll(expectedResults);
     }
