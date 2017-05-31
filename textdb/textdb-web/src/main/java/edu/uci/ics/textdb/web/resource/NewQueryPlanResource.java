@@ -1,7 +1,6 @@
 package edu.uci.ics.textdb.web.resource;
 
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.List;
 
 import javax.ws.rs.Consumes;
@@ -19,7 +18,6 @@ import edu.uci.ics.textdb.api.engine.Engine;
 import edu.uci.ics.textdb.api.engine.Plan;
 import edu.uci.ics.textdb.api.tuple.Tuple;
 import edu.uci.ics.textdb.exp.plangen.LogicalPlan;
-import edu.uci.ics.textdb.exp.sink.excel.ExcelSink;
 import edu.uci.ics.textdb.exp.sink.tuple.TupleSink;
 import edu.uci.ics.textdb.web.TextdbWebException;
 import edu.uci.ics.textdb.web.response.TextdbWebResponse;
@@ -63,24 +61,6 @@ public class NewQueryPlanResource {
                     arrayNode.add(tuple.getReadableJson());
                 }
                 return new TextdbWebResponse(0, new ObjectMapper().writeValueAsString(arrayNode));
-            } else if (sink instanceof ExcelSink) {
-                ExcelSink excelSink = (ExcelSink) sink;
-                excelSink.open();
-                List<Tuple> results = excelSink.collectAllTuples();
-                excelSink.close();
-                
-                ArrayNode arrayNode = new ObjectMapper().createArrayNode();
-                for (Tuple tuple : results) {
-                    arrayNode.add(tuple.getReadableJson());
-                }
-                
-                ObjectNode resultJson = new ObjectMapper().createObjectNode();
-                String excelFilePath = Paths.get(excelSink.getFilePath()).getFileName().toString();
-                
-                resultJson.put("timeStamp", excelFilePath.substring(0, excelFilePath.length()-".xlsx".length()));
-                resultJson.set("results", arrayNode);
-                
-                return new TextdbWebResponse(0, new ObjectMapper().writeValueAsString(resultJson));
             } else {
                 // execute the plan and return success message
                 Engine.getEngine().evaluate(plan);
