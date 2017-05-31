@@ -178,7 +178,7 @@ let nlpSplit = {
   top : 20,
   left : 20,
   properties : {
-    title : 'NlpSplit',
+    title : 'Nlp Sentence Split',
     inputs : {
       input_1 : {
         label : "Input (:i)",
