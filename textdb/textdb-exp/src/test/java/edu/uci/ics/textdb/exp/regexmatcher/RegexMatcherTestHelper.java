@@ -17,7 +17,8 @@ import edu.uci.ics.textdb.storage.constants.LuceneAnalyzerConstants;
 
 /**
  * @author zuozhi
- * @author shuying 
+ * @author shuying
+ * @author Yashaswini Amaresh
  * 
  * Helper class to quickly create unit test
  */

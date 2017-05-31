@@ -15,6 +15,7 @@ import junit.framework.Assert;
  * @author sandeepreddy602
  * @author zuozhi
  * @author rajeshyarlagadda
+ * @author Bhushan Pagariya (bhushanpagariya)
  */
 public class TestUtils {
 
@@ -73,11 +74,7 @@ public class TestUtils {
     }
 
     /**
-     * Compare attributes value of two tuples
-     * TODO: make this function insensitive to order
-     *       1) write attributeContains(List<Tuple>, Tuple, List<String>)
-     *       2) write attributeContainsAll(List<Tuple>, List<Tuple>, List<String>)
-     *       3) use two way attributeContainsAll in this attributeEquals
+     * Compare two tuple lists for given attribute values
      * @param expectedResults
      * @param exactResults
      * @param attributeNames
@@ -86,16 +83,20 @@ public class TestUtils {
     public static boolean attributeEquals(List<Tuple> expectedResults, List<Tuple> exactResults, List<String> attributeNames) {
         if(expectedResults.size()!=exactResults.size())
             return false;
-
-        for(int i = 0; i<expectedResults.size(); i++) {
-            for(String attribute : attributeNames) {
-                Object expectedValue = expectedResults.get(i).getField(attribute);
-                Object exactValue = exactResults.get(i).getField(attribute);
-                if (!(expectedValue.equals(exactValue) && exactValue.equals(expectedValue)))
-                    return false;
-            }
+        if(exactResults.size() == 0)
+            return true;
+        // Remove all unwanted attributes from expectedResults
+        for(String attrName : expectedResults.get(0).getSchema().getAttributeNames()) {
+            if(!attributeNames.contains(attrName))
+                expectedResults = Utils.removeFields(expectedResults, attrName);
         }
-        return true;
+        // Remove all unwanted attributes from exactResults
+        for(String attrName : exactResults.get(0).getSchema().getAttributeNames()) {
+            if(!attributeNames.contains(attrName))
+                exactResults = Utils.removeFields(exactResults, attrName);
+        }
+        // 2-way comparision between expectedResults and exactResults
+        return expectedResults.containsAll(exactResults) && exactResults.containsAll(expectedResults);
     }
 
     public static JsonNode testJsonSerialization(Object object) {

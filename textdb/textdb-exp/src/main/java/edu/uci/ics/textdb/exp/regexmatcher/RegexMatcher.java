@@ -21,6 +21,10 @@ import edu.uci.ics.textdb.exp.utils.DataflowUtils;
  * 
  * @author Shuying Lai (laisycs)
  * @author Zuozhi Wang (zuozhiw)
+ * @author Bhushan Pagariya (bhushanpagariya)
+ * @author Harshini Shah
+ * @author Yashaswini Amaresh
+
  */
 public class RegexMatcher extends AbstractSingleInputOperator {
     
