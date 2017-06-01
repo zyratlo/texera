@@ -1,7 +1,5 @@
 package edu.uci.ics.textdb.exp.source.file;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -10,8 +8,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.itextpdf.text.*;
-import com.itextpdf.text.pdf.PdfWriter;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -316,12 +312,17 @@ public class FileSourceOperatorTest {
         new FileSourceOperator(predicate);
     }
 
+    /*
+     * Test FileSourceOperator with a directory, 
+     * recursive set to true, depth set to 10, using default extensions.
+     * 
+     * expected result: 4 tuples should be returned.
+     */
     @Test
-    public void shouldGenerate4tuples() throws Exception {
+    public void test11() throws Exception {
         String attrName = "content";
-        Schema schema = new Schema(new Attribute(attrName, AttributeType.TEXT));
 
-        FileSourcePredicate predicate = new FileSourcePredicate(fileSourcePath.toString(), attrName, true, 10, FileSourcePredicate.defaultAllowedExtensions);
+        FileSourcePredicate predicate = new FileSourcePredicate(fileSourcePath.toString(), attrName, true, 10, null);
         FileSourceOperator fileSource = new FileSourceOperator(predicate);
 
         Tuple tuple;

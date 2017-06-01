@@ -2,6 +2,7 @@ package edu.uci.ics.textdb.exp.source.file;
 
 import edu.uci.ics.textdb.api.constants.SchemaConstants;
 import edu.uci.ics.textdb.api.dataflow.ISourceOperator;
+import edu.uci.ics.textdb.api.exception.DataFlowException;
 import edu.uci.ics.textdb.api.exception.TextDBException;
 import edu.uci.ics.textdb.api.field.IDField;
 import edu.uci.ics.textdb.api.field.TextField;
@@ -104,23 +105,21 @@ public class FileSourceOperator implements ISourceOperator {
                 String extension = getExtension(path);
                 String content;
                 if (extension.equals("pdf")) {
-                    content = TextExtractor.extractPDFFile(path);
+                    content = FileExtractorUtils.extractPDFFile(path);
                 } else if (extension.equals("ppt") || extension.equals("pptx")) {
-                    content = TextExtractor.extractPPTFile(path);
+                    content = FileExtractorUtils.extractPPTFile(path);
                 } else {
-                    //common file
-                    content = TextExtractor.extractCommonFile(path);
+                    content = FileExtractorUtils.extractPlainTextFile(path);
                 }
-                // and assign a random ID to it
-                Tuple tuple = null;
-                if (content != null) {
-                    tuple = new Tuple(outputSchema, IDField.newRandomID(), new TextField(content));
-                }
+                Tuple tuple = new Tuple(outputSchema, IDField.newRandomID(), new TextField(content));
                 cursor++;
                 return tuple;
-            } catch (Exception exp) {
-                exp.printStackTrace();
+            } catch (DataFlowException e) {
+                // ignore error and move on
+                // TODO: use log4j
+                System.out.println("FileSourceOperator: file read error, file is ignored. " + e.getMessage());
             }
+
         }
         return null;
     }
