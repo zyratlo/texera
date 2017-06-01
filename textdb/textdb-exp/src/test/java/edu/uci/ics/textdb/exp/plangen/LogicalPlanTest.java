@@ -93,13 +93,17 @@ public class LogicalPlanTest {
     public static TupleSinkPredicate tupleSinkPredicate = new TupleSinkPredicate();
     public static String TUPLE_SINK_ID = "tuple sink";
     
-    static {
+    public static void setDefaultID() {
         keywordSourcePredicate.setID(KEYWORD_SOURCE_ID);
         regexPredicate.setID(REGEX_ID);
         fuzzyTokenPredicate.setID(FUZZY_TOKEN_ID);
         nlpEntityPredicate.setID(NLP_ENTITY_ID);
         joinDistancePredicate.setID(JOIN_DISTANCE_ID);
         tupleSinkPredicate.setID(TUPLE_SINK_ID);
+    }
+    
+    static {
+        setDefaultID();
     }
 
     /*
@@ -109,6 +113,7 @@ public class LogicalPlanTest {
      *
      */
     public static LogicalPlan getLogicalPlan1() throws RuntimeException {
+        setDefaultID();
         LogicalPlan logicalPlan = new LogicalPlan();
 
         logicalPlan.addOperator(keywordSourcePredicate);
@@ -128,6 +133,7 @@ public class LogicalPlanTest {
      *
      */
     public static LogicalPlan getLogicalPlan2() throws RuntimeException {
+        setDefaultID();
         LogicalPlan logicalPlan = new LogicalPlan();
 
         logicalPlan.addOperator(keywordSourcePredicate);
@@ -155,6 +161,7 @@ public class LogicalPlanTest {
      *
      */
     public static LogicalPlan getLogicalPlan3() throws RuntimeException {
+        setDefaultID();
         LogicalPlan logicalPlan = new LogicalPlan();
         
         String JOIN_DISTANCE_ID_2 = "join distance 2";
