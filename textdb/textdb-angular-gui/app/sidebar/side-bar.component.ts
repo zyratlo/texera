@@ -3,6 +3,7 @@ import {Component, ViewChild, OnInit} from '@angular/core';
 import { CurrentDataService } from '../services/current-data-service';
 import { ModalComponent } from 'ng2-bs3-modal/ng2-bs3-modal';
 import { TableMetadata } from "../services/table-metadata";
+import {log} from "util";
 
 declare var jQuery: any;
 declare var Backbone: any;
@@ -42,7 +43,9 @@ export class SideBarComponent {
   selectedAttributeSingle:string = "";
   metadataList:Array<TableMetadata> = [];
 
+  dictionaries: any;
   dictionaryEntries:Array<string> = [];
+  dictionaryContent: Array<string> = [];
 
 
   @ViewChild('MyModal')
@@ -124,7 +127,20 @@ export class SideBarComponent {
 
     currentDataService.dictionaryEntries$.subscribe(
       data => {
-        this.dictionaryEntries = data;
+        this.dictionaries = data;
+        for (const key of Object.keys(data)){
+          this.dictionaryEntries.push(key);
+        }
+      }
+    );
+
+    currentDataService.dictionaryContent$.subscribe(
+      data => {
+        for(let entry of data){
+          this.dictionaryContent.push(entry.trim());
+        }
+        this.data.properties.attributes.dictionaryEntries = this.dictionaryContent;
+        this.onFormChange("dictionary");
       }
     );
 
@@ -196,21 +212,16 @@ export class SideBarComponent {
   }
 
   addDictionary(event: string) {
-    // Need to be fixed
-    this.data.properties.attributes.attribute = this.dictionaryEntries;
-    this.onFormChange("dictionaryEntries");
+    this.currentDataService.getDictionaryContent(this.dictionaries[event]);
   }
 
   dictionaryManuallyAdded(event: string) {
-    // Need to be fixed
     if (event.length === 0) {
-      // removed all dictionaries
-      this.dictionaryEntries = [];
+      this.dictionaryContent = [];
     } else {
-      this.dictionaryEntries = event.split(",");
+      this.dictionaryContent = event.split(",");
     }
-
-    this.data.properties.attributes.attributes = this.dictionaryEntries;
-    this.onFormChange("dictionaryEntries");
+    this.data.properties.attributes.dictionaryEntries = this.dictionaryContent;
+    this.onFormChange("dictionary");
   }
 }

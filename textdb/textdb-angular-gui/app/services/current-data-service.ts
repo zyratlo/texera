@@ -14,7 +14,8 @@ declare var jQuery: any;
 const textdbUrl = 'http://localhost:8080/api/newqueryplan/execute';
 const metadataUrl = 'http://localhost:8080/api/resources/metadata';
 const uploadDictionaryUrl = "http://localhost:8080/api/upload/dictionary";
-const getDictionariesUrl = "http://localhost:8080/api/upload/dictionaries";
+const getDictionariesUrl = "http://localhost:8080/api/resources/dictionaries";
+const getDictionaryContentUrl = "http://localhost:8080/api/resources/dictionary/?id=";
 
 const defaultData = {
     top: 20,
@@ -42,6 +43,9 @@ export class CurrentDataService {
 
     private dictionaryEntries = new Subject<any>();
     dictionaryEntries$ = this.dictionaryEntries.asObservable();
+
+    private dictionaryContent = new Subject<any>();
+    dictionaryContent$ = this.dictionaryContent.asObservable();
 
     constructor(private http: Http) { }
 
@@ -146,7 +150,7 @@ export class CurrentDataService {
                 alert('Error occurred while uploading ' + file.name);
                 console.log('Error occurred while uploading ' + file.name + '\nError message: ' + err);
             }
-          )
+          );
     }
 
     getDictionaries(): void {
@@ -154,13 +158,23 @@ export class CurrentDataService {
         this.http.get(getDictionariesUrl, {headers: headers})
             .subscribe(
                 data => {
-                    let result = (JSON.parse(data.json().message));
-                    let dictionaries: Array<string> = [];
-                    result.forEach((x, y) =>
-                        dictionaries.push(x.toString())
-                    );
-                    this.dictionaryEntries.next(dictionaries);
-                    console.log(result);
+                    let result = JSON.parse(data.json().message);
+                    this.dictionaryEntries.next(result);
+                },
+                err => {
+                    console.log("Error at getDictionaries() in current-data-service.ts \n Error: "+err);
+                }
+            );
+    }
+
+    getDictionaryContent(id: string): void {
+        let headers = new Headers({ 'Content-Type': 'application/json' });
+        this.http.get(getDictionaryContentUrl+id, {headers: headers})
+            .subscribe(
+                data => {
+                    let result = (data.json().message).split(",");
+
+                    this.dictionaryContent.next(result);
                 },
                 err => {
                     console.log("Error at getDictionaries() in current-data-service.ts \n Error: "+err);
