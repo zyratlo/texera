@@ -14,7 +14,7 @@ declare var jQuery: any;
 const textdbUrl = 'http://localhost:8080/api/newqueryplan/execute';
 const metadataUrl = 'http://localhost:8080/api/resources/metadata';
 const uploadDictionaryUrl = "http://localhost:8080/api/upload/dictionary";
-const getDictionariesUrl = "http://localhost:8080/api/get/dictionaries";
+const getDictionariesUrl = "http://localhost:8080/api/upload/dictionaries";
 
 const defaultData = {
     top: 20,
