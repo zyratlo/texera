@@ -53,7 +53,7 @@ public class FileSourcePptPdfTest {
     public void extractPPTFile() throws Exception {
         Path pdfFile = Paths.get("./index/test_tables/filesource/specialfiles/test.ppt");
         String file = FileExtractorUtils.extractPPTFile(pdfFile);
-        assertTrue(file == null);
+        assertTrue(file.isEmpty());
     }
 
     private static void createPDF(String path) throws Exception {
