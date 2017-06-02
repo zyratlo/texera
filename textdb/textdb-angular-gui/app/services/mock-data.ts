@@ -288,7 +288,7 @@ let dictionarySource = {
         "operatorType": "DictionarySource",
         "tableName": "",
         "attributes": [],
-        "dictionaryEntries": ["entry1", "entry2"],
+        "dictionaryEntries": [],
         "luceneAnalyzer": "standard",
         "matchingType": "phrase",
         "spanListName": " "

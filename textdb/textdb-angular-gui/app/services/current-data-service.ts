@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
 import { Subject }    from 'rxjs/Subject';
-import {Response, Http, RequestOptions} from '@angular/http';
+import { Response, Http, RequestOptions } from '@angular/http';
 import { Headers } from '@angular/http';
 
 import { Data } from './data';
-import {TableMetadata} from "./table-metadata";
+import { TableMetadata } from "./table-metadata";
 import { MockDataService } from "./mock-data-service";
 import any = jasmine.any;
 import {Observable} from "rxjs";
@@ -14,6 +14,7 @@ declare var jQuery: any;
 const textdbUrl = 'http://localhost:8080/api/newqueryplan/execute';
 const metadataUrl = 'http://localhost:8080/api/resources/metadata';
 const uploadDictionaryUrl = "http://localhost:8080/api/upload/dictionary";
+const getDictionariesUrl = "http://localhost:8080/api/get/dictionaries";
 
 const defaultData = {
     top: 20,
@@ -39,6 +40,9 @@ export class CurrentDataService {
     private metadataRetrieved = new Subject<any>();
     metadataRetrieved$ = this.metadataRetrieved.asObservable();
 
+    private dictionaryEntries = new Subject<any>();
+    dictionaryEntries$ = this.dictionaryEntries.asObservable();
+
     constructor(private http: Http) { }
 
     setAllOperatorData(operatorData : any): void {
@@ -60,7 +64,7 @@ export class CurrentDataService {
         let textdbJson = {operators: {}, links: {}};
         var operators = [];
         var links = [];
-        
+
         var listAttributes : string[] = ["attributes", "dictionaryEntries"]
 
         for (var operatorIndex in this.allOperatorData.jsonData.operators) {
@@ -143,5 +147,24 @@ export class CurrentDataService {
                 console.log('Error occurred while uploading ' + file.name + '\nError message: ' + err);
             }
           )
+    }
+
+    getDictionaries(): void {
+        let headers = new Headers({ 'Content-Type': 'application/json' });
+        this.http.get(getDictionariesUrl, {headers: headers})
+            .subscribe(
+                data => {
+                    let result = (JSON.parse(data.json().message));
+                    let dictionaries: Array<string> = [];
+                    result.forEach((x, y) =>
+                        dictionaries.push(x.toString())
+                    );
+                    this.dictionaryEntries.next(dictionaries);
+                    console.log(result);
+                },
+                err => {
+                    console.log("Error at getDictionaries() in current-data-service.ts \n Error: "+err);
+                }
+            );
     }
 }

@@ -30,13 +30,15 @@
                     </select>
                     <input class="form-control" id="{{attribute}}" placeholder="Enter attributes" [ngModel]="selectedAttributesList.toString()" (ngModelChange)="manuallyAdded($event)" name="{{attribute}}" #{{attribute}}="ngModel">
                 </div>
+
                 <div *ngIf="attribute === 'dictionaryEntries'">
-                    <!--TDOO: Build a selection list and input area for DictionaryEntries -->
-                    <select class="form-control">
+                    <select class="form-control" id="{{attribute}}" [(ngModel)]="data.properties.attributes[attribute]" (ngModelChange)="addDictionary($event)" name="{{attribute}}" #{{attribute}}="ngModel">
                         <option selected hidden value="">Select Dictionary</option>
+                        <option *ngFor="let dictionary of dictionaryEntries" [value] = "dictionary">{{dictionary}}</option>
                     </select>
-                    <!--<input>-->
+                    <input class="form-control" id="{{attribute}}" placeholder="Enter dictionary entries" [(ngModel)]="data.properties.attributes[attribute]" (ngModelChange)="dictionaryManuallyAdded($event)" name="{{attribute}}" #{{attribute}}="ngModel">
                 </div>
+
                 <div *ngIf="attribute === 'attribute'">
                     <select class="form-control" name="{{attribute}}+Selector" [(ngModel)]="selectedAttributeSingle" (ngModelChange)="attributeAdded('single')">
                         <option selected hidden value="">Select attributes</option>

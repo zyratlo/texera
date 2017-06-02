@@ -1,11 +1,8 @@
 import {Component, ViewChild, OnInit} from '@angular/core';
-import { FileUploader, FileDropDirective } from 'ng2-file-upload/ng2-file-upload';
-import {FileItem} from "ng2-file-upload/file-upload/file-item.class";
-import {ParsedResponseHeaders} from "ng2-file-upload/file-upload/file-uploader.class";
 
 import { CurrentDataService } from '../services/current-data-service';
 import { ModalComponent } from 'ng2-bs3-modal/ng2-bs3-modal';
-import {TableMetadata} from "../services/table-metadata";
+import { TableMetadata } from "../services/table-metadata";
 
 declare var jQuery: any;
 declare var Backbone: any;
@@ -28,7 +25,7 @@ export class SideBarComponent {
 
   hiddenList: string[] = ["operatorType", "luceneAnalyzer", "matchingType", "spanListName"];
 
-  selectorList: string[] = ["matchingType", "nlpEntityType", "splitType", "sampleType", "comparisonType", "aggregationType", "attributes", "tableName", "attribute"].concat(this.hiddenList);
+  selectorList: string[] = ["dictionaryEntries", "matchingType", "nlpEntityType", "splitType", "sampleType", "comparisonType", "aggregationType", "attributes", "tableName", "attribute"].concat(this.hiddenList);
 
   matcherList: string[] = ["conjunction", "phrase", "substring"];
   nlpEntityList: string[] = ["noun", "verb", "adjective", "adverb", "ne_all", "number", "location", "person", "organization", "money", "percent", "date", "time"];
@@ -44,6 +41,8 @@ export class SideBarComponent {
   selectedAttributeMulti:string = "";
   selectedAttributeSingle:string = "";
   metadataList:Array<TableMetadata> = [];
+
+  dictionaryEntries:Array<string> = [];
 
 
   @ViewChild('MyModal')
@@ -64,7 +63,7 @@ export class SideBarComponent {
   }
 
   checkOperatorNameIsUploadDict() {
-    return this.operatorId === 21;
+    return this.operatorId === 22;
   }
 
   constructor(private currentDataService: CurrentDataService) {
@@ -90,6 +89,7 @@ export class SideBarComponent {
         if (data.operatorData.properties.attributes.tableName) {
           this.getAttributesForTable(data.operatorData.properties.attributes.tableName);
         }
+
       });
 
     currentDataService.checkPressed$.subscribe(
@@ -119,6 +119,12 @@ export class SideBarComponent {
         metadata.forEach(x => {
           this.tableNameItems.push((x.tableName));
         });
+      }
+    );
+
+    currentDataService.dictionaryEntries$.subscribe(
+      data => {
+        this.dictionaryEntries = data;
       }
     );
 
@@ -187,5 +193,24 @@ export class SideBarComponent {
     });
 
     this.onFormChange("tableName");
+  }
+
+  addDictionary(event: string) {
+    // Need to be fixed
+    this.data.properties.attributes.attribute = this.dictionaryEntries;
+    this.onFormChange("dictionaryEntries");
+  }
+
+  dictionaryManuallyAdded(event: string) {
+    // Need to be fixed
+    if (event.length === 0) {
+      // removed all dictionaries
+      this.dictionaryEntries = [];
+    } else {
+      this.dictionaryEntries = event.split(",");
+    }
+
+    this.data.properties.attributes.attributes = this.dictionaryEntries;
+    this.onFormChange("dictionaryEntries");
   }
 }
