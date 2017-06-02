@@ -449,7 +449,7 @@ public class RelationManagerTest {
 
         Tuple t;
         IDField id = null;
-        DataReader dataReader = RelationManager.getRelationManager().getTableDataReader(tableName, new MatchAllDocsQuery());
+        DataReader dataReader = relationManager.getTableDataReader(tableName, new MatchAllDocsQuery());
         dataReader.open();
 
         // store tuples into hashmap just for testing purpose
@@ -467,7 +467,7 @@ public class RelationManagerTest {
         }
         dataReader.close();
 
-        // test data "test_dictionary"
+        // remove test data "test_dictionary"
         DataWriter dataWriter = relationManager.getTableDataWriter(tableName);
         dataWriter.open();
         dataWriter.deleteTupleByID(id);
@@ -475,5 +475,52 @@ public class RelationManagerTest {
 
         Assert.assertTrue(tuples.containsKey("test1.txt"));
         Assert.assertTrue(tuples.containsValue("/test_dictionary/"));
+    }
+
+    @Test
+    /**
+     * Test getDictionaries()
+     */
+    public void test19() throws Exception {
+        RelationManager relationManager = RelationManager.getRelationManager();
+        String tableName = "dictionary";
+
+        // add test data "test_dictionary"
+        relationManager.addDictionaryTable("/test_dictionary/", "test1.txt");
+
+        HashMap<String, String> dictionaries = relationManager.getDictionaries();
+
+        // remove test data "test_dictionary"
+        DataWriter dataWriter = relationManager.getTableDataWriter(tableName);
+        dataWriter.open();
+        dataWriter.deleteTupleByID(new IDField(dictionaries.get("test1.txt")));
+        dataWriter.close();
+
+        Assert.assertTrue(dictionaries.containsKey("test1.txt"));
+    }
+
+    @Test
+    /**
+     * Test getDictionaryPath()
+     */
+    public void test20() throws Exception {
+        RelationManager relationManager = RelationManager.getRelationManager();
+        String tableName = "dictionary";
+
+        // add test data "test_dictionary"
+        relationManager.addDictionaryTable("/test_dictionary/", "test1.txt");
+
+        HashMap<String, String> dictionaries = relationManager.getDictionaries();
+        IDField id = new IDField(dictionaries.get("test1.txt"));
+
+        String path = relationManager.getDictionaryPath(id.getValue());
+
+        // remove test data "test_dictionary"
+        DataWriter dataWriter = relationManager.getTableDataWriter(tableName);
+        dataWriter.open();
+        dataWriter.deleteTupleByID(id);
+        dataWriter.close();
+
+        Assert.assertEquals("/test_dictionary/test1.txt", path);
     }
 }

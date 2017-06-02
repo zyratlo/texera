@@ -512,7 +512,7 @@ public class RelationManager {
         }
 
         // open both reader and writer to remove existing dictionary metadata (if so) and add a new one.
-        DataReader dataReader = RelationManager.getRelationManager().getTableDataReader(tableName, new MatchAllDocsQuery());
+        DataReader dataReader = relationManager.getTableDataReader(tableName, new MatchAllDocsQuery());
         dataReader.open();
 
         DataWriter dataWriter = relationManager.getTableDataWriter(tableName);
@@ -541,5 +541,34 @@ public class RelationManager {
                 , new StringField(fileUploadDirectory));
         dataWriter.insertTuple(tuple);
         dataWriter.close();
+    }
+
+	public HashMap<String, String> getDictionaries() {
+      String tableName = "dictionary";
+
+      DataReader dataReader = RelationManager.getRelationManager().getTableDataReader(tableName, new MatchAllDocsQuery());
+      dataReader.open();
+
+      HashMap<String, String> tuples = new HashMap<>();
+      Tuple t;
+      while ((t = dataReader.getNextTuple()) != null) {
+          tuples.put(((String)t.getField("name").getValue()), (String)t.getField("_id").getValue());
+      }
+      dataReader.close();
+
+      return tuples;
+	}
+
+    public String getDictionaryPath(String id) {
+        String tableName = "dictionary";
+
+        IDField idField = new IDField(id);
+        Tuple tuple = RelationManager.getRelationManager().getTupleByID(tableName, idField);
+
+        if (tuple == null) return null;
+
+        String fullPath = ((String)tuple.getField("path").getValue()).concat((String)tuple.getField("name").getValue());
+
+        return fullPath;
     }
 }
