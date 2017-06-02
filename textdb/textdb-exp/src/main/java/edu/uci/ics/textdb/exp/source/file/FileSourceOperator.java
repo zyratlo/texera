@@ -135,9 +135,9 @@ public class FileSourceOperator implements ISourceOperator {
                 Path path = pathIterator.next();
                 String extension = com.google.common.io.Files.getFileExtension(path.toString());
                 String content;
-                if (extension.equals("pdf")) {
+                if (extension.equalsIgnoreCase("pdf")) {
                     content = FileExtractorUtils.extractPDFFile(path);
-                } else if (extension.equals("ppt") || extension.equals("pptx")) {
+                } else if (extension.equalsIgnoreCase("ppt") || extension.equalsIgnoreCase("pptx")) {
                     content = FileExtractorUtils.extractPPTFile(path);
                 } else {
                     content = FileExtractorUtils.extractPlainTextFile(path);
