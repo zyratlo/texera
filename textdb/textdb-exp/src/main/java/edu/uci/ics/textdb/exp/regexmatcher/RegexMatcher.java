@@ -1,6 +1,8 @@
 package edu.uci.ics.textdb.exp.regexmatcher;
 
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import edu.uci.ics.textdb.api.constants.ErrorMessages;
@@ -30,24 +32,20 @@ public class RegexMatcher extends AbstractSingleInputOperator {
     
     private final RegexPredicate predicate;
 
-    // two available regex engines, RegexMatcher will try RE2J first
-    private enum RegexEngine {
-        JavaRegex, RE2J
-    }
-
-    private RegexEngine regexEngine;
-    private com.google.re2j.Pattern re2jPattern;
-    private java.util.regex.Pattern javaPattern;
-
     /**
      * Regex pattern for extracting labels.
      * Eg. Regex:- <drug> [^./</>] cure <disease>
      *     For above regex, only 'drug' and 'disease' are treated as label
      *     Skipping '/</>'
      */
-    private static final String labelSyntax = "<[^<>\\\\]*>";
-    private Set<String> labelsList;
-    private String cleanedRegex = "";
+    private static final String CHECK_REGEX_LABEL = "<[^<>\\\\]*>";
+    private static final String CHECK_REGEX_QUALIFIER = "[^a-zA-Z0-9<> ]";
+    
+    private Set<String> labelList;
+    private String cleanedRegex;
+    
+    private Pattern regexPattern;
+    
     private enum RegexType {
         NO_LABELS, LABELED_WITHOUT_QUALIFIER, LABELED_WITH_QUALIFIERS
     }
@@ -70,11 +68,11 @@ public class RegexMatcher extends AbstractSingleInputOperator {
         outputSchema = Utils.addAttributeToSchema(inputSchema, 
                 new Attribute(predicate.getSpanListName(), AttributeType.LIST));
 
-        this.cleanedRegex = extractLabels(predicate.getRegex());
+        preprocessRegex();
         // Check if labeled or unlabeled
         if(this.regexType == RegexType.NO_LABELS) {
             // No labels in regex, compile regex only one time
-            compileRegexPattern(predicate.getRegex());
+            regexPattern = Pattern.compile(predicate.getRegex());
         }
     }
     
@@ -112,61 +110,23 @@ public class RegexMatcher extends AbstractSingleInputOperator {
         if (inputTuple == null) {
             return null;
         }
-
-        if(this.regexType == RegexType.NO_LABELS) {
-            // Unlabeled regex
-            return processUnlabeledRegex(inputTuple);
+        
+        if (this.regexType != RegexType.NO_LABELS) {
+            Map<String, Set<String>> labelAttrValueList = fetchLabelValues(inputTuple);
+            String regexWithVal = rewriteRegexWithLabelValues(labelAttrValueList);
+            
+            regexPattern = Pattern.compile(regexWithVal);
         }
-        // else labeled regex
-        return processLabeledRegex(inputTuple);
+        
+        return processRegex(inputTuple);
     }
 
     /**
-     * Process unlabeled regex pattern
+     * Process regex pattern
      * @param inputTuple
      * @return tuple with matching entries
      */
-    private Tuple processUnlabeledRegex(Tuple inputTuple) {
-        List<Span> matchingResults = findRegexMatch(inputTuple);
-
-        if (matchingResults.isEmpty()) {
-            return null;
-        }
-
-        ListField<Span> spanListField = inputTuple.getField(predicate.getSpanListName());
-        List<Span> spanList = spanListField.getValue();
-        spanList.addAll(matchingResults);
-
-        return inputTuple;
-    }
-
-    /**
-     * Process labeled regex on input tuple
-     * @param inputTuple
-     * @return tuple with matching regex pattern
-     */
-    private Tuple processLabeledRegex(Tuple inputTuple) {
-        Map<String, Set<String>> labelAttrValueList = fetchAttributeValues(inputTuple);
-        String regexWithVal = getModifiedRegex(this.cleanedRegex, labelAttrValueList);
-        compileRegexPattern(regexWithVal);
-        List<Span> matchingResults = findRegexMatch(inputTuple);
-        if (matchingResults.isEmpty()) {
-            return null;
-        }
-
-        ListField<Span> spanListField = inputTuple.getField(predicate.getSpanListName());
-        List<Span> spanList = spanListField.getValue();
-        spanList.addAll(matchingResults);
-
-        return inputTuple;
-    }
-
-    /**
-     * Find regex matches in input tuple
-     * @param inputTuple
-     * @return span list for all matches
-     */
-    private List<Span> findRegexMatch(Tuple inputTuple) {
+    private Tuple processRegex(Tuple inputTuple) {
         List<Span> matchingResults = new ArrayList<>();
 
         for (String attributeName : predicate.getAttributeNames()) {
@@ -177,22 +137,25 @@ public class RegexMatcher extends AbstractSingleInputOperator {
             if (attributeType != AttributeType.STRING && attributeType != AttributeType.TEXT) {
                 throw new DataFlowException("KeywordMatcher: Fields other than STRING and TEXT are not supported yet");
             }
-
-            switch (regexEngine) {
-                case JavaRegex:
-                    matchingResults.addAll(javaRegexMatch(fieldValue, attributeName));
-                    break;
-                case RE2J:
-                    matchingResults.addAll(re2jRegexMatch(fieldValue, attributeName));
-                    break;
-            }
+            
+            matchingResults.addAll(findRegexMatch(fieldValue, attributeName));
         }
-        return matchingResults;
+        
+        if (matchingResults.isEmpty()) {
+            return null;
+        }
+
+        ListField<Span> spanListField = inputTuple.getField(predicate.getSpanListName());
+        List<Span> spanList = spanListField.getValue();
+        spanList.addAll(matchingResults);
+
+        return inputTuple;
     }
 
-    private List<Span> javaRegexMatch(String fieldValue, String attributeName) {
+
+    private List<Span> findRegexMatch(String fieldValue, String attributeName) {
         List<Span> matchingResults = new ArrayList<>();
-        java.util.regex.Matcher javaMatcher = this.javaPattern.matcher(fieldValue);
+        Matcher javaMatcher = regexPattern.matcher(fieldValue);
         while (javaMatcher.find()) {
             int start = javaMatcher.start();
             int end = javaMatcher.end();
@@ -202,50 +165,35 @@ public class RegexMatcher extends AbstractSingleInputOperator {
         return matchingResults;
     }
 
-    private List<Span> re2jRegexMatch(String fieldValue, String attributeName) {
-        List<Span> matchingResults = new ArrayList<>();
-        com.google.re2j.Matcher re2jMatcher = this.re2jPattern.matcher(fieldValue);
-        while (re2jMatcher.find()) {
-            int start = re2jMatcher.start();
-            int end = re2jMatcher.end();
-            matchingResults.add(
-                    new Span(attributeName, start, end, this.predicate.getRegex(), fieldValue.substring(start, end)));
-        }
-        return matchingResults;
-    }
-
 
     /**
-     * Extract labels from regex
-     * @param generalRegexPattern
-     * @return cleaned regex containing ids instead of labels
+     * Pre-process the input regex
+     * 1. determine the type of the regex: no_label / labeled_with_qualifier / labeled_without_qualifier
+     * 2. if it's labeled, extract the label and put them to labelList
+     * 3. if it's labeled, cleans the labels and put the final regex in cleanedRegex
      */
-    private String extractLabels(String generalRegexPattern) {
-        this.labelsList = new HashSet<>();
-        java.util.regex.Pattern pattern = java.util.regex.Pattern.compile(RegexMatcher.labelSyntax,
-                java.util.regex.Pattern.CASE_INSENSITIVE);
-        java.util.regex.Matcher matcher = pattern.matcher(generalRegexPattern);
-        // Extracting labels from regex
-        String cleanedRegex = generalRegexPattern;
-        while(matcher.find()) {
-            String substr = generalRegexPattern.substring(matcher.start() + 1, matcher.end() - 1);
-            String substrTrimmed = substr.trim();
-            this.labelsList.add(substrTrimmed);
-            cleanedRegex = cleanedRegex.replace("<" + substr + ">", "<" + substrTrimmed + ">");
+    private void preprocessRegex() {
+        Matcher labelMatcher = Pattern.compile(CHECK_REGEX_LABEL).matcher(predicate.getRegex());
+        cleanedRegex = predicate.getRegex();
+        while (labelMatcher.find()) {
+            String labelStr = predicate.getRegex().substring(
+                    labelMatcher.start() + 1, labelMatcher.end() - 1);
+            String substrTrimmed = labelStr.trim();
+            labelList.add(substrTrimmed);
+            cleanedRegex = cleanedRegex.replace("<" + labelStr + ">", "<" + substrTrimmed + ">");
         }
-        if(this.labelsList.size() == 0)
+        
+        if (labelList.size() == 0) {
             regexType = RegexType.NO_LABELS;
-        else {
-            // Check if regex contains qualifiers
-            pattern = java.util.regex.Pattern.compile("[^a-zA-Z0-9<> ]",
-                    java.util.regex.Pattern.CASE_INSENSITIVE);
-            matcher = pattern.matcher(generalRegexPattern);
-            if(matcher.find())
-                regexType = RegexType.LABELED_WITH_QUALIFIERS;
-            else
-                regexType = RegexType.LABELED_WITHOUT_QUALIFIER;
+            return;
         }
-        return cleanedRegex;
+        
+        Matcher qualifierMatcher = Pattern.compile(CHECK_REGEX_QUALIFIER).matcher(cleanedRegex);
+        if (qualifierMatcher.find()) {
+            regexType = RegexType.LABELED_WITH_QUALIFIERS;
+        } else {
+            regexType = RegexType.LABELED_WITHOUT_QUALIFIER;
+        }
     }
 
 
@@ -254,9 +202,9 @@ public class RegexMatcher extends AbstractSingleInputOperator {
      * @param inputTuple
      * @return map of label id and corresponding attribute values
      */
-    private Map<String, Set<String>> fetchAttributeValues(Tuple inputTuple) {
+    private Map<String, Set<String>> fetchLabelValues(Tuple inputTuple) {
         Map<String, Set<String>> labelSpanList = new HashMap<>();
-        for (String label : this.labelsList) {
+        for (String label : this.labelList) {
             Set<String> values = new HashSet<>();
             ListField<Span> spanListField = inputTuple.getField(label);
             List<Span> spanList = spanListField.getValue();
@@ -285,69 +233,21 @@ public class RegexMatcher extends AbstractSingleInputOperator {
         return labelSpanList;
     }
 
-    /**
-     * Create Map of label id and corresponding span
-     * @param inputTuple
-     * @return map of label id and corresponding span
-     */
-    private Map<String, List<Span>> fetchAttributeSpanList(Tuple inputTuple) {
-        Map<String, List<Span>> labelSpanList = new HashMap<>();
-        for (String label : this.labelsList) {
-            ListField<Span> spanListField = inputTuple.getField(label);
-            labelSpanList.put(label, new ArrayList<>(spanListField.getValue()));
-        }
-        return labelSpanList;
-    }
-
-    /**
-     * Compile regex pattern
-     * @param regex
-     */
-    private void compileRegexPattern(String regex) {
-        // try Java Regex first
-        try {
-            if (this.predicate.isIgnoreCase()) {
-                this.javaPattern = java.util.regex.Pattern.compile(regex,
-                        java.util.regex.Pattern.CASE_INSENSITIVE);
-                this.regexEngine = RegexEngine.JavaRegex;
-            } else {
-                this.javaPattern = java.util.regex.Pattern.compile(regex);
-                this.regexEngine = RegexEngine.JavaRegex;
-            }
-
-            // if Java Regex fails, try RE2J
-        } catch (java.util.regex.PatternSyntaxException javaException) {
-            try {
-                if (this.predicate.isIgnoreCase()) {
-                    this.re2jPattern = com.google.re2j.Pattern.compile(regex,
-                            com.google.re2j.Pattern.CASE_INSENSITIVE);
-                    this.regexEngine = RegexEngine.RE2J;
-                } else {
-                    this.re2jPattern = com.google.re2j.Pattern.compile(regex);
-                    this.regexEngine = RegexEngine.RE2J;
-                }
-
-                // if RE2J also fails, throw exception
-            } catch (com.google.re2j.PatternSyntaxException re2jException) {
-                throw new DataFlowException(javaException.getMessage(), javaException);
-            }
-        }
-    }
 
     /**
      * Replace labels with actual values in labeled regex
      * @param cleanedRegex
-     * @param labelAttrValuesList
+     * @param labelValueList
      * @return regex with actual span values
      */
-    private String getModifiedRegex(String cleanedRegex, Map<String, Set<String>> labelAttrValuesList) {
-        for(Map.Entry<String, Set<String>> entry : labelAttrValuesList.entrySet()){
+    private String rewriteRegexWithLabelValues(Map<String, Set<String>> labelValueList) {
+        String regexWithValue = cleanedRegex;
+        for(Map.Entry<String, Set<String>> entry : labelValueList.entrySet()){
             String repVal = "(" + entry.getValue().stream().collect(Collectors.joining("|")) + ")";
             cleanedRegex = cleanedRegex.replaceAll("<"+entry.getKey()+">", repVal);
         }
-        return cleanedRegex;
+        return regexWithValue;
     }
-
 
 
     @Override
