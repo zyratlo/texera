@@ -145,7 +145,12 @@ export class CurrentDataService {
         formData.append('file', file, file.name);
         this.http.post(uploadDictionaryUrl, formData, null)
           .subscribe(
-            data => alert(file.name + ' is uploaded'),
+            data => {
+              alert(file.name + ' is uploaded');
+
+              // after adding a new dictionary, refresh the list
+              this.getDictionaries();
+            },
             err => {
                 alert('Error occurred while uploading ' + file.name);
                 console.log('Error occurred while uploading ' + file.name + '\nError message: ' + err);

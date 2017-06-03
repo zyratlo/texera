@@ -2,6 +2,7 @@ package edu.uci.ics.textdb.web.resource;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import edu.uci.ics.textdb.api.exception.TextDBException;
 import edu.uci.ics.textdb.storage.RelationManager;
 import edu.uci.ics.textdb.storage.TableMetadata;
 import edu.uci.ics.textdb.web.response.TextdbWebResponse;
@@ -47,7 +48,7 @@ public class SystemResource {
 		String dictionaryPath = relationManager.getDictionaryPath(id);
 
 		if (dictionaryPath == null) {
-			return new TextdbWebResponse(0, "No such dictionary found");
+			throw new TextDBException("No such dictionary found");
 		}
 
 		String content = readFromFile(dictionaryPath);

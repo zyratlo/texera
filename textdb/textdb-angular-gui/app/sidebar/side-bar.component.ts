@@ -46,7 +46,7 @@ export class SideBarComponent {
   dictionaries: any;
   dictionaryEntries:Array<string> = [];
   dictionaryContent: Array<string> = [];
-
+  selectedDictionary:string = "";
 
   @ViewChild('MyModal')
   modal: ModalComponent;
@@ -83,6 +83,7 @@ export class SideBarComponent {
         // initialize selected attributes
         this.selectedAttributeMulti = "";
         this.selectedAttributeSingle = "";
+        this.selectedDictionary = "";
 
         if (data.operatorData.properties.attributes.attributes) {
           this.selectedAttributesList = data.operatorData.properties.attributes.attributes;
@@ -91,6 +92,9 @@ export class SideBarComponent {
         }
         if (data.operatorData.properties.attributes.tableName) {
           this.getAttributesForTable(data.operatorData.properties.attributes.tableName);
+        }
+        if (data.operatorData.properties.attributes.dictionaryEntries) {
+          this.dictionaryContent = data.operatorData.properties.attributes.dictionaryEntries;
         }
 
       });
@@ -128,6 +132,7 @@ export class SideBarComponent {
     currentDataService.dictionaryEntries$.subscribe(
       data => {
         this.dictionaries = data;
+        this.dictionaryEntries = [];
         for (const key of Object.keys(data)){
           this.dictionaryEntries.push(key);
         }
@@ -212,8 +217,8 @@ export class SideBarComponent {
     this.onFormChange("tableName");
   }
 
-  addDictionary(event: string) {
-    this.currentDataService.getDictionaryContent(this.dictionaries[event]);
+  dictionaryAdded() {
+    this.currentDataService.getDictionaryContent(this.dictionaries[this.selectedDictionary]);
   }
 
   dictionaryManuallyAdded(event: string) {

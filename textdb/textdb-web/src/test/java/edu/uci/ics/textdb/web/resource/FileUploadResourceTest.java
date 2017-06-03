@@ -51,34 +51,4 @@ public class FileUploadResourceTest {
 		// TODO:: We are getting 400. However, it works with front-end. So we need to fix this test case.
 		assertThat(response.getStatus()).isEqualTo(200);
 	}
-
-	@Test
-	public void getDictionaries() throws Exception {
-		Client client = new JerseyClientBuilder(RULE.getEnvironment()).build("test client");
-		client.property(ClientProperties.CONNECT_TIMEOUT, 5000);
-		client.property(ClientProperties.READ_TIMEOUT, 5000);
-		client.register(MultiPartFeature.class);
-
-		Response response = client.target(
-						String.format("http://localhost:%d/api/upload/dictionaries", RULE.getLocalPort()))
-						.request()
-						.get();
-
-		assertThat(response.getStatus()).isEqualTo(200);
-	}
-
-	@Test
-	public void getDictionaryPath() throws Exception {
-		Client client = new JerseyClientBuilder(RULE.getEnvironment()).build("test client");
-		client.property(ClientProperties.CONNECT_TIMEOUT, 5000);
-		client.property(ClientProperties.READ_TIMEOUT, 5000);
-		client.register(MultiPartFeature.class);
-
-		Response response = client.target(
-						String.format("http://localhost:%d/api/upload/dictionary/query?id=tempid", RULE.getLocalPort()))
-						.request()
-						.get();
-
-		assertThat(response.getStatus()).isEqualTo(200);
-	}
 }
