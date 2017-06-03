@@ -31,6 +31,7 @@ export class SideBarComponent {
   matcherList: string[] = ["conjunction", "phrase", "substring"];
   nlpEntityList: string[] = ["noun", "verb", "adjective", "adverb", "ne_all", "number", "location", "person", "organization", "money", "percent", "date", "time"];
   regexSplitList: string[] = ["left", "right", "standalone"];
+  nlpSplitList: string[] = ["oneToOne", "oneToMany"];
   samplerList: string[] = ["random", "firstk"];
 
   compareList: string[] = ["=", ">", ">=", "<", "<=", "≠"];
