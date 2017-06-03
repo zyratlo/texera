@@ -38,11 +38,12 @@ public class RegexMatcher extends AbstractSingleInputOperator {
      *     For above regex, only 'drug' and 'disease' are treated as label
      *     Skipping '/</>'
      */
-    private static final String CHECK_REGEX_LABEL = "<[^<>\\\\]*>";
-    private static final String CHECK_REGEX_QUALIFIER = "[^a-zA-Z0-9<> ]";
+    public static final String CHECK_REGEX_LABEL = "<[^<>\\\\]*>";
+    public static final String CHECK_REGEX_QUALIFIER = "[^a-zA-Z0-9<> ]";
     
     private Set<String> labelList;
     private String cleanedRegex;
+    private LabeledRegexFilter labeledRegexFilter;
     
     private Pattern regexPattern;
     
@@ -73,6 +74,8 @@ public class RegexMatcher extends AbstractSingleInputOperator {
         if(this.regexType == RegexType.NO_LABELS) {
             // No labels in regex, compile regex only one time
             regexPattern = Pattern.compile(predicate.getRegex());
+        } else if (this.regexType == RegexType.LABELED_WITHOUT_QUALIFIER) {
+            labeledRegexFilter = new LabeledRegexFilter(cleanedRegex);
         }
     }
     
@@ -111,14 +114,16 @@ public class RegexMatcher extends AbstractSingleInputOperator {
             return null;
         }
         
-        if (this.regexType != RegexType.NO_LABELS) {
+        if (this.regexType == RegexType.LABELED_WITHOUT_QUALIFIER) {
+            return labeledRegexFilter.processTuple(inputTuple, predicate);
+        } else if (this.regexType != RegexType.NO_LABELS) {
             Map<String, Set<String>> labelAttrValueList = fetchLabelValues(inputTuple);
             String regexWithVal = rewriteRegexWithLabelValues(labelAttrValueList);
-            
             regexPattern = Pattern.compile(regexWithVal);
+            return processRegex(inputTuple);
+        } else {
+            return processRegex(inputTuple);
         }
-        
-        return processRegex(inputTuple);
     }
 
     /**
