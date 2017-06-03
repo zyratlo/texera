@@ -114,9 +114,10 @@ body {
 .dictionary-upload {
     border: 1px solid #ccc;
     /*display: inline-block;*/
-    padding: 6px 16px;
+    padding: 0px 16px;
     cursor: pointer;
 		background-color: #39ac39;
 		color: white;
 		font-weight: bold;
+		font-size: 22px;
 }
