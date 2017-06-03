@@ -32,4 +32,12 @@ export class NavigationBarComponent {
         this.currentDataService.clearData();
         this.currentDataService.setAllOperatorData(jQuery('#the-flowchart').flowchart('getData'));
 	}
+
+  fileChange(event) {
+    let fileList: FileList = event.target.files;
+    if (fileList.length > 0) {
+      let file: File = fileList[0];
+      this.currentDataService.uploadDictionary(file);
+    }
+  }
 }

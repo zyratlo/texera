@@ -23,6 +23,7 @@ body {
 	color: #67AAF9;
 }
 
+
 .navigation-btn{
 	width: 100px;
 	font-weight: bold;
@@ -103,4 +104,19 @@ body {
 	width: calc(100% - 240px);;
 	left: 240px;
 	height: calc(100%);
+}
+
+
+#file-upload {
+    display: none;
+}
+
+.dictionary-upload {
+    border: 1px solid #ccc;
+    /*display: inline-block;*/
+    padding: 6px 16px;
+    cursor: pointer;
+		background-color: #39ac39;
+		color: white;
+		font-weight: bold;
 }
