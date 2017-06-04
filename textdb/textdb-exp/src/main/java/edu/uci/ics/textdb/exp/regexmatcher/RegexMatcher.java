@@ -247,12 +247,12 @@ public class RegexMatcher extends AbstractSingleInputOperator {
      * @return regex with actual span values
      */
     private String rewriteRegexWithLabelValues(Map<String, Set<String>> labelValueList) {
-        String regexWithValue = cleanedRegex;
+        String currentRegexPattern = cleanedRegex;
         for(Map.Entry<String, Set<String>> entry : labelValueList.entrySet()){
             String repVal = "(" + entry.getValue().stream().collect(Collectors.joining("|")) + ")";
-            cleanedRegex = cleanedRegex.replaceAll("<"+entry.getKey()+">", repVal);
+            currentRegexPattern = currentRegexPattern.replaceAll("<"+entry.getKey()+">", repVal);
         }
-        return regexWithValue;
+        return currentRegexPattern;
     }
 
 
