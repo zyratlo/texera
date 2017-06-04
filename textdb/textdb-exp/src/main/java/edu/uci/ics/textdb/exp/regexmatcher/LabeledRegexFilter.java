@@ -17,6 +17,7 @@ public class LabeledRegexFilter {
 
     private ArrayList<String> labelList = new ArrayList<>();
     private ArrayList<String> affixList = new ArrayList<>();
+    private ArrayList<String> sortedAffixList = new ArrayList<>(); // sort the affixList by length in decreasing order to short-cut the filter tuple operation.
     
     public LabeledRegexFilter(String regex) {
         // populate labelList and affixList
@@ -31,30 +32,36 @@ public class LabeledRegexFilter {
             labelList.add(label);
             pre = end;
         }
+        affixList.add(regex.substring(pre));
+
+       sortedAffixList = new ArrayList<>(affixList);
+       sortedAffixList.sort((String o1, String o2)->o2.length()-o1.length());
     }
     
-    public boolean filterTuple(Tuple tuple, List<String> attributes) {
-        for (String attribute : attributes) {
-            for (String affix : affixList) {
+    public boolean filterTuple(Tuple tuple, String attribute) {
+            for (String affix : sortedAffixList) {
                 if (! tuple.getField(attribute).getValue().toString().contains(affix)) {
                     return false;
                 }
             }
-        }
+
         return true;
     }
     
     public Tuple processTuple(Tuple tuple, RegexPredicate predicate) {
-        boolean isValidTuple = filterTuple(tuple, predicate.getAttributeNames());
-        
-        if (! isValidTuple) {
-            return null;
-        }
+
+
         
         Map<String, List<Span>> labelValues = fetchLabelSpans(tuple);
         
         List<Span> allAttrsMatchSpans = new ArrayList<>();
         for (String attribute : predicate.getAttributeNames()) {
+            boolean isValidTuple = filterTuple(tuple, attribute);
+
+            if (! isValidTuple) {
+                continue;
+            }
+
             String fieldValue = tuple.getField(attribute).getValue().toString();
 
             List<List<Integer>> matchList = new ArrayList<>();

@@ -180,10 +180,12 @@ public class RegexMatcher extends AbstractSingleInputOperator {
     private void preprocessRegex() {
         Matcher labelMatcher = Pattern.compile(CHECK_REGEX_LABEL).matcher(predicate.getRegex());
         cleanedRegex = predicate.getRegex();
+        labelList = new HashSet<>();
         while (labelMatcher.find()) {
             String labelStr = predicate.getRegex().substring(
                     labelMatcher.start() + 1, labelMatcher.end() - 1);
             String substrTrimmed = labelStr.trim();
+
             labelList.add(substrTrimmed);
             cleanedRegex = cleanedRegex.replace("<" + labelStr + ">", "<" + substrTrimmed + ">");
         }
@@ -241,7 +243,6 @@ public class RegexMatcher extends AbstractSingleInputOperator {
 
     /**
      * Replace labels with actual values in labeled regex
-     * @param cleanedRegex
      * @param labelValueList
      * @return regex with actual span values
      */
