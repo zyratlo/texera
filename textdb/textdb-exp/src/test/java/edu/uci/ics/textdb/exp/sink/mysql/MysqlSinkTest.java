@@ -1,7 +1,5 @@
 package edu.uci.ics.textdb.exp.sink.mysql;
 
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -209,7 +207,6 @@ public class MysqlSinkTest {
 		SimpleDateFormat dateFormat = new SimpleDateFormat("MM-dd-yyyy");
 		return dateFormat.parse(dateFormat.format(date));
 	}
-    
     
 	
 }

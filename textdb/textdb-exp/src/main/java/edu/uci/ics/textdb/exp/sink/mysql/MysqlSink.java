@@ -1,9 +1,6 @@
 package edu.uci.ics.textdb.exp.sink.mysql;
 
-
-
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -102,13 +99,12 @@ public class MysqlSink implements ISink{
      */
 	@Override
 	public void processTuples() throws TextDBException {
-        Tuple tuple;
-        while ((tuple = this.getNextTuple()) != null) {
+        while (this.getNextTuple() != null) {
+        
         }
 	}
 
 	
-
 	@Override
 	public void close() throws TextDBException {
 		if (cursor == CLOSED) {
