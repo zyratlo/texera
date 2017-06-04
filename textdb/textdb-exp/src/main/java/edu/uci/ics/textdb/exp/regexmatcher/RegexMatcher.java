@@ -31,6 +31,7 @@ import edu.uci.ics.textdb.exp.utils.DataflowUtils;
 public class RegexMatcher extends AbstractSingleInputOperator {
     
     private final RegexPredicate predicate;
+    private String cleanedRegex;
 
     /**
      * Regex pattern for extracting labels.
@@ -41,8 +42,7 @@ public class RegexMatcher extends AbstractSingleInputOperator {
     private static final String CHECK_REGEX_LABEL = "<[^<>\\\\]*>";
     private static final String CHECK_REGEX_QUALIFIER = "[^a-zA-Z0-9<> ]";
     
-    private Set<String> labelList;
-    private String cleanedRegex;
+    private Set<String> labelList = new HashSet<>();
     
     private Pattern regexPattern;
     
@@ -244,7 +244,7 @@ public class RegexMatcher extends AbstractSingleInputOperator {
         String regexWithValue = cleanedRegex;
         for(Map.Entry<String, Set<String>> entry : labelValueList.entrySet()){
             String repVal = "(" + entry.getValue().stream().collect(Collectors.joining("|")) + ")";
-            cleanedRegex = cleanedRegex.replaceAll("<"+entry.getKey()+">", repVal);
+            regexWithValue = regexWithValue.replaceAll("<"+entry.getKey()+">", repVal);
         }
         return regexWithValue;
     }
