@@ -13,6 +13,8 @@ declare var jQuery: any;
 })
 export class OperatorBarComponent {
 
+  theDropDownNow : string;
+
   constructor(private mockDataService: MockDataService, private currentDataService: CurrentDataService) { }
 
   initialize() {
@@ -22,6 +24,35 @@ export class OperatorBarComponent {
 
     this.initializePanzoom(container, InitialWidth, InitialHeight);
     this.initializeOperators(container);
+    this.initializeDrop(this.theDropDownNow);
+  }
+
+  initializeDrop (currentDrop : string) {
+    jQuery('html').mouseup(function(e){
+      jQuery('.dropdown-content').css({
+        "display" : "none",
+      });
+      var checkOnClickIsDropDown = jQuery('.dropdown');
+      var checkOnIcon = jQuery('.fa');
+      if (!checkOnClickIsDropDown.is(e.target) && !checkOnIcon.is(e.target)){
+        currentDrop = "";
+      } else {
+        if (checkOnIcon.is(e.target)){
+          var currentDropType = jQuery(e.target).parent().data('dropdown-type');
+        } else {
+          var currentDropType = jQuery(e.target).data('dropdown-type');
+        }
+        if (currentDropType !== currentDrop){
+          var dropdownID = "#" + currentDropType;
+          jQuery(dropdownID).css({
+            "display" : "block",
+          });
+          currentDrop = currentDropType;
+        } else {
+          currentDrop = "";
+        }
+      }
+    });
   }
 
   initializePanzoom(container: any, InitialWidth: number, InitialHeight: number) {
