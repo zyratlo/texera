@@ -11,7 +11,6 @@ import java.util.stream.Collectors;
 
 import edu.uci.ics.textdb.api.exception.DataFlowException;
 import edu.uci.ics.textdb.api.field.ListField;
-import edu.uci.ics.textdb.api.schema.AttributeType;
 import edu.uci.ics.textdb.api.span.Span;
 import edu.uci.ics.textdb.api.tuple.Tuple;
 import edu.uci.ics.textdb.exp.regexmatcher.RegexMatcher;
@@ -60,28 +59,8 @@ public class LabeledRegexProcessor {
         Pattern regexPattern = predicate.isIgnoreCase() ? 
                 Pattern.compile(regexWithVal, Pattern.CASE_INSENSITIVE)
                 : Pattern.compile(regexWithVal);
-        
-        List<Span> matchingResults = new ArrayList<>();
-
-        for (String attributeName : predicate.getAttributeNames()) {
-            AttributeType attributeType = inputTuple.getSchema().getAttribute(attributeName).getAttributeType();
-            String fieldValue = inputTuple.getField(attributeName).getValue().toString();
-            
-            // types other than TEXT and STRING: throw Exception for now
-            if (attributeType != AttributeType.STRING && attributeType != AttributeType.TEXT) {
-                throw new DataFlowException("KeywordMatcher: Fields other than STRING and TEXT are not supported yet");
-            }
-            
-            Matcher javaMatcher = regexPattern.matcher(fieldValue);
-            while (javaMatcher.find()) {
-                int start = javaMatcher.start();
-                int end = javaMatcher.end();
-                matchingResults.add(
-                        new Span(attributeName, start, end, this.predicate.getRegex(), fieldValue.substring(start, end)));
-            }
-        }
-        
-        return matchingResults;
+                
+        return RegexMatcher.computeMatchingResultsWithPattern(inputTuple, predicate, regexPattern);
     }
     
     /**

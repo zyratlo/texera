@@ -150,7 +150,7 @@ public class RegexMatcher extends AbstractSingleInputOperator {
         if (this.regexType != RegexType.NO_LABELS) {
             matchingResults = labeledRegexProcessor.computeMatchingResults(inputTuple);
         } else {
-            matchingResults = this.computeMatchingResults(inputTuple);
+            matchingResults = computeMatchingResultsWithPattern(inputTuple, predicate, regexPattern);
         }
         
         if (matchingResults.isEmpty()) {
@@ -164,16 +164,11 @@ public class RegexMatcher extends AbstractSingleInputOperator {
         return inputTuple;
     }
 
-    /**
-     * Process regex pattern
-     * @param inputTuple
-     * @return tuple with matching entries
-     */
-    private List<Span> computeMatchingResults(Tuple inputTuple) {
+    public static List<Span> computeMatchingResultsWithPattern(Tuple inputTuple, RegexPredicate predicate, Pattern pattern) {
         List<Span> matchingResults = new ArrayList<>();
 
         for (String attributeName : predicate.getAttributeNames()) {
-            AttributeType attributeType = inputSchema.getAttribute(attributeName).getAttributeType();
+            AttributeType attributeType = inputTuple.getSchema().getAttribute(attributeName).getAttributeType();
             String fieldValue = inputTuple.getField(attributeName).getValue().toString();
 
             // types other than TEXT and STRING: throw Exception for now
@@ -181,12 +176,12 @@ public class RegexMatcher extends AbstractSingleInputOperator {
                 throw new DataFlowException("KeywordMatcher: Fields other than STRING and TEXT are not supported yet");
             }
             
-            Matcher javaMatcher = regexPattern.matcher(fieldValue);
+            Matcher javaMatcher = pattern.matcher(fieldValue);
             while (javaMatcher.find()) {
                 int start = javaMatcher.start();
                 int end = javaMatcher.end();
                 matchingResults.add(
-                        new Span(attributeName, start, end, this.predicate.getRegex(), fieldValue.substring(start, end)));
+                        new Span(attributeName, start, end, predicate.getRegex(), fieldValue.substring(start, end)));
             }
         }
         
