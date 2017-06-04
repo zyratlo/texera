@@ -17,19 +17,23 @@ export class OperatorBarComponent {
 
   initialize() {
     var container = jQuery('#the-flowchart').parent();
+    var InitialWidth = parseInt(jQuery("#the-flowchart").css("width"));
+    var InitialHeight = parseInt(jQuery("#the-flowchart").css("height"));
 
-    this.initializePanzoom(container);
+    this.initializePanzoom(container, InitialWidth, InitialHeight);
     this.initializeOperators(container);
   }
 
-  initializePanzoom(container: any) {
+  initializePanzoom(container: any, InitialWidth: number, InitialHeight: number) {
     // Panzoom initialization...
     jQuery('#the-flowchart').panzoom({
       disablePan: true, // disable the pan
       // contain : true, // if pan, only can pan within flowchart div
-
+      minScale: 0.5,
+      maxScale: 1,
+      increment: 0.1,
     });
-    var possibleZooms = [0.7, 0.8, 0.9, 1];
+    var possibleZooms = [0.5, 0.6, 0.7, 0.8, 0.9, 1];
     var currentZoom = 2;
     container.on('mousewheel.focal', function(e) {
       e.preventDefault();
@@ -44,21 +48,20 @@ export class OperatorBarComponent {
       });
       var ZoomRatio = possibleZooms[currentZoom];
       // enlarge the div ratio so there's more space for the operators
-      if (ZoomRatio < 0.8) {
-        jQuery('#the-flowchart').css({
-          "left": "-354px",
-          "top": "-172px",
-          "width": "143%",
-          "height": "143%",
-        });
-      } else {
-        jQuery('#the-flowchart').css({
-          "left": "0px",
-          "width": "100%",
-          "top": "0px",
-          "height": "100%",
-        });
-      }
+      var new_width = InitialWidth / ZoomRatio;
+      var left_side_add = (new_width - InitialWidth) / 2 ;
+
+      var new_height = InitialHeight / ZoomRatio;
+      var top_side_add = (new_height - InitialHeight) / 2;
+
+      jQuery("#the-flowchart").css({
+        "width" : new_width + "px",
+        "left" : -left_side_add + "px",
+        "height" : new_height + "px",
+        "top" : -top_side_add + "px",
+      });
+
+
 
     });
     // panzoom end
