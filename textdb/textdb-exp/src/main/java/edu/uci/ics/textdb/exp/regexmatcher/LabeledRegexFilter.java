@@ -76,19 +76,20 @@ public class LabeledRegexFilter {
                 
                 if (i == 0) {
                     List<Span> validSpans = relevantSpans.stream()
-                            .filter(span -> fieldValue.substring(span.getStart() - prefix.length(), span.getStart()).equals(prefix))
+                            .filter(span -> span.getStart() - prefix.length() >=0 && fieldValue.substring(span.getStart() - prefix.length(), span.getStart()).equals(prefix))
                             .collect(Collectors.toList());
                     matchList = validSpans.stream()
                             .map(span -> new ArrayList<Integer>(Arrays.asList(span.getStart() - prefix.length(), span.getStart())))
                             .collect(Collectors.toList());
+                    relevantSpans = validSpans;
                 }
                 
                 List<List<Integer>> newMatchList = new ArrayList<>();
                 
                 for (List<Integer> previousMatch : matchList) {
                     for (Span span : relevantSpans) {
-                        if (matchList.stream().filter(match -> match.get(1).equals(span.getStart())).findAny().isPresent()
-                                && fieldValue.substring(span.getEnd(), span.getEnd() + suffix.length()).equals(suffix)) {
+                        if (previousMatch.get(1) == span.getStart()
+                                && span.getEnd() + suffix.length() <= fieldValue.length() && fieldValue.substring(span.getEnd(), span.getEnd() + suffix.length()).equals(suffix)) {
                             newMatchList.add(Arrays.asList(previousMatch.get(0), span.getEnd() + suffix.length()));
                         }
                     }
@@ -99,9 +100,14 @@ public class LabeledRegexFilter {
                     break;
                 }
             }
-            
-            matchList.stream().forEach(match -> allAttrsMatchSpans.add(
-                    new Span(attribute, match.get(0), match.get(1), predicate.getRegex(), fieldValue.substring(match.get(0), match.get(1)))));
+
+            for(List<Integer> match: matchList){
+                if(match.get(0)>=0 && match.get(1) >=0){
+                    allAttrsMatchSpans.add(new Span(attribute, match.get(0), match.get(1), predicate.getRegex(), fieldValue.substring(match.get(0), match.get(1))));
+                }
+            }
+            //matchList.stream().forEach(match -> allAttrsMatchSpans.add(
+              //      new Span(attribute, match.get(0), match.get(1), predicate.getRegex(), fieldValue.substring(match.get(0), match.get(1)))));
         }
         
         if (allAttrsMatchSpans.isEmpty()) {
