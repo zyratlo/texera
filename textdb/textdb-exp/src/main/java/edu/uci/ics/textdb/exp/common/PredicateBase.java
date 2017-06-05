@@ -77,7 +77,7 @@ import edu.uci.ics.textdb.exp.wordcount.WordCountOperatorPredicate;
         @Type(value = ComparablePredicate.class, name = "Comparison"),
         
         @Type(value = ScanSourcePredicate.class, name = "ScanSource"),
-        @Type(value = FileSourcePredicate.class, name = "FileSink"),        
+        @Type(value = FileSourcePredicate.class, name = "FileSource"),        
         @Type(value = TupleSinkPredicate.class, name = "ViewResults"),
         @Type(value = ExcelSinkPredicate.class, name = "ExcelSink"),
         
