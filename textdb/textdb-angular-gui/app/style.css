@@ -144,7 +144,7 @@ body {
 
 
 .dropdown-content {
-	margin-top: 6px;
+	margin-top: 7px;
 	position: absolute;
   min-width: 160px;
 	text-align: left;
@@ -154,7 +154,7 @@ body {
 	display: none;
 }
 
-.dropdown-content a {
+.dropdown-content div {
 	display: block;
 	float: none;
 	color: black;
@@ -164,6 +164,6 @@ body {
 	text-align: left;
 }
 
-.dropdown-content a:hover {
+.dropdown-content div:hover {
 	background-color: #a6a6a6;
 }

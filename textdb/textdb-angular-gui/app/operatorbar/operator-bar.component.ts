@@ -33,7 +33,7 @@ export class OperatorBarComponent {
         "display" : "none",
       });
       var checkOnClickIsDropDown = jQuery('.dropdown');
-      var checkOnIcon = jQuery('.fa');
+      var checkOnIcon = jQuery('.group-icon');
       if (!checkOnClickIsDropDown.is(e.target) && !checkOnIcon.is(e.target)){
         currentDrop = "";
       } else {
