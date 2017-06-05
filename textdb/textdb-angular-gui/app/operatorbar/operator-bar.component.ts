@@ -17,54 +17,7 @@ export class OperatorBarComponent {
 
   initialize() {
     var container = jQuery('#the-flowchart').parent();
-    var InitialWidth = parseInt(jQuery("#the-flowchart").css("width"));
-    var InitialHeight = parseInt(jQuery("#the-flowchart").css("height"));
-
-    this.initializePanzoom(container, InitialWidth, InitialHeight);
     this.initializeOperators(container);
-  }
-
-  initializePanzoom(container: any, InitialWidth: number, InitialHeight: number) {
-    // Panzoom initialization...
-    jQuery('#the-flowchart').panzoom({
-      disablePan: true, // disable the pan
-      // contain : true, // if pan, only can pan within flowchart div
-      minScale: 0.5,
-      maxScale: 1,
-      increment: 0.1,
-    });
-    var possibleZooms = [0.5, 0.6, 0.7, 0.8, 0.9, 1];
-    var currentZoom = 2;
-    container.on('mousewheel.focal', function(e) {
-      e.preventDefault();
-      var delta = (e.delta || e.originalEvent.wheelDelta) || e.originalEvent.detail;
-      var zoomOut = delta;
-      // var zoomOut = delta ? delta < 0 : e.originalEvent.deltaY > 0;
-      currentZoom = Math.max(0, Math.min(possibleZooms.length - 1, (currentZoom + (zoomOut / 40 - 1))));
-      jQuery('#the-flowchart').flowchart('setPositionRatio', possibleZooms[currentZoom]);
-      jQuery('#the-flowchart').panzoom('zoom', possibleZooms[currentZoom], {
-        animate: false,
-        focal: e
-      });
-      var ZoomRatio = possibleZooms[currentZoom];
-      // enlarge the div ratio so there's more space for the operators
-      var new_width = InitialWidth / ZoomRatio;
-      var left_side_add = (new_width - InitialWidth) / 2 ;
-
-      var new_height = InitialHeight / ZoomRatio;
-      var top_side_add = (new_height - InitialHeight) / 2;
-
-      jQuery("#the-flowchart").css({
-        "width" : new_width + "px",
-        "left" : -left_side_add + "px",
-        "height" : new_height + "px",
-        "top" : -top_side_add + "px",
-      });
-
-
-
-    });
-    // panzoom end
   }
 
 
