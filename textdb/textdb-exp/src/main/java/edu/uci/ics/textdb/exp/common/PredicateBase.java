@@ -14,6 +14,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import edu.uci.ics.textdb.api.dataflow.IOperator;
 import edu.uci.ics.textdb.api.dataflow.IPredicate;
+import edu.uci.ics.textdb.exp.comparablematcher.ComparablePredicate;
 import edu.uci.ics.textdb.exp.dictionarymatcher.DictionaryPredicate;
 import edu.uci.ics.textdb.exp.dictionarymatcher.DictionarySourcePredicate;
 import edu.uci.ics.textdb.exp.fuzzytokenmatcher.FuzzyTokenPredicate;
@@ -24,6 +25,7 @@ import edu.uci.ics.textdb.exp.keywordmatcher.KeywordPredicate;
 import edu.uci.ics.textdb.exp.keywordmatcher.KeywordSourcePredicate;
 import edu.uci.ics.textdb.exp.nlp.entity.NlpEntityPredicate;
 import edu.uci.ics.textdb.exp.nlp.sentiment.NlpSentimentPredicate;
+import edu.uci.ics.textdb.exp.nlp.splitter.NlpSplitPredicate;
 import edu.uci.ics.textdb.exp.projection.ProjectionPredicate;
 import edu.uci.ics.textdb.exp.regexmatcher.RegexPredicate;
 import edu.uci.ics.textdb.exp.regexmatcher.RegexSourcePredicate;
@@ -69,7 +71,10 @@ import edu.uci.ics.textdb.exp.wordcount.WordCountOperatorPredicate;
         @Type(value = NlpSentimentPredicate.class, name = "NlpSentiment"),
         @Type(value = ProjectionPredicate.class, name = "Projection"),
         @Type(value = RegexSplitPredicate.class, name = "RegexSplit"),
+        @Type(value = NlpSplitPredicate.class, name = "NlpSplit"),
         @Type(value = SamplerPredicate.class, name = "Sampler"),
+        
+        @Type(value = ComparablePredicate.class, name = "Comparison"),
         
         @Type(value = ScanSourcePredicate.class, name = "ScanSource"),
         @Type(value = FileSourcePredicate.class, name = "FileSink"),        

@@ -10,6 +10,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import edu.uci.ics.textdb.api.dataflow.ISink;
 import edu.uci.ics.textdb.api.engine.Engine;
@@ -42,7 +44,6 @@ public class NewQueryPlanResource {
     @Path("/execute")
     // TODO: investigate how to use LogicalPlan directly
     public TextdbWebResponse executeQueryPlan(String logicalPlanJson) {
-        System.out.println("enter new execute");
         try {
             LogicalPlan logicalPlan = new ObjectMapper().readValue(logicalPlanJson, LogicalPlan.class);
             Plan plan = logicalPlan.buildQueryPlan();
@@ -54,17 +55,23 @@ public class NewQueryPlanResource {
                 tupleSink.open();
                 List<Tuple> results = tupleSink.collectAllTuples();
                 tupleSink.close();
-                                
-                return new TextdbWebResponse(0, new ObjectMapper().writeValueAsString(results));
+                
+                ArrayNode arrayNode = new ObjectMapper().createArrayNode();
+                for (Tuple tuple : results) {
+                    arrayNode.add(tuple.getReadableJson());
+                }
+                return new TextdbWebResponse(0, new ObjectMapper().writeValueAsString(arrayNode));
             } else {
                 // execute the plan and return success message
                 Engine.getEngine().evaluate(plan);
-                return new TextdbWebResponse(0, "plan sucessfully executed");
+                ObjectNode objectNode = new ObjectMapper().createObjectNode();
+                objectNode.put("status", "plan sucessfully executed");
+                return new TextdbWebResponse(0, new ObjectMapper().writeValueAsString(objectNode));
             }
             
         } catch ( IOException | RuntimeException e) {
             // TODO remove RuntimeException after the exception refactor
-            System.out.println(e.getMessage());
+            e.printStackTrace();
             throw new TextdbWebException(e.getMessage());
         }   
     }

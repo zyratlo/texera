@@ -5,6 +5,7 @@ import java.util.Map;
 
 import edu.uci.ics.textdb.api.exception.PlanGenException;
 import edu.uci.ics.textdb.exp.common.PredicateBase;
+import edu.uci.ics.textdb.exp.comparablematcher.ComparablePredicate;
 import edu.uci.ics.textdb.exp.dictionarymatcher.DictionaryPredicate;
 import edu.uci.ics.textdb.exp.dictionarymatcher.DictionarySourcePredicate;
 import edu.uci.ics.textdb.exp.fuzzytokenmatcher.FuzzyTokenPredicate;
@@ -15,6 +16,7 @@ import edu.uci.ics.textdb.exp.keywordmatcher.KeywordPredicate;
 import edu.uci.ics.textdb.exp.keywordmatcher.KeywordSourcePredicate;
 import edu.uci.ics.textdb.exp.nlp.entity.NlpEntityPredicate;
 import edu.uci.ics.textdb.exp.nlp.sentiment.NlpSentimentPredicate;
+import edu.uci.ics.textdb.exp.nlp.splitter.NlpSplitPredicate;
 import edu.uci.ics.textdb.exp.projection.ProjectionPredicate;
 import edu.uci.ics.textdb.exp.regexmatcher.RegexPredicate;
 import edu.uci.ics.textdb.exp.regexmatcher.RegexSourcePredicate;
@@ -53,10 +55,11 @@ public class OperatorArityConstants {
         fixedInputArityMap.put(NlpSentimentPredicate.class, 1);
         fixedInputArityMap.put(ProjectionPredicate.class, 1);
         fixedInputArityMap.put(RegexSplitPredicate.class, 1);
+        fixedInputArityMap.put(NlpSplitPredicate.class, 1);
         fixedInputArityMap.put(SamplerPredicate.class, 1);
         fixedInputArityMap.put(WordCountIndexSourcePredicate.class, 0);
         fixedInputArityMap.put(WordCountOperatorPredicate.class, 1);
-                
+        fixedInputArityMap.put(ComparablePredicate.class, 1); 
 
         fixedInputArityMap.put(ScanSourcePredicate.class, 0);
         fixedInputArityMap.put(FileSourcePredicate.class, 0);
@@ -84,9 +87,11 @@ public class OperatorArityConstants {
         fixedOutputArityMap.put(NlpSentimentPredicate.class, 1);
         fixedOutputArityMap.put(ProjectionPredicate.class, 1);
         fixedOutputArityMap.put(RegexSplitPredicate.class, 1);
+        fixedOutputArityMap.put(NlpSplitPredicate.class, 1);
         fixedOutputArityMap.put(SamplerPredicate.class, 1);
         fixedOutputArityMap.put(WordCountIndexSourcePredicate.class, 1);
         fixedOutputArityMap.put(WordCountOperatorPredicate.class, 1);
+        fixedOutputArityMap.put(ComparablePredicate.class, 1); 
 
         fixedOutputArityMap.put(ScanSourcePredicate.class, 1);
         fixedOutputArityMap.put(FileSourcePredicate.class, 1);

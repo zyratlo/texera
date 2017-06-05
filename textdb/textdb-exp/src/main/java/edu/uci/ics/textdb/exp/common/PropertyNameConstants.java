@@ -51,6 +51,11 @@ public class PropertyNameConstants {
     // related to nlp extractor
     public static final String NLP_ENTITY_TYPE = "nlpEntityType";
     
+    // related to nlp splitter
+    public static final String NLP_LANGUAGE = "nlpLanguage";
+    public static final String NLP_OUTPUT_TYPE = "splitOption";
+    public static final String NLP_SPLIT_KEY = "nlpSplit";
+    
     // related to regex splitter
     public static final String SPLIT_ATTRIBUTE = "splitAttribute";
     public static final String SPLIT_TYPE = "splitType";
@@ -70,5 +75,9 @@ public class PropertyNameConstants {
     public static final String OUTER_ATTRIBUTE_NAME = "outerAttribute";
     public static final String SPAN_DISTANCE = "spanDistance";
     public static final String JOIN_SIMILARITY_THRESHOLD = "similarityThreshold";
+    
+    // related to ComparableMatcher
+    public static final String COMPARISON_TYPE = "comparisonType";
+    public static final String COMPARE_TO_VALUE = "compareTo";
     
 }

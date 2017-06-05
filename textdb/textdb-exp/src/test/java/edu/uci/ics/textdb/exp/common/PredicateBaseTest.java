@@ -8,6 +8,8 @@ import org.junit.Test;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import edu.uci.ics.textdb.api.utils.TestUtils;
+import edu.uci.ics.textdb.exp.comparablematcher.ComparablePredicate;
+import edu.uci.ics.textdb.exp.comparablematcher.ComparisonType;
 import edu.uci.ics.textdb.exp.dictionarymatcher.Dictionary;
 import edu.uci.ics.textdb.exp.dictionarymatcher.DictionaryPredicate;
 import edu.uci.ics.textdb.exp.dictionarymatcher.DictionarySourcePredicate;
@@ -21,6 +23,8 @@ import edu.uci.ics.textdb.exp.keywordmatcher.KeywordSourcePredicate;
 import edu.uci.ics.textdb.exp.nlp.entity.NlpEntityPredicate;
 import edu.uci.ics.textdb.exp.nlp.entity.NlpEntityType;
 import edu.uci.ics.textdb.exp.nlp.sentiment.NlpSentimentPredicate;
+import edu.uci.ics.textdb.exp.nlp.splitter.NLPOutputType;
+import edu.uci.ics.textdb.exp.nlp.splitter.NlpSplitPredicate;
 import edu.uci.ics.textdb.exp.projection.ProjectionPredicate;
 import edu.uci.ics.textdb.exp.regexmatcher.RegexPredicate;
 import edu.uci.ics.textdb.exp.regexmatcher.RegexSourcePredicate;
@@ -215,10 +219,20 @@ public class PredicateBaseTest {
         testPredicate(wordCountPredicate);
     }
 
+    @Test
     public void testExcelSink() throws Exception {
     	ExcelSinkPredicate excelSinkPredicate = new ExcelSinkPredicate(10, 10);
     	testPredicate(excelSinkPredicate);
-      
+    }
+    
+    @Test
+    public void testComparable() throws Exception {
+        testPredicate(new ComparablePredicate("attr", ComparisonType.EQUAL_TO, 1));
+    }
+    
+    @Test
+    public void tesNlpSplit() throws Exception {
+        testPredicate(new NlpSplitPredicate(NLPOutputType.ONE_TO_MANY, "inputAttr", "resultAttr")) ;
     }
 
 }
