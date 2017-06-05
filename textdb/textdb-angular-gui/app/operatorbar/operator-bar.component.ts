@@ -17,51 +17,7 @@ export class OperatorBarComponent {
 
   initialize() {
     var container = jQuery('#the-flowchart').parent();
-
-    this.initializePanzoom(container);
     this.initializeOperators(container);
-  }
-
-  initializePanzoom(container: any) {
-    // Panzoom initialization...
-    jQuery('#the-flowchart').panzoom({
-      disablePan: true, // disable the pan
-      // contain : true, // if pan, only can pan within flowchart div
-
-    });
-    var possibleZooms = [0.7, 0.8, 0.9, 1];
-    var currentZoom = 2;
-    container.on('mousewheel.focal', function(e) {
-      e.preventDefault();
-      var delta = (e.delta || e.originalEvent.wheelDelta) || e.originalEvent.detail;
-      var zoomOut = delta;
-      // var zoomOut = delta ? delta < 0 : e.originalEvent.deltaY > 0;
-      currentZoom = Math.max(0, Math.min(possibleZooms.length - 1, (currentZoom + (zoomOut / 40 - 1))));
-      jQuery('#the-flowchart').flowchart('setPositionRatio', possibleZooms[currentZoom]);
-      jQuery('#the-flowchart').panzoom('zoom', possibleZooms[currentZoom], {
-        animate: false,
-        focal: e
-      });
-      var ZoomRatio = possibleZooms[currentZoom];
-      // enlarge the div ratio so there's more space for the operators
-      if (ZoomRatio < 0.8) {
-        jQuery('#the-flowchart').css({
-          "left": "-354px",
-          "top": "-172px",
-          "width": "143%",
-          "height": "143%",
-        });
-      } else {
-        jQuery('#the-flowchart').css({
-          "left": "0px",
-          "width": "100%",
-          "top": "0px",
-          "height": "100%",
-        });
-      }
-
-    });
-    // panzoom end
   }
 
 

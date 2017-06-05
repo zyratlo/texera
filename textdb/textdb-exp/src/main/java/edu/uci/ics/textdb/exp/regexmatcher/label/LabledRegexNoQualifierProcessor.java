@@ -1,4 +1,4 @@
-package edu.uci.ics.textdb.exp.regexmatcher;
+package edu.uci.ics.textdb.exp.regexmatcher.label;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,46 +12,61 @@ import java.util.stream.Collectors;
 import edu.uci.ics.textdb.api.field.ListField;
 import edu.uci.ics.textdb.api.span.Span;
 import edu.uci.ics.textdb.api.tuple.Tuple;
+import edu.uci.ics.textdb.exp.regexmatcher.RegexMatcher;
+import edu.uci.ics.textdb.exp.regexmatcher.RegexPredicate;
 
-public class LabeledRegexFilter {
+/**
+ * Helper class for processing labeled regex without any qualifiers.
+ * 
+ * 
+ * 
+ * @author Chang Liu
+ * @author Zuozhi Wang
+ *
+ */
+public class LabledRegexNoQualifierProcessor {
 
+    private RegexPredicate predicate;
+    
     private ArrayList<String> labelList = new ArrayList<>();
     private ArrayList<String> affixList = new ArrayList<>();
     private ArrayList<String> sortedAffixList = new ArrayList<>(); // sort the affixList by length in decreasing order to short-cut the filter tuple operation.
     
-    public LabeledRegexFilter(String regex) {
+    public LabledRegexNoQualifierProcessor(RegexPredicate predicate) {
+        this.predicate = predicate;
         // populate labelList and affixList
-        Matcher match = Pattern.compile(RegexMatcher.CHECK_REGEX_LABEL).matcher(regex);
-        int pre = 0;
-        while (match.find()) {
-            int start = match.start();
-            int end = match.end();
-            String affix = regex.substring(pre, start);
-            affixList.add(affix);
-            String label = regex.substring(start + 1, end - 1);
-            labelList.add(label);
-            pre = end;
-        }
-        affixList.add(regex.substring(pre));
-
-       sortedAffixList = new ArrayList<>(affixList);
-       sortedAffixList.sort((String o1, String o2)->o2.length()-o1.length());
+        preprocessRegex();
     }
     
-    public boolean filterTuple(Tuple tuple, String attribute) {
-            for (String affix : sortedAffixList) {
-                if (! tuple.getField(attribute).getValue().toString().contains(affix)) {
-                    return false;
-                }
-            }
+    private void preprocessRegex() {
+        Matcher labelMatcher = Pattern.compile(RegexMatcher.CHECK_REGEX_LABEL).matcher(predicate.getRegex());
+        int pre = 0;
+        while (labelMatcher.find()) {
+            int start = labelMatcher.start();
+            int end = labelMatcher.end();
+            
+            affixList.add(predicate.getRegex().substring(pre, start));
+            labelList.add(predicate.getRegex().substring(
+                    labelMatcher.start() + 1, labelMatcher.end() - 1).trim());
 
+            pre = end;
+        }
+        affixList.add(predicate.getRegex().substring(pre));
+        sortedAffixList = new ArrayList<>(affixList);
+        sortedAffixList.sort((o1, o2) -> (o2.length()-o1.length()));
+    }
+    
+    private boolean filterTuple(Tuple tuple, String attribute) {
+        for (String affix : sortedAffixList) {
+            if (! tuple.getField(attribute).getValue().toString().contains(affix)) {
+                return false;
+            }
+        }
         return true;
     }
     
-    public Tuple processTuple(Tuple tuple, RegexPredicate predicate) {
+    public List<Span> computeMatchingResults(Tuple tuple) {
 
-
-        
         Map<String, List<Span>> labelValues = fetchLabelSpans(tuple);
         
         List<Span> allAttrsMatchSpans = new ArrayList<>();
@@ -76,7 +91,8 @@ public class LabeledRegexFilter {
                 
                 if (i == 0) {
                     List<Span> validSpans = relevantSpans.stream()
-                            .filter(span -> span.getStart() - prefix.length() >=0 && fieldValue.substring(span.getStart() - prefix.length(), span.getStart()).equals(prefix))
+                            .filter(span -> span.getStart() >= prefix.length())
+                            .filter(span -> fieldValue.substring(span.getStart() - prefix.length(), span.getStart()).equals(prefix))
                             .collect(Collectors.toList());
                     matchList = validSpans.stream()
                             .map(span -> new ArrayList<Integer>(Arrays.asList(span.getStart() - prefix.length(), span.getStart())))
@@ -89,7 +105,8 @@ public class LabeledRegexFilter {
                 for (List<Integer> previousMatch : matchList) {
                     for (Span span : relevantSpans) {
                         if (previousMatch.get(1) == span.getStart()
-                                && span.getEnd() + suffix.length() <= fieldValue.length() && fieldValue.substring(span.getEnd(), span.getEnd() + suffix.length()).equals(suffix)) {
+                                && span.getEnd() + suffix.length() <= fieldValue.length() 
+                                && fieldValue.substring(span.getEnd(), span.getEnd() + suffix.length()).equals(suffix)) {
                             newMatchList.add(Arrays.asList(previousMatch.get(0), span.getEnd() + suffix.length()));
                         }
                     }
@@ -100,26 +117,22 @@ public class LabeledRegexFilter {
                     break;
                 }
             }
-
-            for(List<Integer> match: matchList){
-                if(match.get(0)>=0 && match.get(1) >=0){
-                    allAttrsMatchSpans.add(new Span(attribute, match.get(0), match.get(1), predicate.getRegex(), fieldValue.substring(match.get(0), match.get(1))));
-                }
-            }
-            //matchList.stream().forEach(match -> allAttrsMatchSpans.add(
-              //      new Span(attribute, match.get(0), match.get(1), predicate.getRegex(), fieldValue.substring(match.get(0), match.get(1)))));
+            
+            // assert that for every match:
+            //  start >= 0, and end >= 0, and start <= end
+            assert(matchList.stream()
+                    .filter(match -> match.get(0) >= 0)
+                    .filter(match -> match.get(1) >= 0)
+                    .filter(match -> match.get(0) <= match.get(1))
+                    .count() == (long) matchList.size());
+            
+            matchList.stream().forEach(match -> allAttrsMatchSpans.add(
+                    new Span(attribute, match.get(0), match.get(1), predicate.getRegex(), fieldValue.substring(match.get(0), match.get(1)))));
         }
-        
-        if (allAttrsMatchSpans.isEmpty()) {
-            return null;
-        }
 
-        ListField<Span> spanListField = tuple.getField(predicate.getSpanListName());
-        List<Span> spanList = spanListField.getValue();
-        spanList.addAll(allAttrsMatchSpans);
-
-        return tuple;
+        return allAttrsMatchSpans;
     }
+    
     
     /**
      * Creates Map of label and corresponding s[ams
