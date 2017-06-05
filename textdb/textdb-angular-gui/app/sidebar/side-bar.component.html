@@ -13,6 +13,9 @@
                 <select *ngIf="attribute === 'splitType'" class="form-control" id="{{attribute}}" required  [(ngModel)]="data.properties.attributes[attribute]" (ngModelChange)="onFormChange(attribute)" name="{{attribute}}" #{{attribute}}="ngModel">
                   <option *ngFor="let split of regexSplitList" [value] = "split">{{split}}</option>
                 </select>
+                <select *ngIf="attribute === 'splitOption'" class="form-control" id="{{attribute}}" required  [(ngModel)]="data.properties.attributes[attribute]" (ngModelChange)="onFormChange(attribute)" name="{{attribute}}" #{{attribute}}="ngModel">
+                  <option *ngFor="let split of nlpSplitList" [value] = "split">{{split}}</option>
+                </select>
                 <select *ngIf="attribute === 'sampleType'" class="form-control" id="{{attribute}}" required  [(ngModel)]="data.properties.attributes[attribute]" (ngModelChange)="onFormChange(attribute)" name="{{attribute}}" #{{attribute}}="ngModel">
                   <option *ngFor="let sample of samplerList" [value] = "sample">{{sample}}</option>
                 </select>
