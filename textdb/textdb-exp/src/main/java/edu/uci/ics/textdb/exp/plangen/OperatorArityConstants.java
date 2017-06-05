@@ -16,6 +16,7 @@ import edu.uci.ics.textdb.exp.keywordmatcher.KeywordPredicate;
 import edu.uci.ics.textdb.exp.keywordmatcher.KeywordSourcePredicate;
 import edu.uci.ics.textdb.exp.nlp.entity.NlpEntityPredicate;
 import edu.uci.ics.textdb.exp.nlp.sentiment.NlpSentimentPredicate;
+import edu.uci.ics.textdb.exp.nlp.splitter.NlpSplitPredicate;
 import edu.uci.ics.textdb.exp.projection.ProjectionPredicate;
 import edu.uci.ics.textdb.exp.regexmatcher.RegexPredicate;
 import edu.uci.ics.textdb.exp.regexmatcher.RegexSourcePredicate;
@@ -55,6 +56,7 @@ public class OperatorArityConstants {
         fixedInputArityMap.put(NlpSentimentPredicate.class, 1);
         fixedInputArityMap.put(ProjectionPredicate.class, 1);
         fixedInputArityMap.put(RegexSplitPredicate.class, 1);
+        fixedInputArityMap.put(NlpSplitPredicate.class, 1);
         fixedInputArityMap.put(SamplerPredicate.class, 1);
         fixedInputArityMap.put(WordCountIndexSourcePredicate.class, 0);
         fixedInputArityMap.put(WordCountOperatorPredicate.class, 1);
@@ -89,6 +91,7 @@ public class OperatorArityConstants {
         fixedOutputArityMap.put(NlpSentimentPredicate.class, 1);
         fixedOutputArityMap.put(ProjectionPredicate.class, 1);
         fixedOutputArityMap.put(RegexSplitPredicate.class, 1);
+        fixedOutputArityMap.put(NlpSplitPredicate.class, 1);
         fixedOutputArityMap.put(SamplerPredicate.class, 1);
         fixedOutputArityMap.put(WordCountIndexSourcePredicate.class, 1);
         fixedOutputArityMap.put(WordCountOperatorPredicate.class, 1);

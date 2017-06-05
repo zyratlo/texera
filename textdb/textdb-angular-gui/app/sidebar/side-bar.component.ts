@@ -1,7 +1,8 @@
-import { Component, ViewChild} from '@angular/core';
+import {Component, ViewChild, OnInit} from '@angular/core';
 
 import { CurrentDataService } from '../services/current-data-service';
 import { ModalComponent } from 'ng2-bs3-modal/ng2-bs3-modal';
+import {TableMetadata} from "../services/table-metadata";
 
 declare var jQuery: any;
 declare var Backbone: any;
@@ -24,15 +25,24 @@ export class SideBarComponent {
 
   hiddenList: string[] = ["operatorType", "luceneAnalyzer", "matchingType", "spanListName"];
 
-  selectorList: string[] = ["matchingType", "nlpEntityType", "splitType", "sampleType", "comparisonType", "aggregationType"].concat(this.hiddenList);
+  selectorList: string[] = ["matchingType", "nlpEntityType", "splitType", "splitOption", "sampleType", "comparisonType", "aggregationType", "attributes", "tableName", "attribute"].concat(this.hiddenList);
 
   matcherList: string[] = ["conjunction", "phrase", "substring"];
   nlpEntityList: string[] = ["noun", "verb", "adjective", "adverb", "ne_all", "number", "location", "person", "organization", "money", "percent", "date", "time"];
   regexSplitList: string[] = ["left", "right", "standalone"];
+  nlpSplitList: string[] = ["oneToOne", "oneToMany"];
   samplerList: string[] = ["random", "firstk"];
 
   compareList: string[] = ["=", ">", ">=", "<", "<=", "≠"];
   aggregationList: string[] = ["min", "max", "count", "sum", "average"];
+
+  attributeItems:Array<string> = [];
+  tableNameItems:Array<string> = [];
+  selectedAttributesList:Array<string> = [];
+  selectedAttributeMulti:string = "";
+  selectedAttributeSingle:string = "";
+  metadataList:Array<TableMetadata> = [];
+
 
   @ViewChild('MyModal')
   modal: ModalComponent;
@@ -61,6 +71,19 @@ export class SideBarComponent {
         for (var attribute in data.operatorData.properties.attributes) {
           this.attributes.push(attribute);
         }
+
+        // initialize selected attributes
+        this.selectedAttributeMulti = "";
+        this.selectedAttributeSingle = "";
+
+        if (data.operatorData.properties.attributes.attributes) {
+          this.selectedAttributesList = data.operatorData.properties.attributes.attributes;
+        } else if (data.operatorData.properties.attributes.attribute) {
+          this.selectedAttributesList = [data.operatorData.properties.attributes.attribute]
+        }
+        if (data.operatorData.properties.attributes.tableName) {
+          this.getAttributesForTable(data.operatorData.properties.attributes.tableName);
+        }
       });
 
     currentDataService.checkPressed$.subscribe(
@@ -82,6 +105,16 @@ export class SideBarComponent {
         this.ModalOpen();
 
       });
+
+    currentDataService.metadataRetrieved$.subscribe(
+      data => {
+        this.metadataList = data;
+        let metadata: (Array<TableMetadata>) = data;
+        metadata.forEach(x => {
+          this.tableNameItems.push((x.tableName));
+        });
+      }
+    )
   }
 
   humanize(name: string): string {
@@ -104,4 +137,45 @@ export class SideBarComponent {
     jQuery("#the-flowchart").flowchart("deleteOperator", this.operatorId);
     this.currentDataService.setAllOperatorData(jQuery('#the-flowchart').flowchart('getData'));
   }
+
+  attributeAdded (type: string) {
+    if (type === "multi") {
+      this.selectedAttributesList.push(this.selectedAttributeMulti);
+      this.data.properties.attributes.attributes = this.selectedAttributesList;
+      this.onFormChange("attributes");
+    } else if (type === "single") {
+      this.data.properties.attributes.attribute = this.selectedAttributeSingle;
+      this.onFormChange("attribute");
+    }
+  }
+
+  manuallyAdded (event:string) {
+    if (event.length === 0) {
+      // removed all attributes
+      this.selectedAttributesList = [];
+    } else {
+      this.selectedAttributesList = event.split(",");
+    }
+
+    this.data.properties.attributes.attributes = this.selectedAttributesList;
+    this.onFormChange("attributes");
+  }
+
+  getAttributesForTable (event:string) {
+    this.attributeItems = [];
+
+    this.metadataList.forEach(x => {
+      if (x.tableName === event) {
+        x.attributes.forEach(
+          y => {
+            if (!y.attributeName.startsWith("_")) {
+              this.attributeItems.push(y.attributeName);
+            }
+          });
+      }
+    });
+
+    this.onFormChange("tableName");
+  }
+
 }

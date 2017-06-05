@@ -17,7 +17,7 @@ let keywordMatcher = {
         },
         attributes: {
             "operatorType": "KeywordMatcher",
-            "attributes": ["text"],
+            "attributes": [],
             "query": "keyword",
             "luceneAnalyzer": "standard",
             "matchingType": "phrase",
@@ -43,7 +43,7 @@ let regexMatcher = {
     },
     attributes : {
         "operatorType": "RegexMatcher",
-        "attributes": ["attr1", "attr2"],
+        "attributes": [],
         "regex": "regex",
         "regexIgnoreCase": false,
         "spanListName": " "
@@ -68,7 +68,7 @@ let dictionaryMatcher = {
     },
     attributes :  {
         "operatorType": "DictionaryMatcher",
-        "attributes": ["attr1", "attr2"],
+        "attributes": [],
         "dictionaryEntries": ["entry1", "entry2"],
         "luceneAnalyzer": "standard",
         "matchingType": "phrase",
@@ -94,7 +94,7 @@ let fuzzyMatcher = {
     },
     attributes : {
         "operatorType": "FuzzyTokenMatcher",
-        "attributes": ["attr1", "attr2"],
+        "attributes": [],
         "query": "token1 token2 token3",
         "luceneAnalyzer": "standard",
         "thresholdRatio": 0.8,
@@ -120,7 +120,7 @@ let nlpEntity = {
     },
     attributes : {
         "operatorType": "NlpEntity",
-        "attributes": ["attr1", "attr2"],
+        "attributes": [],
         "nlpEntityType": "location",
         "spanListName": " "
     }
@@ -144,7 +144,7 @@ let nlpSentiment = {
     },
     attributes : {
         "operatorType": "NlpSentiment",
-        "attribute": "inputAttr",
+        "attribute": "",
         "resultAttribute": "resultAttr"
     }
   }
@@ -170,6 +170,30 @@ let regexSplit = {
         "splitAttribute": "attr1",
         "splitRegex": "regex",
         "splitType": "standalone"
+    }
+  }
+}
+
+let nlpSplit = {
+  top : 20,
+  left : 20,
+  properties : {
+    title : 'Nlp Sentence Split',
+    inputs : {
+      input_1 : {
+        label : "Input (:i)",
+      }
+    },
+    outputs : {
+      output_1 : {
+        label : "Output (:i)",
+      }
+    },
+    attributes : {
+        "operatorType": "NlpSplit",
+        "attribute": "",
+        "resultAttribute": "resultAttribute",
+        "splitOption": "oneToOne"
     }
   }
 }
@@ -214,7 +238,7 @@ let projection = {
     },
     attributes : {
         "operatorType": "Projection",
-        "attributes": ["attr1", "attr2"]
+        "attributes": []
       }
     }
   }
@@ -264,7 +288,7 @@ let scanSource = {
     },
     attributes : {
         "operatorType": "ScanSource",
-        "tableName": "tableName"
+        "tableName": ""
     }
   }
 }
@@ -286,8 +310,8 @@ let keywordSource = {
     },
     attributes : {
         "operatorType": "KeywordSource",
-        "tableName": "tableName",
-        "attributes": ["attr1", "attr2"],
+        "tableName": "",
+        "attributes": [],
         "query": "keyword",
         "luceneAnalyzer": "standard",
         "matchingType": "phrase",
@@ -314,8 +338,8 @@ let dictionarySource = {
     },
     attributes : {
         "operatorType": "DictionarySource",
-        "tableName": "tableName",
-        "attributes": ["attr1", "attr2"],
+        "tableName": "",
+        "attributes": [],
         "dictionaryEntries": ["entry1", "entry2"],
         "luceneAnalyzer": "standard",
         "matchingType": "phrase",
@@ -341,8 +365,8 @@ let regexSource = {
     },
     attributes : {
         "operatorType": "RegexSource",
-        "tableName": "tableName",
-        "attributes": ["attr1", "attr2"],
+        "tableName": "",
+        "attributes": [],
         "regex": "regex",
         "regexIgnoreCase": false,
         "regexUseIndex": true,
@@ -368,8 +392,8 @@ let fuzzyTokenSource = {
     },
     attributes : {
         "operatorType": "FuzzyTokenSource",
-        "tableName": "tableName",
-        "attributes": ["attr1", "attr2"],
+        "tableName": "",
+        "attributes": [],
         "query": "token1 token2 token3",
         "luceneAnalyzer": "standard",
         "thresholdRatio": 0.8,
@@ -395,7 +419,7 @@ let wordCountSource = {
     },
     attributes : {
         "operatorType": "WordCountIndexSource",
-        "tableName": "tableName",
+        "tableName": "",
         "attribute": "",
     }
   }
@@ -570,6 +594,6 @@ export const DEFAULT_MATCHERS: Data[] = [
     {id: 19, jsonData: result},
     {id: 20, jsonData: excelSink},
     {id: 21, jsonData: comparison},
-    {id: 22, jsonData: asterixSource},
-
+    {id: 22, jsonData: nlpSplit},
+    {id: 23, jsonData: asterixSource},
 ];

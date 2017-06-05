@@ -13,6 +13,9 @@
                 <select *ngIf="attribute === 'splitType'" class="form-control" id="{{attribute}}" required  [(ngModel)]="data.properties.attributes[attribute]" (ngModelChange)="onFormChange(attribute)" name="{{attribute}}" #{{attribute}}="ngModel">
                   <option *ngFor="let split of regexSplitList" [value] = "split">{{split}}</option>
                 </select>
+                <select *ngIf="attribute === 'splitOption'" class="form-control" id="{{attribute}}" required  [(ngModel)]="data.properties.attributes[attribute]" (ngModelChange)="onFormChange(attribute)" name="{{attribute}}" #{{attribute}}="ngModel">
+                  <option *ngFor="let split of nlpSplitList" [value] = "split">{{split}}</option>
+                </select>
                 <select *ngIf="attribute === 'sampleType'" class="form-control" id="{{attribute}}" required  [(ngModel)]="data.properties.attributes[attribute]" (ngModelChange)="onFormChange(attribute)" name="{{attribute}}" #{{attribute}}="ngModel">
                   <option *ngFor="let sample of samplerList" [value] = "sample">{{sample}}</option>
                 </select>
@@ -23,6 +26,26 @@
                   <option *ngFor="let agg of aggregationList" [value] = "agg">{{agg}}</option>
                 </select>
 
+                <div *ngIf="attribute === 'attributes'">
+                    <select class="form-control" name="{{attribute}}+Selector" [(ngModel)]="selectedAttributeMulti" (ngModelChange)="attributeAdded('multi')">
+                        <option selected hidden value="">Select attributes</option>
+                        <option *ngFor="let attribute of attributeItems" [value] = "attribute">{{attribute}}</option>
+                    </select>
+                    <input class="form-control" id="{{attribute}}" placeholder="Enter attributes" [ngModel]="selectedAttributesList.toString()" (ngModelChange)="manuallyAdded($event)" name="{{attribute}}" #{{attribute}}="ngModel">
+                </div>
+                
+                <div *ngIf="attribute === 'attribute'">
+                    <select class="form-control" name="{{attribute}}+Selector" [(ngModel)]="selectedAttributeSingle" (ngModelChange)="attributeAdded('single')">
+                        <option selected hidden value="">Select attributes</option>
+                        <option *ngFor="let attribute of attributeItems" [value] = "attribute">{{attribute}}</option>
+                    </select>
+                    <input class="form-control" id="{{attribute}}" placeholder="Enter attributes" [(ngModel)]="data.properties.attributes[attribute]" (ngModelChange)="onFormChange(attribute)" name="{{attribute}}" #{{attribute}}="ngModel">
+                </div>
+
+                <select *ngIf="attribute === 'tableName'" class="form-control" id="{{attribute}}" [(ngModel)]="data.properties.attributes[attribute]" (ngModelChange)="getAttributesForTable($event)" name="{{attribute}}" #{{attribute}}="ngModel">
+                    <option selected hidden value="">Select table</option>
+                    <option *ngFor="let tableName of tableNameItems" [value] = "tableName">{{tableName}}</option>
+                </select>
 
                 <input *ngIf="checkInSelector(attribute) === -1" [(ngModel)]="data.properties.attributes[attribute]" (ngModelChange)="onFormChange(attribute)" name="{{attribute}}" type="text" class="form-control" id="{{attribute}}" value="{{data.properties.attributes[attribute]}}" #{{attribute}}="ngModel" required>
             </div>
