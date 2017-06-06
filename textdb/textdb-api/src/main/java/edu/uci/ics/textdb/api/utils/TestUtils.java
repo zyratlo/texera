@@ -1,6 +1,7 @@
 package edu.uci.ics.textdb.api.utils;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -15,6 +16,7 @@ import junit.framework.Assert;
  * @author sandeepreddy602
  * @author zuozhi
  * @author rajeshyarlagadda
+ * @author Bhushan Pagariya (bhushanpagariya)
  */
 public class TestUtils {
 
@@ -71,7 +73,35 @@ public class TestUtils {
         
         return expectedResults.containsAll(exactResults) && exactResults.containsAll(expectedResults);
     }
-    
+
+    /**
+     * Compare two tuple lists for given attribute values
+     * @param expectedResults
+     * @param exactResults
+     * @param attributeNames
+     * @return True if two tuples have same values for given attribute, otherwise false
+     */
+    public static boolean attributeEquals(List<Tuple> expectedResults, List<Tuple> exactResults, List<String> attributeNames) {
+        if(expectedResults.size()!=exactResults.size())
+            return false;
+        if(exactResults.size() == 0)
+            return true;
+        // Remove all unwanted attributes from expectedResults
+        List<String> expectedResultAttrs = new ArrayList<>(expectedResults.get(0).getSchema().getAttributeNames());
+        expectedResultAttrs.removeAll(attributeNames);
+        String[] expectedResultsArr = expectedResultAttrs.toArray(new String[expectedResultAttrs.size()]);
+        expectedResults = Utils.removeFields(expectedResults, expectedResultsArr);
+
+        // Remove all unwanted attributes from exactResults
+        List<String> exactResultAttrs = new ArrayList<>(exactResults.get(0).getSchema().getAttributeNames());
+        exactResultAttrs.removeAll(attributeNames);
+        String[] exactResultsArr = exactResultAttrs.toArray(new String[exactResultAttrs.size()]);
+        exactResults = Utils.removeFields(exactResults, exactResultsArr);
+
+        // 2-way comparision between expectedResults and exactResults
+        return expectedResults.containsAll(exactResults) && exactResults.containsAll(expectedResults);
+    }
+
     public static JsonNode testJsonSerialization(Object object) {
         return testJsonSerialization(object, false);
     }

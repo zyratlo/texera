@@ -24,6 +24,8 @@ import edu.uci.ics.textdb.exp.nlp.entity.NlpEntityPredicate;
 import edu.uci.ics.textdb.exp.nlp.entity.NlpEntityType;
 import edu.uci.ics.textdb.exp.nlp.sentiment.EmojiSentimentPredicate;
 import edu.uci.ics.textdb.exp.nlp.sentiment.NlpSentimentPredicate;
+import edu.uci.ics.textdb.exp.nlp.splitter.NLPOutputType;
+import edu.uci.ics.textdb.exp.nlp.splitter.NlpSplitPredicate;
 import edu.uci.ics.textdb.exp.projection.ProjectionPredicate;
 import edu.uci.ics.textdb.exp.regexmatcher.RegexPredicate;
 import edu.uci.ics.textdb.exp.regexmatcher.RegexSourcePredicate;
@@ -232,6 +234,11 @@ public class PredicateBaseTest {
     @Test
     public void testEmojiSentiment() throws Exception {
         testPredicate(new EmojiSentimentPredicate("inputAttr", "outputAttr"));
+    }
+
+    @Test
+    public void tesNlpSplit() throws Exception {
+        testPredicate(new NlpSplitPredicate(NLPOutputType.ONE_TO_MANY, "inputAttr", "resultAttr")) ;
     }
 
 }
