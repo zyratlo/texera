@@ -120,11 +120,11 @@ public class LabledRegexNoQualifierProcessor {
             
             // assert that for every match:
             //  start >= 0, and end >= 0, and start <= end
-            assert(matchList.stream()
-                    .filter(match -> match.get(0) >= 0)
-                    .filter(match -> match.get(1) >= 0)
-                    .filter(match -> match.get(0) <= match.get(1))
-                    .count() == (long) matchList.size());
+           // assert(matchList.stream()
+           //         .filter(match -> match.get(0) >= 0)
+           //         .filter(match -> match.get(1) >= 0)
+           //         .filter(match -> match.get(0) <= match.get(1))
+           //         .count() == (long) matchList.size());
             
             matchList.stream().forEach(match -> allAttrsMatchSpans.add(
                     new Span(attribute, match.get(0), match.get(1), predicate.getRegex(), fieldValue.substring(match.get(0), match.get(1)))));

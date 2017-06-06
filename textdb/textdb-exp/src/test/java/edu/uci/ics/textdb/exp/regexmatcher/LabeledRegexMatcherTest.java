@@ -109,7 +109,7 @@ public class LabeledRegexMatcherTest {
     public void testMultipleLabeledRegex() throws Exception {
         String query = "<lab1>.*<lab2>";
         List<Tuple> exactResults = RegexMatcherTestHelper.getQueryResults(
-                PEOPLE_TABLE, query, "short", Arrays.asList(TestConstants.DESCRIPTION), "lab1", false, Integer.MAX_VALUE, 0, "angry", "lab2");
+                PEOPLE_TABLE, query, "shor", Arrays.asList(TestConstants.DESCRIPTION), "lab1", false, Integer.MAX_VALUE, 0, "angry", "lab2");
 
         List<Tuple> expectedResults = new ArrayList<>();
 
@@ -169,10 +169,10 @@ public class LabeledRegexMatcherTest {
 
     @Test
     public void testQueryWithoutQualifiersLabeledRegex() throws Exception{
-        String query = "<lab1> <lab2>";
+        String query = "<lab1>t <lab2>";
         List<Tuple> exactResults = RegexMatcherTestHelper.getQueryResults(
-                PEOPLE_TABLE, query, "short", Arrays.asList(TestConstants.DESCRIPTION), "lab1", false, Integer.MAX_VALUE, 0, "angry", "lab2");
-
+                PEOPLE_TABLE, query, "shor", Arrays.asList(TestConstants.DESCRIPTION), "lab1", false, Integer.MAX_VALUE, 0, "angry", "lab2");
+        System.out.print(exactResults.size());
         List<Tuple> expectedResults = new ArrayList<>();
 
         // expected to match "Short angry"
@@ -187,6 +187,31 @@ public class LabeledRegexMatcherTest {
 
         List<String> attributeNames = new ArrayList<>();
         attributeNames.add(RESULTS);
+        Assert.assertTrue(TestUtils.attributeEquals(expectedResults, exactResults, attributeNames));
+    }
+
+    @Test
+    public void testQueryWithoutQualifiersLabeledRegex1() throws Exception{
+        String query = "<lab1>.*<lab2>";
+        List<Tuple> exactResults = RegexMatcherTestHelper.getQueryResults(
+                TEXT_TABLE, query, "testing", Arrays.asList(RegexTestConstantsText.CONTENT), "lab1", false, Integer.MAX_VALUE, 0,"regex", "lab2");
+        List<Tuple> expectedResults = new ArrayList<>();
+        System.out.print("size" + exactResults.size());
+        // expected to match "Short angry"
+        List<Tuple> data = RegexTestConstantsText.getSampleTextTuples();
+        Schema spanSchema = Utils.addAttributeToSchema(RegexTestConstantsText.SCHEMA_TEXT, new Attribute(RESULTS, AttributeType.LIST));
+        List<Span> spans = new ArrayList<>();
+        spans.add(new Span(RegexTestConstantsText.CONTENT, 21, 34, query, "testing regex"));
+        IField spanField = new ListField<>(new ArrayList<>(spans));
+        List<IField> fields = new ArrayList<>(data.get(0).getFields());
+        fields.add(spanField);
+        expectedResults.add(new Tuple(spanSchema, fields.toArray(new IField[fields.size()])));
+
+        List<String> attributeNames = new ArrayList<>();
+        attributeNames.add(RESULTS);
+        for(Tuple tuple : exactResults){
+            System.out.println(tuple.toString());
+        }
         Assert.assertTrue(TestUtils.attributeEquals(expectedResults, exactResults, attributeNames));
     }
 }
