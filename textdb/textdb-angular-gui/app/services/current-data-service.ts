@@ -62,13 +62,13 @@ export class CurrentDataService {
     clearData() : void {
       this.newAddition.next({operatorNum : 0, operatorData: defaultData});
     }
-
+    
     processData(): void {
-
+      
         let textdbJson = {operators: {}, links: {}};
         var operators = [];
         var links = [];
-
+        
         var listAttributes : string[] = ["attributes", "dictionaryEntries"]
 
         for (var operatorIndex in this.allOperatorData.jsonData.operators) {
