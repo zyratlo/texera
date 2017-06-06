@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import edu.uci.ics.textdb.api.constants.SchemaConstants;
 import edu.uci.ics.textdb.api.dataflow.IOperator;
@@ -22,7 +23,7 @@ import edu.uci.ics.textdb.api.schema.Schema;
 import edu.uci.ics.textdb.api.tuple.Tuple;
 import edu.uci.ics.textdb.api.utils.Utils;
 
-public class MysqlSink implements ISink{
+public class MysqlSink implements ISink {
 	private final MysqlSinkPredicate predicate;
     private IOperator inputOperator;
     private int cursor = CLOSED;
@@ -64,7 +65,7 @@ public class MysqlSink implements ISink{
 			mysqlDropTable();
 			mysqlCreateTable();
 			cursor = OPENED;
-		}catch(Exception e){
+		} catch(SQLException | InstantiationException | IllegalAccessException | ClassNotFoundException e) {
 			throw new DataFlowException("MysqlSink failed to connect to mysql database."+e.getMessage());
 		}
 	}
@@ -100,7 +101,6 @@ public class MysqlSink implements ISink{
 	@Override
 	public void processTuples() throws TextDBException {
         while (this.getNextTuple() != null) {
-        
         }
 	}
 
@@ -118,23 +118,7 @@ public class MysqlSink implements ISink{
 		    throw new DataFlowException("MysqlSink fail to close. "+e.getMessage());
 		}
 	}
-	
-    /**
-     * Collects ALL the tuples to an in-memory list
-     * also insert all tuples into mysql database by calling this.getNextTuple
-     * Based on testing, collectAllTuples is much slower than processingTuples on large input (1000 tuples)
-     * @return a list of tuples
-     * @throws TextDBException
-     */
-    public List<Tuple> collectAllTuples() throws TextDBException {
-        ArrayList<Tuple> results = new ArrayList<>();
-        Tuple tuple;
-        while ((tuple = this.getNextTuple()) != null) {
-            results.add(tuple);
-        }
-        return results;
-    }
-    
+
     public int mysqlDropTable(){
 		String dropTableStatement = "DROP TABLE IF EXISTS "+ predicate.getTable() + ";";
 		try {
@@ -152,13 +136,7 @@ public class MysqlSink implements ISink{
 	private int mysqlCreateTable(){
 		List<Attribute> attributeList = outputSchema.getAttributes();
 		String createTableStatement = "CREATE TABLE " + predicate.getTable() +" (\n";
-		for(int i = 0; i < attributeList.size(); i++){
-			String curAttr = convertAttribute(attributeList.get(i));
-			if(i == 0)
-				createTableStatement += curAttr;
-			else
-				createTableStatement += ",\n"+curAttr;
-		}
+		createTableStatement += attributeList.stream().map(attr -> convertAttribute(attr)).collect(Collectors.joining(",\n"));
 		createTableStatement += "\n); ";
 		try {
 			if(statement == null)
@@ -195,13 +173,7 @@ public class MysqlSink implements ISink{
     	for (int i = 0; i < outputSchema.getAttributeNames().size(); i++) {    	    
     		fieldList.add(tuple.getField(outputSchema.getAttributeNames().get(i)));
     	}
-		for(int i = 0; i < fieldList.size(); i++){
-			String curField = converField(fieldList.get(i));
-			if(i == 0)
-				sqlStatemnt += curField;
-			else
-				sqlStatemnt += ", "+curField;
-		}
+    	sqlStatemnt += fieldList.stream().map(field -> converField(field)).collect(Collectors.joining(", "));    	
 		sqlStatemnt += "); ";
 		try {
 			if(statement == null)
@@ -211,6 +183,7 @@ public class MysqlSink implements ISink{
 			throw new DataFlowException("MysqlSink failed to insert into table "+predicate.getTable()+". "+e.getMessage());
 		}
 	}
+	
 	/**
 	 * TODO:: If the textDB STRING/TEXT field has "\'", it will create mysql syntax error.
 	 * @param field

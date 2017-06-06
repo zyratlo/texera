@@ -544,6 +544,33 @@ let excelSink = {
   }
 }
 
+let mysqlSink = {
+  top : 20,
+  left : 20,
+  properties : {
+    title : 'Write Mysql',
+    inputs : {
+      input_1 : {
+        label : "Input (:i)",
+      }
+    },
+    outputs : {
+      output_1 : {
+        label : "Output (:i)",
+      }
+    },
+    attributes : {
+        "operatorType": "MysqlSink",
+        "host": "localhost",
+        "port": 3305,
+        "database": "testDB",
+        "table": "testTable",
+        "username": "test",
+        "password": "test"
+    }
+  }
+}
+
 export const DEFAULT_MATCHERS: Data[] = [
     {id: 0, jsonData: regexMatcher},
     {id: 1, jsonData: keywordMatcher},
@@ -567,4 +594,5 @@ export const DEFAULT_MATCHERS: Data[] = [
     {id: 20, jsonData: excelSink},
     {id: 21, jsonData: comparison},
     {id: 22, jsonData: nlpSplit},
+    {id: 23, jsonData: mysqlSink},
 ];
