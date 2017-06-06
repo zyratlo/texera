@@ -17,9 +17,15 @@ import edu.uci.ics.textdb.exp.regexmatcher.RegexPredicate;
 
 /**
  * Helper class for processing labeled regex without any qualifiers.
- * 
- * 
- * 
+ * For regex format "this <label1> can cure <label2> better", extract the labels and affixes.
+ * affixList {"this "," can cure "," better"}
+ * labelList {"label1", "label2"}
+ * Sort the affixList in length decreasing order valid tuples filtering to short-cut processing time.
+ * Generate map of labels and the corresponding span.
+ * For each valid input tuple, match the first label's spans to its prefix and suffix with position parameter.
+ * Filter out the valid spans to continue match with following labels.
+ * Early break if no matching in any step.
+ *
  * @author Chang Liu
  * @author Zuozhi Wang
  *
@@ -37,7 +43,13 @@ public class LabledRegexNoQualifierProcessor {
         // populate labelList and affixList
         preprocessRegex();
     }
-    
+
+    /**
+     * For regex format "this <label1> can cure <label2> better", extract the labels and affixes.
+     * affixList {"this "," can cure "," better"}
+     * labelList {"label1", "label2"}
+     * Sort the affixList in length decreasing order to filter tuples.
+     */
     private void preprocessRegex() {
         Matcher labelMatcher = Pattern.compile(RegexMatcher.CHECK_REGEX_LABEL).matcher(predicate.getRegex());
         int pre = 0;
@@ -55,7 +67,13 @@ public class LabledRegexNoQualifierProcessor {
         sortedAffixList = new ArrayList<>(affixList);
         sortedAffixList.sort((o1, o2) -> (o2.length()-o1.length()));
     }
-    
+
+    /**
+     * Sort the affixList in length decreasing order to filter valid tuples.
+     * @param tuple
+     * @param attribute
+     * @return
+     */
     private boolean filterTuple(Tuple tuple, String attribute) {
         for (String affix : sortedAffixList) {
             if (! tuple.getField(attribute).getValue().toString().contains(affix)) {
@@ -64,7 +82,15 @@ public class LabledRegexNoQualifierProcessor {
         }
         return true;
     }
-    
+
+    /***
+     * Filter out valid tuple using affixes in the regex.
+     * String Match the entire regex from the first label's spans with its prefix and suffix using span's start and end information.
+     * Filter out the valid spans to continue match with following labels.
+     * Early break if no matching in any step.
+     * @param tuple
+     * @return
+     */
     public List<Span> computeMatchingResults(Tuple tuple) {
 
         Map<String, List<Span>> labelValues = fetchLabelSpans(tuple);
@@ -120,11 +146,11 @@ public class LabledRegexNoQualifierProcessor {
             
             // assert that for every match:
             //  start >= 0, and end >= 0, and start <= end
-           // assert(matchList.stream()
-           //         .filter(match -> match.get(0) >= 0)
-           //         .filter(match -> match.get(1) >= 0)
-           //         .filter(match -> match.get(0) <= match.get(1))
-           //         .count() == (long) matchList.size());
+            assert(matchList.stream()
+                    .filter(match -> match.get(0) >= 0)
+                    .filter(match -> match.get(1) >= 0)
+                    .filter(match -> match.get(0) <= match.get(1))
+                    .count() == (long) matchList.size());
             
             matchList.stream().forEach(match -> allAttrsMatchSpans.add(
                     new Span(attribute, match.get(0), match.get(1), predicate.getRegex(), fieldValue.substring(match.get(0), match.get(1)))));
@@ -135,7 +161,7 @@ public class LabledRegexNoQualifierProcessor {
     
     
     /**
-     * Creates Map of label and corresponding s[ams
+     * Creates Map of label and corresponding spans
      * @param inputTuple
      * @return 
      */

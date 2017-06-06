@@ -148,7 +148,6 @@ public class RegexMatcher extends AbstractSingleInputOperator {
         if (inputTuple == null) {
             return null;
         }
-        
 
         List<Span> matchingResults;
         if (this.regexType == RegexType.NO_LABELS) {
