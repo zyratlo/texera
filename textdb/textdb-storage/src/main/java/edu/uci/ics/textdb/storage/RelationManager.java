@@ -36,7 +36,7 @@ public class RelationManager {
     private static volatile RelationManager singletonRelationManager = null;
 
     private RelationManager() throws StorageException {
-        if (!checkCatalogExistence()) {
+        if (! checkCatalogExistence()) {
             initializeCatalog();
         }
     }
@@ -70,16 +70,16 @@ public class RelationManager {
 
     /**
      * Creates a new table.
-     * Table name must be unique (case insensitive).
-     * LuceneAnalyzer must be a valid analyzer string.
-     * <p>
+     *   Table name must be unique (case insensitive).
+     *   LuceneAnalyzer must be a valid analyzer string.
+     *
      * The "_id" attribute will be added to the table schema.
      * System automatically generates a unique ID for each tuple inserted to a table,
-     * the generated ID will be in "_id" field.
+     *   the generated ID will be in "_id" field.
      *
-     * @param tableName,            the name of the table, must be unique, case is not sensitive
-     * @param indexDirectory,       the directory to store the index and data, must not duplicate with other tables' directories
-     * @param schema,               the schema of the table
+     * @param tableName, the name of the table, must be unique, case is not sensitive
+     * @param indexDirectory, the directory to store the index and data, must not duplicate with other tables' directories
+     * @param schema, the schema of the table
      * @param luceneAnalyzerString, the string representing the lucene analyzer used
      * @throws StorageException
      */
@@ -157,7 +157,7 @@ public class RelationManager {
             throw new StorageException("Deleting a system catalog table is prohibited.");
         }
         // if table doesn't exist, then do nothing
-        if (!checkTableExistence(tableName)) {
+        if (! checkTableExistence(tableName)) {
             return;
         }
 
@@ -192,7 +192,7 @@ public class RelationManager {
      * Returns null if the tuple doesn't exist.
      *
      * @param tableName, the name of the table, case insensitive
-     * @param idValue,   the IDField to lookup
+     * @param idValue, the IDField to lookup
      * @return
      * @throws StorageException
      */
@@ -477,7 +477,7 @@ public class RelationManager {
         Tuple t = null;
         dataReader.open();
         while ((t = dataReader.getNextTuple()) != null) {
-            String tableName = (String) t.getField(CatalogConstants.TABLE_NAME).getValue();
+            String tableName = (String)t.getField(CatalogConstants.TABLE_NAME).getValue();
 
             if (!tableName.equals(CatalogConstants.SCHEMA_CATALOG.toLowerCase())
                     && !tableName.equals(CatalogConstants.TABLE_CATALOG.toLowerCase())
