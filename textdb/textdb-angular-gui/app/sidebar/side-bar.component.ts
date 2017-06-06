@@ -67,7 +67,7 @@ export class SideBarComponent {
   }
 
   checkOperatorNameIsUploadDict() {
-    return this.operatorId === 22;
+    return this.operatorId === 23;
   }
 
   constructor(private currentDataService: CurrentDataService) {
