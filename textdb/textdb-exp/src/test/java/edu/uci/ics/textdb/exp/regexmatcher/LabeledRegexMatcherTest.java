@@ -213,7 +213,7 @@ public class LabeledRegexMatcherTest {
     }
     @Test
     public void testQueryWithoutQualifiersLabeledRegex3() throws Exception{
-        String query = "Lin <lab2> is <lab1> and lin <lab2>";
+        String query = "Lin <lab2> is <lab1> and lin <lab2> is Angry";
         List<Tuple> exactResults = RegexMatcherTestHelper.getQueryResults(
                 PEOPLE_TABLE, query, "short", Arrays.asList(TestConstants.DESCRIPTION), "lab1", false, Integer.MAX_VALUE, 0, "Clooney", "lab2");
         System.out.print(exactResults.size());
@@ -223,7 +223,7 @@ public class LabeledRegexMatcherTest {
         List<Tuple> data = TestConstants.getSamplePeopleTuples();
         Schema spanSchema = Utils.addAttributeToSchema(TestConstants.SCHEMA_PEOPLE, new Attribute(RESULTS, AttributeType.LIST));
         List<Span> spans = new ArrayList<>();
-        spans.add(new Span(TestConstants.DESCRIPTION, 0, 36, query, "Lin Clooney is Short and lin clooney"));
+        spans.add(new Span(TestConstants.DESCRIPTION, 0, 45, query, "Lin Clooney is Short and lin clooney is Angry"));
         IField spanField = new ListField<>(new ArrayList<>(spans));
         List<IField> fields = new ArrayList<>(data.get(3).getFields());
         fields.add(spanField);

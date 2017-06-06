@@ -20,9 +20,9 @@ import edu.uci.ics.textdb.exp.regexmatcher.RegexPredicate;
  * For regex format "this <label1> can cure <label2> better", extract the labels and affixes.
  * affixList {"this "," can cure "," better"}
  * labelList {"label1", "label2"}
- * Sort the affixList in length decreasing order valid tuples filtering to short-cut processing time.
- * Generate map of labels and the corresponding span.
- * For each valid input tuple, match the first label's spans to its prefix and suffix with position parameter.
+ * Sort the affixList in length-decreasing order to select valid tuples with all the affixes inside to short-cut processing time.
+ * Generate map of labels and the corresponding spans.
+ * For each valid input tuple, match the first label's spans to its prefix and suffix with start/end position information.
  * Filter out the valid spans to continue match with following labels.
  * Early break if no matching in any step.
  *
