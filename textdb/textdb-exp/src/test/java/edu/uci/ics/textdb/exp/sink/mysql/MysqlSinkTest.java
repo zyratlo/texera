@@ -6,13 +6,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.stubbing.OngoingStubbing;
-
 import edu.uci.ics.textdb.api.constants.SchemaConstants;
 import edu.uci.ics.textdb.api.constants.TestConstants;
 import edu.uci.ics.textdb.api.dataflow.IOperator;
@@ -30,16 +25,62 @@ import edu.uci.ics.textdb.api.span.Span;
 import edu.uci.ics.textdb.api.tuple.Tuple;
 import junit.framework.Assert;
 
+/**
+ * @Description:
+ * 		The purpose of this main function is to test MysqlSink Operator
+ * @TODO:
+ * 		Before running the test,  setup mysql server and execute the following sql commands.
+ * 		-- 1. create mysql user 'testUser' with 'testPassword'
+ * 			CREATE USER 'testUser'@'localhost' IDENTIFIED BY 'testPassword';
+ * 			GRANT ALL ON *.* TO 'testUser'@'localhost';
+ * 		-- 2. create database 'testDB'
+ * 			DROP DATABASE IF EXISTS testDB;
+ * 			CREATE DATABASE testDB;
+ * 
+ * @After:
+ * 		To check insertion status, comment out cleanUp() and run the following sql commands
+ * 		USE testDB;
+ * 		SELECT * FROM testDB;
+ * 
+ * @author Jinggang
+ */
 public class MysqlSinkTest {
 	private MysqlSink mysqlSink;
 	private MysqlSinkPredicate predicate;
     private IOperator inputOperator;
     private Schema inputSchema = new Schema(
             SchemaConstants._ID_ATTRIBUTE, new Attribute("content", AttributeType.TEXT), SchemaConstants.PAYLOAD_ATTRIBUTE);
+
+    public static void main(String[] args) throws Exception{
+    	MysqlSinkTest test = new MysqlSinkTest();
+    	test.setUp();
+    	test.testOpen();
+    	
+    	test.setUp();
+    	test.testClose();
+    	
+    	test.setUp();
+    	test.testGetNextTuple();    	
+    	
+    	test.setUp();
+    	test.testProcessTuples();
+    	
+    	test.setUp();
+    	test.test2TupleInsertion();
+    	
+    	test.setUp();
+    	test.testTupleListInsertion();
+    	
+    	// CleanUp removes the last testTable left in previous test.
+    	// Comment out cleanUp to see results in mysql.
+    	test.cleanUp();
+    	System.out.println("Tests All Finished.");
+    }
+    
+    
     /**
      * To check insertion results, comment out cleanUp() and create database named testDB first.
      */
-    @Before
     public void setUp(){
     	inputOperator = Mockito.mock(IOperator.class);
         Mockito.when(inputOperator.getOutputSchema()).thenReturn(inputSchema);
@@ -51,15 +92,14 @@ public class MysqlSinkTest {
     /**
      * Drop testTable from mysql
      */
-    @After
     public void cleanUp() {
     	mysqlSink.setInputOperator(inputOperator);
     	mysqlSink.open();
-    	mysqlSink.mysqlDropTable();
+    	//Notice only comment out mysqlDropTable() will still left an empty testTable created by mysqlSink.open() in mysql database.
+    	mysqlSink.mysqlDropTable();		
         mysqlSink.close();
     }
     
-    @Test
     public void testOpen() throws Exception{
     	mysqlSink.open();
     	Mockito.verify(inputOperator).open();
@@ -67,15 +107,12 @@ public class MysqlSinkTest {
         mysqlSink.close();
     }
 
-    @Test
     public void testProcessTuples(){
     	mysqlSink.open();
     	mysqlSink.processTuples();
     	mysqlSink.close();
-    	
     }
     
-    @Test
     public void testClose() throws Exception {
     	mysqlSink.open();
     	mysqlSink.close();
@@ -83,7 +120,6 @@ public class MysqlSinkTest {
         Mockito.verify(inputOperator).close();   
     }
     
-    @Test
     public void testGetNextTuple() throws Exception {
         Tuple sampleTuple = Mockito.mock(Tuple.class);
         Mockito.when(sampleTuple.toString()).thenReturn("Sample Tuple");
@@ -103,7 +139,6 @@ public class MysqlSinkTest {
      * Create two tuples, insert into mysql
      * @throws ParseException
      */
-    @Test
     public void test2TupleInsertion() throws Exception {
         ArrayList<String> attributeNames = new ArrayList<>();
         attributeNames.add(TestConstants.FIRST_NAME);
@@ -146,7 +181,6 @@ public class MysqlSinkTest {
      * Create 10000 tuples with all regular fields
      * Insert into mysql database
      */
-    @Test
     public void testTupleListInsertion() throws Exception {
         ArrayList<String> attributeNames = new ArrayList<>();
         attributeNames.add(TestConstants.FIRST_NAME);
@@ -184,6 +218,7 @@ public class MysqlSinkTest {
         
         mysqlSink.setInputOperator(localInputOperator);
         mysqlSink.open();
+        mysqlSink.processTuples();
         mysqlSink.close();
     }
     
@@ -207,5 +242,4 @@ public class MysqlSinkTest {
 		return dateFormat.parse(dateFormat.format(date));
 	}
     
-	
 }

@@ -2,12 +2,13 @@ package edu.uci.ics.textdb.exp.sink.mysql;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-
+import java.util.stream.Stream;
 import edu.uci.ics.textdb.api.constants.SchemaConstants;
 import edu.uci.ics.textdb.api.dataflow.IOperator;
 import edu.uci.ics.textdb.api.dataflow.ISink;
@@ -30,6 +31,7 @@ public class MysqlSink implements ISink {
     private Schema outputSchema;
     private Connection connection;
     private Statement statement;
+    private PreparedStatement prepStatement;
 	
 	public MysqlSink(MysqlSinkPredicate predicate){
 		this.predicate = predicate;
@@ -44,6 +46,10 @@ public class MysqlSink implements ISink {
 		return outputSchema;
 	}
 
+	/**
+	 * Filter the input tuples to removie _id and list fields
+	 * Setup JDBC connection. Drop previous testTable and create new testTable based on output schema
+	 */
 	@Override
 	public void open() throws TextDBException {
 		if(cursor == OPENED){
@@ -90,20 +96,35 @@ public class MysqlSink implements ISink {
             }
         }
         Tuple resultTuple = Utils.removeFields(inputTuple, SchemaConstants._ID, SchemaConstants.PAYLOAD);    	
-        mysqlInsertTuple(resultTuple);
         return resultTuple;
     }
 	
     /**
-     * Insert tuples into mysql database by calling this.getNextTuple. 
+     * Insert tuples into mysql database using prepared statement. 
      * No output
      */
 	@Override
 	public void processTuples() throws TextDBException {
-        while (this.getNextTuple() != null) {
-        }
+		String sqlStatemnt = "INSERT INTO "+predicate.getTable() +" VALUES(" 
+				+Stream.generate(() -> "?").limit(outputSchema.getAttributeNames().size()).collect(Collectors.joining(","))
+				+");";
+		try {
+			prepStatement = connection.prepareStatement(sqlStatemnt);
+	    	Tuple tuple;
+	        while ((tuple = this.getNextTuple()) != null) {
+	    		List<IField> fieldList = new ArrayList<>();
+	        	for (int i = 0; i < outputSchema.getAttributeNames().size(); i++) {    	    
+	        		fieldList.add(tuple.getField(outputSchema.getAttributeNames().get(i)));
+	        	}
+	        	for(int i = 0; i < fieldList.size(); i++){
+	        		prepareField(i, fieldList.get(i));
+	        	}
+	        	prepStatement.executeUpdate();
+	        }
+		} catch (SQLException e) {
+			throw new DataFlowException("MysqlSink processTuples fails to execute prepared statement. "+e.getMessage());
+		}
 	}
-
 	
 	@Override
 	public void close() throws TextDBException {
@@ -112,14 +133,22 @@ public class MysqlSink implements ISink {
         }
     	inputOperator.close();
         try {
+	    	if(statement != null)
+	    		statement.close();
+	    	if(prepStatement != null)
+	    		prepStatement.close();
 			connection.close();
             cursor = CLOSED; 
-		} catch (Exception e) {
+		} catch (SQLException e) {
 		    throw new DataFlowException("MysqlSink fail to close. "+e.getMessage());
 		}
 	}
 
-    public int mysqlDropTable(){
+	/**
+	 * This method is not private as we use it to clean up in MysqlSinkTest.java
+	 * @return
+	 */
+    protected int mysqlDropTable(){
 		String dropTableStatement = "DROP TABLE IF EXISTS "+ predicate.getTable() + ";";
 		try {
 			if(statement == null)
@@ -166,45 +195,28 @@ public class MysqlSink implements ISink {
 		}
 		return sqlStatement;
 	}
-	
-	private int mysqlInsertTuple(Tuple tuple){
-		String sqlStatemnt = "INSERT INTO "+predicate.getTable() +" VALUES(";
-		List<IField> fieldList = new ArrayList<>();
-    	for (int i = 0; i < outputSchema.getAttributeNames().size(); i++) {    	    
-    		fieldList.add(tuple.getField(outputSchema.getAttributeNames().get(i)));
-    	}
-    	sqlStatemnt += fieldList.stream().map(field -> converField(field)).collect(Collectors.joining(", "));    	
-		sqlStatemnt += "); ";
-		try {
-			if(statement == null)
-				statement = connection.createStatement();
-			return statement.executeUpdate(sqlStatemnt);
-		} catch (SQLException e) {
-			throw new DataFlowException("MysqlSink failed to insert into table "+predicate.getTable()+". "+e.getMessage());
-		}
-	}
-	
-	/**
-	 * TODO:: If the textDB STRING/TEXT field has "\'", it will create mysql syntax error.
-	 * @param field
-	 * @return
-	 */
-	private String converField(IField field){
+		
+	private void prepareField(int idx, IField field) throws SQLException{
 		if(field == null){
-			return "NULL";
+			return;
 		}
 		else if(field instanceof DoubleField){
-			return field.getValue().toString();
+			prepStatement.setDouble(idx+1, (double) field.getValue());
 		}
 		else if(field instanceof IntegerField){
-			return field.getValue().toString();
+			prepStatement.setInt(idx+1, (int) field.getValue());
 		}
 		else if(field instanceof DateField){ // Notice it's java.sql.Date not java.util.Date
 			java.util.Date utilDate = (java.util.Date) field.getValue();
-			return "\'"+(new java.sql.Date(utilDate.getTime())).toString() + "\'";
+			java.sql.Date sqlDate = new java.sql.Date(utilDate.getTime());
+			prepStatement.setDate(idx+1, sqlDate);
 		}
-		else{	// STRING, TEXT
-			return "\'" + field.getValue().toString() +"\'";
+		else{
+			/* textDB STRING, TEXT
+			 * The attribute in mysql in TEXT. preparedStatement.setString() works for TEXT attribute based the reference below.
+			 * https://stackoverflow.com/questions/6772594/what-is-the-java-sql-types-equivalent-for-the-mysql-text
+			 * */ 
+			prepStatement.setString(idx+1, field.getValue().toString());
 		}
 	}
 	
