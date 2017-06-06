@@ -23,7 +23,7 @@ export class SideBarComponent {
   operatorId: number;
   operatorTitle: string;
 
-  hiddenList: string[] = ["operatorType", "luceneAnalyzer", "matchingType", "spanListName"];
+  hiddenList: string[] = ["operatorType", "luceneAnalyzer", "matchingType"];
 
   selectorList: string[] = ["matchingType", "nlpEntityType", "splitType", "splitOption", "sampleType", "comparisonType", "aggregationType", "attributes", "tableName", "attribute"].concat(this.hiddenList);
 
