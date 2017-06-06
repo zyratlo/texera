@@ -34,7 +34,6 @@
                     <input class="form-control" id="{{attribute}}" placeholder="Enter attributes" [ngModel]="selectedAttributesList.toString()" (ngModelChange)="manuallyAdded($event)" name="{{attribute}}" #{{attribute}}="ngModel">
                 </div>
 
-
                 <div *ngIf="attribute === 'dictionaryEntries'">
                     <select class="form-control" name="{{attribute}}+Selector" [(ngModel)]="selectedDictionary" (ngModelChange)="dictionaryAdded()">
                         <option selected hidden value="">Select Dictionary</option>
@@ -56,7 +55,7 @@
                     <option *ngFor="let tableName of tableNameItems" [value] = "tableName">{{tableName}}</option>
                 </select>
 
-                <input *ngIf="checkInSelector(attribute) === -1" [(ngModel)]="data.properties.attributes[attribute]" (ngModelChange)="onFormChange(attribute)" name="{{attribute}}" type="text" class="form-control" id="{{attribute}}" value="{{data.properties.attributes[attribute]}}" #{{attribute}}="ngModel" required>
+                <input *ngIf="checkInSelector(attribute) === -1" [(ngModel)]="data.properties.attributes[attribute]" (ngModelChange)="onFormChange(attribute)" name="{{attribute}}" type="text" class="form-control" id="{{attribute}}" defaultValue="{{data.properties.attributes[attribute]}}" #{{attribute}}="ngModel" required>
             </div>
             <div *ngIf="!checkOperatorNameIsUploadDict()">
                 <button type="button" class="btn btn-default" (click) = "onDelete()">Delete</button>
