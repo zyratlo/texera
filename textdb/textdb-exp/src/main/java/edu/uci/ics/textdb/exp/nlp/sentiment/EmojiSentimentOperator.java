@@ -171,10 +171,7 @@ public class EmojiSentimentOperator implements IOperator {
     
     private Integer computeSentimentScore(Tuple inputTuple) {
         String inputText = inputTuple.<IField>getField(predicate.getInputAttributeName()).getValue().toString();
-        boolean result = false ;
         Matcher matcher = null;
-        String matchedString="";
-        String unicodeString = "";
         Integer matchedStringScore = 2;
         if(SMILEY_REGEX_PATTERN!= null){
             matcher = SMILEY_REGEX_PATTERN.matcher(inputText);
@@ -192,17 +189,17 @@ public class EmojiSentimentOperator implements IOperator {
             matcher = EMOJI_REGEX.matcher(inputText);
             if(matcher.matches()) {
                 for( int i = 0; i < matcher.groupCount(); i++ ) {
-                    matchedString = matcher.group(i);
+                    String matchedString = matcher.group(i);
                     char[] ca = matchedString.toCharArray();
                     //if javascript escape characters in range of EMOJI_REGEX are found it loops through the entire strings to check 
                     // for presence of emoticon unicode in corrosponding arraylists. A unicodestring is made of two adjacent chars.
                     for(int j = 0; j < ca.length-1; j++  ) {
-                        unicodeString = String.format("%04x", Character.toCodePoint(ca[j], ca[j+1]));
+                        String unicodeString = String.format("%04x", Character.toCodePoint(ca[j], ca[j+1]));
                         //check if the uncode string is present in the any one of the arraylists
                         if(happy.contains( unicodeString )) {
                             matchedStringScore++;
                         } else if(neutral.contains( unicodeString )){
-                            matchedStringScore = 2;
+                            // neutral doesn't affect the score
                         } else if(unhappy.contains( unicodeString )){
                             matchedStringScore--;
                         }
