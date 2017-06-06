@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+
 import { MockDataService } from '../services/mock-data-service';
 import { CurrentDataService } from '../services/current-data-service';
 
@@ -11,7 +12,8 @@ declare var jQuery: any;
   styleUrls: ['../style.css']
 })
 export class OperatorBarComponent {
-  constructor(private mockDataService: MockDataService, private currentDataService: CurrentDataService) {}
+
+  constructor(private mockDataService: MockDataService, private currentDataService: CurrentDataService) { }
 
   initialize() {
     var container = jQuery('#the-flowchart').parent();
@@ -62,6 +64,7 @@ export class OperatorBarComponent {
     // panzoom end
   }
 
+
   initializeOperators(container: any) {
     var findOperatorData = function(opeartorId: number, opeatorList: [any]): any {
       for (let operator of opeatorList) {
@@ -71,6 +74,7 @@ export class OperatorBarComponent {
       }
       return null;
     }
+
 
     let operatorList;
     this.mockDataService.getOperatorList().then(
@@ -143,5 +147,4 @@ export class OperatorBarComponent {
       }
     });
   }
-
 }
