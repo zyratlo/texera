@@ -91,7 +91,7 @@ public class RelationManager {
         if (checkTableExistence(tableName)) {
             throw new StorageException(String.format("Table %s already exists.", tableName));
         }
-	
+	  
         // create folder if it's not there
         // and convert the index directory to its absolute path
         try {
