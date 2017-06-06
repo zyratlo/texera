@@ -360,7 +360,7 @@ public class RelationManager {
         dataWriter.open();
         dataWriter.insertTuple(CatalogConstants.getTableCatalogTuple(tableName, indexDirectory, luceneAnalyzerString));
         dataWriter.close();
-        
+       
         // write schema catalog
         Schema tableSchema = Utils.getSchemaWithID(schema);
         DataStore schemaCatalogStore = new DataStore(CatalogConstants.SCHEMA_CATALOG_DIRECTORY,
