@@ -103,16 +103,16 @@ public class RelationManager {
         } catch (IOException e) {
             throw new StorageException(e);
         }
-	
+        
         // check if the indexDirectory overlaps with another table's index directory
         Query indexDirectoryQuery = new TermQuery(new Term(CatalogConstants.TABLE_DIRECTORY, indexDirectory));
         DataReader tableCatalogDataReader = new DataReader(CatalogConstants.TABLE_CATALOG_DATASTORE, indexDirectoryQuery);
         tableCatalogDataReader.setPayloadAdded(false);
-	
+        
         tableCatalogDataReader.open();
         Tuple nextTuple = tableCatalogDataReader.getNextTuple();
         tableCatalogDataReader.close();
-	
+        
         // if the index directory is already taken by another table, throws an exception
         if (nextTuple != null) {
             String overlapTableName = nextTuple.getField(CatalogConstants.TABLE_NAME).getValue().toString();
@@ -120,7 +120,7 @@ public class RelationManager {
                     "Table %s already takes the index directory %s. Please choose another directory.", 
                     overlapTableName, indexDirectory));
         }
-	
+        
         // check if the lucene analyzer string is valid
         Analyzer luceneAnalyzer = null;
         try {
@@ -128,7 +128,7 @@ public class RelationManager {
         } catch (DataFlowException e) {
             throw new StorageException("Lucene Analyzer String is not valid.");
         }
-	
+        
         // create the directory and clear all data in the index directory
         Schema tableSchema = Utils.getSchemaWithID(schema);
         DataStore tableDataStore = new DataStore(indexDirectory, tableSchema);
@@ -136,7 +136,7 @@ public class RelationManager {
         dataWriter.open();
         dataWriter.clearData();
         dataWriter.close();
-	
+        
         // write table info to catalog
         writeTableInfoToCatalog(tableName, indexDirectory, schema, luceneAnalyzerString);
 
@@ -160,7 +160,7 @@ public class RelationManager {
         if (! checkTableExistence(tableName)) {
             return;
         }
-	
+        
         // try to clear all data in the table
         DataWriter dataWriter = getTableDataWriter(tableName);
         dataWriter.open();
@@ -177,14 +177,14 @@ public class RelationManager {
         tableCatalogWriter.open();
         tableCatalogWriter.deleteTuple(catalogTableNameQuery);
         tableCatalogWriter.close();
-		
+                
         // delete the table from schema catalog
         DataWriter schemaCatalogWriter = new DataWriter(CatalogConstants.SCHEMA_CATALOG_DATASTORE,
                 LuceneAnalyzerConstants.getStandardAnalyzer());
         schemaCatalogWriter.open();
         schemaCatalogWriter.deleteTuple(catalogTableNameQuery);
         schemaCatalogWriter.close();
-	
+        
     }
     
     /**
@@ -199,7 +199,7 @@ public class RelationManager {
     public Tuple getTupleByID(String tableName, IDField idField) throws StorageException {
         // construct the ID query
         Query tupleIDQuery = new TermQuery(new Term(SchemaConstants._ID, idField.getValue().toString()));
-	
+        
         // find the tuple using DataReader
         DataReader dataReader = getTableDataReader(tableName, tupleIDQuery);
         dataReader.setPayloadAdded(false);
@@ -263,7 +263,7 @@ public class RelationManager {
     public String getTableDirectory(String tableName) throws StorageException {
         // get the tuples with tableName from the table catalog
         Tuple tableCatalogTuple = getTableCatalogTuple(tableName);
-	
+        
         // if the tuple is not found, then the table name is not found
         if (tableCatalogTuple == null) {
             throw new StorageException(String.format("The directory for table %s is not found.", tableName));
@@ -289,7 +289,7 @@ public class RelationManager {
         if (tableAttributeTuples.isEmpty()) {
             throw new StorageException(String.format("The schema of table %s is not found.", tableName));
         }
-	
+        
         // convert the unordered list of tuples to an order list of attributes
         List<Attribute> tableSchemaData = tableAttributeTuples.stream()
                 // sort the tuples based on the attributePosition field.
@@ -299,7 +299,7 @@ public class RelationManager {
                 .map(tuple -> new Attribute(tuple.getField(CatalogConstants.ATTR_NAME).getValue().toString(),
                         convertAttributeType(tuple.getField(CatalogConstants.ATTR_TYPE).getValue().toString())))
                 .collect(Collectors.toList());
-	
+        
         return new Schema(tableSchemaData.stream().toArray(Attribute[]::new));
     }
     
@@ -313,16 +313,16 @@ public class RelationManager {
     public String getTableAnalyzerString(String tableName) throws StorageException {
         // get the tuples with tableName from the table catalog
         Tuple tableCatalogTuple = getTableCatalogTuple(tableName);
-	
+        
         // if the tuple is not found, then the table name is not found
         if (tableCatalogTuple == null) {
             throw new StorageException(String.format("The analyzer for table %s is not found.", tableName));
         }
-	
+        
         // get the lucene analyzer string
         IField analyzerField = tableCatalogTuple.getField(CatalogConstants.TABLE_LUCENE_ANALYZER);
         String analyzerString = analyzerField.getValue().toString();
-	
+        
         return analyzerString;
     }
 
@@ -335,7 +335,7 @@ public class RelationManager {
      */
     public Analyzer getTableAnalyzer(String tableName) throws StorageException {
         String analyzerString = getTableAnalyzerString(tableName);
-	
+        
         // convert a lucene analyzer string to an analyzer object
         Analyzer luceneAnalyzer = null;
         try {
@@ -343,7 +343,7 @@ public class RelationManager {
         } catch (DataFlowException e) {
             throw new StorageException(e);
         }
-	
+        
         return luceneAnalyzer;
     }
     
@@ -360,7 +360,7 @@ public class RelationManager {
         dataWriter.open();
         dataWriter.insertTuple(CatalogConstants.getTableCatalogTuple(tableName, indexDirectory, luceneAnalyzerString));
         dataWriter.close();
-	
+        
         // write schema catalog
         Schema tableSchema = Utils.getSchemaWithID(schema);
         DataStore schemaCatalogStore = new DataStore(CatalogConstants.SCHEMA_CATALOG_DIRECTORY,
@@ -379,11 +379,11 @@ public class RelationManager {
      */
     private static Tuple getTableCatalogTuple(String tableName) throws StorageException {
         tableName = tableName.toLowerCase();
-	
+        
         Query tableNameQuery = new TermQuery(new Term(CatalogConstants.TABLE_NAME, tableName));
         DataReader tableCatalogDataReader = new DataReader(CatalogConstants.TABLE_CATALOG_DATASTORE, tableNameQuery);
         tableCatalogDataReader.setPayloadAdded(false);
-	
+        
         tableCatalogDataReader.open();
         List<Tuple> tupleList = new ArrayList<>();
         Tuple nextTuple;
@@ -391,7 +391,7 @@ public class RelationManager {
             tupleList.add(nextTuple);
         }
         tableCatalogDataReader.close();
-	
+        
         if (tupleList.size() == 0) {
             return null;
         } else if (tupleList.size() == 1) {
@@ -406,10 +406,10 @@ public class RelationManager {
      */
     private static List<Tuple> getSchemaCatalogTuples(String tableName) throws StorageException {
         tableName = tableName.toLowerCase();
-	
+        
         Query tableNameQuery = new TermQuery(new Term(CatalogConstants.TABLE_NAME, tableName));
         DataReader schemaCatalogDataReader = new DataReader(CatalogConstants.SCHEMA_CATALOG_DATASTORE, tableNameQuery);  
-	
+        
         // read the tuples into a list
         schemaCatalogDataReader.open();    
         List<Tuple> tupleList = new ArrayList<>();
