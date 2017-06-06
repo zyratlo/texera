@@ -1,7 +1,6 @@
 package edu.uci.ics.textdb.exp.nlp.sentiment;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import edu.uci.ics.textdb.api.dataflow.IOperator;
 import edu.uci.ics.textdb.exp.common.PredicateBase;
 import edu.uci.ics.textdb.exp.common.PropertyNameConstants;
 
@@ -33,7 +32,7 @@ public class EmojiSentimentPredicate extends PredicateBase {
     }
 
     @Override
-    public IOperator newOperator() {
+    public EmojiSentimentOperator newOperator() {
         return new EmojiSentimentOperator(this);
     }
 }

@@ -15,6 +15,7 @@ import edu.uci.ics.textdb.exp.join.SimilarityJoinPredicate;
 import edu.uci.ics.textdb.exp.keywordmatcher.KeywordPredicate;
 import edu.uci.ics.textdb.exp.keywordmatcher.KeywordSourcePredicate;
 import edu.uci.ics.textdb.exp.nlp.entity.NlpEntityPredicate;
+import edu.uci.ics.textdb.exp.nlp.sentiment.EmojiSentimentPredicate;
 import edu.uci.ics.textdb.exp.nlp.sentiment.NlpSentimentPredicate;
 import edu.uci.ics.textdb.exp.projection.ProjectionPredicate;
 import edu.uci.ics.textdb.exp.regexmatcher.RegexPredicate;
@@ -52,6 +53,7 @@ public class OperatorArityConstants {
 
         fixedInputArityMap.put(NlpEntityPredicate.class, 1);
         fixedInputArityMap.put(NlpSentimentPredicate.class, 1);
+        fixedInputArityMap.put(EmojiSentimentPredicate.class, 1);
         fixedInputArityMap.put(ProjectionPredicate.class, 1);
         fixedInputArityMap.put(RegexSplitPredicate.class, 1);
         fixedInputArityMap.put(SamplerPredicate.class, 1);
@@ -83,6 +85,7 @@ public class OperatorArityConstants {
 
         fixedOutputArityMap.put(NlpEntityPredicate.class, 1);
         fixedOutputArityMap.put(NlpSentimentPredicate.class, 1);
+        fixedOutputArityMap.put(EmojiSentimentPredicate.class, 1);
         fixedOutputArityMap.put(ProjectionPredicate.class, 1);
         fixedOutputArityMap.put(RegexSplitPredicate.class, 1);
         fixedOutputArityMap.put(SamplerPredicate.class, 1);
