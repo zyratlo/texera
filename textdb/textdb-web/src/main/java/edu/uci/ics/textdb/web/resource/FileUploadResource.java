@@ -55,39 +55,6 @@ public class FileUploadResource {
 		return new TextdbWebResponse(0, "Dictionary is uploaded");
 	}
 
-//	@GET
-//	@Path("/dictionary")
-//	/**
-//	 * Get the content of dictionary
-//	 */
-//	public TextdbWebResponse getDictionary(@QueryParam("id") String id) throws IOException {
-//		RelationManager relationManager = RelationManager.getRelationManager();
-//		String dictionaryPath = relationManager.getDictionaryPath(id);
-//
-//		if (dictionaryPath == null) {
-//			return new TextdbWebResponse(0, "No such dictionary found");
-//		}
-//
-//		String content = readFromFile(dictionaryPath);
-//
-//		return new TextdbWebResponse(0, content);
-//	}
-//
-//	private String readFromFile(String dictionaryPath) throws IOException {
-//		String content = "";
-//		List<String> lines = Files.lines(Paths.get(dictionaryPath)).collect(Collectors.toList());
-//		for (String line : lines) {
-//			content = content.concat(line).concat(",");
-//		}
-//
-//		// remove last ,
-//		if (content.charAt(content.length()-1) == ',') {
-//			content = content.substring(0, content.length()-1);
-//		}
-//
-//		return content;
-//	}
-
 	/**
 	 * Write uploaded file at the given location (if the file exists, remove it and write a new one.)
 	 *
