@@ -4,10 +4,12 @@ import edu.uci.ics.textdb.api.exception.DataFlowException;
 import edu.uci.ics.textdb.api.exception.TextDBException;
 import edu.uci.ics.textdb.api.field.IDField;
 import edu.uci.ics.textdb.api.field.IField;
-import edu.uci.ics.textdb.api.field.StringField;
+import edu.uci.ics.textdb.api.field.ListField;
 import edu.uci.ics.textdb.api.field.TextField;
+import edu.uci.ics.textdb.api.schema.Attribute;
 import edu.uci.ics.textdb.api.schema.AttributeType;
 import edu.uci.ics.textdb.api.schema.Schema;
+import edu.uci.ics.textdb.api.span.Span;
 import edu.uci.ics.textdb.api.tuple.Tuple;
 import edu.uci.ics.textdb.api.utils.Utils;
 
@@ -19,7 +21,7 @@ import java.util.regex.Pattern;
 import edu.uci.ics.textdb.api.constants.SchemaConstants;
 import edu.uci.ics.textdb.api.dataflow.ISourceOperator;
 import edu.uci.ics.textdb.exp.common.AbstractSingleInputOperator;
-import junit.framework.Assert;
+import edu.uci.ics.textdb.exp.common.PropertyNameConstants;
 
 /**
  * @author Qinhua Huang
@@ -47,142 +49,171 @@ import junit.framework.Assert;
 public class RegexSplitOperator extends AbstractSingleInputOperator implements ISourceOperator{
 
     private RegexSplitPredicate predicate;
-
-    private List<Tuple> outputTupleBuffer;
-    private int bufferCursor;
-    private Schema inputSchema;
+    Tuple currentTuple;
+    
+    private List<Span> currentSentenceList = new ArrayList<Span>();
 
     public RegexSplitOperator(RegexSplitPredicate predicate) {
         this.predicate = predicate;
-        this.outputTupleBuffer = null;
-        this.bufferCursor = -1;
     }
 
     @Override
     protected void setUp() throws DataFlowException {
-        inputSchema = inputOperator.getOutputSchema();
-        if (! inputSchema.containsField(SchemaConstants._ID)) {
-            outputSchema = Utils.getSchemaWithID(inputSchema);
-        } else {
-            outputSchema = inputSchema;
-        }
-    }
-
-
-    @Override
-    protected Tuple computeNextMatchingTuple() throws TextDBException {
-        // Keep fetching the next input tuple until finding a match.
-        if (outputTupleBuffer == null) {
-            Tuple inputTuple = inputOperator.getNextTuple();
-            if (inputTuple == null) {
-                return null;
-            }
-
-            populateOutputBuffer(inputTuple);
-            Assert.assertTrue(this.outputTupleBuffer.size() > 0);
-            
-            this.bufferCursor = 0;
+        Schema inputSchema = inputOperator.getOutputSchema();
+        
+        // check if input schema is present
+        if (! inputSchema.containsField(predicate.getInputAttributeName())) {
+            throw new DataFlowException(String.format(
+                    "input attribute %s is not in the input schema %s",
+                    predicate.getInputAttributeName(),
+                    inputSchema.getAttributeNames()));
         }
         
-        Assert.assertEquals(bufferCursor < outputTupleBuffer.size(), true);
-        
-        //If there is a buffer and cursor < bufferSize, get an output tuple.
-        Tuple resultTuple = outputTupleBuffer.get(bufferCursor);
-        bufferCursor++;
-        // If it reaches the end of the buffer, reset the buffer cursor.
-        if (bufferCursor == outputTupleBuffer.size()) {
-            outputTupleBuffer = null;
+        // check if attribute type is valid
+        AttributeType inputAttributeType =
+                inputSchema.getAttribute(predicate.getInputAttributeName()).getAttributeType();
+        boolean isValidType = inputAttributeType.equals(AttributeType.STRING) || 
+                inputAttributeType.equals(AttributeType.TEXT);
+        if (! isValidType) {
+            throw new DataFlowException(String.format(
+                    "input attribute %s must have type String or Text, its actual type is %s",
+                    predicate.getInputAttributeName(),
+                    inputAttributeType));
         }
         
-        return resultTuple;
-    }
-    
-    // If the regex does not have any match in the tuple, we return the whole string as the result.
-    private void populateOutputBuffer(Tuple inputTuple) throws TextDBException {
-        if (inputTuple == null) {
-            return;
-        }
-        
-        AttributeType attributeType = this.inputSchema.getAttribute(predicate.getAttributeToSplit()).getAttributeType();
-        if (attributeType != AttributeType.TEXT && attributeType != AttributeType.STRING) {
-            return;
-        }
-
-        String strToSplit = inputTuple.getField(predicate.getAttributeToSplit()).getValue().toString();
-        List<String> stringList = splitText(strToSplit);
-        outputTupleBuffer = new ArrayList<>();
-        for (String singleMatch : stringList) {
-            List<IField> tupleFieldList = new ArrayList<>();
-            // Generate the new UUID.
-            tupleFieldList.add(IDField.newRandomID());
-            for (String attributeName : inputSchema.getAttributeNames()) {
-                // Remove the old ID.
-                if (attributeName.equals(SchemaConstants._ID)) {
-                    continue;
-                }
-                if (attributeName.equals(predicate.getAttributeToSplit())) {
-                    if (attributeType == AttributeType.TEXT) {
-                        tupleFieldList.add(new TextField(singleMatch));
-                    } else {
-                        tupleFieldList.add(new StringField(singleMatch));
-                    }
-                } else {
-                    tupleFieldList.add(inputTuple.getField(attributeName));
-                }
-            }
-            outputTupleBuffer.add(new Tuple(outputSchema, tupleFieldList.stream().toArray(IField[]::new)));
-        }
-        
+        // generate output schema by transforming the input schema based on what output format
+        // is chosen (OneToOne vs. OneToMany)
+        this.outputSchema = transformSchema(inputOperator.getOutputSchema());
     }
     
     /*
-     *  Process text into list.
+     * adds a new field to the schema, with name resultAttributeName and type list of strings
      */
-    private List<String> splitText(String strText) throws TextDBException {
-        List<String> stringtList = new ArrayList<>();
+    private Schema transformSchema(Schema inputSchema) throws DataFlowException {
+        if (inputSchema.containsField(predicate.getResultAttributeName()))
+            throw new DataFlowException(String.format("result attribute name %s is already in the original schema %s",
+                    predicate.getInputAttributeName(),
+                    inputSchema.getAttributeNames()));
+        if(predicate.getOutputType() == RegexOutputType.ONE_TO_ONE)
+            return Utils.addAttributeToSchema(inputSchema, new Attribute(predicate.getResultAttributeName(), AttributeType.LIST));
+        else
+            return Utils.addAttributeToSchema(inputSchema, new Attribute(predicate.getResultAttributeName(), AttributeType.TEXT));
+    }
+    
+    @Override
+    protected Tuple computeNextMatchingTuple() throws TextDBException {
+        
+        List<IField> outputFields = new ArrayList<>();
+        
+        if(predicate.getOutputType() == RegexOutputType.ONE_TO_ONE) {
+            currentTuple = inputOperator.getNextTuple();
+            if (currentTuple == null) 
+                return null;
+            outputFields.addAll(currentTuple.getFields());
+            outputFields.add(new ListField<Span>(computeSentenceList(currentTuple)));
+        } else if(predicate.getOutputType() == RegexOutputType.ONE_TO_MANY) {
+            if(currentSentenceList.isEmpty()) {
+                currentTuple = inputOperator.getNextTuple();
+                if (currentTuple == null) 
+                    return null;
+                currentSentenceList = computeSentenceList(currentTuple);
+            }
+            
+            //Add new ID for each new tuple created
+            outputFields.add(IDField.newRandomID());
+            //Skip the ID field in the input tuple
+            for (String attributeName : currentTuple.getSchema().getAttributeNames()) {
+                if(!attributeName.equals(SchemaConstants._ID)) {
+                    outputFields.add(currentTuple.getField(attributeName));
+                }
+            }
+            
+            //Add the sentences from the current sentence list one by one in the order in which
+            //they were generated in the getSentenceList function, append a TextField to the output 
+            // tuple and add the string contained in the current span
+            String tmpStr = currentSentenceList.remove(0).getValue();
+                    
+            outputFields.add(new TextField(tmpStr));
+        }
+        return new Tuple(outputSchema, outputFields);
+    }
+    
+    private List<Span> computeSentenceList(Tuple inputTuple) {
+        String inputText = inputTuple.<IField>getField(predicate.getInputAttributeName()).getValue().toString();
+        List<Span> textSpanList = new ArrayList<Span>();
+        
+        String attributeName = predicate.getInputAttributeName();
+        
         //Create a pattern using regex.
         Pattern pattern = Pattern.compile(predicate.getRegex());
         
         // Match the pattern in the text.
-        Matcher regexMatcher = pattern.matcher(strText);
+        Matcher regexMatcher = pattern.matcher(inputText);
         List<Integer> splitIndex = new ArrayList<Integer>();
         splitIndex.add(0);
-        
+        int endSplit;
+        int startSplit;
         while(regexMatcher.find()) {
             if (predicate.getSplitType() == RegexSplitPredicate.SplitType.GROUP_RIGHT) {
-                splitIndex.add(regexMatcher.start());
+                endSplit = regexMatcher.start();
+                startSplit = endSplit;
+                if (startSplit != 0) {
+                    splitIndex.add(endSplit);
+                    splitIndex.add(startSplit);
+                }
             } else if (predicate.getSplitType() == RegexSplitPredicate.SplitType.GROUP_LEFT) {
-                splitIndex.add(regexMatcher.end());
+                endSplit = regexMatcher.end();
+                startSplit = endSplit;
+                
+                splitIndex.add(endSplit);
+                splitIndex.add(startSplit);
+                
             } else if (predicate.getSplitType() == RegexSplitPredicate.SplitType.STANDALONE) {
-                splitIndex.add(regexMatcher.start());
-                splitIndex.add(regexMatcher.end());
+                endSplit = regexMatcher.start();
+                startSplit = endSplit;
+                if (endSplit != 0) {
+                    splitIndex.add(endSplit);
+                    splitIndex.add(startSplit);
+                }
+                
+                endSplit = regexMatcher.end();
+                startSplit = endSplit;
+                if (endSplit < inputText.length() ) {
+                    splitIndex.add(endSplit); splitIndex.add(startSplit);
+                }
+            }
+        }
+        splitIndex.add(inputText.length());
+        
+        //Make span list
+        int startSpan = 0;
+        int endSpan = 0; 
+        String key=PropertyNameConstants.REGEX_SPLIT_KEY;
+        for (int i = 0 ; i < splitIndex.size() - 1; i++) {
+            if (splitIndex.get(i) <= splitIndex.get(i+1)) {
+                String textSpan = inputText.substring(splitIndex.get(i),splitIndex.get(i+1));
+                startSpan = splitIndex.get(i);
+                i++;
+                endSpan = startSpan + textSpan.length();
+                Span span = new Span(attributeName, startSpan, endSpan, key, textSpan);
+                textSpanList.add(span);
             }
         }
         
-        splitIndex.add(strText.length());
-        
-        for (int i = 0 ; i < splitIndex.size() - 1; i++) {
-            if (splitIndex.get(i) < splitIndex.get(i+1)) {
-                stringtList.add(strText.substring(splitIndex.get(i), splitIndex.get(i + 1)));
-            } 
-        }
-        return stringtList;
+        return textSpanList;
     }
     
     @Override
     protected void cleanUp() throws TextDBException {
-        outputTupleBuffer = null;
-        bufferCursor = 0;
     }
     
     public RegexSplitPredicate getPredicate() {
         return this.predicate;
     }
-
     
     @Override
     public Tuple processOneInputTuple(Tuple inputTuple) throws TextDBException {
         throw new RuntimeException("RegexSplit does not support process one tuple");
     }
-
+    
 }
