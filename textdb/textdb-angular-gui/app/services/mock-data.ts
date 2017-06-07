@@ -608,7 +608,7 @@ let mysqlSink = {
     attributes : {
         "operatorType": "MysqlSink",
         "host": "localhost",
-        "port": 3305,
+        "port": 3306,
         "database": "testDB",
         "table": "testTable",
         "username": "test",
