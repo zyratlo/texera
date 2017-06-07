@@ -1,4 +1,4 @@
-package edu.uci.ics.textdb.exp.regexmatcher;
+package edu.uci.ics.textdb.exp.regexmatcher.label;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,6 +20,7 @@ import edu.uci.ics.textdb.api.span.Span;
 import edu.uci.ics.textdb.api.tuple.Tuple;
 import edu.uci.ics.textdb.api.utils.TestUtils;
 import edu.uci.ics.textdb.api.utils.Utils;
+import edu.uci.ics.textdb.exp.regexmatcher.RegexMatcherTestHelper;
 
 /**
  * Unit tests for LabeledRegexMatcher.
@@ -172,7 +173,6 @@ public class LabeledRegexMatcherTest {
         String query = "<lab1> <lab2>";
         List<Tuple> exactResults = RegexMatcherTestHelper.getQueryResults(
                 PEOPLE_TABLE, query, "short", Arrays.asList(TestConstants.DESCRIPTION), "lab1", false, Integer.MAX_VALUE, 0, "angry", "lab2");
-        System.out.print(exactResults.size());
         List<Tuple> expectedResults = new ArrayList<>();
 
         // expected to match "Short angry"
