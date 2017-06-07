@@ -4,7 +4,7 @@ let keywordMatcher = {
     top: 20,
     left: 20,
     properties: {
-        title: 'KeywordMatcher',
+        title: 'Keyword Search',
         inputs: {
             input_1: {
                 label: 'Input (:i)',
@@ -30,7 +30,7 @@ let regexMatcher = {
   top : 20,
   left : 20,
   properties : {
-    title : 'RegexMatcher',
+    title : 'Regex Match',
     inputs : {
       input_1 : {
         label : 'Input(:i)',
@@ -55,7 +55,7 @@ let dictionaryMatcher = {
   top : 20,
   left : 20,
   properties : {
-    title : 'DictionaryMatcher',
+    title : 'Dictionary Search',
     inputs : {
       input_1 : {
         label : "Input(:i)",
@@ -69,7 +69,7 @@ let dictionaryMatcher = {
     attributes :  {
         "operatorType": "DictionaryMatcher",
         "attributes": [],
-        "dictionaryEntries": ["entry1", "entry2"],
+        "dictionaryEntries": [],
         "luceneAnalyzer": "standard",
         "matchingType": "phrase",
         "spanListName": " "
@@ -81,7 +81,7 @@ let fuzzyMatcher = {
   top : 20,
   left : 20,
   properties : {
-    title : "FuzzyTokenMatcher",
+    title : "Fuzzy Token Match",
     inputs : {
       input_1 : {
         label : "Input(:i)",
@@ -107,7 +107,7 @@ let nlpEntity = {
   top : 20,
   left : 20,
   properties : {
-    title : 'NlpEntity',
+    title : 'Entity recognition',
     inputs : {
       input_1 : {
         label : 'Input(:i)',
@@ -131,7 +131,7 @@ let nlpSentiment = {
   top : 20,
   left : 20,
   properties : {
-    title : 'NlpSentiment',
+    title : 'Sentiment Analysis',
     inputs : {
       input_1 : {
         label : 'Input(:i)',
@@ -150,11 +150,34 @@ let nlpSentiment = {
   }
 }
 
+let emojiSentiment = {
+  top : 20,
+  left : 20,
+  properties : {
+    title : 'Emoji Sentiment Analysis',
+    inputs : {
+      input_1 : {
+        label : 'Input(:i)',
+      }
+    },
+    outputs : {
+      output_1 : {
+        label : "Output (:i)",
+      }
+    },
+    attributes : {
+        "operatorType": "EmojiSentiment",
+        "attribute": "",
+        "resultAttribute": "resultAttr"
+    }
+  }
+}
+
 let regexSplit = {
   top : 20,
   left : 20,
   properties : {
-    title : 'RegexSplit',
+    title : 'Regex Split',
     inputs : {
       input_1 : {
         label : "Input (:i)",
@@ -202,7 +225,7 @@ let sampler = {
   top : 20,
   left : 20,
   properties : {
-    title : 'Sampler',
+    title : 'Sampling',
     inputs : {
       input_1 : {
         label : "Input (:i)",
@@ -271,11 +294,34 @@ let asterixSource = {
   }
 }
 
+let fileSource = {
+  top : 20,
+  left : 20,
+  properties : {
+    title : 'Source: File',
+    inputs : {
+      input_1 : {
+        label : "Input (:i)",
+      }
+    },
+    outputs : {
+      output_1 : {
+        label : "Output (:i)",
+      }
+    },
+    attributes : {
+        "operatorType": "FileSource",
+        "filePath": "",
+        "resultAttribute": "",
+    }
+  }
+}
+
 let scanSource = {
   top : 20,
   left : 20,
   properties : {
-    title : 'ScanSource',
+    title : 'Source: Scan',
     inputs : {
       input_1 : {
         label : "Input (:i)",
@@ -297,7 +343,7 @@ let keywordSource = {
   top : 20,
   left : 20,
   properties : {
-    title : 'KeywordSource',
+    title : 'Source: Keyword',
     inputs : {
       input_1 : {
         label : "Input (:i)",
@@ -325,7 +371,7 @@ let dictionarySource = {
   top : 20,
   left : 20,
   properties : {
-    title : 'DictionarySource',
+    title : 'Source: Dictionary',
     inputs : {
       input_1 : {
         label : "Input (:i)",
@@ -340,7 +386,7 @@ let dictionarySource = {
         "operatorType": "DictionarySource",
         "tableName": "",
         "attributes": [],
-        "dictionaryEntries": ["entry1", "entry2"],
+        "dictionaryEntries": [],
         "luceneAnalyzer": "standard",
         "matchingType": "phrase",
         "spanListName": " "
@@ -352,7 +398,7 @@ let regexSource = {
   top : 20,
   left : 20,
   properties : {
-    title : 'RegexSource',
+    title : 'Source: Regex',
     inputs : {
       input_1 : {
         label : "Input (:i)",
@@ -379,7 +425,7 @@ let fuzzyTokenSource = {
   top : 20,
   left : 20,
   properties : {
-    title : 'FuzzyTokenSource',
+    title : 'Source: FuzzyToken',
     inputs : {
       input_1 : {
         label : "Input (:i)",
@@ -406,7 +452,7 @@ let wordCountSource = {
   top : 20,
   left : 20,
   properties : {
-    title : 'WordCountSource',
+    title : 'Source: Word Count',
     inputs : {
       input_1 : {
         label : "Input (:i)",
@@ -429,7 +475,7 @@ let wordCount = {
   top : 20,
   left : 20,
   properties : {
-    title : 'WordCount',
+    title : 'Word Count',
     inputs : {
       input_1 : {
         label : "Input (:i)",
@@ -476,7 +522,7 @@ let characterDistanceJoin = {
   top : 20,
   left : 20,
   properties : {
-    title : 'CharacterDistanceJoin',
+    title : 'Join: Character Distance',
     inputs : {
       input_1 : {
         label : 'Input (:i)',
@@ -503,7 +549,7 @@ let similarityJoin = {
   top : 20,
   left : 20,
   properties : {
-    title : 'Similarity Join',
+    title : 'Join: Similarity',
     inputs : {
       input_1 : {
         label : 'Input (:i)',
@@ -553,7 +599,7 @@ let excelSink = {
   top : 20,
   left : 20,
   properties : {
-    title : 'View Results',
+    title : 'Write Excel',
     inputs : {
       input_1 : {
         label : "Input (:i)",
@@ -568,6 +614,33 @@ let excelSink = {
         "operatorType": "ExcelSink",
         "limit": 10,
         "offset": 0,
+    }
+  }
+}
+
+let mysqlSink = {
+  top : 20,
+  left : 20,
+  properties : {
+    title : 'Write Mysql',
+    inputs : {
+      input_1 : {
+        label : "Input (:i)",
+      }
+    },
+    outputs : {
+      output_1 : {
+        label : "Output (:i)",
+      }
+    },
+    attributes : {
+        "operatorType": "MysqlSink",
+        "host": "localhost",
+        "port": 3306,
+        "database": "testDB",
+        "table": "testTable",
+        "username": "test",
+        "password": "test"
     }
   }
 }
@@ -595,5 +668,8 @@ export const DEFAULT_MATCHERS: Data[] = [
     {id: 20, jsonData: excelSink},
     {id: 21, jsonData: comparison},
     {id: 22, jsonData: nlpSplit},
-    {id: 23, jsonData: asterixSource},
+    {id: 23, jsonData: emojiSentiment},
+    {id: 24, jsonData: fileSource},
+    {id: 25, jsonData: mysqlSink},
+    {id: 26, jsonData: asterixSource},
 ];
