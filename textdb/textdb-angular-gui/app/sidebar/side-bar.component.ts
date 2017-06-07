@@ -26,10 +26,13 @@ export class SideBarComponent {
 
   hiddenList: string[] = ["operatorType", "luceneAnalyzer", "matchingType"];
 
-  selectorList: string[] = ["dictionaryEntries", "matchingType", "nlpEntityType", "splitType", "sampleType", "comparisonType", "aggregationType", "attributes", "tableName", "attribute"].concat(this.hiddenList);
+  selectorList: string[] = ["dictionaryEntries", "password", "matchingType", 
+    "nlpEntityType", "splitType", "splitOption", "sampleType", "comparisonType", 
+    "aggregationType", "attributes", "tableName", "attribute"].concat(this.hiddenList);
 
   matcherList: string[] = ["conjunction", "phrase", "substring"];
-  nlpEntityList: string[] = ["noun", "verb", "adjective", "adverb", "ne_all", "number", "location", "person", "organization", "money", "percent", "date", "time"];
+  nlpEntityList: string[] = ["noun", "verb", "adjective", "adverb", "ne_all", 
+    "number", "location", "person", "organization", "money", "percent", "date", "time"];
   regexSplitList: string[] = ["left", "right", "standalone"];
   nlpSplitList: string[] = ["oneToOne", "oneToMany"];
   samplerList: string[] = ["random", "firstk"];
