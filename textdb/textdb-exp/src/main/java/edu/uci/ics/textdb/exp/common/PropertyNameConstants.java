@@ -99,4 +99,7 @@ public class PropertyNameConstants {
     public static final String MYSQL_LIMIT = "limit";
     public static final String MYSQL_OFFSET = "offset";
     
+    // related to twitter converter
+    public static final String TWITTER_RAW_ATTRIBUTE = "rawJsonData";
+    
 }

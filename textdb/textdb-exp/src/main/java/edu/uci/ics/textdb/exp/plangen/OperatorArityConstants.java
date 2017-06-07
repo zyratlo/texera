@@ -29,6 +29,7 @@ import edu.uci.ics.textdb.exp.sink.tuple.TupleSinkPredicate;
 import edu.uci.ics.textdb.exp.source.asterix.AsterixSourcePredicate;
 import edu.uci.ics.textdb.exp.source.file.FileSourcePredicate;
 import edu.uci.ics.textdb.exp.source.scan.ScanSourcePredicate;
+import edu.uci.ics.textdb.exp.twitter.TwitterConverterPredicate;
 import edu.uci.ics.textdb.exp.wordcount.WordCountIndexSourcePredicate;
 import edu.uci.ics.textdb.exp.wordcount.WordCountOperatorPredicate;
 
@@ -66,7 +67,8 @@ public class OperatorArityConstants {
         fixedInputArityMap.put(ComparablePredicate.class, 1); 
         
         fixedInputArityMap.put(AsterixSourcePredicate.class, 0);
-
+        
+        fixedInputArityMap.put(TwitterConverterPredicate.class, 1);
 
         fixedInputArityMap.put(ScanSourcePredicate.class, 0);
         fixedInputArityMap.put(FileSourcePredicate.class, 0);
@@ -103,6 +105,8 @@ public class OperatorArityConstants {
         fixedOutputArityMap.put(ComparablePredicate.class, 1); 
         
         fixedOutputArityMap.put(AsterixSourcePredicate.class, 1);
+        
+        fixedOutputArityMap.put(TwitterConverterPredicate.class, 1);
 
         fixedOutputArityMap.put(ScanSourcePredicate.class, 1);
         fixedOutputArityMap.put(FileSourcePredicate.class, 1);
