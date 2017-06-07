@@ -199,7 +199,7 @@ public class DictionaryMatcher implements IOperator {
                 throw new DataFlowException(ErrorMessages.OPERATOR_NOT_OPENED);
             }
             // if cursor's next value exceeds the cache's size
-            if (cachedTupleCursor + 1 >= inputTupleList.size()) {
+            if (cachedTupleCursor + 1 > inputTupleList.size()) {
                 // if the input operator has been fully consumed, return null
                 if (inputAllConsumed) {
                     return null;
