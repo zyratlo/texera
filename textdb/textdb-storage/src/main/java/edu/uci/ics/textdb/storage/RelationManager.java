@@ -6,12 +6,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import edu.uci.ics.textdb.api.field.StringField;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.MatchAllDocsQuery;
@@ -480,95 +478,12 @@ public class RelationManager {
             String tableName = (String)t.getField(CatalogConstants.TABLE_NAME).getValue();
 
             if (!tableName.equals(CatalogConstants.SCHEMA_CATALOG.toLowerCase())
-                    && !tableName.equals(CatalogConstants.TABLE_CATALOG.toLowerCase())
-                    && !tableName.equals("dictionary")) {
+                    && !tableName.equals(CatalogConstants.TABLE_CATALOG.toLowerCase())) {
                 result.add(new TableMetadata(tableName, getTableSchema(tableName)));
             }
         }
         dataReader.close();
 
         return result;
-    }
-
-    /**
-     * Add a new dictionary metadata into dictionary table
-     * If it exists, remove it and add a new tuple.
-     *
-     * @param fileUploadDirectory
-     * @param fileName
-     * @throws Exception
-     */
-    public void addDictionaryTable(String fileUploadDirectory, String fileName) throws Exception {
-        RelationManager relationManager = getRelationManager();
-        String tableName = "dictionary";
-        String indexDirectory = "dictionary";
-        Schema dictionarySchema = new Schema(new Attribute("name", AttributeType.STRING)
-                , new Attribute("path", AttributeType.STRING));
-
-        // check if there is a dictionary table. If not, create a new one.
-        if (!relationManager.checkTableExistence(tableName)) {
-            relationManager.createTable(tableName, indexDirectory,
-                    dictionarySchema, LuceneAnalyzerConstants.standardAnalyzerString());
-        }
-
-        // open both reader and writer to remove existing dictionary metadata (if so) and add a new one.
-        DataReader dataReader = relationManager.getTableDataReader(tableName, new MatchAllDocsQuery());
-        dataReader.open();
-
-        DataWriter dataWriter = relationManager.getTableDataWriter(tableName);
-        dataWriter.open();
-
-        // get all existing dictionary metadata
-        HashMap<IDField, String> tuples = new HashMap<>();
-        Tuple t;
-        while ((t = dataReader.getNextTuple()) != null) {
-            tuples.put((IDField)t.getField("_id"),
-                    ((String)t.getField("path").getValue()).concat((String)t.getField("name").getValue()));
-        }
-        dataReader.close();
-
-        // clean up if the same dictionary metadata already exists in dictionary table
-        if (tuples.containsValue(fileUploadDirectory.concat(fileName))) {
-            tuples.entrySet().forEach(tuple -> {
-                if (tuple.getValue().equals(fileUploadDirectory.concat(fileName))) {
-                    dataWriter.deleteTupleByID(tuple.getKey());
-                }
-            });
-        }
-
-        // add a new dictionary metadata
-        Tuple tuple = new Tuple(dictionarySchema, new StringField(fileName)
-                , new StringField(fileUploadDirectory));
-        dataWriter.insertTuple(tuple);
-        dataWriter.close();
-    }
-
-	public HashMap<String, String> getDictionaries() {
-      String tableName = "dictionary";
-
-      DataReader dataReader = RelationManager.getRelationManager().getTableDataReader(tableName, new MatchAllDocsQuery());
-      dataReader.open();
-
-      HashMap<String, String> tuples = new HashMap<>();
-      Tuple t;
-      while ((t = dataReader.getNextTuple()) != null) {
-          tuples.put(((String)t.getField("name").getValue()), (String)t.getField("_id").getValue());
-      }
-      dataReader.close();
-
-      return tuples;
-	}
-
-    public String getDictionaryPath(String id) {
-        String tableName = "dictionary";
-
-        IDField idField = new IDField(id);
-        Tuple tuple = RelationManager.getRelationManager().getTupleByID(tableName, idField);
-
-        if (tuple == null) return null;
-
-        String fullPath = ((String)tuple.getField("path").getValue()).concat((String)tuple.getField("name").getValue());
-
-        return fullPath;
     }
 }

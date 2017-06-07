@@ -1,13 +1,11 @@
 import { Injectable } from '@angular/core';
 import { Subject }    from 'rxjs/Subject';
-import { Response, Http, RequestOptions } from '@angular/http';
+import { Response, Http } from '@angular/http';
 import { Headers } from '@angular/http';
 
 import { Data } from './data';
 import { TableMetadata } from "./table-metadata";
-import { MockDataService } from "./mock-data-service";
 import any = jasmine.any;
-import {Observable} from "rxjs";
 
 declare var jQuery: any;
 
@@ -15,7 +13,7 @@ const textdbUrl = 'http://localhost:8080/api/newqueryplan/execute';
 const metadataUrl = 'http://localhost:8080/api/resources/metadata';
 const uploadDictionaryUrl = "http://localhost:8080/api/upload/dictionary";
 const getDictionariesUrl = "http://localhost:8080/api/resources/dictionaries";
-const getDictionaryContentUrl = "http://localhost:8080/api/resources/dictionary/?id=";
+const getDictionaryContentUrl = "http://localhost:8080/api/resources/dictionary/?name=";
 
 const defaultData = {
     top: 20,
@@ -31,7 +29,6 @@ const defaultData = {
 @Injectable()
 export class CurrentDataService {
     allOperatorData : Data;
-    mockDataService = new MockDataService();
 
     private newAddition = new Subject<any>();
     newAddition$ = this.newAddition.asObservable();
@@ -42,8 +39,8 @@ export class CurrentDataService {
     private metadataRetrieved = new Subject<any>();
     metadataRetrieved$ = this.metadataRetrieved.asObservable();
 
-    private dictionaryEntries = new Subject<any>();
-    dictionaryEntries$ = this.dictionaryEntries.asObservable();
+    private dictionaryNames= new Subject<any>();
+    dictionaryNames$ = this.dictionaryNames.asObservable();
 
     private dictionaryContent = new Subject<any>();
     dictionaryContent$ = this.dictionaryContent.asObservable();
@@ -148,7 +145,6 @@ export class CurrentDataService {
           .subscribe(
             data => {
               alert(file.name + ' is uploaded');
-
               // after adding a new dictionary, refresh the list
               this.getDictionaries();
             },
@@ -165,7 +161,7 @@ export class CurrentDataService {
             .subscribe(
                 data => {
                     let result = JSON.parse(data.json().message);
-                    this.dictionaryEntries.next(result);
+                    this.dictionaryNames.next(result);
                 },
                 err => {
                     console.log("Error at getDictionaries() in current-data-service.ts \n Error: "+err);
@@ -173,9 +169,9 @@ export class CurrentDataService {
             );
     }
 
-    getDictionaryContent(id: string): void {
+    getDictionaryContent(name: string): void {
         let headers = new Headers({ 'Content-Type': 'application/json' });
-        this.http.get(getDictionaryContentUrl+id, {headers: headers})
+        this.http.get(getDictionaryContentUrl+name, {headers: headers})
             .subscribe(
                 data => {
                     let result = (data.json().message).split(",");

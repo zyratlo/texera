@@ -1,11 +1,7 @@
 package edu.uci.ics.textdb.web.resource;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import edu.uci.ics.textdb.api.constants.DataConstants;
-import edu.uci.ics.textdb.api.field.IDField;
-import edu.uci.ics.textdb.api.utils.Utils;
-import edu.uci.ics.textdb.storage.RelationManager;
+import edu.uci.ics.textdb.exp.resources.dictionary.DictionaryManager;
+import edu.uci.ics.textdb.exp.resources.dictionary.DictionaryManagerConstants;
 import edu.uci.ics.textdb.web.TextdbWebException;
 import edu.uci.ics.textdb.web.response.TextdbWebResponse;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
@@ -17,9 +13,6 @@ import javax.ws.rs.core.MediaType;
 
 import java.io.*;
 import java.nio.file.*;
-import java.util.HashMap;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Path("/upload")
 @Consumes(MediaType.MULTIPART_FORM_DATA)
@@ -41,16 +34,15 @@ public class FileUploadResource {
 			e.printStackTrace();
 			throw new TextdbWebException("Error occurred whlie uploading dictionary");
 		}
-
-		String fileUploadDirectory = Utils.getResourcePath("/dictionary", DataConstants.TextdbProject.TEXTDB_WEB).concat("/");
+		
 		String fileName = fileDetail.getFileName();
 
 		// save it as a file
-		writeToFile(dictionary.toString(), fileUploadDirectory, fileName);
+		writeToFile(dictionary.toString(), fileName);
 
 		// add dictionary to the table
-		RelationManager relationManager = RelationManager.getRelationManager();
-		relationManager.addDictionaryTable(fileUploadDirectory, fileName);
+        DictionaryManager dictionaryManager = DictionaryManager.getInstance();
+        dictionaryManager.addDictionary(fileName);
 
 		return new TextdbWebResponse(0, "Dictionary is uploaded");
 	}
@@ -62,11 +54,13 @@ public class FileUploadResource {
 	 * @param fileUploadDirectory
 	 * @param fileName
 	 */
-	private void writeToFile(String content, String fileUploadDirectory, String fileName) {
+	private void writeToFile(String content, String fileName) {
 		try {
-			java.nio.file.Path filePath = Paths.get(fileUploadDirectory.concat(fileName));
+			java.nio.file.Path filePath = Paths.get(DictionaryManagerConstants.DICTIONARY_DIR, fileName);
 
-			Files.createDirectories(Paths.get(fileUploadDirectory));
+			if (! Files.exists(Paths.get(DictionaryManagerConstants.DICTIONARY_DIR))) {
+		         Files.createDirectories(Paths.get(DictionaryManagerConstants.DICTIONARY_DIR));
+			}
 			Files.deleteIfExists(filePath);
 			Files.createFile(filePath);
 			Files.write(filePath, content.getBytes());

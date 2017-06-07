@@ -44,8 +44,7 @@ export class SideBarComponent {
   selectedAttributeSingle:string = "";
   metadataList:Array<TableMetadata> = [];
 
-  dictionaries: any;
-  dictionaryEntries:Array<string> = [];
+  dictionaryNames: Array<string> = [];
   dictionaryContent: Array<string> = [];
   selectedDictionary:string = "";
 
@@ -64,10 +63,6 @@ export class SideBarComponent {
   }
   checkInSelector(name: string) {
     return jQuery.inArray(name, this.selectorList);
-  }
-
-  checkOperatorNameIsUploadDict() {
-    return this.operatorId === 23;
   }
 
   constructor(private currentDataService: CurrentDataService) {
@@ -130,13 +125,11 @@ export class SideBarComponent {
       }
     );
 
-    currentDataService.dictionaryEntries$.subscribe(
+    currentDataService.dictionaryNames$.subscribe(
       data => {
-        this.dictionaries = data;
-        this.dictionaryEntries = [];
-        for (const key of Object.keys(data)){
-          this.dictionaryEntries.push(key);
-        }
+        console.log("dict data is: ");
+        console.log(data);
+        this.dictionaryNames = data;
       }
     );
 
@@ -218,8 +211,8 @@ export class SideBarComponent {
     this.onFormChange("tableName");
   }
 
-  dictionaryAdded() {
-    this.currentDataService.getDictionaryContent(this.dictionaries[this.selectedDictionary]);
+  dictionarySelected() {
+    this.currentDataService.getDictionaryContent(this.selectedDictionary);
   }
 
   dictionaryManuallyAdded(event: string) {

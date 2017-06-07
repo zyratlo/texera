@@ -1,16 +1,12 @@
 package edu.uci.ics.textdb.storage;
 
 import java.io.File;
-import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import edu.uci.ics.textdb.api.constants.DataConstants;
-import edu.uci.ics.textdb.api.field.IField;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
 import org.junit.Assert;
@@ -434,93 +430,5 @@ public class RelationManagerTest {
         Assert.assertEquals("number", testTableSchema.get(2));
 
         relationManager.deleteTable(tableName);
-    }
-
-    /*
-	  * Test on addDictionaryTable() to see if it successfully store dictionary metadata in 'dictionary' table
-    */
-    @Test
-    public void test18() throws Exception {
-        RelationManager relationManager = RelationManager.getRelationManager();
-        String tableName = "dictionary";
-
-        // add test data "test_dictionary"
-        relationManager.addDictionaryTable("/test_dictionary/", "test1.txt");
-
-        Tuple t;
-        IDField id = null;
-        DataReader dataReader = relationManager.getTableDataReader(tableName, new MatchAllDocsQuery());
-        dataReader.open();
-
-        // store tuples into hashmap just for testing purpose
-        HashMap<String, String> tuples = new HashMap<>();
-        while ((t = dataReader.getNextTuple()) != null) {
-            String fileName = (String)t.getField("name").getValue();
-            String fileUploadDirectory = (String)t.getField("path").getValue();
-
-            tuples.put(fileName, fileUploadDirectory);
-
-            // remember id to remove test tuple
-            if (fileName.equals("test1.txt")) {
-                id = t.getField("_id");
-            }
-        }
-        dataReader.close();
-
-        // remove test data "test_dictionary"
-        DataWriter dataWriter = relationManager.getTableDataWriter(tableName);
-        dataWriter.open();
-        dataWriter.deleteTupleByID(id);
-        dataWriter.close();
-
-        Assert.assertTrue(tuples.containsKey("test1.txt"));
-        Assert.assertTrue(tuples.containsValue("/test_dictionary/"));
-    }
-
-    @Test
-    /**
-     * Test getDictionaries()
-     */
-    public void test19() throws Exception {
-        RelationManager relationManager = RelationManager.getRelationManager();
-        String tableName = "dictionary";
-
-        // add test data "test_dictionary"
-        relationManager.addDictionaryTable("/test_dictionary/", "test1.txt");
-
-        HashMap<String, String> dictionaries = relationManager.getDictionaries();
-
-        // remove test data "test_dictionary"
-        DataWriter dataWriter = relationManager.getTableDataWriter(tableName);
-        dataWriter.open();
-        dataWriter.deleteTupleByID(new IDField(dictionaries.get("test1.txt")));
-        dataWriter.close();
-
-        Assert.assertTrue(dictionaries.containsKey("test1.txt"));
-    }
-
-    @Test
-    /**
-     * Test getDictionaryPath()
-     */
-    public void test20() throws Exception {
-        RelationManager relationManager = RelationManager.getRelationManager();
-        String tableName = "dictionary";
-
-        // add test data "test_dictionary"
-        relationManager.addDictionaryTable("/test_dictionary/", "test1.txt");
-
-        HashMap<String, String> dictionaries = relationManager.getDictionaries();
-        IDField id = new IDField(dictionaries.get("test1.txt"));
-
-        String path = relationManager.getDictionaryPath(id.getValue());
-
-        // remove test data "test_dictionary"
-        DataWriter dataWriter = relationManager.getTableDataWriter(tableName);
-        dataWriter.open();
-        dataWriter.deleteTupleByID(id);
-        dataWriter.close();
-
-        Assert.assertEquals("/test_dictionary/test1.txt", path);
     }
 }

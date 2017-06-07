@@ -544,18 +544,6 @@ let excelSink = {
   }
 }
 
-let uploadDictionary = {
-  top : 20,
-  left : 20,
-  properties : {
-    title : 'UploadDictionary',
-    attributes : {
-      "operatorType": "UploadDictionary",
-      "File": "test.txt",
-    }
-  }
-}
-
 export const DEFAULT_MATCHERS: Data[] = [
     {id: 0, jsonData: regexMatcher},
     {id: 1, jsonData: keywordMatcher},
@@ -579,5 +567,4 @@ export const DEFAULT_MATCHERS: Data[] = [
     {id: 20, jsonData: excelSink},
     {id: 21, jsonData: comparison},
     {id: 22, jsonData: nlpSplit},
-    {id: 23, jsonData: uploadDictionary}
 ];
