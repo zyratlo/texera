@@ -135,6 +135,7 @@ export class SideBarComponent {
 
     currentDataService.dictionaryContent$.subscribe(
       data => {
+        this.dictionaryContent = [];
         for(let entry of data){
           this.dictionaryContent.push(entry.trim());
         }
