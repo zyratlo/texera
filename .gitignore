@@ -26,4 +26,3 @@ plan_files/
 # Ignoring Mac OSX specific files
 .DS_Store
 
-/bin/
