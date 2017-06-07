@@ -51,7 +51,6 @@ public class RegexSplitOperator extends AbstractSingleInputOperator implements I
     private RegexSplitPredicate predicate;
     Tuple currentTuple;
     
-//    private int cursor = CLOSED;
     private List<Span> currentSentenceList = new ArrayList<Span>();
 
     public RegexSplitOperator(RegexSplitPredicate predicate) {
@@ -108,15 +107,16 @@ public class RegexSplitOperator extends AbstractSingleInputOperator implements I
         
         if(predicate.getOutputType() == RegexOutputType.ONE_TO_ONE) {
             currentTuple = inputOperator.getNextTuple();
-            if (currentTuple == null) return null;
+            if (currentTuple == null) 
+                return null;
             outputFields.addAll(currentTuple.getFields());
             outputFields.add(new ListField<Span>(computeSentenceList(currentTuple)));
         } else if(predicate.getOutputType() == RegexOutputType.ONE_TO_MANY) {
             if(currentSentenceList.isEmpty()) {
                 currentTuple = inputOperator.getNextTuple();
-                if (currentTuple == null) return null;
+                if (currentTuple == null) 
+                    return null;
                 currentSentenceList = computeSentenceList(currentTuple);
-                int i = 0;
             }
             
             //Add new ID for each new tuple created

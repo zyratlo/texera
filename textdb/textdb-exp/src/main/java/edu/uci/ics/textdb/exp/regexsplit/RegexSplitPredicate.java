@@ -7,7 +7,6 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import edu.uci.ics.textdb.api.dataflow.IOperator;
 import edu.uci.ics.textdb.exp.common.PredicateBase;
 import edu.uci.ics.textdb.exp.common.PropertyNameConstants;
-import edu.uci.ics.textdb.exp.nlp.splitter.NLPOutputType;
 
 /**
  * @author Qinhua Huang
@@ -54,7 +53,7 @@ public class RegexSplitPredicate extends PredicateBase {
             RegexOutputType outputType,
             @JsonProperty(value=PropertyNameConstants.SPLIT_REGEX, required=true)
             String splitRegex,
-            @JsonProperty(value=PropertyNameConstants.SPLIT_ATTRIBUTE, required=true)
+            @JsonProperty(value=PropertyNameConstants.ATTRIBUTE_NAME, required=true)
             String splitAttribute,
             @JsonProperty(value=PropertyNameConstants.SPLIT_TYPE, required=true)
             SplitType splitType,
@@ -82,14 +81,14 @@ public class RegexSplitPredicate extends PredicateBase {
         return inputAttributeName;
     }
     
-    @JsonProperty(PropertyNameConstants.RESULT_ATTRIBUTE_NAME)
-    public String getResultAttributeName() {
-        return this.resultAttributeName;
-    }
-    
     @JsonProperty(PropertyNameConstants.SPLIT_TYPE)
     public SplitType getSplitType() {
         return splitType;
+    }
+    
+    @JsonProperty(PropertyNameConstants.RESULT_ATTRIBUTE_NAME)
+    public String getResultAttributeName() {
+        return this.resultAttributeName;
     }
     
     @Override

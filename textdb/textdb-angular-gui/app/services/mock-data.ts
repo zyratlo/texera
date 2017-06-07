@@ -190,9 +190,11 @@ let regexSplit = {
     },
     attributes : {
         "operatorType": "RegexSplit",
-        "splitAttribute": "attr1",
+        "attribute": "",
         "splitRegex": "regex",
-        "splitType": "standalone"
+        "resultAttribute": "splitText",
+        "splitType": "standalone",
+        "splitOption": "oneToMany"
     }
   }
 }
@@ -215,8 +217,8 @@ let nlpSplit = {
     attributes : {
         "operatorType": "NlpSplit",
         "attribute": "",
-        "resultAttribute": "resultAttribute",
-        "splitOption": "oneToOne"
+        "resultAttribute": "splitText",
+        "splitOption": "oneToMany",
     }
   }
 }
