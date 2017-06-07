@@ -8,6 +8,7 @@ import io.dropwizard.testing.junit.DropwizardAppRule;
 import org.glassfish.jersey.client.ClientProperties;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Test;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.core.Response;
@@ -52,18 +53,19 @@ public class SystemResourceTest {
 		assertThat(response.getStatus()).isEqualTo(200);
 	}
 
-//	@Test
-//	public void getDictionaryPath() throws Exception {
-//		Client client = new JerseyClientBuilder(RULE.getEnvironment()).build("test client");
-//		client.property(ClientProperties.CONNECT_TIMEOUT, 5000);
-//		client.property(ClientProperties.READ_TIMEOUT, 5000);
-//		client.register(MultiPartFeature.class);
-//
-//		Response response = client.target(
-//						String.format("http://localhost:%d/api/resources/dictionary/?name=dictname", RULE.getLocalPort()))
-//						.request()
-//						.get();
-//
-//		assertThat(response.getStatus()).isEqualTo(200);
-//	}
+	@Test
+	@Ignore
+	public void getDictionaryPath() throws Exception {
+		Client client = new JerseyClientBuilder(RULE.getEnvironment()).build("test client");
+		client.property(ClientProperties.CONNECT_TIMEOUT, 5000);
+		client.property(ClientProperties.READ_TIMEOUT, 5000);
+		client.register(MultiPartFeature.class);
+
+		Response response = client.target(
+						String.format("http://localhost:%d/api/resources/dictionary/?name=dictname", RULE.getLocalPort()))
+						.request()
+						.get();
+
+		assertThat(response.getStatus()).isEqualTo(200);
+	}
 }
