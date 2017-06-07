@@ -28,6 +28,7 @@ import edu.uci.ics.textdb.exp.nlp.splitter.NlpSplitPredicate;
 import edu.uci.ics.textdb.exp.projection.ProjectionPredicate;
 import edu.uci.ics.textdb.exp.regexmatcher.RegexPredicate;
 import edu.uci.ics.textdb.exp.regexmatcher.RegexSourcePredicate;
+import edu.uci.ics.textdb.exp.regexsplit.RegexOutputType;
 import edu.uci.ics.textdb.exp.regexsplit.RegexSplitPredicate;
 import edu.uci.ics.textdb.exp.regexsplit.RegexSplitPredicate.SplitType;
 import edu.uci.ics.textdb.exp.sampler.SamplerPredicate;
@@ -172,9 +173,11 @@ public class PredicateBaseTest {
     @Test
     public void testRegexSplit() throws Exception {
         RegexSplitPredicate regexSplitPredicate = new RegexSplitPredicate(
+                RegexOutputType.ONE_TO_MANY,
                 "regex",
                 "attr1",
-                SplitType.STANDALONE);
+                SplitType.STANDALONE,
+                "resultAttr");
         testPredicate(regexSplitPredicate);
     }
     

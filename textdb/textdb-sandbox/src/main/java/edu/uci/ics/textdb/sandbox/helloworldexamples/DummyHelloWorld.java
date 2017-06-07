@@ -9,8 +9,7 @@ public class DummyHelloWorld {
         // Bad comments
         System.out.println("Hello World!");
         // TOBE deleted
-        while (true) {
-            System.out.println("Stop me!");
-        }
+        String abc = "abcdefg";
+        System.out.print(abc.substring(0, 7));
     }
 }
