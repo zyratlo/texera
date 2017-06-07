@@ -150,6 +150,29 @@ let nlpSentiment = {
   }
 }
 
+let emojiSentiment = {
+  top : 20,
+  left : 20,
+  properties : {
+    title : 'Emoji Sentiment Analysis',
+    inputs : {
+      input_1 : {
+        label : 'Input(:i)',
+      }
+    },
+    outputs : {
+      output_1 : {
+        label : "Output (:i)",
+      }
+    },
+    attributes : {
+        "operatorType": "EmojiSentiment",
+        "attribute": "",
+        "resultAttribute": "resultAttr"
+    }
+  }
+}
+
 let regexSplit = {
   top : 20,
   left : 20,
@@ -239,6 +262,29 @@ let projection = {
     attributes : {
         "operatorType": "Projection",
         "attributes": []
+    }
+  }
+}
+
+let fileSource = {
+  top : 20,
+  left : 20,
+  properties : {
+    title : 'Source: File',
+    inputs : {
+      input_1 : {
+        label : "Input (:i)",
+      }
+    },
+    outputs : {
+      output_1 : {
+        label : "Output (:i)",
+      }
+    },
+    attributes : {
+        "operatorType": "FileSource",
+        "filePath": "",
+        "resultAttribute": "",
     }
   }
 }
@@ -567,4 +613,6 @@ export const DEFAULT_MATCHERS: Data[] = [
     {id: 20, jsonData: excelSink},
     {id: 21, jsonData: comparison},
     {id: 22, jsonData: nlpSplit},
+    {id: 23, jsonData: emojiSentiment},
+    {id: 24, jsonData: fileSource},
 ];

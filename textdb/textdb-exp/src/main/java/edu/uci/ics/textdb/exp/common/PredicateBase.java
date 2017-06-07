@@ -24,6 +24,7 @@ import edu.uci.ics.textdb.exp.join.SimilarityJoinPredicate;
 import edu.uci.ics.textdb.exp.keywordmatcher.KeywordPredicate;
 import edu.uci.ics.textdb.exp.keywordmatcher.KeywordSourcePredicate;
 import edu.uci.ics.textdb.exp.nlp.entity.NlpEntityPredicate;
+import edu.uci.ics.textdb.exp.nlp.sentiment.EmojiSentimentPredicate;
 import edu.uci.ics.textdb.exp.nlp.sentiment.NlpSentimentPredicate;
 import edu.uci.ics.textdb.exp.nlp.splitter.NlpSplitPredicate;
 import edu.uci.ics.textdb.exp.projection.ProjectionPredicate;
@@ -69,6 +70,7 @@ import edu.uci.ics.textdb.exp.wordcount.WordCountOperatorPredicate;
         
         @Type(value = NlpEntityPredicate.class, name = "NlpEntity"),
         @Type(value = NlpSentimentPredicate.class, name = "NlpSentiment"),
+        @Type(value = EmojiSentimentPredicate.class, name = "EmojiSentiment"),
         @Type(value = ProjectionPredicate.class, name = "Projection"),
         @Type(value = RegexSplitPredicate.class, name = "RegexSplit"),
         @Type(value = NlpSplitPredicate.class, name = "NlpSplit"),
@@ -77,7 +79,7 @@ import edu.uci.ics.textdb.exp.wordcount.WordCountOperatorPredicate;
         @Type(value = ComparablePredicate.class, name = "Comparison"),
         
         @Type(value = ScanSourcePredicate.class, name = "ScanSource"),
-        @Type(value = FileSourcePredicate.class, name = "FileSink"),        
+        @Type(value = FileSourcePredicate.class, name = "FileSource"),        
         @Type(value = TupleSinkPredicate.class, name = "ViewResults"),
         @Type(value = ExcelSinkPredicate.class, name = "ExcelSink"),
         
