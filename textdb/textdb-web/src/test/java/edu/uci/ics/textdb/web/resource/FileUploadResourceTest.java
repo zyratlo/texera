@@ -29,6 +29,7 @@ public class FileUploadResourceTest {
 	public static final DropwizardAppRule<TextdbWebConfiguration> RULE =
 					new DropwizardAppRule<>(TextdbWebApplication.class, ResourceHelpers.resourceFilePath("test-config.yml"));
 
+    // TODO:: We are getting 400. However, it works with front-end. So we need to fix this test case.
 	@Test
 	@Ignore
 	public void checkDictionaryUpload() throws Exception {
@@ -45,10 +46,9 @@ public class FileUploadResourceTest {
 
 		Response response = client.target(
 						String.format("http://localhost:%d/api/upload/dictionary", RULE.getLocalPort()))
-						.request(MediaType.APPLICATION_JSON)
+						.request(MediaType.MULTIPART_FORM_DATA_TYPE)
 						.post(Entity.entity(multiPart, multiPart.getMediaType()));
-
-		// TODO:: We are getting 400. However, it works with front-end. So we need to fix this test case.
+		
 		assertThat(response.getStatus()).isEqualTo(200);
 	}
 }

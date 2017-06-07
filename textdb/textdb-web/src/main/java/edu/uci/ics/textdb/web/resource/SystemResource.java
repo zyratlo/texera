@@ -2,27 +2,23 @@ package edu.uci.ics.textdb.web.resource;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import edu.uci.ics.textdb.exp.resources.dictionary.DictionaryManager;
-import edu.uci.ics.textdb.exp.resources.dictionary.DictionaryManagerConstants;
+
+import edu.uci.ics.textdb.api.exception.StorageException;
+import edu.uci.ics.textdb.exp.resource.dictionary.DictionaryManager;
 import edu.uci.ics.textdb.storage.RelationManager;
 import edu.uci.ics.textdb.storage.TableMetadata;
-import edu.uci.ics.textdb.web.TextdbWebException;
 import edu.uci.ics.textdb.web.response.TextdbWebResponse;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Path("/resources")
 @Produces(MediaType.APPLICATION_JSON)
 public class SystemResource {
 	@GET
 	@Path("/metadata")
-	public TextdbWebResponse getMetadata() throws Exception {
+	public TextdbWebResponse getMetadata() throws StorageException, JsonProcessingException {
 		List<TableMetadata> tableMetadata = RelationManager.getRelationManager().getMetaData();
 		return new TextdbWebResponse(0, new ObjectMapper().writeValueAsString(tableMetadata));
 	}
@@ -32,7 +28,7 @@ public class SystemResource {
      */
 	@GET
 	@Path("/dictionaries")
-	public TextdbWebResponse getDictionaries() throws JsonProcessingException {
+	public TextdbWebResponse getDictionaries() throws StorageException, JsonProcessingException {
 		DictionaryManager dictionaryManager = DictionaryManager.getInstance();
 		List<String> dictionaries = dictionaryManager.getDictionaries();
 
@@ -44,21 +40,11 @@ public class SystemResource {
      */
 	@GET
 	@Path("/dictionary")
-	public TextdbWebResponse getDictionary(@QueryParam("name") String name) throws IOException {
+	public TextdbWebResponse getDictionary(@QueryParam("name") String name) {
         DictionaryManager dictionaryManager = DictionaryManager.getInstance();
-        List<String> dictionaries = dictionaryManager.getDictionaries();
-        
-        if (! dictionaries.contains(name)) {
-            throw new TextdbWebException("Dictionary " + name + " does not exist");
-        }
+        String dictionaryContent = dictionaryManager.getDictionary(name);
 
-		String content = readFromFile(Paths.get(DictionaryManagerConstants.DICTIONARY_DIR, name));
-
-		return new TextdbWebResponse(0, content);
+		return new TextdbWebResponse(0, dictionaryContent);
 	}
 
-	private String readFromFile(java.nio.file.Path dictionaryPath) throws IOException {
-		return Files.lines(dictionaryPath).collect(Collectors.joining(","));
-
-	}
 }
