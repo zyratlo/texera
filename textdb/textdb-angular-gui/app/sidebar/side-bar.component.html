@@ -34,6 +34,14 @@
                     <input class="form-control" id="{{attribute}}" placeholder="Enter attributes" [ngModel]="selectedAttributesList.toString()" (ngModelChange)="manuallyAdded($event)" name="{{attribute}}" #{{attribute}}="ngModel">
                 </div>
 
+                <div *ngIf="attribute === 'dictionaryEntries'">
+                    <select class="form-control" name="{{attribute}}+Selector" [(ngModel)]="selectedDictionary" (ngModelChange)="dictionarySelected()">
+                        <option selected hidden value="">Select Dictionary</option>
+                        <option *ngFor="let dictionary of dictionaryNames" [value] = "dictionary">{{dictionary}}</option>
+                    </select>
+                    <input class="form-control" id="{{attribute}}" placeholder="Enter dictionary entries" [ngModel]="dictionaryContent.toString()" (ngModelChange)="dictionaryManuallyAdded($event)" name="{{attribute}}" #{{attribute}}="ngModel">
+                </div>
+
                 <div *ngIf="attribute === 'attribute'">
                     <select class="form-control" name="{{attribute}}+Selector" [(ngModel)]="selectedAttributeSingle" (ngModelChange)="attributeAdded('single')">
                         <option selected hidden value="">Select attributes</option>

@@ -69,7 +69,7 @@ let dictionaryMatcher = {
     attributes :  {
         "operatorType": "DictionaryMatcher",
         "attributes": [],
-        "dictionaryEntries": ["entry1", "entry2"],
+        "dictionaryEntries": [],
         "luceneAnalyzer": "standard",
         "matchingType": "phrase",
         "spanListName": " "
@@ -358,7 +358,7 @@ let dictionarySource = {
         "operatorType": "DictionarySource",
         "tableName": "",
         "attributes": [],
-        "dictionaryEntries": ["entry1", "entry2"],
+        "dictionaryEntries": [],
         "luceneAnalyzer": "standard",
         "matchingType": "phrase",
         "spanListName": " "
