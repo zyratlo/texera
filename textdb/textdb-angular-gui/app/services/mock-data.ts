@@ -4,7 +4,7 @@ let keywordMatcher = {
     top: 20,
     left: 20,
     properties: {
-        title: 'KeywordMatcher',
+        title: 'Keyword Search',
         inputs: {
             input_1: {
                 label: 'Input (:i)',
@@ -30,7 +30,7 @@ let regexMatcher = {
   top : 20,
   left : 20,
   properties : {
-    title : 'RegexMatcher',
+    title : 'Regex Match',
     inputs : {
       input_1 : {
         label : 'Input(:i)',
@@ -55,7 +55,7 @@ let dictionaryMatcher = {
   top : 20,
   left : 20,
   properties : {
-    title : 'DictionaryMatcher',
+    title : 'Dictionary Search',
     inputs : {
       input_1 : {
         label : "Input(:i)",
@@ -81,7 +81,7 @@ let fuzzyMatcher = {
   top : 20,
   left : 20,
   properties : {
-    title : "FuzzyTokenMatcher",
+    title : "Fuzzy Token Match",
     inputs : {
       input_1 : {
         label : "Input(:i)",
@@ -107,7 +107,7 @@ let nlpEntity = {
   top : 20,
   left : 20,
   properties : {
-    title : 'NlpEntity',
+    title : 'Entity recognition',
     inputs : {
       input_1 : {
         label : 'Input(:i)',
@@ -131,7 +131,7 @@ let nlpSentiment = {
   top : 20,
   left : 20,
   properties : {
-    title : 'NlpSentiment',
+    title : 'Sentiment Analysis',
     inputs : {
       input_1 : {
         label : 'Input(:i)',
@@ -154,7 +154,7 @@ let regexSplit = {
   top : 20,
   left : 20,
   properties : {
-    title : 'RegexSplit',
+    title : 'Regex Split',
     inputs : {
       input_1 : {
         label : "Input (:i)",
@@ -202,7 +202,7 @@ let sampler = {
   top : 20,
   left : 20,
   properties : {
-    title : 'Sampler',
+    title : 'Sampling',
     inputs : {
       input_1 : {
         label : "Input (:i)",
@@ -247,7 +247,7 @@ let scanSource = {
   top : 20,
   left : 20,
   properties : {
-    title : 'ScanSource',
+    title : 'Source: Scan',
     inputs : {
       input_1 : {
         label : "Input (:i)",
@@ -269,7 +269,7 @@ let keywordSource = {
   top : 20,
   left : 20,
   properties : {
-    title : 'KeywordSource',
+    title : 'Source: Keyword',
     inputs : {
       input_1 : {
         label : "Input (:i)",
@@ -297,7 +297,7 @@ let dictionarySource = {
   top : 20,
   left : 20,
   properties : {
-    title : 'DictionarySource',
+    title : 'Source: Dictionary',
     inputs : {
       input_1 : {
         label : "Input (:i)",
@@ -324,7 +324,7 @@ let regexSource = {
   top : 20,
   left : 20,
   properties : {
-    title : 'RegexSource',
+    title : 'Source: Regex',
     inputs : {
       input_1 : {
         label : "Input (:i)",
@@ -351,7 +351,7 @@ let fuzzyTokenSource = {
   top : 20,
   left : 20,
   properties : {
-    title : 'FuzzyTokenSource',
+    title : 'Source: FuzzyToken',
     inputs : {
       input_1 : {
         label : "Input (:i)",
@@ -378,7 +378,7 @@ let wordCountSource = {
   top : 20,
   left : 20,
   properties : {
-    title : 'WordCountSource',
+    title : 'Source: Word Count',
     inputs : {
       input_1 : {
         label : "Input (:i)",
@@ -401,7 +401,7 @@ let wordCount = {
   top : 20,
   left : 20,
   properties : {
-    title : 'WordCount',
+    title : 'Word Count',
     inputs : {
       input_1 : {
         label : "Input (:i)",
@@ -448,7 +448,7 @@ let characterDistanceJoin = {
   top : 20,
   left : 20,
   properties : {
-    title : 'CharacterDistanceJoin',
+    title : 'Join: Character Distance',
     inputs : {
       input_1 : {
         label : 'Input (:i)',
@@ -475,7 +475,7 @@ let similarityJoin = {
   top : 20,
   left : 20,
   properties : {
-    title : 'Similarity Join',
+    title : 'Join: Similarity',
     inputs : {
       input_1 : {
         label : 'Input (:i)',
@@ -525,7 +525,7 @@ let excelSink = {
   top : 20,
   left : 20,
   properties : {
-    title : 'View Results',
+    title : 'Write Excel',
     inputs : {
       input_1 : {
         label : "Input (:i)",
