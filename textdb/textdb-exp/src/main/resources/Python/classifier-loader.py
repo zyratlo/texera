@@ -7,12 +7,11 @@ def debugLine(strLine):
 	f.close()
 
 def main():
-	print("neg")
+#	print("neg")
 	fs = open('Senti.pickle', 'rb')
 	Sentimm = pickle.load(fs)
 	fs.close()
 	for text in sys.argv[1:]:
-		print("neg")
-	#	print(Sentimm.classify(text))
+		print(Sentimm.classify(text))
 
 main()
