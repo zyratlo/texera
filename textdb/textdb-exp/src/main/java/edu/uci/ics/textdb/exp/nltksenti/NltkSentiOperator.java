@@ -96,9 +96,11 @@ public class NltkSentiOperator implements IOperator {
         try{
             String path = Utils.getResourcePath("Python", TextdbProject.TEXTDB_EXP);
             path += PYTHONSCRIPT;
-            List<String> args = new ArrayList<String>(Arrays.asList(PYTHON, path));
+            String trainner = Utils.getResourcePath("Senti.pickle", TextdbProject.TEXTDB_EXP);
+            List<String> args = new ArrayList<String>(Arrays.asList(PYTHON, path, trainner));
             args.addAll(new ArrayList<String>(Arrays.asList(inputText)));
-            
+            System.out.println(args);
+
             ProcessBuilder pb = new ProcessBuilder(args);
             
             Process p = pb.start();
@@ -139,7 +141,10 @@ public class NltkSentiOperator implements IOperator {
         try{
             String path = Utils.getResourcePath("Python", TextdbProject.TEXTDB_EXP);
             path += PYTHONSCRIPT;
-            List<String> args = new ArrayList<String>(Arrays.asList(PYTHON, path));
+            String trainner = Utils.getResourcePath("Senti.pickle", TextdbProject.TEXTDB_EXP);
+            List<String> args = new ArrayList<String>(Arrays.asList(PYTHON, path, trainner));
+
+//            List<String> args = new ArrayList<String>(Arrays.asList(PYTHON, path));
             args.addAll(new ArrayList<String>(Arrays.asList(inputText)));
             
             ProcessBuilder pb = new ProcessBuilder(args);
