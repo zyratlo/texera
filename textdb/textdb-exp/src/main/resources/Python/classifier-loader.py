@@ -11,6 +11,7 @@ def main():
 	#fs = open('Senti.pickle', 'rb')
 	picklePath = sys.argv[1]
 #	debugLine(path)
+	print(picklePath)
 	pickleFile = open(picklePath, 'rb')
 	print(picklePath)
 	Sentimm = pickle.load(pickleFile)
