@@ -10,12 +10,12 @@ def main():
 #	print("neg")
 	#fs = open('Senti.pickle', 'rb')
 	path = sys.argv[1]
-	debugLine(path)
+#	debugLine(path)
 	fs = open(path, 'rb')
 	Sentimm = pickle.load(fs)
 	fs.close()
 	for text in sys.argv[2:]:
-		print(path)
+		print(text)
 		#print(Sentimm.classify(text))
 
 main()
