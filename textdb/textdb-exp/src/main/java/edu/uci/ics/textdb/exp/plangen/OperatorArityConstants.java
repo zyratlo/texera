@@ -18,6 +18,7 @@ import edu.uci.ics.textdb.exp.nlp.entity.NlpEntityPredicate;
 import edu.uci.ics.textdb.exp.nlp.sentiment.EmojiSentimentPredicate;
 import edu.uci.ics.textdb.exp.nlp.sentiment.NlpSentimentPredicate;
 import edu.uci.ics.textdb.exp.nlp.splitter.NlpSplitPredicate;
+import edu.uci.ics.textdb.exp.nltksenti.NltkSentiOperatorPredicate;
 import edu.uci.ics.textdb.exp.projection.ProjectionPredicate;
 import edu.uci.ics.textdb.exp.regexmatcher.RegexPredicate;
 import edu.uci.ics.textdb.exp.regexmatcher.RegexSourcePredicate;
@@ -70,6 +71,7 @@ public class OperatorArityConstants {
         fixedInputArityMap.put(TupleSinkPredicate.class, 1);
         fixedInputArityMap.put(ExcelSinkPredicate.class, 1);
         fixedInputArityMap.put(MysqlSinkPredicate.class, 1);
+        fixedInputArityMap.put(NltkSentiOperatorPredicate.class, 1);
 
     }
     
@@ -104,6 +106,7 @@ public class OperatorArityConstants {
         fixedOutputArityMap.put(TupleSinkPredicate.class, 0);
         fixedOutputArityMap.put(ExcelSinkPredicate.class, 0);
         fixedOutputArityMap.put(MysqlSinkPredicate.class, 0);
+        fixedOutputArityMap.put(NltkSentiOperatorPredicate.class, 1);
 
     }
     
