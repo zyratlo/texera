@@ -10,7 +10,10 @@ jdk:
 
 before_install:
   - sudo apt-get -y install python3-pip python-dev
+  - sudo pip3 install -U setuptools
+  - sudo pip3 install -U virtualenvwrappe
   - python3 -V
+  - pip3 -V
    
 # run steps
 install:
