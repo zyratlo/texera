@@ -16,7 +16,6 @@ before_install:
 #  - sudo pip3 install -U setuptools
 #  - sudo pip3 install -U virtualenvwrappe
   - python3 -V
-  - pip3 -V
    
 # run steps
 install:
