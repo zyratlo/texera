@@ -13,7 +13,7 @@ import edu.uci.ics.textdb.exp.nltksenti.NltkSentiOperator;
 import edu.uci.ics.textdb.exp.sink.tuple.TupleSink;
 import edu.uci.ics.textdb.exp.source.tuple.TupleSourceOperator;
 
-public class NltkTest {
+public class NltkSentiOperatorTest {
     /*
      * Test sentiment with a positive sentence, result should be 3 (negative)
      */
