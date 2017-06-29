@@ -15,6 +15,7 @@ def main():
 	Sentimm = pickle.load(fs)
 	fs.close()
 	for text in sys.argv[2:]:
-		print(Sentimm.classify(text))
+		print(path)
+		#print(Sentimm.classify(text))
 
 main()

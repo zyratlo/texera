@@ -54,7 +54,7 @@ public class NltkSentiOperatorTest {
         tupleSink.close();
         
         Tuple tuple = results.get(0);
-        Assert.assertEquals(tuple.getField("sentiment").getValue(), "pos");     
+        Assert.assertEquals(tuple.getField("sentiment").getValue(), "pos");
     }
     
     /*
