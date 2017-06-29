@@ -9,11 +9,12 @@ def debugLine(strLine):
 def main():
 #	print("neg")
 	#fs = open('Senti.pickle', 'rb')
-	path = sys.argv[1]
+	picklePath = sys.argv[1]
 #	debugLine(path)
-	fs = open(path, 'rb')
-	Sentimm = pickle.load(fs)
-	fs.close()
+	pickleFile = open(picklePath, 'rb')
+	print(picklePath)
+	Sentimm = pickle.load(pickleFile)
+	pickleFile.close()
 	for text in sys.argv[2:]:
 		print(text)
 		#print(Sentimm.classify(text))
