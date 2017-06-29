@@ -24,6 +24,7 @@ public class NltkSentiOperator implements IOperator {
     private Schema outputSchema;
     private int cursor = CLOSED;
     
+    public static String PYTHON = "python3";
     public static String PYTHONSCRIPT = "/classifier-loader.py";
     
     public NltkSentiOperator(NltkSentiOperatorPredicate predicate){
@@ -95,7 +96,7 @@ public class NltkSentiOperator implements IOperator {
         try{
             String path = Utils.getResourcePath("Python", TextdbProject.TEXTDB_EXP);
             path += PYTHONSCRIPT;
-            List<String> args = new ArrayList<String>(Arrays.asList("python3",path));
+            List<String> args = new ArrayList<String>(Arrays.asList(PYTHON, path));
             args.addAll(new ArrayList<String>(Arrays.asList(inputText)));
             
             ProcessBuilder pb = new ProcessBuilder(args);
@@ -138,7 +139,7 @@ public class NltkSentiOperator implements IOperator {
         try{
             String path = Utils.getResourcePath("Python", TextdbProject.TEXTDB_EXP);
             path += PYTHONSCRIPT;
-            List<String> args = new ArrayList<String>(Arrays.asList("python3",path));
+            List<String> args = new ArrayList<String>(Arrays.asList(PYTHON, path));
             args.addAll(new ArrayList<String>(Arrays.asList(inputText)));
             
             ProcessBuilder pb = new ProcessBuilder(args);
