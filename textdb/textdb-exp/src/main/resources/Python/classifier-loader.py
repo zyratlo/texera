@@ -13,8 +13,8 @@ def main():
 #	debugLine(path)
 #	print(picklePath)
 	pickleFile = open(picklePath, 'rb')
-	print(picklePath)
 	Sentimm = pickle.load(pickleFile)
+	print("1700"+picklePath)
 	pickleFile.close()
 	for text in sys.argv[2:]:
 		print(text)
