@@ -19,9 +19,9 @@ before_install:
   - export LC_ALL=C
 #  - wget http://archive.ubuntu.com/ubuntu/pool/universe/n/nltk/python3-nltk_3.1-1_all.deb
 #  - sudo dpkg -i python3-nltk_3.1-1_all.deb 
-  - sudo apt-get install python3-nltk
+#  - sudo apt-get install python3-nltk
 #  - python3 -V
-  #- sudo pip install -U nltk
+  - sudo pip3 install -U nltk
 #  - sudo apt-get install python-numpy python-nltk
 #  - sudo apt-get -y install python3-pip python-dev
 #  - sudo apt-get -y install python3-pip python-dev
