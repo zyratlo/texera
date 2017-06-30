@@ -1,4 +1,6 @@
 # configuration
+dist: trusty
+sudo: required
 language: java
 cache:
     - apt
