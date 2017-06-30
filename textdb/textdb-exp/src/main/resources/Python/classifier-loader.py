@@ -14,10 +14,9 @@ def main():
 #	print(picklePath)
 	pickleFile = open(picklePath, 'rb')
 	Sentimm = pickle.load(pickleFile)
-	print("1700"+picklePath)
+#	print("1700"+picklePath)
 	pickleFile.close()
 	for text in sys.argv[2:]:
-		print(text)
-		#print(Sentimm.classify(text))
+		print(Sentimm.classify(text))
 
 main()
