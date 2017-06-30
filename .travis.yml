@@ -15,7 +15,7 @@ before_install:
   - sudo apt-get install python3-setuptools 
   - sudo easy_install3 pip
   - export LC_ALL=C
-  - sudo apt-get install python3-nltk
+  - sudo apt-get install python-nltk
 #  - python3 -V
   #- sudo pip install -U nltk
 #  - sudo apt-get install python-numpy python-nltk
