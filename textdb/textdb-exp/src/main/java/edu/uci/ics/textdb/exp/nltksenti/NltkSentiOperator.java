@@ -155,6 +155,7 @@ public class NltkSentiOperator implements IOperator {
             BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()));
             if ((className = input.readLine()) != null) {
                 input.close();
+                className = args.toString();
                 return className;
             }
         }catch(Exception e){
