@@ -20,12 +20,12 @@ def main():
 	pickleFile = open(picklePath, 'rb')
 #	print("After open pickeleFile: %s"% picklePath)
 	Sentimm = pickle.load(pickleFile)
-	print(pyversion)
+#	print(pyversion)
 	#print('The nltk version is {}.'.format(nltk.__version__))
 #	print("1700"+picklePath)
 	text = sys.argv[2]
 	classLabel = Sentimm.classify(text)
-	print("Afterclassify")
+	print("Afterclassify %s" %classLabel)
 	print(classLabel)
 	for text in sys.argv[2:]:
 		print("%s"% classLabel)
