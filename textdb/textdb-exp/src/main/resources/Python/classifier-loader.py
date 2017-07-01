@@ -15,6 +15,7 @@ def main():
 #	debugLine(path)
 #	print(picklePath)
 	pickleFile = open(picklePath, 'rb')
+	print("After open pickeleFile: %s"% picklePath)
 	Sentimm = pickle.load(pickleFile)
 #	print("1700"+picklePath)
 	for text in sys.argv[2:]:
