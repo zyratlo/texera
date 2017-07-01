@@ -1,6 +1,7 @@
 import sys
 import pickle
 import warnings
+import nltk
 
 def debugLine(strLine):
 	f = open("python_classifier_loader.log","a+")
@@ -14,6 +15,10 @@ def main():
 	picklePath = sys.argv[1]
 #	debugLine(path)
 #	print(picklePath)
+	pyversion = format(nltk.__version__);
+	print(pyversion)
+	#print('The nltk version is {}.'.format(nltk.__version__))
+	print("BeforeClasify")
 	pickleFile = open(picklePath, 'rb')
 #	print("After open pickeleFile: %s"% picklePath)
 	Sentimm = pickle.load(pickleFile)
