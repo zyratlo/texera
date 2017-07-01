@@ -13,20 +13,10 @@ jdk:
 before_install:
   - sudo apt-get update
   - sudo apt-get install python3
-  #- sudo apt-get install python3-pip 
   - sudo apt-get install python3-setuptools 
   - sudo easy_install3 pip
   - export LC_ALL=C
-#  - wget http://archive.ubuntu.com/ubuntu/pool/universe/n/nltk/python3-nltk_3.1-1_all.deb
-#  - sudo dpkg -i python3-nltk_3.1-1_all.deb 
-#  - sudo apt-get install python3-nltk
-#  - python3 -V
   - pip3 install -U nltk
-#  - sudo apt-get install python-numpy python-nltk
-#  - sudo apt-get -y install python3-pip python-dev
-#  - sudo apt-get -y install python3-pip python-dev
-#  - sudo pip3 install -U setuptools
-#  - sudo pip3 install -U virtualenvwrappe
    
 # run steps
 install:

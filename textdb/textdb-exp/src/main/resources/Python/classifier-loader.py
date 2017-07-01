@@ -1,7 +1,5 @@
 import sys
 import pickle
-import warnings
-#import nltk
 
 def debugLine(strLine):
 	f = open("python_classifier_loader.log","a+")
@@ -16,5 +14,5 @@ def main():
 		print("%s"%Sentimm.classify(text))
 	pickleFile.close()
 
-warnings.filterwarnings("ignore")
-main()
+if __name__ == "__main__":
+	main()
