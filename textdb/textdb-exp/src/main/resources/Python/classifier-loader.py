@@ -16,12 +16,12 @@ def main():
 #	debugLine(path)
 #	print(picklePath)
 	pyversion = format(nltk.__version__);
-	print(pyversion)
-	#print('The nltk version is {}.'.format(nltk.__version__))
-	print("BeforeClasify")
+	#print("BeforeClasify")
 	pickleFile = open(picklePath, 'rb')
 #	print("After open pickeleFile: %s"% picklePath)
 	Sentimm = pickle.load(pickleFile)
+	print(pyversion)
+	#print('The nltk version is {}.'.format(nltk.__version__))
 #	print("1700"+picklePath)
 	text = sys.argv[2]
 	classLabel = Sentimm.classify(text)
