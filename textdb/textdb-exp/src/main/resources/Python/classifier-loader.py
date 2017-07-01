@@ -1,5 +1,6 @@
 import sys
 import pickle
+import warnings
 
 def debugLine(strLine):
 	f = open("python_classifier_loader.log","a+")
@@ -9,6 +10,7 @@ def debugLine(strLine):
 def main():
 #	print("neg")
 	#fs = open('Senti.pickle', 'rb')
+	warnings.filterwarnings("ignore")
 	picklePath = sys.argv[1]
 #	debugLine(path)
 #	print(picklePath)
