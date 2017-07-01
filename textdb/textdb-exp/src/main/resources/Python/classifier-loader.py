@@ -20,7 +20,8 @@ def main():
 #	print("1700"+picklePath)
 	text = sys.argv[2]
 	classLabel = Sentimm.classify(text)
-	print("%s"% classLabel)
+	print("Afterclassify")
+	print(classLabel)
 	for text in sys.argv[2:]:
 		print("%s"% classLabel)
 		#print("%s"% Sentimm.classify(text))
