@@ -266,7 +266,7 @@ public class DataflowUtils {
      * @param matchingResults
      * @throws DataFlowException
      */
-    public static void computeSubstringMatchingResult(Tuple inputTuple, List<String> attributeNames, String queryKeyword, List<Span> matchingResults) throws DataFlowException {
+    public static void appendSubstringMatchingSpans(Tuple inputTuple, List<String> attributeNames, String queryKeyword, List<Span> matchingResults) throws DataFlowException {
 
 
         for (String attributeName : attributeNames) {
@@ -302,7 +302,7 @@ public class DataflowUtils {
         }
     }
 
-    public static void computeConjunctionMatchingResult(Tuple inputTuple, List<String> attributeNames, String queryKeyword, String luceneAnalyzerString, List<Span> matchingResults) throws DataFlowException {
+    public static void appendConjunctionMatchingSpans(Tuple inputTuple, List<String> attributeNames, String queryKeyword, String luceneAnalyzerString, List<Span> matchingResults) throws DataFlowException {
         ListField<Span> payloadField = inputTuple.getField(SchemaConstants.PAYLOAD);
         List<Span> payload = payloadField.getValue();
         List<String> queryTokenList = tokenizeQuery(luceneAnalyzerString, queryKeyword);
@@ -349,7 +349,7 @@ public class DataflowUtils {
      * @return
      * @throws DataFlowException
      */
-    public static void computePhraseMatchingResult(Tuple inputTuple, List<String> attributeNames, String queryKeyword, String luceneAnalyzerString, List<Span> matchingResults) throws DataFlowException {
+    public static void appendPhraseMatchingSpans(Tuple inputTuple, List<String> attributeNames, String queryKeyword, String luceneAnalyzerString, List<Span> matchingResults) throws DataFlowException {
         ListField<Span> payloadField = inputTuple.getField(SchemaConstants.PAYLOAD);
         List<Span> payload = payloadField.getValue();
         List<String> queryTokenList = tokenizeQuery(luceneAnalyzerString, queryKeyword);
