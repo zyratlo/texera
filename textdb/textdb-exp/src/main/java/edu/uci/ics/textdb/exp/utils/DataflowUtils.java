@@ -286,10 +286,12 @@ public class DataflowUtils {
             }
 
             if (attributeType == AttributeType.TEXT) {
-                               
-                for(int i = 0 ; i < fieldValue.toLowerCase().length(); i++){
+                
+                String fieldValueLowerCase = fieldValue.toLowerCase();
+                String queryKeywordLowerCase = queryKeyword.toLowerCase();
+                for(int i = 0 ; i < fieldValueLowerCase.length(); i++){
                 	int index = -1;
-                	if((index = fieldValue.toLowerCase().indexOf(queryKeyword.toLowerCase(),i)) != -1){
+                	if((index = fieldValueLowerCase.indexOf(queryKeywordLowerCase,i)) != -1){
                 		matchingResults.add(new Span(attributeName, index, index + queryKeyword.length(), queryKeyword, 
                 				fieldValue.substring(index, index + queryKeyword.length())));
                 		i = index + 1;
