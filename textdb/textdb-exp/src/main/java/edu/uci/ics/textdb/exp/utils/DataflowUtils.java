@@ -286,9 +286,16 @@ public class DataflowUtils {
             }
 
             if (attributeType == AttributeType.TEXT) {
-                for (int i = -1; (i = fieldValue.toLowerCase().indexOf(queryKeyword.toLowerCase(),i+1)) != -1;) {
-                    matchingResults.add(new Span(attributeName, i, i + queryKeyword.length(), queryKeyword, fieldValue.substring(i, i + queryKeyword.length())));
-
+                               
+                for(int i = 0 ; i < fieldValue.toLowerCase().length(); i++){
+                	int index = -1;
+                	if((index = fieldValue.toLowerCase().indexOf(queryKeyword.toLowerCase(),i)) != -1){
+                		matchingResults.add(new Span(attributeName, index, index + queryKeyword.length(), queryKeyword, 
+                				fieldValue.substring(index, index + queryKeyword.length())));
+                		i = index + 1;
+                	}else{
+                		break;
+                	}
                 }
 
             }
