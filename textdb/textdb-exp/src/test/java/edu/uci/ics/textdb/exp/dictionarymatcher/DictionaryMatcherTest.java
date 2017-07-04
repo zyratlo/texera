@@ -1058,11 +1058,11 @@ public class DictionaryMatcherTest {
     }
 
     /***
-     * Testcases for DictionaryMatcher scan-based, use getScanSourceResults method only.
+     * Testcases for scan-based DictionaryMatcher, use getScanSourceResults method only.
      * @throws Exception
      */
     @Test
-    public void testMultipleWordQueryInTextFieldUsingScan_1() throws Exception {
+    public void testMultipleWordQueryInTextFieldUsingScan1() throws Exception {
 
         ArrayList<String> names = new ArrayList<String>(Arrays.asList("tall","fair"));
         Dictionary dictionary = new Dictionary(names);
@@ -1101,7 +1101,7 @@ public class DictionaryMatcherTest {
         Assert.assertTrue(contains);
     }
     @Test
-    public void testMultipleWordQueryInTextFieldUsingScan_2() throws Exception {
+    public void testMultipleWordQueryInTextFieldUsingScan2() throws Exception {
 
         ArrayList<String> names = new ArrayList<String>(Arrays.asList("tall fair"));
         Dictionary dictionary = new Dictionary(names);

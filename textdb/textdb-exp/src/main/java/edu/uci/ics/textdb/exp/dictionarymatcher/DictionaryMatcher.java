@@ -26,6 +26,7 @@ import java.util.List;
  * Created by Chang on 6/28/17.
  */
 public class DictionaryMatcher extends AbstractSingleInputOperator {
+
     private final DictionaryPredicate predicate;
 
 
@@ -37,6 +38,7 @@ public class DictionaryMatcher extends AbstractSingleInputOperator {
 
     @Override
     protected void setUp() throws TextDBException {
+
         if (inputOperator == null) {
             throw new DataFlowException(ErrorMessages.INPUT_OPERATOR_NOT_SPECIFIED);
         }
@@ -46,8 +48,10 @@ public class DictionaryMatcher extends AbstractSingleInputOperator {
         if (predicate.getDictionary().isEmpty()) {
             throw new DataFlowException("Dictionary is empty");
         }
+
         inputSchema = inputOperator.getOutputSchema();
         outputSchema = inputSchema;
+
         if (!inputSchema.containsField(SchemaConstants.PAYLOAD)) {
             outputSchema = Utils.addAttributeToSchema(outputSchema, SchemaConstants.PAYLOAD_ATTRIBUTE);
         }
@@ -77,6 +81,7 @@ public class DictionaryMatcher extends AbstractSingleInputOperator {
 
     @Override
     public Tuple processOneInputTuple(Tuple inputTuple) throws TextDBException {
+
         if (inputTuple == null) {
             return null;
         }
@@ -93,6 +98,7 @@ public class DictionaryMatcher extends AbstractSingleInputOperator {
         List<Span> matchingResults = new ArrayList<>();
 
         while ((currentDictionaryEntry = predicate.getDictionary().getNextEntry()) != null) {
+
             if(predicate.getKeywordMatchingType()== KeywordMatchingType.SUBSTRING_SCANBASED){
                 DataflowUtils.appendSubstringMatchingSpans(inputTuple,predicate.getAttributeNames(), currentDictionaryEntry, matchingResults);
             }
@@ -108,6 +114,7 @@ public class DictionaryMatcher extends AbstractSingleInputOperator {
         if (matchingResults.isEmpty()) {
             return null;
         }
+
         ListField<Span> spanListField = inputTuple.getField(predicate.getSpanListName());
         List<Span> spanList = spanListField.getValue();
         spanList.addAll(matchingResults);
