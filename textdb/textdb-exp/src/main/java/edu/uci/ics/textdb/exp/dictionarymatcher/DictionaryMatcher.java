@@ -27,16 +27,10 @@ import java.util.List;
  */
 public class DictionaryMatcher extends AbstractSingleInputOperator {
     private final DictionaryPredicate predicate;
-    private int limit;
-    private int offset;
-    private KeywordPredicate keywordPredicate;
-    private KeywordMatcher keywordMatcher;
+
 
     public DictionaryMatcher(DictionaryPredicate predicate) {
         this.predicate = predicate;
-        this.limit = Integer.MAX_VALUE;
-        this.offset = -1;
-
     }
 
     private Schema inputSchema;
