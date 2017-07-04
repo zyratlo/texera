@@ -19,10 +19,8 @@ import edu.uci.ics.textdb.exp.keywordmatcher.KeywordPredicate;
 import edu.uci.ics.textdb.exp.utils.DataflowUtils;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+
 
 /**
  * Created by Chang on 6/28/17.
@@ -31,7 +29,6 @@ public class DictionaryMatcher extends AbstractSingleInputOperator {
     private final DictionaryPredicate predicate;
     private int limit;
     private int offset;
-    String currentDictionaryEntry;
     private KeywordPredicate keywordPredicate;
     private KeywordMatcher keywordMatcher;
 
@@ -51,7 +48,6 @@ public class DictionaryMatcher extends AbstractSingleInputOperator {
         }
         inputSchema = inputOperator.getOutputSchema();
         predicate.getDictionary().resetCursor();
-        //currentDictionaryEntry = predicate.getDictionary().getNextEntry();
 
         if (predicate.getDictionary().isEmpty()) {
             throw new DataFlowException("Dictionary is empty");
@@ -97,42 +93,23 @@ public class DictionaryMatcher extends AbstractSingleInputOperator {
         if (predicate.getSpanListName() != null) {
             inputTuple = DataflowUtils.getSpanTuple(inputTuple.getFields(), new ArrayList<Span>(), outputSchema);
         }
+
         predicate.getDictionary().resetCursor();
-       // Dictionary dictionary = new Dictionary(predicate.getDictionary().getDictionaryEntries());
+        String currentDictionaryEntry;
         List<Span> matchingResults = new ArrayList<>();
-       // currentDictionaryEntry = dictionary.getNextEntry();
+
         while ((currentDictionaryEntry = predicate.getDictionary().getNextEntry()) != null) {
             if(predicate.getKeywordMatchingType()== KeywordMatchingType.SUBSTRING_SCANBASED){
-                DataflowUtils.appendSubstringMatchingSpans(inputTuple,predicate.getAttributeNames(),currentDictionaryEntry,matchingResults);
+                DataflowUtils.appendSubstringMatchingSpans(inputTuple,predicate.getAttributeNames(), currentDictionaryEntry, matchingResults);
             }
             else if(predicate.getKeywordMatchingType() == KeywordMatchingType.PHRASE_INDEXBASED){
-                DataflowUtils.appendPhraseMatchingSpans(inputTuple, predicate.getAttributeNames(), currentDictionaryEntry,predicate.getAnalyzerString(), matchingResults);
+                DataflowUtils.appendPhraseMatchingSpans(inputTuple, predicate.getAttributeNames(), currentDictionaryEntry, predicate.getAnalyzerString(), matchingResults);
             }
             else if(predicate.getKeywordMatchingType() == KeywordMatchingType.CONJUNCTION_INDEXBASED){
                 DataflowUtils.appendConjunctionMatchingSpans(inputTuple, predicate.getAttributeNames(), currentDictionaryEntry, predicate.getAnalyzerString(), matchingResults);
             }
 
         }
-
-
-//            keywordPredicate = new KeywordPredicate(currentDictionaryEntry,
-//                    predicate.getAttributeNames(),
-//                    predicate.getAnalyzerString(), predicate.getKeywordMatchingType(),
-//                    predicate.getSpanListName());
-//            keywordMatcher = new KeywordMatcher(keywordPredicate);
-        // if (this.predicate.getKeywordMatchingType() == KeywordMatchingType.CONJUNCTION_INDEXBASED) {
-        //    matchingResults.addAll(keywordMatcher.computeConjunctionMatchingResult(inputTuple));
-        // }
-        // else if (this.predicate.getKeywordMatchingType() == KeywordMatchingType.PHRASE_INDEXBASED) {
-        //     matchingResults = keywordMatcher.computePhraseMatchingResult(inputTuple);
-        // }
-        //else if (this.predicate.getKeywordMatchingType() == KeywordMatchingType.SUBSTRING_SCANBASED) {
-        //     matchingResults = keywordMatcher.computeSubstringMatchingResult(inputTuple);
-        // }
-
-        //keywordMatcher.setUp();
-        //   matchingResults.addAll((List<Span>) keywordMatcher.processOneInputTuple(inputTuple).getField(predicate.getSpanListName()).getValue());
-        //    currentDictionaryEntry=predicate.getDictionary().getNextEntry();
 
         if (matchingResults.isEmpty()) {
             return null;
@@ -145,37 +122,6 @@ public class DictionaryMatcher extends AbstractSingleInputOperator {
 
     }
 
-    private List<Span> matchOneKeywordSubstring(Tuple inputTuple, String currentDictionaryEntry) throws DataFlowException {
-        List<Span> matchingResult = new ArrayList<>();
-        for (String attribute : predicate.getAttributeNames()) {
-            AttributeType attributeType = inputTuple.getSchema().getAttribute(attribute).getAttributeType();
-            String fieldValue = inputTuple.getField(attribute).getValue().toString();
-
-            if (attributeType != AttributeType.STRING && attributeType != AttributeType.TEXT) {
-                throw new DataFlowException("KeywordMatcher: Fields other than STRING and TEXT are not supported yet");
-            }
-
-
-            if (attributeType == AttributeType.STRING) {
-                if (fieldValue.equals(currentDictionaryEntry)) {
-                    matchingResult.add(new Span(attribute, 0, currentDictionaryEntry.length(), currentDictionaryEntry, fieldValue));
-                }
-            }
-
-            if (attributeType == AttributeType.TEXT) {
-                String regex = currentDictionaryEntry.toLowerCase();
-                Pattern pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
-                Matcher matcher = pattern.matcher(fieldValue.toLowerCase());
-                while (matcher.find()) {
-                    int start = matcher.start();
-                    int end = matcher.end();
-
-                    matchingResult.add(new Span(attribute, start, end, currentDictionaryEntry, fieldValue.substring(start, end)));
-                }
-            }
-        }
-        return matchingResult;
-    }
 
 
     @Override
@@ -190,6 +136,7 @@ public class DictionaryMatcher extends AbstractSingleInputOperator {
     public void setInputOperator(IOperator inputOperator) {
         this.inputOperator = inputOperator;
     }
+
 
     public IOperator getInputOperator() {
         return inputOperator;
