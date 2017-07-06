@@ -2,26 +2,26 @@
 package edu.uci.ics.textdb.exp.dictionarymatcher;
 
 
-import java.util.*;
+import java.util.List;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
-import edu.uci.ics.textdb.api.constants.ErrorMessages;
+
 import edu.uci.ics.textdb.api.constants.SchemaConstants;
 import edu.uci.ics.textdb.api.dataflow.ISourceOperator;
 import edu.uci.ics.textdb.api.exception.DataFlowException;
 import edu.uci.ics.textdb.api.exception.TextDBException;
 import edu.uci.ics.textdb.api.field.ListField;
-import edu.uci.ics.textdb.api.schema.Attribute;
-import edu.uci.ics.textdb.api.schema.AttributeType;
 import edu.uci.ics.textdb.api.schema.Schema;
 import edu.uci.ics.textdb.api.span.Span;
 import edu.uci.ics.textdb.api.tuple.Tuple;
-import edu.uci.ics.textdb.api.utils.Utils;
 import edu.uci.ics.textdb.exp.keywordmatcher.KeywordSourcePredicate;
 import edu.uci.ics.textdb.exp.source.scan.ScanBasedSourceOperator;
 import edu.uci.ics.textdb.exp.source.scan.ScanSourcePredicate;
 import edu.uci.ics.textdb.exp.keywordmatcher.KeywordMatcherSourceOperator;
 import edu.uci.ics.textdb.exp.keywordmatcher.KeywordMatchingType;
-import edu.uci.ics.textdb.exp.utils.DataflowUtils;
+
 
 /**
  * @author Sudeep (inkudo)
@@ -46,13 +46,37 @@ public class DictionaryMatcherSourceOperator implements ISourceOperator {
     private int resultCursor;
     private int limit;
     private int offset;
-    private KeywordMatchingType keywordMatchingType;
 
+    private Map<String, Tuple> resultMap; //To store results for earlier dictionary entries for CONJUNCTION and PHRASE.
+    private Iterator resultIterator;
 
-    private Map<String, Tuple> tupleMap;
-    private Iterator mapIterator;
+    private int cursor = CLOSED;  //Flag for computing matching result for CONJUNCTION and PHRASE.
+
     /**
-     * Constructs a DictionaryMatcher with a dictionary predicate
+     * Constructs a DictionaryMatcher with a dictionary predicate.
+     *
+     * Performs SUBSTRING_SCAN, PHRASE_INDEX, or CONJUNCTION_INDEX
+     * depends on the dictionary predicate.
+     *
+     * DictionaryOperatorType.SUBSTRING_SCAN: <br>
+     * Scan the tuples using ScanSourceOperator followed by a Dictionary Matcher. <br>
+     * For each tuple, loop through the dictionary entries and generate results from
+     * DictionaryMatcher. <br>
+     *
+     * DictionaryOperatorType.PHRASE_INDEX, CONJUNCTION_INDEX: <br>
+     * Loop through the dictionary entries.
+     * For each entry, use a index-based KeywordMatcher to get the matching results.
+     * Maintain a HashMap </Tuple_ID, Tuple> to add in all the matching results
+     * into the spanlist of each input tuple.
+     *
+     * CONJUNCTION_INDEX corresponds to KeywordOperatorType.BASIC, which
+     * performs keyword search on the document. The input query is
+     * tokenized. The order of the tokens doesn't matter. <br>
+     *
+     * PHRASE_INDEX corresponds to KeywordOperatorType.PHRASE, which
+     * performs phrase search on the document. The input query is
+     * tokenized. The order of the tokens does matter. Stopwords are
+     * treated as placeholders to indicate an arbitary token. <br>
      * 
      * @param predicate
      * 
@@ -80,18 +104,10 @@ public class DictionaryMatcherSourceOperator implements ISourceOperator {
                 throw new DataFlowException("Dictionary is empty");
             }
 
-            if (predicate.getKeywordMatchingType() == KeywordMatchingType.PHRASE_INDEXBASED) {
-                keywordMatchingType = KeywordMatchingType.PHRASE_INDEXBASED;
-            } else if (predicate.getKeywordMatchingType() == KeywordMatchingType.CONJUNCTION_INDEXBASED){
-                keywordMatchingType = KeywordMatchingType.CONJUNCTION_INDEXBASED;
-            } else{
-                keywordMatchingType = KeywordMatchingType.SUBSTRING_SCANBASED;
-            }
+            if (predicate.getKeywordMatchingType() == KeywordMatchingType.SUBSTRING_SCANBASED) {
 
+                // For Substring matching, create a scan source operator followed by a dictionary matcher:
 
-            if (keywordMatchingType == KeywordMatchingType.SUBSTRING_SCANBASED) {
-
-                // For Substring matching, create a scan source operator.
                 indexSource = new ScanBasedSourceOperator(new ScanSourcePredicate(predicate.getTableName()));
 
                 dictionaryMatcher = new DictionaryMatcher(new DictionaryPredicate(predicate.getDictionary(), predicate.getAttributeNames(),
@@ -102,8 +118,8 @@ public class DictionaryMatcherSourceOperator implements ISourceOperator {
                 outputSchema = dictionaryMatcher.getOutputSchema();
 
             } else {
-                // For other keyword matching types (conjunction and phrase),
-                // create keyword matcher based on index.
+                // For other keyword matching types (CONJUNCTION and PHRASE),
+                // create a index-based keyword source operator.
 
                 keywordSource = new KeywordMatcherSourceOperator(new KeywordSourcePredicate(
                         currentDictionaryEntry,
@@ -113,10 +129,6 @@ public class DictionaryMatcherSourceOperator implements ISourceOperator {
                         predicate.getTableName(),
                         predicate.getSpanListName()));
                 keywordSource.open();
-
-                tupleMap = new HashMap<>();
-                computeMatchingResult(tupleMap);
-                mapIterator = tupleMap.entrySet().iterator();
 
                 // Other keyword matching types uses a KeywordMatcher, so the
                 // output schema is the same as keywordMatcher's schema
@@ -133,32 +145,8 @@ public class DictionaryMatcherSourceOperator implements ISourceOperator {
     }
 
     /**
-     * @about Gets the next matched tuple. <br>
-     *        Returns the tuple with results in spanList. <br>
-     * 
-     *        Performs SCAN, KEYWORD_BASIC, or KEYWORD_PHRASE depends on the
-     *        dictionary predicate. <br>
-     * 
-     *        DictionaryOperatorType.SCAN: <br>
-     *        Scan the tuples using ScanSourceOperator. <br>
-     *        For each tuple, loop through the dictionary and find results with
-     *        DictionaryMatcher. <br>
-     * 
-     *        DictionaryOperatorType.KEYWORD_BASIC, KEYWORD_PHRASE: <br>
-     *        Loop through the dictionary entries.
-     *        For each entry, use a index-based KeywordMatcher to find the results.
-     *        Maintain a HashMap </Tuple_ID, Tuple> to add in all the matching results
-     *        into the spanlist of each input tuple.
-     * 
-     *        KEYWORD_BASIC corresponds to KeywordOperatorType.BASIC, which
-     *        performs keyword search on the document. The input query is
-     *        tokenized. The order of the tokens doesn't matter. <br>
-     * 
-     *        KEYWORD_PHRASE corresponds to KeywordOperatorType.PHRASE, which
-     *        performs phrase search on the document. The input query is
-     *        tokenized. The order of the tokens does matter. Stopwords are
-     *        treated as placeholders to indicate an arbitary token. <br>
-     * 
+     * Gets the next matched tuple. <br>
+     * Returns the tuple with results in spanList. <br>
      */
     @Override
     public Tuple getNextTuple() throws TextDBException {
@@ -166,17 +154,27 @@ public class DictionaryMatcherSourceOperator implements ISourceOperator {
         if (resultCursor >= limit + offset - 1) {
             return null;
         }
-        if (keywordMatchingType == KeywordMatchingType.PHRASE_INDEXBASED
-                || keywordMatchingType == KeywordMatchingType.CONJUNCTION_INDEXBASED) {
-            // For each dictionary entry,
-            // get all result from KeywordMatcher.
+        if (predicate.getKeywordMatchingType() == KeywordMatchingType.PHRASE_INDEXBASED
+                || predicate.getKeywordMatchingType() == KeywordMatchingType.CONJUNCTION_INDEXBASED) {
+            // For each dictionary entry, get all result from KeywordMatcher.
+
+            if(cursor == CLOSED){
+
+                resultMap = new HashMap<>();
+                computeMatchingResults(resultMap);
+                resultIterator = resultMap.entrySet().iterator();
+
+                cursor = OPENED;
+
+            }
 
             while (true) {
 
-                if (mapIterator.hasNext()) {
+                if (resultIterator.hasNext()) {
                     resultCursor++;
+                    sourceTuple = ((Map.Entry<String, Tuple>) resultIterator.next()).getValue();
                     if (resultCursor >= offset) {
-                              return ((Map.Entry<String, Tuple>) mapIterator.next()).getValue();
+                              return sourceTuple;
                     }
 
                     continue;
@@ -187,6 +185,7 @@ public class DictionaryMatcherSourceOperator implements ISourceOperator {
 
             }
         }
+
         // Substring matching (based on scan)
         else {
 
@@ -225,24 +224,25 @@ public class DictionaryMatcherSourceOperator implements ISourceOperator {
      *  Maintain a HashMap </Tuple_ID, Tuple> to compute all the keyword
      *  matching results for each tuple.
      *
-     * @param tupleMap
+     * @param resultMap
      */
 
-    private void computeMatchingResult(Map<String, Tuple> tupleMap){
+    private void computeMatchingResults(Map<String, Tuple> resultMap){
+
         Tuple inputTuple;
         while(true) {
             while((inputTuple = keywordSource.getNextTuple()) != null){
 
                 String key = inputTuple.getField(SchemaConstants._ID).getValue().toString();
-                if(tupleMap.containsKey(key)) {
+                if(resultMap.containsKey(key)) {
 
-                    ListField<Span> spanListField = tupleMap.get(key).getField(predicate.getSpanListName());
+                    ListField<Span> spanListField = resultMap.get(key).getField(predicate.getSpanListName());
                     List<Span> spanList = spanListField.getValue();
                     spanList.addAll((List<Span>) inputTuple.getField(predicate.getSpanListName()).getValue());
 
                 }else {
 
-                    tupleMap.put(key, inputTuple);
+                    resultMap.put(key, inputTuple);
                 }
 
             }
@@ -255,7 +255,7 @@ public class DictionaryMatcherSourceOperator implements ISourceOperator {
 
             KeywordSourcePredicate keywordSourcePredicate = new KeywordSourcePredicate(currentDictionaryEntry,
                     predicate.getAttributeNames(),
-                    predicate.getAnalyzerString(), keywordMatchingType,
+                    predicate.getAnalyzerString(), predicate.getKeywordMatchingType(),
                     predicate.getTableName(),
                     predicate.getSpanListName());
 
