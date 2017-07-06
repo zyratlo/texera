@@ -3,15 +3,12 @@ package edu.uci.ics.textdb.api.utils;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.uci.ics.textdb.api.constants.SchemaConstants;
 import edu.uci.ics.textdb.api.exception.TextDBException;
-import edu.uci.ics.textdb.api.span.Span;
 import edu.uci.ics.textdb.api.tuple.Tuple;
 import junit.framework.Assert;
 
@@ -57,8 +54,6 @@ public class TestUtils {
         return tupleList.containsAll(containsTupleList);
     }
 
-
-
     /**
      * Returns true if the two tuple lists are equivalent (order doesn't matter)
      * 
@@ -78,8 +73,6 @@ public class TestUtils {
         
         return expectedResults.containsAll(exactResults) && exactResults.containsAll(expectedResults);
     }
-
-
 
     /**
      * Compare two tuple lists for given attribute values

@@ -1,10 +1,8 @@
 
 package edu.uci.ics.textdb.exp.dictionarymatcher;
 
-import java.security.Key;
+
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import edu.uci.ics.textdb.api.constants.ErrorMessages;
 import edu.uci.ics.textdb.api.constants.SchemaConstants;
