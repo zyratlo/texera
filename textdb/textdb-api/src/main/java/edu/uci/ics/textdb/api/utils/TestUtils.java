@@ -53,7 +53,6 @@ public class TestUtils {
         
         return tupleList.containsAll(containsTupleList);
     }
-
     /**
      * Returns true if the two tuple lists are equivalent (order doesn't matter)
      * 

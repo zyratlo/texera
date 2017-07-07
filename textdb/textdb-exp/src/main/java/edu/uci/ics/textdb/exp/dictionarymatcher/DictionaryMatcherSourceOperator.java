@@ -50,13 +50,13 @@ public class DictionaryMatcherSourceOperator implements ISourceOperator {
     private Map<String, Tuple> resultMap; //To store results for earlier dictionary entries for CONJUNCTION and PHRASE.
     private Iterator resultIterator;
 
-    private int cursor = CLOSED;  //Flag for computing matching result for CONJUNCTION and PHRASE.
+    private int cursor = CLOSED;  //Flag for computing matching results for CONJUNCTION and PHRASE.
 
     /**
      * Constructs a DictionaryMatcher with a dictionary predicate.
      *
      * Performs SUBSTRING_SCAN, PHRASE_INDEX, or CONJUNCTION_INDEX
-     * depends on the dictionary predicate.
+     * depending on the dictionary predicate.
      *
      * DictionaryOperatorType.SUBSTRING_SCAN: <br>
      * Scan the tuples using ScanSourceOperator followed by a Dictionary Matcher. <br>
@@ -65,8 +65,8 @@ public class DictionaryMatcherSourceOperator implements ISourceOperator {
      *
      * DictionaryOperatorType.PHRASE_INDEX, CONJUNCTION_INDEX: <br>
      * Loop through the dictionary entries.
-     * For each entry, use a index-based KeywordMatcher to get the matching results.
-     * Maintain a HashMap </Tuple_ID, Tuple> to add in all the matching results
+     * For each entry, use an index-based KeywordMatcher to get the matching results.
+     * Maintain a HashMap </Tuple_ID, Tuple> to add all the matching results
      * into the spanlist of each input tuple.
      *
      * CONJUNCTION_INDEX corresponds to KeywordOperatorType.BASIC, which
@@ -106,7 +106,7 @@ public class DictionaryMatcherSourceOperator implements ISourceOperator {
 
             if (predicate.getKeywordMatchingType() == KeywordMatchingType.SUBSTRING_SCANBASED) {
 
-                // For Substring matching, create a scan source operator followed by a dictionary matcher:
+                // For Substring matching, create a scan source operator followed by a dictionary matcher.
 
                 indexSource = new ScanBasedSourceOperator(new ScanSourcePredicate(predicate.getTableName()));
 
@@ -119,7 +119,7 @@ public class DictionaryMatcherSourceOperator implements ISourceOperator {
 
             } else {
                 // For other keyword matching types (CONJUNCTION and PHRASE),
-                // create a index-based keyword source operator.
+                // create an index-based keyword source operator.
 
                 keywordSource = new KeywordMatcherSourceOperator(new KeywordSourcePredicate(
                         currentDictionaryEntry,
@@ -131,7 +131,7 @@ public class DictionaryMatcherSourceOperator implements ISourceOperator {
                 keywordSource.open();
 
                 // Other keyword matching types uses a KeywordMatcher, so the
-                // output schema is the same as keywordMatcher's schema
+                // output schema is the same as keywordMatcher's schema.
 
                 inputSchema = keywordSource.getOutputSchema();
                 outputSchema = keywordSource.getOutputSchema();
@@ -156,8 +156,8 @@ public class DictionaryMatcherSourceOperator implements ISourceOperator {
         }
         if (predicate.getKeywordMatchingType() == KeywordMatchingType.PHRASE_INDEXBASED
                 || predicate.getKeywordMatchingType() == KeywordMatchingType.CONJUNCTION_INDEXBASED) {
-            // For each dictionary entry, get all result from KeywordMatcher.
 
+            // For each dictionary entry, get all results from KeywordMatcher.
             if(cursor == CLOSED){
 
                 resultMap = new HashMap<>();
