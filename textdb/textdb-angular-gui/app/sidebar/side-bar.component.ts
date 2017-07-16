@@ -20,7 +20,7 @@ declare var PrettyJSON: any;
 export class SideBarComponent {
   data: any;
   attributes: string[] = [];
-  currentResultTimeStamp: string = "";
+  currentResultID: string = "";
 
   operatorId: number;
   operatorTitle: string;
@@ -63,16 +63,7 @@ export class SideBarComponent {
   }
   
   downloadExcel() {
-    if (this.currentResultTimeStamp === "") {
-      console.log("currentResultTimeStamp is empty")
-    } else {
-      console.log("proceed to http request")
-      let downloadUrl = "http://localhost:8080/api/download/" + this.currentResultTimeStamp;
-      console.log(downloadUrl)
-      this.http.get(downloadUrl).toPromise().then(function(data) {
-        window.location.href = downloadUrl;
-      });
-    }
+    this.currentDataService.downloadExcel(this.currentResultID);
   }
 
   checkInHidden(name: string) {
@@ -117,11 +108,10 @@ export class SideBarComponent {
         jQuery.hideLoading();
         console.log(data);
         if (data.code === 0) {
-          var jsonMessage = JSON.parse(data.message);
-          this.currentResultTimeStamp = jsonMessage.timeStamp;
+          this.currentResultID = data.resultID;
           var node = new PrettyJSON.view.Node({
             el: jQuery("#elem"),
-            data: jsonMessage.results
+            data: data.result
           });
         } else {
           var node = new PrettyJSON.view.Node({
