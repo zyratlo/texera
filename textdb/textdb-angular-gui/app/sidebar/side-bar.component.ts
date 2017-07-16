@@ -73,7 +73,7 @@ export class SideBarComponent {
     return jQuery.inArray(name, this.selectorList);
   }
 
-  constructor(private currentDataService: CurrentDataService, private http: Http) {
+  constructor(private currentDataService: CurrentDataService) {
     currentDataService.newAddition$.subscribe(
       data => {
         this.data = data.operatorData;
