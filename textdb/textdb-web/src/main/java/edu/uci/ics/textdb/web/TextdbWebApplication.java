@@ -4,25 +4,19 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.github.dirkraft.dropwizard.fileassets.FileAssetsBundle;
 
-import edu.uci.ics.textdb.api.engine.Plan;
-import edu.uci.ics.textdb.api.exception.TextDBException;
-import edu.uci.ics.textdb.dataflow.sink.TupleStreamSink;
 import edu.uci.ics.textdb.perftest.sample.SampleExtraction;
 import edu.uci.ics.textdb.perftest.twitter.TwitterSample;
-import edu.uci.ics.textdb.plangen.LogicalPlan;
-import edu.uci.ics.textdb.storage.RelationManager;
 import edu.uci.ics.textdb.web.healthcheck.SampleHealthCheck;
-import edu.uci.ics.textdb.web.request.beans.KeywordSourceBean;
-import edu.uci.ics.textdb.web.request.beans.NlpExtractorBean;
-import edu.uci.ics.textdb.web.request.beans.TupleStreamSinkBean;
 import edu.uci.ics.textdb.web.resource.DownloadFileResource;
+import edu.uci.ics.textdb.web.resource.FileUploadResource;
 import edu.uci.ics.textdb.web.resource.NewQueryPlanResource;
 import edu.uci.ics.textdb.web.resource.PlanStoreResource;
-import edu.uci.ics.textdb.web.resource.QueryPlanResource;
+import edu.uci.ics.textdb.web.resource.SystemResource;
 import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
+import org.glassfish.jersey.media.multipart.MultiPartFeature;
 
 import javax.servlet.DispatcherType;
 import javax.servlet.FilterRegistration;
@@ -35,16 +29,6 @@ import java.util.EnumSet;
  */
 public class TextdbWebApplication extends Application<TextdbWebConfiguration> {
 
-
-    // Defining some simple operators for a simple query plan to trigger Stanford NLP loading
-    private static final KeywordSourceBean KEYWORD_SOURCE_BEAN = new KeywordSourceBean("KeywordSource_0", "KeywordSource",
-            "content", "100", "0", "Cleide Moreira, Director of Epidemiological Surveillance of SESAU", "conjunction",
-            "promed");
-    private static final NlpExtractorBean NLP_EXTRACTOR_BEAN = new NlpExtractorBean("NlpExtractor_0", "NlpExtractor",
-            "content", "100", "0", "location");
-    private static final TupleStreamSinkBean TUPLE_STREAM_SINK_BEAN = new TupleStreamSinkBean("TupleStreamSink_0",
-            "TupleStreamSink", "content", "100", "0");
-
     @Override
     public void initialize(Bootstrap<TextdbWebConfiguration> bootstrap) {
         // serve static frontend GUI files
@@ -55,10 +39,6 @@ public class TextdbWebApplication extends Application<TextdbWebConfiguration> {
     public void run(TextdbWebConfiguration textdbWebConfiguration, Environment environment) throws Exception {
         // serve backend at /api
         environment.jersey().setUrlPattern("/api/*");
-        // Creates an instance of the QueryPlanResource class to register with Jersey
-        final QueryPlanResource queryPlanResource = new QueryPlanResource();
-        // Registers the QueryPlanResource with Jersey
-        environment.jersey().register(queryPlanResource);
         
         final NewQueryPlanResource newQueryPlanResource = new NewQueryPlanResource();
         environment.jersey().register(newQueryPlanResource);
@@ -76,6 +56,19 @@ public class TextdbWebApplication extends Application<TextdbWebConfiguration> {
         // Registering the SampleHealthCheck with the environment
         environment.healthChecks().register("sample", sampleHealthCheck);
 
+        // Creates an instance of the InitSystemResource class to register with Jersey
+        final SystemResource systemResource = new SystemResource();
+        // Registers the systemResource with Jersey
+        environment.jersey().register(systemResource);
+
+        // Creates an instance of the FileUploadResource class to register with Jersey
+        final FileUploadResource fileUploadResource = new FileUploadResource();
+        // Registers the fileUploadResource with Jersey
+        environment.jersey().register(fileUploadResource);
+
+        // Registers MultiPartFeature to support file upload
+        environment.jersey().register(MultiPartFeature.class);
+
         // Configuring the object mapper used by Dropwizard
         environment.getObjectMapper().configure(MapperFeature.USE_GETTERS_AS_SETTERS, false);
         environment.getObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -92,17 +85,12 @@ public class TextdbWebApplication extends Application<TextdbWebConfiguration> {
     }
 
     public static void main(String args[]) throws Exception {
-        RelationManager relationManager = RelationManager.getRelationManager();
-        if (! relationManager.checkTableExistence(SampleExtraction.PROMED_SAMPLE_TABLE)) {
-            System.out.println("Writing Sample Index");
-            SampleExtraction.writeSampleIndex();
-            System.out.println("Completed Writing Sample Index");
-        }
-        if (! relationManager.checkTableExistence(TwitterSample.twitterClimateTable)) {
-            System.out.println("Writing twitter index");
-            TwitterSample.writeTwitterIndex();
-            System.out.println("Finished writing twitter index");
-        }
+        System.out.println("Writing promed Index");
+        SampleExtraction.writeSampleIndex();
+        System.out.println("Finished Writing promed Index");
+        System.out.println("Writing twitter index");
+        TwitterSample.writeTwitterIndex();
+        System.out.println("Finished writing twitter index");
         new TextdbWebApplication().run(args);
     }
 }

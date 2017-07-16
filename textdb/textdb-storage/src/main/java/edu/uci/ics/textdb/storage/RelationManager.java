@@ -2,6 +2,9 @@ package edu.uci.ics.textdb.storage;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -9,6 +12,7 @@ import java.util.stream.Stream;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.index.Term;
+import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
 
@@ -85,9 +89,15 @@ public class RelationManager {
         if (checkTableExistence(tableName)) {
             throw new StorageException(String.format("Table %s already exists.", tableName));
         }
-        // convert the index directory to its absolute path
+        
+        // create folder if it's not there
+        // and convert the index directory to its absolute path
         try {
-            indexDirectory = new File(indexDirectory).getCanonicalPath();
+            Path indexPath = Paths.get(indexDirectory);
+            if (Files.notExists(indexPath)) {
+                Files.createDirectories(indexPath);
+            }
+            indexDirectory = indexPath.toRealPath().toString();
         } catch (IOException e) {
             throw new StorageException(e);
         }
@@ -457,5 +467,23 @@ public class RelationManager {
                 .filter(typeStr -> typeStr.toString().equalsIgnoreCase(attributeTypeStr))
                 .findAny().orElse(null);
     }
-    
+
+    public List<TableMetadata> getMetaData() throws StorageException {
+        DataReader dataReader = RelationManager.getRelationManager().getTableDataReader(CatalogConstants.TABLE_CATALOG, new MatchAllDocsQuery());
+
+        List<TableMetadata> result = new ArrayList<>();
+        Tuple t = null;
+        dataReader.open();
+        while ((t = dataReader.getNextTuple()) != null) {
+            String tableName = (String)t.getField(CatalogConstants.TABLE_NAME).getValue();
+
+            if (!tableName.equals(CatalogConstants.SCHEMA_CATALOG.toLowerCase())
+                    && !tableName.equals(CatalogConstants.TABLE_CATALOG.toLowerCase())) {
+                result.add(new TableMetadata(tableName, getTableSchema(tableName)));
+            }
+        }
+        dataReader.close();
+
+        return result;
+    }
 }

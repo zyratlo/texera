@@ -6,8 +6,10 @@ import java.util.List;
 import org.junit.Test;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
+import edu.uci.ics.textdb.api.utils.TestUtils;
+import edu.uci.ics.textdb.exp.comparablematcher.ComparablePredicate;
+import edu.uci.ics.textdb.exp.comparablematcher.ComparisonType;
 import edu.uci.ics.textdb.exp.dictionarymatcher.Dictionary;
 import edu.uci.ics.textdb.exp.dictionarymatcher.DictionaryPredicate;
 import edu.uci.ics.textdb.exp.dictionarymatcher.DictionarySourcePredicate;
@@ -20,17 +22,25 @@ import edu.uci.ics.textdb.exp.keywordmatcher.KeywordPredicate;
 import edu.uci.ics.textdb.exp.keywordmatcher.KeywordSourcePredicate;
 import edu.uci.ics.textdb.exp.nlp.entity.NlpEntityPredicate;
 import edu.uci.ics.textdb.exp.nlp.entity.NlpEntityType;
+import edu.uci.ics.textdb.exp.nlp.sentiment.EmojiSentimentPredicate;
 import edu.uci.ics.textdb.exp.nlp.sentiment.NlpSentimentPredicate;
+import edu.uci.ics.textdb.exp.nlp.splitter.NLPOutputType;
+import edu.uci.ics.textdb.exp.nlp.splitter.NlpSplitPredicate;
 import edu.uci.ics.textdb.exp.projection.ProjectionPredicate;
 import edu.uci.ics.textdb.exp.regexmatcher.RegexPredicate;
 import edu.uci.ics.textdb.exp.regexmatcher.RegexSourcePredicate;
+import edu.uci.ics.textdb.exp.regexsplit.RegexOutputType;
 import edu.uci.ics.textdb.exp.regexsplit.RegexSplitPredicate;
 import edu.uci.ics.textdb.exp.regexsplit.RegexSplitPredicate.SplitType;
 import edu.uci.ics.textdb.exp.sampler.SamplerPredicate;
 import edu.uci.ics.textdb.exp.sampler.SamplerPredicate.SampleType;
+import edu.uci.ics.textdb.exp.sink.excel.ExcelSinkPredicate;
+import edu.uci.ics.textdb.exp.sink.mysql.MysqlSinkPredicate;
 import edu.uci.ics.textdb.exp.sink.tuple.TupleSinkPredicate;
 import edu.uci.ics.textdb.exp.source.file.FileSourcePredicate;
 import edu.uci.ics.textdb.exp.source.scan.ScanSourcePredicate;
+import edu.uci.ics.textdb.exp.wordcount.WordCountIndexSourcePredicate;
+import edu.uci.ics.textdb.exp.wordcount.WordCountOperatorPredicate;
 import junit.framework.Assert;
 
 public class PredicateBaseTest {
@@ -44,17 +54,9 @@ public class PredicateBaseTest {
      *   
      */
     public static void testPredicate(PredicateBase predicate) throws Exception {  
-        ObjectMapper objectMapper = new ObjectMapper();
-        String predicateJson = objectMapper.writeValueAsString(predicate);
-        PredicateBase resultPredicate = objectMapper.readValue(predicateJson, PredicateBase.class);
-        String resultPredicateJson = objectMapper.writeValueAsString(resultPredicate);
-        
-        JsonNode predicateJsonNode = objectMapper.readValue(predicateJson, JsonNode.class);
-        JsonNode resultPredicateJsonNode = objectMapper.readValue(resultPredicateJson, JsonNode.class);
-        
-        Assert.assertEquals(predicateJsonNode, resultPredicateJsonNode);
-        Assert.assertTrue(predicateJson.contains(PropertyNameConstants.OPERATOR_TYPE));
-        Assert.assertTrue(predicateJson.contains(PropertyNameConstants.OPERATOR_ID));
+        JsonNode jsonNode = TestUtils.testJsonSerialization(predicate);
+        Assert.assertTrue(jsonNode.has(PropertyNameConstants.OPERATOR_TYPE));
+        Assert.assertTrue(jsonNode.has(PropertyNameConstants.OPERATOR_ID));
     }
     
     private static List<String> attributeNames = Arrays.asList("attr1", "attr2");
@@ -173,9 +175,11 @@ public class PredicateBaseTest {
     @Test
     public void testRegexSplit() throws Exception {
         RegexSplitPredicate regexSplitPredicate = new RegexSplitPredicate(
+                RegexOutputType.ONE_TO_MANY,
                 "regex",
                 "attr1",
-                SplitType.STANDALONE);
+                SplitType.STANDALONE,
+                "resultAttr");
         testPredicate(regexSplitPredicate);
     }
     
@@ -205,6 +209,45 @@ public class PredicateBaseTest {
     public void testTupleSink() throws Exception {
         TupleSinkPredicate tupleSinkPredicate = new TupleSinkPredicate();
         testPredicate(tupleSinkPredicate);
+    }
+    
+    @Test
+
+    public void testWordCountIndexSource() throws Exception {
+        WordCountIndexSourcePredicate wordCountIndexSourcePredicate = new WordCountIndexSourcePredicate("tableName", "attr1");
+        testPredicate(wordCountIndexSourcePredicate);
+    }
+    
+    @Test
+    public void testWordCountOperator() throws Exception {
+        WordCountOperatorPredicate wordCountPredicate = new WordCountOperatorPredicate("attr1", "standard");
+        testPredicate(wordCountPredicate);
+    }
+
+    @Test
+    public void testExcelSink() throws Exception {
+    	ExcelSinkPredicate excelSinkPredicate = new ExcelSinkPredicate(10, 10);
+    	testPredicate(excelSinkPredicate);
+    }
+    
+    @Test
+    public void testComparable() throws Exception {
+        testPredicate(new ComparablePredicate("attr", ComparisonType.EQUAL_TO, 1));
+    }
+    
+    @Test
+    public void testEmojiSentiment() throws Exception {
+        testPredicate(new EmojiSentimentPredicate("inputAttr", "outputAttr"));
+    }
+
+    @Test
+    public void tesNlpSplit() throws Exception {
+        testPredicate(new NlpSplitPredicate(NLPOutputType.ONE_TO_MANY, "inputAttr", "resultAttr")) ;
+    }
+    
+    @Test
+    public void testMysqlSink() throws Exception {
+        testPredicate(new MysqlSinkPredicate("host", 1234, "db", "table", "user", "pass", null, null)) ;
     }
 
 }

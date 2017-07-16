@@ -2,9 +2,16 @@ package edu.uci.ics.textdb.api.tuple;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import edu.uci.ics.textdb.api.constants.JsonConstants;
 import edu.uci.ics.textdb.api.field.IField;
 import edu.uci.ics.textdb.api.schema.Schema;
 
@@ -15,24 +22,35 @@ import edu.uci.ics.textdb.api.schema.Schema;
  * 
  * Created on 3/25/16.
  */
+@JsonDeserialize(using = TupleJsonDeserializer.class)
 public class Tuple {
     private final Schema schema;
     private final List<IField> fields;
 
     public Tuple(Schema schema, IField... fields) {
-        this.schema = schema;
-        // Converting to java.util.Arrays.ArrayList
-        // so that the collection remains static and cannot be extended/shrunk
-        // This makes List<IField> partially immutable.
-        // Partial because we can still replace an element at particular index.
-        this.fields = Arrays.asList(fields);
+        this(schema, Arrays.asList(fields));
     }
     
-    public Tuple(Schema schema, List<IField> fields) {
+    @JsonCreator
+    public Tuple(
+            @JsonProperty(value = JsonConstants.SCHEMA, required = true)
+            Schema schema, 
+            @JsonProperty(value = JsonConstants.FIELDS, required = true)
+            List<IField> fields) {
         this.schema = schema;
         this.fields = fields;
     }
-
+    
+    @JsonProperty(value = JsonConstants.SCHEMA)
+    public Schema getSchema() {
+        return schema;
+    }
+    
+    @JsonProperty(value = JsonConstants.FIELDS)
+    public List<IField> getFields() {
+        return new ArrayList<>(this.fields);
+    }
+    
     @SuppressWarnings("unchecked")
     public <T extends IField> T getField(int index) {
         return (T) fields.get(index);
@@ -82,12 +100,13 @@ public class Tuple {
     public String toString() {
         return "Tuple [schema=" + schema + ", fields=" + fields + "]";
     }
-
-    public List<IField> getFields() {
-        return new ArrayList<>(this.fields);
+    
+    public ObjectNode getReadableJson() {
+        ObjectNode objectNode = new ObjectMapper().createObjectNode();
+        for (String attrName : this.schema.getAttributeNames()) {
+            objectNode.set(attrName, JsonNodeFactory.instance.pojoNode(this.getField(attrName).getValue()));
+        }
+        return objectNode;
     }
-
-    public Schema getSchema() {
-        return schema;
-    }
+    
 }

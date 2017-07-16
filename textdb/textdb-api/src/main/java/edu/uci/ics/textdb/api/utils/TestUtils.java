@@ -1,14 +1,22 @@
 package edu.uci.ics.textdb.api.utils;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import edu.uci.ics.textdb.api.constants.SchemaConstants;
+import edu.uci.ics.textdb.api.exception.TextDBException;
 import edu.uci.ics.textdb.api.tuple.Tuple;
+import junit.framework.Assert;
 
 /**
  * @author sandeepreddy602
  * @author zuozhi
  * @author rajeshyarlagadda
+ * @author Bhushan Pagariya (bhushanpagariya)
  */
 public class TestUtils {
 
@@ -45,7 +53,6 @@ public class TestUtils {
         
         return tupleList.containsAll(containsTupleList);
     }
-    
     /**
      * Returns true if the two tuple lists are equivalent (order doesn't matter)
      * 
@@ -64,6 +71,59 @@ public class TestUtils {
             return false;
         
         return expectedResults.containsAll(exactResults) && exactResults.containsAll(expectedResults);
+    }
+
+    /**
+     * Compare two tuple lists for given attribute values
+     * @param expectedResults
+     * @param exactResults
+     * @param attributeNames
+     * @return True if two tuples have same values for given attribute, otherwise false
+     */
+    public static boolean attributeEquals(List<Tuple> expectedResults, List<Tuple> exactResults, List<String> attributeNames) {
+        if(expectedResults.size()!=exactResults.size())
+            return false;
+        if(exactResults.size() == 0)
+            return true;
+        // Remove all unwanted attributes from expectedResults
+        List<String> expectedResultAttrs = new ArrayList<>(expectedResults.get(0).getSchema().getAttributeNames());
+        expectedResultAttrs.removeAll(attributeNames);
+        String[] expectedResultsArr = expectedResultAttrs.toArray(new String[expectedResultAttrs.size()]);
+        expectedResults = Utils.removeFields(expectedResults, expectedResultsArr);
+
+        // Remove all unwanted attributes from exactResults
+        List<String> exactResultAttrs = new ArrayList<>(exactResults.get(0).getSchema().getAttributeNames());
+        exactResultAttrs.removeAll(attributeNames);
+        String[] exactResultsArr = exactResultAttrs.toArray(new String[exactResultAttrs.size()]);
+        exactResults = Utils.removeFields(exactResults, exactResultsArr);
+
+        // 2-way comparision between expectedResults and exactResults
+        return expectedResults.containsAll(exactResults) && exactResults.containsAll(expectedResults);
+    }
+
+    public static JsonNode testJsonSerialization(Object object) {
+        return testJsonSerialization(object, false);
+    }
+    
+    public static JsonNode testJsonSerialization(Object object, boolean printResults) {
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            String json = objectMapper.writeValueAsString(object);
+            Object resultObject = objectMapper.readValue(json, object.getClass());
+            String resultJson = objectMapper.writeValueAsString(resultObject);
+            
+            JsonNode jsonNode = objectMapper.readValue(json, JsonNode.class);
+            JsonNode resultJsonNode = objectMapper.readValue(resultJson, JsonNode.class);
+            
+            if (printResults) {
+                System.out.println(resultJson);
+            }
+            
+            Assert.assertEquals(jsonNode, resultJsonNode);
+            return jsonNode;
+        } catch (IOException e) {
+            throw new TextDBException(e);
+        }
     }
     
 }

@@ -30,7 +30,13 @@ public class Dictionary {
             @JsonProperty(value = PropertyNameConstants.DICTIONARY_ENTRIES, required = true)
             Collection<String> dictionaryEntries) {
         // Using LinkedHashSet so that getNextValue() returns the words in order.
-        this.dictionaryEntries = new LinkedHashSet<>(dictionaryEntries);
+    	this.dictionaryEntries = new LinkedHashSet<>();
+    	for(String entry: dictionaryEntries){
+    		if(! entry.trim().equals("")){
+    			this.dictionaryEntries.add(entry.trim());
+    		}
+    	}
+        
         this.dictionaryIterator = this.dictionaryEntries.iterator();
     }
     
@@ -49,7 +55,10 @@ public class Dictionary {
         }
         return null;
     }
-    
+
+    public boolean isEmpty(){
+        return (dictionaryEntries == null || dictionaryEntries.isEmpty());
+    }
     /**
      * Reset the cursor to the start of the dictionary.
      */

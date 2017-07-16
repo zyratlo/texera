@@ -2,6 +2,8 @@ package edu.uci.ics.textdb.exp.keywordmatcher;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import edu.uci.ics.textdb.api.exception.TextDBException;
+
 /**
  * KeywordMatchingType: the type of keyword matching to perform. <br>
  * Currently we have 3 types of keyword matching: <br>
@@ -67,5 +69,20 @@ public enum KeywordMatchingType {
     @JsonValue
     public String getName() {
         return this.name;
+    }
+    
+    public static KeywordMatchingType fromName(String name) {
+        if (name.equalsIgnoreCase(SUBSTRING_SCANBASED.getName()) || 
+                name.equalsIgnoreCase(SUBSTRING_SCANBASED.toString())) {
+            return SUBSTRING_SCANBASED;
+        } else if (name.equalsIgnoreCase(CONJUNCTION_INDEXBASED.getName()) || 
+                name.equalsIgnoreCase(CONJUNCTION_INDEXBASED.toString())) {
+            return CONJUNCTION_INDEXBASED;
+        } else if (name.equalsIgnoreCase(PHRASE_INDEXBASED.getName()) || 
+                name.equalsIgnoreCase(PHRASE_INDEXBASED.toString())) {
+            return PHRASE_INDEXBASED;
+        } else {
+            throw new TextDBException("Cannot convert " + name + " to KeywordMatchingType");
+        }
     }
 }

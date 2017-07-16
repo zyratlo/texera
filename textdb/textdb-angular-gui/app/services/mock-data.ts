@@ -4,7 +4,7 @@ let keywordMatcher = {
     top: 20,
     left: 20,
     properties: {
-        title: 'KeywordMatcher',
+        title: 'Keyword Search',
         inputs: {
             input_1: {
                 label: 'Input (:i)',
@@ -17,8 +17,8 @@ let keywordMatcher = {
         },
         attributes: {
             "operatorType": "KeywordMatcher",
+            "attributes": [],
             "query": "keyword",
-            "attributes": ["text"],
             "luceneAnalyzer": "standard",
             "matchingType": "phrase",
             "spanListName": " "
@@ -30,7 +30,7 @@ let regexMatcher = {
   top : 20,
   left : 20,
   properties : {
-    title : 'RegexMatcher',
+    title : 'Regex Match',
     inputs : {
       input_1 : {
         label : 'Input(:i)',
@@ -43,8 +43,8 @@ let regexMatcher = {
     },
     attributes : {
         "operatorType": "RegexMatcher",
+        "attributes": [],
         "regex": "regex",
-        "attributes": ["attr1", "attr2"],
         "regexIgnoreCase": false,
         "spanListName": " "
     }
@@ -55,7 +55,7 @@ let dictionaryMatcher = {
   top : 20,
   left : 20,
   properties : {
-    title : 'DictionaryMatcher',
+    title : 'Dictionary Search',
     inputs : {
       input_1 : {
         label : "Input(:i)",
@@ -68,8 +68,8 @@ let dictionaryMatcher = {
     },
     attributes :  {
         "operatorType": "DictionaryMatcher",
-        "dictionaryEntries": ["entry1", "entry2"],
-        "attributes": ["attr1", "attr2"],
+        "attributes": [],
+        "dictionaryEntries": [],
         "luceneAnalyzer": "standard",
         "matchingType": "phrase",
         "spanListName": " "
@@ -81,7 +81,7 @@ let fuzzyMatcher = {
   top : 20,
   left : 20,
   properties : {
-    title : "FuzzyTokenMatcher",
+    title : "Fuzzy Token Match",
     inputs : {
       input_1 : {
         label : "Input(:i)",
@@ -94,8 +94,8 @@ let fuzzyMatcher = {
     },
     attributes : {
         "operatorType": "FuzzyTokenMatcher",
+        "attributes": [],
         "query": "token1 token2 token3",
-        "attributes": ["attr1", "attr2"],
         "luceneAnalyzer": "standard",
         "thresholdRatio": 0.8,
         "spanListName": " ",
@@ -107,7 +107,7 @@ let nlpEntity = {
   top : 20,
   left : 20,
   properties : {
-    title : 'NlpEntity',
+    title : 'Entity recognition',
     inputs : {
       input_1 : {
         label : 'Input(:i)',
@@ -120,8 +120,8 @@ let nlpEntity = {
     },
     attributes : {
         "operatorType": "NlpEntity",
+        "attributes": [],
         "nlpEntityType": "location",
-        "attributes": ["attr1", "attr2"],
         "spanListName": " "
     }
   }
@@ -131,7 +131,7 @@ let nlpSentiment = {
   top : 20,
   left : 20,
   properties : {
-    title : 'NlpSentiment',
+    title : 'Sentiment Analysis',
     inputs : {
       input_1 : {
         label : 'Input(:i)',
@@ -144,7 +144,30 @@ let nlpSentiment = {
     },
     attributes : {
         "operatorType": "NlpSentiment",
-        "attribute": "inputAttr",
+        "attribute": "",
+        "resultAttribute": "resultAttr"
+    }
+  }
+}
+
+let emojiSentiment = {
+  top : 20,
+  left : 20,
+  properties : {
+    title : 'Emoji Sentiment Analysis',
+    inputs : {
+      input_1 : {
+        label : 'Input(:i)',
+      }
+    },
+    outputs : {
+      output_1 : {
+        label : "Output (:i)",
+      }
+    },
+    attributes : {
+        "operatorType": "EmojiSentiment",
+        "attribute": "",
         "resultAttribute": "resultAttr"
     }
   }
@@ -154,7 +177,7 @@ let regexSplit = {
   top : 20,
   left : 20,
   properties : {
-    title : 'RegexSplit',
+    title : 'Regex Split',
     inputs : {
       input_1 : {
         label : "Input (:i)",
@@ -167,9 +190,35 @@ let regexSplit = {
     },
     attributes : {
         "operatorType": "RegexSplit",
+        "attribute": "",
         "splitRegex": "regex",
-        "splitAttribute": "attr1",
-        "splitType": "standalone"
+        "resultAttribute": "splitText",
+        "splitType": "standalone",
+        "splitOption": "oneToMany"
+    }
+  }
+}
+
+let nlpSplit = {
+  top : 20,
+  left : 20,
+  properties : {
+    title : 'Nlp Sentence Split',
+    inputs : {
+      input_1 : {
+        label : "Input (:i)",
+      }
+    },
+    outputs : {
+      output_1 : {
+        label : "Output (:i)",
+      }
+    },
+    attributes : {
+        "operatorType": "NlpSplit",
+        "attribute": "",
+        "resultAttribute": "splitText",
+        "splitOption": "oneToMany",
     }
   }
 }
@@ -178,7 +227,7 @@ let sampler = {
   top : 20,
   left : 20,
   properties : {
-    title : 'Sampler',
+    title : 'Sampling',
     inputs : {
       input_1 : {
         label : "Input (:i)",
@@ -214,7 +263,30 @@ let projection = {
     },
     attributes : {
         "operatorType": "Projection",
-        "attributes": ["attr1", "attr2"]
+        "attributes": []
+    }
+  }
+}
+
+let fileSource = {
+  top : 20,
+  left : 20,
+  properties : {
+    title : 'Source: File',
+    inputs : {
+      input_1 : {
+        label : "Input (:i)",
+      }
+    },
+    outputs : {
+      output_1 : {
+        label : "Output (:i)",
+      }
+    },
+    attributes : {
+        "operatorType": "FileSource",
+        "filePath": "",
+        "resultAttribute": "",
     }
   }
 }
@@ -223,7 +295,7 @@ let scanSource = {
   top : 20,
   left : 20,
   properties : {
-    title : 'ScanSource',
+    title : 'Source: Scan',
     inputs : {
       input_1 : {
         label : "Input (:i)",
@@ -236,7 +308,7 @@ let scanSource = {
     },
     attributes : {
         "operatorType": "ScanSource",
-        "tableName": "tableName"
+        "tableName": ""
     }
   }
 }
@@ -245,7 +317,7 @@ let keywordSource = {
   top : 20,
   left : 20,
   properties : {
-    title : 'KeywordSource',
+    title : 'Source: Keyword',
     inputs : {
       input_1 : {
         label : "Input (:i)",
@@ -258,11 +330,11 @@ let keywordSource = {
     },
     attributes : {
         "operatorType": "KeywordSource",
+        "tableName": "",
+        "attributes": [],
         "query": "keyword",
-        "attributes": ["attr1", "attr2"],
         "luceneAnalyzer": "standard",
         "matchingType": "phrase",
-        "tableName": "tableName",
         "spanListName": " "
     }
   }
@@ -273,7 +345,7 @@ let dictionarySource = {
   top : 20,
   left : 20,
   properties : {
-    title : 'DictionarySource',
+    title : 'Source: Dictionary',
     inputs : {
       input_1 : {
         label : "Input (:i)",
@@ -286,11 +358,11 @@ let dictionarySource = {
     },
     attributes : {
         "operatorType": "DictionarySource",
-        "dictionaryEntries": ["entry1", "entry2"],
-        "attributes": ["attr1", "attr2"],
+        "tableName": "",
+        "attributes": [],
+        "dictionaryEntries": [],
         "luceneAnalyzer": "standard",
         "matchingType": "phrase",
-        "tableName": "tableName",
         "spanListName": " "
     }
   }
@@ -300,7 +372,7 @@ let regexSource = {
   top : 20,
   left : 20,
   properties : {
-    title : 'RegexSource',
+    title : 'Source: Regex',
     inputs : {
       input_1 : {
         label : "Input (:i)",
@@ -313,10 +385,10 @@ let regexSource = {
     },
     attributes : {
         "operatorType": "RegexSource",
+        "tableName": "",
+        "attributes": [],
         "regex": "regex",
-        "attributes": ["attr1", "attr2"],
         "regexIgnoreCase": false,
-        "tableName": "tableName",
         "regexUseIndex": true,
         "spanListName": " "
     } 
@@ -327,7 +399,7 @@ let fuzzyTokenSource = {
   top : 20,
   left : 20,
   properties : {
-    title : 'FuzzyTokenSource',
+    title : 'Source: FuzzyToken',
     inputs : {
       input_1 : {
         label : "Input (:i)",
@@ -340,12 +412,82 @@ let fuzzyTokenSource = {
     },
     attributes : {
         "operatorType": "FuzzyTokenSource",
+        "tableName": "",
+        "attributes": [],
         "query": "token1 token2 token3",
-        "attributes": ["attr1", "attr2"],
         "luceneAnalyzer": "standard",
         "thresholdRatio": 0.8,
-        "tableName": "tableName",
         "spanListName": " ",
+    }
+  }
+}
+
+let wordCountSource = {
+  top : 20,
+  left : 20,
+  properties : {
+    title : 'Source: Word Count',
+    inputs : {
+      input_1 : {
+        label : "Input (:i)",
+      }
+    },
+    outputs : {
+      output_1 : {
+        label : "Output (:i)",
+      }
+    },
+    attributes : {
+        "operatorType": "WordCountIndexSource",
+        "tableName": "",
+        "attribute": "",
+    }
+  }
+}
+
+let wordCount = {
+  top : 20,
+  left : 20,
+  properties : {
+    title : 'Word Count',
+    inputs : {
+      input_1 : {
+        label : "Input (:i)",
+      }
+    },
+    outputs : {
+      output_1 : {
+        label : "Output (:i)",
+      }
+    },
+    attributes : {
+        "operatorType": "WordCount",
+        "attribute": "",
+	      "luceneAnalyzer": "standard",
+    }
+  }
+}
+
+let comparison = {
+  top : 20,
+  left : 20,
+  properties : {
+    title : 'Comparison',
+    inputs : {
+      input_1 : {
+        label : "Input (:i)",
+      }
+    },
+    outputs : {
+      output_1 : {
+        label : "Output (:i)",
+      }
+    },
+    attributes : {
+        "operatorType": "Comparison",
+        "attribute": "",
+        "comparisonType": "=",
+	      "compareTo": "",
     }
   }
 }
@@ -354,7 +496,7 @@ let characterDistanceJoin = {
   top : 20,
   left : 20,
   properties : {
-    title : 'CharacterDistanceJoin',
+    title : 'Join: Character Distance',
     inputs : {
       input_1 : {
         label : 'Input (:i)',
@@ -381,7 +523,7 @@ let similarityJoin = {
   top : 20,
   left : 20,
   properties : {
-    title : 'Similarity Join',
+    title : 'Join: Similarity',
     inputs : {
       input_1 : {
         label : 'Input (:i)',
@@ -427,6 +569,56 @@ let result = {
   }
 }
 
+let excelSink = {
+  top : 20,
+  left : 20,
+  properties : {
+    title : 'Write Excel',
+    inputs : {
+      input_1 : {
+        label : "Input (:i)",
+      }
+    },
+    outputs : {
+      output_1 : {
+        label : "Output (:i)",
+      }
+    },
+    attributes : {
+        "operatorType": "ExcelSink",
+        "limit": 10,
+        "offset": 0,
+    }
+  }
+}
+
+let mysqlSink = {
+  top : 20,
+  left : 20,
+  properties : {
+    title : 'Write Mysql',
+    inputs : {
+      input_1 : {
+        label : "Input (:i)",
+      }
+    },
+    outputs : {
+      output_1 : {
+        label : "Output (:i)",
+      }
+    },
+    attributes : {
+        "operatorType": "MysqlSink",
+        "host": "localhost",
+        "port": 3306,
+        "database": "testDB",
+        "table": "testTable",
+        "username": "test",
+        "password": "test"
+    }
+  }
+}
+
 export const DEFAULT_MATCHERS: Data[] = [
     {id: 0, jsonData: regexMatcher},
     {id: 1, jsonData: keywordMatcher},
@@ -444,6 +636,13 @@ export const DEFAULT_MATCHERS: Data[] = [
     {id: 13, jsonData: fuzzyTokenSource},
     {id: 14, jsonData: characterDistanceJoin},
     {id: 15, jsonData: similarityJoin},
+    {id: 16, jsonData: wordCountSource},
+    {id: 17, jsonData: wordCount},
     {id: 19, jsonData: result},
-
+    {id: 20, jsonData: excelSink},
+    {id: 21, jsonData: comparison},
+    {id: 22, jsonData: nlpSplit},
+    {id: 23, jsonData: emojiSentiment},
+    {id: 24, jsonData: fileSource},
+    {id: 25, jsonData: mysqlSink},
 ];

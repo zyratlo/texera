@@ -22,6 +22,7 @@ export class NavigationBarComponent {
 
 
   onClick(event) {
+        jQuery.showLoading({allowHide: true});
         this.currentDataService.setAllOperatorData(jQuery('#the-flowchart').flowchart('getData'));
         this.currentDataService.processData();
   }
@@ -31,4 +32,9 @@ export class NavigationBarComponent {
         this.currentDataService.clearData();
         this.currentDataService.setAllOperatorData(jQuery('#the-flowchart').flowchart('getData'));
 	}
+
+  fileChange(event) {
+    let fileList: FileList = event.target.files;
+    this.currentDataService.uploadDictionary(fileList[0]);
+  }
 }

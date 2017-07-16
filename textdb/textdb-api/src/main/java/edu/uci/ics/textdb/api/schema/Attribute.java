@@ -1,20 +1,32 @@
 package edu.uci.ics.textdb.api.schema;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import edu.uci.ics.textdb.api.constants.JsonConstants;
+
 public class Attribute {
     private final String attributeName;
     private final AttributeType attributeType;
 
-    public Attribute(String attributeName, AttributeType type) {
+    @JsonCreator
+    public Attribute(
+            @JsonProperty(value = JsonConstants.ATTRIBUTE_NAME, required = true)
+            String attributeName, 
+            @JsonProperty(value = JsonConstants.ATTRIBUTE_TYPE, required = true)
+            AttributeType attributeType) {     
         this.attributeName = attributeName;
-        this.attributeType = type;
+        this.attributeType = attributeType;
     }
-
-    public AttributeType getAttributeType() {
-        return attributeType;
-    }
-
+    
+    @JsonProperty(value = JsonConstants.ATTRIBUTE_NAME)
     public String getAttributeName() {
         return attributeName;
+    }
+
+    @JsonProperty(value = JsonConstants.ATTRIBUTE_TYPE)
+    public AttributeType getAttributeType() {
+        return attributeType;
     }
 
     @Override

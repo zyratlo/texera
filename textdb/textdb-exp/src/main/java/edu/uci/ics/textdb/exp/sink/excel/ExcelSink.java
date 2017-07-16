@@ -17,7 +17,6 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import edu.uci.ics.textdb.api.constants.SchemaConstants;
-import edu.uci.ics.textdb.api.constants.DataConstants.TextdbProject;
 import edu.uci.ics.textdb.api.dataflow.IOperator;
 import edu.uci.ics.textdb.api.dataflow.ISink;
 import edu.uci.ics.textdb.api.exception.DataFlowException;
@@ -51,7 +50,7 @@ public class ExcelSink implements ISink {
     private Sheet sheet;
     private int cursor = CLOSED;
     
-    private String excelIndexDirectory = Utils.getResourcePath("/index/excel/", TextdbProject.TEXTDB_EXP);
+    private String excelIndexDirectory = Paths.get(Utils.getTextdbHomePath(), "index", "excel").toString();
     private String fileName;
 
     
@@ -137,7 +136,7 @@ public class ExcelSink implements ISink {
         }
         
         Tuple resultTuple = Utils.removeFields(inputTuple, SchemaConstants._ID, SchemaConstants.PAYLOAD);
-    	Row row = sheet.createRow(cursor);
+    	Row row = sheet.createRow(cursor-predicate.getOffset());
     	
     	for (int i = 0; i < outputSchema.getAttributeNames().size(); i++) {    	    
     	    writeCell(row.createCell(i), resultTuple.getField(outputSchema.getAttributeNames().get(i)));

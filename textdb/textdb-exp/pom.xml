@@ -30,26 +30,6 @@
             <version>${textdb.version}</version>
         </dependency>
         <dependency>
-            <groupId>edu.uci.ics.textdb</groupId>
-            <artifactId>textdb-dataflow</artifactId>
-            <version>${textdb.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>2.8.7</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-annotations</artifactId>
-            <version>2.8.7</version>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-all</artifactId>
-            <version>1.10.19</version>
-        </dependency>
-        <dependency>
             <groupId>info.debatty</groupId>
             <artifactId>java-string-similarity</artifactId>
             <version>RELEASE</version>
@@ -75,6 +55,21 @@
     		<artifactId>poi-ooxml</artifactId>
     		<version>3.16</version>
 		</dependency>
+		<dependency>
+    		<groupId>mysql</groupId>
+    		<artifactId>mysql-connector-java</artifactId>
+    		<version>5.1.42</version>
+		</dependency>
+        <dependency>
+            <groupId>org.apache.pdfbox</groupId>
+            <artifactId>pdfbox</artifactId>
+            <version>2.0.5</version>
+        </dependency>
+        <dependency>
+            <groupId>com.itextpdf</groupId>
+            <artifactId>itextpdf</artifactId>
+            <version>5.5.11</version>
+        </dependency>
     </dependencies>
 
     <build>

@@ -35,8 +35,11 @@ public class RegexSplitPredicate extends PredicateBase {
     }
     
     private final String splitRegex;
-    private final String splitAttribute;
+    private final String inputAttributeName;
+    private final String resultAttributeName;
+
     private final SplitType splitType;
+    private final RegexOutputType outputType;
     
     /**
      * Construct a RegexSplitPredicate.
@@ -46,16 +49,26 @@ public class RegexSplitPredicate extends PredicateBase {
      * @param splitType, a type to indicate where the regex pattern merge into. 
      */
     @JsonCreator
-    public RegexSplitPredicate(
+    public RegexSplitPredicate(@JsonProperty(value = PropertyNameConstants.REGEX_OUTPUT_TYPE, required = true)
+            RegexOutputType outputType,
             @JsonProperty(value=PropertyNameConstants.SPLIT_REGEX, required=true)
             String splitRegex,
-            @JsonProperty(value=PropertyNameConstants.SPLIT_ATTRIBUTE, required=true)
+            @JsonProperty(value=PropertyNameConstants.ATTRIBUTE_NAME, required=true)
             String splitAttribute,
             @JsonProperty(value=PropertyNameConstants.SPLIT_TYPE, required=true)
-            SplitType splitType ) {
+            SplitType splitType,
+            @JsonProperty(value = PropertyNameConstants.RESULT_ATTRIBUTE_NAME, required = true)
+            String resultAttributeName) {
+        this.outputType = outputType;
         this.splitRegex = splitRegex;
-        this.splitAttribute = splitAttribute;
+        this.inputAttributeName = splitAttribute;
+        
         this.splitType = splitType;
+        this.resultAttributeName = resultAttributeName;
+    }
+    @JsonProperty(PropertyNameConstants.REGEX_OUTPUT_TYPE)
+    public RegexOutputType getOutputType() {
+        return this.outputType;
     }
     
     @JsonProperty(PropertyNameConstants.SPLIT_REGEX)
@@ -63,14 +76,19 @@ public class RegexSplitPredicate extends PredicateBase {
         return splitRegex;
     }
     
-    @JsonProperty(PropertyNameConstants.SPLIT_ATTRIBUTE)
-    public String getAttributeToSplit() {
-        return splitAttribute;
+    @JsonProperty(PropertyNameConstants.ATTRIBUTE_NAME)
+    public String getInputAttributeName() {
+        return inputAttributeName;
     }
     
     @JsonProperty(PropertyNameConstants.SPLIT_TYPE)
     public SplitType getSplitType() {
         return splitType;
+    }
+    
+    @JsonProperty(PropertyNameConstants.RESULT_ATTRIBUTE_NAME)
+    public String getResultAttributeName() {
+        return this.resultAttributeName;
     }
     
     @Override

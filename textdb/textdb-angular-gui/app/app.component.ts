@@ -25,7 +25,10 @@ declare var jQuery: any;
 export class AppComponent {
 	name = 'Angular';
 
-    constructor(private currentDataService: CurrentDataService, private mockDataService: MockDataService) { }
+    constructor(private currentDataService: CurrentDataService, private mockDataService: MockDataService) {
+        currentDataService.getMetadata();
+        currentDataService.getDictionaries();
+    }
 
     @ViewChild('theFlowchart') theFlowchart: TheFlowchartComponent;
     @ViewChild('theOperatorBar') theOperatorBar: OperatorBarComponent;
