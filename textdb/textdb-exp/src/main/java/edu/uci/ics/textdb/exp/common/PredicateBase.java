@@ -26,8 +26,8 @@ import edu.uci.ics.textdb.exp.keywordmatcher.KeywordSourcePredicate;
 import edu.uci.ics.textdb.exp.nlp.entity.NlpEntityPredicate;
 import edu.uci.ics.textdb.exp.nlp.sentiment.EmojiSentimentPredicate;
 import edu.uci.ics.textdb.exp.nlp.sentiment.NlpSentimentPredicate;
+import edu.uci.ics.textdb.exp.nlp.sentiment.NltkSentimentOperatorPredicate;
 import edu.uci.ics.textdb.exp.nlp.splitter.NlpSplitPredicate;
-import edu.uci.ics.textdb.exp.nltksenti.NltkSentiOperatorPredicate;
 import edu.uci.ics.textdb.exp.projection.ProjectionPredicate;
 import edu.uci.ics.textdb.exp.regexmatcher.RegexPredicate;
 import edu.uci.ics.textdb.exp.regexmatcher.RegexSourcePredicate;
@@ -77,6 +77,7 @@ import edu.uci.ics.textdb.exp.wordcount.WordCountOperatorPredicate;
         @Type(value = RegexSplitPredicate.class, name = "RegexSplit"),
         @Type(value = NlpSplitPredicate.class, name = "NlpSplit"),
         @Type(value = SamplerPredicate.class, name = "Sampler"),
+        @Type(value = NltkSentimentOperatorPredicate.class, name = "NltkSentiment"),
         
         @Type(value = ComparablePredicate.class, name = "Comparison"),
         
@@ -88,7 +89,6 @@ import edu.uci.ics.textdb.exp.wordcount.WordCountOperatorPredicate;
         
         @Type(value = WordCountIndexSourcePredicate.class, name = "WordCountIndexSource"),
         @Type(value = WordCountOperatorPredicate.class, name = "WordCount"),
-        @Type(value = NltkSentiOperatorPredicate.class, name = "NltkSentiment"),
         
 })
 public abstract class PredicateBase implements IPredicate {
