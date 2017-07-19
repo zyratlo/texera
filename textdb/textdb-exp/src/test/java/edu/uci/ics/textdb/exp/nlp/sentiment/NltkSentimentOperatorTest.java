@@ -1,5 +1,6 @@
 package edu.uci.ics.textdb.exp.nlp.sentiment;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -80,6 +81,37 @@ public class NltkSentimentOperatorTest {
         
         Tuple tuple = results.get(0);
         Assert.assertEquals(tuple.getField("sentiment").getValue(), NEGATIVE);        
+    }
+    
+    /*
+     * Test batch process, all test results should be negative
+     */
+    @Test
+    public void test4() throws TextDBException {
+        int bufferSize = 30;
+        int tupleSize = 101;
+        
+        List<Tuple> listTuple = new ArrayList<>();
+        for (int i=0; i<tupleSize; i++) {
+            listTuple.add(NlpSentimentTestConstants.NEGATIVE_TUPLE);
+        }
+        TupleSourceOperator tupleSource = new TupleSourceOperator(
+                listTuple, NlpSentimentTestConstants.SENTIMENT_SCHEMA);
+        NltkSentimentOperator sentiment = new NltkSentimentOperator(
+                new NltkSentimentOperatorPredicate(NlpSentimentTestConstants.TEXT, "sentiment", bufferSize));
+        
+        TupleSink tupleSink = new TupleSink();
+        
+        sentiment.setInputOperator(tupleSource);
+        tupleSink.setInputOperator(sentiment);
+        
+        tupleSink.open();
+        List<Tuple> results = tupleSink.collectAllTuples();
+        tupleSink.close();
+        for (int j=0; j<tupleSize; j++) {
+            Tuple tuple = results.get(j);
+            Assert.assertEquals(tuple.getField("sentiment").getValue(), NEGATIVE);
+        }
     }
 
 }

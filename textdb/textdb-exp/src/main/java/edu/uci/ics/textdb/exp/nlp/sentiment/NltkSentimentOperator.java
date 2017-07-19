@@ -156,13 +156,17 @@ public class NltkSentimentOperator implements IOperator {
 	        List<String[]> csvData = new ArrayList<>();
 	        
 	        int i = 0;
-    	    while ((tuple = inputOperator.getNextTuple()) != null && i < predicate.getSizeTupleBuffer()) {
-    	        tupleBuffer.add(tuple);
-    	        String[] idText = new String[2];
-    	        idText[0] = tuple.getField(SchemaConstants._ID).getValue().toString();
-    	        idText[1] = tuple.<IField>getField(predicate.getInputAttributeName()).getValue().toString();
-    	        csvData.add(idText);
-    	        i++;
+	        while (i < predicate.getSizeTupleBuffer()){
+        	    if ((tuple = inputOperator.getNextTuple()) != null) {
+        	        tupleBuffer.add(tuple);
+        	        String[] idText = new String[2];
+        	        idText[0] = tuple.getField(SchemaConstants._ID).getValue().toString();
+        	        idText[1] = tuple.<IField>getField(predicate.getInputAttributeName()).getValue().toString();
+        	        csvData.add(idText);
+        	        i++;
+        	    } else {
+        	        break;
+        	    }
     	    }
     	    if (tupleBuffer.isEmpty()) {
     	        return null;
@@ -207,7 +211,7 @@ public class NltkSentimentOperator implements IOperator {
              *      #python3 classifier-loader picklePath dataPath resultPath
              * */
             List<String> args = new ArrayList<String>(
-                    Arrays.asList(PYTHON, PYTHONSCRIPT, PicklePath, BatchedFiles, resultPath));
+                    Arrays.asList(PYTHON, PYTHONSCRIPT, PicklePath, filePath, resultPath));
             ProcessBuilder pb = new ProcessBuilder(args);
             
             Process p = pb.start();
