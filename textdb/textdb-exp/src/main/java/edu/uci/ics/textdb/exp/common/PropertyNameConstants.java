@@ -64,6 +64,7 @@ public class PropertyNameConstants {
     
     //related to nltk operator
     public static final String NLP_NLTK_BUFFER_SIZE = "nltkBufferSize";
+    public static final String NLP_NLTK_MODEL = "nltkModel";
 
     // related to sampler
     public static final String SAMPLE_SIZE = "sampleSize";

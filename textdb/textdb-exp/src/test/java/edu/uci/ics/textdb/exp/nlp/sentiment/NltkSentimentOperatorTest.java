@@ -16,6 +16,8 @@ import edu.uci.ics.textdb.exp.source.tuple.TupleSourceOperator;
 public class NltkSentimentOperatorTest {
     private static String NEGATIVE = "neg";
     private static String POSTIVE = "pos";
+    private static String MODEL = "Senti.pickle";
+    private static int BUFFERSIZE = 1000;
     /*
      * Test sentiment test result should be negative.
      */
@@ -24,7 +26,7 @@ public class NltkSentimentOperatorTest {
         TupleSourceOperator tupleSource = new TupleSourceOperator(
                 Arrays.asList(NlpSentimentTestConstants.POSITIVE_TUPLE), NlpSentimentTestConstants.SENTIMENT_SCHEMA);
         NltkSentimentOperator sentiment = new NltkSentimentOperator(
-                new NltkSentimentOperatorPredicate(NlpSentimentTestConstants.TEXT, "sentiment", 1000));
+                new NltkSentimentOperatorPredicate(NlpSentimentTestConstants.TEXT, "sentiment", BUFFERSIZE, MODEL));
         TupleSink tupleSink = new TupleSink();
         
         sentiment.setInputOperator(tupleSource);
@@ -46,7 +48,7 @@ public class NltkSentimentOperatorTest {
         TupleSourceOperator tupleSource = new TupleSourceOperator(
                 Arrays.asList(NlpSentimentTestConstants.NEUTRAL_TUPLE), NlpSentimentTestConstants.SENTIMENT_SCHEMA);
         NltkSentimentOperator sentiment = new NltkSentimentOperator(
-                new NltkSentimentOperatorPredicate(NlpSentimentTestConstants.TEXT, "sentiment",1000));
+                new NltkSentimentOperatorPredicate(NlpSentimentTestConstants.TEXT, "sentiment", BUFFERSIZE, null));
         TupleSink tupleSink = new TupleSink();
         
         sentiment.setInputOperator(tupleSource);
@@ -68,7 +70,7 @@ public class NltkSentimentOperatorTest {
         TupleSourceOperator tupleSource = new TupleSourceOperator(
                 Arrays.asList(NlpSentimentTestConstants.NEGATIVE_TUPLE), NlpSentimentTestConstants.SENTIMENT_SCHEMA);
         NltkSentimentOperator sentiment = new NltkSentimentOperator(
-                new NltkSentimentOperatorPredicate(NlpSentimentTestConstants.TEXT, "sentiment", 1000));
+                new NltkSentimentOperatorPredicate(NlpSentimentTestConstants.TEXT, "sentiment", BUFFERSIZE, MODEL));
         
         TupleSink tupleSink = new TupleSink();
         
@@ -98,7 +100,7 @@ public class NltkSentimentOperatorTest {
         TupleSourceOperator tupleSource = new TupleSourceOperator(
                 listTuple, NlpSentimentTestConstants.SENTIMENT_SCHEMA);
         NltkSentimentOperator sentiment = new NltkSentimentOperator(
-                new NltkSentimentOperatorPredicate(NlpSentimentTestConstants.TEXT, "sentiment", bufferSize));
+                new NltkSentimentOperatorPredicate(NlpSentimentTestConstants.TEXT, "sentiment", bufferSize, MODEL));
         
         TupleSink tupleSink = new TupleSink();
         

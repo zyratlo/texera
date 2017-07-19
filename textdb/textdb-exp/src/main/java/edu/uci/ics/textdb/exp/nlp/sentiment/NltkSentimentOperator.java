@@ -38,16 +38,21 @@ public class NltkSentimentOperator implements IOperator {
     private static String PYTHON = "python3";
     public static String PYTHONSCRIPT = Utils.getResourcePath("nltk_sentiment_classify.py", TextdbProject.TEXTDB_EXP);
     public static String BatchedFiles = Utils.getResourcePath("id-text.csv", TextdbProject.TEXTDB_EXP);
-    public static String PicklePath = Utils.getResourcePath("Senti.pickle", TextdbProject.TEXTDB_EXP);
     public static String resultPath = Utils.getResourcePath("result-id-class.csv", TextdbProject.TEXTDB_EXP);
     
     public static char SEPARATOR = ',';
     public static char QUOTECHAR = '"';
     
+    //Default nltk training model set to be "Senti.pickle"
+    public static String PicklePath = Utils.getResourcePath("Senti.pickle", TextdbProject.TEXTDB_EXP);
+    
     public NltkSentimentOperator(NltkSentimentOperatorPredicate predicate){
         this.predicate = predicate;
+        if (predicate.getInputAttributeModel() != null) {
+            this.PicklePath = Utils.getResourcePath(predicate.getInputAttributeModel(), TextdbProject.TEXTDB_EXP);
+        }
     }
-    
+
     public void setInputOperator(IOperator operator) {
         if (cursor != CLOSED) {  
             throw new RuntimeException("Cannot link this operator to other operator after the operator is opened");
