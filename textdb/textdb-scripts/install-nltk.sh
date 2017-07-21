@@ -7,19 +7,12 @@ case "${unameOut}" in
 		if [ $OS = "Ubuntu" ]; then
 			machine="UBUNTU"
 			sudo apt-get install python3
-			sudo pip3 install nltk
+			pip3 install nltk
 		fi
 		;;
 	Darwin*)
 		machine=Mac
-		sudo pip3 install nltk
+		brew install python3
+		pip3 install nltk
 		;;
 esac
-echo ${machine}
-
-#sudo apt-get install python3
-#sudo apt-get install python3-setuptools
-#sudo easy_install3 pip
-#export LC_ALL=C
-#pip3 install -U nltk
-

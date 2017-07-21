@@ -12,12 +12,8 @@ public class NltkSentimentTestConstants {
     
     public static Schema SENTIMENT_SCHEMA = new Schema(TEXT_ATTRIBUTE);
     
-    public static Tuple POSITIVE_TUPLE = new Tuple(SENTIMENT_SCHEMA, 
+    public static Tuple POSITIVE_TUPLE = new Tuple(SENTIMENT_SCHEMA,
             new TextField("Have a great weekend guys! https/t.co/DLDKLpeTAb"));
     
-    public static Tuple NEUTRAL_TUPLE = new Tuple(SENTIMENT_SCHEMA,
-            new TextField("TextDB uses Java."));
-    
-    public static Tuple NEGATIVE_TUPLE = new Tuple(SENTIMENT_SCHEMA,
-            new TextField("Bugs are always annoying."));
+    public static Tuple NEGATIVE_TUPLE = new Tuple(SENTIMENT_SCHEMA, new TextField("Bugs are always annoying."));
 }

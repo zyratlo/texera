@@ -48,15 +48,15 @@ public class NltkSentimentOperator implements IOperator {
         this.predicate = predicate;
         
         String modelFileName = predicate.getInputAttributeModel();
-        if (modelFileName == null)
+        if (modelFileName == null) {
             modelFileName = "NltkSentiment.pickle";
-        
+        }
         this.PicklePath = Utils.getResourcePath(modelFileName, TextdbProject.TEXTDB_EXP);
         
     }
     
     public void setInputOperator(IOperator operator) {
-        if (cursor != CLOSED) {  
+        if (cursor != CLOSED) {
             throw new RuntimeException("Cannot link this operator to another operator after the operator is opened");
         }
         this.inputOperator = operator;
@@ -118,8 +118,8 @@ public class NltkSentimentOperator implements IOperator {
         //write [ID,text] to a CSV file.
         List<String[]> csvData = new ArrayList<>();
         int i = 0;
-        Tuple inputTuple;
         while (i < predicate.getBatchSize()){
+            Tuple inputTuple;
             if ((inputTuple = inputOperator.getNextTuple()) != null) {
                 tupleBuffer.add(inputTuple);
                 String[] idTextPair = new String[2];
@@ -151,13 +151,13 @@ public class NltkSentimentOperator implements IOperator {
             return null;
         }
         if (tupleBuffer == null){
-            if (computeTupleBuffer() == true) {
+            if (computeTupleBuffer()) {
                 computeClassLabel(BatchedFiles);
             } else {
                 return null;
             }
         }
-        return populateBufferTuple();
+        return popupOneTuple();
     }
     
     // Process the data file using NLTK
@@ -193,7 +193,7 @@ public class NltkSentimentOperator implements IOperator {
         return null;
     }
     
-    private Tuple populateBufferTuple() {
+    private Tuple popupOneTuple() {
         Tuple outputTuple = tupleBuffer.get(0);
         tupleBuffer.remove(0);
         if (tupleBuffer.isEmpty()) {
@@ -224,4 +224,3 @@ public class NltkSentimentOperator implements IOperator {
         return this.outputSchema;
     }
 }
-
