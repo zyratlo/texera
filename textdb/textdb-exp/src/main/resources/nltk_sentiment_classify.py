@@ -2,14 +2,14 @@ import sys
 import pickle
 import csv
 
-picklePath = sys.argv[1]
-dataPath = sys.argv[2]
-resultPath = sys.argv[3]
-mymatrix = {}
-myclass = {}
+pickleFullPathFileName = sys.argv[1]
+dataFullPathFileName = sys.argv[2]
+resultFullPathFileName = sys.argv[3]
+inputDataMap = {}
+recordLabelMap = {}
 
 # call format:
-# python3 classifier-loader picklePath dataPath resultPath
+# python3 nltk_sentiment_classify pickleFullPathFileName dataFullPathFileName resultFullPathFileName
 def debugLine(strLine):
 	f = open("python_classifier_loader.log","a+")
 	f.write(strLine)
@@ -17,30 +17,29 @@ def debugLine(strLine):
 
 def main():
 	readData()
-	classfyData()
-	writeresult()
+	classifyData()
+	writeResults()
 
-def writeresult():
-	with open(resultPath, 'w', newline='') as csvfile:
+def writeResults():
+	with open(resultFullPathFileName, 'w', newline='') as csvfile:
 		resultWriter = csv.writer(csvfile, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
 		resultWriter.writerow(["TupleID", "ClassLabel"])
-		for id, classLabel in myclass.items():
+		for id, classLabel in recordLabelMap.items():
 			resultWriter.writerow([id, classLabel])
 
-def classfyData():
-	pickleFile = open(picklePath, 'rb')
-	Sentimm = pickle.load(pickleFile)#	for text in sys.argv[2:]:
-	for key, value in mymatrix.items():
-		myclass[key] = Sentimm.classify(value)
+def classifyData():
+	pickleFile = open(pickleFullPathFileName, 'rb')
+	sentimentModel = pickle.load(pickleFile)#	for text in sys.argv[2:]:
+	for key, value in inputDataMap.items():
+		recordLabelMap[key] = sentimentModel.classify(value)
 	pickleFile.close()
-	for id, classlabel in myclass.items():
-		print(id + ": " + classlabel)
 		
 def readData():
-	with open(dataPath, newline='') as csvfile:
+	with open(dataFullPathFileName, newline='') as csvfile:
 		dataReader = csv.reader(csvfile, delimiter=',', quotechar='"')
-		for row in dataReader:
-			mymatrix[row[0]] = row[1]
+		for record in dataReader:
+			inputDataMap[record[0]] = record[1]
 			
 if __name__ == "__main__":
 	main()
+	

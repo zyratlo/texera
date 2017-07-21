@@ -11,7 +11,7 @@ public class NltkSentimentOperatorPredicate extends PredicateBase {
     private final String inputAttributeName;
     private final String resultAttributeName;
     private final String inputAttributeModel;
-    private final int sizeTupleBuffer;
+    private final int batchSize;
     
     @JsonCreator
     public NltkSentimentOperatorPredicate(
@@ -19,13 +19,13 @@ public class NltkSentimentOperatorPredicate extends PredicateBase {
             String inputAttributeName,
             @JsonProperty(value = PropertyNameConstants.RESULT_ATTRIBUTE_NAME, required = true)
             String resultAttributeName,
-            @JsonProperty(value = PropertyNameConstants.NLP_NLTK_BUFFER_SIZE, required = true)
+            @JsonProperty(value = PropertyNameConstants.NLP_NLTK_BATCH_SIZE, required = true)
             int sizeTupleBuffer,
             @JsonProperty(value = PropertyNameConstants.NLP_NLTK_MODEL, required = true)
             String inputAttributeModel) {
         this.inputAttributeName = inputAttributeName;
         this.resultAttributeName = resultAttributeName;
-        this.sizeTupleBuffer = sizeTupleBuffer;
+        this.batchSize = sizeTupleBuffer;
         this.inputAttributeModel = inputAttributeModel;
     };
     
@@ -39,14 +39,14 @@ public class NltkSentimentOperatorPredicate extends PredicateBase {
         return this.resultAttributeName;
     }
     
-    @JsonProperty(PropertyNameConstants.NLP_NLTK_BUFFER_SIZE)
+    @JsonProperty(PropertyNameConstants.NLP_NLTK_BATCH_SIZE)
     public String getInputAttributeModel() {
         return this.inputAttributeModel;
     }
     
     @JsonProperty(PropertyNameConstants.NLP_NLTK_MODEL)
-    public int getSizeTupleBuffer() {
-        return this.sizeTupleBuffer;
+    public int getBatchSize() {
+        return this.batchSize;
     }
     
     @Override

@@ -56,6 +56,7 @@ public class OperatorArityConstants {
 
         fixedInputArityMap.put(NlpEntityPredicate.class, 1);
         fixedInputArityMap.put(NlpSentimentPredicate.class, 1);
+        fixedInputArityMap.put(NltkSentimentOperatorPredicate.class, 1);
         fixedInputArityMap.put(EmojiSentimentPredicate.class, 1);
         fixedInputArityMap.put(ProjectionPredicate.class, 1);
         fixedInputArityMap.put(RegexSplitPredicate.class, 1);
@@ -71,8 +72,7 @@ public class OperatorArityConstants {
         fixedInputArityMap.put(TupleSinkPredicate.class, 1);
         fixedInputArityMap.put(ExcelSinkPredicate.class, 1);
         fixedInputArityMap.put(MysqlSinkPredicate.class, 1);
-        fixedInputArityMap.put(NltkSentimentOperatorPredicate.class, 1);
-
+        
     }
     
     public static Map<Class<? extends PredicateBase>, Integer> fixedOutputArityMap = new HashMap<>();
@@ -91,6 +91,7 @@ public class OperatorArityConstants {
 
         fixedOutputArityMap.put(NlpEntityPredicate.class, 1);
         fixedOutputArityMap.put(NlpSentimentPredicate.class, 1);
+        fixedOutputArityMap.put(NltkSentimentOperatorPredicate.class, 1);
         fixedOutputArityMap.put(EmojiSentimentPredicate.class, 1);
         fixedOutputArityMap.put(ProjectionPredicate.class, 1);
         fixedOutputArityMap.put(RegexSplitPredicate.class, 1);
@@ -106,8 +107,7 @@ public class OperatorArityConstants {
         fixedOutputArityMap.put(TupleSinkPredicate.class, 0);
         fixedOutputArityMap.put(ExcelSinkPredicate.class, 0);
         fixedOutputArityMap.put(MysqlSinkPredicate.class, 0);
-        fixedOutputArityMap.put(NltkSentimentOperatorPredicate.class, 1);
-
+        
     }
     
     /**

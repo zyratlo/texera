@@ -63,7 +63,7 @@ public class PropertyNameConstants {
     public static final String REGEX_SPLIT_KEY = "regexSplit";
     
     //related to nltk operator
-    public static final String NLP_NLTK_BUFFER_SIZE = "nltkBufferSize";
+    public static final String NLP_NLTK_BATCH_SIZE = "nltkBatchSize";
     public static final String NLP_NLTK_MODEL = "nltkModel";
 
     // related to sampler
