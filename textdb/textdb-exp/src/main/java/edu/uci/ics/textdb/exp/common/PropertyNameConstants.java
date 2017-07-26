@@ -97,9 +97,9 @@ public class PropertyNameConstants {
 
     // related to TwitterFeed Operator
     public static final String TWEET_NUM = "tweetNum";
-    public static final String QUERY_LIST = "keywordQuery";
-    public static final String LOCATION_LIST = "locations";
-    public static final String LANGUAGE_LIST = "language";
+    public static final String TWEET_QUERY_LIST = "keywordList";
+    public static final String TWEET_LOCATION_LIST = "locationList";
+    public static final String TWEET_LANGUAGE_LIST = "languageList";
 
     
 }

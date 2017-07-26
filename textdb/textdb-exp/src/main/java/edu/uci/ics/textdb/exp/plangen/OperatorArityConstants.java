@@ -69,11 +69,11 @@ public class OperatorArityConstants {
 
         fixedInputArityMap.put(ScanSourcePredicate.class, 0);
         fixedInputArityMap.put(FileSourcePredicate.class, 0);
+        fixedInputArityMap.put(TwitterFeedSourcePredicate.class, 0);
         
         fixedInputArityMap.put(TupleSinkPredicate.class, 1);
         fixedInputArityMap.put(ExcelSinkPredicate.class, 1);
         fixedInputArityMap.put(MysqlSinkPredicate.class, 1);
-        fixedInputArityMap.put(TwitterFeedSourcePredicate.class, 0);
         
     }
     
@@ -105,11 +105,11 @@ public class OperatorArityConstants {
 
         fixedOutputArityMap.put(ScanSourcePredicate.class, 1);
         fixedOutputArityMap.put(FileSourcePredicate.class, 1);
+        fixedOutputArityMap.put(TwitterFeedSourcePredicate.class, 1);
         
         fixedOutputArityMap.put(TupleSinkPredicate.class, 0);
         fixedOutputArityMap.put(ExcelSinkPredicate.class, 0);
         fixedOutputArityMap.put(MysqlSinkPredicate.class, 0);
-        fixedOutputArityMap.put(TwitterFeedSourcePredicate.class, 1);
         
     }
     

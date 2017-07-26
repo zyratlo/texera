@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.stream.Collectors;
+
 import com.twitter.hbc.core.endpoint.Location;
 import edu.uci.ics.textdb.api.utils.Utils;
 
@@ -27,8 +28,8 @@ import static org.mockito.Mockito.mock;
  */
 public class TwitterFeedTestHelper {
 
-    public static List<Tuple> getQueryResults(List<String> query, String location, List<String> language, int limit) throws TextDBException {
-        TwitterFeedSourcePredicate predicate = new TwitterFeedSourcePredicate(10, query, location, language);
+    public static List<Tuple> getQueryResults(List<String> queryList, String locationList, List<String> languageList, int limit) throws TextDBException {
+        TwitterFeedSourcePredicate predicate = new TwitterFeedSourcePredicate(10, queryList, locationList, languageList);
         TwitterFeedOperator twitterFeedOperator = new TwitterFeedOperator(predicate);
         twitterFeedOperator.setLimit(limit);
         twitterFeedOperator.setTimeout(20);
@@ -43,62 +44,62 @@ public class TwitterFeedTestHelper {
         return results;
     }
 
-    public static boolean containsQuery(List<Tuple> result, List<String> query, List<String> attributeList) {
-            if(result.isEmpty()) return false;
-            for (Tuple tuple : result) {
-                List<String> toMatch = new ArrayList<>();
-                for (String attribute : attributeList){
-                    toMatch.addAll(query.stream()
-                            .filter(s -> tuple.getField(attribute).getValue().toString().toLowerCase().contains(s.toLowerCase()))
-                            .collect(Collectors.toList()));
-                }
-                if(toMatch.isEmpty()) return false;
+    public static boolean containsQuery(List<Tuple> resultList, List<String> queryList, List<String> attributeList) {
+        if (resultList.isEmpty()) return false;
+        for (Tuple tuple : resultList) {
+            List<String> toMatch = new ArrayList<>();
+            for (String attribute : attributeList) {
+                toMatch.addAll(queryList.stream()
+                        .filter(s -> tuple.getField(attribute).getValue().toString().toLowerCase().contains(s.toLowerCase()))
+                        .collect(Collectors.toList()));
             }
-            return true;
+            if (toMatch.isEmpty()) return false;
         }
+        return true;
+    }
 
-    public static boolean containsFuzzyQuery(List<Tuple> exactResult, List<String> query, List<String> attributeList) {
+    public static boolean containsFuzzyQuery(List<Tuple> exactResult, List<String> queryList, List<String> attributeList) {
         List<String> toMatch = new ArrayList<>();
         for (Tuple tuple : exactResult) {
-            for (String attribute : attributeList){
-                toMatch.addAll(query.stream()
+            for (String attribute : attributeList) {
+                toMatch.addAll(queryList.stream()
                         .filter(s -> tuple.getField(attribute).getValue().toString().toLowerCase().contains(s.toLowerCase()))
                         .collect(Collectors.toList()));
             }
 
         }
-        if(toMatch.isEmpty()) return false;
+        if (toMatch.isEmpty()) return false;
         return true;
     }
 
-    public static boolean inLocation(List<Tuple> tuple,  String location) {
-        List<String> boudingCoordinate = Arrays.asList(location.trim().split(","));
+    public static boolean inLocation(List<Tuple> tupleList, String location) {
+        List<String> boundingCoordinate = Arrays.asList(location.trim().split(","));
         List<Double> boundingBox = new ArrayList<>();
-        boudingCoordinate.stream().forEach(s -> boundingBox.add(Double.parseDouble(s.trim())));
-        Location boundBox = new Location(new Location.Coordinate(boundingBox.get(0), boundingBox.get(1)), new Location.Coordinate(boundingBox.get(2), boundingBox.get(3)));
-        Location.Coordinate southwestCoordinate = boundBox.southwestCoordinate();
-        Location.Coordinate northeastCoordinate = boundBox.northeastCoordinate();
+        boundingCoordinate.stream().forEach(s -> boundingBox.add(Double.parseDouble(s.trim())));
+        Location geoBox = new Location(new Location.Coordinate(boundingBox.get(1), boundingBox.get(0)), new Location.Coordinate(boundingBox.get(3), boundingBox.get(2)));
+        Location.Coordinate southwestCoordinate = geoBox.southwestCoordinate();
+        Location.Coordinate northeastCoordinate = geoBox.northeastCoordinate();
 
-        for(Tuple t: tuple){
-            if(! t.getField(TWEET_COORDINATES).getValue().toString().equals("n/a")){
-                List<String> coordString = Arrays.asList(t.getField(TWEET_COORDINATES).getValue().toString().split(","));
+        for (Tuple tuple : tupleList) {
+            if (!tuple.getField(TWEET_COORDINATES).getValue().toString().equals("n/a")) {
+                List<String> coordString = Arrays.asList(tuple.getField(TWEET_COORDINATES).getValue().toString().split(","));
 
                 Location.Coordinate coordinate = new Location.Coordinate(Double.parseDouble(coordString.get(0).trim()), Double.parseDouble(coordString.get(1).trim()));
-                if(!(coordinate.latitude() > southwestCoordinate.latitude() &&
+                if (!(coordinate.latitude() > southwestCoordinate.latitude() &&
                         coordinate.longitude() > southwestCoordinate.longitude() &&
                         coordinate.latitude() < northeastCoordinate.latitude() &&
-                        coordinate.longitude() < northeastCoordinate.longitude())){
+                        coordinate.longitude() < northeastCoordinate.longitude())) {
                     return false;
+                }
+
             }
 
         }
 
-        }
-
         return true;
     }
 
-    public static boolean compareTuples(List<Tuple> outputTuple, Tuple expectedTuple) {
+    public static boolean compareTuple(List<Tuple> outputTuple, Tuple expectedTuple) {
         for(Tuple t : outputTuple) {
             for (String attribute : expectedTuple.getSchema().getAttributeNames()) {
                 if (!attribute.equals("_id")) {
@@ -110,6 +111,5 @@ public class TwitterFeedTestHelper {
         }
         return true;
     }
-
 
 }

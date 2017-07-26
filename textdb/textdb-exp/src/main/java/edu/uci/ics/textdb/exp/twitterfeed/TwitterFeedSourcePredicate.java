@@ -10,42 +10,46 @@ import java.util.List;
 /**
  * Created by Chang on 7/12/17.
  */
+
+/**
+ * Twitter streaming API supports "trackTerms" on keyword, location and language.
+ * These query parameters along with the number of tweets required
+ * can be specified in TwitterFeedSourcePredicate.
+ */
 public class TwitterFeedSourcePredicate extends PredicateBase {
 
     private final int tweetNum;
-    private final List<String> keywordQuery;
-    private final String locations;
-    private final List<String> language;
-
+    private final List<String> keywordList;
+    private final String locationList;
+    private final List<String> languageList;
 
 
     public TwitterFeedSourcePredicate(
-                                @JsonProperty(value = PropertyNameConstants.TWEET_NUM, required = true)
-                                        int tweetNum,
-                                @JsonProperty(value = PropertyNameConstants.QUERY_LIST, required=false)
-                                        List<String> keywordQuery,
-                                @JsonProperty(value = PropertyNameConstants.LOCATION_LIST, required=false)
-                                        String locations,
-                                @JsonProperty(value = PropertyNameConstants.LANGUAGE_LIST, required=false)
-                                        List<String> language){
-            this.tweetNum = tweetNum;
-            this.keywordQuery = keywordQuery;
-            this.locations = locations;
-            this.language = language;
+            @JsonProperty(value = PropertyNameConstants.TWEET_NUM, required = true)
+                    int tweetNum,
+            @JsonProperty(value = PropertyNameConstants.TWEET_QUERY_LIST, required = false)
+                    List<String> keywordList,
+            @JsonProperty(value = PropertyNameConstants.TWEET_LOCATION_LIST, required = false)
+                    String locationList,
+            @JsonProperty(value = PropertyNameConstants.TWEET_LANGUAGE_LIST, required = false)
+                    List<String> languageList) {
 
-
+        this.tweetNum = tweetNum;
+        this.keywordList = keywordList;
+        this.locationList = locationList;
+        this.languageList = languageList;
 
 
     }
 
-    @JsonProperty(PropertyNameConstants.QUERY_LIST)
+    @JsonProperty(PropertyNameConstants.TWEET_QUERY_LIST)
     public List<String> getQuery() {
-        return this.keywordQuery;
+        return this.keywordList;
     }
 
-    @JsonProperty(PropertyNameConstants.LOCATION_LIST)
+    @JsonProperty(PropertyNameConstants.TWEET_LOCATION_LIST)
     public String getLocations() {
-        return this.locations;
+        return this.locationList;
     }
 
     @JsonProperty(PropertyNameConstants.TWEET_NUM)
@@ -53,16 +57,15 @@ public class TwitterFeedSourcePredicate extends PredicateBase {
         return this.tweetNum;
     }
 
-    @JsonProperty(PropertyNameConstants.LANGUAGE_LIST)
+    @JsonProperty(PropertyNameConstants.TWEET_LANGUAGE_LIST)
     public List<String> getLanguage() {
-        return this.language;
+        return this.languageList;
     }
-
 
 
     @Override
     public IOperator newOperator() {
-       return new TwitterFeedOperator(this);
+        return new TwitterFeedOperator(this);
     }
 
 
