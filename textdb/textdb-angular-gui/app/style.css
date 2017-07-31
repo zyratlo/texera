@@ -183,3 +183,13 @@ body {
 		font-weight: bold;
 		font-size: 22px;
 }
+
+
+.checkBox{
+	display: inline-block;
+}
+
+
+.languageLabel{
+	font-size: 20px;
+}
