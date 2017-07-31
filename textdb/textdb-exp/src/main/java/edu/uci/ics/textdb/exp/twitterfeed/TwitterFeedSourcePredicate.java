@@ -22,6 +22,10 @@ public class TwitterFeedSourcePredicate extends PredicateBase {
     private final List<String> keywordList;
     private final String locationList;
     private final List<String> languageList;
+    private final String customerKey;
+    private final String customerSecret;
+    private final String token;
+    private final String tokenSecret;
 
 
     public TwitterFeedSourcePredicate(
@@ -32,12 +36,24 @@ public class TwitterFeedSourcePredicate extends PredicateBase {
             @JsonProperty(value = PropertyNameConstants.TWEET_LOCATION_LIST, required = false)
                     String locationList,
             @JsonProperty(value = PropertyNameConstants.TWEET_LANGUAGE_LIST, required = false)
-                    List<String> languageList) {
+                    List<String> languageList,
+            @JsonProperty(value = PropertyNameConstants.TWEET_CUSTOMER_KEY, required = false)
+                    String customerKey,
+            @JsonProperty(value = PropertyNameConstants.TWEET_CUSTOMER_SECRET, required = false)
+                    String customerSecret,
+            @JsonProperty(value = PropertyNameConstants.TWEET_TOKEN, required = false)
+                    String token,
+            @JsonProperty(value = PropertyNameConstants.TWEET_TOKEN_SECRET, required = false)
+                    String tokenSecret) {
 
         this.tweetNum = tweetNum;
         this.keywordList = keywordList;
         this.locationList = locationList;
         this.languageList = languageList;
+        this.customerKey = customerKey;
+        this.customerSecret = customerSecret;
+        this.token = token;
+        this.tokenSecret = tokenSecret;
 
 
     }
@@ -62,6 +78,17 @@ public class TwitterFeedSourcePredicate extends PredicateBase {
         return this.languageList;
     }
 
+    @JsonProperty(PropertyNameConstants.TWEET_CUSTOMER_KEY)
+    public String getCustomerKey() {return this.customerKey; }
+
+    @JsonProperty(PropertyNameConstants.TWEET_CUSTOMER_SECRET)
+    public String getCustomerSecret() {return this.customerSecret; }
+
+    @JsonProperty(PropertyNameConstants.TWEET_TOKEN)
+    public String getToken() {return this.token; }
+
+    @JsonProperty(PropertyNameConstants.TWEET_TOKEN_SECRET)
+    public String getTokenSecret() {return this.tokenSecret; }
 
     @Override
     public IOperator newOperator() {

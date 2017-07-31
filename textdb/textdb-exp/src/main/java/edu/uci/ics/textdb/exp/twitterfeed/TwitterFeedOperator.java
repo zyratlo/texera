@@ -12,10 +12,9 @@ import edu.uci.ics.textdb.api.field.TextField;
 import edu.uci.ics.textdb.api.schema.Schema;
 import edu.uci.ics.textdb.api.tuple.Tuple;
 import edu.uci.ics.textdb.api.utils.Utils;
-import edu.uci.ics.textdb.storage.DataWriter;
+
 
 import java.io.IOException;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -23,14 +22,15 @@ import java.util.concurrent.TimeUnit;
  */
 
 /**
- * This TwitterFeedOperator uses Twitter Streaming API to build up connection with Twitter
- * and stores the tweet streams in a queue.
- * When getNextTuple(), pull a record from the queue and parser it into tuple.
+ * This TwitterFeedOperator sets up a connection with Twitter using the twitter streaming API
+ * and stores the received tweet stream in a queue.
+ * When getNextTuple() is called, pull a record from the queue and parse it into a tuple.
  *
- *------------------------------    invoke    ------------------  connect with httpClient  ---------
- * TwitterFeed Operator         |----------->| TwitterConnector |------------------------>| Twitter |
- *------------------------------ <----------- ------------------ <------------------------ ---------
- *                            take tweets and process them      receive tweet streams and store in a queue.
+ *------------------------------  (1).invoke  ------------------  (2).connect with BasicClient  ---------
+ * TwitterFeed Operator         |----------->| TwitterConnector |----------------------------->| Twitter |
+ *------------------------------ <----------- ------------------ <----------------------------- ---------
+ *                         (4).take tweets and process them      (3).receive tweet streams and
+ *                                                                      store in a queue.
  *
  */
 public class TwitterFeedOperator implements ISourceOperator {
@@ -48,6 +48,12 @@ public class TwitterFeedOperator implements ISourceOperator {
     private String msg;
     private Tuple sourceTuple;
 
+    /** Secondary constructor for TwitterFeedOperator.
+     * It will be called by the primary constructor upon operator set-up.
+     * It allows customer-defined TwitterConnector in the input and
+     * enables mockito testing to mock a twitterConnector and isolate the connection with twitter .
+     */
+
     public TwitterFeedOperator(TwitterFeedSourcePredicate predicate, TwitterConnector twitterConnector) throws TextDBException {
         this.resultCursor = -1;
         this.limit = Integer.MAX_VALUE;
@@ -56,7 +62,7 @@ public class TwitterFeedOperator implements ISourceOperator {
         this.predicate = predicate;
         this.twitterConnector = twitterConnector;
         if (timeout <= 0) {
-            throw new DataFlowException("Please provide positive timeout limit.");
+            throw new DataFlowException("Please provide a positive timeout limit.");
         }
         if ((predicate.getQuery() == null || predicate.getQuery().isEmpty())
                 && (predicate.getLocations() == null || predicate.getLocations().isEmpty())
@@ -66,9 +72,9 @@ public class TwitterFeedOperator implements ISourceOperator {
 
     }
 
-
+    //Primary constructor for TwitterFeedOperator set up.
     public TwitterFeedOperator(TwitterFeedSourcePredicate predicate) throws TextDBException {
-        this(predicate, new TwitterConnector(predicate.getQuery(), TwitterUtils.getPlaceLocation(predicate.getLocations()), predicate.getLanguage()));
+        this(predicate, new TwitterConnector(predicate.getQuery(), TwitterUtils.getPlaceLocation(predicate.getLocations()), predicate.getLanguage(), predicate.getCustomerKey(), predicate.getCustomerSecret(), predicate.getToken(), predicate.getTokenSecret()));
     }
 
 
@@ -111,7 +117,7 @@ public class TwitterFeedOperator implements ISourceOperator {
             JsonNode tweet = new ObjectMapper().readValue(msg, JsonNode.class);
 
             sourceTuple = new Tuple(outputSchema, IDField.newRandomID(),
-                    new TextField(TwitterUtils.getTexts(tweet)),
+                    new TextField(TwitterUtils.getText(tweet)),
                     new StringField(TwitterUtils.getTweetLink(tweet)),
                     new StringField(TwitterUtils.getUserLink(tweet)),
                     new TextField(TwitterUtils.getUserScreenName(tweet)),

@@ -17,6 +17,8 @@ import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import static edu.uci.ics.textdb.exp.twitterfeed.TwitterUtils.twitterSchema.TEXT;
+import static edu.uci.ics.textdb.exp.twitterfeed.TwitterUtils.twitterSchema.USER_SCREEN_NAME;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -29,17 +31,16 @@ import static org.mockito.Mockito.when;
 /**
  * To test the TwitterFeedOperator in two scenarios:
  * First one normally connects the operator to twitter through twitter streaming API.
- * Specify the keywordList, locationList, languageList and number of tweets required.
+ * Specify the keywordList, locationList, languageList and number of tweets requested.
  * Check if the number of tweets received is identical to the setting.
  * Check if the query keywords in the keywordList appear in the text and user_screen_name;
- * Check if the location of the received tweets inside the geo-box defined in the locationList.
+ * Check if the location of the received tweets is inside the geo-box defined in the locationList.
  * Check if Limit = 0 for the TwitterFeed Operator can prevent it from receiving any tweet.
  *
- * Second one uses Mockito to mock the TwitterConnector class and the BasicClient class inside it and
- * test the TwitterFeedOperator alone. Use the pre-defined queue with a Json formatted tweet to generate tuple.
- * Check if the tuple is well-formatted.
+ * Second one uses Mockito to mock the TwitterConnector for isolation,
+ * and tests the TwitterFeedOperator alone.
  */
-public class TwitterFeedTest {
+public class TwitterFeedOperatorTest {
 
     private static List<Tuple> exactResults = new ArrayList<>();
     private static final List<String> keywordList = new ArrayList<>(Arrays.asList("day"));
@@ -61,11 +62,12 @@ public class TwitterFeedTest {
         exactResults = TwitterFeedTestHelper.getQueryResults(keywordList, locationNEWYORK, languageList, numTweets);
     }
 
+
+
     /**
      * Test if the size of generated tupleList is identical to the number of Tweets required.
      * @throws Exception
      */
-
     @Test
     public void testTwitterFeedLimit() throws Exception {
         Assert.assertEquals(exactResults.size(), numTweets);
@@ -84,8 +86,8 @@ public class TwitterFeedTest {
 
     @Test
     public void testKeywordQuery() throws Exception {
-        List<String> searchableAttributes = new ArrayList<>(Arrays.asList("text", "user_screen_name"));
-        Assert.assertTrue(TwitterFeedTestHelper.containsFuzzyQuery(exactResults, keywordList, searchableAttributes));
+        List<String> searchableAttributes = new ArrayList<>(Arrays.asList(TEXT, USER_SCREEN_NAME));
+        Assert.assertTrue(TwitterFeedTestHelper.checkKeywordInAttributes(exactResults, keywordList, searchableAttributes));
 
     }
 
@@ -108,11 +110,17 @@ public class TwitterFeedTest {
     }
 
 
+
+    /**
+     * Mock the TwitterConnector class and the BasicClient class inside it to test the TwitterFeedOperator alone.
+     * Use the pre-defined queue with a Json formatted tweet to generate a tuple.
+     * Check if the tuple is well-formatted.
+     */
     @Test
     public void testWithMockClient() throws Exception {
         TwitterConnector mockTwitterConnector = mock(TwitterConnector.class);
         queue.add(inputStream);
-        TwitterFeedSourcePredicate predicate = new TwitterFeedSourcePredicate(1, keywordList, "", null);
+        TwitterFeedSourcePredicate predicate = new TwitterFeedSourcePredicate(1, keywordList, "", null, null, null, null, null);
         TwitterFeedOperator operator = new TwitterFeedOperator(predicate, mockTwitterConnector);
         operator.setTimeout(timeOut);
         BasicClient mockClient = mock(BasicClient.class);
@@ -125,7 +133,7 @@ public class TwitterFeedTest {
         tupleSink.close();
         JsonNode tweet = new ObjectMapper().readValue(inputStream, JsonNode.class);
         Tuple expectedTuple = new Tuple(TwitterUtils.twitterSchema.TWITTER_SCHEMA,
-                new TextField(TwitterUtils.getTexts(tweet)),
+                new TextField(TwitterUtils.getText(tweet)),
                 new StringField(TwitterUtils.getTweetLink(tweet)),
                 new StringField(TwitterUtils.getUserLink(tweet)),
                 new TextField(TwitterUtils.getUserScreenName(tweet)),

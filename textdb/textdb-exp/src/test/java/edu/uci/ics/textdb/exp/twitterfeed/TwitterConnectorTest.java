@@ -19,10 +19,9 @@ import static org.junit.Assert.assertTrue;
 /**
  * This test aims at the successful connection from the
  * BasicClient defined in twitter streaming API to twitter.
- * Variable "exist" sets a bound to check if twitterConnector
+ * It will check if the twitterConnector
  * can successfully receive messages from twitter through the
- * connection built up with the BasicClient inside it to twitter
- * and if messages received are not empty.
+ * connection with the BasicClient inside it and if the messages received are nonempty.
  */
 public class TwitterConnectorTest {
     public TwitterConnector twitterConnector;
@@ -31,7 +30,7 @@ public class TwitterConnectorTest {
     public void setUp() throws Exception {
         String dummyKeyword = "is";
         List<String> keyWordList = new ArrayList<>(Arrays.asList(dummyKeyword));
-        twitterConnector = new TwitterConnector(keyWordList, null, null);
+        twitterConnector = new TwitterConnector(keyWordList, null, null, null, null, null, null);
         twitterConnector.getClient().connect();
 
     }
@@ -44,8 +43,9 @@ public class TwitterConnectorTest {
     @Test
     public void testTwitterConnector() throws Exception {
         int tweetCount = 0;
-        int exist = 2;
-        while (tweetCount < exist) {
+        // Variable tweetNumberToAccess sets a bound to check if nonempty messages can be received.
+        int tweetNumberToAccess = 2;
+        while (tweetCount < tweetNumberToAccess) {
             String message = twitterConnector.getMsgQueue().take();
             assertTrue(!TwitterUtils.getUserScreenName(new ObjectMapper().readValue(message, JsonNode.class)).isEmpty());
             tweetCount++;

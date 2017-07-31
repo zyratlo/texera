@@ -29,7 +29,7 @@ import static org.mockito.Mockito.mock;
 public class TwitterFeedTestHelper {
 
     public static List<Tuple> getQueryResults(List<String> queryList, String locationList, List<String> languageList, int limit) throws TextDBException {
-        TwitterFeedSourcePredicate predicate = new TwitterFeedSourcePredicate(10, queryList, locationList, languageList);
+        TwitterFeedSourcePredicate predicate = new TwitterFeedSourcePredicate(10, queryList, locationList, languageList, null, null, null, null);
         TwitterFeedOperator twitterFeedOperator = new TwitterFeedOperator(predicate);
         twitterFeedOperator.setLimit(limit);
         twitterFeedOperator.setTimeout(20);
@@ -58,7 +58,7 @@ public class TwitterFeedTestHelper {
         return true;
     }
 
-    public static boolean containsFuzzyQuery(List<Tuple> exactResult, List<String> queryList, List<String> attributeList) {
+    public static boolean checkKeywordInAttributes(List<Tuple> exactResult, List<String> queryList, List<String> attributeList) {
         List<String> toMatch = new ArrayList<>();
         for (Tuple tuple : exactResult) {
             for (String attribute : attributeList) {

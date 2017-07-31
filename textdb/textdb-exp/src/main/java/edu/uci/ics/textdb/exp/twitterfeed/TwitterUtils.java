@@ -22,13 +22,14 @@ import java.util.List;
  * Define Json parser functions, twitter schema, twitter constants such as consumer key, token and secret.
  */
 public class TwitterUtils {
+    private static final String informationNotAvailable = "n/a";
 
     public static String getCoordinates(JsonNode object) {
         if (object.hasNonNull("coordinates")) {
             JsonNode coord = object.get("coordinates").get("coordinates");
             return String.valueOf(coord.get(0).asDouble()) + ", " + String.valueOf(coord.get(1).asDouble());
         }
-        return "n/a";
+        return informationNotAvailable;
     }
 
     public static String getUserName(JsonNode object) {
@@ -45,7 +46,7 @@ public class TwitterUtils {
         if (user.hasNonNull("description")) {
             return user.get("description").asText();
         }
-        return "n/a";
+        return informationNotAvailable;
     }
 
     public static int getUserFollowerCnt(JsonNode object) {
@@ -61,7 +62,7 @@ public class TwitterUtils {
         if (user.hasNonNull("location")) {
             return user.get("location").asText();
         }
-        return "n/a";
+        return informationNotAvailable;
 
     }
 
@@ -76,7 +77,7 @@ public class TwitterUtils {
             String country = place.get("country").asText();
             return placeName + ", " + country;
         }
-        return "n/a";
+        return informationNotAvailable;
     }
 
     public static String getCreateTime(JsonNode object) {
@@ -87,7 +88,7 @@ public class TwitterUtils {
         return object.get("lang").asText();
     }
 
-    public static String getTexts(JsonNode object) {
+    public static String getText(JsonNode object) {
         return object.get("text").asText();
     }
 
@@ -120,6 +121,45 @@ public class TwitterUtils {
         return locationList;
     }
 
+    /**
+     * Tweet Sample in Json format:
+     * text : "@Toni090902 Hi, I'm here to make you feel good every day about your decision to follow me, or is that regret it, I forget :/"
+     * screen_name : "SocialMedia_RS"
+     * name : "SocialMedia Rockstar"
+     * description : "I am the Great White Elephant of Social Media, a true Rockstar. When I talk you should listen. Ent.account of @HOLMedia don't bother DM'ing, I don't do that"
+     * followers_count : 43541
+     * friends_count : 29236
+     * location : "Tampa, FL"
+     * created_at : "Thu Jun 16 20:21:48 +0000 2011"
+     * place : {
+     *              "id": "fd70c22040963ac7",
+     *              "url": "https:\/\/api.twitter.com\/1.1\/geo\/id\/fd70c22040963ac7.json",
+     *              "place_type": "city",
+     *              "name": "Boulder",
+     *              "full_name": "Boulder, CO",
+     *              "country_code": "US",
+     *              "country": "United States",
+     *              "contained_within": [
+     *                                  ],
+     *              "bounding_box": {
+     *              "type": "Polygon",
+     *              "coordinates": [
+     *              [
+     *              [-105.301758, 39.964069],
+     *              [-105.301758, 40.094551],
+     *              [-105.178142, 40.094551],
+     *              [-105.178142, 39.964069]
+     *              ]
+     *              ]
+     *              },
+     *              "attributes": {}
+     *          }
+     *coordinates : {
+     *              "type": "Point",
+     *              "coordinates": [-105.2812196, 40.0160921]
+     *              }
+     * lang : "en"
+     */
 
     public static class twitterSchema {
 

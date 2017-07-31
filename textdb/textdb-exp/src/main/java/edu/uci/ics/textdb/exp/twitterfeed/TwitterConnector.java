@@ -21,7 +21,7 @@ import java.util.concurrent.LinkedBlockingQueue;
  */
 
 /**
- * This class is to build up connection with Twitter using twitter streaming API.
+ * This class is to set up a connection with Twitter using the twitter streaming API.
  * Details of this API: https://dev.twitter.com/streaming/overview
  * Twitter streaming API supports "trackTerms" on keyword, location and language.
  * These three query domains can not be empty at the same time.
@@ -30,16 +30,21 @@ public class TwitterConnector {
 
     private BasicClient twitterClient;
     private BlockingQueue<String> messageQueue;
+    private int queueSize = 10000;
+    private Authentication auth;
 
-    public TwitterConnector(List<String> queryList, List<Location> locationList, List<String> languageList) throws TextDBException {
-        if ((queryList == null || queryList.isEmpty()) && (locationList == null || locationList.isEmpty())
+    public TwitterConnector(List<String> keywordList, List<Location> locationList, List<String> languageList, String customerKey, String customerSecret, String token, String tokenSecret) throws TextDBException {
+        if ((keywordList == null || keywordList.isEmpty()) && (locationList == null || locationList.isEmpty())
                 && (languageList == null || languageList.isEmpty())) {
             throw new DataFlowException("no filter is provided");
         }
-        messageQueue = new LinkedBlockingQueue<String>(10000);
+
+        //Set up the blocking queue with proper size based on expected TPS of the stream.
+        messageQueue = new LinkedBlockingQueue<String>(queueSize);
+
         StatusesFilterEndpoint endpoint = new StatusesFilterEndpoint();
-        if (!(queryList == null || queryList.isEmpty())) {
-            endpoint.trackTerms(queryList);
+        if (!(keywordList == null || keywordList.isEmpty())) {
+            endpoint.trackTerms(keywordList);
         }
         if (!(locationList == null || locationList.isEmpty())) {
             endpoint.locations(locationList);
@@ -48,8 +53,14 @@ public class TwitterConnector {
             endpoint.languages(languageList);
         }
 
-        Authentication auth = new OAuth1(TwitterUtils.twitterConstant.consumerKey, TwitterUtils.twitterConstant.consumerSecret, TwitterUtils.twitterConstant.token, TwitterUtils.twitterConstant.tokenSecret);
+        if ((customerKey != null && !customerKey.isEmpty()) && (customerSecret != null && !customerSecret.isEmpty()) && (token != null && !token.isEmpty()) && (tokenSecret != null && !tokenSecret.isEmpty())) {
+            auth = new OAuth1(customerKey, customerSecret, token, tokenSecret);
+        } else {
+            auth = new OAuth1(TwitterUtils.twitterConstant.consumerKey, TwitterUtils.twitterConstant.consumerSecret, TwitterUtils.twitterConstant.token, TwitterUtils.twitterConstant.tokenSecret);
+        }
 
+
+        //BasicClient sets up connection to twitter with declaration on hostname to connect to, endpoint with trackTerms, authentication information and processor to process client events.
         twitterClient = new ClientBuilder()
                 .hosts(Constants.STREAM_HOST)
                 .endpoint(endpoint)
