@@ -20,12 +20,12 @@ public class NltkSentimentOperatorPredicate extends PredicateBase {
             @JsonProperty(value = PropertyNameConstants.RESULT_ATTRIBUTE_NAME, required = true)
             String resultAttributeName,
             @JsonProperty(value = PropertyNameConstants.NLP_NLTK_BATCH_SIZE, required = true)
-            int sizeTupleBuffer,
+            int batchSize,
             @JsonProperty(value = PropertyNameConstants.NLP_NLTK_MODEL, required = true)
             String inputAttributeModel) {
         this.inputAttributeName = inputAttributeName;
         this.resultAttributeName = resultAttributeName;
-        this.batchSize = sizeTupleBuffer;
+        this.batchSize = batchSize;
         this.inputAttributeModel = inputAttributeModel;
     };
     
@@ -39,12 +39,12 @@ public class NltkSentimentOperatorPredicate extends PredicateBase {
         return this.resultAttributeName;
     }
     
-    @JsonProperty(PropertyNameConstants.NLP_NLTK_BATCH_SIZE)
+    @JsonProperty(PropertyNameConstants.NLP_NLTK_MODEL)
     public String getInputAttributeModel() {
         return this.inputAttributeModel;
     }
     
-    @JsonProperty(PropertyNameConstants.NLP_NLTK_MODEL)
+    @JsonProperty(PropertyNameConstants.NLP_NLTK_BATCH_SIZE)
     public int getBatchSize() {
         return this.batchSize;
     }
