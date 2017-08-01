@@ -173,6 +173,31 @@ let emojiSentiment = {
   }
 }
 
+let nltkSentiment = {
+  top : 20,
+  left : 20,
+  properties : {
+    title : 'Nltk Sentiment Analysis',
+    inputs : {
+      input_1 : {
+        label : 'Input(:i)',
+      }
+    },
+    outputs : {
+      output_1 : {
+        label : "Output (:i)",
+      }
+    },
+    attributes : {
+        "operatorType": "NltkSentiment",
+        "attribute": "",
+        "resultAttribute": "resultAttr",
+        "batchSize": "1000",
+        "inputAttributeModel": "NltkSentiment.pickle"
+    }
+  }
+}
+
 let regexSplit = {
   top : 20,
   left : 20,
@@ -332,12 +357,12 @@ let scanSource = {
              "operatorType": "TwitterFeed",
              "keywordList": [],
              "locationList": "",
+             "tweetNum": 10,
              "languageList": [],
              "customerKey": "",
              "customerSecret": "",
              "token": "",
-             "tokenSecret": "",
-             "tweetNum": 10
+             "tokenSecret": ""
          }
      }
  }
@@ -674,5 +699,6 @@ export const DEFAULT_MATCHERS: Data[] = [
     {id: 23, jsonData: emojiSentiment},
     {id: 24, jsonData: fileSource},
     {id: 25, jsonData: mysqlSink},
-    {id: 26, jsonData: twitterfeedSource}
+    {id: 26, jsonData: nltkSentiment},
+    {id: 27, jsonData: twitterfeedSource}
 ];
