@@ -358,11 +358,11 @@ let scanSource = {
              "keywordList": [],
              "locationList": "",
              "tweetNum": 10,
-             "languageList": [],
              "customerKey": "",
              "customerSecret": "",
              "token": "",
-             "tokenSecret": ""
+             "tokenSecret": "",
+             "languageList": []
          }
      }
  }

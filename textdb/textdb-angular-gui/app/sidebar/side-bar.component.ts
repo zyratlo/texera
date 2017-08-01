@@ -40,12 +40,11 @@ export class SideBarComponent {
     compareList: string[] = ["=", ">", ">=", "<", "<=", "≠"];
     aggregationList: string[] = ["min", "max", "count", "sum", "average"];
 
-    twitterLanguageList: string[] = ["French", "English","Arabic","Japanese","Spanish","German","Italian","Indonesian",
-    "Portuguese","Korean","Turkish","Russian","Dutch","Filipino","Malay","Traditional Chinese","Simplified Chinese",
-    "Hindi","Norwegian","Swedish","Finnish", "Danish","Polish","Hungarian","Farsi","Hebrew","Urdu","Thai", "English UK"];
+    twitterLanguageList: string[] = ["English","Arabic","Danish","Dutch","English UK","Farsi","Filipino","Finnish","French","German","Hebrew","Hindi","Hungarian","Indonesian","Italian","Japanese","Korean",
+        "Malay","Norwegian","Polish","Portuguese","Russian","Simplified Chinese","Spanish","Swedish","Thai", "Traditional Chinese","Turkish","Urdu"];
 
-    twitterLanguageShortenList: string[] = ["fr","en","ar","ja","es","de","it","id","pt","ko","tr","ru","nl","fil","msa","zh-tw","zh-cn","hi","no",
-    "sv","fi","da","pl","hu","fa","he","ur","th","en-gb"];
+    twitterLanguageShortenList: string[] = ["en","ar","da","nl","en-gb","fa","fil","fi","fr","de","he","hi","hu","id","it","ja","ko","msa","no","pl","pt","ru","zh-cn","es","sv","th","zh-tw","tr","ur"];
+
 
     twitterLanguageMapping: {[key:string]:string;} = {};
 
