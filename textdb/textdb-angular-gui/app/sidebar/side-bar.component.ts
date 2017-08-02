@@ -59,7 +59,7 @@ export class SideBarComponent {
     dictionaryContent: Array<string> = [];
     selectedDictionary:string = "";
     twitterQuery: Array<string> = [];
-    twitterLanguage: Array<String> = [];
+    twitterLanguage: Array<string> = [];
     locationString:string = "";
 
     @ViewChild('MyModal')
@@ -102,6 +102,8 @@ export class SideBarComponent {
                 }
 
 
+
+
                 if (data.operatorData.properties.attributes.attributes) {
                     this.selectedAttributesList = data.operatorData.properties.attributes.attributes;
                 } else if (data.operatorData.properties.attributes.attribute) {
@@ -119,7 +121,6 @@ export class SideBarComponent {
                 if (data.operatorData.properties.attributes.languageList) {
                     this.twitterLanguage = data.operatorData.properties.attributes.languageList;
                 }
-                console.log(this.twitterLanguage);
 
             });
 

@@ -362,7 +362,7 @@ let scanSource = {
              "customerSecret": "",
              "token": "",
              "tokenSecret": "",
-             "languageList": []
+             "languageList": ["en"]
          }
      }
  }
@@ -445,7 +445,7 @@ let regexSource = {
         "regexIgnoreCase": false,
         "regexUseIndex": true,
         "spanListName": " "
-    } 
+    }
   }
 }
 
