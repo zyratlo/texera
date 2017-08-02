@@ -64,8 +64,8 @@ public class TwitterFeedOperator implements ISourceOperator {
         if (timeout <= 0) {
             throw new DataFlowException("Please provide a positive timeout limit.");
         }
-        if ((predicate.getQuery() == null || predicate.getQuery().isEmpty())
-                && (predicate.getLocations() == null || predicate.getLocations().isEmpty())) {
+        if ((predicate.getKeywordList() == null || predicate.getKeywordList().isEmpty())
+                && (predicate.getLocationList() == null || predicate.getLocationList().isEmpty())) {
             throw new DataFlowException("At least one between KeywordList and LocationList should be specified.");
         }
 
@@ -73,7 +73,7 @@ public class TwitterFeedOperator implements ISourceOperator {
 
     //Primary constructor for TwitterFeedOperator set up.
     public TwitterFeedOperator(TwitterFeedSourcePredicate predicate) throws TextDBException {
-        this(predicate, new TwitterConnector(predicate.getQuery(), TwitterUtils.getPlaceLocation(predicate.getLocations()), predicate.getLanguage(), predicate.getCustomerKey(), predicate.getCustomerSecret(), predicate.getToken(), predicate.getTokenSecret()));
+        this(predicate, new TwitterConnector(predicate.getKeywordList(), TwitterUtils.getPlaceLocation(predicate.getLocationList()), predicate.getLanguageList(), predicate.getCustomerKey(), predicate.getCustomerSecret(), predicate.getToken(), predicate.getTokenSecret()));
     }
 
 

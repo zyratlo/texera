@@ -59,12 +59,12 @@ public class TwitterFeedSourcePredicate extends PredicateBase {
     }
 
     @JsonProperty(PropertyNameConstants.TWEET_QUERY_LIST)
-    public List<String> getQuery() {
+    public List<String> getKeywordList() {
         return this.keywordList;
     }
 
     @JsonProperty(PropertyNameConstants.TWEET_LOCATION_LIST)
-    public String getLocations() {
+    public String getLocationList() {
         return this.locationList;
     }
 
@@ -74,7 +74,7 @@ public class TwitterFeedSourcePredicate extends PredicateBase {
     }
 
     @JsonProperty(PropertyNameConstants.TWEET_LANGUAGE_LIST)
-    public List<String> getLanguage() {
+    public List<String> getLanguageList() {
         return this.languageList;
     }
 
