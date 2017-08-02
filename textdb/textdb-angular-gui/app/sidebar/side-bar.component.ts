@@ -28,7 +28,7 @@ export class SideBarComponent {
 
     selectorList: string[] = ["dictionaryEntries", "password", "matchingType",
         "nlpEntityType", "splitType", "splitOption", "sampleType", "comparisonType",
-        "aggregationType", "attributes", "tableName", "attribute", "keywordList", "languageList", "locationList"].concat(this.hiddenList);
+        "aggregationType", "attributes", "tableName", "attribute", "keywordList", "languageList", "locationList","customerKey","customerSecret","token","tokenSecret"].concat(this.hiddenList);
 
     matcherList: string[] = ["conjunction", "phrase", "substring"];
     nlpEntityList: string[] = ["noun", "verb", "adjective", "adverb", "ne_all",
@@ -62,6 +62,8 @@ export class SideBarComponent {
     twitterLanguage: Array<string> = [];
     locationString:string = "";
 
+    optionalTwitterList: Array<string> = ["customerKey","customerSecret","token","tokenSecret"];
+
     @ViewChild('MyModal')
     modal: ModalComponent;
 
@@ -77,6 +79,10 @@ export class SideBarComponent {
     }
     checkInSelector(name: string) {
         return jQuery.inArray(name, this.selectorList);
+    }
+
+    checkInOptionalTwitter(name: string){
+      return jQuery.inArray(name,this.optionalTwitterList);
     }
 
     constructor(private currentDataService: CurrentDataService) {
