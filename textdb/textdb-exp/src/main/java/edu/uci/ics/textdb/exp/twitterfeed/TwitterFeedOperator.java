@@ -65,9 +65,8 @@ public class TwitterFeedOperator implements ISourceOperator {
             throw new DataFlowException("Please provide a positive timeout limit.");
         }
         if ((predicate.getQuery() == null || predicate.getQuery().isEmpty())
-                && (predicate.getLocations() == null || predicate.getLocations().isEmpty())
-                && (predicate.getLanguage() == null || predicate.getLanguage().isEmpty())) {
-            throw new DataFlowException("no filter is provided");
+                && (predicate.getLocations() == null || predicate.getLocations().isEmpty())) {
+            throw new DataFlowException("At least one between KeywordList and LocationList should be specified.");
         }
 
     }
