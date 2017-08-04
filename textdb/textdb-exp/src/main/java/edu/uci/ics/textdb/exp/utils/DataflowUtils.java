@@ -33,10 +33,10 @@ import edu.uci.ics.textdb.api.tuple.*;
 import edu.uci.ics.textdb.storage.constants.LuceneAnalyzerConstants;
 
 public class DataflowUtils {
-    
+
     /**
      * Returns the AttributeType of a field object.
-     * 
+     *
      * @param field
      * @return
      */
@@ -71,7 +71,7 @@ public class DataflowUtils {
         IField[] fieldsDuplicate = fieldListDuplicate.toArray(new IField[fieldListDuplicate.size()]);
         return new Tuple(spanSchema, fieldsDuplicate);
     }
-    
+
     public static ArrayList<String> tokenizeQuery(String luceneAnalyzerStr, String query) {
         try {
             return tokenizeQuery(LuceneAnalyzerConstants.getLuceneAnalyzer(luceneAnalyzerStr), query);
@@ -80,10 +80,10 @@ public class DataflowUtils {
             throw new RuntimeException(e);
         }
     }
-    
+
     /**
      * Tokenizes the query string using the given analyser
-     * 
+     *
      * @param luceneAnalyzer
      * @param query
      * @return ArrayList<String> list of results
@@ -132,7 +132,7 @@ public class DataflowUtils {
 
         return result;
     }
-    
+
     public static String getTupleListString(List<Tuple> tupleList) {
         StringBuilder sb = new StringBuilder();
         for (Tuple tuple : tupleList) {
@@ -144,7 +144,7 @@ public class DataflowUtils {
 
     /**
      * Transform a tuple into string
-     * 
+     *
      * @param tuple
      * @return string representation of the tuple
      */
@@ -174,7 +174,7 @@ public class DataflowUtils {
 
     /**
      * Transform a list of spans into string
-     * 
+     *
      * @param spanList
      * @return string representation of a list of spans
      */
@@ -193,7 +193,7 @@ public class DataflowUtils {
 
     /**
      * Transform a span into string
-     * 
+     *
      * @param span
      * @return string representation of a span
      */
@@ -210,7 +210,7 @@ public class DataflowUtils {
 
         return sb.toString();
     }
-    
+
     public static List<Span> generatePayloadFromTuple(Tuple tuple, String luceneAnalyzer) throws DataFlowException {
         return generatePayloadFromTuple(tuple, LuceneAnalyzerConstants.getLuceneAnalyzer(luceneAnalyzer));
     }
@@ -229,19 +229,19 @@ public class DataflowUtils {
 
     public static List<Span> generatePayload(String attributeName, String fieldValue, Analyzer luceneAnalyzer) {
         List<Span> payload = new ArrayList<>();
-        
+
         try {
             TokenStream tokenStream = luceneAnalyzer.tokenStream(null, new StringReader(fieldValue));
             OffsetAttribute offsetAttribute = tokenStream.addAttribute(OffsetAttribute.class);
             CharTermAttribute charTermAttribute = tokenStream.addAttribute(CharTermAttribute.class);
-            PositionIncrementAttribute positionIncrementAttribute = 
+            PositionIncrementAttribute positionIncrementAttribute =
                     tokenStream.addAttribute(PositionIncrementAttribute.class);
-            
+
             int tokenPositionCounter = -1;
             tokenStream.reset();
             while (tokenStream.incrementToken()) {
                 tokenPositionCounter += positionIncrementAttribute.getPositionIncrement();
-                
+
                 int tokenPosition = tokenPositionCounter;
                 int charStart = offsetAttribute.startOffset();
                 int charEnd = offsetAttribute.endOffset();
@@ -286,30 +286,27 @@ public class DataflowUtils {
             }
 
             if (attributeType == AttributeType.TEXT) {
-                
+
                 String fieldValueLowerCase = fieldValue.toLowerCase();
                 String queryKeywordLowerCase = queryKeyword.toLowerCase();
-                for(int i = 0 ; i < fieldValueLowerCase.length(); i++){
-                	int index = -1;
-                	if((index = fieldValueLowerCase.indexOf(queryKeywordLowerCase,i)) != -1){
-                		matchingResults.add(new Span(attributeName, index, index + queryKeyword.length(), queryKeyword, 
-                				fieldValue.substring(index, index + queryKeyword.length())));
-                		i = index + 1;
-                	}else{
-                		break;
-                	}
+                for (int i = 0; i < fieldValueLowerCase.length(); i++) {
+                    int index = -1;
+                    if ((index = fieldValueLowerCase.indexOf(queryKeywordLowerCase, i)) != -1) {
+                        matchingResults.add(new Span(attributeName, index, index + queryKeyword.length(), queryKeyword,
+                                fieldValue.substring(index, index + queryKeyword.length())));
+                        i = index + 1;
+                    } else {
+                        break;
+                    }
                 }
 
             }
         }
     }
 
-    public static void appendConjunctionMatchingSpans(Tuple inputTuple, List<String> attributeNames, String queryKeyword, String luceneAnalyzerString, List<Span> matchingResults) throws DataFlowException {
+    public static void appendConjunctionMatchingSpans(Tuple inputTuple, List<String> attributeNames, List<Set<String>> dictionaryEntryTokens, List<String> dictionaryEntries, List<Span> matchingResults) throws DataFlowException {
         ListField<Span> payloadField = inputTuple.getField(SchemaConstants.PAYLOAD);
         List<Span> payload = payloadField.getValue();
-        List<String> queryTokenList = tokenizeQuery(luceneAnalyzerString, queryKeyword);
-        Set<String> queryTokenSet = new HashSet<>(queryTokenList);
-        List<Span> relevantSpans = filterRelevantSpans(payload,queryTokenSet);
 
         for (String attributeName : attributeNames) {
             AttributeType attributeType = inputTuple.getSchema().getAttribute(attributeName).getAttributeType();
@@ -322,8 +319,8 @@ public class DataflowUtils {
 
             // for STRING type, the query should match the fieldValue completely
             if (attributeType == AttributeType.STRING) {
-                if (fieldValue.equals(queryKeyword)) {
-                    Span span = new Span(attributeName, 0, queryKeyword.length(), queryKeyword, fieldValue);
+                if (dictionaryEntries.contains(fieldValue)) {
+                    Span span = new Span(attributeName, 0, fieldValue.length(), fieldValue, fieldValue);
                     matchingResults.add(span);
                 }
             }
@@ -331,11 +328,17 @@ public class DataflowUtils {
             // for TEXT type, every token in the query should be present in span
             // list for this field
             if (attributeType == AttributeType.TEXT) {
-                List<Span> fieldSpanList = relevantSpans.stream().filter(span -> span.getAttributeName().equals(attributeName))
-                        .collect(Collectors.toList());
-
-                if (isAllQueryTokensPresent(fieldSpanList, queryTokenSet)) {
-                    matchingResults.addAll(fieldSpanList);
+                List<Span> relevantSpans;
+                List<Span> fieldSpanList;
+                for (Set<String> queryTokenSet : dictionaryEntryTokens) {
+                    relevantSpans = filterRelevantSpans(payload, queryTokenSet);
+                    fieldSpanList = relevantSpans.stream().filter(span -> span.getAttributeName().equals(attributeName))
+                            .collect(Collectors.toList());
+                    if (isAllQueryTokensPresent(fieldSpanList, queryTokenSet)) {
+                        matchingResults.addAll(fieldSpanList);
+                    }
+                    relevantSpans.clear();
+                    fieldSpanList.clear();
                 }
             }
         }
@@ -345,19 +348,13 @@ public class DataflowUtils {
      *
      * @param inputTuple
      * @param attributeNames
-     * @param queryKeyword
-     * @param luceneAnalyzerString
      * @param matchingResults
      * @return
      * @throws DataFlowException
      */
-    public static void appendPhraseMatchingSpans(Tuple inputTuple, List<String> attributeNames, String queryKeyword, String luceneAnalyzerString, List<Span> matchingResults) throws DataFlowException {
+    public static void appendPhraseMatchingSpans(Tuple inputTuple, List<String> attributeNames, List<List<String>> dictionaryTokenList, List<List<String>> dictionaryTokenListWithStopwords, List<String> dictionaryEntries, List<Span> matchingResults) throws DataFlowException {
         ListField<Span> payloadField = inputTuple.getField(SchemaConstants.PAYLOAD);
         List<Span> payload = payloadField.getValue();
-        List<String> queryTokenList = tokenizeQuery(luceneAnalyzerString, queryKeyword);
-        Set<String> queryTokenSet = new HashSet<>(queryTokenList);
-        List<Span> relevantSpans = filterRelevantSpans(payload, queryTokenSet);
-        List<String> queryTokensWithStopwords = DataflowUtils.tokenizeQueryWithStopwords(queryKeyword);
 
         for (String attributeName : attributeNames) {
             AttributeType attributeType = inputTuple.getSchema().getAttribute(attributeName).getAttributeType();
@@ -370,76 +367,85 @@ public class DataflowUtils {
 
             // for STRING type, the query should match the fieldValue completely
             if (attributeType == AttributeType.STRING) {
-                if (fieldValue.equals(queryKeyword)) {
-                    matchingResults.add(new Span(attributeName, 0, queryKeyword.length(), queryKeyword, fieldValue));
+                if (dictionaryEntries.contains(fieldValue)) {
+                    Span span = new Span(attributeName, 0, fieldValue.length(), fieldValue, fieldValue);
+                    matchingResults.add(span);
                 }
             }
 
             // for TEXT type, spans need to be reconstructed according to the
             // phrase query
             if (attributeType == AttributeType.TEXT) {
-                List<Span> fieldSpanList = relevantSpans.stream().filter(span -> span.getAttributeName().equals(attributeName))
-                        .collect(Collectors.toList());
+                Set<String> queryTokenSet = new HashSet<>();
+                for (int index = 0; index < dictionaryTokenList.size(); index++) {
+                    List<String> queryTokenList = dictionaryTokenList.get(index);
+                    List<String> queryTokenListWithStopwords = dictionaryTokenListWithStopwords.get(index);
+                    queryTokenSet.clear();
+                    queryTokenSet.addAll(queryTokenList);
+                    List<Span> relevantSpans = filterRelevantSpans(payload, queryTokenSet);
+                    List<Span> fieldSpanList = relevantSpans.stream().filter(span -> span.getAttributeName().equals(attributeName))
+                            .collect(Collectors.toList());
 
-                if (!isAllQueryTokensPresent(fieldSpanList, queryTokenSet)) {
-                    // move on to next field if not all query tokens are present
-                    // in the spans
-                    continue;
-                }
-
-                // Sort current field's span list by token offset for later use
-                Collections.sort(fieldSpanList, (span1, span2) -> span1.getTokenOffset() - span2.getTokenOffset());
-
-                List<Integer> queryTokenOffset = new ArrayList<>();
-
-                for (int i = 0; i < queryTokensWithStopwords.size(); i++) {
-                    if (queryTokenList.contains(queryTokensWithStopwords.get(i))) {
-                        queryTokenOffset.add(i);
-                    }
-                }
-
-                int iter = 0; // maintains position of term being checked in
-                // spanForThisField list
-                while (iter < fieldSpanList.size()) {
-                    if (iter > fieldSpanList.size() - queryTokenList.size()) {
-                        break;
-                    }
-
-                    // Verify if span in the spanForThisField correspond to our
-                    // phrase query, ie relative position offsets should be
-                    // similar
-                    // and the value should be same.
-                    boolean isMismatchInSpan = false;// flag to check if a
-                    // mismatch in spans occurs
-
-                    // To check all the terms in query are verified
-                    for (int i = 0; i < queryTokenList.size() - 1; i++) {
-                        Span first = fieldSpanList.get(iter + i);
-                        Span second = fieldSpanList.get(iter + i + 1);
-                        if (!(second.getTokenOffset() - first.getTokenOffset() == queryTokenOffset.get(i + 1)
-                                - queryTokenOffset.get(i) && first.getValue().equalsIgnoreCase(queryTokenList.get(i))
-                                && second.getValue().equalsIgnoreCase(queryTokenList.get(i + 1)))) {
-                            iter++;
-                            isMismatchInSpan = true;
-                            break;
-                        }
-                    }
-
-                    if (isMismatchInSpan) {
+                    if (!isAllQueryTokensPresent(fieldSpanList, queryTokenSet)) {
+                        // move on to next field if not all query tokens are present
+                        // in the spans
                         continue;
                     }
 
-                    int combinedSpanStartIndex = fieldSpanList.get(iter).getStart();
-                    int combinedSpanEndIndex = fieldSpanList.get(iter + queryTokenList.size() - 1).getEnd();
+                    // Sort current field's span list by token offset for later use
+                    Collections.sort(fieldSpanList, (span1, span2) -> span1.getTokenOffset() - span2.getTokenOffset());
 
-                    Span combinedSpan = new Span(attributeName, combinedSpanStartIndex, combinedSpanEndIndex, queryKeyword,
-                            fieldValue.substring(combinedSpanStartIndex, combinedSpanEndIndex));
-                    matchingResults.add(combinedSpan);
-                    iter = iter + queryTokenList.size();
+                    List<Integer> queryTokenOffset = new ArrayList<>();
+
+                    for (int j = 0; j < queryTokenListWithStopwords.size(); j++) {
+                        if (queryTokenList.contains(queryTokenListWithStopwords.get(j))) {
+                            queryTokenOffset.add(j);
+                        }
+                    }
+
+                    int iter = 0; // maintains position of term being checked in
+                    // spanForThisField list
+                    while (iter < fieldSpanList.size()) {
+                        if (iter > fieldSpanList.size() - queryTokenList.size()) {
+                            break;
+                        }
+
+                        // Verify if span in the spanForThisField correspond to our
+                        // phrase query, ie relative position offsets should be
+                        // similar
+                        // and the value should be same.
+                        boolean isMismatchInSpan = false;// flag to check if a
+                        // mismatch in spans occurs
+
+                        // To check all the terms in query are verified
+                        for (int i = 0; i < queryTokenList.size() - 1; i++) {
+                            Span first = fieldSpanList.get(iter + i);
+                            Span second = fieldSpanList.get(iter + i + 1);
+                            if (!(second.getTokenOffset() - first.getTokenOffset() == queryTokenOffset.get(i + 1)
+                                    - queryTokenOffset.get(i) && first.getValue().equalsIgnoreCase(queryTokenList.get(i))
+                                    && second.getValue().equalsIgnoreCase(queryTokenList.get(i + 1)))) {
+                                iter++;
+                                isMismatchInSpan = true;
+                                break;
+                            }
+                        }
+
+                        if (isMismatchInSpan) {
+                            continue;
+                        }
+
+                        int combinedSpanStartIndex = fieldSpanList.get(iter).getStart();
+                        int combinedSpanEndIndex = fieldSpanList.get(iter + queryTokenList.size() - 1).getEnd();
+
+                        Span combinedSpan = new Span(attributeName, combinedSpanStartIndex, combinedSpanEndIndex, dictionaryEntries.get(index),
+                                fieldValue.substring(combinedSpanStartIndex, combinedSpanEndIndex));
+                        matchingResults.add(combinedSpan);
+                        iter = iter + queryTokenList.size();
+                    }
                 }
             }
-        }
 
+        }
     }
 
     private static boolean isAllQueryTokensPresent(List<Span> fieldSpanList, Set<String> queryTokenSet) {
