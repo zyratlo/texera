@@ -94,5 +94,16 @@ public class PropertyNameConstants {
     public static final String MYSQL_PASSWORD = "password";
     public static final String MYSQL_LIMIT = "limit";
     public static final String MYSQL_OFFSET = "offset";
+
+    // related to TwitterFeed Operator
+    public static final String TWEET_NUM = "tweetNum";
+    public static final String TWEET_QUERY_LIST = "keywordList";
+    public static final String TWEET_LOCATION_LIST = "locationList";
+    public static final String TWEET_LANGUAGE_LIST = "languageList";
+    public static final String TWEET_CUSTOMER_KEY = "customerKey";
+    public static final String TWEET_CUSTOMER_SECRET = "customerSecret";
+    public static final String TWEET_TOKEN = "token";
+    public static final String TWEET_TOKEN_SECRET = "tokenSecret";
+
     
 }
