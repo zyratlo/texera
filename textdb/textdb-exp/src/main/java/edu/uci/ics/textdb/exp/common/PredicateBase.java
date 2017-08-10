@@ -2,6 +2,7 @@ package edu.uci.ics.textdb.exp.common;
 
 import java.util.UUID;
 
+import edu.uci.ics.textdb.exp.twitterfeed.TwitterFeedSourcePredicate;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -86,6 +87,7 @@ import edu.uci.ics.textdb.exp.wordcount.WordCountOperatorPredicate;
         @Type(value = TupleSinkPredicate.class, name = "ViewResults"),
         @Type(value = ExcelSinkPredicate.class, name = "ExcelSink"),
         @Type(value = MysqlSinkPredicate.class, name = "MysqlSink"),
+        @Type(value = TwitterFeedSourcePredicate.class, name = "TwitterFeed"),
         
         @Type(value = WordCountIndexSourcePredicate.class, name = "WordCountIndexSource"),
         @Type(value = WordCountOperatorPredicate.class, name = "WordCount"),
