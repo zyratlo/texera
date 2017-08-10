@@ -102,15 +102,17 @@ public class Dictionary {
 
         }
     }
-
+    @JsonIgnore
     public ArrayList<Set<String>> getDictionaryTokenSetList() {
         return this.dictionaryTokenSetList;
     }
 
+    @JsonIgnore
     public ArrayList<List<String>> getDictionaryTokenListWithStopwords() {
         return this.dictionaryTokenListWithStopwords;
     }
 
+    @JsonIgnore
     public ArrayList<List<String>> getDictionaryTokenList() {
         return this.dictionaryTokenList;
     }
