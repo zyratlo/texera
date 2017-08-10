@@ -304,7 +304,7 @@ public class DataflowUtils {
         }
     }
 
-    public static void appendConjunctionMatchingSpans(Tuple inputTuple, List<String> attributeNames, Set<String> queryTokenSet, String query, List<Span> matchingResults) throws DataFlowException {
+    public static void appendConjunctionMatchingSpans(Tuple inputTuple, List<String> attributeNames, Set<String> queryTokenSet, String queryKeyword, List<Span> matchingResults) throws DataFlowException {
         ListField<Span> payloadField = inputTuple.getField(SchemaConstants.PAYLOAD);
         List<Span> payload = payloadField.getValue();
 
@@ -319,7 +319,7 @@ public class DataflowUtils {
 
             // for STRING type, the query should match the fieldValue completely
             if (attributeType == AttributeType.STRING) {
-                if (query.equals(fieldValue)) {
+                if (queryKeyword.equals(fieldValue)) {
                     Span span = new Span(attributeName, 0, fieldValue.length(), fieldValue, fieldValue);
                     matchingResults.add(span);
                 }
@@ -330,14 +330,14 @@ public class DataflowUtils {
             if (attributeType == AttributeType.TEXT) {
                 List<Span> relevantSpans = filterRelevantSpans(payload, queryTokenSet);
                 List<Span> fieldSpanList = relevantSpans.stream().filter(span -> span.getAttributeName().equals(attributeName))
-                            .collect(Collectors.toList());
-                    if (isAllQueryTokensPresent(fieldSpanList, queryTokenSet)) {
-                        matchingResults.addAll(fieldSpanList);
-                    }
-
+                        .collect(Collectors.toList());
+                if (isAllQueryTokensPresent(fieldSpanList, queryTokenSet)) {
+                    matchingResults.addAll(fieldSpanList);
                 }
+
             }
         }
+    }
 
     /***
      *
@@ -347,7 +347,7 @@ public class DataflowUtils {
      * @return
      * @throws DataFlowException
      */
-    public static void appendPhraseMatchingSpans(Tuple inputTuple, List<String> attributeNames, List<String> queryTokenList, List<String> queryTokenListWithStopwords, String query, List<Span> matchingResults) throws DataFlowException {
+    public static void appendPhraseMatchingSpans(Tuple inputTuple, List<String> attributeNames, List<String> queryTokenList, List<String> queryTokenListWithStopwords, String queryKeyword, List<Span> matchingResults) throws DataFlowException {
         ListField<Span> payloadField = inputTuple.getField(SchemaConstants.PAYLOAD);
         List<Span> payload = payloadField.getValue();
 
@@ -362,7 +362,7 @@ public class DataflowUtils {
 
             // for STRING type, the query should match the fieldValue completely
             if (attributeType == AttributeType.STRING) {
-                if (query.equals(fieldValue)) {
+                if (queryKeyword.equals(fieldValue)) {
                     Span span = new Span(attributeName, 0, fieldValue.length(), fieldValue, fieldValue);
                     matchingResults.add(span);
                 }
@@ -427,7 +427,7 @@ public class DataflowUtils {
                     int combinedSpanStartIndex = fieldSpanList.get(iter).getStart();
                     int combinedSpanEndIndex = fieldSpanList.get(iter + queryTokenList.size() - 1).getEnd();
 
-                    Span combinedSpan = new Span(attributeName, combinedSpanStartIndex, combinedSpanEndIndex, query,
+                    Span combinedSpan = new Span(attributeName, combinedSpanStartIndex, combinedSpanEndIndex, queryKeyword,
                             fieldValue.substring(combinedSpanStartIndex, combinedSpanEndIndex));
                     matchingResults.add(combinedSpan);
                     iter = iter + queryTokenList.size();
