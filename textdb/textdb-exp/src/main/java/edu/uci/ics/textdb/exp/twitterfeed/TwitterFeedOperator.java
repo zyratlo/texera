@@ -26,9 +26,9 @@ import java.util.concurrent.TimeUnit;
  * and stores the received tweet stream in a queue.
  * When getNextTuple() is called, pull a record from the queue and parse it into a tuple.
  *
- *------------------------------  (1).invoke  ------------------  (2).connect with BasicClient  ---------
- * TwitterFeed Operator         |----------->| TwitterConnector |----------------------------->| Twitter |
- *------------------------------ <----------- ------------------ <----------------------------- ---------
+ *------------------------------  (1).invoke  ------------------  (2).connect with BasicClient  ----------------
+ * TwitterFeed Operator         |----------->| TwitterConnector |----------------------------->| TwitterService |
+ *------------------------------ <----------- ------------------ <----------------------------- ----------------
  *                         (4).take tweets and process them      (3).receive tweet streams and
  *                                                                      store in a queue.
  *
