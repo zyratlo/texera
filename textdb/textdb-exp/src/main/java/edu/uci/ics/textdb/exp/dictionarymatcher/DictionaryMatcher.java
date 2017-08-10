@@ -75,10 +75,10 @@ public class DictionaryMatcher extends AbstractSingleInputOperator {
         }
 
     }
-
     private void preTokenizeDictionaryEntries() {
         dictionaryTokenSetList = new ArrayList<>();
-        while ((dictionaryEntry = predicate.getDictionary().getNextEntry()) != null) {
+        for (int i = 0; i < dictionaryEntries.size(); i++) {
+            dictionaryEntry = dictionaryEntries.get(i);
             dictionaryTokenSetList.add(new HashSet<>(DataflowUtils.tokenizeQuery(predicate.getAnalyzerString(), dictionaryEntry)));
         }
     }
@@ -123,10 +123,15 @@ public class DictionaryMatcher extends AbstractSingleInputOperator {
         }
         List<Span> matchingResults = new ArrayList<>();
         if (predicate.getKeywordMatchingType() == KeywordMatchingType.CONJUNCTION_INDEXBASED) {
-            DataflowUtils.appendConjunctionMatchingSpans(inputTuple, predicate.getAttributeNames(), dictionaryTokenSetList, dictionaryEntries, matchingResults);
+            for (int i = 0; i < dictionaryEntries.size(); i++) {
+                DataflowUtils.appendConjunctionMatchingSpans(inputTuple, predicate.getAttributeNames(), dictionaryTokenSetList.get(i), dictionaryEntries.get(i), matchingResults);
+            }
+
         } else if (predicate.getKeywordMatchingType() == KeywordMatchingType.PHRASE_INDEXBASED) {
-            DataflowUtils.appendPhraseMatchingSpans(inputTuple, predicate.getAttributeNames(), dictionaryTokenList, dictionaryTokenListWithStopwords, dictionaryEntries, matchingResults);
-        } else if (predicate.getKeywordMatchingType() == KeywordMatchingType.SUBSTRING_SCANBASED) {
+            for (int i = 0; i < dictionaryEntries.size(); i++) {
+                DataflowUtils.appendPhraseMatchingSpans(inputTuple, predicate.getAttributeNames(), dictionaryTokenList.get(i), dictionaryTokenListWithStopwords.get(i), dictionaryEntries.get(i), matchingResults);
+            }
+        }else if (predicate.getKeywordMatchingType() == KeywordMatchingType.SUBSTRING_SCANBASED) {
             predicate.getDictionary().resetCursor();
             String currentDictionaryEntry;
             while ((currentDictionaryEntry = predicate.getDictionary().getNextEntry()) != null) {

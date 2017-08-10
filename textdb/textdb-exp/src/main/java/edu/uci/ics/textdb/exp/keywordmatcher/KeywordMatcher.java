@@ -25,9 +25,9 @@ public class KeywordMatcher extends AbstractSingleInputOperator {
     private final KeywordPredicate predicate;
 
     private Schema inputSchema;
-    private ArrayList<Set<String>> queryTokenSetList;
-    private ArrayList<List<String>> queryTokenList;
-    private ArrayList<List<String>> queryTokenWithStopwordsList;
+    private Set<String> queryTokenSet;
+    private ArrayList<String> queryTokenList;
+    private ArrayList<String> queryTokenWithStopwordsList;
 
     public KeywordMatcher(KeywordPredicate predicate) {
         this.predicate = predicate;
@@ -59,15 +59,12 @@ public class KeywordMatcher extends AbstractSingleInputOperator {
     }
 
     private void preProcessKeywordTokens() {
-        queryTokenSetList = new ArrayList<>();
-        queryTokenSetList.add(new HashSet<>(DataflowUtils.tokenizeQuery(predicate.getLuceneAnalyzerString(), predicate.getQuery())));
+        queryTokenSet = new HashSet<>(DataflowUtils.tokenizeQuery(predicate.getLuceneAnalyzerString(), predicate.getQuery()));
     }
 
     private void preProcessKeywordTokensWithStopwords() {
-        queryTokenList = new ArrayList<>();
-        queryTokenWithStopwordsList = new ArrayList<>();
-        queryTokenList.add(DataflowUtils.tokenizeQuery(predicate.getLuceneAnalyzerString(), predicate.getQuery()));
-        queryTokenWithStopwordsList.add(DataflowUtils.tokenizeQueryWithStopwords(predicate.getQuery()));
+        queryTokenList = DataflowUtils.tokenizeQuery(predicate.getLuceneAnalyzerString(), predicate.getQuery());
+        queryTokenWithStopwordsList = DataflowUtils.tokenizeQueryWithStopwords(predicate.getQuery());
     }
 
     @Override
@@ -100,14 +97,11 @@ public class KeywordMatcher extends AbstractSingleInputOperator {
 
         List<Span> matchingResults = new ArrayList<>();
         if (this.predicate.getMatchingType() == KeywordMatchingType.CONJUNCTION_INDEXBASED) {
-            List<String> keywordList = new ArrayList<>();
-            keywordList.add(predicate.getQuery());
-            DataflowUtils.appendConjunctionMatchingSpans(inputTuple, predicate.getAttributeNames(), queryTokenSetList, keywordList, matchingResults);
+
+            DataflowUtils.appendConjunctionMatchingSpans(inputTuple, predicate.getAttributeNames(), queryTokenSet, predicate.getQuery(), matchingResults);
         }
         if (this.predicate.getMatchingType() == KeywordMatchingType.PHRASE_INDEXBASED) {
-            List<String> keywordList = new ArrayList<>();
-            keywordList.add(predicate.getQuery());
-            DataflowUtils.appendPhraseMatchingSpans(inputTuple, predicate.getAttributeNames(), queryTokenList, queryTokenWithStopwordsList, keywordList, matchingResults);
+            DataflowUtils.appendPhraseMatchingSpans(inputTuple, predicate.getAttributeNames(), queryTokenList, queryTokenWithStopwordsList, predicate.getQuery(), matchingResults);
         }
         if (this.predicate.getMatchingType() == KeywordMatchingType.SUBSTRING_SCANBASED) {
             DataflowUtils.appendSubstringMatchingSpans(inputTuple, predicate.getAttributeNames(), predicate.getQuery(), matchingResults);
