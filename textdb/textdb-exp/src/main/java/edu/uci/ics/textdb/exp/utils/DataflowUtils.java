@@ -387,9 +387,9 @@ public class DataflowUtils {
 
                 List<Integer> queryTokenOffset = new ArrayList<>();
 
-                for (int j = 0; j < queryTokenListWithStopwords.size(); j++) {
-                    if (queryTokenList.contains(queryTokenListWithStopwords.get(j))) {
-                        queryTokenOffset.add(j);
+                for (int i = 0; i < queryTokenListWithStopwords.size(); i++) {
+                    if (queryTokenList.contains(queryTokenListWithStopwords.get(i))) {
+                        queryTokenOffset.add(i);
                     }
                 }
 
