@@ -13,13 +13,13 @@ import edu.uci.ics.textdb.api.span.Span;
 import edu.uci.ics.textdb.api.tuple.Tuple;
 import edu.uci.ics.textdb.api.utils.Utils;
 import edu.uci.ics.textdb.exp.common.AbstractSingleInputOperator;
-import edu.uci.ics.textdb.exp.keywordmatcher.KeywordMatcher;
 import edu.uci.ics.textdb.exp.keywordmatcher.KeywordMatchingType;
-import edu.uci.ics.textdb.exp.keywordmatcher.KeywordPredicate;
 import edu.uci.ics.textdb.exp.utils.DataflowUtils;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 
 /**
@@ -62,6 +62,11 @@ public class DictionaryMatcher extends AbstractSingleInputOperator {
                     new Attribute(predicate.getSpanListName(), AttributeType.LIST));
         }
 
+        if (predicate.getKeywordMatchingType() == KeywordMatchingType.CONJUNCTION_INDEXBASED) {
+            predicate.getDictionary().setDictionaryTokenSetList(predicate.getAnalyzerString());
+        } else if (predicate.getKeywordMatchingType() == KeywordMatchingType.PHRASE_INDEXBASED) {
+            predicate.getDictionary().setDictionaryTokenListWithStopwords(predicate.getAnalyzerString());
+        }
     }
 
     @Override
@@ -92,24 +97,31 @@ public class DictionaryMatcher extends AbstractSingleInputOperator {
         if (predicate.getSpanListName() != null) {
             inputTuple = DataflowUtils.getSpanTuple(inputTuple.getFields(), new ArrayList<Span>(), outputSchema);
         }
-
-        predicate.getDictionary().resetCursor();
-        String currentDictionaryEntry;
         List<Span> matchingResults = new ArrayList<>();
-
-        while ((currentDictionaryEntry = predicate.getDictionary().getNextEntry()) != null) {
-
-            if(predicate.getKeywordMatchingType()== KeywordMatchingType.SUBSTRING_SCANBASED){
-                DataflowUtils.appendSubstringMatchingSpans(inputTuple,predicate.getAttributeNames(), currentDictionaryEntry, matchingResults);
+        if (predicate.getKeywordMatchingType() == KeywordMatchingType.CONJUNCTION_INDEXBASED) {
+            ArrayList<String> dictionaryEntries = predicate.getDictionary().getDictionaryEntries();
+            int size = dictionaryEntries.size();
+            ArrayList<Set<String>> tokenSetsNoStopwords = predicate.getDictionary().getTokenSetsNoStopwords();
+            for (int i = 0; i < size; i++) {
+                DataflowUtils.appendConjunctionMatchingSpans(inputTuple, predicate.getAttributeNames(), tokenSetsNoStopwords.get(i), dictionaryEntries.get(i), matchingResults);
             }
-            else if(predicate.getKeywordMatchingType() == KeywordMatchingType.PHRASE_INDEXBASED){
-                DataflowUtils.appendPhraseMatchingSpans(inputTuple, predicate.getAttributeNames(), currentDictionaryEntry, predicate.getAnalyzerString(), matchingResults);
+        } else if (predicate.getKeywordMatchingType() == KeywordMatchingType.PHRASE_INDEXBASED) {
+            ArrayList<String> dictionaryEntries = predicate.getDictionary().getDictionaryEntries();
+            ArrayList<List<String>> tokenListsNoStopwords = predicate.getDictionary().getTokenListsNoStopwords();
+            ArrayList<List<String>> tokenListsWithStopwords = predicate.getDictionary().getTokenListsWithStopwords();
+            int size = predicate.getDictionary().getDictionaryEntries().size();
+            for (int i = 0; i < size; i++) {
+                DataflowUtils.appendPhraseMatchingSpans(inputTuple, predicate.getAttributeNames(), tokenListsNoStopwords.get(i), tokenListsWithStopwords.get(i), dictionaryEntries.get(i), matchingResults);
             }
-            else if(predicate.getKeywordMatchingType() == KeywordMatchingType.CONJUNCTION_INDEXBASED){
-                DataflowUtils.appendConjunctionMatchingSpans(inputTuple, predicate.getAttributeNames(), currentDictionaryEntry, predicate.getAnalyzerString(), matchingResults);
-            }
+        } else if (predicate.getKeywordMatchingType() == KeywordMatchingType.SUBSTRING_SCANBASED) {
+            predicate.getDictionary().resetCursor();
+            String currentDictionaryEntry;
+            while ((currentDictionaryEntry = predicate.getDictionary().getNextEntry()) != null) {
+                DataflowUtils.appendSubstringMatchingSpans(inputTuple, predicate.getAttributeNames(), currentDictionaryEntry, matchingResults);
 
+            }
         }
+
 
         if (matchingResults.isEmpty()) {
             return null;
@@ -122,7 +134,6 @@ public class DictionaryMatcher extends AbstractSingleInputOperator {
         return inputTuple;
 
     }
-
 
 
     @Override

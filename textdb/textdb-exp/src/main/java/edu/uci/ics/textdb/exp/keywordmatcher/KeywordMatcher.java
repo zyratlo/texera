@@ -1,14 +1,10 @@
 package edu.uci.ics.textdb.exp.keywordmatcher;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
+
 
 import edu.uci.ics.textdb.api.constants.ErrorMessages;
 import edu.uci.ics.textdb.api.constants.SchemaConstants;
@@ -29,7 +25,9 @@ public class KeywordMatcher extends AbstractSingleInputOperator {
     private final KeywordPredicate predicate;
 
     private Schema inputSchema;
-
+    private Set<String> queryTokenSet;
+    private ArrayList<String> queryTokenList;
+    private ArrayList<String> queryTokenWithStopwordsList;
 
     public KeywordMatcher(KeywordPredicate predicate) {
         this.predicate = predicate;
@@ -48,9 +46,25 @@ public class KeywordMatcher extends AbstractSingleInputOperator {
         if (inputSchema.containsField(predicate.getSpanListName())) {
             throw new DataFlowException(ErrorMessages.DUPLICATE_ATTRIBUTE(predicate.getSpanListName(), inputSchema));
         } else {
-            outputSchema = Utils.addAttributeToSchema(outputSchema, 
+            outputSchema = Utils.addAttributeToSchema(outputSchema,
                     new Attribute(predicate.getSpanListName(), AttributeType.LIST));
         }
+        if (this.predicate.getMatchingType() == KeywordMatchingType.CONJUNCTION_INDEXBASED) {
+            preProcessKeywordTokens();
+        } else if (this.predicate.getMatchingType() == KeywordMatchingType.PHRASE_INDEXBASED) {
+            preProcessKeywordTokensWithStopwords();
+
+        }
+
+    }
+
+    private void preProcessKeywordTokens() {
+        queryTokenSet = new HashSet<>(DataflowUtils.tokenizeQuery(predicate.getLuceneAnalyzerString(), predicate.getQuery()));
+    }
+
+    private void preProcessKeywordTokensWithStopwords() {
+        queryTokenList = DataflowUtils.tokenizeQuery(predicate.getLuceneAnalyzerString(), predicate.getQuery());
+        queryTokenWithStopwordsList = DataflowUtils.tokenizeQueryWithStopwords(predicate.getQuery());
     }
 
     @Override
@@ -83,10 +97,11 @@ public class KeywordMatcher extends AbstractSingleInputOperator {
 
         List<Span> matchingResults = new ArrayList<>();
         if (this.predicate.getMatchingType() == KeywordMatchingType.CONJUNCTION_INDEXBASED) {
-            DataflowUtils.appendConjunctionMatchingSpans(inputTuple, predicate.getAttributeNames(), predicate.getQuery(), predicate.getLuceneAnalyzerString(), matchingResults);
+
+            DataflowUtils.appendConjunctionMatchingSpans(inputTuple, predicate.getAttributeNames(), queryTokenSet, predicate.getQuery(), matchingResults);
         }
         if (this.predicate.getMatchingType() == KeywordMatchingType.PHRASE_INDEXBASED) {
-            DataflowUtils.appendPhraseMatchingSpans(inputTuple, predicate.getAttributeNames(), predicate.getQuery(), predicate.getLuceneAnalyzerString(), matchingResults);
+            DataflowUtils.appendPhraseMatchingSpans(inputTuple, predicate.getAttributeNames(), queryTokenList, queryTokenWithStopwordsList, predicate.getQuery(), matchingResults);
         }
         if (this.predicate.getMatchingType() == KeywordMatchingType.SUBSTRING_SCANBASED) {
             DataflowUtils.appendSubstringMatchingSpans(inputTuple, predicate.getAttributeNames(), predicate.getQuery(), matchingResults);
@@ -97,7 +112,7 @@ public class KeywordMatcher extends AbstractSingleInputOperator {
         if (matchingResults.isEmpty()) {
             return null;
         }
-        
+
         ListField<Span> spanListField = inputTuple.getField(predicate.getSpanListName());
         List<Span> spanList = spanListField.getValue();
         spanList.addAll(matchingResults);
