@@ -34,9 +34,14 @@ export class TheFlowchartComponent {
   }
 
   zoomInDiv(){
+    // hide menu when zoomed
+    jQuery("#menu").css({
+      "display" : "none",
+    });
     var matrix = jQuery('#the-flowchart').panzoom("getMatrix");
     var ZoomRatio = parseFloat(matrix[0]);
     if (ZoomRatio < MAX_SCALE){
+      jQuery('#the-flowchart').flowchart('zoomCalled');
       ZoomRatio += INCREMENT;
       jQuery('#the-flowchart').flowchart('setPositionRatio', ZoomRatio);
       jQuery('#the-flowchart').panzoom('zoom', ZoomRatio, {
@@ -56,9 +61,14 @@ export class TheFlowchartComponent {
   }
 
   zoomOutDiv(){
+    // hide menu when zoomed
+    jQuery("#menu").css({
+      "display" : "none",
+    });
     var matrix = jQuery('#the-flowchart').panzoom("getMatrix");
     var ZoomRatio = parseFloat(matrix[0]);
     if (ZoomRatio >= MIN_SCALE + INCREMENT){
+      jQuery('#the-flowchart').flowchart('zoomCalled');
       ZoomRatio -= INCREMENT;
       jQuery('#the-flowchart').flowchart('setPositionRatio', ZoomRatio);
       jQuery('#the-flowchart').panzoom('zoom', ZoomRatio, {
@@ -86,6 +96,11 @@ export class TheFlowchartComponent {
       var container = jQuery(".form-control");
       if (container.is(e.target)) {
         jQuery("#the-flowchart").flowchart("unselectOperator");
+      }
+      // hide the right click menu when click other modules
+      var flowchart_container = jQuery("#the-flowchart");
+      if (flowchart_container.has(e.target).length <= 0){
+      jQuery("#the-flowchart").flowchart("hideRightClickMenu");
       }
     });
 
@@ -118,6 +133,12 @@ export class TheFlowchartComponent {
       },
       onOperatorUnselect: function(operatorId) {
         return true;
+      },
+      // called when the delete button on the right click menu is clicked
+      onRightClickedDelete : function (operatorId) {
+        current.currentDataService.clearData();
+        current.currentDataService.setAllOperatorData(jQuery('#the-flowchart').flowchart('getData'));
+        return true;
       }
     });
 
@@ -127,7 +148,7 @@ export class TheFlowchartComponent {
     this.initializePanzoom(jQuery('#the-flowchart').parent(), this.TheFlowChartWidth, this.TheFlowChartHeight);
 
   }
-  
+
   initializePanzoom(container: any, InitialWidth: number, InitialHeight: number) {
     // Panzoom initialization...
     jQuery('#the-flowchart').panzoom({
@@ -143,6 +164,7 @@ export class TheFlowchartComponent {
     }
     var currentZoom = 2;
     container.on('mousewheel.focal', function(e) {
+      jQuery('#the-flowchart').flowchart('zoomCalled');
       e.preventDefault();
       var delta = (e.delta || e.originalEvent.wheelDelta) || e.originalEvent.detail;
       var zoomOut = delta;
@@ -167,9 +189,12 @@ export class TheFlowchartComponent {
         "height" : new_height + "px",
         "top" : -top_side_add + "px",
       });
-
+      // hide menu when zoomed
+      jQuery("#menu").css({
+        "display" : "none",
+      });
     });
     // panzoom end
   }
-  
+
 }
