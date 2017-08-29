@@ -14,6 +14,7 @@ import edu.uci.ics.textdb.api.constants.TestConstantsChinese;
 import edu.uci.ics.textdb.api.constants.TestConstantsRegexSplit;
 import edu.uci.ics.textdb.api.exception.DataFlowException;
 import edu.uci.ics.textdb.api.exception.TextDBException;
+import edu.uci.ics.textdb.api.span.Span;
 import edu.uci.ics.textdb.api.tuple.Tuple;
 import edu.uci.ics.textdb.exp.source.scan.ScanBasedSourceOperator;
 import edu.uci.ics.textdb.exp.source.scan.ScanSourcePredicate;
@@ -30,6 +31,7 @@ public class RegexSplitOperatorTest {
     
     public static final String REGEX_TABLE = "regex_split_test";
     public static final String CHINESE_TABLE = "regex_split_test_chinese";
+    public static final String RESULT_ATTR = "RESULT";
     
     @BeforeClass
     public static void setUp() throws TextDBException {
@@ -63,12 +65,12 @@ public class RegexSplitOperatorTest {
         RelationManager.getRelationManager().deleteTable(REGEX_TABLE);
     }
     
-    public static List<Tuple> computeRegexSplitResults( String tableName, String splitAttrName,
+    public static List<Tuple> computeRegexSplitResultsOneToMany( String tableName, String splitAttrName,
             String splitRegex, RegexSplitPredicate.SplitType splitType ) throws TextDBException {
         
         ScanBasedSourceOperator scanSource = new ScanBasedSourceOperator(new ScanSourcePredicate(tableName));
         RegexSplitOperator regexSplit = new RegexSplitOperator(
-                new RegexSplitPredicate(splitRegex, splitAttrName, splitType));
+                new RegexSplitPredicate(RegexOutputType.ONE_TO_MANY, splitRegex, splitAttrName, splitType, RESULT_ATTR));
         regexSplit.setInputOperator(scanSource);
         
         List<Tuple> results = new ArrayList<>();
@@ -82,6 +84,34 @@ public class RegexSplitOperatorTest {
         return results;
     }
     
+    public static List<Tuple> computeRegexSplitResultsOnetoOne( String tableName, String splitAttrName,
+            String splitRegex, RegexSplitPredicate.SplitType splitType ) throws TextDBException {
+        
+        ScanBasedSourceOperator scanSource = new ScanBasedSourceOperator(new ScanSourcePredicate(tableName));
+        RegexSplitOperator regexSplit = new RegexSplitOperator(
+                new RegexSplitPredicate(RegexOutputType.ONE_TO_ONE, splitRegex, splitAttrName, splitType, RESULT_ATTR));
+        regexSplit.setInputOperator(scanSource);
+        
+        List<Tuple> results = new ArrayList<>();
+        
+        regexSplit.open();
+        Tuple tuple;
+        while((tuple = regexSplit.getNextTuple()) != null) {
+            results.add(tuple);
+        }
+        regexSplit.close();
+        return results;
+    }
+    
+    @SuppressWarnings("unchecked")
+    public static List<String> getTupleSpanListString(Tuple tuple, String attribute) {
+        List<String> listStr = new ArrayList<>();
+        for (Span span : (List<Span>) tuple.getField(attribute).getValue()) {
+            listStr.add(span.getValue());
+        }
+        return listStr;
+    }
+    
     /*
      *  When splitting a field that is not TextField nor StringField, the 
      *  operator will throw an exception.
@@ -90,7 +120,7 @@ public class RegexSplitOperatorTest {
     public void test1() throws TextDBException {
         String splitRegex = "19";
         String splitAttrName = TestConstantsChinese.DATE_OF_BIRTH;
-        computeRegexSplitResults(CHINESE_TABLE, splitAttrName, splitRegex, 
+        computeRegexSplitResultsOneToMany(CHINESE_TABLE, splitAttrName, splitRegex, 
                 RegexSplitPredicate.SplitType.GROUP_RIGHT);
     }
     
@@ -107,11 +137,11 @@ public class RegexSplitOperatorTest {
         splitResult.add("banana");
         splitResult.add("mississippi");
         
-        List<Tuple> results = computeRegexSplitResults(REGEX_TABLE, splitAttrName, splitRegex, 
+        List<Tuple> results = computeRegexSplitResultsOneToMany(REGEX_TABLE, splitAttrName, splitRegex, 
                 RegexSplitPredicate.SplitType.STANDALONE);
         
         List<String> splitStrings = results.stream()
-                .map(tuple -> tuple.getField(TestConstantsRegexSplit.DESCRIPTION).getValue().toString())
+                .map(tuple -> tuple.getField(RESULT_ATTR).getValue().toString())
                 .collect(Collectors.toList());
         Assert.assertEquals(splitResult, splitStrings);
     }
@@ -128,11 +158,11 @@ public class RegexSplitOperatorTest {
         splitResult.add("banana");
         splitResult.add("mississippi");
         
-        List<Tuple> results = computeRegexSplitResults(REGEX_TABLE, splitAttrName, splitRegex, 
+        List<Tuple> results = computeRegexSplitResultsOneToMany(REGEX_TABLE, splitAttrName, splitRegex, 
                 RegexSplitPredicate.SplitType.STANDALONE);
         
         List<String> splitStrings = results.stream()
-                .map(tuple -> tuple.getField(TestConstantsRegexSplit.DESCRIPTION).getValue().toString())
+                .map(tuple -> tuple.getField(RESULT_ATTR).getValue().toString())
                 .collect(Collectors.toList());
         Assert.assertEquals(splitResult, splitStrings);
     }
@@ -150,11 +180,11 @@ public class RegexSplitOperatorTest {
         splitResult.add("a");
         splitResult.add("mississippi");
         
-        List<Tuple> results = computeRegexSplitResults(REGEX_TABLE, splitAttrName, splitRegex, 
+        List<Tuple> results = computeRegexSplitResultsOneToMany(REGEX_TABLE, splitAttrName, splitRegex, 
                 RegexSplitPredicate.SplitType.GROUP_LEFT);
         
         List<String> splitStrings = results.stream()
-                .map(tuple -> tuple.getField(TestConstantsRegexSplit.DESCRIPTION).getValue().toString())
+                .map(tuple -> tuple.getField(RESULT_ATTR).getValue().toString())
                 .collect(Collectors.toList());
         Assert.assertEquals(splitResult, splitStrings);
     }
@@ -172,11 +202,11 @@ public class RegexSplitOperatorTest {
         splitResult.add("anana");
         splitResult.add("mississippi");
         
-        List<Tuple> results = computeRegexSplitResults(REGEX_TABLE, splitAttrName, splitRegex, 
+        List<Tuple> results = computeRegexSplitResultsOneToMany(REGEX_TABLE, splitAttrName, splitRegex, 
                 RegexSplitPredicate.SplitType.GROUP_RIGHT);
         
         List<String> splitStrings = results.stream()
-                .map(tuple -> tuple.getField(TestConstantsRegexSplit.DESCRIPTION).getValue().toString())
+                .map(tuple -> tuple.getField(RESULT_ATTR).getValue().toString())
                 .collect(Collectors.toList());
         Assert.assertEquals(splitResult, splitStrings);
     }
@@ -196,13 +226,42 @@ public class RegexSplitOperatorTest {
         splitResult.add("na");
         splitResult.add("mississippi");
         
-        List<Tuple> results = computeRegexSplitResults(REGEX_TABLE, splitAttrName, splitRegex, 
+        List<Tuple> results = computeRegexSplitResultsOneToMany(REGEX_TABLE, splitAttrName, splitRegex, 
                 RegexSplitPredicate.SplitType.STANDALONE);
         
         List<String> splitStrings = results.stream()
-                .map(tuple -> tuple.getField(TestConstantsRegexSplit.DESCRIPTION).getValue().toString())
+                .map(tuple -> tuple.getField(RESULT_ATTR).getValue().toString())
                 .collect(Collectors.toList());
         Assert.assertEquals(splitResult, splitStrings);
+    }
+    
+    /*
+     * Test in OneToOne mode. 
+     */
+    @Test
+    public void test9() throws TextDBException {
+        String splitRegex = "ana";
+        String splitAttrName = TestConstantsRegexSplit.DESCRIPTION;
+        
+        List<String> splitResult1 = new ArrayList<>();
+        splitResult1.add("b");
+        splitResult1.add("ana");
+        splitResult1.add("na");
+        List<String> splitResult2 = new ArrayList<>();
+        splitResult2.add("mississippi");
+        
+        List<List<String>> splitResults = new ArrayList<>();
+        splitResults.add(splitResult1);
+        splitResults.add(splitResult2);
+        
+        List<Tuple> results = computeRegexSplitResultsOnetoOne(REGEX_TABLE, splitAttrName, splitRegex, 
+                RegexSplitPredicate.SplitType.STANDALONE);
+        
+        int i = 0;
+        for (Tuple tuple : results) {
+            Assert.assertEquals(getTupleSpanListString(tuple, RESULT_ATTR), splitResults.get(i) );
+            i++;
+        }
     }
     
     /*
@@ -220,11 +279,11 @@ public class RegexSplitOperatorTest {
         splitResult.add("贝尔");
         splitResult.add("建筑");
         
-        List<Tuple> results = computeRegexSplitResults(CHINESE_TABLE, splitAttrName, splitRegex, 
+        List<Tuple> results = computeRegexSplitResultsOneToMany(CHINESE_TABLE, splitAttrName, splitRegex, 
                 RegexSplitPredicate.SplitType.STANDALONE);
         
         List<String> splitStrings = results.stream()
-                .map(tuple -> tuple.getField(TestConstantsChinese.LAST_NAME).getValue().toString())
+                .map(tuple -> tuple.getField(RESULT_ATTR).getValue().toString())
                 .collect(Collectors.toList());
 
         Assert.assertEquals(splitResult, splitStrings);
@@ -247,11 +306,11 @@ public class RegexSplitOperatorTest {
         splitResult.add("学院");
         splitResult.add("伟大的建筑是历史的坐标，具有传承的价值。");
         
-        List<Tuple> results = computeRegexSplitResults(CHINESE_TABLE, splitAttrName, splitRegex, 
+        List<Tuple> results = computeRegexSplitResultsOneToMany(CHINESE_TABLE, splitAttrName, splitRegex, 
                 RegexSplitPredicate.SplitType.GROUP_RIGHT);
         
         List<String> splitStrings = results.stream()
-                .map(tuple -> tuple.getField(TestConstantsChinese.DESCRIPTION).getValue().toString())
+                .map(tuple -> tuple.getField(RESULT_ATTR).getValue().toString())
                 .collect(Collectors.toList());
 
         Assert.assertEquals(splitResult, splitStrings);
@@ -274,11 +333,11 @@ public class RegexSplitOperatorTest {
         splitResult.add("院");
         splitResult.add("伟大的建筑是历史的坐标，具有传承的价值。");
         
-        List<Tuple> results = computeRegexSplitResults(CHINESE_TABLE, splitAttrName, splitRegex, 
+        List<Tuple> results = computeRegexSplitResultsOneToMany(CHINESE_TABLE, splitAttrName, splitRegex, 
                 RegexSplitPredicate.SplitType.GROUP_LEFT);
         
         List<String> splitStrings = results.stream()
-                .map(tuple -> tuple.getField(TestConstantsChinese.DESCRIPTION).getValue().toString())
+                .map(tuple -> tuple.getField(RESULT_ATTR).getValue().toString())
                 .collect(Collectors.toList());
 
         Assert.assertEquals(splitResult, splitStrings);
@@ -305,11 +364,11 @@ public class RegexSplitOperatorTest {
         splitResult.add("院");
         splitResult.add("伟大的建筑是历史的坐标，具有传承的价值。");
         
-        List<Tuple> results = computeRegexSplitResults(CHINESE_TABLE, splitAttrName, splitRegex, 
+        List<Tuple> results = computeRegexSplitResultsOneToMany(CHINESE_TABLE, splitAttrName, splitRegex, 
                 RegexSplitPredicate.SplitType.STANDALONE);
         
         List<String> splitStrings = results.stream()
-                .map(tuple -> tuple.getField(TestConstantsChinese.DESCRIPTION).getValue().toString())
+                .map(tuple -> tuple.getField(RESULT_ATTR).getValue().toString())
                 .collect(Collectors.toList());
 
         Assert.assertEquals(splitResult, splitStrings);
@@ -328,7 +387,7 @@ public class RegexSplitOperatorTest {
         splitResult.add("北京大学计算机学院");
         splitResult.add("伟大的建筑是历史的坐标，具有传承的价值。");
         
-        List<Tuple> results = computeRegexSplitResults(CHINESE_TABLE, splitAttrName, splitRegex, 
+        List<Tuple> results = computeRegexSplitResultsOneToMany(CHINESE_TABLE, splitAttrName, splitRegex, 
                 RegexSplitPredicate.SplitType.STANDALONE);
         
         List<String> splitStrings = results.stream()
@@ -351,7 +410,7 @@ public class RegexSplitOperatorTest {
         splitResult.add("北京大学计算机学院");
         splitResult.add("伟大的建筑是历史的坐标，具有传承的价值。");
         
-        List<Tuple> results = computeRegexSplitResults(CHINESE_TABLE, splitAttrName, splitRegex, 
+        List<Tuple> results = computeRegexSplitResultsOneToMany(CHINESE_TABLE, splitAttrName, splitRegex, 
                 RegexSplitPredicate.SplitType.STANDALONE);
         
         List<String> splitStrings = results.stream()
@@ -369,7 +428,7 @@ public class RegexSplitOperatorTest {
         String splitRegex = "ana";
         String splitAttrName = TestConstantsRegexSplit.DESCRIPTION;
         
-        List<Tuple> results = computeRegexSplitResults(REGEX_TABLE, splitAttrName, splitRegex, 
+        List<Tuple> results = computeRegexSplitResultsOneToMany(REGEX_TABLE, splitAttrName, splitRegex, 
                 RegexSplitPredicate.SplitType.STANDALONE);
         
         for (Tuple tuple : results) {
@@ -385,7 +444,7 @@ public class RegexSplitOperatorTest {
         String splitRegex = "ana";
         String splitAttrName = TestConstantsRegexSplit.DESCRIPTION;
         
-        List<Tuple> results = computeRegexSplitResults(REGEX_TABLE, splitAttrName, splitRegex, 
+        List<Tuple> results = computeRegexSplitResultsOneToMany(REGEX_TABLE, splitAttrName, splitRegex, 
                 RegexSplitPredicate.SplitType.STANDALONE);
         
         ScanBasedSourceOperator scanSource = new ScanBasedSourceOperator(new ScanSourcePredicate(REGEX_TABLE));
