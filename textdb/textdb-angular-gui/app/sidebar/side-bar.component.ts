@@ -78,9 +78,9 @@ export class SideBarComponent {
         } else if (data.operatorData.properties.attributes.attribute) {
           this.selectedAttributesList = [data.operatorData.properties.attributes.attribute]
         }
-        // if (data.operatorData.properties.attributes.tableName) {
-        //   this.getAttributesForTable(data.operatorData.properties.attributes.tableName);
-        // }
+        if (data.operatorData.properties.attributes.tableName) {
+          this.getAttributesForTable(data.operatorData.properties.attributes.tableName);
+        }
         if (data.operatorData.properties.attributes.dictionaryEntries) {
           this.dictionaryContent = data.operatorData.properties.attributes.dictionaryEntries;
         }

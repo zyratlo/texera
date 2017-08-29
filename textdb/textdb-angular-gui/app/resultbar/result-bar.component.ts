@@ -14,7 +14,9 @@ var previousOpenHeight: number = 300;
     styleUrls: ['../style.css'],
 })
 export class ResultBarComponent {
+  // result = entire json result from backend
   result: any;
+  // attribute = all the keys to access the result
   attribute: string[] = [];
   previousResultHandleTop: number = -5;
   checkErrorOrDetail: number = 0;
@@ -36,18 +38,17 @@ export class ResultBarComponent {
         this.attribute = [];
         // check if the result is valid
         if (data.code === 0) {
+
           this.result = JSON.parse(data.message);
           console.log(this.result);
           for (var each in this.result[0]){
-            this.attribute.push(each);
+            if (each !== "_id"){
+              this.attribute.push(each);
+            }
           }
           // open the result bar automatically
           this.openResultBar();
-          jQuery(".result-bar-title").css({"background-color" : "#4d79ff"});
-          jQuery(".result-bar-title").hover(
-            function() {jQuery(".result-bar-title").css({"background-color" : "#1a53ff"})},
-            function() {jQuery(".result-bar-title").css({"background-color" : "#4d79ff"})});
-          jQuery( ".result-bar-title" ).html( "<b>Result Window</b>");
+          this.changeSuccessStyle();
         } else {
           // pop the modal when not valid
             this.checkErrorOrDetail = 0;
@@ -57,16 +58,37 @@ export class ResultBarComponent {
             });
             this.ModalOpen();
             this.closeResultBar();
-            jQuery(".result-bar-title").css({
-              "background-color" : "#ff3333"
-            });
-            jQuery(".result-bar-title").hover(
-              function() {jQuery(".result-bar-title").css({"background-color" : "#ff0000"})},
-              function() {jQuery(".result-bar-title").css({"background-color" : "#ff3333"})});
-            jQuery(".result-bar-title").html( "<b>Error</b>");
+            this.changeErrorStyle();
         }
+      },
+      err => {
+        jQuery('.navigation-btn').button('reset');
+        this.checkErrorOrDetail = 0;
+        var node = new PrettyJSON.view.Node({
+          el: jQuery("#ResultElem"),
+          data: {"message": "Network Error"},
+        });
+        this.ModalOpen();
+        this.closeResultBar();
+        this.changeErrorStyle();
       }
     );
+  }
+
+  changeSuccessStyle(){
+    jQuery("#result-bar-title").css({"background-color" : "#4d79ff"});
+    jQuery("#result-bar-title").hover(
+      function() {jQuery("#result-bar-title").css({"background-color" : "#1a53ff"})},
+      function() {jQuery("#result-bar-title").css({"background-color" : "#4d79ff"})});
+    jQuery( "#result-bar-title" ).html( "<b>Result Window</b>");
+  }
+
+  changeErrorStyle(){
+    jQuery("#result-bar-title").css({"background-color" : "#ff3333"});
+    jQuery("#result-bar-title").hover(
+      function() {jQuery("#result-bar-title").css({"background-color" : "#ff0000"})},
+      function() {jQuery("#result-bar-title").css({"background-color" : "#ff3333"})});
+    jQuery("#result-bar-title").html( "<b>Error</b>");
   }
 
   shortenString(longText: string){
@@ -98,7 +120,7 @@ export class ResultBarComponent {
     var new_container_height = previousOpenHeight + 40;
     jQuery('#ngrip').css({"top":"-5px"});
     jQuery("#flow-chart-container").css({"height":"calc(100% - " + new_container_height + "px)"});
-    this.redrawDraggable();
+    this.redrawResultBar();
   }
 
   closeResultBar(){
@@ -108,10 +130,10 @@ export class ResultBarComponent {
     });
     jQuery('#ngrip').css({"top":"-5px"});
     jQuery("#flow-chart-container").css({"height":"calc(100% - 40px)"});
-    this.redrawDraggable();
+    this.redrawResultBar();
   }
 
-  redrawDraggable(){
+  redrawResultBar(){
     this.previousResultHandleTop = -parseInt(jQuery('#result-table-bar').css('height'), 10) - 5;
     jQuery("#ngrip").draggable( "destroy" );
     this.initializeResizing(this.previousResultHandleTop);
@@ -156,14 +178,14 @@ export class ResultBarComponent {
           });
           jQuery("#flow-chart-container").css({"height":"calc(100% - 40px)"});
         } else {
-          var new_height = -endPosition - 5; // include the drag button
-          var new_height2 = new_height + 40; // include the drag button and the title bar
+          var newResultBarHeight = -endPosition - 5; // include the drag button
+          var newFlowChartContainerHeight = newResultBarHeight + 40; // include the drag button and the title bar
 
           // redraw 2 fields to resize
-          jQuery("#flow-chart-container").css({"height":"calc(100% - " + new_height2 + "px)"});
+          jQuery("#flow-chart-container").css({"height":"calc(100% - " + newFlowChartContainerHeight + "px)"});
           jQuery("#result-table-bar").css({
             "display":"block",
-            "height" : new_height + "px",
+            "height" : newResultBarHeight + "px",
           });
         }
       },
