@@ -16,10 +16,8 @@ import edu.uci.ics.textdb.exp.common.AbstractSingleInputOperator;
 import edu.uci.ics.textdb.exp.keywordmatcher.KeywordMatchingType;
 import edu.uci.ics.textdb.exp.utils.DataflowUtils;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 
 /**
@@ -28,7 +26,6 @@ import java.util.Set;
 public class DictionaryMatcher extends AbstractSingleInputOperator {
 
     private final DictionaryPredicate predicate;
-
 
     public DictionaryMatcher(DictionaryPredicate predicate) {
         this.predicate = predicate;
@@ -61,7 +58,6 @@ public class DictionaryMatcher extends AbstractSingleInputOperator {
             outputSchema = Utils.addAttributeToSchema(outputSchema,
                     new Attribute(predicate.getSpanListName(), AttributeType.LIST));
         }
-
         if (predicate.getKeywordMatchingType() == KeywordMatchingType.CONJUNCTION_INDEXBASED) {
             predicate.getDictionary().setDictionaryTokenSetList(predicate.getAnalyzerString());
         } else if (predicate.getKeywordMatchingType() == KeywordMatchingType.PHRASE_INDEXBASED) {
@@ -72,7 +68,7 @@ public class DictionaryMatcher extends AbstractSingleInputOperator {
 
     @Override
     protected Tuple computeNextMatchingTuple() throws TextDBException {
-        Tuple inputTuple = null;
+        Tuple inputTuple;
         Tuple resultTuple = null;
         while ((inputTuple = inputOperator.getNextTuple()) != null) {
             resultTuple = processOneInputTuple(inputTuple);
@@ -98,28 +94,35 @@ public class DictionaryMatcher extends AbstractSingleInputOperator {
         if (predicate.getSpanListName() != null) {
             inputTuple = DataflowUtils.getSpanTuple(inputTuple.getFields(), new ArrayList<Span>(), outputSchema);
         }
-        List<Span> matchingResults = new ArrayList<>();
+        List<Span> matchingResults = null;
         if (predicate.getKeywordMatchingType() == KeywordMatchingType.CONJUNCTION_INDEXBASED) {
+
             ArrayList<String> dictionaryEntries = predicate.getDictionary().getDictionaryEntries();
             ArrayList<Set<String>> tokenSetsNoStopwords = predicate.getDictionary().getTokenSetsNoStopwords();
-                DataflowUtils.appendConjunctionMatchingSpans4Dictionary(inputTuple, predicate.getAttributeNames(), tokenSetsNoStopwords, dictionaryEntries, matchingResults);
+
+            matchingResults = appendConjunctionMatchingSpans4Dictionary(inputTuple, predicate.getAttributeNames(), tokenSetsNoStopwords, dictionaryEntries);
+
         } else if (predicate.getKeywordMatchingType() == KeywordMatchingType.PHRASE_INDEXBASED) {
+
             ArrayList<String> dictionaryEntries = predicate.getDictionary().getDictionaryEntries();
             ArrayList<List<String>> tokenListsNoStopwords = predicate.getDictionary().getTokenListsNoStopwords();
             ArrayList<List<String>> tokenListsWithStopwords = predicate.getDictionary().getTokenListsWithStopwords();
             ArrayList<Set<String>> tokenSetsNoStopwords = predicate.getDictionary().getTokenSetsNoStopwords();
-                DataflowUtils.appendPhraseMatchingSpans4Dictionary(inputTuple, predicate.getAttributeNames(), tokenListsNoStopwords, tokenSetsNoStopwords, tokenListsWithStopwords, dictionaryEntries, matchingResults);
+
+            matchingResults = appendPhraseMatchingSpans4Dictionary(inputTuple, predicate.getAttributeNames(), tokenListsNoStopwords, tokenSetsNoStopwords, tokenListsWithStopwords, dictionaryEntries);
+
         } else if (predicate.getKeywordMatchingType() == KeywordMatchingType.SUBSTRING_SCANBASED) {
             predicate.getDictionary().resetCursor();
             String currentDictionaryEntry;
+            matchingResults = new ArrayList<>();
+
             while ((currentDictionaryEntry = predicate.getDictionary().getNextEntry()) != null) {
                 DataflowUtils.appendSubstringMatchingSpans(inputTuple, predicate.getAttributeNames(), currentDictionaryEntry, matchingResults);
-
             }
+
         }
 
-
-        if (matchingResults.isEmpty()) {
+        if (matchingResults == null || matchingResults.isEmpty()) {
             return null;
         }
 
@@ -128,9 +131,108 @@ public class DictionaryMatcher extends AbstractSingleInputOperator {
         spanList.addAll(matchingResults);
 
         return inputTuple;
-
     }
 
+    private List<Span> appendConjunctionMatchingSpans4Dictionary(Tuple inputTuple, List<String> attributeNames, List<Set<String>> queryTokenSetList, List<String> queryList) throws DataFlowException {
+        List<Span> matchingResults = new ArrayList<>();
+        ListField<Span> payloadField = inputTuple.getField(SchemaConstants.PAYLOAD);
+        List<Span> payload = payloadField.getValue();
+        Map<Integer, List<Span>> relevantSpansMap = filterRelevantSpans(payload, queryTokenSetList);
+        for (String attributeName : attributeNames) {
+            AttributeType attributeType = inputTuple.getSchema().getAttribute(attributeName).getAttributeType();
+            String fieldValue = inputTuple.getField(attributeName).getValue().toString();
+
+            // types other than TEXT and STRING: throw Exception for now
+            if (attributeType != AttributeType.STRING && attributeType != AttributeType.TEXT) {
+                throw new DataFlowException("KeywordMatcher: Fields other than STRING and TEXT are not supported yet");
+            }
+
+            // for STRING type, check if the dictionary entries contains the complete fieldValue
+            if (attributeType == AttributeType.STRING) {
+                if (queryList.contains(fieldValue)) {
+                    Span span = new Span(attributeName, 0, fieldValue.length(), fieldValue, fieldValue);
+                    matchingResults.add(span);
+                }
+            }
+
+            // for TEXT type, every token in the query should be present in span
+            if (attributeType == AttributeType.TEXT) {
+                for (int index : relevantSpansMap.keySet()) {
+                    List<Span> fieldSpanList = relevantSpansMap.get(index).stream().filter(span -> span.getAttributeName().equals(attributeName))
+                            .collect(Collectors.toList());
+                    if (DataflowUtils.isAllQueryTokensPresent(fieldSpanList, queryTokenSetList.get(index))) {
+                        matchingResults.addAll(fieldSpanList);
+                    }
+                }
+            }
+        }
+        return matchingResults;
+    }
+
+    public List<Span> appendPhraseMatchingSpans4Dictionary(Tuple inputTuple, List<String> attributeNames, List<List<String>> queryTokenList, List<Set<String>> queryTokenSetList, List<List<String>> queryTokenListWithStopwords, List<String> queryList) throws DataFlowException {
+        List<Span> matchingResults = new ArrayList<>();
+        ListField<Span> payloadField = inputTuple.getField(SchemaConstants.PAYLOAD);
+        List<Span> payload = payloadField.getValue();
+        Map<Integer, List<Span>> relevantSpansMap = filterRelevantSpans(payload, queryTokenSetList);
+        for (String attributeName : attributeNames) {
+            AttributeType attributeType = inputTuple.getSchema().getAttribute(attributeName).getAttributeType();
+            String fieldValue = inputTuple.getField(attributeName).getValue().toString();
+
+            // types other than TEXT and STRING: throw Exception for now
+            if (attributeType != AttributeType.STRING && attributeType != AttributeType.TEXT) {
+                throw new DataFlowException("KeywordMatcher: Fields other than STRING and TEXT are not supported yet");
+            }
+
+            // for STRING type, the query should match the fieldValue completely
+            if (attributeType == AttributeType.STRING) {
+                if (queryList.contains(fieldValue)) {
+                    Span span = new Span(attributeName, 0, fieldValue.length(), fieldValue, fieldValue);
+                    matchingResults.add(span);
+                }
+            }
+
+            // for TEXT type, spans need to be reconstructed according to the phrase query.
+            if (attributeType == AttributeType.TEXT) {
+                for (int index : relevantSpansMap.keySet()) {
+                    List<Span> fieldSpanList = relevantSpansMap.get(index).stream().filter(span -> span.getAttributeName().equals(attributeName))
+                            .collect(Collectors.toList());
+                    if (fieldSpanList.isEmpty() || !DataflowUtils.isAllQueryTokensPresent(fieldSpanList, queryTokenSetList.get(index))) {
+                        continue;
+                    }
+                    matchingResults.addAll(DataflowUtils.constructPhraseMatchingSpans(attributeName, fieldValue, queryList.get(index), fieldSpanList, queryTokenListWithStopwords.get(index), queryTokenList.get(index)));
+                }
+            }
+        }
+        return matchingResults;
+    }
+
+    private Map<Integer, List<Span>> filterRelevantSpans(List<Span> spanList, List<Set<String>> queryTokenSet) {
+        Map<Integer, List<Span>> resultMap = new HashMap<>();
+        Map<String, List<Integer>> tokenMap = new HashMap<>();
+        for (int i = 0; i < queryTokenSet.size(); i++) {
+            for (String s : queryTokenSet.get(i)) {
+                if (!tokenMap.containsKey(s)) {
+                    tokenMap.put(s, new ArrayList<>());
+                }
+                tokenMap.get(s).add(i);
+            }
+        }
+        Iterator<Span> iterator = spanList.iterator();
+        while (iterator.hasNext()) {
+            Span span = iterator.next();
+            if (tokenMap.keySet().contains(span.getKey())) {
+                List<Integer> tokensetIndex = tokenMap.get(span.getKey());
+                for (Integer index : tokensetIndex) {
+                    if (!resultMap.containsKey(index)) {
+                        resultMap.put(index, new ArrayList<>());
+                    }
+                    resultMap.get(index).add(span);
+                }
+
+            }
+        }
+        return resultMap;
+    }
 
     @Override
     protected void cleanUp() throws TextDBException {
