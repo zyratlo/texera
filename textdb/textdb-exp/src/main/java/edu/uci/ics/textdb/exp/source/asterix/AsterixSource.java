@@ -99,7 +99,6 @@ public class AsterixSource implements ISourceOperator {
             sb.append("limit " + predicate.getLimit()).append("\n");
         }
         sb.append(";");
-        System.out.println(sb.toString());//DEBUG
         return sb.toString();
     }
 
