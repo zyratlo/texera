@@ -147,14 +147,18 @@ $(function () {
               self.hideRightClickMenu();
             });
 
-            this.objs.layers.operators.on('pointerdown touchstart', '.flowchart-operator', function (e) {
+            this.objs.layers.operators.on('pointerdown mousedown touchstart', '.flowchart-operator', function (e) {
                 e.stopImmediatePropagation();
             });
 
             this.objs.layers.operators.on('contextmenu','.flowchart-operator',function(e){
+
               var $this = $(this);
               // prevent default right click menu
               e.preventDefault();
+              // remove temporaryLink
+              self._unsetTemporaryLink();
+
               // if check on menu border, return immediately
               var checkOnMenu = $("#menu");
               if (checkOnMenu.is(e.target)){
@@ -229,6 +233,8 @@ $(function () {
               self.hideRightClickMenu();
             });
 
+            // next 2 are for allowing connecting with drag and drop operation
+
             this.objs.layers.operators.on('mousedown', '.flowchart-operator-connector', function(e){
               // if right click, then stop
               if (e.which === 3) {
@@ -287,8 +293,6 @@ $(function () {
               var operatorID = self.rightClickedOperatorID;
               self.showOperatorDetail(operatorID);
               self.hideRightClickMenu();
-              e.stopImmediatePropagation();
-              self._unsetTemporaryLink();
               return false;
             });
 
@@ -298,9 +302,7 @@ $(function () {
                 return;
               }
               self.deleteOperator(operatorID); // delete the operator
-              self._unsetTemporaryLink(); // delete temporaryLink
               self.hideRightClickMenu(); // hide the right click menu manually since we prevent the default flowchart-operator action
-              e.stopImmediatePropagation(); // prevent the .flowchart-operator click action
             });
         },
 
