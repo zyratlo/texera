@@ -7,12 +7,12 @@ let keywordMatcher = {
         title: 'Keyword Search',
         inputs: {
             input_1: {
-                label: 'Input (:i)',
+                label: '',
             }
         },
         outputs: {
             output_1: {
-                label: 'Output (:i)',
+                label: '',
             }
         },
         attributes: {
@@ -22,7 +22,9 @@ let keywordMatcher = {
             "luceneAnalyzer": "standard",
             "matchingType": "phrase",
             "spanListName": " "
-        }
+        },
+        image : '../thirdparty/images/keywordSearch.png',
+        color : '#80bfff',
     }
 };
 
@@ -33,12 +35,12 @@ let regexMatcher = {
     title : 'Regex Match',
     inputs : {
       input_1 : {
-        label : 'Input(:i)',
+        label : '',
       }
     },
     outputs : {
       output_1 : {
-        label : 'Output (:i)',
+        label : '',
       }
     },
     attributes : {
@@ -47,7 +49,9 @@ let regexMatcher = {
         "regex": "regex",
         "regexIgnoreCase": false,
         "spanListName": " "
-    }
+    },
+    image : '../thirdparty/images/regexMatch.png',
+    color : '#66b3ff',
   }
 };
 
@@ -58,12 +62,12 @@ let dictionaryMatcher = {
     title : 'Dictionary Search',
     inputs : {
       input_1 : {
-        label : "Input(:i)",
+        label : "",
       }
     },
     outputs :{
       output_1 : {
-        label : "Output(:i)",
+        label : "",
       }
     },
     attributes :  {
@@ -73,7 +77,9 @@ let dictionaryMatcher = {
         "luceneAnalyzer": "standard",
         "matchingType": "phrase",
         "spanListName": " "
-    }
+    },
+    image : '../thirdparty/images/dictionarySearch.png',
+    color : '#66b3ff',
   }
 }
 
@@ -84,12 +90,12 @@ let fuzzyMatcher = {
     title : "Fuzzy Token Match",
     inputs : {
       input_1 : {
-        label : "Input(:i)",
+        label : "",
       }
     },
     outputs : {
       output_1 : {
-        label : "Output(:i)",
+        label : "",
       }
     },
     attributes : {
@@ -99,7 +105,9 @@ let fuzzyMatcher = {
         "luceneAnalyzer": "standard",
         "thresholdRatio": 0.8,
         "spanListName": " ",
-    }
+    },
+    image : '../thirdparty/images/fuzzy.png',
+    color : '#66b3ff',
   }
 }
 
@@ -110,12 +118,12 @@ let nlpEntity = {
     title : 'Entity recognition',
     inputs : {
       input_1 : {
-        label : 'Input(:i)',
+        label : '',
       }
     },
     outputs : {
       output_1 : {
-        label : "Output (:i)",
+        label : "",
       }
     },
     attributes : {
@@ -123,7 +131,9 @@ let nlpEntity = {
         "attributes": [],
         "nlpEntityType": "location",
         "spanListName": " "
-    }
+    },
+    image : '../thirdparty/images/entityRecognition.png',
+    color : '#85e085',
   }
 }
 
@@ -134,19 +144,21 @@ let nlpSentiment = {
     title : 'Sentiment Analysis',
     inputs : {
       input_1 : {
-        label : 'Input(:i)',
+        label : '',
       }
     },
     outputs : {
       output_1 : {
-        label : "Output (:i)",
+        label : "",
       }
     },
     attributes : {
         "operatorType": "NlpSentiment",
         "attribute": "",
         "resultAttribute": "resultAttr"
-    }
+    },
+    image : '../thirdparty/images/sentimentAnalysis.png',
+    color : '#85e085',
   }
 }
 
@@ -157,19 +169,21 @@ let emojiSentiment = {
     title : 'Emoji Sentiment Analysis',
     inputs : {
       input_1 : {
-        label : 'Input(:i)',
+        label : '',
       }
     },
     outputs : {
       output_1 : {
-        label : "Output (:i)",
+        label : "",
       }
     },
     attributes : {
         "operatorType": "EmojiSentiment",
         "attribute": "",
         "resultAttribute": "resultAttr"
-    }
+    },
+    image : '../thirdparty/images/emojiAnalysis.png',
+    color : '#85e085',
   }
 }
 
@@ -180,12 +194,12 @@ let nltkSentiment = {
     title : 'Nltk Sentiment Analysis',
     inputs : {
       input_1 : {
-        label : 'Input(:i)',
+        label : '',
       }
     },
     outputs : {
       output_1 : {
-        label : "Output (:i)",
+        label : "",
       }
     },
     attributes : {
@@ -194,7 +208,9 @@ let nltkSentiment = {
         "resultAttribute": "resultAttr",
         "batchSize": "1000",
         "inputAttributeModel": "NltkSentiment.pickle"
-    }
+    },
+    image : "../thirdparty/images/nltk.jpg",
+    color : '#85e085',
   }
 }
 
@@ -205,12 +221,12 @@ let regexSplit = {
     title : 'Regex Split',
     inputs : {
       input_1 : {
-        label : "Input (:i)",
+        label : "",
       }
     },
     outputs : {
       output_1 : {
-        label : "Output (:i)",
+        label : "",
       }
     },
     attributes : {
@@ -220,7 +236,9 @@ let regexSplit = {
         "resultAttribute": "splitText",
         "splitType": "standalone",
         "splitOption": "oneToMany"
-    }
+    },
+    image : '../thirdparty/images/regex.png',
+    color : '#e6e600',
   }
 }
 
@@ -231,12 +249,12 @@ let nlpSplit = {
     title : 'Nlp Sentence Split',
     inputs : {
       input_1 : {
-        label : "Input (:i)",
+        label : "",
       }
     },
     outputs : {
       output_1 : {
-        label : "Output (:i)",
+        label : "",
       }
     },
     attributes : {
@@ -244,7 +262,9 @@ let nlpSplit = {
         "attribute": "",
         "resultAttribute": "splitText",
         "splitOption": "oneToMany",
-    }
+    },
+    image : '../thirdparty/images/sentencesplit.png',
+    color : '#e6e600',
   }
 }
 
@@ -255,19 +275,21 @@ let sampler = {
     title : 'Sampling',
     inputs : {
       input_1 : {
-        label : "Input (:i)",
+        label : "",
       }
     },
     outputs : {
       output_1 : {
-        label : "Output (:i)",
+        label : "",
       }
     },
     attributes : {
         "operatorType": "Sampler",
         "sampleSize": 10,
         "sampleType": "firstk"
-    }
+    },
+    image : '../thirdparty/images/sampling.png',
+    color : '#ffdb4d',
   }
 }
 
@@ -278,17 +300,20 @@ let projection = {
     title : 'Projection',
     inputs : {
       input_1 : {
-        label : "Input (:i)",
+        label : "",
       }
     },
     outputs : {
       output_1 : {
-        label : "Output (:i)",
+        label : "",
       }
     },
     attributes : {
         "operatorType": "Projection",
         "attributes": []
+    },
+    image : '../thirdparty/images/projection.png',
+    color : '#ffdb4d',
       }
     }
   }
@@ -317,7 +342,9 @@ let asterixSource = {
         "queryField": "text",
         "query": "drug",
         "limit": 100000,
-    }
+    },
+    image : '../thirdparty/images/asterixSource.png',
+    color : '#cc99ff',
   }
 }
 
@@ -328,19 +355,21 @@ let fileSource = {
     title : 'Source: File',
     inputs : {
       input_1 : {
-        label : "Input (:i)",
+        label : "",
       }
     },
     outputs : {
       output_1 : {
-        label : "Output (:i)",
+        label : "",
       }
     },
     attributes : {
         "operatorType": "FileSource",
         "filePath": "",
         "resultAttribute": "",
-    }
+    },
+    image : '../thirdparty/images/fileSource.png',
+    color : '#cc99ff',
   }
 }
 
@@ -351,18 +380,20 @@ let scanSource = {
     title : 'Source: Scan',
     inputs : {
       input_1 : {
-        label : "Input (:i)",
+        label : "",
       }
     },
     outputs : {
       output_1 : {
-        label : "Output (:i)",
+        label : "",
       }
     },
     attributes : {
         "operatorType": "ScanSource",
         "tableName": ""
-    }
+    },
+    image : '../thirdparty/images/scan.png',
+    color : '#cc99ff',
   }
 }
 
@@ -373,12 +404,12 @@ let keywordSource = {
     title : 'Source: Keyword',
     inputs : {
       input_1 : {
-        label : "Input (:i)",
+        label : "",
       }
     },
     outputs : {
       output_1 : {
-        label : "Output (:i)",
+        label : "",
       }
     },
     attributes : {
@@ -389,7 +420,9 @@ let keywordSource = {
         "luceneAnalyzer": "standard",
         "matchingType": "phrase",
         "spanListName": " "
-    }
+    },
+    image : '../thirdparty/images/keywordSource.png',
+    color : '#cc99ff',
   }
 }
 
@@ -401,12 +434,12 @@ let dictionarySource = {
     title : 'Source: Dictionary',
     inputs : {
       input_1 : {
-        label : "Input (:i)",
+        label : "",
       }
     },
     outputs : {
       output_1 : {
-        label : "Output (:i)",
+        label : "",
       }
     },
     attributes : {
@@ -417,7 +450,10 @@ let dictionarySource = {
         "luceneAnalyzer": "standard",
         "matchingType": "phrase",
         "spanListName": " "
-    }
+    },
+    image : '../thirdparty/images/dictionary.png',
+    color : '#cc99ff',
+
   }
 }
 
@@ -428,12 +464,12 @@ let regexSource = {
     title : 'Source: Regex',
     inputs : {
       input_1 : {
-        label : "Input (:i)",
+        label : "",
       }
     },
     outputs : {
       output_1 : {
-        label : "Output (:i)",
+        label : "",
       }
     },
     attributes : {
@@ -444,7 +480,9 @@ let regexSource = {
         "regexIgnoreCase": false,
         "regexUseIndex": true,
         "spanListName": " "
-    } 
+    },
+    image : '../thirdparty/images/regex.png',
+    color : '#cc99ff',
   }
 }
 
@@ -455,12 +493,12 @@ let fuzzyTokenSource = {
     title : 'Source: FuzzyToken',
     inputs : {
       input_1 : {
-        label : "Input (:i)",
+        label : "",
       }
     },
     outputs : {
       output_1 : {
-        label : "Output (:i)",
+        label : "",
       }
     },
     attributes : {
@@ -471,7 +509,9 @@ let fuzzyTokenSource = {
         "luceneAnalyzer": "standard",
         "thresholdRatio": 0.8,
         "spanListName": " ",
-    }
+    },
+    image : '../thirdparty/images/fuzzySource.png',
+    color : '#cc99ff',
   }
 }
 
@@ -482,19 +522,21 @@ let wordCountSource = {
     title : 'Source: Word Count',
     inputs : {
       input_1 : {
-        label : "Input (:i)",
+        label : "",
       }
     },
     outputs : {
       output_1 : {
-        label : "Output (:i)",
+        label : "",
       }
     },
     attributes : {
         "operatorType": "WordCountIndexSource",
         "tableName": "",
         "attribute": "",
-    }
+    },
+    image : '../thirdparty/images/countSource.svg',
+    color : '#cc99ff',
   }
 }
 
@@ -505,19 +547,21 @@ let wordCount = {
     title : 'Word Count',
     inputs : {
       input_1 : {
-        label : "Input (:i)",
+        label : "",
       }
     },
     outputs : {
       output_1 : {
-        label : "Output (:i)",
+        label : "",
       }
     },
     attributes : {
         "operatorType": "WordCount",
         "attribute": "",
 	      "luceneAnalyzer": "standard",
-    }
+    },
+    image : '../thirdparty/images/counting.png',
+    color : '#ffdb4d',
   }
 }
 
@@ -528,12 +572,12 @@ let comparison = {
     title : 'Comparison',
     inputs : {
       input_1 : {
-        label : "Input (:i)",
+        label : "",
       }
     },
     outputs : {
       output_1 : {
-        label : "Output (:i)",
+        label : "",
       }
     },
     attributes : {
@@ -541,7 +585,9 @@ let comparison = {
         "attribute": "",
         "comparisonType": "=",
 	      "compareTo": "",
-    }
+    },
+    image : '../thirdparty/images/compare.png',
+    color : '#ffdb4d',
   }
 }
 
@@ -552,15 +598,15 @@ let characterDistanceJoin = {
     title : 'Join: Character Distance',
     inputs : {
       input_1 : {
-        label : 'Input (:i)',
+        label : '',
       },
       input_2 : {
-        label : "Input 2",
+        label : "",
       }
     },
     outputs : {
       output_1 : {
-        label : "Output (:i)",
+        label : "",
       }
     },
     attributes : {
@@ -568,7 +614,9 @@ let characterDistanceJoin = {
         "innerAttribute": "attr1",
         "outerAttribute": "attr1",
         "spanDistance": 100
-    }
+    },
+    image : '../thirdparty/images/characterjoin.png',
+    color : '#ffa366',
   }
 }
 
@@ -579,15 +627,15 @@ let similarityJoin = {
     title : 'Join: Similarity',
     inputs : {
       input_1 : {
-        label : 'Input (:i)',
+        label : '',
       },
       input_2 : {
-        label : "Input 2",
+        label : "",
       }
     },
     outputs : {
       output_1 : {
-        label : "Output (:i)",
+        label : "",
       }
     },
     attributes : {
@@ -595,7 +643,9 @@ let similarityJoin = {
         "innerAttribute": "attr1",
         "outerAttribute": "attr1",
         "similarityThreshold": 0.8
-    }
+    },
+    image : '../thirdparty/images/similarityjoin.png',
+    color : '#ffa366',
   }
 }
 
@@ -606,19 +656,21 @@ let result = {
     title : 'View Results',
     inputs : {
       input_1 : {
-        label : "Input (:i)",
+        label : "",
       }
     },
     outputs : {
       output_1 : {
-        label : "Output (:i)",
+        label : "",
       }
     },
     attributes : {
         "operatorType": "ViewResults",
         "limit": 10,
         "offset": 0,
-    }
+    },
+    image : '../thirdparty/images/view-result.png',
+    color : '#d2a679',
   }
 }
 
@@ -629,12 +681,12 @@ let excelSink = {
     title : 'Write Excel',
     inputs : {
       input_1 : {
-        label : "Input (:i)",
+        label : "",
       }
     },
     outputs : {
       output_1 : {
-        label : "Output (:i)",
+        label : "",
       }
     },
     attributes : {
@@ -652,12 +704,12 @@ let mysqlSink = {
     title : 'Write Mysql',
     inputs : {
       input_1 : {
-        label : "Input (:i)",
+        label : "",
       }
     },
     outputs : {
       output_1 : {
-        label : "Output (:i)",
+        label : "",
       }
     },
     attributes : {
@@ -668,7 +720,9 @@ let mysqlSink = {
         "table": "testTable",
         "username": "test",
         "password": "test"
-    }
+    },
+    image : '../thirdparty/images/sql.jpg',
+    color : '#ff8080',
   }
 }
 
