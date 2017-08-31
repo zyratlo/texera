@@ -36,10 +36,10 @@ import edu.uci.ics.textdb.exp.keywordmatcher.KeywordMatchingType;
  *
  */
 public class DictionaryMatcherTest {
-
+    
     public static final String PEOPLE_TABLE = DictionaryMatcherTestHelper.PEOPLE_TABLE;
     public static final String CHINESE_TABLE = DictionaryMatcherTestHelper.CHINESE_TABLE;
-
+    
     public static final String RESULTS = DictionaryMatcherTestHelper.RESULTS;
     public static final Attribute RESULTS_ATTRIBUTE = new Attribute(RESULTS, AttributeType.LIST);
 
@@ -55,7 +55,7 @@ public class DictionaryMatcherTest {
 
     /**
      * Scenario S1:verifies GetNextTuple of Dictionary
-     *
+     * 
      * checking if Dictionary returns all the strings given by the user
      */
     @Test
@@ -70,10 +70,10 @@ public class DictionaryMatcherTest {
         }
         Assert.assertEquals(expectedStrings, returnedStrings);
     }
-
+    
     /**
      * Scenario: verifies GetNextTuple of Dictionary
-     *
+     * 
      * Verifies GetNextTuple of Dictionary with all Chinese characters.
      */
     @Test
@@ -156,7 +156,7 @@ public class DictionaryMatcherTest {
         boolean contains = TestUtils.equals(expectedResults, returnedResults);
         Assert.assertTrue(contains);
     }
-
+    
     /**
      * Scenario: verifies GetNextTuple of DictionaryMatcher and multiple word
      * queries in String Field using KEYWORDOPERATOR
@@ -196,7 +196,7 @@ public class DictionaryMatcherTest {
         boolean contains = TestUtils.equals(expectedResults, returnedResults);
         Assert.assertTrue(contains);
     }
-
+    
     /**
      * Scenario: verifies GetNextTuple of DictionaryMatcher and multiple word
      * queries in String Field using KEYWORDOPERATOR
@@ -271,7 +271,7 @@ public class DictionaryMatcherTest {
         boolean contains = TestUtils.equals(expectedResults, returnedResults);
         Assert.assertTrue(contains);
     }
-
+    
     /**
      * Scenario: verifies GetNextTuple of DictionaryMatcher and multiple word
      * queries in String Field using PHRASE_INDEXBASED in Chinese.
@@ -351,7 +351,7 @@ public class DictionaryMatcherTest {
         boolean contains = TestUtils.equals(expectedResults, returnedResults);
         Assert.assertTrue(contains);
     }
-
+    
     /**
      * Scenario: verifies GetNextTuple of DictionaryMatcher and single word
      * queries in Text Field using SCANOPERATOR in Chinese.
@@ -367,11 +367,11 @@ public class DictionaryMatcherTest {
         List<Span> list1 = new ArrayList<Span>();
         Span span1 = new Span("description", 8, 10, "学院", "学院");
         list1.add(span1);
-
+        
         List<Span> list2 = new ArrayList<Span>();
         Span span2 = new Span("description", 7, 9, "学院", "学院");
         list2.add(span2);
-
+        
         Attribute[] schemaAttributes = new Attribute[TestConstantsChinese.ATTRIBUTES_PEOPLE.length + 1];
         for (int count = 0; count < schemaAttributes.length - 1; count++) {
             schemaAttributes[count] = TestConstantsChinese.ATTRIBUTES_PEOPLE[count];
@@ -383,7 +383,7 @@ public class DictionaryMatcherTest {
                 new TextField("北京大学电气工程学院"), new ListField<Span>(list1) };
         IField[] fields2 = { new StringField("孔明"), new StringField("洛克贝尔"),
                 new IntegerField(42), new DoubleField(5.99),
-                new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-13-1974")),
+                new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-13-1974")), 
                 new TextField("北京大学计算机学院"),
                 new ListField<Span>(list2) };
         Tuple tuple1 = new Tuple(new Schema(schemaAttributes), fields1);
@@ -439,7 +439,7 @@ public class DictionaryMatcherTest {
         boolean contains = TestUtils.equals(expectedResults, returnedResults);
         Assert.assertTrue(contains);
     }
-
+    
     /**
      * Scenario: verifies GetNextTuple of DictionaryMatcher and single word
      * queries in Text Field using KEYWORD OPERATOR in Chinese
@@ -475,7 +475,7 @@ public class DictionaryMatcherTest {
         expectedResults.add(tuple2);
         List<String> attributeNames = Arrays.asList(TestConstantsChinese.FIRST_NAME, TestConstantsChinese.LAST_NAME,
                 TestConstantsChinese.DESCRIPTION);
-        List<Tuple> returnedResults = DictionaryMatcherTestHelper.getQueryResults(CHINESE_TABLE, dictionary,
+        List<Tuple> returnedResults = DictionaryMatcherTestHelper.getQueryResults(CHINESE_TABLE, dictionary, 
                 attributeNames, KeywordMatchingType.CONJUNCTION_INDEXBASED);
         boolean contains = TestUtils.equals(expectedResults, returnedResults);
         Assert.assertTrue(contains);
@@ -521,7 +521,7 @@ public class DictionaryMatcherTest {
         boolean contains = TestUtils.equals(expectedResults, returnedResults);
         Assert.assertTrue(contains);
     }
-
+    
     /**
      * Scenario: verifies GetNextTuple of DictionaryMatcher and single word
      * queries in Text Field using PHRASE OPERATOR in Chinese.
@@ -558,7 +558,7 @@ public class DictionaryMatcherTest {
         List<String> attributeNames = Arrays.asList(TestConstantsChinese.FIRST_NAME, TestConstantsChinese.LAST_NAME,
                 TestConstantsChinese.DESCRIPTION);
 
-        List<Tuple> returnedResults = DictionaryMatcherTestHelper.getQueryResults(CHINESE_TABLE, dictionary,
+        List<Tuple> returnedResults = DictionaryMatcherTestHelper.getQueryResults(CHINESE_TABLE, dictionary, 
                 attributeNames, KeywordMatchingType.PHRASE_INDEXBASED);
         boolean contains = TestUtils.equals(expectedResults, returnedResults);
         Assert.assertTrue(contains);
@@ -598,7 +598,7 @@ public class DictionaryMatcherTest {
         boolean contains = TestUtils.equals(expectedResults, returnedResults);
         Assert.assertTrue(contains);
     }
-
+    
     /**
      * Scenario: verifies ITuple returned by DictionaryMatcher and multiple
      * word queries using SCAN OPERATOR in Chinese
@@ -629,7 +629,7 @@ public class DictionaryMatcherTest {
         List<String> attributeNames = Arrays.asList(TestConstantsChinese.FIRST_NAME, TestConstantsChinese.LAST_NAME,
                 TestConstantsChinese.DESCRIPTION);
 
-        List<Tuple> returnedResults = DictionaryMatcherTestHelper.getQueryResults(CHINESE_TABLE,
+        List<Tuple> returnedResults = DictionaryMatcherTestHelper.getQueryResults(CHINESE_TABLE, 
                 dictionary, attributeNames, KeywordMatchingType.SUBSTRING_SCANBASED);
         boolean contains = TestUtils.equals(expectedResults, returnedResults);
         Assert.assertTrue(contains);
@@ -669,7 +669,7 @@ public class DictionaryMatcherTest {
         boolean contains = TestUtils.equals(expectedResults, returnedResults);
         Assert.assertTrue(contains);
     }
-
+    
     /**
      * Scenario: verifies ITuple returned by DictionaryMatcher and multiple
      * word queries using KEYWORD OPERATOR
@@ -693,7 +693,7 @@ public class DictionaryMatcherTest {
 
         IField[] fields1 = { new StringField("孔明"), new StringField("洛克贝尔"),
                 new IntegerField(42), new DoubleField(5.99),
-                new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-13-1974")),
+                new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-13-1974")), 
                 new TextField("北京大学计算机学院"), new ListField<Span>(list) };
         Tuple tuple1 = new Tuple(new Schema(schemaAttributes), fields1);
         List<Tuple> expectedResults = new ArrayList<Tuple>();
@@ -701,7 +701,7 @@ public class DictionaryMatcherTest {
         List<String> attributeNames = Arrays.asList(TestConstantsChinese.FIRST_NAME, TestConstantsChinese.LAST_NAME,
                 TestConstantsChinese.DESCRIPTION);
 
-        List<Tuple> returnedResults = DictionaryMatcherTestHelper.getQueryResults(CHINESE_TABLE, dictionary,
+        List<Tuple> returnedResults = DictionaryMatcherTestHelper.getQueryResults(CHINESE_TABLE, dictionary, 
                 attributeNames, KeywordMatchingType.CONJUNCTION_INDEXBASED);
         boolean contains = TestUtils.equals(expectedResults, returnedResults);
         Assert.assertTrue(contains);
@@ -741,7 +741,7 @@ public class DictionaryMatcherTest {
         boolean contains = TestUtils.equals(expectedResults, returnedResults);
         Assert.assertTrue(contains);
     }
-
+    
     /**
      * Scenario S-10C:verifies ITuple returned by DictionaryMatcher and multiple
      * word queries using PHRASE OPERATOR in Chinese
@@ -765,7 +765,7 @@ public class DictionaryMatcherTest {
 
         IField[] fields1 = { new StringField("孔明"), new StringField("洛克贝尔"),
                 new IntegerField(42), new DoubleField(5.99),
-                new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-13-1974")),
+                new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-13-1974")), 
                 new TextField("北京大学计算机学院"), new ListField<Span>(list) };
         Tuple tuple1 = new Tuple(new Schema(schemaAttributes), fields1);
         List<Tuple> expectedResults = new ArrayList<Tuple>();
@@ -773,7 +773,7 @@ public class DictionaryMatcherTest {
         List<String> attributeNames = Arrays.asList(TestConstantsChinese.FIRST_NAME, TestConstantsChinese.LAST_NAME,
                 TestConstantsChinese.DESCRIPTION);
 
-        List<Tuple> returnedResults = DictionaryMatcherTestHelper.getQueryResults(CHINESE_TABLE, dictionary,
+        List<Tuple> returnedResults = DictionaryMatcherTestHelper.getQueryResults(CHINESE_TABLE, dictionary, 
                 attributeNames, KeywordMatchingType.PHRASE_INDEXBASED);
         boolean contains = TestUtils.equals(expectedResults, returnedResults);
         Assert.assertTrue(contains);
@@ -812,7 +812,7 @@ public class DictionaryMatcherTest {
         expectedResults.add(tuple1);
         List<String> attributeNames = Arrays.asList(TestConstants.FIRST_NAME, TestConstants.LAST_NAME,
                 TestConstants.DESCRIPTION);
-
+        
         List<Tuple> returnedResults = DictionaryMatcherTestHelper.getQueryResults(PEOPLE_TABLE, dictionary, attributeNames, KeywordMatchingType.SUBSTRING_SCANBASED);
         boolean contains = TestUtils.equals(expectedResults, returnedResults);
         Assert.assertTrue(contains);
@@ -1196,10 +1196,6 @@ public class DictionaryMatcherTest {
         Assert.assertTrue(contains);
     }
 
-
-
-
-
     @Test
     public void testRegexQuery() throws Exception {
 
@@ -1243,5 +1239,5 @@ public class DictionaryMatcherTest {
     }
 
 
-
 }
+
