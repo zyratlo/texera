@@ -1,7 +1,6 @@
 import {Component, ViewChild, OnInit} from '@angular/core';
 
 import { CurrentDataService } from '../services/current-data-service';
-import { ModalComponent } from 'ng2-bs3-modal/ng2-bs3-modal';
 import { TableMetadata } from "../services/table-metadata";
 import {log} from "util";
 
@@ -26,12 +25,12 @@ export class SideBarComponent {
 
   hiddenList: string[] = ["operatorType", "luceneAnalyzer", "matchingType"];
 
-  selectorList: string[] = ["dictionaryEntries", "password", "matchingType", 
-    "nlpEntityType", "splitType", "splitOption", "sampleType", "comparisonType", 
+  selectorList: string[] = ["dictionaryEntries", "password", "matchingType",
+    "nlpEntityType", "splitType", "splitOption", "sampleType", "comparisonType",
     "aggregationType", "attributes", "tableName", "attribute"].concat(this.hiddenList);
 
   matcherList: string[] = ["conjunction", "phrase", "substring"];
-  nlpEntityList: string[] = ["noun", "verb", "adjective", "adverb", "ne_all", 
+  nlpEntityList: string[] = ["noun", "verb", "adjective", "adverb", "ne_all",
     "number", "location", "person", "organization", "money", "percent", "date", "time"];
   regexSplitList: string[] = ["left", "right", "standalone"];
   nlpSplitList: string[] = ["oneToOne", "oneToMany"];
@@ -50,16 +49,6 @@ export class SideBarComponent {
   dictionaryNames: Array<string> = [];
   dictionaryContent: Array<string> = [];
   selectedDictionary:string = "";
-
-  @ViewChild('MyModal')
-  modal: ModalComponent;
-
-  ModalOpen() {
-    this.modal.open();
-  }
-  ModalClose() {
-    this.modal.close();
-  }
 
   checkInHidden(name: string) {
     return jQuery.inArray(name, this.hiddenList);
@@ -98,25 +87,6 @@ export class SideBarComponent {
 
       });
 
-    currentDataService.checkPressed$.subscribe(
-      data => {
-        jQuery.hideLoading();
-        console.log(data);
-        if (data.code === 0) {
-          var node = new PrettyJSON.view.Node({
-            el: jQuery("#elem"),
-            data: JSON.parse(data.message)
-          });
-        } else {
-          var node = new PrettyJSON.view.Node({
-            el: jQuery("#elem"),
-            data: {"message": data.message}
-          });
-        }
-
-        this.ModalOpen();
-
-      });
 
     currentDataService.metadataRetrieved$.subscribe(
       data => {
@@ -160,6 +130,10 @@ export class SideBarComponent {
   }
 
   onFormChange (attribute: string) {
+    var currentData = jQuery("#the-flowchart").flowchart("getOperatorData", this.operatorId);
+    // update the position of the operator if it is moved before the value is changed
+    this.data.left = currentData.left;
+    this.data.top = currentData.top;
     jQuery("#the-flowchart").flowchart("setOperatorData", this.operatorId, this.data);
   }
 
@@ -168,6 +142,7 @@ export class SideBarComponent {
     this.attributes = [];
     this.dictionaryContent = [];
     jQuery("#the-flowchart").flowchart("deleteOperator", this.operatorId);
+    this.currentDataService.clearData();
     this.currentDataService.setAllOperatorData(jQuery('#the-flowchart').flowchart('getData'));
   }
 
