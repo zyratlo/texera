@@ -16,7 +16,6 @@ import edu.uci.ics.textdb.exp.common.AbstractSingleInputOperator;
 import edu.uci.ics.textdb.exp.keywordmatcher.KeywordMatchingType;
 import edu.uci.ics.textdb.exp.utils.DataflowUtils;
 
-import java.lang.reflect.Array;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -152,8 +151,8 @@ public class DictionaryMatcher extends AbstractSingleInputOperator {
                     }
                 }
             }
-        }
 
+        }
 
         if (matchingResults == null || matchingResults.isEmpty()) {
             return null;
@@ -224,8 +223,7 @@ public class DictionaryMatcher extends AbstractSingleInputOperator {
                 }
             }
 
-            // for TEXT type, spans need to be reconstructed according to the
-            // phrase query
+            // for TEXT type, spans need to be reconstructed according to the phrase query.
             if (attributeType == AttributeType.TEXT) {
                 for (int index : relevantSpansMap.keySet()) {
                     List<Span> fieldSpanList = relevantSpansMap.get(index).stream().filter(span -> span.getAttributeName().equals(attributeName))
