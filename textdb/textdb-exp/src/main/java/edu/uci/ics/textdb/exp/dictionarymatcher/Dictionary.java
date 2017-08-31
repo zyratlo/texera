@@ -118,25 +118,6 @@ public class Dictionary {
         }
     }
 
-    public void setCompressedPatternList() {
-        this.patternList = new ArrayList<>();
-        StringBuilder patternBuilder = new StringBuilder();
-        patternBuilder.append(dictionaryEntries.get(0));
-        for (int i = 1; i < dictionaryEntries.size(); i++) {
-            if (i % 10 != 0) {
-                patternBuilder.append("|");
-                patternBuilder.append(dictionaryEntries.get(i));
-            } else {
-                Pattern pattern = Pattern.compile(patternBuilder.toString(), Pattern.CASE_INSENSITIVE);
-                patternList.add(pattern);
-                patternBuilder.delete(0, patternBuilder.toString().length());
-                patternBuilder.append(dictionaryEntries.get(i));
-            }
-        }
-        patternList.add(Pattern.compile(patternBuilder.toString(), Pattern.CASE_INSENSITIVE));
-    }
-
-
     @JsonIgnore
     public ArrayList<Set<String>> getTokenSetsNoStopwords() {
         return this.tokenSetsNoStopwords;

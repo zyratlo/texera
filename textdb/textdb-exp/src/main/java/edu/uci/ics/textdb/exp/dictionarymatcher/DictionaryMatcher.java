@@ -66,9 +66,7 @@ public class DictionaryMatcher extends AbstractSingleInputOperator {
             predicate.getDictionary().setDictionaryTokenListWithStopwords(predicate.getAnalyzerString());
             predicate.getDictionary().setDictionaryTokenSetList(predicate.getAnalyzerString());
         } else if (predicate.getKeywordMatchingType() == KeywordMatchingType.REGEX) {
-            if (predicate.getDictionary().getDictionaryEntries().size() <= 10) {
-                predicate.getDictionary().setPatternList();
-            } else predicate.getDictionary().setCompressedPatternList();
+            predicate.getDictionary().setPatternList();
         }
     }
 
