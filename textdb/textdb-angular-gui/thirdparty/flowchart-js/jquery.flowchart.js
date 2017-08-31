@@ -663,18 +663,31 @@ $(function () {
             var fullElement = {
                 operator: $operator,
                 title: $operator_title,
+
                 operator_info_div : $operator_info_div,
                 emptyDiv: $emptyDiv,
+                input_output : $operator_inputs_outputs,
+
                 connectorSets: connectorSets,
                 connectors: connectors,
                 connectorArrows: connectorArrows,
                 connectorSmallArrows: connectorSmallArrows
             };
 
+
             // change to unique color later
             fullElement.operator_info_div.css({
-              "background" : "#F0F0F0",
+              "background" : operatorData.properties.color,
             });
+
+            fullElement.input_output.css({
+              "background" : "url(" + operatorData.properties.image + ")",
+              "background-size" : "100% 100%"
+            });
+            fullElement.title.css({
+              "background" : operatorData.properties.color,
+            });
+
 
             function addConnector(connectorKey, connectorInfos, $operator_container, connectorType) {
                 var $operator_connector_set = $('<div class="flowchart-operator-connector-set"></div>');

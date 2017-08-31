@@ -15,7 +15,8 @@ const INCREMENT = 0.1;
 			<div id="the-flowchart"></div>
       <button class="zoomInButton" (click)="zoomInDiv()"> + </button>
       <button class="zoomOutButton" (click)="zoomOutDiv()"> - </button>
-		</div>
+      <button class="btn btn-default navbar-btn excelDownloadButton" (click)="downloadExcel()" disabled><i class="fa fa-file-excel-o excelIcon" aria-hidden="true"></i>Download As Excel</button>
+    </div>
 	`,
   styleUrls: ['../style.css'],
 })
@@ -25,13 +26,34 @@ export class TheFlowchartComponent {
   TheOperatorNumNow: number;
   TheFlowChartWidth : number;
   TheFlowChartHeight : number;
+  currentResult: any;
+
   constructor(private currentDataService: CurrentDataService) {
     currentDataService.newAddition$.subscribe(
       data => {
         this.TheOperatorNumNow = data.operatorNum;
       }
     );
+    currentDataService.checkPressed$.subscribe(
+      // used for download as excel button
+      data => {
+        if (data.code === 0) {
+          this.currentResult = JSON.parse(data.message);
+          jQuery('.excelDownloadButton').prop("disabled",false);
+          jQuery('.excelDownloadButton').css({"opacity":"1"});
+        } else {
+          jQuery('.excelDownloadButton').prop("disabled",true);
+          jQuery('.excelDownloadButton').css({"opacity":"0.5"});
+        }
+      }
+    );
   }
+
+  downloadExcel() {
+    // do nothing now
+    // need to implement backend download excel functions
+  }
+
 
   zoomInDiv(){
     // hide menu when zoomed
@@ -112,7 +134,6 @@ export class TheFlowchartComponent {
           jQuery('#the-flowchart').flowchart('deleteSelected');
           current.currentDataService.clearData();
           current.currentDataService.setAllOperatorData(jQuery('#the-flowchart').flowchart('getData'));
-          console.log("HELLO");
         }
       } else if (e.keyCode === 46) { //delete
         var current_id = jQuery('#the-flowchart').flowchart('getSelectedOperatorId');
@@ -170,12 +191,13 @@ export class TheFlowchartComponent {
       var zoomOut = delta;
       // var zoomOut = delta ? delta < 0 : e.originalEvent.deltaY > 0;
       currentZoom = Math.max(0, Math.min(possibleZooms.length - 1, (currentZoom + (zoomOut / 40 - 1))));
-      jQuery('#the-flowchart').flowchart('setPositionRatio', possibleZooms[currentZoom]);
-      jQuery('#the-flowchart').panzoom('zoom', possibleZooms[currentZoom], {
+      var currentZoomRound = Math.round(currentZoom);
+      jQuery('#the-flowchart').flowchart('setPositionRatio', possibleZooms[currentZoomRound]);
+      jQuery('#the-flowchart').panzoom('zoom', possibleZooms[currentZoomRound], {
         animate: false,
         focal: e
       });
-      var ZoomRatio = possibleZooms[currentZoom];
+      var ZoomRatio = possibleZooms[currentZoomRound];
       // enlarge the div ratio so there's more space for the operators
       var new_width = InitialWidth / ZoomRatio;
       var left_side_add = (new_width - InitialWidth) / 2 ;

@@ -38,7 +38,7 @@
 
 .flowchart-operator-connector-label {
     font-size: small;
-    height: 30px;
+    height: 20px;
 }
 
 .flowchart-operator-inputs .flowchart-operator-connector-label {
@@ -113,6 +113,7 @@
     border: 1px solid #CCCCCC;
     background: #FAFAFA;
     pointer-events: initial;
+    background-color: white;
 }
 
 .flowchart-operator.hover {
