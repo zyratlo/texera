@@ -101,7 +101,7 @@ public class DictionaryMatcherTestHelper {
 
     /**
      * Get the results from a DictionaryMatcher with a ScanSource Operator
-     * (which scans the table first and then feeds the data into the dictionary matcher)
+     *   (which scans the table first and then feeds the data into the dictionary matcher)
      *
      * @param tableName
      * @param dictionary
@@ -143,7 +143,7 @@ public class DictionaryMatcherTestHelper {
 
     /**
      * Get the results from the DictionarySourceOperator
-     * (which performs a index-based lookup for each keyword in the dictionary)
+     *   (which performs a index-based lookup for each keyword in the dictionary)
      *
      * @param tableName
      * @param dictionary
