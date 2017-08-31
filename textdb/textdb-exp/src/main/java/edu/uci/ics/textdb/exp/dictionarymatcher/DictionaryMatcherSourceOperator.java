@@ -104,9 +104,9 @@ public class DictionaryMatcherSourceOperator implements ISourceOperator {
                 throw new DataFlowException("Dictionary is empty");
             }
 
-            if (predicate.getKeywordMatchingType() == KeywordMatchingType.SUBSTRING_SCANBASED) {
+            if (predicate.getKeywordMatchingType() == KeywordMatchingType.SUBSTRING_SCANBASED || predicate.getKeywordMatchingType() == KeywordMatchingType.REGEX) {
 
-                // For Substring matching, create a scan source operator followed by a dictionary matcher.
+                // For Substring matching and Regex matching, create a scan source operator followed by a dictionary matcher.
 
                 indexSource = new ScanBasedSourceOperator(new ScanSourcePredicate(predicate.getTableName()));
 

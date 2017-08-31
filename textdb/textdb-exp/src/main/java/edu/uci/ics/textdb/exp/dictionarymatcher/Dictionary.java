@@ -1,6 +1,7 @@
 package edu.uci.ics.textdb.exp.dictionarymatcher;
 
 import java.util.*;
+import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -29,6 +30,7 @@ public class Dictionary {
     private ArrayList<Set<String>> tokenSetsNoStopwords;
     private ArrayList<List<String>> tokenListsWithStopwords;
     private ArrayList<List<String>> tokenListsNoStopwords;
+    private ArrayList<Pattern> patternList;
 
     /**
      * Create a dictionary using a collection of entries.
@@ -54,6 +56,7 @@ public class Dictionary {
         this.tokenSetsNoStopwords = null;
         this.tokenListsNoStopwords = null;
         this.tokenListsWithStopwords = null;
+        this.patternList = null;
     }
 
     @JsonProperty(value = PropertyNameConstants.DICTIONARY_ENTRIES)
@@ -107,6 +110,14 @@ public class Dictionary {
         }
     }
 
+    public void setPatternList(){
+        this.patternList = new ArrayList<>();
+        for(int i = 0; i < dictionaryEntries.size(); i++) {
+            Pattern pattern = Pattern.compile(dictionaryEntries.get(i),Pattern.CASE_INSENSITIVE);
+            patternList.add(pattern);
+        }
+    }
+
     @JsonIgnore
     public ArrayList<Set<String>> getTokenSetsNoStopwords() {
         return this.tokenSetsNoStopwords;
@@ -120,6 +131,11 @@ public class Dictionary {
     @JsonIgnore
     public ArrayList<List<String>> getTokenListsNoStopwords() {
         return this.tokenListsNoStopwords;
+    }
+
+    @JsonIgnore
+    public ArrayList<Pattern> getPatternList() {
+        return this.patternList;
     }
 
     @JsonIgnore
