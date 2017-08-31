@@ -32,10 +32,15 @@
     position: relative;
     padding-top: 5px;
     padding-bottom: 5px;
+    /* top space px*/
+    top: 20px;
+    margin-bottom: 5px;
 }
 
 .flowchart-operator-connector-label {
     font-size: small;
+    /*size of connector space*/
+    height: 20px;
 }
 
 .flowchart-operator-inputs .flowchart-operator-connector-label {
@@ -110,6 +115,7 @@
     border: 1px solid #CCCCCC;
     background: #FAFAFA;
     pointer-events: initial;
+    background-color: white;
 }
 
 .flowchart-operator.hover {
@@ -139,8 +145,7 @@
 .flowchart-operator .flowchart-operator-inputs-outputs {
     display: table;
     width: 100%;
-    margin-top: 5px;
-    margin-bottom: 5px;
+    height: 120px;
 }
 
 .flowchart-operator .flowchart-operator-inputs, .flowchart-default-operator .flowchart-operator-outputs {
