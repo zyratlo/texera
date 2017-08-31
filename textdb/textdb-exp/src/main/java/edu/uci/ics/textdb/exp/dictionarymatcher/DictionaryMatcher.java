@@ -34,6 +34,7 @@ public class DictionaryMatcher extends AbstractSingleInputOperator {
     }
 
     private Schema inputSchema;
+    private ACTrie dictionaryTrie;
 
     @Override
     protected void setUp() throws TextDBException {
@@ -67,7 +68,15 @@ public class DictionaryMatcher extends AbstractSingleInputOperator {
             predicate.getDictionary().setDictionaryTokenSetList(predicate.getAnalyzerString());
         } else if (predicate.getKeywordMatchingType() == KeywordMatchingType.REGEX) {
             predicate.getDictionary().setPatternList();
+        } else {
+            preprocessDictionaryTrie();
         }
+    }
+
+    private void  preprocessDictionaryTrie(){
+        dictionaryTrie = new ACTrie();
+        dictionaryTrie.setCaseInsensitive(true);
+        dictionaryTrie.addKeywords(predicate.getDictionary().getDictionaryEntries());
     }
 
     @Override
@@ -116,12 +125,22 @@ public class DictionaryMatcher extends AbstractSingleInputOperator {
             matchingResults = appendPhraseMatchingSpans4Dictionary(inputTuple, predicate.getAttributeNames(), tokenListsNoStopwords, tokenSetsNoStopwords, tokenListsWithStopwords, dictionaryEntries);
 
         } else if (predicate.getKeywordMatchingType() == KeywordMatchingType.SUBSTRING_SCANBASED) {
-            predicate.getDictionary().resetCursor();
-            String currentDictionaryEntry;
-            matchingResults = new ArrayList<>();
+            matchingResults = new ArrayList<Span>();
+            for (String attributeName : predicate.getAttributeNames()) {
+                AttributeType attributeType = inputTuple.getSchema().getAttribute(attributeName).getAttributeType();
+                String fieldValue = inputTuple.getField(attributeName).getValue().toString();
 
-            while ((currentDictionaryEntry = predicate.getDictionary().getNextEntry()) != null) {
-                DataflowUtils.appendSubstringMatchingSpans(inputTuple, predicate.getAttributeNames(), currentDictionaryEntry, matchingResults);
+                // types other than TEXT and STRING: throw Exception for now
+                if (attributeType != AttributeType.STRING && attributeType != AttributeType.TEXT) {
+                    throw new DataFlowException("KeywordMatcher: Fields other than STRING and TEXT are not supported yet");
+                }
+                List<ACTrie.Emit> matchingEmits = dictionaryTrie.parseText(fieldValue);
+
+                if (!matchingEmits.isEmpty()) {
+                    for(ACTrie.Emit emit : matchingEmits){
+                        matchingResults.add(new Span(attributeName, emit.getStart(), emit.getEnd(), emit.getKeyword(), fieldValue.substring(emit.getStart(), emit.getEnd())));
+                    }
+                }
             }
 
         } else if (predicate.getKeywordMatchingType() == KeywordMatchingType.REGEX) {
