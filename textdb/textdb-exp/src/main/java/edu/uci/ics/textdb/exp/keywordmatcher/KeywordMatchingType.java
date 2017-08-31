@@ -57,7 +57,11 @@ public enum KeywordMatchingType {
 
     CONJUNCTION_INDEXBASED("conjunction"),
 
-    PHRASE_INDEXBASED("phrase");
+    PHRASE_INDEXBASED("phrase"),
+
+    REGEX("regex");
+
+
     
     private final String name;
     
@@ -81,6 +85,9 @@ public enum KeywordMatchingType {
         } else if (name.equalsIgnoreCase(PHRASE_INDEXBASED.getName()) || 
                 name.equalsIgnoreCase(PHRASE_INDEXBASED.toString())) {
             return PHRASE_INDEXBASED;
+        } else if (name.equalsIgnoreCase(REGEX.getName()) ||
+                name.equalsIgnoreCase(REGEX.toString())){
+            return REGEX;
         } else {
             throw new TextDBException("Cannot convert " + name + " to KeywordMatchingType");
         }
