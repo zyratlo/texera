@@ -1162,7 +1162,6 @@ public class DictionaryMatcherTest {
         boolean contains = TestUtils.equals(expectedResults, returnedResults);
         Assert.assertTrue(contains);
     }
-
     @Test
     public void testMultipleWordQueryInStringandTestFieldUsingScan() throws Exception {
 
@@ -1196,6 +1195,10 @@ public class DictionaryMatcherTest {
         boolean contains = TestUtils.equals(expectedResults, returnedResults);
         Assert.assertTrue(contains);
     }
+
+
+
+
 
     @Test
     public void testRegexQuery() throws Exception {
