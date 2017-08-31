@@ -310,7 +310,7 @@ let asterixSource = {
     },
     attributes : {
         "operatorType": "AsterixSource",
-        "host": "textdb.ics.uci.edu",
+        "host": "texera.ics.uci.edu",
         "port": 19002,
         "dataverse": "twitter",
         "dataset": "ds_tweet",
