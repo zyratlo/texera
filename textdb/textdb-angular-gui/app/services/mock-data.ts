@@ -315,7 +315,6 @@ let projection = {
     image : '../thirdparty/images/projection.png',
     color : '#ffdb4d',
       }
-    }
   }
 
 let asterixSource = {
