@@ -1,9 +1,7 @@
 package edu.uci.ics.textdb.exp.keywordmatcher;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 
 import edu.uci.ics.textdb.api.constants.ErrorMessages;
@@ -95,15 +93,15 @@ public class KeywordMatcher extends AbstractSingleInputOperator {
             inputTuple = DataflowUtils.getSpanTuple(inputTuple.getFields(), new ArrayList<Span>(), outputSchema);
         }
 
-        List<Span> matchingResults = new ArrayList<>();
+        List<Span> matchingResults = null;
         if (this.predicate.getMatchingType() == KeywordMatchingType.CONJUNCTION_INDEXBASED) {
-
-            DataflowUtils.appendConjunctionMatchingSpans(inputTuple, predicate.getAttributeNames(), queryTokenSet, predicate.getQuery(), matchingResults);
+           matchingResults =  appendConjunctionMatchingSpans(inputTuple, predicate.getAttributeNames(), queryTokenSet, predicate.getQuery());
         }
         if (this.predicate.getMatchingType() == KeywordMatchingType.PHRASE_INDEXBASED) {
-            DataflowUtils.appendPhraseMatchingSpans(inputTuple, predicate.getAttributeNames(), queryTokenList, queryTokenWithStopwordsList, predicate.getQuery(), matchingResults);
+            matchingResults = appendPhraseMatchingSpans(inputTuple, predicate.getAttributeNames(), queryTokenList, queryTokenWithStopwordsList, predicate.getQuery());
         }
         if (this.predicate.getMatchingType() == KeywordMatchingType.SUBSTRING_SCANBASED) {
+            matchingResults = new ArrayList<>();
             DataflowUtils.appendSubstringMatchingSpans(inputTuple, predicate.getAttributeNames(), predicate.getQuery(), matchingResults);
         }
         if (matchingResults == null) {
@@ -124,6 +122,93 @@ public class KeywordMatcher extends AbstractSingleInputOperator {
     protected void cleanUp() {
     }
 
+    private List<Span> appendPhraseMatchingSpans(Tuple inputTuple, List<String> attributeNames, List<String> queryTokenList, List<String> queryTokenListWithStopwords, String queryKeyword) throws DataFlowException {
+        ListField<Span> payloadField = inputTuple.getField(SchemaConstants.PAYLOAD);
+        List<Span> payload = payloadField.getValue();
+        List<Span> matchingResults = new ArrayList<>();
+        for (String attributeName : attributeNames) {
+            AttributeType attributeType = inputTuple.getSchema().getAttribute(attributeName).getAttributeType();
+            String fieldValue = inputTuple.getField(attributeName).getValue().toString();
+
+            // types other than TEXT and STRING: throw Exception for now
+            if (attributeType != AttributeType.STRING && attributeType != AttributeType.TEXT) {
+                throw new DataFlowException("KeywordMatcher: Fields other than STRING and TEXT are not supported yet");
+            }
+
+            // for STRING type, the query should match the fieldValue completely
+            if (attributeType == AttributeType.STRING) {
+                if (queryKeyword.equals(fieldValue)) {
+                    Span span = new Span(attributeName, 0, fieldValue.length(), fieldValue, fieldValue);
+                    matchingResults.add(span);
+                }
+            }
+
+            // for TEXT type, spans need to be reconstructed according to the
+            // phrase query
+            if (attributeType == AttributeType.TEXT) {
+                Set<String> queryTokenSet = new HashSet<>(queryTokenList);
+                List<Span> relevantSpans = filterRelevantSpans(payload, queryTokenSet);
+                List<Span> fieldSpanList = relevantSpans.stream().filter(span -> span.getAttributeName().equals(attributeName))
+                        .collect(Collectors.toList());
+
+                if (!DataflowUtils.isAllQueryTokensPresent(fieldSpanList, queryTokenSet)) {
+                    // move on to next field if not all query tokens are present
+                    // in the spans
+                    continue;
+                }
+                matchingResults.addAll(DataflowUtils.constructPhraseMatchingSpans(attributeName, fieldValue, queryKeyword, fieldSpanList, queryTokenListWithStopwords, queryTokenList));
+            }
+        }
+        return matchingResults;
+    }
+
+    private List<Span> appendConjunctionMatchingSpans(Tuple inputTuple, List<String> attributeNames, Set<String> queryTokenSet, String queryKeyword) throws DataFlowException {
+        ListField<Span> payloadField = inputTuple.getField(SchemaConstants.PAYLOAD);
+        List<Span> payload = payloadField.getValue();
+        List<Span> matchingResults = new ArrayList<>();
+        for (String attributeName : attributeNames) {
+            AttributeType attributeType = inputTuple.getSchema().getAttribute(attributeName).getAttributeType();
+            String fieldValue = inputTuple.getField(attributeName).getValue().toString();
+
+            // types other than TEXT and STRING: throw Exception for now
+            if (attributeType != AttributeType.STRING && attributeType != AttributeType.TEXT) {
+                throw new DataFlowException("KeywordMatcher: Fields other than STRING and TEXT are not supported yet");
+            }
+
+            // for STRING type, the query should match the fieldValue completely
+            if (attributeType == AttributeType.STRING) {
+                if (queryKeyword.equals(fieldValue)) {
+                    Span span = new Span(attributeName, 0, fieldValue.length(), fieldValue, fieldValue);
+                    matchingResults.add(span);
+                }
+            }
+
+            // for TEXT type, every token in the query should be present in span
+            // list for this field
+            if (attributeType == AttributeType.TEXT) {
+                List<Span> relevantSpans = filterRelevantSpans(payload, queryTokenSet);
+                List<Span> fieldSpanList = relevantSpans.stream().filter(span -> span.getAttributeName().equals(attributeName))
+                        .collect(Collectors.toList());
+                if (DataflowUtils.isAllQueryTokensPresent(fieldSpanList, queryTokenSet)) {
+                    matchingResults.addAll(fieldSpanList);
+                }
+
+            }
+        }
+        return matchingResults;
+    }
+    
+    private List<Span> filterRelevantSpans(List<Span> spanList, Set<String> queryTokenSet) {
+        List<Span> relevantSpans = new ArrayList<>();
+        Iterator<Span> iterator = spanList.iterator();
+        while (iterator.hasNext()) {
+            Span span = iterator.next();
+            if (queryTokenSet.contains(span.getKey())) {
+                relevantSpans.add(span);
+            }
+        }
+        return relevantSpans;
+    }
 
     public KeywordPredicate getPredicate() {
         return this.predicate;
