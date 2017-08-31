@@ -80,7 +80,7 @@ export class ResultBarComponent {
     jQuery("#result-bar-title").hover(
       function() {jQuery("#result-bar-title").css({"background-color" : "#1a53ff"})},
       function() {jQuery("#result-bar-title").css({"background-color" : "#4d79ff"})});
-    jQuery( "#result-bar-title" ).html( "<b>Result Window</b>");
+    jQuery( "#result-bar-title" ).html( "<b>Results</b>");
   }
 
   changeErrorStyle(){
