@@ -22,12 +22,15 @@ export class NavigationBarComponent {
 
 
   onClick(event) {
-        jQuery.showLoading({allowHide: true});
+        jQuery('.navigation-btn').button('loading');
         this.currentDataService.setAllOperatorData(jQuery('#the-flowchart').flowchart('getData'));
         this.currentDataService.processData();
   }
 
 	deleteOperator() {
+        if (this.operatorId == null){
+          return;
+        }
         jQuery("#the-flowchart").flowchart("deleteOperator", this.operatorId);
         this.currentDataService.clearData();
         this.currentDataService.setAllOperatorData(jQuery('#the-flowchart').flowchart('getData'));

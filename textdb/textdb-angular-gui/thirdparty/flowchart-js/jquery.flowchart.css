@@ -32,10 +32,13 @@
     position: relative;
     padding-top: 5px;
     padding-bottom: 5px;
+    top: 20px;
+    margin-bottom: 5px;
 }
 
 .flowchart-operator-connector-label {
     font-size: small;
+    height: 20px;
 }
 
 .flowchart-operator-inputs .flowchart-operator-connector-label {
@@ -110,6 +113,7 @@
     border: 1px solid #CCCCCC;
     background: #FAFAFA;
     pointer-events: initial;
+    background-color: white;
 }
 
 .flowchart-operator.hover {
@@ -123,7 +127,7 @@
 
 
 .flowchart-operator .flowchart-operator-title {
-    width: 100%;
+    width: 80%;
     padding: 5px;
     font-weight: bold;
     box-sizing: border-box;
@@ -134,16 +138,67 @@
     text-overflow: ellipsis;
     white-space: nowrap;
     cursor: move;
+    float: left;
 }
 
 .flowchart-operator .flowchart-operator-inputs-outputs {
     display: table;
     width: 100%;
-    margin-top: 5px;
-    margin-bottom: 5px;
+    height: 120px;
 }
 
 .flowchart-operator .flowchart-operator-inputs, .flowchart-default-operator .flowchart-operator-outputs {
     display: table-cell;
     width: 50%;
+}
+
+/* Operator Info Div / Operator Info Icon*/
+.operator-info-div {
+  width: 20%;
+  padding: 5px;
+  height: auto;
+  position: absolute;
+  right: 0px;
+  cursor: move;
+  box-sizing: border-box;
+  border-bottom: 1px solid #DDDDDD;
+}
+
+.operator-info-icon{
+  cursor: pointer;
+  color: white;
+}
+
+.operator-info-icon:hover {
+  color: #d9d9d9;
+}
+
+/* Rightclick menu styles*/
+
+#menu {
+  display: none;
+  position: fixed;
+  border: 1px solid black;
+  background-color: #f2f2f2;
+}
+
+#menu a:hover {
+  background-color: #d9d9d9;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.menu-item {
+  display : block;
+  width : 200px;
+  position : relative;
+  text-decoration: none;
+  padding : 6px;
+  color: black;
+  font-size: 16px;
+  border: 0.5px solid black;
+}
+
+.menu-icon {
+  margin-right: 10px;
 }

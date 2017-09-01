@@ -2,6 +2,7 @@ package edu.uci.ics.textdb.exp.common;
 
 import java.util.UUID;
 
+import edu.uci.ics.textdb.exp.twitterfeed.TwitterFeedSourcePredicate;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -26,6 +27,7 @@ import edu.uci.ics.textdb.exp.keywordmatcher.KeywordSourcePredicate;
 import edu.uci.ics.textdb.exp.nlp.entity.NlpEntityPredicate;
 import edu.uci.ics.textdb.exp.nlp.sentiment.EmojiSentimentPredicate;
 import edu.uci.ics.textdb.exp.nlp.sentiment.NlpSentimentPredicate;
+import edu.uci.ics.textdb.exp.nlp.sentiment.NltkSentimentOperatorPredicate;
 import edu.uci.ics.textdb.exp.nlp.splitter.NlpSplitPredicate;
 import edu.uci.ics.textdb.exp.projection.ProjectionPredicate;
 import edu.uci.ics.textdb.exp.regexmatcher.RegexPredicate;
@@ -74,21 +76,24 @@ import edu.uci.ics.textdb.exp.wordcount.WordCountOperatorPredicate;
         @Type(value = NlpEntityPredicate.class, name = "NlpEntity"),
         @Type(value = NlpSentimentPredicate.class, name = "NlpSentiment"),
         @Type(value = EmojiSentimentPredicate.class, name = "EmojiSentiment"),
+        @Type(value = NltkSentimentOperatorPredicate.class, name = "NltkSentiment"),
+
         @Type(value = ProjectionPredicate.class, name = "Projection"),
         @Type(value = RegexSplitPredicate.class, name = "RegexSplit"),
         @Type(value = NlpSplitPredicate.class, name = "NlpSplit"),
         @Type(value = SamplerPredicate.class, name = "Sampler"),
+
         @Type(value = ComparablePredicate.class, name = "Comparison"),
         
-        @Type(value = AsterixSourcePredicate.class, name = "AsterixSource"),
-        
+        @Type(value = AsterixSourcePredicate.class, name = "AsterixSource"),        
         @Type(value = TwitterConverterPredicate.class, name = "TwitterConverter"),
-
+        
         @Type(value = ScanSourcePredicate.class, name = "ScanSource"),
         @Type(value = FileSourcePredicate.class, name = "FileSource"),        
         @Type(value = TupleSinkPredicate.class, name = "ViewResults"),
         @Type(value = ExcelSinkPredicate.class, name = "ExcelSink"),
         @Type(value = MysqlSinkPredicate.class, name = "MysqlSink"),
+        @Type(value = TwitterFeedSourcePredicate.class, name = "TwitterFeed"),
         
         @Type(value = WordCountIndexSourcePredicate.class, name = "WordCountIndexSource"),
         @Type(value = WordCountOperatorPredicate.class, name = "WordCount"),

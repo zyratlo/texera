@@ -19,17 +19,17 @@ import edu.uci.ics.textdb.api.field.TextField;
 import edu.uci.ics.textdb.api.schema.Attribute;
 import edu.uci.ics.textdb.api.schema.Schema;
 import edu.uci.ics.textdb.api.tuple.Tuple;
+import edu.uci.ics.textdb.exp.source.asterix.AsterixSource;
 
 public class TwitterConverter implements IOperator {
     
-    private final TwitterConverterPredicate predicate;
+    private final String rawDataAttribute = AsterixSource.RAW_DATA;
     
     private IOperator inputOperator;
     private Schema outputSchema;
     private int cursor = CLOSED;
     
-    public TwitterConverter(TwitterConverterPredicate predicate) {
-        this.predicate = predicate;
+    public TwitterConverter() {
     }
     
     public void setInputOperator(IOperator inputOperator) {
@@ -57,7 +57,7 @@ public class TwitterConverter implements IOperator {
         Tuple tuple;
         while ((tuple = inputOperator.getNextTuple()) != null) {
             List<IField> tweetFields = generateFieldsFromJson(
-                    tuple.getField(predicate.getRawDataAttribute()).getValue().toString());
+                    tuple.getField(rawDataAttribute).getValue().toString());
             if (! tweetFields.isEmpty()) {
                 cursor++;
                 
@@ -65,7 +65,7 @@ public class TwitterConverter implements IOperator {
                 
                 final Tuple finalTuple = tuple;
                 tupleFields.addAll(tuple.getSchema().getAttributeNames().stream()
-                        .filter(attrName -> ! attrName.equalsIgnoreCase(predicate.getRawDataAttribute()))
+                        .filter(attrName -> ! attrName.equalsIgnoreCase(rawDataAttribute))
                         .map(attrName -> finalTuple.getField(attrName, IField.class))
                         .collect(Collectors.toList()));
                 tupleFields.addAll(tweetFields);
@@ -127,14 +127,14 @@ public class TwitterConverter implements IOperator {
     }
     
     private Schema transformSchema(Schema inputSchema) {
-        if (! inputSchema.containsField(predicate.getRawDataAttribute())) {
+        if (! inputSchema.containsField(rawDataAttribute)) {
             throw new DataFlowException(String.format(
                     "raw twitter attribute %s is not present in the input schema %s",
-                    predicate.getRawDataAttribute(), inputSchema.getAttributeNames()));
+                    rawDataAttribute, inputSchema.getAttributeNames()));
         }
         ArrayList<Attribute> outputAttributes = new ArrayList<>();
         outputAttributes.addAll(inputSchema.getAttributes().stream()
-                .filter(attr -> ! attr.getAttributeName().equalsIgnoreCase(predicate.getRawDataAttribute()))
+                .filter(attr -> ! attr.getAttributeName().equalsIgnoreCase(rawDataAttribute))
                 .collect(Collectors.toList()));
         outputAttributes.addAll(TwitterConverterConstants.additionalAttributes);
         return new Schema(outputAttributes);

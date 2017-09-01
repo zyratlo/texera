@@ -51,6 +51,9 @@ $(function () {
             },
             onAfterChange: function (changeType) {
 
+            },
+            onRightClickedDelete: function (operatorId) {
+              return true;
             }
         },
         data: null,
@@ -63,6 +66,9 @@ $(function () {
         selectedLinkId: null,
         positionRatio: 1,
         globalId: null,
+
+        rightClickedOperatorID : 0,
+        haveZoomed: 0,
 
         // the constructor
         _create: function () {
@@ -136,22 +142,118 @@ $(function () {
                 self._click((e.pageX - offset.left) / self.positionRatio, (e.pageY - offset.top) / self.positionRatio, e);
             });
 
+            this.element.contextmenu(function(e){
+              // hide the rich click menu if the right click is outside of the operators
+              self.hideRightClickMenu();
+            });
 
             this.objs.layers.operators.on('pointerdown mousedown touchstart', '.flowchart-operator', function (e) {
                 e.stopImmediatePropagation();
             });
 
+            this.objs.layers.operators.on('contextmenu','.flowchart-operator',function(e){
+
+              var $this = $(this);
+              // prevent default right click menu
+              e.preventDefault();
+              // remove temporaryLink
+              self._unsetTemporaryLink();
+
+              // if check on menu border, return immediately
+              var checkOnMenu = $("#menu");
+              if (checkOnMenu.is(e.target)){
+                self.hideRightClickMenu();
+                return false;
+              }
+              // get position
+              var x = e.clientX;
+              var y = e.clientY;
+
+              var operatorID = $this.closest('.flowchart-operator').data('operator_id');
+              var currentOperatorData = self.getOperatorData(operatorID);
+
+              self.rightClickedOperatorID = operatorID;
+              if (self.haveZoomed === 0){
+                self.displayRightClickMenu(x,y,operatorID);
+              } else {
+                // calculate the position manually
+                var checkOnClickIsIconDiv = $(".operator-info-div");
+                var checkOnClickIsIcon = $(".operator-info-icon");
+                var checkOnClickIsOperatorInput = $(".flowchart-operator-inputs");
+                var checkOnClickIsOperatorOutput = $(".flowchart-operator-outputs");
+                var checkOnClickOperatorConnector = $(".flowchart-operator-connector");
+                var checkOnClickOperatorConnectorLabel = $(".flowchart-operator-connector-label");
+                var checkOnClickOperatorConnectorArrow = $(".flowchart-operator-connector-arrow");
+                var checkOnClickOperatorConnectorSet = $(".flowchart-operator-connector-set");
+
+                var titleHeight = parseInt($(".flowchart-operator-title").css('height'), 10);
+                var operatorWidth = parseInt($(".flowchart-operator").css('width'), 10);
+                var connectorTop = parseInt($(".flowchart-operator-connector").css('top'), 10);
+
+                if (checkOnClickIsIconDiv.is(e.target) || checkOnClickIsIcon.is(e.target)){
+                  self.displayRightClickMenu(currentOperatorData.left + e.offsetX + 0.8 * operatorWidth,  currentOperatorData.top + e.offsetY ,operatorID);
+                } else if (checkOnClickIsOperatorOutput.is(e.target)) {
+                  self.displayRightClickMenu(currentOperatorData.left + e.offsetX + 0.5 * operatorWidth,  currentOperatorData.top + e.offsetY + titleHeight ,operatorID);
+                } else if (checkOnClickIsOperatorInput.is(e.target)) {
+                  self.displayRightClickMenu(currentOperatorData.left + e.offsetX,  currentOperatorData.top + e.offsetY + titleHeight ,operatorID);
+                } else if (checkOnClickOperatorConnector.is(e.target) || checkOnClickOperatorConnectorLabel.is(e.target)) {
+                  if (checkOnClickIsOperatorOutput.has(e.target).length > 0){
+                    self.displayRightClickMenu(currentOperatorData.left + e.offsetX + 0.5 * operatorWidth,  currentOperatorData.top + e.offsetY + titleHeight + connectorTop ,operatorID);
+                  } else {
+                    self.displayRightClickMenu(currentOperatorData.left + e.offsetX,  currentOperatorData.top + e.offsetY + titleHeight + connectorTop ,operatorID);
+                  }
+                } else if (checkOnClickOperatorConnectorSet.is(e.target)) {
+                  if (checkOnClickIsOperatorOutput.has(e.target).length > 0){
+                    self.displayRightClickMenu(currentOperatorData.left + e.offsetX + 0.5 * operatorWidth,  currentOperatorData.top + e.offsetY + titleHeight ,operatorID);
+                  } else {
+                    self.displayRightClickMenu(currentOperatorData.left + e.offsetX,  currentOperatorData.top + e.offsetY + titleHeight,operatorID);
+                  }
+                } else if (checkOnClickOperatorConnectorArrow.is(e.target)) {
+                  if (checkOnClickIsOperatorOutput.has(e.target).length > 0){
+                    self.displayRightClickMenu(currentOperatorData.left + e.offsetX + operatorWidth,  currentOperatorData.top + e.offsetY + titleHeight  + connectorTop ,operatorID);
+                  } else {
+                    self.displayRightClickMenu(currentOperatorData.left + e.offsetX + 1,  currentOperatorData.top + e.offsetY + titleHeight + connectorTop ,operatorID);
+                  }
+                } else {
+                  self.displayRightClickMenu(currentOperatorData.left + e.offsetX,  currentOperatorData.top + e.offsetY ,operatorID);
+                }
+              }
+              // prevent default right click menu
+              return false;
+            });
+
             this.objs.layers.operators.on('click', '.flowchart-operator', function (e) {
+                self.hideRightClickMenu();
                 if ($(e.target).closest('.flowchart-operator-connector').length == 0) {
                     self.selectOperator($(this).data('operator_id'));
                 }
             });
 
-            this.objs.layers.operators.on('click', '.flowchart-operator-connector', function () {
-                var $this = $(this);
-                if (self.options.canUserEditLinks) {
-                    self._connectorClicked($this.closest('.flowchart-operator').data('operator_id'), $this.data('connector'), $this.data('sub_connector'), $this.closest('.flowchart-operator-connector-set').data('connector_type'));
-                }
+            this.objs.layers.operators.on('mousedown','.flowchart-operator-title',function(e){
+              self.hideRightClickMenu();
+            });
+
+            // next 2 are for allowing connecting with drag and drop operation
+
+            this.objs.layers.operators.on('mousedown', '.flowchart-operator-connector', function(e){
+              // if right click, then stop
+              if (e.which === 3) {
+                return
+              }
+              var $this = $(this);
+              if (self.options.canUserEditLinks) {
+                  self._connectorClicked($this.closest('.flowchart-operator').data('operator_id'), $this.data('connector'), $this.data('sub_connector'), $this.closest('.flowchart-operator-connector-set').data('connector_type'));
+              }
+            });
+
+            this.objs.layers.operators.on('mouseup', '.flowchart-operator-connector', function(e){
+              if (e.which === 3) {
+                return
+              }
+              var $this = $(this);
+              if (self.options.canUserEditLinks) {
+                  self._connectorClicked($this.closest('.flowchart-operator').data('operator_id'), $this.data('connector'), $this.data('sub_connector'), $this.closest('.flowchart-operator-connector-set').data('connector_type'));
+              }
             });
 
             this.objs.layers.links.on('mousedown touchstart', '.flowchart-link', function (e) {
@@ -178,6 +280,61 @@ $(function () {
                 self._operatorMouseOut($(this).data('operator_id'));
             });
 
+            this.objs.layers.operators.on('click','.operator-info-icon',function(e){
+              var $this = $(this);
+              var operatorID = $this.closest('.flowchart-operator').data('operator_id');
+              // show detail of the operator clicked
+              self.showOperatorDetail(operatorID);
+            });
+
+            this.objs.layers.operators.on('click contextmenu','.menu-detail',function(e){
+              // use private variable instead of getting it manually (have issue with .closest())
+              e.preventDefault();
+              var operatorID = self.rightClickedOperatorID;
+              self.showOperatorDetail(operatorID);
+              self.hideRightClickMenu();
+              return false;
+            });
+
+            this.objs.layers.operators.on('click contextmenu','.menu-delete',function(e){
+              var operatorID = self.rightClickedOperatorID;
+              if (!self.options.onRightClickedDelete(operatorID)){
+                return;
+              }
+              self.deleteOperator(operatorID); // delete the operator
+              self.hideRightClickMenu(); // hide the right click menu manually since we prevent the default flowchart-operator action
+            });
+        },
+
+        showOperatorDetail: function(operatorID) {
+          var currentOperatorData = this.getOperatorData(operatorID);
+          swal({
+            title: currentOperatorData.properties.title,
+            // can use 'currentOperatorData.properties.description if provided'
+            text: "<b>Description:</b><br><p>Some Description Here</p>",
+            imageUrl: currentOperatorData.properties.image,
+            html: true,
+            allowOutsideClick: true,
+          });
+        },
+
+        zoomCalled: function(){
+          this.haveZoomed = 1;
+        },
+
+        displayRightClickMenu: function(x,y,operatorID){
+          jQuery("#menu").css({
+            "display" : "block",
+            "z-index" : "100",
+            "top" : y + "px",
+            "left" : x + "px",
+          });
+        },
+
+        hideRightClickMenu: function(){
+          jQuery("#menu").css({
+            "display" : "none",
+          });
         },
 
         setData: function (data) {
@@ -475,8 +632,14 @@ $(function () {
             $operator_title.html(infos.title);
             $operator_title.appendTo($operator);
 
-            var $operator_inputs_outputs = $('<div class="flowchart-operator-inputs-outputs"></div>');
+            // display detail icon
+            var $operator_info_div = $('<div class="operator-info-div"></div>');
+            var $operator_info_icon = $('<i class="fa fa-info-circle operator-info-icon" aria-hidden="true"></i>');
+            $operator_info_icon.appendTo($operator_info_div);
+            $operator_info_div.appendTo($operator);
+            //
 
+            var $operator_inputs_outputs = $('<div class="flowchart-operator-inputs-outputs"></div>');
             $operator_inputs_outputs.appendTo($operator);
 
             var $operator_inputs = $('<div class="flowchart-operator-inputs"></div>');
@@ -484,6 +647,11 @@ $(function () {
 
             var $operator_outputs = $('<div class="flowchart-operator-outputs"></div>');
             $operator_outputs.appendTo($operator_inputs_outputs);
+
+            // empty div use for menu and progress bar later on
+            var $emptyDiv = $('<div id="empty"></div>');
+            $emptyDiv.appendTo($operator);
+            //
 
             var self = this;
 
@@ -495,11 +663,33 @@ $(function () {
             var fullElement = {
                 operator: $operator,
                 title: $operator_title,
+
+                operator_info_div : $operator_info_div,
+                emptyDiv: $emptyDiv,
+                input_output : $operator_inputs_outputs,
+
                 connectorSets: connectorSets,
                 connectors: connectors,
                 connectorArrows: connectorArrows,
                 connectorSmallArrows: connectorSmallArrows
             };
+
+
+            // change to unique color later
+            fullElement.operator_info_div.css({
+              "background" : operatorData.properties.color,
+            });
+
+            fullElement.input_output.css({
+              "background" : "url(" + operatorData.properties.image + ")",
+              "background-size" : "contain",
+              "background-repeat": "no-repeat",
+              "background-position": "50% 50%",
+            });
+            fullElement.title.css({
+              "background" : operatorData.properties.color,
+            });
+
 
             function addConnector(connectorKey, connectorInfos, $operator_container, connectorType) {
                 var $operator_connector_set = $('<div class="flowchart-operator-connector-set"></div>');
@@ -589,6 +779,16 @@ $(function () {
             fullElement.operator.css({top: operatorData.top, left: operatorData.left});
             fullElement.operator.data('operator_id', operatorId);
 
+            var $menu = $('<div id="menu"</div>');
+            var $item1 = $('<a class="menu-item menu-detail"><i class="fa fa-info-circle menu-icon" aria-hidden="true"></i>Show Detail</a>');
+            var $item2 = $('<a class="menu-item menu-delete"><i class="fa fa-times menu-icon" aria-hidden="true"></i>Delete</a>');
+            $item1.appendTo($menu);
+            $item2.appendTo($menu);
+            $menu.appendTo(fullElement.emptyDiv);
+
+
+
+
             this.data.operators[operatorId] = operatorData;
             this.data.operators[operatorId].internal.els = fullElement;
 
@@ -601,7 +801,7 @@ $(function () {
             function operatorChangedPosition(operator_id, pos) {
                 operatorData.top = pos.top;
                 operatorData.left = pos.left;
-                
+
                 for (var linkId in self.data.links) {
                     if (self.data.links.hasOwnProperty(linkId)) {
                         var linkData = self.data.links[linkId];
@@ -619,7 +819,7 @@ $(function () {
                 var pointerY;
                 fullElement.operator.draggable({
                     containment: operatorData.internal.properties.uncontained ? false : this.element,
-                    handle: '.flowchart-operator-title',
+                    handle: '.flowchart-operator-title, .operator-info-div',
                     start: function (e, ui) {
                         if (self.lastOutputConnectorClicked != null) {
                             e.preventDefault();
@@ -635,13 +835,13 @@ $(function () {
                             var elementOffset = self.element.offset();
                             ui.position.left = Math.round(((e.pageX - elementOffset.left) / self.positionRatio - pointerX) / grid) * grid;
                             ui.position.top = Math.round(((e.pageY - elementOffset.top) / self.positionRatio - pointerY) / grid) * grid;
-                            
+
                             if (!operatorData.internal.properties.uncontained) {
                                 var $this = $(this);
                                 ui.position.left = Math.min(Math.max(ui.position.left, 0), self.element.width() - $this.outerWidth());
                                 ui.position.top = Math.min(Math.max(ui.position.top, 0), self.element.height() - $this.outerHeight());
                             }
-                            
+
                             ui.offset.left = Math.round(ui.position.left + elementOffset.left);
                             ui.offset.top = Math.round(ui.position.top + elementOffset.top);
                             fullElement.operator.css({left: ui.position.left, top: ui.position.top});
@@ -696,7 +896,7 @@ $(function () {
                 this._unsetTemporaryLink();
             }
         },
-        
+
         _unsetTemporaryLink: function () {
             this.lastOutputConnectorClicked = null;
             this.objs.layers.temporaryLink.hide();
@@ -717,6 +917,7 @@ $(function () {
 
             if ($target.closest('.flowchart-operator').length == 0) {
                 this.unselectOperator();
+                this.hideRightClickMenu();
             }
 
             if ($target.closest('.flowchart-link').length == 0) {
@@ -998,7 +1199,7 @@ $(function () {
             this.redrawLinksLayer();
             this.options.onAfterChange('operator_data_change');
         },
-        
+
         doesOperatorExists: function (operatorId) {
             return typeof this.data.operators[operatorId] != 'undefined';
         },
