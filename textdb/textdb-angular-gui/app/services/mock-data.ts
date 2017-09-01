@@ -314,6 +314,36 @@ let projection = {
     },
     image : '../thirdparty/images/projection.png',
     color : '#ffdb4d',
+      }
+  }
+
+let asterixSource = {
+  top : 20,
+  left : 20,
+  properties : {
+    title : 'AsterixSource',
+    inputs : {
+      input_1 : {
+        label : "Input (:i)",
+      }
+    },
+    outputs : {
+      output_1 : {
+        label : "Output (:i)",
+      }
+    },
+    attributes : {
+        "operatorType": "AsterixSource",
+        "host": "texera.ics.uci.edu",
+        "port": 19002,
+        "dataverse": "twitter",
+        "dataset": "ds_tweet",
+        "queryField": "text",
+        "query": "drug",
+        "limit": 100000,
+    },
+    image : '../thirdparty/images/asterixSource.png',
+    color : '#cc99ff',
   }
 }
 
@@ -722,4 +752,5 @@ export const DEFAULT_MATCHERS: Data[] = [
     {id: 24, jsonData: fileSource},
     {id: 25, jsonData: mysqlSink},
     {id: 26, jsonData: nltkSentiment},
+    {id: 27, jsonData: asterixSource},
 ];
