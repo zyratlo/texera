@@ -1,6 +1,5 @@
 package edu.uci.ics.textdb.exp.dictionarymatcher;
 
-import sun.text.normalizer.Trie;
 
 import java.util.*;
 
