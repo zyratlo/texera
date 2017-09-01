@@ -113,6 +113,5 @@ public class PropertyNameConstants {
     public static final String TWEET_CUSTOMER_SECRET = "customerSecret";
     public static final String TWEET_TOKEN = "token";
     public static final String TWEET_TOKEN_SECRET = "tokenSecret";
-
     
 }

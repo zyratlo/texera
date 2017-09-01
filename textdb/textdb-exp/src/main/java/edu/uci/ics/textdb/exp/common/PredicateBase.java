@@ -40,6 +40,7 @@ import edu.uci.ics.textdb.exp.sink.tuple.TupleSinkPredicate;
 import edu.uci.ics.textdb.exp.source.asterix.AsterixSourcePredicate;
 import edu.uci.ics.textdb.exp.source.file.FileSourcePredicate;
 import edu.uci.ics.textdb.exp.source.scan.ScanSourcePredicate;
+import edu.uci.ics.textdb.exp.twitter.TwitterConverterPredicate;
 import edu.uci.ics.textdb.exp.wordcount.WordCountIndexSourcePredicate;
 import edu.uci.ics.textdb.exp.wordcount.WordCountOperatorPredicate;
 
@@ -84,7 +85,9 @@ import edu.uci.ics.textdb.exp.wordcount.WordCountOperatorPredicate;
 
         @Type(value = ComparablePredicate.class, name = "Comparison"),
         
-        @Type(value = AsterixSourcePredicate.class, name = "AsterixSource"),
+        @Type(value = AsterixSourcePredicate.class, name = "AsterixSource"),        
+        @Type(value = TwitterConverterPredicate.class, name = "TwitterConverter"),
+        
         @Type(value = ScanSourcePredicate.class, name = "ScanSource"),
         @Type(value = FileSourcePredicate.class, name = "FileSource"),        
         @Type(value = TupleSinkPredicate.class, name = "ViewResults"),

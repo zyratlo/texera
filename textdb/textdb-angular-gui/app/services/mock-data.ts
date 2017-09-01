@@ -564,6 +564,27 @@ let wordCount = {
   }
 }
 
+let twitterConverter = {
+  top : 20,
+  left : 20,
+  properties : {
+    title : 'Convert Twitter',
+    inputs : {
+      input_1 : {
+        label : "Input (:i)",
+      }
+    },
+    outputs : {
+      output_1 : {
+        label : "Output (:i)",
+      }
+    },
+    attributes : {
+        "operatorType": "TwitterConverter"
+    }
+  }
+}
+
 let comparison = {
   top : 20,
   left : 20,
@@ -753,4 +774,5 @@ export const DEFAULT_MATCHERS: Data[] = [
     {id: 25, jsonData: mysqlSink},
     {id: 26, jsonData: nltkSentiment},
     {id: 27, jsonData: asterixSource},
+    {id: 28, jsonData: twitterConverter}
 ];
