@@ -7,19 +7,19 @@ import java.util.*;
  */
 public class TrieNode {
 
-    private final int depth;
+    private boolean isRoot;
     private final TrieNode root;
     private Map<Character, TrieNode> success = new HashMap<>();
     private TrieNode failure;
     private Set<String> emits = null;
 
-    public TrieNode(int depth) {
-        this.depth = depth;
-        this.root = depth == 0 ? this : null;
+    private TrieNode(boolean isRoot) {
+        this.isRoot = isRoot;
+        this.root = isRoot ? this : null;
     }
 
-    public TrieNode() {
-        this(0);
+    public static TrieNode newRootNode() {
+        return new TrieNode(true);
     }
 
     public TrieNode getNextTrieNode(Character c) {
@@ -33,7 +33,7 @@ public class TrieNode {
     public TrieNode addTrieNode(Character c) {
         TrieNode node = this.success.get(c);
         if (node == null) {
-            node = new TrieNode(this.depth + 1);
+            node = new TrieNode(false);
             this.success.put(c, node);
         }
         return node;
@@ -56,10 +56,6 @@ public class TrieNode {
 
     public void setFailure(TrieNode failure) {
         this.failure = failure;
-    }
-
-    public int getDepth() {
-        return this.depth;
     }
 
     public TrieNode getFailure() {

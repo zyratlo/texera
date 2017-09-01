@@ -77,6 +77,7 @@ public class DictionaryMatcher extends AbstractSingleInputOperator {
         dictionaryTrie = new ACTrie();
         dictionaryTrie.setCaseInsensitive(true);
         dictionaryTrie.addKeywords(predicate.getDictionary().getDictionaryEntries());
+        dictionaryTrie.constructFailureTransactions();
     }
 
     @Override

@@ -1,5 +1,7 @@
 package edu.uci.ics.textdb.exp.dictionarymatcher;
 
+import sun.text.normalizer.Trie;
+
 import java.util.*;
 
 /**
@@ -8,10 +10,9 @@ import java.util.*;
 public class ACTrie {
     private final TrieNode rootNode;
     private boolean caseInsensitive = false;
-    private boolean failureTransactions = false;
 
     public ACTrie() {
-        this.rootNode = new TrieNode();
+        this.rootNode = TrieNode.newRootNode();
     }
 
     private void addKeyword(String keyword) {
@@ -36,8 +37,7 @@ public class ACTrie {
         }
     }
 
-    private void constructFailureTransactions() {
-        if(failureTransactions == true) return;
+    public void constructFailureTransactions() {
         Deque<TrieNode> queue = new ArrayDeque<>();
         for(TrieNode node : this.rootNode.getChildrenNodes()){
             node.setFailure(this.rootNode);
@@ -65,10 +65,6 @@ public class ACTrie {
         List<Emit> resultList = new ArrayList<>();
         if(text == null || text.isEmpty()) return resultList;
 
-        if(! failureTransactions){
-            constructFailureTransactions();
-            failureTransactions = true;
-        }
         if(caseInsensitive){
             text = text.toLowerCase();
         }
