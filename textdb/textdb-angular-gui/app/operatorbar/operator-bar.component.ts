@@ -21,6 +21,7 @@ export class OperatorBarComponent {
     var container = jQuery('#the-flowchart').parent();
     this.initializeOperators(container);
     this.initializeDrop(this.theDropDownNow);
+    this.initializeHoverDetail();
   }
 
   initializeDrop (currentDrop : string) {
@@ -51,8 +52,73 @@ export class OperatorBarComponent {
     });
   }
 
+  initializeHoverDetail(){
+
+    var findOperatorData = function(opeartorName: string, opeatorList: [any]): any {
+      for (let operator of opeatorList) {
+        if (operator.jsonData.properties.title === opeartorName){
+          // return operator.jsonData.properties.title;
+          return "Here we can retrun the actual description for each operator!!!";
+        }
+      }
+      return "Default Content";
+    }
+    let operatorList;
+    this.mockDataService.getOperatorList().then(
+      data => {
+        operatorList = data;
+      },
+      error => {
+        console.log(error);
+      }
+    );
+
+    var currentDetailProcess;
+
+    jQuery('.draggable_operator').hover(
+      function(e){
+
+        var openDetail = function (left, top, width, height, margin, name){
+          jQuery('#operator-detail-div').css({
+            "display" : "block",
+            "left" : left + width,
+            "top" : top - height - margin * 2,
+          });
+          jQuery('#operator-detail-name').html(name);
+          var newDefinition = findOperatorData(name,operatorList);
+          jQuery('#operator-detail-content').html(newDefinition);
+        }
+        var targetOperator = jQuery(e.target);
+        var operatorName = targetOperator.html();
+        var offset = targetOperator.offset();
+        var targetWidth = parseInt(targetOperator.css('width'),10);
+        var targetHeight = parseInt(targetOperator.css('height'),10);
+        var margin = parseInt(targetOperator.css('margin'),10);
+        currentDetailProcess = setTimeout(openDetail , 1500 , offset.left, offset.top, targetWidth, targetHeight, margin, operatorName);
+      },
+      function(e){
+        clearTimeout(currentDetailProcess);
+        jQuery('#operator-detail-div').css({
+          "display" : "none"
+        });
+      }
+    );
+    jQuery('#operator-detail-div').hover(
+      function(){
+        jQuery('#operator-detail-div').css({
+          "display" : "block",
+        });
+      },
+      function () {
+        jQuery('#operator-detail-div').css({
+          "display" : "none"
+        });
+      }
+    );
+  }
 
   initializeOperators(container: any) {
+
     var findOperatorData = function(opeartorId: number, opeatorList: [any]): any {
       for (let operator of opeatorList) {
         if (operator.id === opeartorId) {
@@ -61,7 +127,6 @@ export class OperatorBarComponent {
       }
       return null;
     }
-
 
     let operatorList;
     this.mockDataService.getOperatorList().then(
