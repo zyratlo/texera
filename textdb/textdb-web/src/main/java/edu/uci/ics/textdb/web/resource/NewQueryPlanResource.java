@@ -65,6 +65,9 @@ public class NewQueryPlanResource {
                 List<Tuple> results = tupleSink.collectAllTuples();
                 tupleSink.close();
                 
+                // clean up old result files
+                cleanupOldResults();
+                
                 // generate new UUID as the result id
                 String resultID = UUID.randomUUID().toString();
                 
@@ -104,12 +107,22 @@ public class NewQueryPlanResource {
     }
     
     
+    /**
+     * Cleans up the old result json files stored in the file system.
+     * The current cleanup policy is to keep the latest 5 files.
+     * 
+     * @throws IOException
+     */
     public static void cleanupOldResults() throws IOException {
+    		// list all the files in the reuslt directory
     		List<java.nio.file.Path> resultFiles = Files.list(resultDirectory).collect(Collectors.toList());
-    		if (resultFiles.size() < 10) {
+    		
+    		// clean up if there are more than 5 files
+    		if (resultFiles.size() <= 5) {
     			return;
     		}
     		
+    		// sort the files by their creation time
     		Collections.sort(resultFiles, (java.nio.file.Path f1, java.nio.file.Path f2) -> {
 				try {
 					return (
@@ -120,6 +133,7 @@ public class NewQueryPlanResource {
 				}
 			});
     		
+    		// remove the oldest file
     		java.nio.file.Path oldestFile = resultFiles.get(0);
     		Files.delete(oldestFile);
     }    

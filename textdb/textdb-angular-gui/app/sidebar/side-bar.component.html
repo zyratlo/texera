@@ -54,8 +54,8 @@
                     <option selected hidden value="">Select table</option>
                     <option *ngFor="let tableName of tableNameItems" [value] = "tableName">{{tableName}}</option>
                 </select>
-                
-                
+
+
                 <input *ngIf="attribute === 'password'" [(ngModel)]="data.properties.attributes[attribute]" (ngModelChange)="onFormChange(attribute)" name="{{attribute}}" type="password" class="form-control" id="{{attribute}}" defaultValue="{{data.properties.attributes[attribute]}}" #{{attribute}}="ngModel" required>
                 <input *ngIf="checkInSelector(attribute) === -1" [(ngModel)]="data.properties.attributes[attribute]" (ngModelChange)="onFormChange(attribute)" name="{{attribute}}" type="text" class="form-control" id="{{attribute}}" defaultValue="{{data.properties.attributes[attribute]}}" #{{attribute}}="ngModel" required>
             </div>
@@ -75,7 +75,6 @@
     <div id="elem"></div>
 	</modal-body>
 	<modal-footer>
-    <button type="button" (click)="downloadExcel()" class="btn btn-default navbar-btn">Download as Excel</button>
 		<button type="button" (click)="ModalClose()" class="btn btn-default navbar-btn">Close</button>
 	</modal-footer>
 <modal>

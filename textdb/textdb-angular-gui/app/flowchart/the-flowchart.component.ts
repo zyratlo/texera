@@ -28,6 +28,8 @@ export class TheFlowchartComponent {
   TheFlowChartHeight : number;
   currentResult: any;
 
+  currentResultID: string = "";
+
   constructor(private currentDataService: CurrentDataService) {
     currentDataService.newAddition$.subscribe(
       data => {
@@ -38,7 +40,8 @@ export class TheFlowchartComponent {
       // used for download as excel button
       data => {
         if (data.code === 0) {
-          this.currentResult = JSON.parse(data.message);
+          this.currentResultID = data.resultID;
+
           jQuery('.excelDownloadButton').prop("disabled",false);
           jQuery('.excelDownloadButton').css({"opacity":"1"});
         } else {
@@ -50,8 +53,7 @@ export class TheFlowchartComponent {
   }
 
   downloadExcel() {
-    // do nothing now
-    // need to implement backend download excel functions
+    this.currentDataService.downloadExcel(this.currentResultID);
   }
 
 

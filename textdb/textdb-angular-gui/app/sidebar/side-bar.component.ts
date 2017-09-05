@@ -19,7 +19,6 @@ declare var PrettyJSON: any;
 export class SideBarComponent {
   data: any;
   attributes: string[] = [];
-  currentResultID: string = "";
 
   operatorId: number;
   operatorTitle: string;
@@ -51,23 +50,6 @@ export class SideBarComponent {
   dictionaryContent: Array<string> = [];
   selectedDictionary:string = "";
 
-<<<<<<< HEAD
-  @ViewChild('MyModal')
-  modal: ModalComponent;
-
-  ModalOpen() {
-    this.modal.open();
-  }
-  ModalClose() {
-    this.modal.close();
-  }
-  
-  downloadExcel() {
-    this.currentDataService.downloadExcel(this.currentResultID);
-  }
-
-=======
->>>>>>> 6f2d2248b4e15b760554f779a85af392e06331c5
   checkInHidden(name: string) {
     return jQuery.inArray(name, this.hiddenList);
   }
@@ -104,30 +86,6 @@ export class SideBarComponent {
         }
 
       });
-
-<<<<<<< HEAD
-    currentDataService.checkPressed$.subscribe(
-      data => {
-        jQuery.hideLoading();
-        console.log(data);
-        if (data.code === 0) {
-          this.currentResultID = data.resultID;
-          var node = new PrettyJSON.view.Node({
-            el: jQuery("#elem"),
-            data: data.result
-          });
-        } else {
-          var node = new PrettyJSON.view.Node({
-            el: jQuery("#elem"),
-            data: {"message": data.message}
-          });
-        }
-
-        this.ModalOpen();
-
-      });
-=======
->>>>>>> 6f2d2248b4e15b760554f779a85af392e06331c5
 
     currentDataService.metadataRetrieved$.subscribe(
       data => {
