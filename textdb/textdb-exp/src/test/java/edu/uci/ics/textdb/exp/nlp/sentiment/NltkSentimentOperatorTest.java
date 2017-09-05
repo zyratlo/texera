@@ -13,8 +13,6 @@ import edu.uci.ics.textdb.exp.sink.tuple.TupleSink;
 import edu.uci.ics.textdb.exp.source.tuple.TupleSourceOperator;
 
 public class NltkSentimentOperatorTest {
-    private static String NEGATIVE_CLASS_LABEL = "neg";
-    private static String POSITIVE_CLASS_LABEL = "pos";
     private static String MODEL_FILE_NAME = "NltkSentiment.pickle";
     private static int BATCH_SIZE = 1000;
     
@@ -37,7 +35,7 @@ public class NltkSentimentOperatorTest {
         tupleSink.close();
         
         Tuple tuple = results.get(0);
-        Assert.assertEquals(tuple.getField("sentiment").getValue(), POSITIVE_CLASS_LABEL);
+        Assert.assertEquals(tuple.getField("sentiment").getValue(), SentimentConstants.POSITIVE);
     }
     
     /*
@@ -60,7 +58,7 @@ public class NltkSentimentOperatorTest {
         tupleSink.close();
         
         Tuple tuple = results.get(0);
-        Assert.assertEquals(tuple.getField("sentiment").getValue(), NEGATIVE_CLASS_LABEL);
+        Assert.assertEquals(tuple.getField("sentiment").getValue(), SentimentConstants.NEGATIVE);
     }
     
     /*
@@ -90,7 +88,7 @@ public class NltkSentimentOperatorTest {
         tupleSink.close();
         for (int i = 0; i < tupleSourceSize; i++) {
             Tuple tuple = results.get(i);
-            Assert.assertEquals(tuple.getField("sentiment").getValue(), NEGATIVE_CLASS_LABEL);
+            Assert.assertEquals(tuple.getField("sentiment").getValue(), SentimentConstants.NEGATIVE);
         }
     }
     
