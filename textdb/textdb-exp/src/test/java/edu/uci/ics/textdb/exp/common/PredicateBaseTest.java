@@ -37,6 +37,7 @@ import edu.uci.ics.textdb.exp.sampler.SamplerPredicate.SampleType;
 import edu.uci.ics.textdb.exp.sink.excel.ExcelSinkPredicate;
 import edu.uci.ics.textdb.exp.sink.mysql.MysqlSinkPredicate;
 import edu.uci.ics.textdb.exp.sink.tuple.TupleSinkPredicate;
+import edu.uci.ics.textdb.exp.source.asterix.AsterixSourcePredicate;
 import edu.uci.ics.textdb.exp.source.file.FileSourcePredicate;
 import edu.uci.ics.textdb.exp.source.scan.ScanSourcePredicate;
 import edu.uci.ics.textdb.exp.wordcount.WordCountIndexSourcePredicate;
@@ -228,6 +229,12 @@ public class PredicateBaseTest {
     public void testExcelSink() throws Exception {
     	ExcelSinkPredicate excelSinkPredicate = new ExcelSinkPredicate(10, 10);
     	testPredicate(excelSinkPredicate);
+    }
+    
+    @Test
+    public void testAsterixSource() throws Exception {
+        TestUtils.testJsonSerialization(new AsterixSourcePredicate(
+                "host", 19002, "twitter", "ds_tweet", "text", "zika", "2000-01-01", "2017-05-18", 10), true);
     }
     
     @Test

@@ -11,13 +11,20 @@ import any = jasmine.any;
 
 declare var jQuery: any;
 
+<<<<<<< HEAD
 const apiUrl = 'http://localhost:8080/api';
+=======
+const apiUrl = "http://localhost:8080/api";
+>>>>>>> 6f2d2248b4e15b760554f779a85af392e06331c5
 const textdbUrl = apiUrl + '/newqueryplan/execute';
 const metadataUrl = apiUrl + '/resources/metadata';
 const uploadDictionaryUrl = apiUrl + "/upload/dictionary";
 const getDictionariesUrl = apiUrl + "/resources/dictionaries";
 const getDictionaryContentUrl = apiUrl + "/resources/dictionary?name=";
+<<<<<<< HEAD
 const downloadExcelUrl = apiUrl + "/download/result?resultID=";
+=======
+>>>>>>> 6f2d2248b4e15b760554f779a85af392e06331c5
 
 const defaultData = {
     top: 20,
@@ -62,7 +69,7 @@ export class CurrentDataService {
     }
 
     clearData() : void {
-      this.newAddition.next({operatorNum : 0, operatorData: defaultData});
+      this.newAddition.next({operatorNum : null, operatorData: defaultData});
     }
 
     processData(): void {

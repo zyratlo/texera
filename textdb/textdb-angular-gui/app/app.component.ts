@@ -5,6 +5,7 @@ import { CurrentDataService } from './services/current-data-service';
 
 import { TheFlowchartComponent } from './flowchart/the-flowchart.component';
 import { OperatorBarComponent } from './operatorbar/operator-bar.component';
+import { ResultBarComponent } from './resultbar/result-bar.component';
 
 declare var jQuery: any;
 
@@ -17,6 +18,7 @@ declare var jQuery: any;
 		<div id="wrapper">
         <side-bar-container class="container fill"></side-bar-container>
 		    <flowchart-container class="container fill" #theFlowchart></flowchart-container>
+        <result-container #theResultBar></result-container>
 		</div>
 	`,
     providers: [MockDataService, CurrentDataService],
@@ -32,13 +34,15 @@ export class AppComponent {
 
     @ViewChild('theFlowchart') theFlowchart: TheFlowchartComponent;
     @ViewChild('theOperatorBar') theOperatorBar: OperatorBarComponent;
+    @ViewChild('theResultBar') theResultBar: ResultBarComponent;
 
     ngAfterViewInit() {
         var current = this;
-        
+
         jQuery(document).ready(function() {
             current.theFlowchart.initialize({});
             current.theOperatorBar.initialize();
+            current.theResultBar.initializing();
 
         });
 

@@ -3,9 +3,11 @@ package edu.uci.ics.textdb.web.resource;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -100,5 +102,27 @@ public class NewQueryPlanResource {
             throw new TextdbWebException(e.getMessage());
         }   
     }
+    
+    
+    public static void cleanupOldResults() throws IOException {
+    		List<java.nio.file.Path> resultFiles = Files.list(resultDirectory).collect(Collectors.toList());
+    		if (resultFiles.size() < 10) {
+    			return;
+    		}
+    		
+    		Collections.sort(resultFiles, (java.nio.file.Path f1, java.nio.file.Path f2) -> {
+				try {
+					return (
+							Files.readAttributes(f1, BasicFileAttributes.class).creationTime().compareTo(
+									Files.readAttributes(f2, BasicFileAttributes.class).creationTime()));
+				} catch (IOException e) {
+					return 0;
+				}
+			});
+    		
+    		java.nio.file.Path oldestFile = resultFiles.get(0);
+    		Files.delete(oldestFile);
+    }    
+    
 
 }
