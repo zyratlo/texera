@@ -61,6 +61,10 @@ public class PropertyNameConstants {
     public static final String SPLIT_REGEX = "splitRegex";
     public static final String REGEX_OUTPUT_TYPE = "splitOption";
     public static final String REGEX_SPLIT_KEY = "regexSplit";
+    
+    //related to nltk operator
+    public static final String NLP_NLTK_BATCH_SIZE = "batchSize";
+    public static final String NLP_NLTK_MODEL = "inputAttributeModel";
 
     // related to sampler
     public static final String SAMPLE_SIZE = "sampleSize";
@@ -77,6 +81,15 @@ public class PropertyNameConstants {
     public static final String SPAN_DISTANCE = "spanDistance";
     public static final String JOIN_SIMILARITY_THRESHOLD = "similarityThreshold";
     
+    // related to asterix connector
+    public static final String ASTERIX_HOST = "host";
+    public static final String ASTERIX_PORT = "port";
+    public static final String ASTERIX_DATAVERSE = "dataverse";
+    public static final String ASTERIX_DATASET = "dataset";
+    public static final String ASTERIX_QUERY_FIELD = "queryField";
+    public static final String ASTERIX_START_DATE = "startDate";
+    public static final String ASTERIX_END_DATE = "endDate";
+
     // related to ComparableMatcher
     public static final String COMPARISON_TYPE = "comparisonType";
     public static final String COMPARE_TO_VALUE = "compareTo";
@@ -90,5 +103,15 @@ public class PropertyNameConstants {
     public static final String MYSQL_PASSWORD = "password";
     public static final String MYSQL_LIMIT = "limit";
     public static final String MYSQL_OFFSET = "offset";
+
+    // related to TwitterFeed Operator
+    public static final String TWEET_NUM = "tweetNum";
+    public static final String TWEET_QUERY_LIST = "keywordList";
+    public static final String TWEET_LOCATION_LIST = "locationList";
+    public static final String TWEET_LANGUAGE_LIST = "languageList";
+    public static final String TWEET_CUSTOMER_KEY = "customerKey";
+    public static final String TWEET_CUSTOMER_SECRET = "customerSecret";
+    public static final String TWEET_TOKEN = "token";
+    public static final String TWEET_TOKEN_SECRET = "tokenSecret";
     
 }
