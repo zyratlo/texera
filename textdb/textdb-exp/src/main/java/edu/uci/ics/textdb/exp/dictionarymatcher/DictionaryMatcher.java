@@ -17,6 +17,8 @@ import edu.uci.ics.textdb.exp.keywordmatcher.KeywordMatchingType;
 import edu.uci.ics.textdb.exp.utils.DataflowUtils;
 
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 
@@ -63,6 +65,8 @@ public class DictionaryMatcher extends AbstractSingleInputOperator {
         } else if (predicate.getKeywordMatchingType() == KeywordMatchingType.PHRASE_INDEXBASED) {
             predicate.getDictionary().setDictionaryTokenListWithStopwords(predicate.getAnalyzerString());
             predicate.getDictionary().setDictionaryTokenSetList(predicate.getAnalyzerString());
+        } else if (predicate.getKeywordMatchingType() == KeywordMatchingType.REGEX) {
+            predicate.getDictionary().setPatternList();
         }
     }
 
@@ -118,6 +122,32 @@ public class DictionaryMatcher extends AbstractSingleInputOperator {
 
             while ((currentDictionaryEntry = predicate.getDictionary().getNextEntry()) != null) {
                 DataflowUtils.appendSubstringMatchingSpans(inputTuple, predicate.getAttributeNames(), currentDictionaryEntry, matchingResults);
+            }
+
+        } else if (predicate.getKeywordMatchingType() == KeywordMatchingType.REGEX) {
+
+            ArrayList<Pattern> patternList = predicate.getDictionary().getPatternList();
+            ArrayList<String> dictionaryEntries = predicate.getDictionary().getDictionaryEntries();
+            matchingResults = new ArrayList<>();
+
+            for (int i = 0; i < dictionaryEntries.size(); i++) {
+                for (String attributeName : predicate.getAttributeNames()) {
+                    AttributeType attributeType = inputTuple.getSchema().getAttribute(attributeName).getAttributeType();
+                    String fieldValue = inputTuple.getField(attributeName).getValue().toString();
+
+                    // types other than TEXT and STRING: throw Exception for now
+                    if (attributeType != AttributeType.STRING && attributeType != AttributeType.TEXT) {
+                        throw new DataFlowException("KeywordMatcher: Fields other than STRING and TEXT are not supported yet");
+                    }
+
+                    Matcher javaMatcher = patternList.get(i).matcher(fieldValue);
+                    while (javaMatcher.find()) {
+                        int start = javaMatcher.start();
+                        int end = javaMatcher.end();
+                        matchingResults.add(
+                                new Span(attributeName, start, end, dictionaryEntries.get(i), fieldValue.substring(start, end)));
+                    }
+                }
             }
 
         }
