@@ -32,7 +32,7 @@ public class NlpSentimentTest {
         tupleSink.close();
         
         Tuple tuple = results.get(0);
-        Assert.assertEquals(tuple.getField("sentiment").getValue(), 3);
+        Assert.assertEquals(tuple.getField("sentiment").getValue(), SentimentConstants.POSITIVE);
     }
     
     /*
@@ -54,7 +54,7 @@ public class NlpSentimentTest {
         tupleSink.close();
         
         Tuple tuple = results.get(0);
-        Assert.assertEquals(tuple.getField("sentiment").getValue(), 2);     
+        Assert.assertEquals(tuple.getField("sentiment").getValue(), SentimentConstants.NEUTRAL);     
     }
     
     /*
@@ -76,7 +76,7 @@ public class NlpSentimentTest {
         tupleSink.close();
         
         Tuple tuple = results.get(0);
-        Assert.assertEquals(tuple.getField("sentiment").getValue(), 1);        
+        Assert.assertEquals(tuple.getField("sentiment").getValue(), SentimentConstants.NEGATIVE);        
     }  
 
 }

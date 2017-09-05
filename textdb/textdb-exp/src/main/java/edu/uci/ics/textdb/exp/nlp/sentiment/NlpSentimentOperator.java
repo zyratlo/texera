@@ -151,11 +151,11 @@ public class NlpSentimentOperator implements IOperator {
     
     private static int normalizeSentimentScore(int nlpSentiment) {
         if (nlpSentiment > 2) {
-            return 1;
+            return SentimentConstants.POSITIVE;
         } else if (nlpSentiment == 2) {
-            return 0;
+            return SentimentConstants.NEUTRAL;
         } else {
-            return -1;
+            return SentimentConstants.NEGATIVE;
         }
     }
 

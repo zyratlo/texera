@@ -30,7 +30,7 @@ public class EmojiSentimentTest {
         tupleSink.close();
 
         Tuple tuple = results.get(0);
-        Assert.assertEquals(tuple.getField("sentiment").getValue(), 3);
+        Assert.assertEquals(tuple.getField("sentiment").getValue(), SentimentConstants.POSITIVE);
     }
 
     /*
@@ -52,7 +52,7 @@ public class EmojiSentimentTest {
         tupleSink.close();
 
         Tuple tuple = results.get(0);
-        Assert.assertEquals(tuple.getField("sentiment").getValue(), 2);
+        Assert.assertEquals(tuple.getField("sentiment").getValue(), SentimentConstants.NEUTRAL);
     }
 
     /*
@@ -75,7 +75,7 @@ public class EmojiSentimentTest {
         tupleSink.close();
 
         Tuple tuple = results.get(0);
-        Assert.assertEquals(tuple.getField("sentiment").getValue(), 1);
+        Assert.assertEquals(tuple.getField("sentiment").getValue(), SentimentConstants.NEGATIVE);
     }
     @Test
     public void test4() throws TextDBException {
@@ -93,7 +93,7 @@ public class EmojiSentimentTest {
         tupleSink.close();
 
         Tuple tuple = results.get(0);
-        Assert.assertEquals(tuple.getField("sentiment").getValue(), 3);
+        Assert.assertEquals(tuple.getField("sentiment").getValue(), SentimentConstants.POSITIVE);
     }
     @Test
     public void test5() throws TextDBException {
@@ -111,6 +111,6 @@ public class EmojiSentimentTest {
         tupleSink.close();
 
         Tuple tuple = results.get(0);
-        Assert.assertEquals(tuple.getField("sentiment").getValue(), 1);
+        Assert.assertEquals(tuple.getField("sentiment").getValue(), SentimentConstants.NEGATIVE);
     }
 }

@@ -37,8 +37,6 @@ public class EmojiSentimentOperator implements IOperator {
     private IOperator inputOperator;
     private Schema outputSchema;
     private int cursor = CLOSED;
-    // set neutral score to 0
-    private static final int NEUTRAL_SCORE = 0;
     //SMILEY_REGEX_PATTERN identifies all happiness related emoticons like :) :-) <3 etc in the given text. 
     //The regex is given below. 
     public static final Pattern SMILEY_REGEX_PATTERN = Pattern.compile(".*(:[)DdpP]|:[ -]\\)|<3)+.*");
@@ -174,7 +172,7 @@ public class EmojiSentimentOperator implements IOperator {
     private Integer computeSentimentScore(Tuple inputTuple) {
         String inputText = inputTuple.<IField>getField(predicate.getInputAttributeName()).getValue().toString();
         Matcher matcher = null;
-        Integer matchedStringScore = NEUTRAL_SCORE;
+        Integer matchedStringScore = SentimentConstants.NEUTRAL;
         if(SMILEY_REGEX_PATTERN!= null){
             matcher = SMILEY_REGEX_PATTERN.matcher(inputText);
             if(matcher.matches()){
@@ -209,11 +207,11 @@ public class EmojiSentimentOperator implements IOperator {
                 }
             }
         }
-        if(matchedStringScore < NEUTRAL_SCORE){
-            matchedStringScore = -1;
+        if(matchedStringScore < SentimentConstants.NEUTRAL){
+            matchedStringScore = SentimentConstants.NEGATIVE;
         }
-        if(matchedStringScore > NEUTRAL_SCORE){
-            matchedStringScore = 1;
+        if(matchedStringScore > SentimentConstants.NEUTRAL){
+            matchedStringScore = SentimentConstants.POSITIVE;
         }
         return matchedStringScore;
     }
