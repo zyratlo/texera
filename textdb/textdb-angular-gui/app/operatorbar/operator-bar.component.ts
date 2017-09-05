@@ -93,7 +93,7 @@ export class OperatorBarComponent {
         var offset = targetOperator.offset();
         var targetWidth = parseInt(targetOperator.css('width'),10);
         var targetHeight = parseInt(targetOperator.css('height'),10);
-        var margin = parseInt(targetOperator.css('margin'),10);
+        var margin = parseInt(targetOperator.css('margin-top'),10);
         currentDetailProcess = setTimeout(openDetail , 1500 , offset.left, offset.top, targetWidth, targetHeight, margin, operatorName);
       },
       function(e){
