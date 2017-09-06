@@ -293,6 +293,7 @@ $(function () {
               var operatorID = self.rightClickedOperatorID;
               self.showOperatorDetail(operatorID);
               self.hideRightClickMenu();
+              e.stopImmediatePropagation(); 
               return false;
             });
 
@@ -303,6 +304,7 @@ $(function () {
               }
               self.deleteOperator(operatorID); // delete the operator
               self.hideRightClickMenu(); // hide the right click menu manually since we prevent the default flowchart-operator action
+              e.stopImmediatePropagation();
             });
         },
 
