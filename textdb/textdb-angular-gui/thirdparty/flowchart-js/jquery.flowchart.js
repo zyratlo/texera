@@ -684,7 +684,9 @@ $(function () {
 
             fullElement.input_output.css({
               "background" : "url(" + operatorData.properties.image + ")",
-              "background-size" : "100% 100%"
+              "background-size" : "contain",
+              "background-repeat": "no-repeat",
+              "background-position": "50% 50%",
             });
             fullElement.title.css({
               "background" : operatorData.properties.color,
