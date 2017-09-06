@@ -15,7 +15,7 @@ const INCREMENT = 0.1;
 			<div id="the-flowchart"></div>
       <button class="zoomInButton" (click)="zoomInDiv()"> + </button>
       <button class="zoomOutButton" (click)="zoomOutDiv()"> - </button>
-      <button class="btn btn-default navbar-btn excelDownloadButton" (click)="downloadExcel()" disabled><i class="fa fa-file-excel-o excelIcon" aria-hidden="true"></i>Download As Excel</button>
+      <button class="btn btn-default navbar-btn excelDownloadButton" (click)="downloadExcel()"><i class="fa fa-file-excel-o excelIcon" aria-hidden="true"></i>Download As Excel</button>
     </div>
 	`,
   styleUrls: ['../style.css'],
@@ -42,11 +42,10 @@ export class TheFlowchartComponent {
         if (data.code === 0) {
           this.currentResultID = data.resultID;
 
-          jQuery('.excelDownloadButton').prop("disabled",false);
-          jQuery('.excelDownloadButton').css({"opacity":"1"});
+          jQuery('.excelDownloadButton').css("display","block");
+          jQuery('.excelDownloadButton').css({"opacity":"0.8"});
         } else {
-          jQuery('.excelDownloadButton').prop("disabled",true);
-          jQuery('.excelDownloadButton').css({"opacity":"0.5"});
+          jQuery('.excelDownloadButton').css("display","none");
         }
       }
     );
