@@ -324,12 +324,12 @@ let asterixSource = {
     title : 'AsterixSource',
     inputs : {
       input_1 : {
-        label : "Input (:i)",
+        label : "",
       }
     },
     outputs : {
       output_1 : {
-        label : "Output (:i)",
+        label : "",
       }
     },
     attributes : {
@@ -571,17 +571,18 @@ let twitterConverter = {
     title : 'Convert Twitter',
     inputs : {
       input_1 : {
-        label : "Input (:i)",
+        label : "",
       }
     },
     outputs : {
       output_1 : {
-        label : "Output (:i)",
+        label : "",
       }
     },
     attributes : {
         "operatorType": "TwitterConverter"
-    }
+    },
+    color : '#ffdb4d',
   }
 }
 
