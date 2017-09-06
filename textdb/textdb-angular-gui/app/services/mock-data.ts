@@ -314,6 +314,36 @@ let projection = {
     },
     image : '../thirdparty/images/projection.png',
     color : '#ffdb4d',
+      }
+  }
+
+let asterixSource = {
+  top : 20,
+  left : 20,
+  properties : {
+    title : 'Source: Asterix',
+    inputs : {
+      input_1 : {
+        label : "",
+      }
+    },
+    outputs : {
+      output_1 : {
+        label : "",
+      }
+    },
+    attributes : {
+        "operatorType": "AsterixSource",
+        "host": "texera.ics.uci.edu",
+        "port": 19002,
+        "dataverse": "twitter",
+        "dataset": "ds_tweet",
+        "queryField": "text",
+        "query": "drug",
+        "limit": 100000,
+    },
+    image : '../thirdparty/images/asterixSource.png',
+    color : '#cc99ff',
   }
 }
 
@@ -534,6 +564,28 @@ let wordCount = {
   }
 }
 
+let twitterConverter = {
+  top : 20,
+  left : 20,
+  properties : {
+    title : 'Convert Twitter',
+    inputs : {
+      input_1 : {
+        label : "",
+      }
+    },
+    outputs : {
+      output_1 : {
+        label : "",
+      }
+    },
+    attributes : {
+        "operatorType": "TwitterConverter"
+    },
+    color : '#ffdb4d',
+  }
+}
+
 let comparison = {
   top : 20,
   left : 20,
@@ -722,4 +774,6 @@ export const DEFAULT_MATCHERS: Data[] = [
     {id: 24, jsonData: fileSource},
     {id: 25, jsonData: mysqlSink},
     {id: 26, jsonData: nltkSentiment},
+    {id: 27, jsonData: asterixSource},
+    {id: 28, jsonData: twitterConverter}
 ];

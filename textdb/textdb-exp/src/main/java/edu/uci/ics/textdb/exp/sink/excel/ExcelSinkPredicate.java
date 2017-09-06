@@ -45,7 +45,7 @@ public class ExcelSinkPredicate extends PredicateBase {
     }
     
     @Override
-    public IOperator newOperator() {
+    public ExcelSink newOperator() {
         return new ExcelSink(this);
     }
 

@@ -293,6 +293,7 @@ $(function () {
               var operatorID = self.rightClickedOperatorID;
               self.showOperatorDetail(operatorID);
               self.hideRightClickMenu();
+              e.stopImmediatePropagation(); 
               return false;
             });
 
@@ -303,6 +304,7 @@ $(function () {
               }
               self.deleteOperator(operatorID); // delete the operator
               self.hideRightClickMenu(); // hide the right click menu manually since we prevent the default flowchart-operator action
+              e.stopImmediatePropagation();
             });
         },
 
@@ -682,7 +684,9 @@ $(function () {
 
             fullElement.input_output.css({
               "background" : "url(" + operatorData.properties.image + ")",
-              "background-size" : "100% 100%"
+              "background-size" : "contain",
+              "background-repeat": "no-repeat",
+              "background-position": "50% 50%",
             });
             fullElement.title.css({
               "background" : operatorData.properties.color,
