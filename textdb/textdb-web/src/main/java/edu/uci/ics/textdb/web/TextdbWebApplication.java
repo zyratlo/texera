@@ -7,6 +7,7 @@ import com.github.dirkraft.dropwizard.fileassets.FileAssetsBundle;
 import edu.uci.ics.textdb.perftest.sample.SampleExtraction;
 import edu.uci.ics.textdb.perftest.twitter.TwitterSample;
 import edu.uci.ics.textdb.web.healthcheck.SampleHealthCheck;
+import edu.uci.ics.textdb.web.resource.DownloadFileResource;
 import edu.uci.ics.textdb.web.resource.FileUploadResource;
 import edu.uci.ics.textdb.web.resource.NewQueryPlanResource;
 import edu.uci.ics.textdb.web.resource.PlanStoreResource;
@@ -46,6 +47,9 @@ public class TextdbWebApplication extends Application<TextdbWebConfiguration> {
         final PlanStoreResource planStoreResource = new PlanStoreResource();
         // Registers the PlanStoreResource with Jersey
         environment.jersey().register(planStoreResource);
+        
+        final DownloadFileResource downloadFileResource = new DownloadFileResource();
+        environment.jersey().register(downloadFileResource);
 
         // Creates an instance of the HealthCheck and registers it with the environment
         final SampleHealthCheck sampleHealthCheck = new SampleHealthCheck();
@@ -79,7 +83,6 @@ public class TextdbWebApplication extends Application<TextdbWebConfiguration> {
         // Add URL mapping
         cors.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), true, "/*");
     }
-
 
     public static void main(String args[]) throws Exception {
         System.out.println("Writing promed Index");

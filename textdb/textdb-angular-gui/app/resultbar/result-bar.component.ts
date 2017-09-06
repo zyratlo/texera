@@ -39,7 +39,7 @@ export class ResultBarComponent {
         // check if the result is valid
         if (data.code === 0) {
 
-          this.result = JSON.parse(data.message);
+          this.result = data.result;
           console.log(this.result);
           for (var each in this.result[0]){
             if (each !== "_id"){
