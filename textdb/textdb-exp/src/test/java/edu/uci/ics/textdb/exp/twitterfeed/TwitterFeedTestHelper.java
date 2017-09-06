@@ -85,10 +85,10 @@ public class TwitterFeedTestHelper {
                 List<String> coordString = Arrays.asList(tuple.getField(TWEET_COORDINATES).getValue().toString().split(","));
 
                 Location.Coordinate coordinate = new Location.Coordinate(Double.parseDouble(coordString.get(0).trim()), Double.parseDouble(coordString.get(1).trim()));
-                if (!(coordinate.latitude() > southwestCoordinate.latitude() &&
-                        coordinate.longitude() > southwestCoordinate.longitude() &&
-                        coordinate.latitude() < northeastCoordinate.latitude() &&
-                        coordinate.longitude() < northeastCoordinate.longitude())) {
+                if (!(coordinate.latitude() >= southwestCoordinate.latitude() &&
+                        coordinate.longitude() >= southwestCoordinate.longitude() &&
+                        coordinate.latitude() <= northeastCoordinate.latitude() &&
+                        coordinate.longitude() <= northeastCoordinate.longitude())) {
                     return false;
                 }
 
