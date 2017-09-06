@@ -396,6 +396,37 @@ let scanSource = {
   }
 }
 
+ let twitterfeedSource = {
+     top : 20,
+     left : 20,
+     properties : {
+         title : 'Source: TwitterFeed',
+         inputs : {
+             input_1 : {
+                 label : "",
+             }
+         },
+         outputs : {
+             output_1 : {
+                 label : "",
+             }
+         },
+         attributes : {
+             "operatorType": "TwitterFeed",
+             "keywordList": [],
+             "locationList": "",
+             "tweetNum": 10,
+             "customerKey": "",
+             "customerSecret": "",
+             "token": "",
+             "tokenSecret": "",
+             "languageList": ["en"]
+         },
+         image: '../thirdparty/images/twitterFeed.png',
+         color: '#cc99ff'
+     }
+ }
+
 let keywordSource = {
   top : 20,
   left : 20,
@@ -775,5 +806,6 @@ export const DEFAULT_MATCHERS: Data[] = [
     {id: 25, jsonData: mysqlSink},
     {id: 26, jsonData: nltkSentiment},
     {id: 27, jsonData: asterixSource},
-    {id: 28, jsonData: twitterConverter}
+    {id: 28, jsonData: twitterConverter},
+    {id: 29, jsonData: twitterfeedSource}
 ];
