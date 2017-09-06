@@ -1,7 +1,6 @@
 import {Component, ViewChild, OnInit} from '@angular/core';
 
 import { CurrentDataService } from '../services/current-data-service';
-import { ModalComponent } from 'ng2-bs3-modal/ng2-bs3-modal';
 import { TableMetadata } from "../services/table-metadata";
 import {log} from "util";
 
@@ -64,16 +63,6 @@ export class SideBarComponent {
 
     optionalTwitterList: Array<string> = ["customerKey","customerSecret","token","tokenSecret"];
 
-    @ViewChild('MyModal')
-    modal: ModalComponent;
-
-    ModalOpen() {
-        this.modal.open();
-    }
-    ModalClose() {
-        this.modal.close();
-    }
-
     checkInHidden(name: string) {
         return jQuery.inArray(name, this.hiddenList);
     }
@@ -107,9 +96,6 @@ export class SideBarComponent {
                   this.twitterLanguageMapping[this.twitterLanguageList[i]] = this.twitterLanguageShortenList[i];
                 }
 
-
-
-
                 if (data.operatorData.properties.attributes.attributes) {
                     this.selectedAttributesList = data.operatorData.properties.attributes.attributes;
                 } else if (data.operatorData.properties.attributes.attribute) {
@@ -127,26 +113,6 @@ export class SideBarComponent {
                 if (data.operatorData.properties.attributes.languageList) {
                     this.twitterLanguage = data.operatorData.properties.attributes.languageList;
                 }
-
-            });
-
-        currentDataService.checkPressed$.subscribe(
-            data => {
-                jQuery.hideLoading();
-                console.log(data);
-                if (data.code === 0) {
-                    var node = new PrettyJSON.view.Node({
-                        el: jQuery("#elem"),
-                        data: JSON.parse(data.message)
-                    });
-                } else {
-                    var node = new PrettyJSON.view.Node({
-                        el: jQuery("#elem"),
-                        data: {"message": data.message}
-                    });
-                }
-
-                this.ModalOpen();
 
             });
 
@@ -191,18 +157,6 @@ export class SideBarComponent {
         return frags.join(' ');
     }
 
-    onFormChange (attribute: string) {
-        jQuery("#the-flowchart").flowchart("setOperatorData", this.operatorId, this.data);
-    }
-
-    onDelete() {
-        this.operatorTitle = "Operator";
-        this.attributes = [];
-        this.dictionaryContent = [];
-        jQuery("#the-flowchart").flowchart("deleteOperator", this.operatorId);
-        this.currentDataService.setAllOperatorData(jQuery('#the-flowchart').flowchart('getData'));
-    }
-
     attributeAdded (type: string) {
         if (type === "multi") {
             this.selectedAttributesList.push(this.selectedAttributeMulti);
@@ -219,8 +173,6 @@ export class SideBarComponent {
         this.data.properties.attributes.locationList = this.locationString;
         this.onFormChange("locationList");
     }
-
-
 
     manuallyAdded (event:string) {
         if (event.length === 0) {
@@ -268,6 +220,26 @@ export class SideBarComponent {
         this.data.properties.attributes.dictionaryEntries = this.dictionaryContent;
         this.onFormChange("dictionary");
     }
+
+  onFormChange (attribute: string) {
+    var currentData = jQuery("#the-flowchart").flowchart("getOperatorData", this.operatorId);
+    // update the position of the operator if it is moved before the value is changed
+    this.data.left = currentData.left;
+    this.data.top = currentData.top;
+    jQuery("#the-flowchart").flowchart("setOperatorData", this.operatorId, this.data);
+  }
+
+  onDelete() {
+    this.operatorTitle = "Operator";
+    this.attributes = [];
+    this.dictionaryContent = [];
+    jQuery("#the-flowchart").flowchart("deleteOperator", this.operatorId);
+    this.currentDataService.clearData();
+    this.currentDataService.setAllOperatorData(jQuery('#the-flowchart').flowchart('getData'));
+  }
+
+
+
 
     twitterQueryManuallyAdded(event: string) {
         if (event.length === 0) {
