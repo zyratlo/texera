@@ -45,7 +45,7 @@ body {
 }
 
 .previous-operators{
-	margin-left: 240px;
+	margin-left: 255px;
 }
 
 .fill {
@@ -341,7 +341,7 @@ body {
 
 
 
-@media screen and (min-width: 1200px) {
+@media screen and (min-width: 1080px) {
 	#sidebar-wrapper {
 		width: 255px;
 	}
@@ -354,14 +354,34 @@ body {
 			width: calc(100% - 255px);
 	}
 	.previous-operators{
-		margin-left: 240px;
+		margin-left: 255px;
 	}
 	.form-control {
 		width : 220px;
 	}
 }
 
-@media screen and (min-width: 768px) and (max-width: 1080px) {
+@media screen and (min-width: 900px) and (max-width: 1080px) {
+	#sidebar-wrapper {
+		width: 220px;
+	}
+	#flow-chart-container{
+		width: calc(100% - 220px);;
+		left: 220px;
+	}
+	#result-container {
+			margin-left: 220px;
+			width: calc(100% - 220px);
+	}
+	.previous-operators{
+		margin-left: 220px;
+	}
+	.form-control {
+		width : 185px;
+	}
+}
+
+@media screen and (min-width: 768px) and (max-width: 900px) {
 	#sidebar-wrapper {
 		width: 200px;
 	}
@@ -374,33 +394,34 @@ body {
 			width: calc(100% - 200px);
 	}
 	.previous-operators{
-		margin-left: 185px;
+		margin-left: 200px;
 	}
 	.form-control {
 		width : 165px;
 	}
 }
 
+
 @media screen and (max-width: 768px) {
 	#sidebar-wrapper {
-		width: 170px;
+		width: 180px;
 	}
 	#flow-chart-container{
-		width: calc(100% - 170px);;
-		left: 170px;
+		width: calc(100% - 180px);;
+		left: 180px;
 	}
 	#result-container {
-			margin-left: 170px;
-			width: calc(100% - 170px);
+			margin-left: 180px;
+			width: calc(100% - 180px);
 	}
 	.previous-operators{
-		margin-left: 155px;
+		margin-left: 180px;
 	}
 	.form-control {
-		width : 135px;
+		width : 145px;
 	}
 
-
+/* fix bootstrap issue*/
 	.navbar-left {
     float: left !important;
   }
