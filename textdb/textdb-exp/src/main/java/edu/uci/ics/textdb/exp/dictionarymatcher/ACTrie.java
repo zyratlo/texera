@@ -4,6 +4,9 @@ package edu.uci.ics.textdb.exp.dictionarymatcher;
 import java.util.*;
 
 /**
+ * This is to implement the aho-corasick algorithm to build automaton
+ * for all dictionary entries with a prefix trie and failure transactions.
+ * Wiki page link: https://github.com/Texera/texera/wiki/Aho-Corasick-String-Matching-Algorithm
  * Created by Chang on 8/29/17.
  */
 public class ACTrie {
@@ -36,6 +39,10 @@ public class ACTrie {
         }
     }
 
+    /**
+     * Run a BFS on the constructed prefix trie to setup links between
+     * failed matching node to its longest common suffix on other branches.
+     */
     public void constructFailureTransactions() {
         Deque<TrieNode> queue = new ArrayDeque<>();
         for(TrieNode node : this.rootNode.getChildrenNodes()){
@@ -60,6 +67,13 @@ public class ACTrie {
         }
     }
 
+    /**
+     * Traverse the input text and firstly try to follow the success transactions to its child node.
+     * If it doesn't exist, turn to follow the failure transactions. When reaching a node with non-empty
+     * output keywords, add them along with the start and end positions into resultList.
+     * @param text
+     * @return
+     */
     public List<Emit> parseText(String text){
         List<Emit> resultList = new ArrayList<>();
         if(text == null || text.isEmpty()) return resultList;
