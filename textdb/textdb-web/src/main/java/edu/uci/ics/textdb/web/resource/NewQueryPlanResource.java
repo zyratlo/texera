@@ -42,7 +42,7 @@ import edu.uci.ics.textdb.web.TextdbWebException;
 @Consumes(MediaType.APPLICATION_JSON)
 public class NewQueryPlanResource {
     
-    public static java.nio.file.Path resultDirectory = Paths.get(Utils.getTextdbHomePath(), "result");
+    public static java.nio.file.Path resultDirectory = Paths.get(Utils.getTextdbHomePath(), "query-results");
     
     /**
      * This is the edu.uci.ics.textdb.web.request handler for the execution of a Query Plan.
@@ -113,6 +113,8 @@ public class NewQueryPlanResource {
     /**
      * Cleans up the old result json files stored in the file system.
      * The current cleanup policy is to keep the latest 5 files.
+     * 
+     * TODO: In the case where there are multiple users, they need their own spaces for storing files.
      * 
      * @throws IOException
      */

@@ -22,7 +22,7 @@ index
 catalog
 plan/
 plan_files/
-result
+query-results/
 
 # Ignoring Mac OSX specific files
 .DS_Store
