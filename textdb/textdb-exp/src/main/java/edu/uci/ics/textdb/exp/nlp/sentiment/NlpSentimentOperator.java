@@ -27,11 +27,9 @@ import edu.uci.ics.textdb.api.utils.Utils;
  * This Operator performs sentiment analysis using Stanford NLP's sentiment analysis module.
  * 
  * The result is an integer indicating the sentiment score, which represents:
- * 4 - very positive
- * 3 - positive
- * 2 - neutral
- * 1 - negative
- * 0 - very negative
+ * 1 - positive
+ * 0 - neutral
+ * -1 - negative
  * 
  * The result will be put into an attribute with resultAttributeName specified in predicate, and type Integer.
  * 
@@ -148,8 +146,17 @@ public class NlpSentimentOperator implements IOperator {
                 mainSentiment = sentiment;
             }
         }
-        
-        return mainSentiment;
+        return normalizeSentimentScore(mainSentiment);
+    }
+    
+    private static int normalizeSentimentScore(int nlpSentiment) {
+        if (nlpSentiment > 2) {
+            return SentimentConstants.POSITIVE;
+        } else if (nlpSentiment == 2) {
+            return SentimentConstants.NEUTRAL;
+        } else {
+            return SentimentConstants.NEGATIVE;
+        }
     }
 
     @Override

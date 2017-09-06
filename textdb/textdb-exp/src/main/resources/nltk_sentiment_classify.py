@@ -31,7 +31,7 @@ def classifyData():
 	pickleFile = open(pickleFullPathFileName, 'rb')
 	sentimentModel = pickle.load(pickleFile)#	for text in sys.argv[2:]:
 	for key, value in inputDataMap.items():
-		recordLabelMap[key] = sentimentModel.classify(value)
+		recordLabelMap[key] = 1 if sentimentModel.classify(value) == "pos" else -1
 	pickleFile.close()
 		
 def readData():
