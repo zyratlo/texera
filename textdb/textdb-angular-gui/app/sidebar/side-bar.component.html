@@ -45,9 +45,9 @@
                 </div>
 
 
-                <input *ngIf="attribute === 'keywordList'" class="form-control" id="{{attribute}}" [ngModel]="data.properties.attributes[attribute]" (ngModelChange)="twitterQueryManuallyAdded($event)" name="{{attribute}}" #{{attribute}}="ngModel" required>
+                <input *ngIf="attribute === 'keywordList'" class="form-control" id="{{attribute}}" [ngModel]="data.properties.attributes[attribute]" (ngModelChange)="twitterQueryManuallyAdded($event)" name="{{attribute}}" #{{attribute}}="ngModel">
 
-                <input *ngIf="attribute === 'locationList'" class="form-control" id="{{attribute}}" placeholder = "SW-lat, SW-long, NE-lat, NE-long" [ngModel]="locationString" (ngModelChange)="locationAdded($event)" name="{{attribute}}" #{{attribute}}="ngModel" required>
+                <input *ngIf="attribute === 'locationList'" class="form-control" id="{{attribute}}" placeholder = "SW-lat, SW-long, NE-lat, NE-long" [ngModel]="locationString" (ngModelChange)="locationAdded($event)" name="{{attribute}}" #{{attribute}}="ngModel">
 
 
                 <div *ngIf="attribute === 'languageList'">
