@@ -321,7 +321,7 @@ let asterixSource = {
   top : 20,
   left : 20,
   properties : {
-    title : 'AsterixSource',
+    title : 'Source: Asterix',
     inputs : {
       input_1 : {
         label : "",

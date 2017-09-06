@@ -67,6 +67,8 @@ export class OperatorBarComponent {
     this.mockDataService.getOperatorList().then(
       data => {
         operatorList = data;
+        console.log("Testing");
+        console.log(operatorList);
       },
       error => {
         console.log(error);
@@ -94,7 +96,7 @@ export class OperatorBarComponent {
         var targetWidth = parseInt(targetOperator.css('width'),10);
         var targetHeight = parseInt(targetOperator.css('height'),10);
         var margin = parseInt(targetOperator.css('margin-top'),10);
-        currentDetailProcess = setTimeout(openDetail , 1500 , offset.left, offset.top, targetWidth, targetHeight, margin, operatorName);
+        currentDetailProcess = setTimeout(openDetail , 700 , offset.left, offset.top, targetWidth, targetHeight, margin, operatorName);
       },
       function(e){
         clearTimeout(currentDetailProcess);
