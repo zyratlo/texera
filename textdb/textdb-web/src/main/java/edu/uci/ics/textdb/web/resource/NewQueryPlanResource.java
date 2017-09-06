@@ -65,6 +65,11 @@ public class NewQueryPlanResource {
                 List<Tuple> results = tupleSink.collectAllTuples();
                 tupleSink.close();
                 
+                // make sure result directory is created
+                if (Files.notExists(resultDirectory)) {
+                    Files.createDirectories(resultDirectory);
+                }
+                
                 // clean up old result files
                 cleanupOldResults();
                 
@@ -73,9 +78,7 @@ public class NewQueryPlanResource {
                 
                 // write original json of the result into a file                
                 java.nio.file.Path resultFile = resultDirectory.resolve(resultID + ".json");
-                if (Files.notExists(resultDirectory)) {
-                    Files.createDirectories(resultDirectory);
-                }
+
                 Files.createFile(resultFile);
                 Files.write(resultFile, new ObjectMapper().writeValueAsBytes(results));
                 
