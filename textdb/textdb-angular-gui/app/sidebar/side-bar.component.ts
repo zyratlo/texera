@@ -1,5 +1,5 @@
 import {Component, ViewChild, OnInit} from '@angular/core';
-
+import { Response, Http } from '@angular/http';
 import { CurrentDataService } from '../services/current-data-service';
 import { TableMetadata } from "../services/table-metadata";
 import {log} from "util";
