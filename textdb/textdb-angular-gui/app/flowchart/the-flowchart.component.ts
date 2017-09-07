@@ -166,7 +166,33 @@ export class TheFlowchartComponent {
     this.TheFlowChartWidth = parseInt(jQuery("#the-flowchart").css("width"));
     this.TheFlowChartHeight = parseInt(jQuery("#the-flowchart").css("height"));
 
-    this.initializePanzoom(jQuery('#the-flowchart').parent(), this.TheFlowChartWidth, this.TheFlowChartHeight);
+    var defaultWidth =  this.TheFlowChartWidth;
+    var defaultHeight = this.TheFlowChartHeight;
+
+    var intializeMethod = this.initializePanzoom;
+    intializeMethod(jQuery('#the-flowchart').parent(), this.TheFlowChartWidth, this.TheFlowChartHeight);
+
+
+
+    var handleResize = function(){
+      var currentWindowWidth = jQuery(window).width();
+      var currentWindowHeight = jQuery(window).height();
+      var currentSideBarWidth = jQuery("#sidebar-wrapper").width();
+
+      var new_width = currentWindowWidth - currentSideBarWidth - 10;
+      var new_height = currentWindowHeight - 100;
+      jQuery("#the-flowchart").css({
+        "width" : new_width + "px",
+        "left" : 0 + "px",
+        "height" : new_height - 100 + "px",
+        "top" : 0 + "px",
+      });
+      jQuery('#the-flowchart').panzoom("reset");
+      jQuery('#the-flowchart').panzoom("destroy");
+      intializeMethod(jQuery('#the-flowchart').parent(), new_width, new_height);
+    }
+
+    window.onresize = handleResize;
 
   }
 
