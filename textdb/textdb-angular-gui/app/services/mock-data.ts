@@ -25,6 +25,7 @@ let keywordMatcher = {
         },
         image : '../thirdparty/images/keywordSearch.png',
         color : '#80bfff',
+        description: "Search the documents using a keyword",
     }
 };
 
@@ -52,6 +53,7 @@ let regexMatcher = {
     },
     image : '../thirdparty/images/regexMatch.png',
     color : '#66b3ff',
+    description: "Search the documents using a regular expression"
   }
 };
 
@@ -80,6 +82,7 @@ let dictionaryMatcher = {
     },
     image : '../thirdparty/images/dictionarySearch.png',
     color : '#66b3ff',
+    description: "Search the documents using a dictionary (multiple keywords)",
   }
 }
 
@@ -108,6 +111,7 @@ let fuzzyMatcher = {
     },
     image : '../thirdparty/images/fuzzy.png',
     color : '#66b3ff',
+    description: "Search the documents according to the similarity of given tokens",
   }
 }
 
@@ -134,6 +138,7 @@ let nlpEntity = {
     },
     image : '../thirdparty/images/entityRecognition.png',
     color : '#85e085',
+    description: "Recognize entities in the text (person, location, date, ..)",
   }
 }
 
@@ -159,6 +164,7 @@ let nlpSentiment = {
     },
     image : '../thirdparty/images/sentimentAnalysis.png',
     color : '#85e085',
+    description: "Sentiment analysis based on Stanford NLP package",
   }
 }
 
@@ -184,6 +190,7 @@ let emojiSentiment = {
     },
     image : '../thirdparty/images/emojiAnalysis.png',
     color : '#85e085',
+    description: "Sentiment analysis with the emojis in consideration",
   }
 }
 
@@ -211,6 +218,7 @@ let nltkSentiment = {
     },
     image : "../thirdparty/images/nltk.jpg",
     color : '#85e085',
+    description: "Sentiment analysis based on Python's NLTK package",
   }
 }
 
@@ -239,6 +247,7 @@ let regexSplit = {
     },
     image : '../thirdparty/images/regex.png',
     color : '#e6e600',
+    description: "Split the text into multiple segments based on a regular expression",
   }
 }
 
@@ -265,6 +274,7 @@ let nlpSplit = {
     },
     image : '../thirdparty/images/sentencesplit.png',
     color : '#e6e600',
+    description: "Automatically split the text into multiple sentences using Natural Language Processing ",
   }
 }
 
@@ -290,6 +300,7 @@ let sampler = {
     },
     image : '../thirdparty/images/sampling.png',
     color : '#ffdb4d',
+    description: "Sample a subset of data from all the documents",
   }
 }
 
@@ -314,8 +325,9 @@ let projection = {
     },
     image : '../thirdparty/images/projection.png',
     color : '#ffdb4d',
-      }
+    description: "Select a subset of columns",
   }
+}
 
 let asterixSource = {
   top : 20,
@@ -344,6 +356,7 @@ let asterixSource = {
     },
     image : '../thirdparty/images/asterixSource.png',
     color : '#cc99ff',
+    description: "Connect to an AsterixDB instance",
   }
 }
 
@@ -369,6 +382,7 @@ let fileSource = {
     },
     image : '../thirdparty/images/fileSource.png',
     color : '#cc99ff',
+    description: "Read the content of one file or multiple files.",
   }
 }
 
@@ -393,6 +407,7 @@ let scanSource = {
     },
     image : '../thirdparty/images/scan.png',
     color : '#cc99ff',
+    description: "Read records from a table one by one.",
   }
 }
 
@@ -423,7 +438,8 @@ let scanSource = {
              "languageList": ["en"]
          },
          image: '../thirdparty/images/twitterFeed.png',
-         color: '#cc99ff'
+         color: '#cc99ff',
+         description: "Obtain real-time tweets using Twitter API",
      }
  }
 
@@ -453,6 +469,7 @@ let keywordSource = {
     },
     image : '../thirdparty/images/keywordSource.png',
     color : '#cc99ff',
+    description: "Perform an index-based search on a table using a keyword",
   }
 }
 
@@ -483,6 +500,7 @@ let dictionarySource = {
     },
     image : '../thirdparty/images/dictionary.png',
     color : '#cc99ff',
+    description: "Perform an index-based search on a table using a dictionary",
 
   }
 }
@@ -513,6 +531,7 @@ let regexSource = {
     },
     image : '../thirdparty/images/regex.png',
     color : '#cc99ff',
+    description: "Perform an index-based search on a table using a regular expression",
   }
 }
 
@@ -542,6 +561,7 @@ let fuzzyTokenSource = {
     },
     image : '../thirdparty/images/fuzzySource.png',
     color : '#cc99ff',
+    description: "Perform an index-based search on a table for records similar to given tokens",
   }
 }
 
@@ -567,6 +587,7 @@ let wordCountSource = {
     },
     image : '../thirdparty/images/countSource.svg',
     color : '#cc99ff',
+    description: "Count the frequency of for each word using index",
   }
 }
 
@@ -592,6 +613,7 @@ let wordCount = {
     },
     image : '../thirdparty/images/counting.png',
     color : '#ffdb4d',
+    description: "Count the frequency of each word in all the documents",
   }
 }
 
@@ -613,7 +635,9 @@ let twitterConverter = {
     attributes : {
         "operatorType": "TwitterConverter"
     },
+    image : '../thirdparty/images/twitterConverer.png',
     color : '#ffdb4d',
+    description: "Convert the raw twitter data to readable records",
   }
 }
 
@@ -640,6 +664,7 @@ let comparison = {
     },
     image : '../thirdparty/images/compare.png',
     color : '#ffdb4d',
+    description: "Select data based on a condition (>, <, =, ..)",
   }
 }
 
@@ -669,6 +694,7 @@ let characterDistanceJoin = {
     },
     image : '../thirdparty/images/characterjoin.png',
     color : '#ffa366',
+    description: "Join two tables based on the character distance of two attributes",
   }
 }
 
@@ -698,6 +724,7 @@ let similarityJoin = {
     },
     image : '../thirdparty/images/similarityjoin.png',
     color : '#ffa366',
+    description: "Join two tables based on the string similarity of two tuples",
   }
 }
 
@@ -723,29 +750,7 @@ let result = {
     },
     image : '../thirdparty/images/view-result.png',
     color : '#d2a679',
-  }
-}
-
-let excelSink = {
-  top : 20,
-  left : 20,
-  properties : {
-    title : 'Write Excel',
-    inputs : {
-      input_1 : {
-        label : "",
-      }
-    },
-    outputs : {
-      output_1 : {
-        label : "",
-      }
-    },
-    attributes : {
-        "operatorType": "ExcelSink",
-        "limit": 10,
-        "offset": 0,
-    }
+    description: "View the results of the workflow",
   }
 }
 
@@ -775,6 +780,7 @@ let mysqlSink = {
     },
     image : '../thirdparty/images/sql.jpg',
     color : '#ff8080',
+    description: "Write the results to a mysql database",
   }
 }
 
@@ -798,7 +804,6 @@ export const DEFAULT_MATCHERS: Data[] = [
     {id: 16, jsonData: wordCountSource},
     {id: 17, jsonData: wordCount},
     {id: 19, jsonData: result},
-    {id: 20, jsonData: excelSink},
     {id: 21, jsonData: comparison},
     {id: 22, jsonData: nlpSplit},
     {id: 23, jsonData: emojiSentiment},
