@@ -96,8 +96,7 @@ import edu.uci.ics.textdb.exp.wordcount.WordCountOperatorPredicate;
         @Type(value = TwitterFeedSourcePredicate.class, name = "TwitterFeed"),
         
         @Type(value = WordCountIndexSourcePredicate.class, name = "WordCountIndexSource"),
-        @Type(value = WordCountOperatorPredicate.class, name = "WordCount"),
-        
+        @Type(value = WordCountOperatorPredicate.class, name = "WordCount"),        
 })
 public abstract class PredicateBase implements IPredicate {
     

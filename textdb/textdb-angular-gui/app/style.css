@@ -158,6 +158,7 @@ body {
 	color: white;
 	font-weight: bold;
 	margin-bottom: 6px;
+	display: none;
 }
 
 .excelDownloadButton:hover{
@@ -218,6 +219,15 @@ body {
 		color: white;
 		font-weight: bold;
 		font-size: 22px;
+}
+
+.checkBox{
+	display: inline-block;
+}
+
+
+.languageLabel{
+	font-size: 20px;
 }
 
 .dictionary-upload:hover{
@@ -328,7 +338,7 @@ body {
 }
 
 #operator-detail-name {
-	font-size: 20px;
+	font-size: 16px;
 	padding-left: 6px;
 	padding-right: 6px;
 }
@@ -338,7 +348,7 @@ body {
 	border-top: 1px solid black;
 	padding-left: 6px;
 	padding-right: 6px;
-	font-size: 18px;
+	font-size: 14px;
 }
 
 

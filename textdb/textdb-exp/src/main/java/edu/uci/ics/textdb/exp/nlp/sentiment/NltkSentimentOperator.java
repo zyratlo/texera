@@ -16,7 +16,7 @@ import edu.uci.ics.textdb.api.dataflow.IOperator;
 import edu.uci.ics.textdb.api.exception.DataFlowException;
 import edu.uci.ics.textdb.api.exception.TextDBException;
 import edu.uci.ics.textdb.api.field.IField;
-import edu.uci.ics.textdb.api.field.TextField;
+import edu.uci.ics.textdb.api.field.IntegerField;
 import edu.uci.ics.textdb.api.schema.Attribute;
 import edu.uci.ics.textdb.api.schema.AttributeType;
 import edu.uci.ics.textdb.api.schema.Schema;
@@ -29,7 +29,7 @@ public class NltkSentimentOperator implements IOperator {
     private Schema outputSchema;
     
     private List<Tuple> tupleBuffer;
-    HashMap<String, String> idClassMap;
+    HashMap<String, Integer> idClassMap;
     
     private int cursor = CLOSED;
     
@@ -73,7 +73,7 @@ public class NltkSentimentOperator implements IOperator {
                     inputSchema.getAttributeNames()));
         }
         return Utils.addAttributeToSchema(inputSchema, 
-                new Attribute(predicate.getResultAttributeName(), AttributeType.STRING));
+                new Attribute(predicate.getResultAttributeName(), AttributeType.INTEGER));
     }
     
     @Override
@@ -181,10 +181,14 @@ public class NltkSentimentOperator implements IOperator {
             CSVReader csvReader = new CSVReader(new FileReader(resultPath), SEPARATOR, QUOTECHAR, 1);
             List<String[]> allRows = csvReader.readAll();
                
-            idClassMap = new HashMap<String, String>();
+            idClassMap = new HashMap<String, Integer>();
             //Read CSV line by line
             for(String[] row : allRows){
-                idClassMap.put(row[0], row[1]);
+	            	try {
+	            		idClassMap.put(row[0], Integer.parseInt(row[1]));
+	            	} catch (NumberFormatException e) {
+	            		idClassMap.put(row[0], 0);
+	            	}
             }
             csvReader.close();
         }catch(Exception e){
@@ -203,8 +207,8 @@ public class NltkSentimentOperator implements IOperator {
         List<IField> outputFields = new ArrayList<>();
         outputFields.addAll(outputTuple.getFields());
         
-        String className = idClassMap.get(outputTuple.getField(SchemaConstants._ID).getValue().toString());
-        outputFields.add(new TextField( className ));
+        Integer className = idClassMap.get(outputTuple.getField(SchemaConstants._ID).getValue().toString());
+        outputFields.add(new IntegerField( className ));
         return new Tuple(outputSchema, outputFields);
     }
     

@@ -5,7 +5,9 @@
         <h3 *ngIf="attributes.length !== 0" class="sidebar-brand">{{operator}}</h3>
         <form [hidden]="attributes.length === 0" #editOperatorForm="ngForm">
             <div class="form-group" *ngFor="let attribute of attributes">
-                <label *ngIf="checkInHidden(attribute) === -1" for="{{attribute}}" class="attribute-type">{{humanize(attribute)}}</label>
+                <label *ngIf="checkInHidden(attribute) === -1" for="{{attribute}}" class="attribute-type">
+                  {{humanize(attribute)}} <span *ngIf="checkInOptionalTwitter(attribute) !== -1">(Optional)</span>
+                </label>
 
                 <select *ngIf="attribute === 'nlpEntityType'" class="form-control" id="{{attribute}}" required  [(ngModel)]="data.properties.attributes[attribute]" (ngModelChange)="onFormChange(attribute)" name="{{attribute}}" #{{attribute}}="ngModel">
                   <option *ngFor="let nlp of nlpEntityList" [value] = "nlp">{{nlp}}</option>
@@ -42,6 +44,24 @@
                     <input class="form-control" id="{{attribute}}" placeholder="Enter dictionary entries" [ngModel]="dictionaryContent.toString()" (ngModelChange)="dictionaryManuallyAdded($event)" name="{{attribute}}" #{{attribute}}="ngModel">
                 </div>
 
+
+                <input *ngIf="attribute === 'keywordList'" class="form-control" id="{{attribute}}" [ngModel]="data.properties.attributes[attribute]" (ngModelChange)="twitterQueryManuallyAdded($event)" name="{{attribute}}" #{{attribute}}="ngModel">
+
+                <input *ngIf="attribute === 'locationList'" class="form-control" id="{{attribute}}" placeholder = "SW-lat, SW-long, NE-lat, NE-long" [ngModel]="locationString" (ngModelChange)="locationAdded($event)" name="{{attribute}}" #{{attribute}}="ngModel">
+
+
+                <div *ngIf="attribute === 'languageList'">
+                  <div *ngFor="let eachLanguage of twitterLanguageList">
+                    <br>
+                    <input *ngIf="twitterLanguage.indexOf(twitterLanguageMapping[eachLanguage]) > -1" type="checkbox" class="checkBox" id="{{twitterLanguageMapping[eachLanguage]}}"  (click)="twitterLanguageManuallyAdded(twitterLanguageMapping[eachLanguage])" checked>
+                    <input *ngIf="twitterLanguage.indexOf(twitterLanguageMapping[eachLanguage]) < 0" type="checkbox" class="checkBox" id="{{twitterLanguageMapping[eachLanguage]}}"  (click)="twitterLanguageManuallyAdded(twitterLanguageMapping[eachLanguage])">
+                    <label class="languageLabel" (click)="languageTextClicked(eachLanguage)">{{eachLanguage}}</label>
+                  </div>
+                </div>
+
+                <input *ngIf="checkInOptionalTwitter(attribute) !== -1" [(ngModel)]="data.properties.attributes[attribute]" (ngModelChange)="onFormChange(attribute)" name="{{attribute}}" type="text" class="form-control" id="{{attribute}}" defaultValue="{{data.properties.attributes[attribute]}}" #{{attribute}}="ngModel">
+
+
                 <div *ngIf="attribute === 'attribute'">
                     <select class="form-control" name="{{attribute}}+Selector" [(ngModel)]="selectedAttributeSingle" (ngModelChange)="attributeAdded('single')">
                         <option selected hidden value="">Select attributes</option>
@@ -50,12 +70,13 @@
                     <input class="form-control" id="{{attribute}}" placeholder="Enter attributes" [(ngModel)]="data.properties.attributes[attribute]" (ngModelChange)="onFormChange(attribute)" name="{{attribute}}" #{{attribute}}="ngModel">
                 </div>
 
+
                 <select *ngIf="attribute === 'tableName'" class="form-control" id="{{attribute}}" [(ngModel)]="data.properties.attributes[attribute]" (ngModelChange)="getAttributesForTable($event)" name="{{attribute}}" #{{attribute}}="ngModel">
                     <option selected hidden value="">Select table</option>
                     <option *ngFor="let tableName of tableNameItems" [value] = "tableName">{{tableName}}</option>
                 </select>
-                
-                
+
+
                 <input *ngIf="attribute === 'password'" [(ngModel)]="data.properties.attributes[attribute]" (ngModelChange)="onFormChange(attribute)" name="{{attribute}}" type="password" class="form-control" id="{{attribute}}" defaultValue="{{data.properties.attributes[attribute]}}" #{{attribute}}="ngModel" required>
                 <input *ngIf="checkInSelector(attribute) === -1" [(ngModel)]="data.properties.attributes[attribute]" (ngModelChange)="onFormChange(attribute)" name="{{attribute}}" type="text" class="form-control" id="{{attribute}}" defaultValue="{{data.properties.attributes[attribute]}}" #{{attribute}}="ngModel" required>
             </div>
@@ -75,6 +96,6 @@
     <div id="elem"></div>
 	</modal-body>
 	<modal-footer>
-		<button type="button" (click)="ModalClose()" class="btn btn-default navbar-btn">X</button>
+		<button type="button" (click)="ModalClose()" class="btn btn-default navbar-btn">Close</button>
 	</modal-footer>
 <modal>

@@ -57,8 +57,7 @@ export class OperatorBarComponent {
     var findOperatorData = function(opeartorName: string, opeatorList: [any]): any {
       for (let operator of opeatorList) {
         if (operator.jsonData.properties.title === opeartorName){
-          // return operator.jsonData.properties.title;
-          return "Here we can retrun the actual description for each operator!!!";
+          return operator.jsonData.properties.description;
         }
       }
       return "Default Content";
@@ -67,8 +66,6 @@ export class OperatorBarComponent {
     this.mockDataService.getOperatorList().then(
       data => {
         operatorList = data;
-        console.log("Testing");
-        console.log(operatorList);
       },
       error => {
         console.log(error);

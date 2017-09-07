@@ -22,9 +22,9 @@ import java.util.regex.Pattern;
  *
  * The result is an integer indicating the sentiment score, which represents:
  *
- * 3 - positive
- * 2 - neutral
- * 1 - negative
+ * 1 - positive
+ * 0 - neutral
+ * -1 - negative
  *
  *
  * The result will be put into an attribute with resultAttributeName specified in predicate, and type Integer.
@@ -172,7 +172,7 @@ public class EmojiSentimentOperator implements IOperator {
     private Integer computeSentimentScore(Tuple inputTuple) {
         String inputText = inputTuple.<IField>getField(predicate.getInputAttributeName()).getValue().toString();
         Matcher matcher = null;
-        Integer matchedStringScore = 2;
+        Integer matchedStringScore = SentimentConstants.NEUTRAL;
         if(SMILEY_REGEX_PATTERN!= null){
             matcher = SMILEY_REGEX_PATTERN.matcher(inputText);
             if(matcher.matches()){
@@ -207,11 +207,11 @@ public class EmojiSentimentOperator implements IOperator {
                 }
             }
         }
-        if(matchedStringScore<1){
-            matchedStringScore = 1;
+        if(matchedStringScore < SentimentConstants.NEUTRAL){
+            matchedStringScore = SentimentConstants.NEGATIVE;
         }
-        if(matchedStringScore>3){
-            matchedStringScore = 3;
+        if(matchedStringScore > SentimentConstants.NEUTRAL){
+            matchedStringScore = SentimentConstants.POSITIVE;
         }
         return matchedStringScore;
     }
