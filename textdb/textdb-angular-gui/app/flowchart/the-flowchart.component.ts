@@ -24,8 +24,6 @@ const INCREMENT = 0.1;
 export class TheFlowchartComponent {
 
   TheOperatorNumNow: number;
-  TheFlowChartWidth : number;
-  TheFlowChartHeight : number;
   currentResult: any;
 
   constructor(private currentDataService: CurrentDataService) {
@@ -60,6 +58,8 @@ export class TheFlowchartComponent {
     jQuery("#menu").css({
       "display" : "none",
     });
+    var FlowChartWidth = jQuery("#the-flowchart").width();
+    var FlowChartHeight = jQuery("#the-flowchart").height();
     var matrix = jQuery('#the-flowchart').panzoom("getMatrix");
     var ZoomRatio = parseFloat(matrix[0]);
     if (ZoomRatio < MAX_SCALE){
@@ -69,10 +69,10 @@ export class TheFlowchartComponent {
       jQuery('#the-flowchart').panzoom('zoom', ZoomRatio, {
         animate: false,
       });
-      var new_width = this.TheFlowChartWidth / ZoomRatio;
-      var left_side_add = (new_width - this.TheFlowChartWidth) / 2 ;
-      var new_height = this.TheFlowChartHeight / ZoomRatio;
-      var top_side_add = (new_height - this.TheFlowChartHeight) / 2;
+      var new_width = FlowChartWidth / ZoomRatio;
+      var left_side_add = (new_width - FlowChartWidth) / 2 ;
+      var new_height = FlowChartHeight / ZoomRatio;
+      var top_side_add = (new_height - FlowChartHeight) / 2;
       jQuery("#the-flowchart").css({
         "width" : new_width + "px",
         "left" : -left_side_add + "px",
@@ -87,6 +87,8 @@ export class TheFlowchartComponent {
     jQuery("#menu").css({
       "display" : "none",
     });
+    var FlowChartWidth = jQuery("#the-flowchart").width();
+    var FlowChartHeight = jQuery("#the-flowchart").height();
     var matrix = jQuery('#the-flowchart').panzoom("getMatrix");
     var ZoomRatio = parseFloat(matrix[0]);
     if (ZoomRatio >= MIN_SCALE + INCREMENT){
@@ -96,10 +98,10 @@ export class TheFlowchartComponent {
       jQuery('#the-flowchart').panzoom('zoom', ZoomRatio, {
         animate: false,
       });
-      var new_width = this.TheFlowChartWidth / ZoomRatio;
-      var left_side_add = (new_width - this.TheFlowChartWidth) / 2 ;
-      var new_height = this.TheFlowChartHeight / ZoomRatio;
-      var top_side_add = (new_height - this.TheFlowChartHeight) / 2;
+      var new_width = FlowChartWidth / ZoomRatio;
+      var left_side_add = (new_width - FlowChartWidth) / 2 ;
+      var new_height = FlowChartHeight / ZoomRatio;
+      var top_side_add = (new_height - FlowChartHeight) / 2;
       jQuery("#the-flowchart").css({
         "width" : new_width + "px",
         "left" : -left_side_add + "px",
@@ -163,14 +165,12 @@ export class TheFlowchartComponent {
       }
     });
 
-    this.TheFlowChartWidth = parseInt(jQuery("#the-flowchart").css("width"));
-    this.TheFlowChartHeight = parseInt(jQuery("#the-flowchart").css("height"));
+    var FlowChartWidth = parseInt(jQuery("#the-flowchart").css("width"));
+    var FlowChartHeight = parseInt(jQuery("#the-flowchart").css("height"));
 
-    var defaultWidth =  this.TheFlowChartWidth;
-    var defaultHeight = this.TheFlowChartHeight;
 
     var intializeMethod = this.initializePanzoom;
-    intializeMethod(jQuery('#the-flowchart').parent(), this.TheFlowChartWidth, this.TheFlowChartHeight);
+    intializeMethod(jQuery('#the-flowchart').parent(), FlowChartWidth, FlowChartHeight);
 
 
 
@@ -178,15 +178,15 @@ export class TheFlowchartComponent {
       var currentWindowWidth = jQuery(window).width();
       var currentWindowHeight = jQuery(window).height();
       var currentSideBarWidth = jQuery("#sidebar-wrapper").width();
-
-      var new_width = currentWindowWidth - currentSideBarWidth - 10;
-      var new_height = currentWindowHeight - 100;
+      var new_width = currentWindowWidth - currentSideBarWidth;
+      var new_height = currentWindowHeight - 140;
       jQuery("#the-flowchart").css({
         "width" : new_width + "px",
         "left" : 0 + "px",
-        "height" : new_height - 100 + "px",
+        "height" : new_height + "px",
         "top" : 0 + "px",
       });
+
       jQuery('#the-flowchart').panzoom("reset");
       jQuery('#the-flowchart').panzoom("destroy");
       intializeMethod(jQuery('#the-flowchart').parent(), new_width, new_height);
