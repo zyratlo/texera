@@ -9,6 +9,7 @@ import edu.uci.ics.textdb.api.schema.AttributeType;
 import edu.uci.ics.textdb.api.schema.Schema;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.twitter.hbc.core.endpoint.Location.Coordinate;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -33,37 +34,51 @@ public class TwitterUtils {
     }
 
     public static String getUserName(JsonNode object) {
-        return object.get("user").get("name").asText();
+        if (object.hasNonNull("user")) {
+            return object.get("user").get("name").asText();
+        }
+        return informationNotAvailable;
     }
 
     public static String getUserScreenName(JsonNode object) {
-        return object.get("user").get("screen_name").asText();
+        if (object.hasNonNull("user")) {
+            return object.get("user").get("screen_name").asText();
+        }
+        return informationNotAvailable;
     }
 
     public static String getUserDescription(JsonNode object) {
-
-        JsonNode user = object.get("user");
-        if (user.hasNonNull("description")) {
-            return user.get("description").asText();
+        if (object.hasNonNull("user")) {
+            JsonNode user = object.get("user");
+            if (user.hasNonNull("description")) {
+                return user.get("description").asText();
+            }
         }
         return informationNotAvailable;
     }
 
     public static int getUserFollowerCnt(JsonNode object) {
-        return object.get("user").get("followers_count").asInt();
+        if (object.hasNonNull("user")) {
+            return object.get("user").get("followers_count").asInt();
+        }
+        return 0;
     }
 
     public static int getUserFriendsCnt(JsonNode object) {
-        return object.get("user").get("friends_count").asInt();
+        if (object.hasNonNull("user")) {
+            return object.get("user").get("friends_count").asInt();
+        }
+        return 0;
     }
 
     public static String getUserLocation(JsonNode object) {
-        JsonNode user = object.get("user");
-        if (user.hasNonNull("location")) {
-            return user.get("location").asText();
+        if (object.hasNonNull("user")) {
+            JsonNode user = object.get("user");
+            if (user.hasNonNull("location")) {
+                return user.get("location").asText();
+            }
         }
         return informationNotAvailable;
-
     }
 
     public static String getUserLink(JsonNode object) {
@@ -81,26 +96,39 @@ public class TwitterUtils {
     }
 
     public static String getCreateTime(JsonNode object) {
-        return object.get("created_at").asText();
+        if (object.hasNonNull("created_at")) {
+            return object.get("created_at").asText();
+        }
+        return informationNotAvailable;
     }
 
     public static String getLanguage(JsonNode object) {
-        return object.get("lang").asText();
+        if (object.hasNonNull("lang")) {
+            return object.get("lang").asText();
+        }
+        return informationNotAvailable;
     }
 
     public static String getText(JsonNode object) {
-        return object.get("text").asText();
+        if (object.hasNonNull("text")) {
+            return object.get("text").asText();
+        }
+        return informationNotAvailable;
     }
 
     public static String getTweetLink(JsonNode object) {
-        String tweetLink = "https://twitter.com/statuses/" + object.get("id_str").asText();
-        return tweetLink;
+        if (object.hasNonNull("id_str")) {
+            String tweetLink = "https://twitter.com/statuses/" + object.get("id_str").asText();
+            return tweetLink;
+        }
+        return informationNotAvailable;
 
     }
 
     /**
      * To track tweets inside a geoBox defined by a List</Location>.
      * The string defines the coordinates in the order of "latitude_SW, longitude_SW, latitude_NE, longitude_NE".
+     *
      * @param inputLocation
      * @return
      * @throws TextDBException
@@ -132,32 +160,32 @@ public class TwitterUtils {
      * location : "Tampa, FL"
      * created_at : "Thu Jun 16 20:21:48 +0000 2011"
      * place : {
-     *              "id": "fd70c22040963ac7",
-     *              "url": "https:\/\/api.twitter.com\/1.1\/geo\/id\/fd70c22040963ac7.json",
-     *              "place_type": "city",
-     *              "name": "Boulder",
-     *              "full_name": "Boulder, CO",
-     *              "country_code": "US",
-     *              "country": "United States",
-     *              "contained_within": [
-     *                                  ],
-     *              "bounding_box": {
-     *              "type": "Polygon",
-     *              "coordinates": [
-     *              [
-     *              [-105.301758, 39.964069],
-     *              [-105.301758, 40.094551],
-     *              [-105.178142, 40.094551],
-     *              [-105.178142, 39.964069]
-     *              ]
-     *              ]
-     *              },
-     *              "attributes": {}
-     *          }
-     *coordinates : {
-     *              "type": "Point",
-     *              "coordinates": [-105.2812196, 40.0160921]
-     *              }
+     * "id": "fd70c22040963ac7",
+     * "url": "https:\/\/api.twitter.com\/1.1\/geo\/id\/fd70c22040963ac7.json",
+     * "place_type": "city",
+     * "name": "Boulder",
+     * "full_name": "Boulder, CO",
+     * "country_code": "US",
+     * "country": "United States",
+     * "contained_within": [
+     * ],
+     * "bounding_box": {
+     * "type": "Polygon",
+     * "coordinates": [
+     * [
+     * [-105.301758, 39.964069],
+     * [-105.301758, 40.094551],
+     * [-105.178142, 40.094551],
+     * [-105.178142, 39.964069]
+     * ]
+     * ]
+     * },
+     * "attributes": {}
+     * }
+     * coordinates : {
+     * "type": "Point",
+     * "coordinates": [-105.2812196, 40.0160921]
+     * }
      * lang : "en"
      */
 

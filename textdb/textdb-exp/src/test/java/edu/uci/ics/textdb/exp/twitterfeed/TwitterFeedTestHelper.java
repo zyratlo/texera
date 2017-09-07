@@ -21,6 +21,7 @@ import com.twitter.hbc.core.endpoint.Location;
 import edu.uci.ics.textdb.api.utils.Utils;
 
 import static edu.uci.ics.textdb.exp.twitterfeed.TwitterUtils.twitterSchema.TWEET_COORDINATES;
+import static edu.uci.ics.textdb.exp.twitterfeed.TwitterUtils.twitterSchema.TWEET_LOCATION;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -81,15 +82,17 @@ public class TwitterFeedTestHelper {
         Location.Coordinate northeastCoordinate = geoBox.northeastCoordinate();
 
         for (Tuple tuple : tupleList) {
-            if (!tuple.getField(TWEET_COORDINATES).getValue().toString().equals("n/a")) {
+            if (!tuple.getField(TWEET_COORDINATES).getValue().toString().equals("n/a") && !tuple.getField(TWEET_LOCATION).getValue().toString().equals("n/a")) {
                 List<String> coordString = Arrays.asList(tuple.getField(TWEET_COORDINATES).getValue().toString().split(","));
-
-                Location.Coordinate coordinate = new Location.Coordinate(Double.parseDouble(coordString.get(0).trim()), Double.parseDouble(coordString.get(1).trim()));
+                Location.Coordinate coordinate = new Location.Coordinate(Double.parseDouble(coordString.get(0)), Double.parseDouble(coordString.get(1)));
                 if (!(coordinate.latitude() >= southwestCoordinate.latitude() &&
                         coordinate.longitude() >= southwestCoordinate.longitude() &&
                         coordinate.latitude() <= northeastCoordinate.latitude() &&
                         coordinate.longitude() <= northeastCoordinate.longitude())) {
-                    return false;
+                    if (!tuple.getField(TWEET_LOCATION).getValue().toString().contains("United States")) {
+                        return false;
+                    }
+
                 }
 
             }
