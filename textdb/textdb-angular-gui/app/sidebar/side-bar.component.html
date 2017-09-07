@@ -9,6 +9,11 @@
                   {{humanize(attribute)}} <span *ngIf="checkInOptionalTwitter(attribute) !== -1">(Optional)</span>
                 </label>
 
+                <select class="form-control">
+                  <option>1</option>
+                  <option>2</option>
+                </select>
+
                 <select *ngIf="attribute === 'nlpEntityType'" class="form-control" id="{{attribute}}" required  [(ngModel)]="data.properties.attributes[attribute]" (ngModelChange)="onFormChange(attribute)" name="{{attribute}}" #{{attribute}}="ngModel">
                   <option *ngFor="let nlp of nlpEntityList" [value] = "nlp">{{nlp}}</option>
                 </select>
