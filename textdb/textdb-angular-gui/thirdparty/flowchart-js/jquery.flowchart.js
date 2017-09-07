@@ -293,7 +293,7 @@ $(function () {
               var operatorID = self.rightClickedOperatorID;
               self.showOperatorDetail(operatorID);
               self.hideRightClickMenu();
-              e.stopImmediatePropagation(); 
+              e.stopImmediatePropagation();
               return false;
             });
 
@@ -313,7 +313,7 @@ $(function () {
           swal({
             title: currentOperatorData.properties.title,
             // can use 'currentOperatorData.properties.description if provided'
-            text: "<b>Description:</b><br><p>Some Description Here</p>",
+            text: "<b>Description:</b><br><p>" + currentOperatorData.properties.description + "</p>",
             imageUrl: currentOperatorData.properties.image,
             html: true,
             allowOutsideClick: true,

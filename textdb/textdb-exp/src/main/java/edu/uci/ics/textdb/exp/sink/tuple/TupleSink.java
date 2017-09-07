@@ -11,6 +11,7 @@ import edu.uci.ics.textdb.api.exception.TextDBException;
 import edu.uci.ics.textdb.api.schema.Schema;
 import edu.uci.ics.textdb.api.tuple.Tuple;
 import edu.uci.ics.textdb.api.utils.Utils;
+import edu.uci.ics.textdb.exp.source.asterix.AsterixSource;
 
 /**
  * TupleStreamSink is a sink that can be used by the caller to get tuples one by one.
@@ -71,7 +72,7 @@ public class TupleSink implements ISink {
         }
         inputOperator.open();
         inputSchema = inputOperator.getOutputSchema();
-        outputSchema = Utils.removeAttributeFromSchema(inputSchema, SchemaConstants.PAYLOAD);
+        outputSchema = Utils.removeAttributeFromSchema(inputSchema, SchemaConstants.PAYLOAD, AsterixSource.RAW_DATA);
         cursor = OPENED;
     }
 
@@ -99,7 +100,7 @@ public class TupleSink implements ISink {
                 break;
             }
         }
-        return Utils.removeFields(resultTuple, SchemaConstants.PAYLOAD);
+        return Utils.removeFields(resultTuple, SchemaConstants.PAYLOAD, AsterixSource.RAW_DATA);
     }
 
     @Override
