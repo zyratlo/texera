@@ -407,7 +407,7 @@ let scanSource = {
     },
     image : '../thirdparty/images/scan.png',
     color : '#cc99ff',
-    description: "Read records from a table one by one.",
+    description: "Read records from a table one by one",
   }
 }
 
