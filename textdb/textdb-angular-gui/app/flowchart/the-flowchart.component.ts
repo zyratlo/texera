@@ -25,7 +25,6 @@ export class TheFlowchartComponent {
 
   TheOperatorNumNow: number;
   currentResult: any;
-
   currentResultID: string = "";
 
   constructor(private currentDataService: CurrentDataService) {
@@ -63,6 +62,9 @@ export class TheFlowchartComponent {
     var FlowChartHeight = jQuery("#the-flowchart").height();
     var matrix = jQuery('#the-flowchart').panzoom("getMatrix");
     var ZoomRatio = parseFloat(matrix[0]);
+    // getting the original offset of flowchart
+    FlowChartWidth *= ZoomRatio;
+    FlowChartHeight *= ZoomRatio;
     if (ZoomRatio < MAX_SCALE){
       jQuery('#the-flowchart').flowchart('zoomCalled');
       ZoomRatio += INCREMENT;
@@ -90,8 +92,12 @@ export class TheFlowchartComponent {
     });
     var FlowChartWidth = jQuery("#the-flowchart").width();
     var FlowChartHeight = jQuery("#the-flowchart").height();
+    console.log(FlowChartWidth);
     var matrix = jQuery('#the-flowchart').panzoom("getMatrix");
     var ZoomRatio = parseFloat(matrix[0]);
+    // getting the original offset of flowchart
+    FlowChartWidth *= ZoomRatio;
+    FlowChartHeight *= ZoomRatio;
     if (ZoomRatio >= MIN_SCALE + INCREMENT){
       jQuery('#the-flowchart').flowchart('zoomCalled');
       ZoomRatio -= INCREMENT;
@@ -169,10 +175,8 @@ export class TheFlowchartComponent {
     var FlowChartWidth = parseInt(jQuery("#the-flowchart").css("width"));
     var FlowChartHeight = parseInt(jQuery("#the-flowchart").css("height"));
 
-
-    var intializeMethod = this.initializePanzoom;
-    intializeMethod(jQuery('#the-flowchart').parent(), FlowChartWidth, FlowChartHeight);
-
+    var initializePanzoom = this.initializePanzoom;
+    initializePanzoom(jQuery('#the-flowchart').parent(), FlowChartWidth, FlowChartHeight);
 
 
     var handleResize = function(){
@@ -180,24 +184,31 @@ export class TheFlowchartComponent {
       var currentWindowHeight = jQuery(window).height();
       var currentSideBarWidth = jQuery("#sidebar-wrapper").width();
       var new_width = currentWindowWidth - currentSideBarWidth;
-      var new_height = currentWindowHeight - 140;
+      var new_height = currentWindowHeight - 140; // height of navbar + operatorBar + result bar
+
+      var matrix = jQuery('#the-flowchart').panzoom("getMatrix");
+      var ZoomRatio = parseFloat(matrix[0]);
+
+      var newFlowChartWidth = new_width / ZoomRatio;
+      var newLeft = (newFlowChartWidth - new_width) / 2;
+      var newFlowChartHeight = new_height / ZoomRatio;
+      var newTop = (newFlowChartHeight - new_height) / 2;
+
       jQuery("#the-flowchart").css({
-        "width" : new_width + "px",
-        "left" : 0 + "px",
-        "height" : new_height + "px",
-        "top" : 0 + "px",
+        "width" : newFlowChartWidth + "px",
+        "left" : - newLeft + "px",
+        "height" : newFlowChartHeight + "px",
+        "top" : - newTop + "px",
       });
 
       jQuery('#the-flowchart').panzoom("reset");
       jQuery('#the-flowchart').panzoom("destroy");
-      intializeMethod(jQuery('#the-flowchart').parent(), new_width, new_height);
+      initializePanzoom(jQuery('#the-flowchart').parent(), newFlowChartWidth, newFlowChartHeight, ZoomRatio);
     }
-
     window.onresize = handleResize;
-
   }
 
-  initializePanzoom(container: any, InitialWidth: number, InitialHeight: number) {
+  initializePanzoom(container: any, InitialWidth: number, InitialHeight: number, defaultZoom: number = 1) {
     // Panzoom initialization...
     jQuery('#the-flowchart').panzoom({
       disablePan: true, // disable the pan
@@ -205,6 +216,7 @@ export class TheFlowchartComponent {
       minScale: MIN_SCALE,
       maxScale: MAX_SCALE,
       increment: INCREMENT,
+      startTransform : 'scale('+ defaultZoom + ')',
     });
     var possibleZooms = [];
     for (var i = MIN_SCALE; i < MAX_SCALE; i += INCREMENT) {
