@@ -26,99 +26,99 @@ public class TwitterUtils {
     private static final String informationNotAvailable = "n/a";
 
     public static String getCoordinates(JsonNode object) {
-        if (object.hasNonNull("coordinates")) {
-            JsonNode coord = object.get("coordinates").get("coordinates");
+        if (object.hasNonNull(twitterConstant.COORDINCATES)) {
+            JsonNode coord = object.get(twitterConstant.COORDINCATES).get(twitterConstant.COORDINCATES);
             return String.valueOf(coord.get(0).asDouble()) + ", " + String.valueOf(coord.get(1).asDouble());
         }
         return informationNotAvailable;
     }
 
     public static String getUserName(JsonNode object) {
-        if (object.hasNonNull("user")) {
-            return object.get("user").get("name").asText();
+        if (object.hasNonNull(twitterConstant.USER)) {
+            return object.get(twitterConstant.USER).get(twitterConstant.NAME).asText();
         }
         return informationNotAvailable;
     }
 
     public static String getUserScreenName(JsonNode object) {
-        if (object.hasNonNull("user")) {
-            return object.get("user").get("screen_name").asText();
+        if (object.hasNonNull(twitterConstant.USER)) {
+            return object.get(twitterConstant.USER).get(twitterConstant.SCREENNAME).asText();
         }
         return informationNotAvailable;
     }
 
     public static String getUserDescription(JsonNode object) {
-        if (object.hasNonNull("user")) {
-            JsonNode user = object.get("user");
-            if (user.hasNonNull("description")) {
-                return user.get("description").asText();
+        if (object.hasNonNull(twitterConstant.USER)) {
+            JsonNode user = object.get(twitterConstant.USER);
+            if (user.hasNonNull(twitterConstant.DESCRIPTION)) {
+                return user.get(twitterConstant.DESCRIPTION).asText();
             }
         }
         return informationNotAvailable;
     }
 
     public static int getUserFollowerCnt(JsonNode object) {
-        if (object.hasNonNull("user")) {
-            return object.get("user").get("followers_count").asInt();
+        if (object.hasNonNull(twitterConstant.USER)) {
+            return object.get(twitterConstant.USER).get(twitterConstant.FOLLOWERCNT).asInt();
         }
         return 0;
     }
 
     public static int getUserFriendsCnt(JsonNode object) {
-        if (object.hasNonNull("user")) {
-            return object.get("user").get("friends_count").asInt();
+        if (object.hasNonNull(twitterConstant.USER)) {
+            return object.get(twitterConstant.USER).get(twitterConstant.FRIENDCNT).asInt();
         }
         return 0;
     }
 
     public static String getUserLocation(JsonNode object) {
-        if (object.hasNonNull("user")) {
-            JsonNode user = object.get("user");
-            if (user.hasNonNull("location")) {
-                return user.get("location").asText();
+        if (object.hasNonNull(twitterConstant.USER)) {
+            JsonNode user = object.get(twitterConstant.USER);
+            if (user.hasNonNull(twitterConstant.LOCATION)) {
+                return user.get(twitterConstant.LOCATION).asText();
             }
         }
         return informationNotAvailable;
     }
 
     public static String getUserLink(JsonNode object) {
-        return "https://twitter.com/" + getUserScreenName(object);
+        return twitterConstant.TWITTERLINK + getUserScreenName(object);
     }
 
     public static String getPlaceName(JsonNode object) {
-        if (object.hasNonNull("place")) {
-            JsonNode place = object.get("place");
-            String placeName = place.get("full_name").asText();
-            String country = place.get("country").asText();
+        if (object.hasNonNull(twitterConstant.PLACE)) {
+            JsonNode place = object.get(twitterConstant.PLACE);
+            String placeName = place.get(twitterConstant.PLACEFULLNAME).asText();
+            String country = place.get(twitterConstant.COUNTRY).asText();
             return placeName + ", " + country;
         }
         return informationNotAvailable;
     }
 
     public static String getCreateTime(JsonNode object) {
-        if (object.hasNonNull("created_at")) {
-            return object.get("created_at").asText();
+        if (object.hasNonNull(twitterConstant.CREATTIME)) {
+            return object.get(twitterConstant.CREATTIME).asText();
         }
         return informationNotAvailable;
     }
 
     public static String getLanguage(JsonNode object) {
-        if (object.hasNonNull("lang")) {
-            return object.get("lang").asText();
+        if (object.hasNonNull(twitterConstant.LANGUAGE)) {
+            return object.get(twitterConstant.LANGUAGE).asText();
         }
         return informationNotAvailable;
     }
 
     public static String getText(JsonNode object) {
-        if (object.hasNonNull("text")) {
-            return object.get("text").asText();
+        if (object.hasNonNull(twitterConstant.TEXT)) {
+            return object.get(twitterConstant.TEXT).asText();
         }
         return informationNotAvailable;
     }
 
     public static String getTweetLink(JsonNode object) {
-        if (object.hasNonNull("id_str")) {
-            String tweetLink = "https://twitter.com/statuses/" + object.get("id_str").asText();
+        if (object.hasNonNull(twitterConstant.TWEETID)) {
+            String tweetLink = twitterConstant.TWEETLINK + object.get(twitterConstant.TWEETID).asText();
             return tweetLink;
         }
         return informationNotAvailable;
@@ -245,10 +245,29 @@ public class TwitterUtils {
      */
 
     public static class twitterConstant {
+
         public static final String consumerKey = "iJI9uxE1EKFlDwWOJnB1nvl2J";
         public static final String consumerSecret = "DjcNacjs9KOwO3w9zfBSWNJF96yerBj3GrgsJaMdERaWrG0a28";
         public static final String token = "884194955031306240-MucmXV5HBt9gFZfJ5WqGJZa11fhNTKT";
         public static final String tokenSecret = "WCEREP8SV6lhTacL1wvlluFkLRZGqBIiCC9fNLjbpM0Lt";
+        private static final String PLACE = "place";
+        private static final String COORDINCATES = "coordinates";
+        private static final String USER = "user";
+        private static final String PLACEFULLNAME = "full_name";
+        private static final String COUNTRY = "country";
+        private static final String NAME = "name";
+        private static final String SCREENNAME = "screen_name";
+        private static final String DESCRIPTION = "description";
+        private static final String FOLLOWERCNT = "followers_count";
+        private static final String FRIENDCNT = "friends_count";
+        private static final String LOCATION = "location";
+        private static final String CREATTIME = "created_at";
+        private static final String LANGUAGE = "language";
+        private static final String TEXT = "text";
+        private static final String TWEETLINK = "https://twitter.com/statuses/";
+        private static final String TWEETID = "id_str";
+        private static final String TWITTERLINK = "https://twitter.com/";
+
     }
 
 }
