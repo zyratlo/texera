@@ -13,8 +13,8 @@ const INCREMENT = 0.1;
   template: `
 		<div id="flow-chart-container">
 			<div id="the-flowchart"></div>
-      <button class="zoomInButton" (click)="zoomInDiv()"> + </button>
-      <button class="zoomOutButton" (click)="zoomOutDiv()"> - </button>
+      <i class="fa fa-plus-circle zoomInButton" aria-hidden="true" (click)="zoomInDiv()"></i>
+      <i class="fa fa-minus-circle zoomOutButton" aria-hidden="true" (click)="zoomOutDiv()"></i>
       <button class="btn btn-default navbar-btn excelDownloadButton" (click)="downloadExcel()"><i class="fa fa-file-excel-o excelIcon" aria-hidden="true"></i>Download As Excel</button>
     </div>
 	`,
