@@ -27,6 +27,7 @@
                 <select *ngIf="attribute === 'aggregationType'" class="form-control" id="{{attribute}}" required  [(ngModel)]="data.properties.attributes[attribute]" (ngModelChange)="onFormChange(attribute)" name="{{attribute}}" #{{attribute}}="ngModel">
                   <option *ngFor="let agg of aggregationList" [value] = "agg">{{agg}}</option>
                 </select>
+                
 
                 <div *ngIf="attribute === 'attributes'">
                     <select class="form-control" name="{{attribute}}+Selector" [(ngModel)]="selectedAttributeMulti" (ngModelChange)="attributeAdded('multi')">
