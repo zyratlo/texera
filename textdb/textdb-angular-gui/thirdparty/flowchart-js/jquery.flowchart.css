@@ -32,13 +32,17 @@
     position: relative;
     padding-top: 5px;
     padding-bottom: 5px;
-    top: 20px;
+    top: 10px;
     margin-bottom: 5px;
 }
 
 .flowchart-operator-connector-label {
     font-size: small;
     height: 20px;
+}
+
+.flowchart-operator-inputs .flowchart-operator-connector{
+  opacity: 0.5;
 }
 
 .flowchart-operator-inputs .flowchart-operator-connector-label {
@@ -109,7 +113,7 @@
 
 .flowchart-operator {
     position: absolute;
-    width: 140px;
+    width: 120px;
     border: 1px solid #CCCCCC;
     background: #FAFAFA;
     pointer-events: initial;
@@ -127,8 +131,8 @@
 
 
 .flowchart-operator .flowchart-operator-title {
-    width: 80%;
-    padding: 5px;
+    width: 85%;
+    padding: 4px 2px;
     font-weight: bold;
     box-sizing: border-box;
     border-bottom: 1px solid #DDDDDD;
@@ -144,7 +148,7 @@
 .flowchart-operator .flowchart-operator-inputs-outputs {
     display: table;
     width: 100%;
-    height: 120px;
+    height: 90px;
 }
 
 .flowchart-operator .flowchart-operator-inputs, .flowchart-default-operator .flowchart-operator-outputs {
@@ -154,8 +158,8 @@
 
 /* Operator Info Div / Operator Info Icon*/
 .operator-info-div {
-  width: 20%;
-  padding: 5px;
+  width: 15%;
+  padding: 4px 2px;
   height: auto;
   position: absolute;
   right: 0px;

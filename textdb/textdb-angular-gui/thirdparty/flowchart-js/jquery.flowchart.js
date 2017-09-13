@@ -191,7 +191,7 @@ $(function () {
                 var connectorTop = parseInt($(".flowchart-operator-connector").css('top'), 10);
 
                 if (checkOnClickIsIconDiv.is(e.target) || checkOnClickIsIcon.is(e.target)){
-                  self.displayRightClickMenu(currentOperatorData.left + e.offsetX + 0.8 * operatorWidth,  currentOperatorData.top + e.offsetY ,operatorID);
+                  self.displayRightClickMenu(currentOperatorData.left + e.offsetX + 0.85 * operatorWidth,  currentOperatorData.top + e.offsetY ,operatorID);
                 } else if (checkOnClickIsOperatorOutput.is(e.target)) {
                   self.displayRightClickMenu(currentOperatorData.left + e.offsetX + 0.5 * operatorWidth,  currentOperatorData.top + e.offsetY + titleHeight ,operatorID);
                 } else if (checkOnClickIsOperatorInput.is(e.target)) {
@@ -877,6 +877,10 @@ $(function () {
                     subConnector: subConnector
                 };
                 this.objs.layers.temporaryLink.show();
+
+                $(".flowchart-operator-connector-label").css('height',25);
+                $(".flowchart-operator-inputs .flowchart-operator-connector").css('background-color','#66cc66');
+
                 var position = this.getConnectorPosition(operator, connector, subConnector);
                 var x = position.x + position.width;
                 var y = position.y;
@@ -902,6 +906,8 @@ $(function () {
         _unsetTemporaryLink: function () {
             this.lastOutputConnectorClicked = null;
             this.objs.layers.temporaryLink.hide();
+            $(".flowchart-operator-connector-label").css('height',20);
+            $(".flowchart-operator-inputs .flowchart-operator-connector").css('background-color','transparent');
         },
 
         _mousemove: function (x, y, e) {
