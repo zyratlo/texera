@@ -203,7 +203,7 @@ export class TheFlowchartComponent {
 
       jQuery('#the-flowchart').panzoom("reset");
       jQuery('#the-flowchart').panzoom("destroy");
-      initializePanzoom(jQuery('#the-flowchart').parent(), newFlowChartWidth, newFlowChartHeight, ZoomRatio);
+      initializePanzoom(jQuery('#the-flowchart').parent(), new_width, new_height, ZoomRatio);
     }
     window.onresize = handleResize;
   }
