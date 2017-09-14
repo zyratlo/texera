@@ -50,14 +50,14 @@
         <dependency>
             <groupId>edu.uci.ics.texera</groupId>
             <artifactId>dataflow</artifactId>
-            <version>${textdb.version}</version>
+            <version>${texera.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>   
         <dependency>
             <groupId>edu.uci.ics.texera</groupId>
             <artifactId>perftest</artifactId>
-            <version>${textdb.version}</version>
+            <version>${texera.version}</version>
         </dependency>
 
         <!-- the version should be the same as jersey-server that is contained in dropwizard -->
@@ -97,7 +97,7 @@
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>edu.uci.ics.texera.web.TextdbWebApplication</mainClass>
+                                    <mainClass>edu.uci.ics.texera.web.TexeraWebApplication</mainClass>
                                 </transformer>
                             </transformers>
                         </configuration>
@@ -109,7 +109,7 @@
                 <artifactId>docker-maven-plugin</artifactId>
                 <version>0.4.13</version>
                 <configuration>
-                    <imageName>textdb</imageName>
+                    <imageName>texera</imageName>
                     <baseImage>java</baseImage>
                     <env></env>
                     <entryPoint>["java", "-Xmx2048m", "-jar", "${project.build.finalName}.jar", "server", "sample-config.yml"]</entryPoint>
@@ -126,18 +126,18 @@
                             <include>sample-config.yml</include>
                         </resource>
                         <resource>
-                            <targetPath>/textdb-perftest/src/main/resources/sample-data-files/</targetPath>
-                            <directory>${project.basedir}/../textdb-perftest/src/main/resources/sample-data-files/</directory>
+                            <targetPath>/texera-perftest/src/main/resources/sample-data-files/</targetPath>
+                            <directory>${project.basedir}/../texera-perftest/src/main/resources/sample-data-files/</directory>
                             <include>*</include>
                         </resource>
                         <resource>
-                            <targetPath>/textdb-perftest/src/main/resources/sample-data-files/promed/</targetPath>
-                            <directory>${project.basedir}/../textdb-perftest/src/main/resources/sample-data-files/promed/</directory>
+                            <targetPath>/texera-perftest/src/main/resources/sample-data-files/promed/</targetPath>
+                            <directory>${project.basedir}/../texera-perftest/src/main/resources/sample-data-files/promed/</directory>
                             <include>*</include>
                         </resource>
                         <resource>
-                            <targetPath>/textdb-perftest/src/main/resources/index/standard/promed/</targetPath>
-                            <directory>${project.basedir}/../textdb-perftest/src/main/resources/index/standard/promed/</directory>
+                            <targetPath>/texera-perftest/src/main/resources/index/standard/promed/</targetPath>
+                            <directory>${project.basedir}/../texera-perftest/src/main/resources/index/standard/promed/</directory>
                             <include>*</include>
                         </resource>
                     </resources>

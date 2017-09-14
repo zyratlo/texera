@@ -8,7 +8,7 @@ import edu.uci.ics.texera.api.constants.SchemaConstants;
 import edu.uci.ics.texera.api.dataflow.IOperator;
 import edu.uci.ics.texera.api.exception.DataFlowException;
 import edu.uci.ics.texera.api.exception.StorageException;
-import edu.uci.ics.texera.api.exception.TextDBException;
+import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.field.IField;
 import edu.uci.ics.texera.api.schema.Attribute;
 import edu.uci.ics.texera.api.schema.Schema;
@@ -35,7 +35,7 @@ public class JoinTestHelper {
     public static final String NEWS_TABLE_OUTER = "join_test_news_outer";
     public static final String NEWS_TABLE_INNER = "join_test_news_inner";
     
-    public static void createTestTables() throws TextDBException {
+    public static void createTestTables() throws TexeraException {
         RelationManager relationManager = RelationManager.getRelationManager();
         
         // create the book table
@@ -76,9 +76,9 @@ public class JoinTestHelper {
     
     /**
      * Clears the data of the inner and outer test tables.
-     * @throws TextDBException
+     * @throws TexeraException
      */
-    public static void clearTestTables() throws TextDBException {
+    public static void clearTestTables() throws TexeraException {
         RelationManager relationManager = RelationManager.getRelationManager();
 
         DataWriter bookDataWriter = relationManager.getTableDataWriter(BOOK_TABLE);
@@ -99,9 +99,9 @@ public class JoinTestHelper {
     
     /**
      * Deletes all test tables
-     * @throws TextDBException
+     * @throws TexeraException
      */
-    public static void deleteTestTables() throws TextDBException {
+    public static void deleteTestTables() throws TexeraException {
         RelationManager relationManager = RelationManager.getRelationManager();
         relationManager.deleteTable(BOOK_TABLE);
         relationManager.deleteTable(NEWS_TABLE_OUTER);
@@ -115,10 +115,10 @@ public class JoinTestHelper {
      * @param query
      * @param matchingType
      * @return
-     * @throws TextDBException
+     * @throws TexeraException
      */
     public static KeywordMatcherSourceOperator getKeywordSource(String tableName, String query, 
-            KeywordMatchingType matchingType) throws TextDBException {
+            KeywordMatchingType matchingType) throws TexeraException {
         KeywordSourcePredicate keywordSourcePredicate = new KeywordSourcePredicate(query, 
                 Arrays.asList(JoinTestConstants.AUTHOR, JoinTestConstants.TITLE, JoinTestConstants.REVIEW),
                 RelationManager.getRelationManager().getTableAnalyzerString(tableName), 
@@ -151,10 +151,10 @@ public class JoinTestHelper {
      * @param limit
      * @param offset
      * @return
-     * @throws TextDBException
+     * @throws TexeraException
      */
     public static List<Tuple> getJoinDistanceResults(IOperator innerOp, IOperator outerOp,
-            IJoinPredicate joinPredicate, int limit, int offset) throws TextDBException {
+            IJoinPredicate joinPredicate, int limit, int offset) throws TexeraException {
         Join join = new Join(joinPredicate);
         join.setInnerInputOperator(innerOp);
         join.setOuterInputOperator(outerOp);

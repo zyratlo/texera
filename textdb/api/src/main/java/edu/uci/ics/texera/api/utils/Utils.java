@@ -10,7 +10,7 @@ import java.util.stream.IntStream;
 
 import edu.uci.ics.texera.api.constants.DataConstants;
 import edu.uci.ics.texera.api.constants.SchemaConstants;
-import edu.uci.ics.texera.api.constants.DataConstants.TextdbProject;
+import edu.uci.ics.texera.api.constants.DataConstants.TexeraProject;
 import edu.uci.ics.texera.api.exception.StorageException;
 import edu.uci.ics.texera.api.field.IField;
 import edu.uci.ics.texera.api.schema.Attribute;
@@ -27,53 +27,53 @@ public class Utils {
      * @return the path to the resource
      * @throws StorageException if finding fails
      */
-    public static String getResourcePath(String resourcePath, TextdbProject subProject) throws StorageException {
+    public static String getResourcePath(String resourcePath, TexeraProject subProject) throws StorageException {
         return Paths.get(
-                getTextdbHomePath(), 
+                getTexeraHomePath(), 
                 subProject.getProjectName(), 
                 "/src/main/resources", 
                 resourcePath).toString();
     }
     
     /**
-     * Gets the path of the textdb home directory by:
-     *   1): try to use TEXTDB_HOME environment variable, 
+     * Gets the path of the texera home directory by:
+     *   1): try to use TEXERA_HOME environment variable, 
      *   if it fails then:
-     *   2): compare if the current directory is textdb (where TEXTDB_HOME should be), 
+     *   2): compare if the current directory is texera (where TEXERA_HOME should be), 
      *   if it's not then:
-     *   3): compare if the current directory is a textdb subproject, 
+     *   3): compare if the current directory is a texera subproject, 
      *   if it's not then:
      *   
-     *   Finding textdb home directory will fail
+     *   Finding texera home directory will fail
      * 
-     * @return the real absolute path to textdb home directory
-     * @throws StorageException if can not find textdb home
+     * @return the real absolute path to texera home directory
+     * @throws StorageException if can not find texera home
      */
-    public static String getTextdbHomePath() throws StorageException {
+    public static String getTexeraHomePath() throws StorageException {
         try {
-            // try to use TEXTDB_HOME environment variable first
+            // try to use TEXERA_HOME environment variable first
             if (System.getenv(DataConstants.HOME_ENV_VAR) != null) {
-                String textdbHome = System.getenv(DataConstants.HOME_ENV_VAR);
-                return Paths.get(textdbHome).toRealPath().toString();
+                String texeraHome = System.getenv(DataConstants.HOME_ENV_VAR);
+                return Paths.get(texeraHome).toRealPath().toString();
             } else {
-                // if the environment variable is not found, try if the current directory is textdb
+                // if the environment variable is not found, try if the current directory is texera
                 String currentWorkingDirectory = Paths.get("").toRealPath().toString();
                 
-                // if the current directory ends with textdb (TEXTDB_HOME location)
-                boolean isTextdbHome = currentWorkingDirectory.endsWith(DataConstants.HOME_FOLDER_NAME);
+                // if the current directory ends with texera (TEXERA_HOME location)
+                boolean isTexeraHome = currentWorkingDirectory.endsWith(DataConstants.HOME_FOLDER_NAME);
                 // if the current directory is one of the sub-projects
-                boolean isSubProject = Arrays.asList(TextdbProject.values()).stream()
+                boolean isSubProject = Arrays.asList(TexeraProject.values()).stream()
                     .map(project -> project.getProjectName())
                     .filter(project -> currentWorkingDirectory.endsWith(project)).findAny().isPresent();
                 
-                if (isTextdbHome) {
+                if (isTexeraHome) {
                     return Paths.get(currentWorkingDirectory).toRealPath().toString();
                 }
                 if (isSubProject) {
                     return Paths.get(currentWorkingDirectory, "../").toRealPath().toString(); 
                 }
                 throw new StorageException(
-                        "Finding textdb home path failed. Current working directory is " + currentWorkingDirectory);
+                        "Finding texera home path failed. Current working directory is " + currentWorkingDirectory);
             }
         } catch (IOException e) {
             throw new StorageException(e);

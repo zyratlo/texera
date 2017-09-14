@@ -6,6 +6,6 @@ import io.dropwizard.Configuration;
  * to Java variables during launch of the web application.
  * Created by kishore on 10/4/16.
  */
-public class TextdbWebConfiguration extends Configuration {
+public class TexeraWebConfiguration extends Configuration {
     // The configuration class will remain empty for now
 }

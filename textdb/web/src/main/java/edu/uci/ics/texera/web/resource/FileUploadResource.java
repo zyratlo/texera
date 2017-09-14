@@ -1,8 +1,8 @@
 package edu.uci.ics.texera.web.resource;
 
 import edu.uci.ics.texera.exp.resource.dictionary.DictionaryManager;
-import edu.uci.ics.texera.web.TextdbWebException;
-import edu.uci.ics.texera.web.response.TextdbWebResponse;
+import edu.uci.ics.texera.web.TexeraWebException;
+import edu.uci.ics.texera.web.response.TexeraWebResponse;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 
@@ -18,7 +18,7 @@ import java.io.*;
 public class FileUploadResource {
 	@POST
 	@Path("/dictionary")
-	public TextdbWebResponse uploadDictionaryFile(
+	public TexeraWebResponse uploadDictionaryFile(
 					@FormDataParam("file") InputStream uploadedInputStream,
 					@FormDataParam("file") FormDataContentDisposition fileDetail) throws Exception {
 		StringBuilder dictionary = new StringBuilder();
@@ -30,7 +30,7 @@ public class FileUploadResource {
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
-			throw new TextdbWebException("Error occurred whlie uploading dictionary");
+			throw new TexeraWebException("Error occurred whlie uploading dictionary");
 		}
 		
 		String fileName = fileDetail.getFileName();
@@ -39,7 +39,7 @@ public class FileUploadResource {
         DictionaryManager dictionaryManager = DictionaryManager.getInstance();
         dictionaryManager.addDictionary(fileName, dictionary.toString());
 
-		return new TextdbWebResponse(0, "Dictionary is uploaded");
+		return new TexeraWebResponse(0, "Dictionary is uploaded");
 	}
 
 

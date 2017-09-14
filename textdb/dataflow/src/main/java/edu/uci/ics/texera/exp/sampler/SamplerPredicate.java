@@ -40,7 +40,7 @@ public class SamplerPredicate extends PredicateBase {
             @JsonProperty(value = PropertyNameConstants.SAMPLE_TYPE, required = true)
             SampleType sampleType ) {
         if (sampleSize < 1) {
-            //TODO: use TextDB RuntimeException
+            //TODO: use Texera RuntimeException
             throw new RuntimeException("Sample size should be greater then 0.");
         }
         

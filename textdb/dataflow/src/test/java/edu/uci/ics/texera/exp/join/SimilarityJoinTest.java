@@ -6,7 +6,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
 import edu.uci.ics.texera.api.constants.SchemaConstants;
-import edu.uci.ics.texera.api.exception.TextDBException;
+import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.field.IDField;
 import edu.uci.ics.texera.api.field.IntegerField;
 import edu.uci.ics.texera.api.field.ListField;
@@ -54,19 +54,19 @@ public class SimilarityJoinTest {
      *   
      */
     @BeforeClass
-    public static void setup() throws TextDBException {
+    public static void setup() throws TexeraException {
         // writes the test tables before ALL tests
         JoinTestHelper.createTestTables();
     }
     
     @AfterClass
-    public static void cleanUp() throws TextDBException {
+    public static void cleanUp() throws TexeraException {
         // deletes the test tables after ALL tests
         JoinTestHelper.deleteTestTables();
     }
 
     @After
-    public void clear() throws TextDBException {
+    public void clear() throws TexeraException {
         JoinTestHelper.clearTestTables();
     }
 
@@ -79,7 +79,7 @@ public class SimilarityJoinTest {
      *
      */
     @Test
-    public void test1() throws TextDBException {
+    public void test1() throws TexeraException {
         JoinTestHelper.insertToTable(NEWS_TABLE_OUTER, JoinTestConstants.getNewsTuples().get(0));
         JoinTestHelper.insertToTable(NEWS_TABLE_INNER, JoinTestConstants.getNewsTuples().get(1));
 
@@ -132,7 +132,7 @@ public class SimilarityJoinTest {
      *
      */
     @Test
-    public void test2() throws TextDBException {
+    public void test2() throws TexeraException {
         JoinTestHelper.insertToTable(NEWS_TABLE_OUTER, JoinTestConstants.getNewsTuples().get(0));
         JoinTestHelper.insertToTable(NEWS_TABLE_INNER, JoinTestConstants.getNewsTuples().get(1));
 
@@ -158,7 +158,7 @@ public class SimilarityJoinTest {
      *
      */
     @Test
-    public void test3() throws TextDBException {
+    public void test3() throws TexeraException {
         JoinTestHelper.insertToTable(NEWS_TABLE_OUTER, JoinTestConstants.getNewsTuples().get(2));
         JoinTestHelper.insertToTable(NEWS_TABLE_INNER, JoinTestConstants.getNewsTuples().get(3));
 
@@ -210,7 +210,7 @@ public class SimilarityJoinTest {
      *
      */
     @Test
-    public void test4() throws TextDBException {
+    public void test4() throws TexeraException {
         JoinTestHelper.insertToTable(NEWS_TABLE_OUTER, JoinTestConstants.getNewsTuples().get(2));
         JoinTestHelper.insertToTable(NEWS_TABLE_INNER, JoinTestConstants.getNewsTuples().get(3));
 

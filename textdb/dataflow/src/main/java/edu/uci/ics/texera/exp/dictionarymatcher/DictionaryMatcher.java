@@ -4,7 +4,7 @@ import edu.uci.ics.texera.api.constants.ErrorMessages;
 import edu.uci.ics.texera.api.constants.SchemaConstants;
 import edu.uci.ics.texera.api.dataflow.IOperator;
 import edu.uci.ics.texera.api.exception.DataFlowException;
-import edu.uci.ics.texera.api.exception.TextDBException;
+import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.field.ListField;
 import edu.uci.ics.texera.api.schema.Attribute;
 import edu.uci.ics.texera.api.schema.AttributeType;
@@ -36,7 +36,7 @@ public class DictionaryMatcher extends AbstractSingleInputOperator {
     private Schema inputSchema;
 
     @Override
-    protected void setUp() throws TextDBException {
+    protected void setUp() throws TexeraException {
 
         if (inputOperator == null) {
             throw new DataFlowException(ErrorMessages.INPUT_OPERATOR_NOT_SPECIFIED);
@@ -71,7 +71,7 @@ public class DictionaryMatcher extends AbstractSingleInputOperator {
     }
 
     @Override
-    protected Tuple computeNextMatchingTuple() throws TextDBException {
+    protected Tuple computeNextMatchingTuple() throws TexeraException {
         Tuple inputTuple;
         Tuple resultTuple = null;
         while ((inputTuple = inputOperator.getNextTuple()) != null) {
@@ -86,7 +86,7 @@ public class DictionaryMatcher extends AbstractSingleInputOperator {
     }
 
     @Override
-    public Tuple processOneInputTuple(Tuple inputTuple) throws TextDBException {
+    public Tuple processOneInputTuple(Tuple inputTuple) throws TexeraException {
 
         if (inputTuple == null) {
             return null;
@@ -265,7 +265,7 @@ public class DictionaryMatcher extends AbstractSingleInputOperator {
     }
 
     @Override
-    protected void cleanUp() throws TextDBException {
+    protected void cleanUp() throws TexeraException {
 
     }
 

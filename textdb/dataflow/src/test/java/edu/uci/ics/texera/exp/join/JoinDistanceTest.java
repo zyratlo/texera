@@ -11,7 +11,7 @@ import org.junit.Test;
 
 import edu.uci.ics.texera.api.constants.SchemaConstants;
 import edu.uci.ics.texera.api.exception.DataFlowException;
-import edu.uci.ics.texera.api.exception.TextDBException;
+import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.field.IField;
 import edu.uci.ics.texera.api.field.IntegerField;
 import edu.uci.ics.texera.api.field.ListField;
@@ -67,13 +67,13 @@ public class JoinDistanceTest {
      *   
      */
     @BeforeClass
-    public static void setup() throws TextDBException {
+    public static void setup() throws TexeraException {
         // writes the test tables before ALL tests
         JoinTestHelper.createTestTables();
     }
     
     @AfterClass
-    public static void cleanUp() throws TextDBException {
+    public static void cleanUp() throws TexeraException {
         // deletes the test tables after ALL tests
         JoinTestHelper.deleteTestTables();
     }
@@ -84,7 +84,7 @@ public class JoinDistanceTest {
      *   and they need to be cleared before the next test case begins.
      */
     @After
-    public void clearTables() throws TextDBException {
+    public void clearTables() throws TexeraException {
         // clear the test tables after EACH test
         JoinTestHelper.clearTestTables();
     }

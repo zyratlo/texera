@@ -9,7 +9,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import edu.uci.ics.texera.api.constants.SchemaConstants;
-import edu.uci.ics.texera.api.exception.TextDBException;
+import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.field.IDField;
 import edu.uci.ics.texera.api.tuple.Tuple;
 import edu.uci.ics.texera.api.utils.TestUtils;
@@ -23,7 +23,7 @@ import edu.uci.ics.texera.exp.source.tuple.TupleSourceOperator;
 public class NlpSplitTest {
     
     @Test
-    public void test1() throws TextDBException, ParseException {
+    public void test1() throws TexeraException, ParseException {
         TupleSourceOperator tupleSource = new TupleSourceOperator(
                 NlpSplitTestConstants.getOneToOneTestTuple(), NlpSplitTestConstants.SPLIT_SCHEMA);
         NlpSplitOperator sentence_list = new NlpSplitOperator(
@@ -40,7 +40,7 @@ public class NlpSplitTest {
     }
     
     @Test
-    public void test2() throws TextDBException, ParseException {
+    public void test2() throws TexeraException, ParseException {
         TupleSourceOperator tupleSource = new TupleSourceOperator(
                 NlpSplitTestConstants.getOneToManyTestTuple(), NlpSplitTestConstants.SPLIT_SCHEMA);
         NlpSplitOperator sentence_list = new NlpSplitOperator(

@@ -10,7 +10,7 @@ import java.util.Map;
 import edu.uci.ics.texera.api.constants.SchemaConstants;
 import edu.uci.ics.texera.api.dataflow.ISourceOperator;
 import edu.uci.ics.texera.api.exception.DataFlowException;
-import edu.uci.ics.texera.api.exception.TextDBException;
+import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.field.ListField;
 import edu.uci.ics.texera.api.schema.Schema;
 import edu.uci.ics.texera.api.span.Span;
@@ -34,7 +34,6 @@ public class DictionaryMatcherSourceOperator implements ISourceOperator {
     private KeywordMatcherSourceOperator keywordSource;
     private DictionaryMatcher dictionaryMatcher;
 
-    private Schema inputSchema;
     private Schema outputSchema;
 
     private Tuple sourceTuple;
@@ -47,7 +46,7 @@ public class DictionaryMatcherSourceOperator implements ISourceOperator {
     private int offset;
 
     private Map<String, Tuple> resultMap; //To store results for earlier dictionary entries for CONJUNCTION and PHRASE.
-    private Iterator resultIterator;
+    private Iterator<Map.Entry<String, Tuple>> resultIterator;
 
     private int cursor = CLOSED;  //Flag for computing matching results for CONJUNCTION and PHRASE.
 
@@ -132,7 +131,6 @@ public class DictionaryMatcherSourceOperator implements ISourceOperator {
                 // Other keyword matching types uses a KeywordMatcher, so the
                 // output schema is the same as keywordMatcher's schema.
 
-                inputSchema = keywordSource.getOutputSchema();
                 outputSchema = keywordSource.getOutputSchema();
             }
 
@@ -148,7 +146,7 @@ public class DictionaryMatcherSourceOperator implements ISourceOperator {
      * Returns the tuple with results in spanList. <br>
      */
     @Override
-    public Tuple getNextTuple() throws TextDBException {
+    public Tuple getNextTuple() throws TexeraException {
 
         if (resultCursor >= limit + offset - 1) {
             return null;
@@ -159,7 +157,7 @@ public class DictionaryMatcherSourceOperator implements ISourceOperator {
             // For each dictionary entry, get all results from KeywordMatcher.
             if(cursor == CLOSED){
 
-                resultMap = new HashMap<>();
+                resultMap = new HashMap<String, Tuple>();
                 computeMatchingResults(resultMap);
                 resultIterator = resultMap.entrySet().iterator();
 
@@ -171,7 +169,7 @@ public class DictionaryMatcherSourceOperator implements ISourceOperator {
 
                 if (resultIterator.hasNext()) {
                     resultCursor++;
-                    sourceTuple = ((Map.Entry<String, Tuple>) resultIterator.next()).getValue();
+                    sourceTuple = resultIterator.next().getValue();
                     if (resultCursor >= offset) {
                               return sourceTuple;
                     }
@@ -226,7 +224,8 @@ public class DictionaryMatcherSourceOperator implements ISourceOperator {
      * @param resultMap
      */
 
-    private void computeMatchingResults(Map<String, Tuple> resultMap){
+    @SuppressWarnings("unchecked")
+	private void computeMatchingResults(Map<String, Tuple> resultMap){
 
         Tuple inputTuple;
         while(true) {

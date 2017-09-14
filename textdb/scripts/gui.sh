@@ -1,3 +1,3 @@
-cd $TEXTDB_HOME/textdb-angular-gui
+cd gui
 npm install
 npm run compile

@@ -3,8 +3,6 @@ package edu.uci.ics.texera.exp.utils;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.apache.lucene.analysis.Analyzer;

@@ -1,1 +1,1 @@
-java -jar textdb-web/target/textdb-web-1.0-SNAPSHOT.jar server textdb-web/sample-config.yml 
+java -jar texera-web/target/texera-web-1.0-SNAPSHOT.jar server texera-web/sample-config.yml 

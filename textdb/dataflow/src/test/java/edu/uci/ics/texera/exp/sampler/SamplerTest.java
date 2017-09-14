@@ -10,7 +10,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import edu.uci.ics.texera.api.constants.TestConstants;
-import edu.uci.ics.texera.api.exception.TextDBException;
+import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.tuple.Tuple;
 import edu.uci.ics.texera.api.utils.TestUtils;
 import edu.uci.ics.texera.exp.sampler.SamplerPredicate.SampleType;
@@ -29,7 +29,7 @@ public class SamplerTest {
     public static final String SAMPLER_TABLE = "sampler_test";
     private static int indexSize;
     @BeforeClass
-    public static void setUp() throws TextDBException {
+    public static void setUp() throws TexeraException {
         RelationManager relationManager = RelationManager.getRelationManager();
         // Create the people table and write tuples
         
@@ -47,12 +47,12 @@ public class SamplerTest {
     }
     
     @AfterClass
-    public static void cleanUp() throws TextDBException {
+    public static void cleanUp() throws TexeraException {
         RelationManager.getRelationManager().deleteTable(SAMPLER_TABLE);
     }
     
     public static List<Tuple> computeSampleResults(String tableName, int k,
-            SampleType sampleType) throws TextDBException {
+            SampleType sampleType) throws TexeraException {
         
         ScanBasedSourceOperator scanSource = new ScanBasedSourceOperator(new ScanSourcePredicate(tableName));
         Sampler tupleSampler = new Sampler(new SamplerPredicate(k, sampleType));
@@ -72,7 +72,7 @@ public class SamplerTest {
     /*
      * To test if all the sampled tuples are in the sampler table.
      */
-    public static boolean containedInSamplerTable(List<Tuple> sampleList) throws TextDBException {
+    public static boolean containedInSamplerTable(List<Tuple> sampleList) throws TexeraException {
         ScanBasedSourceOperator scanSource = 
                 new ScanBasedSourceOperator(new ScanSourcePredicate(SAMPLER_TABLE));
         
@@ -91,7 +91,7 @@ public class SamplerTest {
      * To test if the sampled tuples are equal to the first K tuples of the sampler table 
      * in both the order and content.
      */
-    public static boolean matchSamplerTable(List<Tuple> sampleList) throws TextDBException {
+    public static boolean matchSamplerTable(List<Tuple> sampleList) throws TexeraException {
         ScanBasedSourceOperator scanSource = 
                 new ScanBasedSourceOperator(new ScanSourcePredicate(SAMPLER_TABLE));
         
@@ -115,7 +115,7 @@ public class SamplerTest {
      * Sample 0 tuple in FIRST_K_ARRIVAL mode
      */
     @Test(expected = RuntimeException.class)
-    public void test1() throws TextDBException {
+    public void test1() throws TexeraException {
         computeSampleResults(SAMPLER_TABLE,0, SampleType.FIRST_K_ARRIVAL);
     }
     
@@ -123,7 +123,7 @@ public class SamplerTest {
      * FIRST_K_ARRIVAL mode: sample the first tuple.
      */
     @Test
-    public void test2() throws TextDBException {
+    public void test2() throws TexeraException {
         List<Tuple> results = computeSampleResults(SAMPLER_TABLE,1, SampleType.FIRST_K_ARRIVAL);
         Assert.assertEquals(results.size(), 1);
         Assert.assertTrue(matchSamplerTable(results));
@@ -133,7 +133,7 @@ public class SamplerTest {
      * FIRST_K_ARRIVAL mode: Sample all the tuples.
      */
     @Test
-    public void test3() throws TextDBException {
+    public void test3() throws TexeraException {
         List<Tuple> results = computeSampleResults(SAMPLER_TABLE,indexSize, SampleType.FIRST_K_ARRIVAL);
         Assert.assertEquals(results.size(), indexSize);
         Assert.assertTrue(matchSamplerTable(results));
@@ -144,7 +144,7 @@ public class SamplerTest {
      * It should return all the tuples from the table.
      */
     @Test
-    public void test4() throws TextDBException {
+    public void test4() throws TexeraException {
         List<Tuple> results = computeSampleResults(SAMPLER_TABLE,indexSize+1, SampleType.FIRST_K_ARRIVAL);
         Assert.assertEquals(results.size(), indexSize);
         Assert.assertTrue(matchSamplerTable(results));
@@ -154,7 +154,7 @@ public class SamplerTest {
      * RANDOM_SAMPLE mode: # of sampled tuples is in [0, tableSize].
      */
     @Test
-    public void test5() throws TextDBException {
+    public void test5() throws TexeraException {
         List<Tuple> results = computeSampleResults(SAMPLER_TABLE,2, SampleType.RANDOM_SAMPLE);
         Assert.assertEquals(results.size(), 2);
         Assert.assertTrue(containedInSamplerTable(results));
@@ -164,7 +164,7 @@ public class SamplerTest {
      * RANDOM_SAMPLE mode: sample zero tuple.
      */
     @Test(expected = RuntimeException.class)
-    public void test6() throws TextDBException {
+    public void test6() throws TexeraException {
         computeSampleResults(SAMPLER_TABLE,0, SampleType.RANDOM_SAMPLE);
     }
     
@@ -173,7 +173,7 @@ public class SamplerTest {
      * It should output all the tuples get from the table.
      */
     @Test
-    public void test7() throws TextDBException {
+    public void test7() throws TexeraException {
         List<Tuple> results = computeSampleResults(SAMPLER_TABLE,indexSize, SampleType.RANDOM_SAMPLE);
         Assert.assertEquals(results.size(), indexSize);
         Assert.assertTrue(containedInSamplerTable(results));
@@ -184,7 +184,7 @@ public class SamplerTest {
      * It should return all the tuples from the table.
      */
     @Test
-    public void test8() throws TextDBException {
+    public void test8() throws TexeraException {
         List<Tuple> results = computeSampleResults(SAMPLER_TABLE,indexSize+1, SampleType.RANDOM_SAMPLE);
         Assert.assertEquals(results.size(), indexSize);
         Assert.assertTrue(containedInSamplerTable(results));

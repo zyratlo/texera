@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 
-import edu.uci.ics.texera.api.constants.DataConstants.TextdbProject;
+import edu.uci.ics.texera.api.constants.DataConstants.TexeraProject;
 import edu.uci.ics.texera.api.utils.Utils;
 import edu.uci.ics.texera.perftest.medline.MedlineIndexWriter;
 import edu.uci.ics.texera.storage.RelationManager;
@@ -30,7 +30,7 @@ public class PerfTestUtils {
 
     /**
      * These default paths work only when the program is run from the directory,
-     * textdb-perftest
+     * texera-perftest
      */
     public static String fileFolder = getResourcePath("/sample-data-files");
     public static String standardIndexFolder = getResourcePath("/index/standard");
@@ -39,7 +39,7 @@ public class PerfTestUtils {
     public static String queryFolder = getResourcePath("/perftest-files/queries");
     
     public static String getResourcePath(String resourcePath) {
-        return Utils.getResourcePath(resourcePath, TextdbProject.TEXTDB_PERFTEST);
+        return Utils.getResourcePath(resourcePath, TexeraProject.TEXERA_PERFTEST);
     }
 
     /**
@@ -57,13 +57,13 @@ public class PerfTestUtils {
     /*
      * The purpose for below setters:
      * 
-     * When the program is not run from the directory, textdb-perftest, all path
+     * When the program is not run from the directory, texera-perftest, all path
      * need to be reset so that the program can recognize the paths.
      * 
      * For examplem, the default ./data-files/ works well when the program is
-     * run from textdb-perftest, but the program is run from the outermost
+     * run from texera-perftest, but the program is run from the outermost
      * folder of the project, the directory should be
-     * ./textdb-perftest/data-files/
+     * ./texera-perftest/data-files/
      */
     public static void setFileFolder(String filefolder) {
         if (!filefolder.trim().isEmpty()) {

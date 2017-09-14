@@ -1,7 +1,7 @@
 package edu.uci.ics.texera.exp.regexsplit;
 
 import edu.uci.ics.texera.api.exception.DataFlowException;
-import edu.uci.ics.texera.api.exception.TextDBException;
+import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.field.IDField;
 import edu.uci.ics.texera.api.field.IField;
 import edu.uci.ics.texera.api.field.ListField;
@@ -101,7 +101,7 @@ public class RegexSplitOperator extends AbstractSingleInputOperator implements I
     }
     
     @Override
-    protected Tuple computeNextMatchingTuple() throws TextDBException {
+    protected Tuple computeNextMatchingTuple() throws TexeraException {
         
         List<IField> outputFields = new ArrayList<>();
         
@@ -204,7 +204,7 @@ public class RegexSplitOperator extends AbstractSingleInputOperator implements I
     }
     
     @Override
-    protected void cleanUp() throws TextDBException {
+    protected void cleanUp() throws TexeraException {
     }
     
     public RegexSplitPredicate getPredicate() {
@@ -212,7 +212,7 @@ public class RegexSplitOperator extends AbstractSingleInputOperator implements I
     }
     
     @Override
-    public Tuple processOneInputTuple(Tuple inputTuple) throws TextDBException {
+    public Tuple processOneInputTuple(Tuple inputTuple) throws TexeraException {
         throw new RuntimeException("RegexSplit does not support process one tuple");
     }
     

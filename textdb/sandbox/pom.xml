@@ -28,7 +28,7 @@
         <dependency>
             <groupId>edu.uci.ics.texera</groupId>
             <artifactId>dataflow</artifactId>
-            <version>${textdb.version}</version>
+            <version>${texera.version}</version>
         </dependency>
     </dependencies>
 </project>

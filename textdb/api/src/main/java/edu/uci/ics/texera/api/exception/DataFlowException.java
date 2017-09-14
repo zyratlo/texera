@@ -4,9 +4,9 @@
 package edu.uci.ics.texera.api.exception;
 
 /**
- *  Thrown to indicate that an exception occurs when a TextDB operator processes data.
+ *  Thrown to indicate that an exception occurs when a Texera operator processes data.
  */
-public class DataFlowException extends TextDBException {
+public class DataFlowException extends TexeraException {
 
     private static final long serialVersionUID = -4779329768850579335L;
 

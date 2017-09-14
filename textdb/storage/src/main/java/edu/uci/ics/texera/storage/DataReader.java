@@ -35,7 +35,7 @@ import edu.uci.ics.texera.api.utils.Utils;
 import edu.uci.ics.texera.storage.utils.StorageUtils;
 
 /**
- * DataReader is the layer where TextDB handles upper-level operators' read operations
+ * DataReader is the layer where Texera handles upper-level operators' read operations
  *   and performs corresponding operations to Lucene.
  *   
  * DataReader can get tuples from the Lucene index folder by a lucene query,

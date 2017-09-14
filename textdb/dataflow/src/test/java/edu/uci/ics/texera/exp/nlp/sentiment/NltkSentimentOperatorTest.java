@@ -7,7 +7,7 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
-import edu.uci.ics.texera.api.exception.TextDBException;
+import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.tuple.Tuple;
 import edu.uci.ics.texera.exp.sink.tuple.TupleSink;
 import edu.uci.ics.texera.exp.source.tuple.TupleSourceOperator;
@@ -20,7 +20,7 @@ public class NltkSentimentOperatorTest {
      * Test sentiment test result should be positive.
      */
     @Test
-    public void test1() throws TextDBException {
+    public void test1() throws TexeraException {
         TupleSourceOperator tupleSource = new TupleSourceOperator(
                 Arrays.asList(NltkSentimentTestConstants.POSITIVE_TUPLE), NlpSentimentTestConstants.SENTIMENT_SCHEMA);
         NltkSentimentOperator nltkSentimentOperator = new NltkSentimentOperator(new NltkSentimentOperatorPredicate(
@@ -42,7 +42,7 @@ public class NltkSentimentOperatorTest {
      * Test sentiment test result should be negative
      */
     @Test
-    public void test2() throws TextDBException {
+    public void test2() throws TexeraException {
         TupleSourceOperator tupleSource = new TupleSourceOperator(
                 Arrays.asList(NltkSentimentTestConstants.NEGATIVE_TUPLE), NlpSentimentTestConstants.SENTIMENT_SCHEMA);
         NltkSentimentOperator nltkSentimentOperator = new NltkSentimentOperator(new NltkSentimentOperatorPredicate(
@@ -65,7 +65,7 @@ public class NltkSentimentOperatorTest {
      * Test batch processing of operator. All test results should be negative
      */
     @Test
-    public void test3() throws TextDBException {
+    public void test3() throws TexeraException {
         int batchSize = 30;
         int tupleSourceSize = 101;
         

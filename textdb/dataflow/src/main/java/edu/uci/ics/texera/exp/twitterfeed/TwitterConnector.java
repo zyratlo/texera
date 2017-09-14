@@ -9,7 +9,7 @@ import com.twitter.hbc.httpclient.BasicClient;
 import com.twitter.hbc.httpclient.auth.Authentication;
 import com.twitter.hbc.httpclient.auth.OAuth1;
 import edu.uci.ics.texera.api.exception.DataFlowException;
-import edu.uci.ics.texera.api.exception.TextDBException;
+import edu.uci.ics.texera.api.exception.TexeraException;
 
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
@@ -33,7 +33,7 @@ public class TwitterConnector {
     private int queueSize = 10000;
     private Authentication auth;
 
-    public TwitterConnector(List<String> keywordList, List<Location> locationList, List<String> languageList, String customerKey, String customerSecret, String token, String tokenSecret) throws TextDBException {
+    public TwitterConnector(List<String> keywordList, List<Location> locationList, List<String> languageList, String customerKey, String customerSecret, String token, String tokenSecret) throws TexeraException {
         if ((keywordList == null || keywordList.isEmpty()) && (locationList == null || locationList.isEmpty())
                 && (languageList == null || languageList.isEmpty())) {
             throw new DataFlowException("no filter is provided");
@@ -73,7 +73,7 @@ public class TwitterConnector {
         return twitterClient;
     }
 
-    public void setMessageQueue(BlockingQueue queue) {
+    public void setMessageQueue(BlockingQueue<String> queue) {
         this.messageQueue = queue;
     }
 

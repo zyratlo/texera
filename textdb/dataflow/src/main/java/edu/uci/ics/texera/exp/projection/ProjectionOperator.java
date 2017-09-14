@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import edu.uci.ics.texera.api.exception.DataFlowException;
-import edu.uci.ics.texera.api.exception.TextDBException;
+import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.field.IField;
 import edu.uci.ics.texera.api.schema.Attribute;
 import edu.uci.ics.texera.api.schema.Schema;
@@ -22,7 +22,7 @@ public class ProjectionOperator extends AbstractSingleInputOperator {
     }
 
     @Override
-    protected void setUp() throws TextDBException {
+    protected void setUp() throws TexeraException {
         inputSchema = inputOperator.getOutputSchema();
         List<Attribute> outputAttributes = 
                 inputSchema.getAttributes()
@@ -37,7 +37,7 @@ public class ProjectionOperator extends AbstractSingleInputOperator {
     }
 
     @Override
-    protected Tuple computeNextMatchingTuple() throws TextDBException {
+    protected Tuple computeNextMatchingTuple() throws TexeraException {
         Tuple inputTuple = inputOperator.getNextTuple();
         if (inputTuple == null) {
             return null;
@@ -47,7 +47,7 @@ public class ProjectionOperator extends AbstractSingleInputOperator {
     }
 
     @Override
-    public Tuple processOneInputTuple(Tuple inputTuple) throws TextDBException {
+    public Tuple processOneInputTuple(Tuple inputTuple) throws TexeraException {
         IField[] outputFields =
                 outputSchema.getAttributes()
                         .stream()

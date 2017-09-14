@@ -11,7 +11,7 @@ import java.util.Collections;
 import java.util.List;
 
 import edu.uci.ics.texera.api.constants.SchemaConstants;
-import edu.uci.ics.texera.api.exception.TextDBException;
+import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.field.ListField;
 import edu.uci.ics.texera.api.span.Span;
 import edu.uci.ics.texera.api.tuple.Tuple;
@@ -59,11 +59,11 @@ public class FuzzyTokenMatcherPerformanceTest {
      * 
      * Commit number is designed for performance dashboard. It will be appended
      * to the result file only when the performance test is run by
-     * /textdb-scripts/dashboard/build.py
+     * /texera-scripts/dashboard/build.py
      * 
      */
     public static void runTest(String queryFileName, List<Double> thresholds)
-            throws TextDBException, IOException {
+            throws TexeraException, IOException {
 
         // Reads queries from query file into a list
         ArrayList<String> queries = PerfTestUtils.readQueries(PerfTestUtils.getQueryPath(queryFileName));
@@ -112,7 +112,7 @@ public class FuzzyTokenMatcherPerformanceTest {
      * This function does match for a list of queries
      */
     public static void match(ArrayList<String> queryList, double threshold, String luceneAnalyzerStr,
-            String tableName, boolean bool) throws TextDBException, IOException {
+            String tableName, boolean bool) throws TexeraException, IOException {
 
         List<String> attributeNames = Arrays.asList(MedlineIndexWriter.ABSTRACT);
 

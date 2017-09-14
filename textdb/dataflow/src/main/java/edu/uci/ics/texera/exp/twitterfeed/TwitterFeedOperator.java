@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.uci.ics.texera.api.dataflow.ISourceOperator;
 import edu.uci.ics.texera.api.exception.DataFlowException;
-import edu.uci.ics.texera.api.exception.TextDBException;
+import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.field.IDField;
 import edu.uci.ics.texera.api.field.IntegerField;
 import edu.uci.ics.texera.api.field.StringField;
@@ -54,7 +54,7 @@ public class TwitterFeedOperator implements ISourceOperator {
      * enables mockito testing to mock a twitterConnector and isolate the connection with twitter .
      */
 
-    public TwitterFeedOperator(TwitterFeedSourcePredicate predicate, TwitterConnector twitterConnector) throws TextDBException {
+    public TwitterFeedOperator(TwitterFeedSourcePredicate predicate, TwitterConnector twitterConnector) throws TexeraException {
         this.resultCursor = -1;
         this.limit = Integer.MAX_VALUE;
         this.timeout = 10;
@@ -72,13 +72,13 @@ public class TwitterFeedOperator implements ISourceOperator {
     }
 
     //Primary constructor for TwitterFeedOperator set up.
-    public TwitterFeedOperator(TwitterFeedSourcePredicate predicate) throws TextDBException {
+    public TwitterFeedOperator(TwitterFeedSourcePredicate predicate) throws TexeraException {
         this(predicate, new TwitterConnector(predicate.getKeywordList(), TwitterUtils.getPlaceLocation(predicate.getLocationList()), predicate.getLanguageList(), predicate.getCustomerKey(), predicate.getCustomerSecret(), predicate.getToken(), predicate.getTokenSecret()));
     }
 
 
     @Override
-    public void open() throws TextDBException {
+    public void open() throws TexeraException {
         if (cursor != CLOSED) {
             return;
         }
@@ -95,7 +95,7 @@ public class TwitterFeedOperator implements ISourceOperator {
 
 
     @Override
-    public Tuple getNextTuple() throws TextDBException {
+    public Tuple getNextTuple() throws TexeraException {
         if (cursor == CLOSED || resultCursor >= limit - 1 || resultCursor >= predicate.getTweetNum() - 1) {
             return null;
         }
@@ -142,7 +142,7 @@ public class TwitterFeedOperator implements ISourceOperator {
     }
 
     @Override
-    public void close() throws TextDBException {
+    public void close() throws TexeraException {
         if (cursor == CLOSED) {
             return;
         }

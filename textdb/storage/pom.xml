@@ -23,7 +23,7 @@
         <dependency>
             <groupId>edu.uci.ics.texera</groupId>
             <artifactId>api</artifactId>
-            <version>${textdb.version}</version>
+            <version>${texera.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.lucene</groupId>

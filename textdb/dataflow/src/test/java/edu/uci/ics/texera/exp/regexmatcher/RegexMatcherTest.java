@@ -10,7 +10,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import edu.uci.ics.texera.api.constants.TestConstants;
-import edu.uci.ics.texera.api.exception.TextDBException;
+import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.field.IField;
 import edu.uci.ics.texera.api.field.ListField;
 import edu.uci.ics.texera.api.schema.Attribute;
@@ -38,12 +38,12 @@ public class RegexMatcherTest {
     public static final String RESULTS = RegexMatcherTestHelper.RESULTS;
     
     @BeforeClass
-    public static void setUp() throws TextDBException {
+    public static void setUp() throws TexeraException {
         RegexMatcherTestHelper.writeTestTables();
     }
     
     @AfterClass
-    public static void cleanUp() throws TextDBException {
+    public static void cleanUp() throws TexeraException {
         RegexMatcherTestHelper.deleteTestTables();
     }
 

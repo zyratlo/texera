@@ -13,7 +13,7 @@ import edu.uci.ics.texera.api.constants.ErrorMessages;
 import edu.uci.ics.texera.api.constants.SchemaConstants;
 import edu.uci.ics.texera.api.dataflow.IOperator;
 import edu.uci.ics.texera.api.exception.DataFlowException;
-import edu.uci.ics.texera.api.exception.TextDBException;
+import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.span.Span;
 import edu.uci.ics.texera.api.field.IDField;
 import edu.uci.ics.texera.api.field.IField;
@@ -77,7 +77,7 @@ public class NlpSplitOperator implements IOperator {
       
 
     @Override
-    public void open() throws TextDBException {
+    public void open() throws TexeraException {
         if (cursor != CLOSED) {
             return;
         }
@@ -115,7 +115,7 @@ public class NlpSplitOperator implements IOperator {
     }
 
     @Override
-    public Tuple getNextTuple() throws TextDBException {
+    public Tuple getNextTuple() throws TexeraException {
         if (cursor == CLOSED) {
             return null;
         }
@@ -178,7 +178,7 @@ public class NlpSplitOperator implements IOperator {
     
 
     @Override
-    public void close() throws TextDBException {
+    public void close() throws TexeraException {
         if (cursor == CLOSED) {
             return;
         }

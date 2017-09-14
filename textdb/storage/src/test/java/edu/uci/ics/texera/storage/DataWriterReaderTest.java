@@ -11,7 +11,7 @@ import org.junit.Test;
 
 import edu.uci.ics.texera.api.constants.SchemaConstants;
 import edu.uci.ics.texera.api.constants.TestConstants;
-import edu.uci.ics.texera.api.exception.TextDBException;
+import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.tuple.Tuple;
 import edu.uci.ics.texera.api.utils.Utils;
 import edu.uci.ics.texera.storage.constants.LuceneAnalyzerConstants;
@@ -21,7 +21,7 @@ public class DataWriterReaderTest {
     public static final String PEOPLE_TABLE = "data_writer_reader_test_people";
 
     @BeforeClass
-    public static void setUp() throws TextDBException {
+    public static void setUp() throws TexeraException {
         RelationManager relationManager = RelationManager.getRelationManager();
         
         // create the people table and write tuples
@@ -37,7 +37,7 @@ public class DataWriterReaderTest {
     }
     
     @AfterClass
-    public static void cleanUp() throws TextDBException {
+    public static void cleanUp() throws TexeraException {
         RelationManager relationManager = RelationManager.getRelationManager();
         relationManager.deleteTable(PEOPLE_TABLE);
     }

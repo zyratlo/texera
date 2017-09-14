@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 import edu.uci.ics.texera.api.constants.SchemaConstants;
 import edu.uci.ics.texera.api.dataflow.ISourceOperator;
 import edu.uci.ics.texera.api.exception.DataFlowException;
-import edu.uci.ics.texera.api.exception.TextDBException;
+import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.field.IDField;
 import edu.uci.ics.texera.api.field.IField;
 import edu.uci.ics.texera.api.field.IntegerField;
@@ -59,7 +59,7 @@ public class WordCountOperator extends AbstractSingleInputOperator implements IS
     }
     
     @Override
-    protected Tuple computeNextMatchingTuple() throws TextDBException {
+    protected Tuple computeNextMatchingTuple() throws TexeraException {
         if (sortedWordCountMap == null) {
             computeWordCount();
         }
@@ -79,7 +79,7 @@ public class WordCountOperator extends AbstractSingleInputOperator implements IS
         return null;
     }
     
-    private void computeWordCount() throws TextDBException {
+    private void computeWordCount() throws TexeraException {
         Tuple tuple;
         HashMap<String, Integer> wordCountMap = new HashMap<>();
         while ((tuple = this.inputOperator.getNextTuple()) != null) {
@@ -100,7 +100,7 @@ public class WordCountOperator extends AbstractSingleInputOperator implements IS
     }
 
     @Override
-    public Tuple processOneInputTuple(Tuple inputTuple) throws TextDBException {
+    public Tuple processOneInputTuple(Tuple inputTuple) throws TexeraException {
         if (!inputSchema.containsField(SchemaConstants.PAYLOAD)) {
             inputTuple = DataflowUtils.getSpanTuple(inputTuple.getFields(),
                     DataflowUtils.generatePayloadFromTuple(inputTuple, predicate.getLuceneAnalyzerString()), tmpSchema);
@@ -109,7 +109,7 @@ public class WordCountOperator extends AbstractSingleInputOperator implements IS
     }
 
     @Override
-    protected void cleanUp() throws TextDBException {
+    protected void cleanUp() throws TexeraException {
     }
 
 }

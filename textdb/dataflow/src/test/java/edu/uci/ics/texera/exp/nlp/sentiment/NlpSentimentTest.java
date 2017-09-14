@@ -6,7 +6,7 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
-import edu.uci.ics.texera.api.exception.TextDBException;
+import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.tuple.Tuple;
 import edu.uci.ics.texera.exp.sink.tuple.TupleSink;
 import edu.uci.ics.texera.exp.source.tuple.TupleSourceOperator;
@@ -17,7 +17,7 @@ public class NlpSentimentTest {
      * Test sentiment with a positive sentence, result should be 3 (positive)
      */
     @Test
-    public void test1() throws TextDBException {
+    public void test1() throws TexeraException {
         TupleSourceOperator tupleSource = new TupleSourceOperator(
                 Arrays.asList(NlpSentimentTestConstants.POSITIVE_TUPLE), NlpSentimentTestConstants.SENTIMENT_SCHEMA);
         NlpSentimentOperator sentiment = new NlpSentimentOperator(
@@ -39,7 +39,7 @@ public class NlpSentimentTest {
      * Test sentiment with a neutral sentence, result should be 2 (neutral)
      */
     @Test
-    public void test2() throws TextDBException {
+    public void test2() throws TexeraException {
         TupleSourceOperator tupleSource = new TupleSourceOperator(
                 Arrays.asList(NlpSentimentTestConstants.NEUTRAL_TUPLE), NlpSentimentTestConstants.SENTIMENT_SCHEMA);
         NlpSentimentOperator sentiment = new NlpSentimentOperator(
@@ -61,7 +61,7 @@ public class NlpSentimentTest {
      * Test sentiment with a negative sentence, result should be 1 (negative)
      */
     @Test
-    public void test3() throws TextDBException {
+    public void test3() throws TexeraException {
         TupleSourceOperator tupleSource = new TupleSourceOperator(
                 Arrays.asList(NlpSentimentTestConstants.NEGATIVE_TUPLE), NlpSentimentTestConstants.SENTIMENT_SCHEMA);
         NlpSentimentOperator sentiment = new NlpSentimentOperator(

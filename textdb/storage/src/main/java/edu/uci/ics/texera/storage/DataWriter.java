@@ -28,7 +28,7 @@ import edu.uci.ics.texera.api.utils.Utils;
 import edu.uci.ics.texera.storage.utils.StorageUtils;
 
 /**
- * DataWriter is the layer where TextDB handles upper-level operators' write/delete/update operations
+ * DataWriter is the layer where Texera handles upper-level operators' write/delete/update operations
  *   and performs corresponding operations to Lucene.
  *   
  * Write Operations:
@@ -212,7 +212,7 @@ public class DataWriter {
     }
 
     /*
-     * Converts a TextDB tuple to a Lucene document
+     * Converts a Texera tuple to a Lucene document
      */
     private static Document getLuceneDocument(Tuple tuple) {
         List<IField> fields = tuple.getFields();

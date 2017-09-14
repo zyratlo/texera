@@ -39,17 +39,17 @@ import info.debatty.java.stringsimilarity.NormalizedLevenshtein;
  *
  * table_schema,   inner_tuple,             outer_tuple
  *   _id:          random_id                random_id
- *   content:      "textdb"                 "testdb"
- *   spanList:     (0, 6, "textdb", content)  (0, 6, "testdb", content)
+ *   content:      "texera"                 "testdb"
+ *   spanList:     (0, 6, "texera", content)  (0, 6, "testdb", content)
  *   payload:      payload_inner            payload_outer
  *
- * Similarity of "textdb" and "testdb" is 1 - (1/6) = 0.833
+ * Similarity of "texera" and "testdb" is 1 - (1/6) = 0.833
  *
  * result_schema,      result_tuple
  *   _id:              new_random_id
- *   inner_content:    "textdb"
+ *   inner_content:    "texera"
  *   outer_content:    "testdb"
- *   spanList:         [(0, 6, "textdb", inner_content)  (0, 6, "testdb", outer_content)]
+ *   spanList:         [(0, 6, "texera", inner_content)  (0, 6, "testdb", outer_content)]
  *   payload:          [payload_inner, payload_outer]
  *
  * @author Zuozhi Wang

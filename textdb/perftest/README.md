@@ -8,7 +8,7 @@ If you want to get results from more data sets, please put the data files into .
 or specify another path to the data sets when running WriteIndex.java in the next step. 
 
 More data sets can be found at:
-https://github.com/TextDB/textdb/wiki/Data-Sets
+https://github.com/Texera/texera/wiki/Data-Sets
  
 Step 2-Prepare Index:
 In order to write index, run WriteIndex.java file in edu.uci.ics.texera.perftest.run package.

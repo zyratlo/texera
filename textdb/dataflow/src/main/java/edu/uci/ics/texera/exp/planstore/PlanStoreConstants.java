@@ -19,7 +19,7 @@ public class PlanStoreConstants {
 
     public static final Pattern VALID_PLAN_NAME = Pattern.compile("^[a-zA-Z0-9\\-_]{1,}$");
 
-    public static final String INDEX_DIR = Paths.get(Utils.getTextdbHomePath(), "plan").toString();
+    public static final String INDEX_DIR = Paths.get(Utils.getTexeraHomePath(), "plan").toString();
 
     public static final String NAME = "name";
     public static final String DESCRIPTION = "description";

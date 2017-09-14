@@ -9,7 +9,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import edu.uci.ics.texera.api.constants.SchemaConstants;
-import edu.uci.ics.texera.api.exception.TextDBException;
+import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.field.ListField;
 import edu.uci.ics.texera.api.span.Span;
 import edu.uci.ics.texera.api.tuple.Tuple;
@@ -50,11 +50,11 @@ public class RegexMatcherPerformanceTest {
      * 
      * Commit number is designed for performance dashboard. It will be appended
      * to the result file only when the performance test is run by
-     * /textdb-scripts/dashboard/build.py
+     * /texera-scripts/dashboard/build.py
      * 
      */
     public static void runTest(List<String> regexQueries)
-            throws TextDBException, IOException {         
+            throws TexeraException, IOException {         
         // Gets the current time for naming the cvs file
         String currentTime = PerfTestUtils.formatTime(System.currentTimeMillis());
 
@@ -86,7 +86,7 @@ public class RegexMatcherPerformanceTest {
     /*
      *         This function does match for a list of regex queries
      */
-    public static void matchRegex(List<String> regexes, String tableName) throws TextDBException, IOException {
+    public static void matchRegex(List<String> regexes, String tableName) throws TexeraException, IOException {
 
         List<String> attributeNames = Arrays.asList(MedlineIndexWriter.ABSTRACT);
         

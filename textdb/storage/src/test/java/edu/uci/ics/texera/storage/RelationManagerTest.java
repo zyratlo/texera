@@ -14,7 +14,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import edu.uci.ics.texera.api.exception.StorageException;
-import edu.uci.ics.texera.api.exception.TextDBException;
+import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.field.IDField;
 import edu.uci.ics.texera.api.field.StringField;
 import edu.uci.ics.texera.api.schema.Attribute;
@@ -29,7 +29,7 @@ public class RelationManagerTest {
     RelationManager relationManager;
     
     @Before
-    public void setUpRelationManager() throws TextDBException {
+    public void setUpRelationManager() throws TexeraException {
         relationManager = RelationManager.getRelationManager();
     }
     

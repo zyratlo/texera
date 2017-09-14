@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.uci.ics.texera.api.constants.TestConstants;
-import edu.uci.ics.texera.api.exception.TextDBException;
+import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.tuple.Tuple;
 import edu.uci.ics.texera.api.utils.TestUtils;
 import edu.uci.ics.texera.exp.source.scan.ScanBasedSourceOperator;
@@ -32,7 +32,7 @@ public class ScanBasedSourceOperatorTest {
     public static final String PEOPLE_TABLE = "scan_source_test_people";
     
     @BeforeClass
-    public static void setUp() throws TextDBException {
+    public static void setUp() throws TexeraException {
         RelationManager relationManager = RelationManager.getRelationManager();
         
         // create the people table and write tuples
@@ -54,7 +54,7 @@ public class ScanBasedSourceOperatorTest {
     }
 
     @Test
-    public void testFlow() throws TextDBException, ParseException {
+    public void testFlow() throws TexeraException, ParseException {
         List<Tuple> actualTuples = TestConstants.getSamplePeopleTuples();
         
         ScanBasedSourceOperator scanBasedSourceOperator = new ScanBasedSourceOperator(new ScanSourcePredicate(PEOPLE_TABLE));

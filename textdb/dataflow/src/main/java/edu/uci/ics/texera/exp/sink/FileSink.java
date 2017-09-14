@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 
-import edu.uci.ics.texera.api.exception.TextDBException;
+import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.tuple.Tuple;
 
 /**
@@ -32,17 +32,17 @@ public class FileSink extends AbstractSink {
     }
 
     @Override
-    public void open() throws TextDBException {
+    public void open() throws TexeraException {
         super.open();
         try {
             this.printWriter = new PrintWriter(file);
         } catch (FileNotFoundException e) {
-            throw new TextDBException("Failed to open file sink", e);
+            throw new TexeraException("Failed to open file sink", e);
         }
     }
 
     @Override
-    public void close() throws TextDBException {
+    public void close() throws TexeraException {
         if (this.printWriter != null) {
             this.printWriter.close();
         }

@@ -1,7 +1,7 @@
 package edu.uci.ics.texera.api.engine;
 
 import edu.uci.ics.texera.api.dataflow.ISink;
-import edu.uci.ics.texera.api.exception.TextDBException;
+import edu.uci.ics.texera.api.exception.TexeraException;
 
 /**
  * Created by chenli on 5/11/16.
@@ -24,7 +24,7 @@ public class Engine {
         return singletonEngine;
     }
 
-    public void evaluate(Plan plan) throws TextDBException {
+    public void evaluate(Plan plan) throws TexeraException {
         ISink root = plan.getRoot();
         root.open();
         root.processTuples();

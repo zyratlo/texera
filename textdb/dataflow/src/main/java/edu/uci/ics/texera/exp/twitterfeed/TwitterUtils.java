@@ -3,7 +3,7 @@ package edu.uci.ics.texera.exp.twitterfeed;
 
 import com.twitter.hbc.core.endpoint.Location;
 import edu.uci.ics.texera.api.exception.DataFlowException;
-import edu.uci.ics.texera.api.exception.TextDBException;
+import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.schema.Attribute;
 import edu.uci.ics.texera.api.schema.AttributeType;
 import edu.uci.ics.texera.api.schema.Schema;
@@ -103,9 +103,9 @@ public class TwitterUtils {
      * The string defines the coordinates in the order of "latitude_SW, longitude_SW, latitude_NE, longitude_NE".
      * @param inputLocation
      * @return
-     * @throws TextDBException
+     * @throws TexeraException
      */
-    public static List<Location> getPlaceLocation(String inputLocation) throws TextDBException {
+    public static List<Location> getPlaceLocation(String inputLocation) throws TexeraException {
         List<Location> locationList = new ArrayList<>();
         if (inputLocation == null || inputLocation.isEmpty()) {
             return locationList;

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import edu.uci.ics.texera.api.exception.TextDBException;
+import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.field.IField;
 import edu.uci.ics.texera.api.field.StringField;
 import edu.uci.ics.texera.api.field.TextField;
@@ -51,7 +51,7 @@ public class ProjectionOperatorTest {
         relationManager.deleteTable(PEOPLE_TABLE);
     }   
     
-    public List<Tuple> getProjectionResults(IOperator inputOperator, List<String> projectionFields) throws TextDBException {
+    public List<Tuple> getProjectionResults(IOperator inputOperator, List<String> projectionFields) throws TexeraException {
         ProjectionPredicate projectionPredicate = new ProjectionPredicate(projectionFields);
         ProjectionOperator projection = new ProjectionOperator(projectionPredicate);
         projection.setInputOperator(inputOperator);

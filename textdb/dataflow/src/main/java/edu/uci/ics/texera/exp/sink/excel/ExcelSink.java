@@ -20,7 +20,7 @@ import edu.uci.ics.texera.api.constants.SchemaConstants;
 import edu.uci.ics.texera.api.dataflow.IOperator;
 import edu.uci.ics.texera.api.dataflow.ISink;
 import edu.uci.ics.texera.api.exception.DataFlowException;
-import edu.uci.ics.texera.api.exception.TextDBException;
+import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.field.DateField;
 import edu.uci.ics.texera.api.field.DoubleField;
 import edu.uci.ics.texera.api.field.IField;
@@ -33,7 +33,7 @@ import edu.uci.ics.texera.api.utils.Utils;
 
 /**
  * ExcelSink is a sink that can write a list of tuples into an excel file
- * The path of saved files is "textdb/textdb/textdb-perftest/src/main/resources/index/excel/"
+ * The path of saved files is "texera/texera/texera-perftest/src/main/resources/index/excel/"
  * @author Jinggang Diao
  *
  */
@@ -50,7 +50,7 @@ public class ExcelSink implements ISink {
     private Sheet sheet;
     private int cursor = CLOSED;
     
-    private String excelIndexDirectory = Paths.get(Utils.getTextdbHomePath(), "index", "excel").toString();
+    private String excelIndexDirectory = Paths.get(Utils.getTexeraHomePath(), "index", "excel").toString();
     private String fileName;
 
     
@@ -72,7 +72,7 @@ public class ExcelSink implements ISink {
     }
 
     @Override
-    public void open() throws TextDBException{
+    public void open() throws TexeraException{
         if (cursor != CLOSED) {
             return;
         }
@@ -106,7 +106,7 @@ public class ExcelSink implements ISink {
     }
 
     @Override
-    public void processTuples() throws TextDBException {
+    public void processTuples() throws TexeraException {
         return;
     }
     
@@ -116,7 +116,7 @@ public class ExcelSink implements ISink {
      * List field is kept as one single string.
      */
     @Override
-    public Tuple getNextTuple() throws TextDBException {
+    public Tuple getNextTuple() throws TexeraException {
         if (cursor == CLOSED) {
             return null;
         }        
@@ -146,7 +146,7 @@ public class ExcelSink implements ISink {
     }
 
     @Override
-    public void close() throws TextDBException {
+    public void close() throws TexeraException {
         if (cursor == CLOSED) {
             return;
         }
@@ -166,9 +166,9 @@ public class ExcelSink implements ISink {
      * also add all tuples into the excel file by calling this.getNextTuple
      * 
      * @return a list of tuples
-     * @throws TextDBException
+     * @throws TexeraException
      */
-    public List<Tuple> collectAllTuples() throws TextDBException {
+    public List<Tuple> collectAllTuples() throws TexeraException {
         ArrayList<Tuple> results = new ArrayList<>();
         Tuple tuple;
         while ((tuple = this.getNextTuple()) != null) {

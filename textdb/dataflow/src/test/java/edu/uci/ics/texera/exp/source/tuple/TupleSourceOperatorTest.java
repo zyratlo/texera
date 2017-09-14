@@ -8,7 +8,7 @@ import org.junit.Test;
 
 import edu.uci.ics.texera.api.constants.SchemaConstants;
 import edu.uci.ics.texera.api.constants.TestConstants;
-import edu.uci.ics.texera.api.exception.TextDBException;
+import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.field.IDField;
 import edu.uci.ics.texera.api.schema.Schema;
 import edu.uci.ics.texera.api.tuple.Tuple;
@@ -18,7 +18,7 @@ import edu.uci.ics.texera.api.utils.Utils;
 public class TupleSourceOperatorTest {
     
     @Test
-    public void test1() throws TextDBException {
+    public void test1() throws TexeraException {
         TupleSourceOperator tupleSource = new TupleSourceOperator(
                 TestConstants.getSamplePeopleTuples(), TestConstants.SCHEMA_PEOPLE);
         

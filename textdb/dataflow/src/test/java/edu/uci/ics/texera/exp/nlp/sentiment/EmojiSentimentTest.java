@@ -1,6 +1,6 @@
 package edu.uci.ics.texera.exp.nlp.sentiment;
 
-import edu.uci.ics.texera.api.exception.TextDBException;
+import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.tuple.Tuple;
 import edu.uci.ics.texera.exp.sink.tuple.TupleSink;
 import edu.uci.ics.texera.exp.source.tuple.TupleSourceOperator;
@@ -15,7 +15,7 @@ import java.util.List;
  */
 public class EmojiSentimentTest {
     @Test
-    public void test1() throws TextDBException {
+    public void test1() throws TexeraException {
         TupleSourceOperator tupleSource = new TupleSourceOperator(
                 Arrays.asList(EmojiSentimentTestConstants.POSITIVE_TUPLE1), EmojiSentimentTestConstants.SENTIMENT_SCHEMA);
         EmojiSentimentOperator sentiment = new EmojiSentimentOperator(
@@ -37,7 +37,7 @@ public class EmojiSentimentTest {
      * Test sentiment with a neutral sentence, result should be 2 (neutral)
      */
     @Test
-    public void test2() throws TextDBException {
+    public void test2() throws TexeraException {
         TupleSourceOperator tupleSource = new TupleSourceOperator(
                 Arrays.asList(EmojiSentimentTestConstants.NEUTRAL_TUPLE), EmojiSentimentTestConstants.SENTIMENT_SCHEMA);
         EmojiSentimentOperator sentiment = new EmojiSentimentOperator(
@@ -60,7 +60,7 @@ public class EmojiSentimentTest {
      */
 
     @Test
-    public void test3() throws TextDBException {
+    public void test3() throws TexeraException {
         TupleSourceOperator tupleSource = new TupleSourceOperator(
                 Arrays.asList(EmojiSentimentTestConstants.NEGATIVE_TUPLE1), EmojiSentimentTestConstants.SENTIMENT_SCHEMA);
         EmojiSentimentOperator sentiment = new EmojiSentimentOperator(
@@ -78,7 +78,7 @@ public class EmojiSentimentTest {
         Assert.assertEquals(tuple.getField("sentiment").getValue(), SentimentConstants.NEGATIVE);
     }
     @Test
-    public void test4() throws TextDBException {
+    public void test4() throws TexeraException {
         TupleSourceOperator tupleSource = new TupleSourceOperator(
                 Arrays.asList(EmojiSentimentTestConstants.POSITIVE_TUPLE2), EmojiSentimentTestConstants.SENTIMENT_SCHEMA);
         EmojiSentimentOperator sentiment = new EmojiSentimentOperator(
@@ -96,7 +96,7 @@ public class EmojiSentimentTest {
         Assert.assertEquals(tuple.getField("sentiment").getValue(), SentimentConstants.POSITIVE);
     }
     @Test
-    public void test5() throws TextDBException {
+    public void test5() throws TexeraException {
         TupleSourceOperator tupleSource = new TupleSourceOperator(
                 Arrays.asList(EmojiSentimentTestConstants.NEGATIVE_TUPLE2), EmojiSentimentTestConstants.SENTIMENT_SCHEMA);
         EmojiSentimentOperator sentiment = new EmojiSentimentOperator(

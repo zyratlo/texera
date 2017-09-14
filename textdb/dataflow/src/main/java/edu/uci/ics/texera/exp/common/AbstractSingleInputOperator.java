@@ -3,7 +3,7 @@ package edu.uci.ics.texera.exp.common;
 import edu.uci.ics.texera.api.constants.ErrorMessages;
 import edu.uci.ics.texera.api.dataflow.IOperator;
 import edu.uci.ics.texera.api.exception.DataFlowException;
-import edu.uci.ics.texera.api.exception.TextDBException;
+import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.schema.Schema;
 import edu.uci.ics.texera.api.tuple.Tuple;
 
@@ -34,7 +34,7 @@ public abstract class AbstractSingleInputOperator implements IOperator {
     protected int offset = 0;
     
     @Override
-    public void open() throws TextDBException {
+    public void open() throws TexeraException {
         if (cursor != CLOSED) {
             return;
         }
@@ -54,12 +54,12 @@ public abstract class AbstractSingleInputOperator implements IOperator {
     /**
      * setUp necessary resources, variables in this function.
      * outputSchema MUST be initialized in setUP().
-     * @throws TextDBException
+     * @throws TexeraException
      */
-    protected abstract void setUp() throws TextDBException;
+    protected abstract void setUp() throws TexeraException;
 
     @Override
-    public Tuple getNextTuple() throws TextDBException {
+    public Tuple getNextTuple() throws TexeraException {
         if (cursor == CLOSED) {
             throw new DataFlowException(ErrorMessages.OPERATOR_NOT_OPENED);
         }
@@ -88,14 +88,14 @@ public abstract class AbstractSingleInputOperator implements IOperator {
      * Give the input tuples, compute the next matching tuple. Return null if there's no more matching tuple.
      * 
      * @return next matching tuple, null if there's no more matching tuple.
-     * @throws TextDBException
+     * @throws TexeraException
      */
-    protected abstract Tuple computeNextMatchingTuple() throws TextDBException;
+    protected abstract Tuple computeNextMatchingTuple() throws TexeraException;
 
-    public abstract Tuple processOneInputTuple(Tuple inputTuple) throws TextDBException;
+    public abstract Tuple processOneInputTuple(Tuple inputTuple) throws TexeraException;
 
     @Override
-    public void close() throws TextDBException {
+    public void close() throws TexeraException {
         if (cursor == CLOSED) {
             return;
         }
@@ -110,7 +110,7 @@ public abstract class AbstractSingleInputOperator implements IOperator {
         cursor = CLOSED;
     }
     
-    protected abstract void cleanUp() throws TextDBException;
+    protected abstract void cleanUp() throws TexeraException;
 
     @Override
     public Schema getOutputSchema() {

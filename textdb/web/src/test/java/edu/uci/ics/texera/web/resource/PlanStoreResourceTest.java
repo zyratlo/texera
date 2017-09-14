@@ -4,8 +4,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.uci.ics.texera.exp.plangen.LogicalPlanTest;
-import edu.uci.ics.texera.web.TextdbWebApplication;
-import edu.uci.ics.texera.web.TextdbWebConfiguration;
+import edu.uci.ics.texera.web.TexeraWebApplication;
+import edu.uci.ics.texera.web.TexeraWebConfiguration;
 import edu.uci.ics.texera.web.response.planstore.QueryPlanBean;
 import edu.uci.ics.texera.web.response.planstore.QueryPlanListBean;
 import io.dropwizard.client.JerseyClientBuilder;
@@ -31,8 +31,8 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class PlanStoreResourceTest {
     @ClassRule
-    public static final DropwizardAppRule<TextdbWebConfiguration> RULE =
-            new DropwizardAppRule<>(TextdbWebApplication.class, ResourceHelpers.resourceFilePath("test-config.yml"));
+    public static final DropwizardAppRule<TexeraWebConfiguration> RULE =
+            new DropwizardAppRule<>(TexeraWebApplication.class, ResourceHelpers.resourceFilePath("test-config.yml"));
     public static Client client;
     
     public static String planStoreEndpoint = "http://localhost:%d/api/planstore";

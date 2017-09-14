@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 import edu.uci.ics.texera.api.constants.ErrorMessages;
 import edu.uci.ics.texera.api.constants.SchemaConstants;
 import edu.uci.ics.texera.api.exception.DataFlowException;
-import edu.uci.ics.texera.api.exception.TextDBException;
+import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.field.ListField;
 import edu.uci.ics.texera.api.schema.Attribute;
 import edu.uci.ics.texera.api.schema.AttributeType;
@@ -37,7 +37,7 @@ public class FuzzyTokenMatcher extends AbstractSingleInputOperator {
     }
 
     @Override
-    protected void setUp() throws TextDBException {
+    protected void setUp() throws TexeraException {
         inputSchema = inputOperator.getOutputSchema();
         outputSchema = inputSchema;
         if (!outputSchema.containsField(SchemaConstants.PAYLOAD)) {
@@ -52,7 +52,7 @@ public class FuzzyTokenMatcher extends AbstractSingleInputOperator {
     }
 
     @Override
-    protected Tuple computeNextMatchingTuple() throws TextDBException {
+    protected Tuple computeNextMatchingTuple() throws TexeraException {
         Tuple inputTuple = null;
         Tuple resultTuple = null;
         
@@ -76,7 +76,7 @@ public class FuzzyTokenMatcher extends AbstractSingleInputOperator {
     }
 
     @Override
-    public Tuple processOneInputTuple(Tuple inputTuple) throws TextDBException {
+    public Tuple processOneInputTuple(Tuple inputTuple) throws TexeraException {
         ListField<Span> payloadField = inputTuple.getField(SchemaConstants.PAYLOAD);
         List<Span> payload = payloadField.getValue();
         List<Span> relevantSpans = filterRelevantSpans(payload);

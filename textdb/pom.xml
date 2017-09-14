@@ -5,7 +5,7 @@
     <artifactId>texera</artifactId>
     <version>0.1.0</version>
     <packaging>pom</packaging>
-    <name>textdb</name>
+    <name>texera</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -13,7 +13,7 @@
         <junit.version>4.8.1</junit.version>
         <lucene.version>5.5.0</lucene.version>
         <org.json.version>20160212</org.json.version>
-        <textdb.version>0.1.0</textdb.version>
+        <texera.version>0.1.0</texera.version>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
     </properties>

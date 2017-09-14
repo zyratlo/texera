@@ -23,20 +23,20 @@ import javax.servlet.FilterRegistration;
 import java.util.EnumSet;
 
 /**
- * This is the main application class from where the TextDB application
+ * This is the main application class from where the Texera application
  * will be launched, it is parametrized with the configuration
  * Created by kishore on 10/4/16.
  */
-public class TextdbWebApplication extends Application<TextdbWebConfiguration> {
+public class TexeraWebApplication extends Application<TexeraWebConfiguration> {
 
     @Override
-    public void initialize(Bootstrap<TextdbWebConfiguration> bootstrap) {
+    public void initialize(Bootstrap<TexeraWebConfiguration> bootstrap) {
         // serve static frontend GUI files
-        bootstrap.addBundle(new FileAssetsBundle("./textdb-angular-gui/", "/", "index.html"));
+        bootstrap.addBundle(new FileAssetsBundle("./texera-angular-gui/", "/", "index.html"));
     }
 
     @Override
-    public void run(TextdbWebConfiguration textdbWebConfiguration, Environment environment) throws Exception {
+    public void run(TexeraWebConfiguration texeraWebConfiguration, Environment environment) throws Exception {
         // serve backend at /api
         environment.jersey().setUrlPattern("/api/*");
         
@@ -91,6 +91,6 @@ public class TextdbWebApplication extends Application<TextdbWebConfiguration> {
         System.out.println("Writing twitter index");
         TwitterSample.writeTwitterIndex();
         System.out.println("Finished writing twitter index");
-        new TextdbWebApplication().run(args);
+        new TexeraWebApplication().run(args);
     }
 }

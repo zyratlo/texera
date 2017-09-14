@@ -1106,7 +1106,6 @@ public class DictionaryMatcherTest {
         Dictionary dictionary = new Dictionary(names);
 
         // create a data tuple first
-        List<Span> list = new ArrayList<Span>();
         List<Span> list1 = new ArrayList<Span>();
         Span span1 = new Span("description", 0, 9, "tall fair","Tall Fair");
         list1.add(span1);

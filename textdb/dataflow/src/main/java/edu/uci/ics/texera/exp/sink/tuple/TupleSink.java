@@ -7,7 +7,7 @@ import edu.uci.ics.texera.api.constants.ErrorMessages;
 import edu.uci.ics.texera.api.constants.SchemaConstants;
 import edu.uci.ics.texera.api.dataflow.IOperator;
 import edu.uci.ics.texera.api.dataflow.ISink;
-import edu.uci.ics.texera.api.exception.TextDBException;
+import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.schema.Schema;
 import edu.uci.ics.texera.api.tuple.Tuple;
 import edu.uci.ics.texera.api.utils.Utils;
@@ -63,7 +63,7 @@ public class TupleSink implements ISink {
     }
 
     @Override
-    public void open() throws TextDBException {
+    public void open() throws TexeraException {
         if (cursor != CLOSED) {
             return;
         }
@@ -77,12 +77,12 @@ public class TupleSink implements ISink {
     }
 
     @Override
-    public void processTuples() throws TextDBException {
+    public void processTuples() throws TexeraException {
         return;
     }
     
     @Override
-    public Tuple getNextTuple() throws TextDBException {
+    public Tuple getNextTuple() throws TexeraException {
         if (cursor == CLOSED) {
             return null;
         }
@@ -104,7 +104,7 @@ public class TupleSink implements ISink {
     }
 
     @Override
-    public void close() throws TextDBException {
+    public void close() throws TexeraException {
         if (cursor == CLOSED) {
         }
         if (inputOperator != null) {
@@ -117,9 +117,9 @@ public class TupleSink implements ISink {
      * Collects ALL the tuples to an in-memory list.
      *
      * @return a list of tuples
-     * @throws TextDBException
+     * @throws TexeraException
      */
-    public List<Tuple> collectAllTuples() throws TextDBException {
+    public List<Tuple> collectAllTuples() throws TexeraException {
         this.open();
         ArrayList<Tuple> results = new ArrayList<>();
         Tuple tuple;

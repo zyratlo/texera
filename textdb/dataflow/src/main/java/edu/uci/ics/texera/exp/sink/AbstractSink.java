@@ -4,7 +4,7 @@ import edu.uci.ics.texera.api.constants.ErrorMessages;
 import edu.uci.ics.texera.api.dataflow.IOperator;
 import edu.uci.ics.texera.api.dataflow.ISink;
 import edu.uci.ics.texera.api.exception.DataFlowException;
-import edu.uci.ics.texera.api.exception.TextDBException;
+import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.schema.Schema;
 import edu.uci.ics.texera.api.tuple.Tuple;
 
@@ -25,7 +25,7 @@ public abstract class AbstractSink implements ISink {
      * @about Opens the child operator.
      */
     @Override
-    public void open() throws TextDBException {
+    public void open() throws TexeraException {
         if (cursor != CLOSED) {
             return;
         }
@@ -42,7 +42,7 @@ public abstract class AbstractSink implements ISink {
     }
 
     @Override
-    public void processTuples() throws TextDBException {
+    public void processTuples() throws TexeraException {
         if (cursor == CLOSED) {
             throw new DataFlowException(ErrorMessages.OPERATOR_NOT_OPENED);
         }
@@ -59,10 +59,10 @@ public abstract class AbstractSink implements ISink {
      * @param nextTuple
      *            A tuple that needs to be processed during each iteration
      */
-    protected abstract void processOneTuple(Tuple nextTuple) throws TextDBException;
+    protected abstract void processOneTuple(Tuple nextTuple) throws TexeraException;
 
     @Override
-    public void close() throws TextDBException {
+    public void close() throws TexeraException {
         if (cursor == CLOSED) {
             return;
         }

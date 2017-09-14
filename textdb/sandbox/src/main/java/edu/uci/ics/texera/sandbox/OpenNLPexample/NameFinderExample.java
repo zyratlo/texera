@@ -25,7 +25,7 @@ import opennlp.tools.util.Span;
 public class NameFinderExample {
    
     public static String[] Tokenize(String sentence) throws InvalidFormatException, IOException {
-    	InputStream is = new FileInputStream("./src/main/java/edu/uci/ics/textdb/sandbox/OpenNLPexample/en-token.bin");
+    	InputStream is = new FileInputStream("./src/main/java/edu/uci/ics/texera/sandbox/OpenNLPexample/en-token.bin");
      
     	TokenizerModel model = new TokenizerModel(is);
      
@@ -43,7 +43,7 @@ public class NameFinderExample {
     	String dataFile = "./src/main/resources/abstract_100.txt";
     	Scanner scan = new Scanner(new File(dataFile));
     	
-    	InputStream is = new FileInputStream("./src/main/java/edu/uci/ics/textdb/sandbox/OpenNLPexample/en-ner-location.bin");
+    	InputStream is = new FileInputStream("./src/main/java/edu/uci/ics/texera/sandbox/OpenNLPexample/en-ner-location.bin");
      
     	TokenNameFinderModel model = new TokenNameFinderModel(is);
     	is.close();

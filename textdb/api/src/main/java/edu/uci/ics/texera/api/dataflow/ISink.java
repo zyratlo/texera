@@ -1,6 +1,6 @@
 package edu.uci.ics.texera.api.dataflow;
 
-import edu.uci.ics.texera.api.exception.TextDBException;
+import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.tuple.Tuple;
 
 /**
@@ -11,14 +11,14 @@ import edu.uci.ics.texera.api.tuple.Tuple;
  *
  */
 public interface ISink extends IOperator {
-    void open() throws TextDBException;
+    void open() throws TexeraException;
 
-    void processTuples() throws TextDBException;
+    void processTuples() throws TexeraException;
 
-    void close() throws TextDBException;
+    void close() throws TexeraException;
     
-    default Tuple getNextTuple() throws TextDBException {
-        throw new TextDBException("temp", new UnsupportedOperationException());
+    default Tuple getNextTuple() throws TexeraException {
+        throw new TexeraException("temp", new UnsupportedOperationException());
     }
     
 }

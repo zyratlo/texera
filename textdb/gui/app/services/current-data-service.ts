@@ -12,7 +12,7 @@ import any = jasmine.any;
 declare var jQuery: any;
 
 const apiUrl = "http://localhost:8080/api";
-const textdbUrl = apiUrl + "/newqueryplan/execute";
+const texeraUrl = apiUrl + "/newqueryplan/execute";
 const metadataUrl = apiUrl + "/resources/metadata";
 const uploadDictionaryUrl = apiUrl + "/upload/dictionary";
 const getDictionariesUrl = apiUrl + "/resources/dictionaries";
@@ -67,7 +67,7 @@ export class CurrentDataService {
 
     processData(): void {
 
-        let textdbJson = {operators: {}, links: {}};
+        let texeraJson = {operators: {}, links: {}};
         var operators = [];
         var links = [];
 
@@ -104,16 +104,16 @@ export class CurrentDataService {
             }
         }
 
-        textdbJson.operators = operators;
-        textdbJson.links = links;
-        this.sendRequest(textdbJson);
+        texeraJson.operators = operators;
+        texeraJson.links = links;
+        this.sendRequest(texeraJson);
     }
 
-    private sendRequest(textdbJson: any): void {
+    private sendRequest(texeraJson: any): void {
         let headers = new Headers({ 'Content-Type': 'application/json' });
-        console.log("TextDB JSON is:");
-        console.log(JSON.stringify(textdbJson));
-        this.http.post(textdbUrl, JSON.stringify(textdbJson), {headers: headers})
+        console.log("Texera JSON is:");
+        console.log(JSON.stringify(texeraJson));
+        this.http.post(texeraUrl, JSON.stringify(texeraJson), {headers: headers})
             .subscribe(
                 data => {
                     this.checkPressed.next(data.json());

@@ -10,7 +10,7 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import edu.uci.ics.texera.api.exception.TextDBException;
+import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.tuple.Tuple;
 import edu.uci.ics.texera.api.utils.TestUtils;
 import edu.uci.ics.texera.exp.source.scan.ScanBasedSourceOperator;
@@ -30,7 +30,7 @@ public class NlpEntityTest {
     public static final String RESULTS = NlpEntityTestConstants.RESULTS;
     
     @BeforeClass
-    public static void setUp() throws TextDBException {
+    public static void setUp() throws TexeraException {
         RelationManager relationManager = RelationManager.getRelationManager();
         
         relationManager.createTable(ONE_SENTENCE_TABLE, "../index/test_tables/" + ONE_SENTENCE_TABLE, 
@@ -48,7 +48,7 @@ public class NlpEntityTest {
     
     // table is cleared after each test case
     @After
-    public void deleteData() throws TextDBException {
+    public void deleteData() throws TexeraException {
         RelationManager relationManager = RelationManager.getRelationManager();
         
         DataWriter oneSentenceDataWriter = relationManager.getTableDataWriter(ONE_SENTENCE_TABLE);

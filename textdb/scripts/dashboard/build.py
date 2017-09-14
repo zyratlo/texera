@@ -4,28 +4,28 @@ import os
 
 # author Hailey Pan and Zuozhi Wang
 
-# This Python script is for running TextDB performance test automatically.
+# This Python script is for running Texera performance test automatically.
 # It will:
 # pull the latest changes from github
 # if there's a change in master branch, run the performance test
 # append the commit number to performance test results
 
 
-textdb_workspace = "/home/bot/textdbworkspace/"
+texera_workspace = "/home/bot/texeraworkspace/"
 maven_repo_home = "/home/bot/.m2/repository/"
 java8_bin = "/usr/bin/java"
 
-textdb_home = "textdb/textdb/"
-result_path = "textdb-perftest/perftest-files/results/"
+texera_home = "texera/texera/"
+result_path = "texera-perftest/perftest-files/results/"
 branch = "master"
 main_class = "edu.uci.ics.texera.perftest.runme.RunTests"
 # Refer to the codebase to understand what arguments the main class takes in.
-perftest_arguments = ["/home/bot/textdbworkspace/data-files/", "\"\"","\"\"","\"\"","\"\""]
+perftest_arguments = ["/home/bot/texeraworkspace/data-files/", "\"\"","\"\"","\"\"","\"\""]
 
 
-textdb_path = textdb_workspace + textdb_home
-textdb_perftest_path = textdb_path + "textdb-perftest/"
-result_folder = textdb_workspace + textdb_home + result_path
+texera_path = texera_workspace + texera_home
+texera_perftest_path = texera_path + "texera-perftest/"
+result_folder = texera_workspace + texera_home + result_path
 
 
 
@@ -33,7 +33,7 @@ def build_run_command():
     command = "" + \
         java8_bin + " " + \
         "-Dfile.encoding=UTF-8 -classpath" + " " + \
-        textdb_workspace + "/textdb/textdb/textdb-perftest/target/classes" + ":" + \
+        texera_workspace + "/texera/texera/texera-perftest/target/classes" + ":" + \
         maven_repo_home + "junit/junit/4.8.1/junit-4.8.1.jar" + ":" + \
         maven_repo_home + "org/apache/lucene/lucene-core/5.5.0/lucene-core-5.5.0.jar" + ":" + \
         maven_repo_home + "org/apache/lucene/lucene-analyzers-common/5.5.0/lucene-analyzers-common-5.5.0.jar" + ":" + \
@@ -41,11 +41,11 @@ def build_run_command():
         maven_repo_home + "org/apache/lucene/lucene-queries/5.5.0/lucene-queries-5.5.0.jar" + ":" + \
         maven_repo_home + "org/apache/lucene/lucene-sandbox/5.5.0/lucene-sandbox-5.5.0.jar" + ":" + \
         maven_repo_home + "org/json/json/20160212/json-20160212.jar" + ":" + \
-        textdb_workspace + "/textdb/textdb/textdb-api/target/classes" + ":" + \
-        textdb_workspace + "/textdb/textdb/textdb-common/target/classes" + ":" + \
-        textdb_workspace + "/textdb/textdb/textdb-dataflow/target/classes" + ":" + \
+        texera_workspace + "/texera/texera/texera-api/target/classes" + ":" + \
+        texera_workspace + "/texera/texera/texera-common/target/classes" + ":" + \
+        texera_workspace + "/texera/texera/texera-dataflow/target/classes" + ":" + \
         maven_repo_home + "com/google/re2j/re2j/1.1/re2j-1.1.jar" + ":" + \
-        textdb_workspace + "/textdb/textdb/textdb-storage/target/classes" + ":" + \
+        texera_workspace + "/texera/texera/texera-storage/target/classes" + ":" + \
         maven_repo_home + "edu/stanford/nlp/stanford-corenlp/3.6.0/stanford-corenlp-3.6.0.jar" + ":" + \
         maven_repo_home + "com/io7m/xom/xom/1.2.10/xom-1.2.10.jar" + ":" + \
         maven_repo_home + "xml-apis/xml-apis/1.3.03/xml-apis-1.3.03.jar" + ":" + \
@@ -67,13 +67,13 @@ def build_run_command():
 
 if __name__ == "__main__":
 
-    os.chdir(textdb_path)
+    os.chdir(texera_path)
     call(["git", "checkout", branch])
     git_update_string = check_output(["git", "pull"]).splitlines()[-1].decode("UTF-8")
     if git_update_string != "Already up-to-date.":
         call(["mvn", "clean", "install"])
 
-        os.chdir(textdb_perftest_path)
+        os.chdir(texera_perftest_path)
         call(build_run_command(), shell = True)
 
         git_log_str = check_output(["git", "log"]).split()[1].decode("UTF-8")[:7]

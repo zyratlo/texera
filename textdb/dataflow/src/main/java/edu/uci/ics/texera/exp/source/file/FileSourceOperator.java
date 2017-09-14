@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 import edu.uci.ics.texera.api.constants.SchemaConstants;
 import edu.uci.ics.texera.api.dataflow.ISourceOperator;
 import edu.uci.ics.texera.api.exception.DataFlowException;
-import edu.uci.ics.texera.api.exception.TextDBException;
+import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.field.IDField;
 import edu.uci.ics.texera.api.field.TextField;
 import edu.uci.ics.texera.api.schema.Attribute;
@@ -105,7 +105,7 @@ public class FileSourceOperator implements ISourceOperator {
         
         // check if the path list is empty
         if (pathList.isEmpty()) {
-            // TODO: change it to TextDB RuntimeException
+            // TODO: change it to Texera RuntimeException
             throw new RuntimeException(String.format(
                     "the filePath: %s doesn't contain any valid text files. " + 
                     "File extension must be one of %s .", 
@@ -115,7 +115,7 @@ public class FileSourceOperator implements ISourceOperator {
     }
 
     @Override
-    public void open() throws TextDBException {
+    public void open() throws TexeraException {
         if (cursor != CLOSED) {
             return;
         }
@@ -123,7 +123,7 @@ public class FileSourceOperator implements ISourceOperator {
     }
 
     @Override
-    public Tuple getNextTuple() throws TextDBException {
+    public Tuple getNextTuple() throws TexeraException {
         if (cursor == CLOSED || cursor >= pathList.size()) {
             return null;
         }
@@ -155,7 +155,7 @@ public class FileSourceOperator implements ISourceOperator {
     }
 
     @Override
-    public void close() throws TextDBException {
+    public void close() throws TexeraException {
         if (cursor == CLOSED) {
             return;
         }

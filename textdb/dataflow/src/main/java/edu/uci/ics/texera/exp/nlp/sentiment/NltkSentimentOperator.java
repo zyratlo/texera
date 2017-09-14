@@ -11,10 +11,10 @@ import au.com.bytecode.opencsv.CSVReader;
 import au.com.bytecode.opencsv.CSVWriter;
 import edu.uci.ics.texera.api.constants.ErrorMessages;
 import edu.uci.ics.texera.api.constants.SchemaConstants;
-import edu.uci.ics.texera.api.constants.DataConstants.TextdbProject;
+import edu.uci.ics.texera.api.constants.DataConstants.TexeraProject;
 import edu.uci.ics.texera.api.dataflow.IOperator;
 import edu.uci.ics.texera.api.exception.DataFlowException;
-import edu.uci.ics.texera.api.exception.TextDBException;
+import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.field.IField;
 import edu.uci.ics.texera.api.field.IntegerField;
 import edu.uci.ics.texera.api.schema.Attribute;
@@ -34,9 +34,9 @@ public class NltkSentimentOperator implements IOperator {
     private int cursor = CLOSED;
     
     private final static String PYTHON = "python3";
-    private final static String PYTHONSCRIPT = Utils.getResourcePath("nltk_sentiment_classify.py", TextdbProject.TEXTDB_EXP);
-    private final static String BatchedFiles = Utils.getResourcePath("id-text.csv", TextdbProject.TEXTDB_EXP);
-    private final static String resultPath = Utils.getResourcePath("result-id-class.csv", TextdbProject.TEXTDB_EXP);
+    private final static String PYTHONSCRIPT = Utils.getResourcePath("nltk_sentiment_classify.py", TexeraProject.TEXERA_EXP);
+    private final static String BatchedFiles = Utils.getResourcePath("id-text.csv", TexeraProject.TEXERA_EXP);
+    private final static String resultPath = Utils.getResourcePath("result-id-class.csv", TexeraProject.TEXERA_EXP);
     
     private final static char SEPARATOR = ',';
     private final static char QUOTECHAR = '"';
@@ -51,7 +51,7 @@ public class NltkSentimentOperator implements IOperator {
         if (modelFileName == null) {
             modelFileName = "NltkSentiment.pickle";
         }
-        this.PicklePath = Utils.getResourcePath(modelFileName, TextdbProject.TEXTDB_EXP);
+        this.PicklePath = Utils.getResourcePath(modelFileName, TexeraProject.TEXERA_EXP);
         
     }
     
@@ -77,7 +77,7 @@ public class NltkSentimentOperator implements IOperator {
     }
     
     @Override
-    public void open() throws TextDBException {
+    public void open() throws TexeraException {
         if (cursor != CLOSED) {
             return;
         }
@@ -146,7 +146,7 @@ public class NltkSentimentOperator implements IOperator {
     }
     
     @Override
-    public Tuple getNextTuple() throws TextDBException {
+    public Tuple getNextTuple() throws TexeraException {
         if (cursor == CLOSED) {
             return null;
         }
@@ -213,7 +213,7 @@ public class NltkSentimentOperator implements IOperator {
     }
     
     @Override
-    public void close() throws TextDBException {
+    public void close() throws TexeraException {
         if (cursor == CLOSED) {
             return;
         }

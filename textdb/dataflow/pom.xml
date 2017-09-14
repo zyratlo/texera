@@ -22,12 +22,12 @@
         <dependency>
             <groupId>edu.uci.ics.texera</groupId>
             <artifactId>api</artifactId>
-            <version>${textdb.version}</version>
+            <version>${texera.version}</version>
         </dependency>
         <dependency>
             <groupId>edu.uci.ics.texera</groupId>
             <artifactId>storage</artifactId>
-            <version>${textdb.version}</version>
+            <version>${texera.version}</version>
         </dependency>
         <dependency>
             <groupId>info.debatty</groupId>

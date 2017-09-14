@@ -14,7 +14,7 @@ import edu.uci.ics.texera.exp.wordcount.WordCountIndexSourcePredicate;
 import edu.uci.ics.texera.exp.wordcount.WordCountOperatorPredicate;
 import edu.uci.ics.texera.api.constants.TestConstants;
 import edu.uci.ics.texera.api.constants.TestConstantsChineseWordCount;
-import edu.uci.ics.texera.api.exception.TextDBException;
+import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.tuple.Tuple;
 import edu.uci.ics.texera.exp.source.scan.ScanBasedSourceOperator;
 import edu.uci.ics.texera.exp.source.scan.ScanSourcePredicate;
@@ -35,7 +35,7 @@ public class WordCountTest {
     public static HashMap<String, Integer> expectedResultChinese = null;
     
     @BeforeClass
-    public static void setUp() throws TextDBException {
+    public static void setUp() throws TexeraException {
         cleanUp();
         
         RelationManager relationManager = RelationManager.getRelationManager();
@@ -68,7 +68,7 @@ public class WordCountTest {
     }
     
     @AfterClass
-    public static void cleanUp() throws TextDBException {
+    public static void cleanUp() throws TexeraException {
         RelationManager.getRelationManager().deleteTable(COUNT_TABLE);
         RelationManager.getRelationManager().deleteTable(COUNT_CHINESE_TABLE);
         expectedResult = null;
@@ -77,7 +77,7 @@ public class WordCountTest {
     
     //Compute result by tuple's PayLoad.
     public static HashMap<String, Integer> computePayLoadWordCount(String tableName,
-            String attribute) throws TextDBException {
+            String attribute) throws TexeraException {
         ScanBasedSourceOperator scanSource = new ScanBasedSourceOperator(new ScanSourcePredicate(tableName));
         WordCountOperator wordCount = null;
         HashMap<String, Integer> result = new HashMap<String, Integer>();
@@ -104,7 +104,7 @@ public class WordCountTest {
     
     //Compute result by scanning disk index.
     public static HashMap<String, Integer> computeWordCountIndexSourceResult(String tableName, String attribute)
-            throws TextDBException {        
+            throws TexeraException {        
         WordCountIndexSource wordCountIndexSource = null;
         HashMap<String, Integer> result = new HashMap<String, Integer>();
         
@@ -143,7 +143,7 @@ public class WordCountTest {
     
     // Test counting by reading disk index method.
     @Test
-    public void test1() throws TextDBException {
+    public void test1() throws TexeraException {
         HashMap<String, Integer> results = computePayLoadWordCount(COUNT_TABLE,
                 TestConstants.DESCRIPTION);
         Assert.assertTrue(results.equals(expectedResult));
@@ -151,7 +151,7 @@ public class WordCountTest {
     
     // Test WordCountIndexSource 
     @Test
-    public void test2() throws TextDBException {
+    public void test2() throws TexeraException {
         HashMap<String, Integer> results = computeWordCountIndexSourceResult(COUNT_TABLE,
                 TestConstants.DESCRIPTION);
         Assert.assertTrue(results.equals(expectedResult));
@@ -159,7 +159,7 @@ public class WordCountTest {
     
     // Test counting using reading disk index method on Chinese words .
     @Test
-    public void test3() throws TextDBException {
+    public void test3() throws TexeraException {
         HashMap<String, Integer> results = computeWordCountIndexSourceResult(COUNT_CHINESE_TABLE,
                 TestConstantsChineseWordCount.DESCRIPTION);
         Assert.assertTrue(results.equals(expectedResultChinese));
@@ -167,7 +167,7 @@ public class WordCountTest {
     
  // Test words counting using payload reading method on Chinese .
     @Test
-    public void test4() throws TextDBException {
+    public void test4() throws TexeraException {
         HashMap<String, Integer> results = computePayLoadWordCount(COUNT_CHINESE_TABLE,
                 TestConstantsChineseWordCount.DESCRIPTION);
         Assert.assertTrue(results.equals(expectedResultChinese));

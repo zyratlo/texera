@@ -10,22 +10,22 @@ package edu.uci.ics.texera.api.constants;
  */
 public class DataConstants {
     
-    public static final String HOME_ENV_VAR = "TEXTDB_HOME";
-    public static final String HOME_FOLDER_NAME = "textdb";
+    public static final String HOME_ENV_VAR = "TEXERA_HOME";
+    public static final String HOME_FOLDER_NAME = "texera";
     
-    public enum TextdbProject {
-        TEXTDB_API("api"),
-        TEXTDB_DATAFLOW("dataflow"),
-        TEXTDB_EXP("exp"),
-        TEXTDB_PERFTEST("perftest"),
-        TEXTDB_SANDBOX("sandbox"),
-        TEXTDB_STORAGE("storage"),
-        TEXTDB_TEXTQL("textql"),
-        TEXTDB_WEB("web");
+    public enum TexeraProject {
+        TEXERA_API("api"),
+        TEXERA_DATAFLOW("dataflow"),
+        TEXERA_EXP("exp"),
+        TEXERA_PERFTEST("perftest"),
+        TEXERA_SANDBOX("sandbox"),
+        TEXERA_STORAGE("storage"),
+        TEXERA_TEXTQL("textql"),
+        TEXERA_WEB("web");
         
         private String projectName;
         
-        TextdbProject(String projectName) {
+        TexeraProject(String projectName) {
             this.projectName = projectName;
         }
         

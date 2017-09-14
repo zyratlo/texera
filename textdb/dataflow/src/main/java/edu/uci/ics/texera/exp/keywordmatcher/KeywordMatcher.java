@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 import edu.uci.ics.texera.api.constants.ErrorMessages;
 import edu.uci.ics.texera.api.constants.SchemaConstants;
 import edu.uci.ics.texera.api.exception.DataFlowException;
-import edu.uci.ics.texera.api.exception.TextDBException;
+import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.field.ListField;
 import edu.uci.ics.texera.api.schema.Attribute;
 import edu.uci.ics.texera.api.schema.AttributeType;
@@ -34,7 +34,7 @@ public class KeywordMatcher extends AbstractSingleInputOperator {
     }
 
     @Override
-    protected void setUp() throws TextDBException {
+    protected void setUp() throws TexeraException {
         inputSchema = inputOperator.getOutputSchema();
         outputSchema = inputSchema;
         if (!inputSchema.containsField(SchemaConstants.PAYLOAD)) {
@@ -65,7 +65,7 @@ public class KeywordMatcher extends AbstractSingleInputOperator {
     }
 
     @Override
-    protected Tuple computeNextMatchingTuple() throws TextDBException {
+    protected Tuple computeNextMatchingTuple() throws TexeraException {
         Tuple inputTuple = null;
         Tuple resultTuple = null;
 
@@ -80,7 +80,7 @@ public class KeywordMatcher extends AbstractSingleInputOperator {
     }
 
     @Override
-    public Tuple processOneInputTuple(Tuple inputTuple) throws TextDBException {
+    public Tuple processOneInputTuple(Tuple inputTuple) throws TexeraException {
         // There's an implicit assumption that, in open() method, PAYLOAD is
         // checked before SPAN_LIST.
         // Therefore, PAYLOAD needs to be checked and added first

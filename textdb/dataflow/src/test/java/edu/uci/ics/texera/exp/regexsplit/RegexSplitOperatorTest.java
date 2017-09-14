@@ -13,7 +13,7 @@ import edu.uci.ics.texera.api.constants.SchemaConstants;
 import edu.uci.ics.texera.api.constants.TestConstantsChinese;
 import edu.uci.ics.texera.api.constants.TestConstantsRegexSplit;
 import edu.uci.ics.texera.api.exception.DataFlowException;
-import edu.uci.ics.texera.api.exception.TextDBException;
+import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.span.Span;
 import edu.uci.ics.texera.api.tuple.Tuple;
 import edu.uci.ics.texera.exp.source.scan.ScanBasedSourceOperator;
@@ -34,7 +34,7 @@ public class RegexSplitOperatorTest {
     public static final String RESULT_ATTR = "RESULT";
     
     @BeforeClass
-    public static void setUp() throws TextDBException {
+    public static void setUp() throws TexeraException {
         RelationManager relationManager = RelationManager.getRelationManager();
         
         RelationManager.getRelationManager().deleteTable(REGEX_TABLE);
@@ -60,13 +60,13 @@ public class RegexSplitOperatorTest {
     }
     
     @AfterClass
-    public static void cleanUp() throws TextDBException {
+    public static void cleanUp() throws TexeraException {
         RelationManager.getRelationManager().deleteTable(CHINESE_TABLE);
         RelationManager.getRelationManager().deleteTable(REGEX_TABLE);
     }
     
     public static List<Tuple> computeRegexSplitResultsOneToMany( String tableName, String splitAttrName,
-            String splitRegex, RegexSplitPredicate.SplitType splitType ) throws TextDBException {
+            String splitRegex, RegexSplitPredicate.SplitType splitType ) throws TexeraException {
         
         ScanBasedSourceOperator scanSource = new ScanBasedSourceOperator(new ScanSourcePredicate(tableName));
         RegexSplitOperator regexSplit = new RegexSplitOperator(
@@ -85,7 +85,7 @@ public class RegexSplitOperatorTest {
     }
     
     public static List<Tuple> computeRegexSplitResultsOnetoOne( String tableName, String splitAttrName,
-            String splitRegex, RegexSplitPredicate.SplitType splitType ) throws TextDBException {
+            String splitRegex, RegexSplitPredicate.SplitType splitType ) throws TexeraException {
         
         ScanBasedSourceOperator scanSource = new ScanBasedSourceOperator(new ScanSourcePredicate(tableName));
         RegexSplitOperator regexSplit = new RegexSplitOperator(
@@ -117,7 +117,7 @@ public class RegexSplitOperatorTest {
      *  operator will throw an exception.
      */
     @Test(expected = DataFlowException.class)
-    public void test1() throws TextDBException {
+    public void test1() throws TexeraException {
         String splitRegex = "19";
         String splitAttrName = TestConstantsChinese.DATE_OF_BIRTH;
         computeRegexSplitResultsOneToMany(CHINESE_TABLE, splitAttrName, splitRegex, 
@@ -129,7 +129,7 @@ public class RegexSplitOperatorTest {
      * Instead, it will return the original field as the result.
      */
     @Test
-    public void test2() throws TextDBException {
+    public void test2() throws TexeraException {
         String splitRegex = "hi";
         String splitAttrName = TestConstantsRegexSplit.DESCRIPTION;
         
@@ -150,7 +150,7 @@ public class RegexSplitOperatorTest {
      * the operator will only return the longest one as the result.
      */
     @Test
-    public void test3() throws TextDBException {
+    public void test3() throws TexeraException {
         String splitRegex = "b.*a";
         String splitAttrName = TestConstantsRegexSplit.DESCRIPTION;
         
@@ -171,7 +171,7 @@ public class RegexSplitOperatorTest {
      * In the GROUP_LEFT mode, the operator will group the matching patterns to the left.
      */
     @Test
-    public void test4() throws TextDBException {
+    public void test4() throws TexeraException {
         String splitRegex = "a.*n";
         String splitAttrName = TestConstantsRegexSplit.DESCRIPTION;
         
@@ -193,7 +193,7 @@ public class RegexSplitOperatorTest {
      * In the GROUP_RIGHT mode, the operator will group the matching patterns to the right.
      */
     @Test
-    public void test5() throws TextDBException {
+    public void test5() throws TexeraException {
         String splitRegex = "a.*n";
         String splitAttrName = TestConstantsRegexSplit.DESCRIPTION;
         
@@ -216,7 +216,7 @@ public class RegexSplitOperatorTest {
      * operator will only return the first match. It's a behavior of the Pattern.matcher(). 
      */
     @Test
-    public void test6() throws TextDBException {
+    public void test6() throws TexeraException {
         String splitRegex = "ana";
         String splitAttrName = TestConstantsRegexSplit.DESCRIPTION;
         
@@ -239,7 +239,7 @@ public class RegexSplitOperatorTest {
      * Test in OneToOne mode. 
      */
     @Test
-    public void test9() throws TextDBException {
+    public void test9() throws TexeraException {
         String splitRegex = "ana";
         String splitAttrName = TestConstantsRegexSplit.DESCRIPTION;
         
@@ -268,7 +268,7 @@ public class RegexSplitOperatorTest {
      * Chinese test: STANDALONE, string field.
      */
     @Test
-    public void testChinese1() throws TextDBException {
+    public void testChinese1() throws TexeraException {
         String splitRegex = "克";
         String splitAttrName = TestConstantsChinese.LAST_NAME;
         
@@ -293,7 +293,7 @@ public class RegexSplitOperatorTest {
      * Chinese test: GROUP_RIGHT, text field.
      */
     @Test
-    public void testChinese2() throws TextDBException {
+    public void testChinese2() throws TexeraException {
         String splitRegex = "学";
         String splitAttrName = TestConstantsChinese.DESCRIPTION;
         
@@ -320,7 +320,7 @@ public class RegexSplitOperatorTest {
      * Chinese test: GROUP_LEFT, text field.
      */
     @Test
-    public void testChinese3() throws TextDBException {
+    public void testChinese3() throws TexeraException {
         String splitRegex = "学";
         String splitAttrName = TestConstantsChinese.DESCRIPTION;
         
@@ -347,7 +347,7 @@ public class RegexSplitOperatorTest {
      * Chinese test: STANDALONE, text field.
      */
     @Test
-    public void testChinese4() throws TextDBException {
+    public void testChinese4() throws TexeraException {
         String splitRegex = "学";
         String splitAttrName = TestConstantsChinese.DESCRIPTION;
         
@@ -378,7 +378,7 @@ public class RegexSplitOperatorTest {
      * Chinese test: STANDALONE, text field, matching the whole field.
      */
     @Test
-    public void testChinese5() throws TextDBException {
+    public void testChinese5() throws TexeraException {
         String splitRegex = "北京大学电气工程学院";
         String splitAttrName = TestConstantsChinese.DESCRIPTION;
         
@@ -401,7 +401,7 @@ public class RegexSplitOperatorTest {
      * Chinese test: STANDALONE, text field, no matching.
      */
     @Test
-    public void testChinese6() throws TextDBException {
+    public void testChinese6() throws TexeraException {
         String splitRegex = "美利坚合众国";
         String splitAttrName = TestConstantsChinese.DESCRIPTION;
         
@@ -424,7 +424,7 @@ public class RegexSplitOperatorTest {
      * ID test: To test if each new tuple has a new ID.
      */
     @Test
-    public void test7() throws TextDBException {
+    public void test7() throws TexeraException {
         String splitRegex = "ana";
         String splitAttrName = TestConstantsRegexSplit.DESCRIPTION;
         
@@ -440,7 +440,7 @@ public class RegexSplitOperatorTest {
      * ID test: To test if each newly-split tuple's ID has conflict with the old tuple.
      */
     @Test
-    public void test8() throws TextDBException {
+    public void test8() throws TexeraException {
         String splitRegex = "ana";
         String splitAttrName = TestConstantsRegexSplit.DESCRIPTION;
         

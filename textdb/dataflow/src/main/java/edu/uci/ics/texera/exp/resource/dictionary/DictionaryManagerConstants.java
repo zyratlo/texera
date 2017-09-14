@@ -12,9 +12,9 @@ public class DictionaryManagerConstants {
 
     public static final String TABLE_NAME = "dictionary";
 
-    public static final String INDEX_DIR = Paths.get(Utils.getTextdbHomePath(), "index/dictionary").toString();
+    public static final String INDEX_DIR = Paths.get(Utils.getTexeraHomePath(), "index/dictionary").toString();
     
-    public static final Path DICTIONARY_DIR_PATH = Paths.get(Utils.getTextdbHomePath(), "user-resources", "dictionary");
+    public static final Path DICTIONARY_DIR_PATH = Paths.get(Utils.getTexeraHomePath(), "user-resources", "dictionary");
     public static final String DICTIONARY_DIR = DICTIONARY_DIR_PATH.toString();
 
     public static final String NAME = "name";

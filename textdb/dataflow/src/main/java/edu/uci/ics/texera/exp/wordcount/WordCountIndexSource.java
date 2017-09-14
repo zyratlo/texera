@@ -17,7 +17,7 @@ import edu.uci.ics.texera.api.constants.ErrorMessages;
 import edu.uci.ics.texera.api.constants.SchemaConstants;
 import edu.uci.ics.texera.api.dataflow.ISourceOperator;
 import edu.uci.ics.texera.api.exception.DataFlowException;
-import edu.uci.ics.texera.api.exception.TextDBException;
+import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.field.IDField;
 import edu.uci.ics.texera.api.field.IField;
 import edu.uci.ics.texera.api.field.IntegerField;
@@ -51,7 +51,7 @@ public class WordCountIndexSource implements ISourceOperator {
     }
     
     @Override
-    public void open() throws TextDBException {
+    public void open() throws TexeraException {
         if (cursor != CLOSED) {
             return;
         }
@@ -59,14 +59,14 @@ public class WordCountIndexSource implements ISourceOperator {
     }
 
     @Override
-    public Tuple getNextTuple() throws TextDBException {
+    public Tuple getNextTuple() throws TexeraException {
         if (cursor == CLOSED) {
             throw new DataFlowException(ErrorMessages.OPERATOR_NOT_OPENED);
         }
         return computeNextMatchingTuple();
     }
 
-    private Tuple computeNextMatchingTuple() throws TextDBException {
+    private Tuple computeNextMatchingTuple() throws TexeraException {
         if (sortedWordCountMap == null) {
             computeWordCount();
         }
@@ -84,7 +84,7 @@ public class WordCountIndexSource implements ISourceOperator {
         return null;
     }
     
-    private void computeWordCount() throws TextDBException {
+    private void computeWordCount() throws TexeraException {
         try {
             HashMap<String, Integer> wordCountMap = new HashMap<>();
             DataReader dataReader = RelationManager.getRelationManager().getTableDataReader(
@@ -122,7 +122,7 @@ public class WordCountIndexSource implements ISourceOperator {
     
 
     @Override
-    public void close() throws TextDBException {
+    public void close() throws TexeraException {
         if (cursor == CLOSED) {
             return;
         }

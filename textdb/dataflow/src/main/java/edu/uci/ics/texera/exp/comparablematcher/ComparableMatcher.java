@@ -4,7 +4,7 @@ import java.text.DateFormat;
 import java.util.Date;
 
 import edu.uci.ics.texera.api.exception.DataFlowException;
-import edu.uci.ics.texera.api.exception.TextDBException;
+import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.field.DateField;
 import edu.uci.ics.texera.api.field.DoubleField;
 import edu.uci.ics.texera.api.field.IntegerField;
@@ -40,7 +40,7 @@ public class ComparableMatcher extends AbstractSingleInputOperator {
     }
 
     @Override
-    protected Tuple computeNextMatchingTuple() throws TextDBException {
+    protected Tuple computeNextMatchingTuple() throws TexeraException {
         Tuple inputTuple;
         while ((inputTuple = inputOperator.getNextTuple()) != null) {
             Tuple resultTuple = processOneInputTuple(inputTuple);
@@ -52,7 +52,7 @@ public class ComparableMatcher extends AbstractSingleInputOperator {
     }
 
     @Override
-    public Tuple processOneInputTuple(Tuple inputTuple) throws TextDBException {
+    public Tuple processOneInputTuple(Tuple inputTuple) throws TexeraException {
         boolean conditionSatisfied = false;
         switch (this.inputAttrType) {
         case DATE:

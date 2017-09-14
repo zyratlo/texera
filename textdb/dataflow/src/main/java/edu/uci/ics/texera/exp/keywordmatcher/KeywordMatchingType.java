@@ -2,7 +2,7 @@ package edu.uci.ics.texera.exp.keywordmatcher;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
-import edu.uci.ics.texera.api.exception.TextDBException;
+import edu.uci.ics.texera.api.exception.TexeraException;
 
 /**
  * KeywordMatchingType: the type of keyword matching to perform. <br>
@@ -89,7 +89,7 @@ public enum KeywordMatchingType {
                 name.equalsIgnoreCase(REGEX.toString())){
             return REGEX;
         } else {
-            throw new TextDBException("Cannot convert " + name + " to KeywordMatchingType");
+            throw new TexeraException("Cannot convert " + name + " to KeywordMatchingType");
         }
     }
 }

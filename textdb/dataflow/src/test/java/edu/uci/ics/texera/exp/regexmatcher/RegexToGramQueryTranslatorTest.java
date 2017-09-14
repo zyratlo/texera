@@ -155,7 +155,7 @@ public class RegexToGramQueryTranslatorTest {
 
     @Test
     public void testLiteral5() {
-        String regex = "textdb";
+        String regex = "texera";
 
         GramBooleanQuery exactQuery = RegexToGramQueryTranslator.translate(regex);
 

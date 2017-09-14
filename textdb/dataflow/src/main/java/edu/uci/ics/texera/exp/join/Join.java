@@ -6,7 +6,7 @@ import java.util.List;
 import edu.uci.ics.texera.api.constants.ErrorMessages;
 import edu.uci.ics.texera.api.dataflow.IOperator;
 import edu.uci.ics.texera.api.exception.DataFlowException;
-import edu.uci.ics.texera.api.exception.TextDBException;
+import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.schema.Schema;
 import edu.uci.ics.texera.api.tuple.Tuple;
 
@@ -69,7 +69,7 @@ public class Join implements IOperator {
     }
 
     @Override
-    public void open() throws TextDBException {
+    public void open() throws TexeraException {
         if (cursor != CLOSED) {
         	return;
         }
@@ -101,7 +101,7 @@ public class Join implements IOperator {
      * @return nextTuple
      */
     @Override
-    public Tuple getNextTuple() throws TextDBException {
+    public Tuple getNextTuple() throws TexeraException {
     	if (cursor == CLOSED) {
             throw new DataFlowException(ErrorMessages.OPERATOR_NOT_OPENED);
         }
@@ -181,7 +181,7 @@ public class Join implements IOperator {
     }
 
     @Override
-    public void close() throws TextDBException {
+    public void close() throws TexeraException {
     	if (cursor == CLOSED) {
             return;
         }

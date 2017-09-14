@@ -5,7 +5,7 @@ import java.util.List;
 
 import edu.uci.ics.texera.api.constants.TestConstants;
 import edu.uci.ics.texera.api.exception.DataFlowException;
-import edu.uci.ics.texera.api.exception.TextDBException;
+import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.tuple.Tuple;
 import edu.uci.ics.texera.api.utils.TestUtils;
 import edu.uci.ics.texera.exp.fuzzytokenmatcher.FuzzyTokenPredicate;
@@ -33,7 +33,7 @@ public class FuzzyTokenMatcherTestHelper {
     /*
      * Creates the test table(s) and writes data into it(them).
      */
-    public static void writeTestTables() throws TextDBException {
+    public static void writeTestTables() throws TexeraException {
         RelationManager relationManager = RelationManager.getRelationManager();
         
         // create the people table and write tuples
@@ -51,7 +51,7 @@ public class FuzzyTokenMatcherTestHelper {
     /*
      * Deletes the test table(s)
      */
-    public static void deleteTestTables() throws TextDBException {
+    public static void deleteTestTables() throws TexeraException {
         RelationManager relationManager = RelationManager.getRelationManager();
         relationManager.deleteTable(PEOPLE_TABLE);
     }
@@ -59,7 +59,7 @@ public class FuzzyTokenMatcherTestHelper {
     /*
      * Gets the query results from FuzzyTokenMatcher (without limit and offset).
      */
-    public static List<Tuple> getQueryResults(String tableName, String query, double threshold, List<String> attributeNames) throws TextDBException {
+    public static List<Tuple> getQueryResults(String tableName, String query, double threshold, List<String> attributeNames) throws TexeraException {
         return getQueryResults(tableName, query, threshold, attributeNames, Integer.MAX_VALUE, 0);
     }
     
@@ -67,7 +67,7 @@ public class FuzzyTokenMatcherTestHelper {
      * Gets the query results from FuzzyTokenMatcher (with limit and offset options)
      */
     public static List<Tuple> getQueryResults(String tableName, String query, double threshold, List<String> attributeNames,
-            int limit, int offset) throws TextDBException {
+            int limit, int offset) throws TexeraException {
         
         // results from a scan on the table followed by a fuzzy token matcher
         List<Tuple> scanSourceResults = getScanSourceResults(tableName, query, threshold, attributeNames, limit, offset);
@@ -102,7 +102,7 @@ public class FuzzyTokenMatcherTestHelper {
      * Gets the query results by scanning the table and passing the data into a FuzzyTokenMatcher.
      */
     public static List<Tuple> getScanSourceResults(String tableName, String query, double threshold, List<String> attributeNames,
-            int limit, int offset) throws TextDBException {
+            int limit, int offset) throws TexeraException {
                 
         ScanBasedSourceOperator scanSource = new ScanBasedSourceOperator(new ScanSourcePredicate(tableName)); 
         FuzzyTokenPredicate fuzzyTokenPredicate = new FuzzyTokenPredicate(
@@ -130,7 +130,7 @@ public class FuzzyTokenMatcherTestHelper {
      * Gets the query results by using a FuzzyTokenMatcherSourceOperator (which performs index-based lookups on the table)
      */
     public static List<Tuple> getFuzzyTokenSourceResults(String tableName, String query, double threshold, List<String> attributeNames,
-            int limit, int offset) throws TextDBException {
+            int limit, int offset) throws TexeraException {
         
         FuzzyTokenSourcePredicate fuzzyTokenSourcePredicate = new FuzzyTokenSourcePredicate(
                 query, attributeNames, RelationManager.getRelationManager().getTableAnalyzerString(tableName), 

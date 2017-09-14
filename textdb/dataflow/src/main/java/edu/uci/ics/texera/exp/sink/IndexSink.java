@@ -2,7 +2,7 @@ package edu.uci.ics.texera.exp.sink;
 
 import edu.uci.ics.texera.api.exception.DataFlowException;
 import edu.uci.ics.texera.api.exception.StorageException;
-import edu.uci.ics.texera.api.exception.TextDBException;
+import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.tuple.Tuple;
 import edu.uci.ics.texera.storage.DataWriter;
 import edu.uci.ics.texera.storage.RelationManager;
@@ -28,7 +28,7 @@ public class IndexSink extends AbstractSink {
 
     }
 
-    public void open() throws TextDBException {
+    public void open() throws TexeraException {
         super.open();
         this.dataWriter.open();
         if (! this.isAppend) {
@@ -36,11 +36,11 @@ public class IndexSink extends AbstractSink {
         }
     }
 
-    protected void processOneTuple(Tuple nextTuple) throws TextDBException {
+    protected void processOneTuple(Tuple nextTuple) throws TexeraException {
         dataWriter.insertTuple(nextTuple);
     }
 
-    public void close() throws TextDBException {
+    public void close() throws TexeraException {
         if (this.dataWriter != null) {
             this.dataWriter.close();
         }

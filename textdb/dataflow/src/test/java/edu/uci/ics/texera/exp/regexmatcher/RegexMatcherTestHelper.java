@@ -5,7 +5,7 @@ import java.util.List;
 
 import edu.uci.ics.texera.api.constants.TestConstants;
 import edu.uci.ics.texera.api.exception.DataFlowException;
-import edu.uci.ics.texera.api.exception.TextDBException;
+import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.tuple.Tuple;
 import edu.uci.ics.texera.api.utils.TestUtils;
 import edu.uci.ics.texera.exp.keywordmatcher.*;
@@ -31,7 +31,7 @@ public class RegexMatcherTestHelper {
     public static final String STAFF_TABLE = "regex_test_staff";
     public static final String TEXT_TABLE = "regex_test_text";
     
-    public static void writeTestTables() throws TextDBException {
+    public static void writeTestTables() throws TexeraException {
         RelationManager relationManager = RelationManager.getRelationManager();
         
         // create the people table and write tuples
@@ -79,7 +79,7 @@ public class RegexMatcherTestHelper {
         textDataWriter.close();
     }
     
-    public static void deleteTestTables() throws TextDBException {
+    public static void deleteTestTables() throws TexeraException {
         RelationManager relationManager = RelationManager.getRelationManager();
 
         relationManager.deleteTable(PEOPLE_TABLE);
@@ -133,7 +133,7 @@ public class RegexMatcherTestHelper {
     }
     
     public static List<Tuple> getScanSourceResults(String tableName, String regex, List<String> attributeNames,
-            int limit, int offset) throws TextDBException {
+            int limit, int offset) throws TexeraException {
         ScanBasedSourceOperator scanSource = new ScanBasedSourceOperator(new ScanSourcePredicate(tableName));
         
         RegexPredicate regexPredicate = new RegexPredicate(regex, attributeNames, RESULTS);
@@ -157,7 +157,7 @@ public class RegexMatcherTestHelper {
     }
     
     public static List<Tuple> getRegexSourceResults(String tableName, String regex, List<String> attributeNames,
-            int limit, int offset) throws TextDBException {
+            int limit, int offset) throws TexeraException {
         RegexSourcePredicate regexSourcePredicate = new RegexSourcePredicate(regex, attributeNames, tableName, RESULTS);
         RegexMatcherSourceOperator regexSource = new RegexMatcherSourceOperator(regexSourcePredicate);
         
@@ -211,7 +211,7 @@ public class RegexMatcherTestHelper {
 
 
     public static List<Tuple> getScanSourceResults(String tableName, String keywordQuery, String regex, List<String> attributeNames,
-                                                   KeywordMatchingType matchingType, String spanListName, int limit, int offset) throws TextDBException {
+                                                   KeywordMatchingType matchingType, String spanListName, int limit, int offset) throws TexeraException {
         RelationManager relationManager = RelationManager.getRelationManager();
 
         ScanBasedSourceOperator scanSource = new ScanBasedSourceOperator(new ScanSourcePredicate(tableName));
@@ -242,7 +242,7 @@ public class RegexMatcherTestHelper {
     }
 
     public static List<Tuple> getRegexSourceResults(String tableName, String keywordQuery, String regex, List<String> attributeNames,
-                                                    KeywordMatchingType matchingType, String spanListName, int limit, int offset) throws TextDBException {
+                                                    KeywordMatchingType matchingType, String spanListName, int limit, int offset) throws TexeraException {
 
         RelationManager relationManager = RelationManager.getRelationManager();
         KeywordSourcePredicate keywordSourcePredicate = new KeywordSourcePredicate(
@@ -303,7 +303,7 @@ public class RegexMatcherTestHelper {
     }
 
     public static List<Tuple> getScanSourceResults(String tableName, String keywordQuery1, String regex, List<String> attributeNames,
-                                                   KeywordMatchingType matchingType, String spanListName1, int limit, int offset, String keywordQuery2, String spanListName2) throws TextDBException {
+                                                   KeywordMatchingType matchingType, String spanListName1, int limit, int offset, String keywordQuery2, String spanListName2) throws TexeraException {
 
         ScanBasedSourceOperator scanSource = new ScanBasedSourceOperator(new ScanSourcePredicate(tableName));
 
@@ -338,7 +338,7 @@ public class RegexMatcherTestHelper {
     }
 
     public static List<Tuple> getRegexSourceResults(String tableName, String keywordQuery1, String regex, List<String> attributeNames,
-                                                    KeywordMatchingType matchingType, String spanListName1, int limit, int offset, String keywordQuery2, String spanListName2) throws TextDBException {
+                                                    KeywordMatchingType matchingType, String spanListName1, int limit, int offset, String keywordQuery2, String spanListName2) throws TexeraException {
 
         KeywordSourcePredicate keywordSourcePredicate = new KeywordSourcePredicate(
                 keywordQuery1, attributeNames, LuceneAnalyzerConstants.standardAnalyzerString(), matchingType,

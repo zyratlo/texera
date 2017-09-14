@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.uci.ics.texera.api.constants.SchemaConstants;
-import edu.uci.ics.texera.api.exception.TextDBException;
+import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.tuple.Tuple;
 import junit.framework.Assert;
 
@@ -122,7 +122,7 @@ public class TestUtils {
             Assert.assertEquals(jsonNode, resultJsonNode);
             return jsonNode;
         } catch (IOException e) {
-            throw new TextDBException(e);
+            throw new TexeraException(e);
         }
     }
     

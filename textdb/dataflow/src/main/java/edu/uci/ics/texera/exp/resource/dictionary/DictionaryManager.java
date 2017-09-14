@@ -12,7 +12,7 @@ import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.TermQuery;
 
 import edu.uci.ics.texera.api.exception.StorageException;
-import edu.uci.ics.texera.api.exception.TextDBException;
+import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.field.StringField;
 import edu.uci.ics.texera.api.tuple.Tuple;
 import edu.uci.ics.texera.storage.DataReader;
@@ -41,9 +41,9 @@ public class DictionaryManager {
     /**
      * Creates plan store, both an index and a directory for plan objects.
      *
-     * @throws TextDBException
+     * @throws TexeraException
      */
-    public void createDictionaryManager() throws TextDBException {
+    public void createDictionaryManager() throws TexeraException {
         if (! relationManager.checkTableExistence(DictionaryManagerConstants.TABLE_NAME)) {
             relationManager.createTable(DictionaryManagerConstants.TABLE_NAME,
                     DictionaryManagerConstants.INDEX_DIR,
@@ -63,9 +63,9 @@ public class DictionaryManager {
     /**
      * removes plan store, both an index and a directory for dictionary objects.
      *
-     * @throws TextDBException
+     * @throws TexeraException
      */
-    public void destroyDictionaryManager() throws TextDBException {
+    public void destroyDictionaryManager() throws TexeraException {
         relationManager.deleteTable(DictionaryManagerConstants.TABLE_NAME);
         StorageUtils.deleteDirectory(DictionaryManagerConstants.DICTIONARY_DIR);
     }

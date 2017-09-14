@@ -61,7 +61,7 @@ public class RelationManager {
             tableName = tableName.toLowerCase();
             return getTableCatalogTuple(tableName) != null;
         } catch (StorageException e) {
-            // TODO: change it to textdb runtime exception
+            // TODO: change it to texera runtime exception
             throw new RuntimeException(e);
         }
     }

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import edu.uci.ics.texera.api.dataflow.IConnector;
 import edu.uci.ics.texera.api.dataflow.IOperator;
-import edu.uci.ics.texera.api.exception.TextDBException;
+import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.schema.Schema;
 import edu.uci.ics.texera.api.tuple.Tuple;
 
@@ -91,7 +91,7 @@ public class OneToNBroadcastConnector implements IConnector {
      * Tuples from input operators are cached in an in-memory list.
      * A new tuple will be fetched from input operator whenever a cursor exceeds the list size.
      */
-    private Tuple getNextTuple(int outputOperatorIndex) throws TextDBException {
+    private Tuple getNextTuple(int outputOperatorIndex) throws TexeraException {
         int currentPosition = outputCursorList.get(outputOperatorIndex);
         
         if (currentPosition + 1 < inputTupleList.size()) {
@@ -115,7 +115,7 @@ public class OneToNBroadcastConnector implements IConnector {
         }
     }
     
-    private void openInputOperator(int outputOperatorIndex) throws TextDBException {
+    private void openInputOperator(int outputOperatorIndex) throws TexeraException {
         outputStatusList.set(outputOperatorIndex, OPENED);
         if (! inputOperatorOpened) {
             inputOperator.open();
@@ -123,7 +123,7 @@ public class OneToNBroadcastConnector implements IConnector {
         }
     }
     
-    private void closeInputOperator(int outputOperatorIndex) throws TextDBException {
+    private void closeInputOperator(int outputOperatorIndex) throws TexeraException {
         outputStatusList.set(outputOperatorIndex, CLOSED);
         boolean isAllClosed = isAllOutputOperatorClosed();
         if (isAllClosed) {
@@ -160,17 +160,17 @@ public class OneToNBroadcastConnector implements IConnector {
         }
 
         @Override
-        public void open() throws TextDBException {
+        public void open() throws TexeraException {
             ownerConnector.openInputOperator(outputIndex);
         }
 
         @Override
-        public Tuple getNextTuple() throws TextDBException {
+        public Tuple getNextTuple() throws TexeraException {
             return ownerConnector.getNextTuple(outputIndex);
         }
 
         @Override
-        public void close() throws TextDBException {
+        public void close() throws TexeraException {
             ownerConnector.closeInputOperator(outputIndex);
         }
 

@@ -6,7 +6,7 @@ import java.util.List;
 import edu.uci.ics.texera.api.constants.TestConstants;
 import edu.uci.ics.texera.api.constants.TestConstantsChinese;
 import edu.uci.ics.texera.api.exception.DataFlowException;
-import edu.uci.ics.texera.api.exception.TextDBException;
+import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.tuple.Tuple;
 import edu.uci.ics.texera.api.utils.TestUtils;
 import edu.uci.ics.texera.exp.dictionarymatcher.Dictionary;
@@ -25,7 +25,7 @@ public class DictionaryMatcherTestHelper {
     
     public static final String RESULTS = "dictionary test results";
     
-    public static void writeTestTables() throws TextDBException {
+    public static void writeTestTables() throws TexeraException {
         RelationManager relationManager = RelationManager.getRelationManager();
         
         // create the people table and write tuples
@@ -50,19 +50,19 @@ public class DictionaryMatcherTestHelper {
         chineseDataWriter.close();
     }
     
-    public static void deleteTestTables() throws TextDBException {
+    public static void deleteTestTables() throws TexeraException {
         RelationManager relationManager = RelationManager.getRelationManager();
         relationManager.deleteTable(PEOPLE_TABLE);
         relationManager.deleteTable(CHINESE_TABLE);
     }
     
     public static List<Tuple> getQueryResults(String tableName, Dictionary dictionary, List<String> attributeNames,
-            KeywordMatchingType matchingType) throws TextDBException {
+            KeywordMatchingType matchingType) throws TexeraException {
         return getQueryResults(tableName, dictionary, attributeNames, matchingType, Integer.MAX_VALUE, 0);
     }
     
     public static List<Tuple> getQueryResults(String tableName, Dictionary dictionary, List<String> attributeNames,
-            KeywordMatchingType matchingType, int limit, int offset) throws TextDBException {
+            KeywordMatchingType matchingType, int limit, int offset) throws TexeraException {
         
         // results from a scan on the table followed by a keyword match
         List<Tuple> scanSourceResults = getScanSourceResults(tableName, dictionary, attributeNames,
@@ -110,10 +110,10 @@ public class DictionaryMatcherTestHelper {
      * @param limit
      * @param offset
      * @return
-     * @throws TextDBException
+     * @throws TexeraException
      */
     public static List<Tuple> getScanSourceResults(String tableName, Dictionary dictionary, List<String> attributeNames,
-            KeywordMatchingType matchingType, int limit, int offset) throws TextDBException {
+            KeywordMatchingType matchingType, int limit, int offset) throws TexeraException {
         
         RelationManager relationManager = RelationManager.getRelationManager();
         String luceneAnalyzerStr = relationManager.getTableAnalyzerString(tableName);
@@ -152,10 +152,10 @@ public class DictionaryMatcherTestHelper {
      * @param limit
      * @param offset
      * @return
-     * @throws TextDBException
+     * @throws TexeraException
      */
     public static List<Tuple> getDictionarySourceResults(String tableName, Dictionary dictionary, List<String> attributeNames,
-            KeywordMatchingType matchingType, int limit, int offset) throws TextDBException {
+            KeywordMatchingType matchingType, int limit, int offset) throws TexeraException {
         RelationManager relationManager = RelationManager.getRelationManager();
         String luceneAnalyzerStr = relationManager.getTableAnalyzerString(tableName);
         

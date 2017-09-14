@@ -3,7 +3,7 @@ package edu.uci.ics.texera.exp.planstore;
 import edu.uci.ics.texera.api.constants.SchemaConstants;
 import edu.uci.ics.texera.api.exception.DataFlowException;
 import edu.uci.ics.texera.api.exception.StorageException;
-import edu.uci.ics.texera.api.exception.TextDBException;
+import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.field.IDField;
 import edu.uci.ics.texera.api.field.IField;
 import edu.uci.ics.texera.api.field.StringField;
@@ -47,9 +47,9 @@ public class PlanStore {
     /**
      * Creates plan store, both an index and a directory for plan objects.
      *
-     * @throws TextDBException
+     * @throws TexeraException
      */
-    public void createPlanStore() throws TextDBException {
+    public void createPlanStore() throws TexeraException {
         if (!relationManager.checkTableExistence(PlanStoreConstants.TABLE_NAME)) {
             relationManager.createTable(PlanStoreConstants.TABLE_NAME,
                     PlanStoreConstants.INDEX_DIR,
@@ -61,9 +61,9 @@ public class PlanStore {
     /**
      * removes plan store, both an index and a directory for plan objects.
      *
-     * @throws TextDBException
+     * @throws TexeraException
      */
-    public void destroyPlanStore() throws TextDBException {
+    public void destroyPlanStore() throws TexeraException {
         relationManager.deleteTable(PlanStoreConstants.TABLE_NAME);
     }
 
@@ -74,18 +74,18 @@ public class PlanStore {
      * @param description, the description of the plan.
      * @param logicalPlanJson, the logical plan JSON string
      * @Return IDField, the id field of the plan stored.
-     * @throws TextDBException, when there are null fields or the given name is invalid or there is an existing plan with same name.
+     * @throws TexeraException, when there are null fields or the given name is invalid or there is an existing plan with same name.
      */
-    public IDField addPlan(String planName, String description, String logicalPlanJson) throws TextDBException {
+    public IDField addPlan(String planName, String description, String logicalPlanJson) throws TexeraException {
         if (planName == null || description == null || logicalPlanJson == null) {
-            throw new TextDBException("Arguments cannot be null when adding a plan");
+            throw new TexeraException("Arguments cannot be null when adding a plan");
         }
         if (!PlanStoreConstants.VALID_PLAN_NAME.matcher(planName).find()) {
-            throw new TextDBException("Plan name is not valid. It can only contain alphanumeric characters, " +
+            throw new TexeraException("Plan name is not valid. It can only contain alphanumeric characters, " +
                     "underscore, and hyphen.");
         }
         if (getPlan(planName) != null) {
-            throw new TextDBException("A plan with the same name already exists");
+            throw new TexeraException("A plan with the same name already exists");
         }
 
         try {
@@ -115,9 +115,9 @@ public class PlanStore {
      *
      * @param planName, the name of the plan.
      * @Return ITuple, the tuple consisting of fields of the plan.
-     * @throws TextDBException
+     * @throws TexeraException
      */
-    public Tuple getPlan(String planName) throws TextDBException {
+    public Tuple getPlan(String planName) throws TexeraException {
         Query q = new TermQuery(new Term(PlanStoreConstants.NAME, planName));
 
         DataReader reader = relationManager.getTableDataReader(PlanStoreConstants.TABLE_NAME, q);
@@ -141,9 +141,9 @@ public class PlanStore {
      * Retrieves an iterator to scan through all plans.
      *
      * @Return IDataReader
-     * @throws TextDBException
+     * @throws TexeraException
      */
-    public DataReader getPlanIterator() throws TextDBException {
+    public DataReader getPlanIterator() throws TexeraException {
         return relationManager.getTableDataReader(PlanStoreConstants.TABLE_NAME, new MatchAllDocsQuery());
     }
 
@@ -151,9 +151,9 @@ public class PlanStore {
      * Removess a plan by given name from plan store.
      *
      * @param planName, the name of the plan.
-     * @throws TextDBException
+     * @throws TexeraException
      */
-    public void deletePlan(String planName) throws TextDBException {
+    public void deletePlan(String planName) throws TexeraException {
         Tuple plan = getPlan(planName);
 
         if (plan == null) {
@@ -172,9 +172,9 @@ public class PlanStore {
      * Updates the description for the given plan name
      * @param planName - Name of the plan whose description is to be modified
      * @param description - New description of the plan as it it is to be updated
-     * @throws TextDBException
+     * @throws TexeraException
      */
-    public void updatePlanDescription(String planName, String description) throws TextDBException{
+    public void updatePlanDescription(String planName, String description) throws TexeraException{
         updatePlanInternal(planName, description, null);
     }
 
@@ -182,9 +182,9 @@ public class PlanStore {
      * Updates the logical plan for the given plan name
      * @param planName - Name of the plan which is to be modified
      * @param logicalPlanJson - New logical plan json as it is to be updated in the plan store
-     * @throws TextDBException
+     * @throws TexeraException
      */
-    public void updatePlan(String planName, String logicalPlanJson) throws TextDBException{
+    public void updatePlan(String planName, String logicalPlanJson) throws TexeraException{
         updatePlanInternal(planName, null, logicalPlanJson);
 
     }
@@ -194,9 +194,9 @@ public class PlanStore {
      * @param planName - Name of the plan which is to be updated
      * @param description - New description for the plan
      * @param logicalPlanJson - New logical plan json for the plan
-     * @throws TextDBException
+     * @throws TexeraException
      */
-    public void updatePlan(String planName, String description, String logicalPlanJson) throws TextDBException{
+    public void updatePlan(String planName, String description, String logicalPlanJson) throws TexeraException{
         updatePlanInternal(planName, description, logicalPlanJson);
     }
 
@@ -208,9 +208,9 @@ public class PlanStore {
      * @param planName, the name of the plan.
      * @param description, the new description of the plan.
      * @param logicalPlanJson, the new plan json string.
-     * @throws TextDBException
+     * @throws TexeraException
      */
-    private void updatePlanInternal(String planName, String description, String logicalPlanJson) throws TextDBException{
+    private void updatePlanInternal(String planName, String description, String logicalPlanJson) throws TexeraException{
         Tuple existingPlan = getPlan(planName);
 
         if (existingPlan == null) {

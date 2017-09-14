@@ -11,7 +11,7 @@ import java.util.Collections;
 import java.util.List;
 
 import edu.uci.ics.texera.api.constants.SchemaConstants;
-import edu.uci.ics.texera.api.exception.TextDBException;
+import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.field.ListField;
 import edu.uci.ics.texera.api.schema.Attribute;
 import edu.uci.ics.texera.api.span.Span;
@@ -95,7 +95,7 @@ public class KeywordMatcherPerformanceTest {
      * 
      * Commit number is designed for performance dashboard. It will be appended
      * to the result file only when the performance test is run by
-     * /textdb-scripts/dashboard/build.py
+     * /texera-scripts/dashboard/build.py
      * 
      */
     public static void csvWriter(String resultFile, String recordNum, ArrayList<String> queries,
@@ -129,7 +129,7 @@ public class KeywordMatcherPerformanceTest {
      * This function does match for a list of queries
      */
     public static void match(ArrayList<String> queryList, KeywordMatchingType opType, String luceneAnalyzerStr,
-            String tableName) throws TextDBException, IOException {
+            String tableName) throws TexeraException, IOException {
 
         Attribute[] attributeList = new Attribute[] { MedlineIndexWriter.ABSTRACT_ATTR };
 

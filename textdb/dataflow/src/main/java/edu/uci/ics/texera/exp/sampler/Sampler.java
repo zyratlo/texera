@@ -2,7 +2,7 @@ package edu.uci.ics.texera.exp.sampler;
 
 import edu.uci.ics.texera.api.dataflow.ISourceOperator;
 import edu.uci.ics.texera.api.exception.DataFlowException;
-import edu.uci.ics.texera.api.exception.TextDBException;
+import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.tuple.Tuple;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +43,7 @@ public class Sampler extends AbstractSingleInputOperator implements ISourceOpera
         this.outputSchema = inputOperator.getOutputSchema();
     }
     
-    private void constructSampleBuffer() throws TextDBException {
+    private void constructSampleBuffer() throws TexeraException {
         sampleBuffer = new ArrayList<Tuple>();
         
         Random random = new Random(System.currentTimeMillis());
@@ -78,7 +78,7 @@ public class Sampler extends AbstractSingleInputOperator implements ISourceOpera
     }
     
     @Override
-    protected Tuple computeNextMatchingTuple() throws TextDBException {
+    protected Tuple computeNextMatchingTuple() throws TexeraException {
         if (sampleBuffer == null) {
             constructSampleBuffer();
             this.bufferCursor = 0;
@@ -95,7 +95,7 @@ public class Sampler extends AbstractSingleInputOperator implements ISourceOpera
     }
     
     @Override
-    protected void cleanUp() throws TextDBException {
+    protected void cleanUp() throws TexeraException {
         sampleBuffer = null;
         bufferCursor = -1;
     }
@@ -105,7 +105,7 @@ public class Sampler extends AbstractSingleInputOperator implements ISourceOpera
     }
     
     @Override
-    public Tuple processOneInputTuple(Tuple inputTuple) throws TextDBException {
+    public Tuple processOneInputTuple(Tuple inputTuple) throws TexeraException {
         throw new RuntimeException("Sampler does not support process one tuple");
     }
 }

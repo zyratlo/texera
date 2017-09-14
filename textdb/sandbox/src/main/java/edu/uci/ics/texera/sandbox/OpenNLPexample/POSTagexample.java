@@ -23,7 +23,7 @@ import opennlp.tools.util.InvalidFormatException;
 public class POSTagexample {
 
 	public static String[] Tokenize(String sentence) throws InvalidFormatException, IOException {
-    	InputStream is = new FileInputStream("./src/main/java/edu/uci/ics/textdb/sandbox/OpenNLPexample/en-token.bin");
+    	InputStream is = new FileInputStream("./src/main/java/edu/uci/ics/texera/sandbox/OpenNLPexample/en-token.bin");
      
     	TokenizerModel model = new TokenizerModel(is);
      
@@ -39,7 +39,7 @@ public class POSTagexample {
     public static void main(String[] args) throws IOException {
     	
     	POSModel model = new POSModelLoader()	
-    		.load(new File("./src/main/java/edu/uci/ics/textdb/sandbox/OpenNLPexample/en-pos-maxent.bin"));
+    		.load(new File("./src/main/java/edu/uci/ics/texera/sandbox/OpenNLPexample/en-pos-maxent.bin"));
     	PerformanceMonitor perfMon = new PerformanceMonitor(System.err, "sent");
     	POSTaggerME tagger = new POSTaggerME(model);
      

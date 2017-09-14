@@ -27,7 +27,7 @@ import edu.uci.ics.texera.api.tuple.Tuple;
 import edu.uci.ics.texera.api.utils.Utils;
 import edu.uci.ics.texera.exp.plangen.LogicalPlan;
 import edu.uci.ics.texera.exp.sink.tuple.TupleSink;
-import edu.uci.ics.texera.web.TextdbWebException;
+import edu.uci.ics.texera.web.TexeraWebException;
 
 /**
  * This class will be the resource class for accepting a query plan edu.uci.ics.texera.web.request and executing the
@@ -42,12 +42,12 @@ import edu.uci.ics.texera.web.TextdbWebException;
 @Consumes(MediaType.APPLICATION_JSON)
 public class NewQueryPlanResource {
     
-    public static java.nio.file.Path resultDirectory = Paths.get(Utils.getTextdbHomePath(), "query-results");
+    public static java.nio.file.Path resultDirectory = Paths.get(Utils.getTexeraHomePath(), "query-results");
     
     /**
      * This is the edu.uci.ics.texera.web.request handler for the execution of a Query Plan.
      * @param logicalPlanJson, the json representation of the logical plan
-     * @return - Generic TextdbWebResponse object
+     * @return - Generic TexeraWebResponse object
      */
     @POST
     @Path("/execute")
@@ -105,7 +105,7 @@ public class NewQueryPlanResource {
         } catch ( IOException | RuntimeException e) {
             // TODO remove RuntimeException after the exception refactor
             e.printStackTrace();
-            throw new TextdbWebException(e.getMessage());
+            throw new TexeraWebException(e.getMessage());
         }   
     }
     

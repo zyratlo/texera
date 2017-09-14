@@ -1,7 +1,7 @@
 package edu.uci.ics.texera.exp.comparablematcher;
 
 import edu.uci.ics.texera.api.constants.TestConstants;
-import edu.uci.ics.texera.api.exception.TextDBException;
+import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.field.DateField;
 import edu.uci.ics.texera.api.field.DoubleField;
 import edu.uci.ics.texera.api.field.IField;
@@ -34,7 +34,7 @@ public class ComparableMatcherTest {
     public static final String PEOPLE_TABLE = "comparable_test_people";
 
     @BeforeClass
-    public static void setUp() throws TextDBException {
+    public static void setUp() throws TexeraException {
         RelationManager relationManager = RelationManager.getRelationManager();
         
         // create the people table and write tuples
@@ -50,13 +50,13 @@ public class ComparableMatcherTest {
     }
 
     @AfterClass
-    public static void cleanUp() throws TextDBException {
+    public static void cleanUp() throws TexeraException {
         RelationManager relationManager = RelationManager.getRelationManager();
         relationManager.deleteTable(PEOPLE_TABLE);
     }
 
     public List<Tuple> getDoubleQueryResults(String attributeName, ComparisonType matchingType, double threshold)
-            throws TextDBException {
+            throws TexeraException {
         // Perform the query
         ComparablePredicate comparablePredicate = new ComparablePredicate(attributeName, matchingType, threshold);
         ComparableMatcher comparableMatcher = new ComparableMatcher(comparablePredicate);
@@ -65,7 +65,7 @@ public class ComparableMatcherTest {
     }
 
     public List<Tuple> getIntegerQueryResults(String attributeName, ComparisonType matchingType, int threshold)
-            throws TextDBException {
+            throws TexeraException {
         // Perform the query
         ComparablePredicate comparablePredicate = new ComparablePredicate(attributeName, matchingType, threshold);
         ComparableMatcher comparableMatcher = new ComparableMatcher(comparablePredicate);
@@ -73,7 +73,7 @@ public class ComparableMatcherTest {
         return getQueryResults(comparableMatcher);
     }
 
-    public void setDefaultMatcherConfig(ComparableMatcher comparableMatcher) throws TextDBException {
+    public void setDefaultMatcherConfig(ComparableMatcher comparableMatcher) throws TexeraException {
         // Perform the query
         ScanBasedSourceOperator sourceOperator = new ScanBasedSourceOperator(
                 new ScanSourcePredicate(PEOPLE_TABLE));
@@ -83,7 +83,7 @@ public class ComparableMatcherTest {
         comparableMatcher.setOffset(0);
     }
 
-    public List<Tuple> getQueryResults(ComparableMatcher comparableMatcher) throws TextDBException {
+    public List<Tuple> getQueryResults(ComparableMatcher comparableMatcher) throws TexeraException {
         List<Tuple> returnedResults = new ArrayList<>();
         Tuple nextTuple = null;
 

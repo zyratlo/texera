@@ -1,34 +1,23 @@
 package edu.uci.ics.texera.exp.twitterfeed;
 
-import com.twitter.hbc.ClientBuilder;
-import com.twitter.hbc.core.Constants;
-import com.twitter.hbc.core.endpoint.StatusesFilterEndpoint;
-import com.twitter.hbc.core.processor.StringDelimitedProcessor;
-import com.twitter.hbc.httpclient.auth.Authentication;
-import edu.uci.ics.texera.api.exception.TextDBException;
-import edu.uci.ics.texera.api.schema.Schema;
+import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.tuple.Tuple;
 
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.stream.Collectors;
 
 import com.twitter.hbc.core.endpoint.Location;
-import edu.uci.ics.texera.api.utils.Utils;
 
 import static edu.uci.ics.texera.exp.twitterfeed.TwitterUtils.twitterSchema.TWEET_COORDINATES;
-import static org.mockito.Mockito.mock;
 
 /**
  * Created by Chang on 7/13/17.
  */
 public class TwitterFeedTestHelper {
 
-    public static List<Tuple> getQueryResults(List<String> queryList, String locationList, List<String> languageList, int limit) throws TextDBException {
+    public static List<Tuple> getQueryResults(List<String> queryList, String locationList, List<String> languageList, int limit) throws TexeraException {
         TwitterFeedSourcePredicate predicate = new TwitterFeedSourcePredicate(10, queryList, locationList, languageList, null, null, null, null);
         TwitterFeedOperator twitterFeedOperator = new TwitterFeedOperator(predicate);
         twitterFeedOperator.setLimit(limit);
@@ -103,7 +92,7 @@ public class TwitterFeedTestHelper {
         for(Tuple t : outputTuple) {
             for (String attribute : expectedTuple.getSchema().getAttributeNames()) {
                 if (!attribute.equals("_id")) {
-                    if (! expectedTuple.getField(attribute).getValue().toString().equals(expectedTuple.getField(attribute).getValue().toString())) {
+                    if (! t.getField(attribute).getValue().toString().equals(expectedTuple.getField(attribute).getValue().toString())) {
                         return false;
                     }
                 }

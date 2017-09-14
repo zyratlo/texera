@@ -9,7 +9,7 @@ import org.apache.lucene.search.BooleanClause.Occur;
 import edu.uci.ics.texera.api.dataflow.ISourceOperator;
 import edu.uci.ics.texera.api.exception.DataFlowException;
 import edu.uci.ics.texera.api.exception.StorageException;
-import edu.uci.ics.texera.api.exception.TextDBException;
+import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.tuple.Tuple;
 import edu.uci.ics.texera.exp.common.AbstractSingleInputOperator;
 import edu.uci.ics.texera.storage.DataReader;
@@ -41,22 +41,22 @@ public class FuzzyTokenMatcherSourceOperator extends AbstractSingleInputOperator
     }
 
     @Override
-    protected void setUp() throws TextDBException {
+    protected void setUp() throws TexeraException {
         this.outputSchema = this.fuzzyTokenMatcher.getOutputSchema();        
     }
 
     @Override
-    protected Tuple computeNextMatchingTuple() throws TextDBException {
+    protected Tuple computeNextMatchingTuple() throws TexeraException {
         return this.fuzzyTokenMatcher.getNextTuple();
     }
 
     @Override
-    public Tuple processOneInputTuple(Tuple inputTuple) throws TextDBException {
+    public Tuple processOneInputTuple(Tuple inputTuple) throws TexeraException {
         return this.fuzzyTokenMatcher.processOneInputTuple(inputTuple);
     }
 
     @Override
-    protected void cleanUp() throws TextDBException {        
+    protected void cleanUp() throws TexeraException {        
     }
     
     public static Query createLuceneQueryObject(FuzzyTokenPredicate predicate) throws DataFlowException {

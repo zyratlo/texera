@@ -22,7 +22,7 @@ public class EmojiSentimentTestConstants {
             new TextField("Programming is so super awesome. \uD83D\uDE00"));
 
     public static Tuple NEUTRAL_TUPLE = new Tuple(SENTIMENT_SCHEMA,
-            new TextField("TextDB uses Java."));
+            new TextField("Texera uses Java."));
 
     public static Tuple NEGATIVE_TUPLE1 = new Tuple(SENTIMENT_SCHEMA,
             new TextField("Bugs are always annoying. :("));

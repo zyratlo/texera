@@ -14,7 +14,7 @@ import edu.uci.ics.texera.api.constants.SchemaConstants;
 import edu.uci.ics.texera.api.dataflow.IOperator;
 import edu.uci.ics.texera.api.dataflow.ISink;
 import edu.uci.ics.texera.api.exception.DataFlowException;
-import edu.uci.ics.texera.api.exception.TextDBException;
+import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.field.DoubleField;
 import edu.uci.ics.texera.api.field.IField;
 import edu.uci.ics.texera.api.field.IntegerField;
@@ -53,7 +53,7 @@ public class MysqlSink implements ISink {
      * output schema
      */
     @Override
-    public void open() throws TextDBException {
+    public void open() throws TexeraException {
         if (cursor == OPENED) {
             return;
         }
@@ -79,7 +79,7 @@ public class MysqlSink implements ISink {
     }
 
     @Override
-    public Tuple getNextTuple() throws TextDBException {
+    public Tuple getNextTuple() throws TexeraException {
         if (cursor == CLOSED) {
             return null;
         }
@@ -105,7 +105,7 @@ public class MysqlSink implements ISink {
      * Insert tuples into mysql database using prepared statement. No output
      */
     @Override
-    public void processTuples() throws TextDBException {
+    public void processTuples() throws TexeraException {
         String sqlStatemnt = "INSERT INTO " + predicate.getTable() + " VALUES(" + Stream.generate(() -> "?")
                 .limit(outputSchema.getAttributeNames().size()).collect(Collectors.joining(",")) + ");";
         try {
@@ -128,7 +128,7 @@ public class MysqlSink implements ISink {
     }
 
     @Override
-    public void close() throws TextDBException {
+    public void close() throws TexeraException {
         if (cursor == CLOSED) {
             return;
         }
@@ -183,7 +183,7 @@ public class MysqlSink implements ISink {
 
     /**
      * 
-     * Convert a textDB attribute into one line of sql statement. TextDB
+     * Convert a textDB attribute into one line of sql statement. Texera
      * attribute is from outputSchema. Used in the create table statement.
      * 
      * @param attribute

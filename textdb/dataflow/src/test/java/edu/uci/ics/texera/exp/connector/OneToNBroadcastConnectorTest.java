@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import edu.uci.ics.texera.api.exception.TextDBException;
+import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.field.IField;
 import edu.uci.ics.texera.api.field.TextField;
 import edu.uci.ics.texera.api.schema.Schema;
@@ -56,7 +56,7 @@ public class OneToNBroadcastConnectorTest {
      * This test connects Connector with Projection
      */
     @Test
-    public void testTwoOutputsWithProjection() throws TextDBException {
+    public void testTwoOutputsWithProjection() throws TexeraException {
         IOperator sourceOperator = new ScanBasedSourceOperator(
                 new ScanSourcePredicate(PEOPLE_TABLE));
         

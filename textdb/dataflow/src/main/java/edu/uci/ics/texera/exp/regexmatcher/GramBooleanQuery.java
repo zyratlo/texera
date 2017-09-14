@@ -95,7 +95,7 @@ public class GramBooleanQuery {
     /*
      * This function builds a list of N-Grams that a given literal contains.
      * <br> If the length of the literal is smaller than N, it returns an empty
-     * list. <br> For example, for literal "textdb", its tri-gram list should be
+     * list. <br> For example, for literal "texera", its tri-gram list should be
      * ["tex", "ext", "xtd", "tdb"]
      */
     private static List<String> literalToNGram(String literal) {

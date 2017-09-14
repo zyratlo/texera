@@ -90,7 +90,7 @@ public class DictionaryMatcherPerformanceTest {
      * 
      * Commit number is designed for performance dashboard. It will be appended
      * to the result file only when the performance test is run by
-     * /textdb-scripts/dashboard/build.py
+     * /texera-scripts/dashboard/build.py
      * 
      */
     public static void csvWriter(String resultFile, String recordNum, String queryFileName,

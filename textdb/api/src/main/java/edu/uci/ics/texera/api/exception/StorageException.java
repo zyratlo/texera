@@ -3,7 +3,7 @@ package edu.uci.ics.texera.api.exception;
 /*
  * Thrown to indicate that an exception occurs when writing/reading data.
  */
-public class StorageException extends TextDBException {
+public class StorageException extends TexeraException {
 
     private static final long serialVersionUID = -7393624288798221759L;
     

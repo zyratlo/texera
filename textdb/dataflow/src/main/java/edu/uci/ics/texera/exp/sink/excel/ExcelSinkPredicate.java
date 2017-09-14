@@ -3,7 +3,6 @@ package edu.uci.ics.texera.exp.sink.excel;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import edu.uci.ics.texera.api.dataflow.IOperator;
 import edu.uci.ics.texera.exp.common.PredicateBase;
 import edu.uci.ics.texera.exp.common.PropertyNameConstants;
 

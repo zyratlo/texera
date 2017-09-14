@@ -6,7 +6,7 @@ import java.util.List;
 
 import edu.uci.ics.texera.api.constants.TestConstants;
 import edu.uci.ics.texera.api.constants.TestConstantsChinese;
-import edu.uci.ics.texera.api.exception.TextDBException;
+import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.field.DateField;
 import edu.uci.ics.texera.api.field.DoubleField;
 import edu.uci.ics.texera.api.field.IField;
@@ -291,7 +291,7 @@ public class KeywordConjunctionTest {
     }
 
     @Test
-    public void testMatchingWithLimit() throws TextDBException, ParseException, java.text.ParseException {
+    public void testMatchingWithLimit() throws TexeraException, ParseException, java.text.ParseException {
         String query = "angry";
         ArrayList<String> attributeNames = new ArrayList<>();
         attributeNames.add(TestConstants.FIRST_NAME);
@@ -351,7 +351,7 @@ public class KeywordConjunctionTest {
     }
 
     @Test
-    public void testMatchingWithLimitOffset() throws TextDBException, ParseException, java.text.ParseException {
+    public void testMatchingWithLimitOffset() throws TexeraException, ParseException, java.text.ParseException {
         String query = "angry";
         ArrayList<String> attributeNames = new ArrayList<>();
         attributeNames.add(TestConstants.FIRST_NAME);

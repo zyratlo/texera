@@ -4,14 +4,14 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import edu.uci.ics.texera.api.exception.TextDBException;
+import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.tuple.Tuple;
 import edu.uci.ics.texera.exp.plangen.LogicalPlan;
 import edu.uci.ics.texera.exp.planstore.PlanStore;
 import edu.uci.ics.texera.exp.planstore.PlanStoreConstants;
 import edu.uci.ics.texera.storage.DataReader;
-import edu.uci.ics.texera.web.TextdbWebException;
-import edu.uci.ics.texera.web.response.TextdbWebResponse;
+import edu.uci.ics.texera.web.TexeraWebException;
+import edu.uci.ics.texera.web.response.TexeraWebResponse;
 import edu.uci.ics.texera.web.response.planstore.QueryPlanBean;
 import edu.uci.ics.texera.web.response.planstore.QueryPlanListBean;
 
@@ -39,7 +39,7 @@ public class PlanStoreResource {
             mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             planStore.createPlanStore();
         }
-        catch (TextDBException e) {
+        catch (TexeraException e) {
             e.printStackTrace();
         }
     }
@@ -63,13 +63,13 @@ public class PlanStoreResource {
                         mapper.readValue(logicalPlanJson, LogicalPlan.class)));
             }
         }
-        catch(TextDBException e) {
+        catch(TexeraException e) {
             e.printStackTrace();
-            throw new TextdbWebException(e.getMessage());
+            throw new TexeraWebException(e.getMessage());
         }
         catch(IOException e) {
             e.printStackTrace();
-            throw new TextdbWebException("fail to parse json:\n" + e.getMessage());
+            throw new TexeraWebException("fail to parse json:\n" + e.getMessage());
         }
         return new QueryPlanListBean(queryPlans);
     }
@@ -80,15 +80,15 @@ public class PlanStoreResource {
         try {
             Tuple tuple = planStore.getPlan(planName);
             if(tuple == null) {
-                throw new TextdbWebException("Plan with the given name does not exist");
+                throw new TexeraWebException("Plan with the given name does not exist");
             }
             QueryPlanBean queryPlanBean = new QueryPlanBean(tuple.getField(PlanStoreConstants.NAME).getValue().toString(),
                     tuple.getField(PlanStoreConstants.DESCRIPTION).getValue().toString(),
                     mapper.readValue(tuple.getField(PlanStoreConstants.LOGICAL_PLAN_JSON).getValue().toString(), LogicalPlan.class));
             return queryPlanBean;
         }
-        catch(TextDBException e) {
-            throw new TextdbWebException(e.getMessage());
+        catch(TexeraException e) {
+            throw new TexeraWebException(e.getMessage());
         }
         catch(IOException e) {
             e.printStackTrace();
@@ -97,47 +97,47 @@ public class PlanStoreResource {
     }
 
     @POST
-    public TextdbWebResponse addQueryPlan(String queryPlanBeanJson) {
+    public TexeraWebResponse addQueryPlan(String queryPlanBeanJson) {
         try {
             QueryPlanBean queryPlanBean = new ObjectMapper().readValue(queryPlanBeanJson, QueryPlanBean.class);
             // Adding the query plan to the PlanStore
             planStore.addPlan(queryPlanBean.getName(), queryPlanBean.getDescription(),
                     mapper.writeValueAsString(queryPlanBean.getQueryPlan()));
         }
-        catch(TextDBException e) {
-            throw new TextdbWebException(e.getMessage());
+        catch(TexeraException e) {
+            throw new TexeraWebException(e.getMessage());
         }
         catch(IOException e) {
             e.printStackTrace();
         }
-        return new TextdbWebResponse(0, "Success");
+        return new TexeraWebResponse(0, "Success");
     }
 
     @DELETE
     @Path("/{plan_name}")
-    public TextdbWebResponse deleteQueryPlan(@PathParam("plan_name") String planName) {
+    public TexeraWebResponse deleteQueryPlan(@PathParam("plan_name") String planName) {
         try {
             // Deleting the plan from the plan store
             planStore.deletePlan(planName);
         }
-        catch(TextDBException e) {
-            throw new TextdbWebException(e.getMessage());
+        catch(TexeraException e) {
+            throw new TexeraWebException(e.getMessage());
         }
-        return new TextdbWebResponse(0, "Success");
+        return new TexeraWebResponse(0, "Success");
     }
 
     @PUT
     @Path("/{plan_name}")
-    public TextdbWebResponse updateQueryPlan(@PathParam("plan_name") String planName, String queryPlanBeanJson) {
+    public TexeraWebResponse updateQueryPlan(@PathParam("plan_name") String planName, String queryPlanBeanJson) {
         try {
             QueryPlanBean queryPlanBean = new ObjectMapper().readValue(queryPlanBeanJson, QueryPlanBean.class);
             // Updating the plan in the plan store
             planStore.updatePlan(planName, queryPlanBean.getDescription(),
                     mapper.writeValueAsString(queryPlanBean.getQueryPlan()));
         }
-        catch(IOException | TextDBException e) {
-            throw new TextdbWebException(e.getMessage());
+        catch(IOException | TexeraException e) {
+            throw new TexeraWebException(e.getMessage());
         }
-        return new TextdbWebResponse(0, "Success");
+        return new TexeraWebResponse(0, "Success");
     }
 }

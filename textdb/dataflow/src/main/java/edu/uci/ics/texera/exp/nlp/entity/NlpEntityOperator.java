@@ -11,7 +11,7 @@ import edu.stanford.nlp.pipeline.StanfordCoreNLP;
 import edu.stanford.nlp.util.CoreMap;
 import edu.uci.ics.texera.api.constants.ErrorMessages;
 import edu.uci.ics.texera.api.exception.DataFlowException;
-import edu.uci.ics.texera.api.exception.TextDBException;
+import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.field.IField;
 import edu.uci.ics.texera.api.field.ListField;
 import edu.uci.ics.texera.api.schema.Attribute;
@@ -59,7 +59,7 @@ public class NlpEntityOperator extends AbstractSingleInputOperator {
     }
 
     @Override
-    protected void setUp() throws TextDBException {
+    protected void setUp() throws TexeraException {
         inputSchema = inputOperator.getOutputSchema();
         outputSchema = inputSchema;
         if (outputSchema.containsField(predicate.getSpanListName())) {
@@ -71,7 +71,7 @@ public class NlpEntityOperator extends AbstractSingleInputOperator {
     }
     
     @Override
-    protected Tuple computeNextMatchingTuple() throws TextDBException {
+    protected Tuple computeNextMatchingTuple() throws TexeraException {
         Tuple inputTuple = null;
         Tuple resultTuple = null;
         
@@ -87,7 +87,7 @@ public class NlpEntityOperator extends AbstractSingleInputOperator {
     }
 
     @Override
-    public Tuple processOneInputTuple(Tuple inputTuple) throws TextDBException {
+    public Tuple processOneInputTuple(Tuple inputTuple) throws TexeraException {
         List<Span> matchingResults = new ArrayList<>();
         for (String attributeName : predicate.getAttributeNames()) {
             IField field = inputTuple.getField(attributeName);
@@ -324,7 +324,7 @@ public class NlpEntityOperator extends AbstractSingleInputOperator {
     }
 
     @Override
-    protected void cleanUp() throws TextDBException {
+    protected void cleanUp() throws TexeraException {
     }
 
     public NlpEntityPredicate getPredicate() {

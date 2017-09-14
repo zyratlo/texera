@@ -1,7 +1,7 @@
 package edu.uci.ics.texera.exp.planstore;
 
 import edu.uci.ics.texera.api.exception.StorageException;
-import edu.uci.ics.texera.api.exception.TextDBException;
+import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.tuple.Tuple;
 import edu.uci.ics.texera.exp.planstore.PlanStore;
 import edu.uci.ics.texera.exp.planstore.PlanStoreConstants;
@@ -98,9 +98,9 @@ public class PlanStoreTest {
      * logical plan JSON string that is fed to this function
      * @param planName - Name of the plan name to check with
      * @param logicalPlanJson - Expected LogicalPlan JSON string
-     * @throws TextDBException
+     * @throws TexeraException
      */
-    public static void assertCorrectPlanExists(String planName, String logicalPlanJson) throws TextDBException {
+    public static void assertCorrectPlanExists(String planName, String logicalPlanJson) throws TexeraException {
         Tuple res = planStore.getPlan(planName);
 
         Assert.assertNotNull(res);
@@ -139,7 +139,7 @@ public class PlanStoreTest {
     }
 
     @Test
-    public void testAddPlan() throws TextDBException {
+    public void testAddPlan() throws TexeraException {
         String planName = "plan";
 
         planStore.addPlan(planName, "basic dictionary source plan", logicalPlanJson1);
@@ -148,7 +148,7 @@ public class PlanStoreTest {
     }
 
     @Test
-    public void testUpdatePlan() throws TextDBException {
+    public void testUpdatePlan() throws TexeraException {
         String planName1 = "plan1";
 
         planStore.addPlan(planName1, "basic dictionary source plan", logicalPlanJson1);
@@ -159,7 +159,7 @@ public class PlanStoreTest {
     }
 
     @Test
-    public void testDeletePlan() throws TextDBException {
+    public void testDeletePlan() throws TexeraException {
         String planName1 = "plan1";
         String planName2 = "plan2";
 
@@ -173,7 +173,7 @@ public class PlanStoreTest {
     }
 
     @Test
-    public void testPlanIterator() throws TextDBException {
+    public void testPlanIterator() throws TexeraException {
         List<String> validPlans = new ArrayList<>();
         validPlans.add(logicalPlanJson1);
         validPlans.add(logicalPlanJson2);
@@ -208,22 +208,22 @@ public class PlanStoreTest {
         }
     }
 
-    @Test(expected = TextDBException.class)
-    public void testAddPlanWithInvalidName() throws TextDBException {
+    @Test(expected = TexeraException.class)
+    public void testAddPlanWithInvalidName() throws TexeraException {
         String planName = "plan/regex";
 
         planStore.addPlan(planName, "basic dictionary source plan", logicalPlanJson1);
     }
 
-    @Test(expected = TextDBException.class)
-    public void testAddPlanWithEmptyName() throws TextDBException {
+    @Test(expected = TexeraException.class)
+    public void testAddPlanWithEmptyName() throws TexeraException {
         String planName = "";
 
         planStore.addPlan(planName, "basic dictionary source plan", logicalPlanJson1);
     }
 
-    @Test(expected = TextDBException.class)
-    public void testAddMultiplePlansWithSameName() throws TextDBException {
+    @Test(expected = TexeraException.class)
+    public void testAddMultiplePlansWithSameName() throws TexeraException {
         String planName = "plan";
 
         planStore.addPlan(planName, "basic dictionary source plan", logicalPlanJson1);
@@ -231,7 +231,7 @@ public class PlanStoreTest {
     }
 
     @Test
-    public void testDeleteNotExistingPlan() throws TextDBException {
+    public void testDeleteNotExistingPlan() throws TexeraException {
         String planName = "plan";
 
         planStore.addPlan(planName, "basic dictionary source plan", logicalPlanJson1);
@@ -242,7 +242,7 @@ public class PlanStoreTest {
     }
 
     @Test
-    public void testUpdateNotExistingPlan() throws TextDBException {
+    public void testUpdateNotExistingPlan() throws TexeraException {
         String planName = "plan";
 
         planStore.addPlan(planName, "basic dictionary source plan", logicalPlanJson1);
@@ -253,7 +253,7 @@ public class PlanStoreTest {
     }
 
     @Test
-    public void testNotDeletePlanBySubstring() throws TextDBException {
+    public void testNotDeletePlanBySubstring() throws TexeraException {
         String planName = "plan_sub";
 
         planStore.addPlan(planName, "basic dictionary source plan", logicalPlanJson1);
