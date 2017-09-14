@@ -4,19 +4,19 @@
     xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>edu.uci.ics.textdb</groupId>
+        <groupId>edu.uci.ics.texera</groupId>
         <artifactId>textdb</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
-    <artifactId>textdb-textql</artifactId>
-    <name>textdb-textql</name>
+    <artifactId>textql</artifactId>
+    <name>textql</name>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
     <dependencies>
         <dependency>
-            <groupId>edu.uci.ics.textdb</groupId>
-            <artifactId>textdb-exp</artifactId>
+            <groupId>edu.uci.ics.texera</groupId>
+            <artifactId>exp</artifactId>
             <version>${textdb.version}</version>
         </dependency>
         <dependency>

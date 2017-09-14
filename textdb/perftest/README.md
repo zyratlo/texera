@@ -11,7 +11,7 @@ More data sets can be found at:
 https://github.com/TextDB/textdb/wiki/Data-Sets
  
 Step 2-Prepare Index:
-In order to write index, run WriteIndex.java file in edu.uci.ics.textdb.perftest.run package.
+In order to write index, run WriteIndex.java file in edu.uci.ics.texera.perftest.run package.
 
 By default, indices are stored in ./index/standard/ and ./index/trigram/.
 If you want to store the indices to somewhere else, you can specify the 
@@ -37,7 +37,7 @@ In RunPerftests.java, you can see some operator performance tests take in a quer
 Please change the query file name to the one you want.
  
 Step 4-Run Performance Tests:
-In order to run the performance tests, please run RunPerftests.java file in edu.uci.ics.textdb.perftest.run package.
+In order to run the performance tests, please run RunPerftests.java file in edu.uci.ics.texera.perftest.run package.
 
 If indices are stored at somewhere other than ./index/standard/ and ./index/trigram/, please
 specify the standard index path and trigram index path before running the class.

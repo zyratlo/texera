@@ -18,7 +18,7 @@ java8_bin = "/usr/bin/java"
 textdb_home = "textdb/textdb/"
 result_path = "textdb-perftest/perftest-files/results/"
 branch = "master"
-main_class = "edu.uci.ics.textdb.perftest.runme.RunTests"
+main_class = "edu.uci.ics.texera.perftest.runme.RunTests"
 # Refer to the codebase to understand what arguments the main class takes in.
 perftest_arguments = ["/home/bot/textdbworkspace/data-files/", "\"\"","\"\"","\"\"","\"\""]
 
