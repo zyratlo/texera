@@ -879,8 +879,18 @@ $(function () {
                 this.objs.layers.temporaryLink.show();
 
                 $(".flowchart-operator-connector-label").css('height',25);
-                $(".flowchart-operator-inputs .flowchart-operator-connector").css('background-color','#66cc66');
+                $(".flowchart-operator-inputs .flowchart-operator-connector").css({
+                  'background-color':'rgb(204, 204, 204)',
+                });
 
+                $(".flowchart-operator-inputs .flowchart-operator-connector").hover(
+                  function(){
+                    $(this).css('background-color','rgb(153, 153, 153)');
+                  },
+                  function(){
+                    $(this).css('background-color','rgb(204, 204, 204)');
+                  }
+                );
                 var position = this.getConnectorPosition(operator, connector, subConnector);
                 var x = position.x + position.width;
                 var y = position.y;
@@ -908,6 +918,9 @@ $(function () {
             this.objs.layers.temporaryLink.hide();
             $(".flowchart-operator-connector-label").css('height',20);
             $(".flowchart-operator-inputs .flowchart-operator-connector").css('background-color','transparent');
+            $(".flowchart-operator-inputs .flowchart-operator-connector").unbind('mouseenter mouseleave')
+
+
         },
 
         _mousemove: function (x, y, e) {

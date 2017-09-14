@@ -42,8 +42,9 @@
 }
 
 .flowchart-operator-inputs .flowchart-operator-connector{
-  opacity: 0.5;
+  opacity: 0.75;
 }
+
 
 .flowchart-operator-inputs .flowchart-operator-connector-label {
     margin-left: 14px;
