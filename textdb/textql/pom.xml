@@ -5,8 +5,8 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>edu.uci.ics.texera</groupId>
-        <artifactId>textdb</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <artifactId>texera</artifactId>
+        <version>0.1.0</version>
     </parent>
     <artifactId>textql</artifactId>
     <name>textql</name>
@@ -16,7 +16,7 @@
     <dependencies>
         <dependency>
             <groupId>edu.uci.ics.texera</groupId>
-            <artifactId>exp</artifactId>
+            <artifactId>dataflow</artifactId>
             <version>${textdb.version}</version>
         </dependency>
         <dependency>
