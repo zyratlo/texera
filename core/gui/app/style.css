@@ -117,39 +117,35 @@ body {
 }
 
 .zoomInButton{
-	width: 80px;
-	height: 80px;
-	right: 160px;
+	right: 150px;
 	bottom: 60px;
 	position: absolute;
 	z-index: 1;
 	border-radius: 50%;
-	font-size: 50px;
+	font-size: 80px;
 	border-color: #000;
-	background: #F5F5F5;
+	cursor: pointer;
 }
 
 .zoomInButton:hover{
-	background: #d9d9d9;
+	color: #0d0d0d;
 }
 
 
 
 .zoomOutButton{
-	width: 80px;
-	height: 80px;
-	right: 60px;
+	right: 70px;
 	bottom: 60px;
 	position: absolute;
 	z-index: 1;
 	border-radius: 50%;
-	font-size: 50px;
+	font-size: 80px;
 	border-color: #000;
-	background: #F5F5F5;
+	cursor: pointer;
 }
 
 .zoomOutButton:hover{
-	background: #d9d9d9;
+	color: #0d0d0d;
 }
 
 .excelDownloadButton {
@@ -344,7 +340,7 @@ body {
 }
 
 #operator-detail-name {
-	font-size: 20px;
+	font-size: 16px;
 	padding-left: 6px;
 	padding-right: 6px;
 }
@@ -354,5 +350,5 @@ body {
 	border-top: 1px solid black;
 	padding-left: 6px;
 	padding-right: 6px;
-	font-size: 18px;
+	font-size: 14px;
 }
