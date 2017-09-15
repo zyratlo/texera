@@ -7,7 +7,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 /**
- * A custom exception class for the texera-web module, that gracefully handles any exceptions and
+ * A custom exception class for the web module, that gracefully handles any exceptions and
  * propagates a meaningful message as an API response.
  * Created by kishorenarendran on 2/24/17.
  */

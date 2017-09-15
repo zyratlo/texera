@@ -15,6 +15,7 @@ import org.apache.lucene.analysis.standard.StandardAnalyzer;
 
 import edu.uci.ics.texera.api.constants.SchemaConstants;
 import edu.uci.ics.texera.api.exception.DataFlowException;
+import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.field.DateField;
 import edu.uci.ics.texera.api.field.DoubleField;
 import edu.uci.ics.texera.api.field.IDField;
@@ -54,7 +55,7 @@ public class DataflowUtils {
         } else if (field instanceof TextField) {
             return AttributeType.TEXT;
         } else {
-            throw new RuntimeException("no existing type mapping of this field object");
+            throw new TexeraException("no existing type mapping of this field object");
         }
     }
 
@@ -74,8 +75,8 @@ public class DataflowUtils {
         try {
             return tokenizeQuery(LuceneAnalyzerConstants.getLuceneAnalyzer(luceneAnalyzerStr), query);
         } catch (DataFlowException e) {
-            // TODO: discuss RuntimeException vs. Checked Exception
-            throw new RuntimeException(e);
+            // TODO: discuss TexeraException vs. Checked Exception
+            throw new TexeraException(e);
         }
     }
 

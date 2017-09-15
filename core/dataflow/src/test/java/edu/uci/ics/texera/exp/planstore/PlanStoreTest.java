@@ -134,7 +134,7 @@ public class PlanStoreTest {
 
             Assert.assertEquals(jsonNode1, jsonNode2);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new TexeraException(e);
         }
     }
 

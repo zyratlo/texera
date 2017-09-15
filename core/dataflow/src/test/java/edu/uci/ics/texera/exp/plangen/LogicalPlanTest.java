@@ -11,9 +11,11 @@ import edu.uci.ics.texera.api.dataflow.IOperator;
 import edu.uci.ics.texera.api.dataflow.ISink;
 import edu.uci.ics.texera.api.engine.Plan;
 import edu.uci.ics.texera.api.exception.StorageException;
+import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.schema.Attribute;
 import edu.uci.ics.texera.api.schema.AttributeType;
 import edu.uci.ics.texera.api.schema.Schema;
+import edu.uci.ics.texera.api.utils.Utils;
 import edu.uci.ics.texera.exp.connector.OneToNBroadcastConnector;
 import edu.uci.ics.texera.exp.connector.OneToNBroadcastConnector.ConnectorOutputOperator;
 import edu.uci.ics.texera.exp.fuzzytokenmatcher.FuzzyTokenMatcher;
@@ -46,7 +48,7 @@ public class LogicalPlanTest {
     public static void setUp() throws StorageException {
         cleanUp();
         RelationManager.getRelationManager().createTable(
-                TEST_TABLE, "../index/test_tables/"+TEST_TABLE,
+                TEST_TABLE, Utils.getDefaultIndexDirectory().resolve("test_tables").resolve(TEST_TABLE),
                 TEST_SCHEMA, LuceneAnalyzerConstants.standardAnalyzerString());
     }
     
@@ -112,7 +114,7 @@ public class LogicalPlanTest {
      * KeywordSource --> RegexMatcher --> TupleSink
      *
      */
-    public static LogicalPlan getLogicalPlan1() throws RuntimeException {
+    public static LogicalPlan getLogicalPlan1() throws TexeraException {
         setDefaultID();
         LogicalPlan logicalPlan = new LogicalPlan();
 
@@ -132,7 +134,7 @@ public class LogicalPlanTest {
      *                  -> NlpEntityOperator -->
      *
      */
-    public static LogicalPlan getLogicalPlan2() throws RuntimeException {
+    public static LogicalPlan getLogicalPlan2() throws TexeraException {
         setDefaultID();
         LogicalPlan logicalPlan = new LogicalPlan();
 
@@ -160,7 +162,7 @@ public class LogicalPlanTest {
      *                  --> FuzzyTokenMatcher ----->
      *
      */
-    public static LogicalPlan getLogicalPlan3() throws RuntimeException {
+    public static LogicalPlan getLogicalPlan3() throws TexeraException {
         setDefaultID();
         LogicalPlan logicalPlan = new LogicalPlan();
         
@@ -321,7 +323,7 @@ public class LogicalPlanTest {
      * RegexMatcher --> TupleSink
      * 
      */
-    @Test(expected = RuntimeException.class)
+    @Test(expected = TexeraException.class)
     public void testInvalidLogicalPlan1() throws Exception {
         LogicalPlan logicalPlan = new LogicalPlan();
 
@@ -338,7 +340,7 @@ public class LogicalPlanTest {
      * KeywordSource --> RegexMatcher
      * 
      */
-    @Test(expected = RuntimeException.class)
+    @Test(expected = TexeraException.class)
     public void testInvalidLogicalPlan2() throws Exception {
         LogicalPlan logicalPlan = new LogicalPlan();
 
@@ -355,7 +357,7 @@ public class LogicalPlanTest {
      * KeywordSource --> RegexMatcher --<
      *                                   -> TupleSink2
      */
-    @Test(expected = RuntimeException.class)
+    @Test(expected = TexeraException.class)
     public void testInvalidLogicalPlan3() throws Exception {
         LogicalPlan logicalPlan = new LogicalPlan();
         
@@ -382,7 +384,7 @@ public class LogicalPlanTest {
      * (a disconnected graph)
      * 
      */
-    @Test(expected = RuntimeException.class)
+    @Test(expected = TexeraException.class)
     public void testInvalidLogicalPlan4() throws Exception {
         LogicalPlan logicalPlan = new LogicalPlan();
         
@@ -411,7 +413,7 @@ public class LogicalPlanTest {
      * RegexMathcer2 -> NlpEntityOperator -< 
      *                                 --> (back to the same) RegexMatcher2
      */
-    @Test(expected = RuntimeException.class)
+    @Test(expected = TexeraException.class)
     public void testInvalidLogicalPlan5() throws Exception {
         LogicalPlan logicalPlan = new LogicalPlan();
         
@@ -445,7 +447,7 @@ public class LogicalPlanTest {
      * 
      * 
      */
-    @Test(expected = RuntimeException.class)
+    @Test(expected = TexeraException.class)
     public void testInvalidLogicalPlan6() throws Exception {
         LogicalPlan logicalPlan = new LogicalPlan();
         
@@ -480,7 +482,7 @@ public class LogicalPlanTest {
      * the problem is RegexMatcher2 doesn't have any outputs.
      * 
      */
-    @Test(expected = RuntimeException.class)
+    @Test(expected = TexeraException.class)
     public void testInvalidLogicalPlan7() throws Exception {
         LogicalPlan logicalPlan = new LogicalPlan();
         
@@ -507,7 +509,7 @@ public class LogicalPlanTest {
      * KeywordSource --> FileSik --> (back to the same) KeywordSource
      * 
      */
-    @Test(expected = RuntimeException.class)
+    @Test(expected = TexeraException.class)
     public void testInvalidLogicalPlan8() throws Exception {
         LogicalPlan logicalPlan = new LogicalPlan();
 

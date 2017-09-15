@@ -213,7 +213,7 @@ public class RegexSplitOperator extends AbstractSingleInputOperator implements I
     
     @Override
     public Tuple processOneInputTuple(Tuple inputTuple) throws TexeraException {
-        throw new RuntimeException("RegexSplit does not support process one tuple");
+        throw new TexeraException("RegexSplit does not support process one tuple");
     }
     
 }

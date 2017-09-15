@@ -106,6 +106,6 @@ public class Sampler extends AbstractSingleInputOperator implements ISourceOpera
     
     @Override
     public Tuple processOneInputTuple(Tuple inputTuple) throws TexeraException {
-        throw new RuntimeException("Sampler does not support process one tuple");
+        throw new TexeraException("Sampler does not support process one tuple");
     }
 }

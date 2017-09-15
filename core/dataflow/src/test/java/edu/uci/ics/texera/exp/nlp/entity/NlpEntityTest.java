@@ -33,9 +33,9 @@ public class NlpEntityTest {
     public static void setUp() throws TexeraException {
         RelationManager relationManager = RelationManager.getRelationManager();
         
-        relationManager.createTable(ONE_SENTENCE_TABLE, "../index/test_tables/" + ONE_SENTENCE_TABLE, 
+        relationManager.createTable(ONE_SENTENCE_TABLE, TestUtils.getDefaultTestIndex().resolve(ONE_SENTENCE_TABLE), 
                 NlpEntityTestConstants.SCHEMA_ONE_SENTENCE, LuceneAnalyzerConstants.standardAnalyzerString());
-        relationManager.createTable(TWO_SENTENCE_TABLE, "../index/test_tables/" + TWO_SENTENCE_TABLE, 
+        relationManager.createTable(TWO_SENTENCE_TABLE, TestUtils.getDefaultTestIndex().resolve(TWO_SENTENCE_TABLE), 
                 NlpEntityTestConstants.SCHEMA_TWO_SENTENCE, LuceneAnalyzerConstants.standardAnalyzerString());
     }
 

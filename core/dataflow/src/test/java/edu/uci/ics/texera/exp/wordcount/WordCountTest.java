@@ -16,6 +16,7 @@ import edu.uci.ics.texera.api.constants.TestConstants;
 import edu.uci.ics.texera.api.constants.TestConstantsChineseWordCount;
 import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.tuple.Tuple;
+import edu.uci.ics.texera.api.utils.TestUtils;
 import edu.uci.ics.texera.exp.source.scan.ScanBasedSourceOperator;
 import edu.uci.ics.texera.exp.source.scan.ScanSourcePredicate;
 import edu.uci.ics.texera.exp.utils.DataflowUtils;
@@ -40,7 +41,7 @@ public class WordCountTest {
         
         RelationManager relationManager = RelationManager.getRelationManager();
         // Create the people table and write tuples
-        relationManager.createTable(COUNT_TABLE, "../index/test_tables/" + COUNT_TABLE, 
+        relationManager.createTable(COUNT_TABLE, TestUtils.getDefaultTestIndex().resolve(COUNT_TABLE), 
                 TestConstants.SCHEMA_PEOPLE, LuceneAnalyzerConstants.standardAnalyzerString());
         DataWriter dataWriter = relationManager.getTableDataWriter(COUNT_TABLE);
         dataWriter.open();
@@ -53,7 +54,7 @@ public class WordCountTest {
                 LuceneAnalyzerConstants.getStandardAnalyzer());
         
         
-        relationManager.createTable(COUNT_CHINESE_TABLE, "../index/test_tables/" + COUNT_CHINESE_TABLE, 
+        relationManager.createTable(COUNT_CHINESE_TABLE, TestUtils.getDefaultTestIndex().resolve(COUNT_CHINESE_TABLE), 
                 TestConstantsChineseWordCount.SCHEMA_PEOPLE, LuceneAnalyzerConstants.chineseAnalyzerString());
         DataWriter dataWriterChinese = relationManager.getTableDataWriter(COUNT_CHINESE_TABLE);
         dataWriterChinese.open();

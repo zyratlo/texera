@@ -1,10 +1,8 @@
 package edu.uci.ics.texera.storage;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,6 +17,7 @@ import org.apache.lucene.search.TermQuery;
 import edu.uci.ics.texera.api.constants.SchemaConstants;
 import edu.uci.ics.texera.api.exception.DataFlowException;
 import edu.uci.ics.texera.api.exception.StorageException;
+import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.field.IDField;
 import edu.uci.ics.texera.api.field.IField;
 import edu.uci.ics.texera.api.schema.Attribute;
@@ -62,7 +61,7 @@ public class RelationManager {
             return getTableCatalogTuple(tableName) != null;
         } catch (StorageException e) {
             // TODO: change it to texera runtime exception
-            throw new RuntimeException(e);
+            throw new TexeraException(e);
         }
     }
 
@@ -81,7 +80,7 @@ public class RelationManager {
      * @param luceneAnalyzerString, the string representing the lucene analyzer used
      * @throws StorageException
      */
-    public void createTable(String tableName, String indexDirectory, Schema schema, String luceneAnalyzerString)
+    public void createTable(String tableName, Path indexDirectory, Schema schema, String luceneAnalyzerString)
             throws StorageException {
         // convert the table name to lower case
         tableName = tableName.toLowerCase();
@@ -92,18 +91,18 @@ public class RelationManager {
         
         // create folder if it's not there
         // and convert the index directory to its absolute path
+        String indexDirectoryStr;
         try {
-            Path indexPath = Paths.get(indexDirectory);
-            if (Files.notExists(indexPath)) {
-                Files.createDirectories(indexPath);
+            if (Files.notExists(indexDirectory)) {
+                Files.createDirectories(indexDirectory);
             }
-            indexDirectory = indexPath.toRealPath().toString();
+            indexDirectoryStr = indexDirectory.toRealPath().toString();
         } catch (IOException e) {
             throw new StorageException(e);
         }
         
         // check if the indexDirectory overlaps with another table's index directory
-        Query indexDirectoryQuery = new TermQuery(new Term(CatalogConstants.TABLE_DIRECTORY, indexDirectory));
+        Query indexDirectoryQuery = new TermQuery(new Term(CatalogConstants.TABLE_DIRECTORY, indexDirectoryStr));
         DataReader tableCatalogDataReader = new DataReader(CatalogConstants.TABLE_CATALOG_DATASTORE, indexDirectoryQuery);
         tableCatalogDataReader.setPayloadAdded(false);
         
@@ -349,7 +348,7 @@ public class RelationManager {
      * This is a helper function that writes the table information to 
      *   the table catalog and the schema catalog.
      */
-    private void writeTableInfoToCatalog(String tableName, String indexDirectory, Schema schema, String luceneAnalyzerString) 
+    private void writeTableInfoToCatalog(String tableName, Path indexDirectory, Schema schema, String luceneAnalyzerString) 
             throws StorageException {   
         // write table catalog
         DataStore tableCatalogStore = new DataStore(CatalogConstants.TABLE_CATALOG_DIRECTORY,
@@ -443,14 +442,14 @@ public class RelationManager {
         try {
             // create table catalog
             writeTableInfoToCatalog(CatalogConstants.TABLE_CATALOG.toLowerCase(), 
-                    new File(CatalogConstants.TABLE_CATALOG_DIRECTORY).getCanonicalPath(), 
-                    CatalogConstants.TABLE_CATALOG_SCHEMA,
-                    LuceneAnalyzerConstants.standardAnalyzerString());
+            			CatalogConstants.TABLE_CATALOG_DIRECTORY.toRealPath(),
+            			CatalogConstants.TABLE_CATALOG_SCHEMA,
+            			LuceneAnalyzerConstants.standardAnalyzerString());
             // create schema catalog
             writeTableInfoToCatalog(CatalogConstants.SCHEMA_CATALOG.toLowerCase(),
-                    new File(CatalogConstants.SCHEMA_CATALOG_DIRECTORY).getCanonicalPath(),
-                    CatalogConstants.SCHEMA_CATALOG_SCHEMA,
-                    LuceneAnalyzerConstants.standardAnalyzerString()); 
+        				CatalogConstants.SCHEMA_CATALOG_DIRECTORY.toRealPath(),
+                    	CatalogConstants.SCHEMA_CATALOG_SCHEMA,
+                    	LuceneAnalyzerConstants.standardAnalyzerString()); 
         } catch (IOException e) {
             throw new StorageException(e);
         }

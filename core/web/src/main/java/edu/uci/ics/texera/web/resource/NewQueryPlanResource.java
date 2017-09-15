@@ -2,7 +2,6 @@ package edu.uci.ics.texera.web.resource;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
 import java.util.List;
@@ -42,7 +41,7 @@ import edu.uci.ics.texera.web.TexeraWebException;
 @Consumes(MediaType.APPLICATION_JSON)
 public class NewQueryPlanResource {
     
-    public static java.nio.file.Path resultDirectory = Paths.get(Utils.getTexeraHomePath(), "query-results");
+    public static java.nio.file.Path resultDirectory = Utils.getTexeraHomePath().resolve("query-results");
     
     /**
      * This is the edu.uci.ics.texera.web.request handler for the execution of a Query Plan.
@@ -102,8 +101,8 @@ public class NewQueryPlanResource {
                 return response;
             }
             
-        } catch ( IOException | RuntimeException e) {
-            // TODO remove RuntimeException after the exception refactor
+        } catch (IOException e) {
+            // TODO remove TexeraException after the exception refactor
             e.printStackTrace();
             throw new TexeraWebException(e.getMessage());
         }   

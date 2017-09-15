@@ -48,7 +48,7 @@ public class TupleSink implements ISink {
     
     public void setInputOperator(IOperator inputOperator) {
         if (cursor != CLOSED) {
-            throw new RuntimeException(ErrorMessages.INPUT_OPERATOR_CHANGED_AFTER_OPEN);
+            throw new TexeraException(ErrorMessages.INPUT_OPERATOR_CHANGED_AFTER_OPEN);
         }
         this.inputOperator = inputOperator;
     }
@@ -68,7 +68,7 @@ public class TupleSink implements ISink {
             return;
         }
         if (inputOperator == null) {
-            throw new RuntimeException(ErrorMessages.INPUT_OPERATOR_NOT_SPECIFIED);
+            throw new TexeraException(ErrorMessages.INPUT_OPERATOR_NOT_SPECIFIED);
         }
         inputOperator.open();
         inputSchema = inputOperator.getOutputSchema();

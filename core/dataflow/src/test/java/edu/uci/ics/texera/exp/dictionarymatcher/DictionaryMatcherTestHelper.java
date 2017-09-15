@@ -29,7 +29,7 @@ public class DictionaryMatcherTestHelper {
         RelationManager relationManager = RelationManager.getRelationManager();
         
         // create the people table and write tuples
-        relationManager.createTable(PEOPLE_TABLE, "../index/test_tables/" + PEOPLE_TABLE, 
+        relationManager.createTable(PEOPLE_TABLE, TestUtils.getDefaultTestIndex().resolve(PEOPLE_TABLE), 
                 TestConstants.SCHEMA_PEOPLE, LuceneAnalyzerConstants.standardAnalyzerString());
         
         DataWriter peopleDataWriter = relationManager.getTableDataWriter(PEOPLE_TABLE);
@@ -40,7 +40,7 @@ public class DictionaryMatcherTestHelper {
         peopleDataWriter.close();
           
         // create the people table and write tuples in Chinese
-        relationManager.createTable(CHINESE_TABLE, "../index/test_tables/" + CHINESE_TABLE, 
+        relationManager.createTable(CHINESE_TABLE, TestUtils.getDefaultTestIndex().resolve(CHINESE_TABLE), 
                 TestConstantsChinese.SCHEMA_PEOPLE, LuceneAnalyzerConstants.chineseAnalyzerString());
         DataWriter chineseDataWriter = relationManager.getTableDataWriter(CHINESE_TABLE);
         chineseDataWriter.open();

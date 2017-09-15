@@ -36,7 +36,7 @@ public class ScanBasedSourceOperatorTest {
         RelationManager relationManager = RelationManager.getRelationManager();
         
         // create the people table and write tuples
-        relationManager.createTable(PEOPLE_TABLE, "../index/test_tables/" + PEOPLE_TABLE, 
+        relationManager.createTable(PEOPLE_TABLE, TestUtils.getDefaultTestIndex().resolve(PEOPLE_TABLE), 
                 TestConstants.SCHEMA_PEOPLE, LuceneAnalyzerConstants.standardAnalyzerString());
         
         DataWriter peopleDataWriter = relationManager.getTableDataWriter(PEOPLE_TABLE);

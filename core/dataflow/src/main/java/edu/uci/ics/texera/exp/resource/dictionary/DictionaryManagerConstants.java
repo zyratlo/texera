@@ -1,7 +1,6 @@
 package edu.uci.ics.texera.exp.resource.dictionary;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import edu.uci.ics.texera.api.schema.Attribute;
 import edu.uci.ics.texera.api.schema.AttributeType;
@@ -12,9 +11,9 @@ public class DictionaryManagerConstants {
 
     public static final String TABLE_NAME = "dictionary";
 
-    public static final String INDEX_DIR = Paths.get(Utils.getTexeraHomePath(), "index/dictionary").toString();
+    public static final Path INDEX_DIR = Utils.getDefaultIndexDirectory().resolve("dictionaries");
     
-    public static final Path DICTIONARY_DIR_PATH = Paths.get(Utils.getTexeraHomePath(), "user-resources", "dictionary");
+    public static final Path DICTIONARY_DIR_PATH = Utils.getTexeraHomePath().resolve("user-resources").resolve("dictionaries");
     public static final String DICTIONARY_DIR = DICTIONARY_DIR_PATH.toString();
 
     public static final String NAME = "name";

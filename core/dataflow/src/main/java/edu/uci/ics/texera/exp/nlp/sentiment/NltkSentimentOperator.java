@@ -3,6 +3,8 @@ package edu.uci.ics.texera.exp.nlp.sentiment;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -34,9 +36,9 @@ public class NltkSentimentOperator implements IOperator {
     private int cursor = CLOSED;
     
     private final static String PYTHON = "python3";
-    private final static String PYTHONSCRIPT = Utils.getResourcePath("nltk_sentiment_classify.py", TexeraProject.TEXERA_EXP);
-    private final static String BatchedFiles = Utils.getResourcePath("id-text.csv", TexeraProject.TEXERA_EXP);
-    private final static String resultPath = Utils.getResourcePath("result-id-class.csv", TexeraProject.TEXERA_EXP);
+    private final static String PYTHONSCRIPT = Utils.getResourcePath("nltk_sentiment_classify.py", TexeraProject.TEXERA_DATAFLOW).toString();
+    private final static String BatchedFiles = Utils.getResourcePath("id-text.csv", TexeraProject.TEXERA_DATAFLOW).toString();
+    private final static String resultPath = Utils.getResourcePath("result-id-class.csv", TexeraProject.TEXERA_DATAFLOW).toString();
     
     private final static char SEPARATOR = ',';
     private final static char QUOTECHAR = '"';
@@ -51,13 +53,13 @@ public class NltkSentimentOperator implements IOperator {
         if (modelFileName == null) {
             modelFileName = "NltkSentiment.pickle";
         }
-        this.PicklePath = Utils.getResourcePath(modelFileName, TexeraProject.TEXERA_EXP);
+        this.PicklePath = Utils.getResourcePath(modelFileName, TexeraProject.TEXERA_DATAFLOW).toString();
         
     }
     
     public void setInputOperator(IOperator operator) {
         if (cursor != CLOSED) {
-            throw new RuntimeException("Cannot link this operator to another operator after the operator is opened");
+            throw new TexeraException("Cannot link this operator to another operator after the operator is opened");
         }
         this.inputOperator = operator;
     }
@@ -67,7 +69,7 @@ public class NltkSentimentOperator implements IOperator {
      */
     private Schema transformSchema(Schema inputSchema){
         if (inputSchema.containsField(predicate.getResultAttributeName())) {
-            throw new RuntimeException(String.format(
+            throw new TexeraException(String.format(
                     "result attribute name %s is already in the original schema %s", 
                     predicate.getResultAttributeName(),
                     inputSchema.getAttributeNames()));
@@ -89,7 +91,7 @@ public class NltkSentimentOperator implements IOperator {
         
         // check if the input schema is presented
         if (! inputSchema.containsField(predicate.getInputAttributeName())) {
-            throw new RuntimeException(String.format(
+            throw new TexeraException(String.format(
                     "input attribute %s is not in the input schema %s",
                     predicate.getInputAttributeName(),
                     inputSchema.getAttributeNames()));
@@ -101,7 +103,7 @@ public class NltkSentimentOperator implements IOperator {
         boolean isValidType = inputAttributeType.equals(AttributeType.STRING) || 
                 inputAttributeType.equals(AttributeType.TEXT);
         if (! isValidType) {
-            throw new RuntimeException(String.format(
+            throw new TexeraException(String.format(
                     "input attribute %s must have type String or Text, its actual type is %s",
                     predicate.getInputAttributeName(),
                     inputAttributeType));
@@ -135,6 +137,9 @@ public class NltkSentimentOperator implements IOperator {
             return false;
         }
         try {
+        		if (Files.notExists(Paths.get(BatchedFiles))) {
+        			Files.createFile(Paths.get(BatchedFiles));
+        		}
             CSVWriter writer = new CSVWriter(new FileWriter(BatchedFiles));
             writer.writeAll(csvData);
             writer.close();

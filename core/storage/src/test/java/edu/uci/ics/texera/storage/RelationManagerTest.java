@@ -1,6 +1,7 @@
 package edu.uci.ics.texera.storage;
 
 import java.io.File;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -47,7 +48,7 @@ public class RelationManagerTest {
                 relationManager.getTableSchema(CatalogConstants.TABLE_CATALOG);
                 
         Assert.assertEquals(tableCatalogDirectory, 
-                new File(CatalogConstants.TABLE_CATALOG_DIRECTORY).getCanonicalPath());
+        			CatalogConstants.TABLE_CATALOG_DIRECTORY.toRealPath().toString());
         Assert.assertTrue(tableCatalogLuceneAnalyzer instanceof StandardAnalyzer);
         Assert.assertEquals(tableCatalogSchema, Utils.getSchemaWithID(CatalogConstants.TABLE_CATALOG_SCHEMA));
     }
@@ -65,7 +66,7 @@ public class RelationManagerTest {
                 relationManager.getTableSchema(CatalogConstants.SCHEMA_CATALOG);
         
         Assert.assertEquals(schemaCatalogDirectory, 
-                new File(CatalogConstants.SCHEMA_CATALOG_DIRECTORY).getCanonicalPath());
+                CatalogConstants.SCHEMA_CATALOG_DIRECTORY.toRealPath().toString());
         Assert.assertTrue(schemaCatalogLuceneAnalyzer instanceof StandardAnalyzer);
         Assert.assertEquals(schemaCatalogSchema, Utils.getSchemaWithID(CatalogConstants.SCHEMA_CATALOG_SCHEMA));  
     }
@@ -89,7 +90,7 @@ public class RelationManagerTest {
         relationManager.deleteTable(tableName);
         
         relationManager.createTable(
-                tableName, tableDirectory, tableSchema, tableLuceneAnalyzerString);
+                tableName, Paths.get(tableDirectory), tableSchema, tableLuceneAnalyzerString);
         
         Assert.assertEquals(new File(tableDirectory).getCanonicalPath(), 
                 relationManager.getTableDirectory(tableName));
@@ -149,7 +150,7 @@ public class RelationManagerTest {
                     tableName + '_' + i);
             relationManager.createTable(
                     tableName + '_' + i,
-                    tableDirectory + '_' + i, 
+                    Paths.get(tableDirectory + '_' + i), 
                     tableSchema, 
                     LuceneAnalyzerConstants.standardAnalyzerString());
         }
@@ -189,7 +190,7 @@ public class RelationManagerTest {
         
         relationManager.deleteTable(tableName);
         relationManager.createTable(
-                tableName, tableDirectory, tableSchema, LuceneAnalyzerConstants.standardAnalyzerString());
+                tableName, Paths.get(tableDirectory), tableSchema, LuceneAnalyzerConstants.standardAnalyzerString());
         
         DataWriter dataWriter = relationManager.getTableDataWriter(tableName);
         
@@ -227,7 +228,7 @@ public class RelationManagerTest {
         
         relationManager.deleteTable(tableName);
         relationManager.createTable(
-                tableName, tableDirectory, tableSchema, LuceneAnalyzerConstants.standardAnalyzerString());
+                tableName, Paths.get(tableDirectory), tableSchema, LuceneAnalyzerConstants.standardAnalyzerString());
         
         DataWriter dataWriter = relationManager.getTableDataWriter(tableName);
         
@@ -275,7 +276,7 @@ public class RelationManagerTest {
         
         relationManager.deleteTable(tableName);
         relationManager.createTable(
-                tableName, tableDirectory, tableSchema, LuceneAnalyzerConstants.standardAnalyzerString());
+                tableName, Paths.get(tableDirectory), tableSchema, LuceneAnalyzerConstants.standardAnalyzerString());
         
         DataWriter dataWriter = relationManager.getTableDataWriter(tableName);
         
@@ -362,11 +363,11 @@ public class RelationManagerTest {
         relationManager.deleteTable(tableName1);
         relationManager.deleteTable(tableName2);
         
-        relationManager.createTable(tableName1, indexDirectory, schema, luceneAnalyzerString);
+        relationManager.createTable(tableName1, Paths.get(indexDirectory), schema, luceneAnalyzerString);
         
         // create another table with the same directory should fail
         try {
-            relationManager.createTable(tableName2, indexDirectory, schema, luceneAnalyzerString);
+            relationManager.createTable(tableName2, Paths.get(indexDirectory), schema, luceneAnalyzerString);
             System.out.println(relationManager.getTableDirectory(tableName1));
             System.out.println(relationManager.getTableDirectory(tableName2));
             Assert.fail("Storage exception should be thrown because of duplicate index directories");
@@ -389,7 +390,7 @@ public class RelationManagerTest {
         
         relationManager.deleteTable(tableName1);
         
-        relationManager.createTable(tableName1, indexDirectory, schema, luceneAnalyzerString);
+        relationManager.createTable(tableName1, Paths.get(indexDirectory), schema, luceneAnalyzerString);
         
         Assert.assertTrue(relationManager.checkTableExistence(tableName1));
         
@@ -412,7 +413,7 @@ public class RelationManagerTest {
 
         relationManager.deleteTable(tableName);
         relationManager.createTable(
-                tableName, tableDirectory, tableSchema, LuceneAnalyzerConstants.standardAnalyzerString());
+                tableName, Paths.get(tableDirectory), tableSchema, LuceneAnalyzerConstants.standardAnalyzerString());
 
         List<TableMetadata> metaData = relationManager.getMetaData();
 

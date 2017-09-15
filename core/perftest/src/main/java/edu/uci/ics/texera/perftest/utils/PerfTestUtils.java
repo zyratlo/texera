@@ -30,15 +30,15 @@ public class PerfTestUtils {
 
     /**
      * These default paths work only when the program is run from the directory,
-     * texera-perftest
+     * perftest
      */
-    public static String fileFolder = getResourcePath("/sample-data-files");
-    public static String standardIndexFolder = getResourcePath("/index/standard");
-    public static String trigramIndexFolder = getResourcePath("/index/trigram");
-    public static String resultFolder = getResourcePath("/perftest-files/results");
-    public static String queryFolder = getResourcePath("/perftest-files/queries");
+    public static String fileFolder = getResourcePath("/sample-data-files").toString();
+    public static String standardIndexFolder = getResourcePath("/index/standard").toString();
+    public static String trigramIndexFolder = getResourcePath("/index/trigram").toString();
+    public static String resultFolder = getResourcePath("/perftest-files/results").toString();
+    public static String queryFolder = getResourcePath("/perftest-files/queries").toString();
     
-    public static String getResourcePath(String resourcePath) {
+    public static Path getResourcePath(String resourcePath) {
         return Utils.getResourcePath(resourcePath, TexeraProject.TEXERA_PERFTEST);
     }
 
@@ -57,13 +57,13 @@ public class PerfTestUtils {
     /*
      * The purpose for below setters:
      * 
-     * When the program is not run from the directory, texera-perftest, all path
+     * When the program is not run from the directory, perftest, all path
      * need to be reset so that the program can recognize the paths.
      * 
      * For examplem, the default ./data-files/ works well when the program is
-     * run from texera-perftest, but the program is run from the outermost
+     * run from perftest, but the program is run from the outermost
      * folder of the project, the directory should be
-     * ./texera-perftest/data-files/
+     * ./perftest/data-files/
      */
     public static void setFileFolder(String filefolder) {
         if (!filefolder.trim().isEmpty()) {
@@ -206,14 +206,14 @@ public class PerfTestUtils {
         if (indexType.equalsIgnoreCase("trigram")) {
             tableName = tableName + "_trigram";
             relationManager.deleteTable(tableName);
-            relationManager.createTable(tableName, getTrigramIndexPath(tableName).toString(), 
+            relationManager.createTable(tableName, getTrigramIndexPath(tableName), 
                     MedlineIndexWriter.SCHEMA_MEDLINE, LuceneAnalyzerConstants.nGramAnalyzerString(3));
             
             MedlineIndexWriter.writeMedlineIndex(Paths.get(fileFolder, fileName), tableName);
             
         } else if (indexType.equalsIgnoreCase("standard")) {
             relationManager.deleteTable(tableName);
-            relationManager.createTable(tableName, getIndexPath(tableName).toString(), 
+            relationManager.createTable(tableName, getIndexPath(tableName), 
                     MedlineIndexWriter.SCHEMA_MEDLINE, LuceneAnalyzerConstants.standardAnalyzerString());
             MedlineIndexWriter.writeMedlineIndex(Paths.get(fileFolder, fileName), tableName);
         } else {

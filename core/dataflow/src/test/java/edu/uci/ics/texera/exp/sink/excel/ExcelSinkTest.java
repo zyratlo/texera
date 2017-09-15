@@ -2,7 +2,6 @@ package edu.uci.ics.texera.exp.sink.excel;
 
 import java.io.FileNotFoundException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -61,7 +60,7 @@ public class ExcelSinkTest {
         Assert.assertEquals(new Schema(new Attribute("content", AttributeType.TEXT)), excelSink.getOutputSchema());
     
     	excelSink.close();
-        Files.deleteIfExists(Paths.get(excelSink.getFilePath()));
+        Files.deleteIfExists(excelSink.getFilePath());
     }
 
     @Test
@@ -70,7 +69,7 @@ public class ExcelSinkTest {
     	excelSink.close();
         // verify that inputOperator called close() method
         Mockito.verify(inputOperator).close();
-        Files.deleteIfExists(Paths.get(excelSink.getFilePath()));
+        Files.deleteIfExists(excelSink.getFilePath());
     }
 
     @Test
@@ -89,7 +88,7 @@ public class ExcelSinkTest {
         Mockito.verify(inputOperator, Mockito.times(1)).getNextTuple();
 
         excelSink.close();
-        Files.deleteIfExists(Paths.get(excelSink.getFilePath()));
+        Files.deleteIfExists(excelSink.getFilePath());
     }
     
     /**
@@ -134,7 +133,7 @@ public class ExcelSinkTest {
         excelSink.open();
         excelSink.collectAllTuples();
         excelSink.close();
-        Files.deleteIfExists(Paths.get(excelSink.getFilePath()));
+        Files.deleteIfExists(excelSink.getFilePath());
     }
      
     
@@ -186,7 +185,7 @@ public class ExcelSinkTest {
         excelSink.open();
         excelSink.collectAllTuples();
         excelSink.close();
-        Files.deleteIfExists(Paths.get(excelSink.getFilePath()));
+        Files.deleteIfExists(excelSink.getFilePath());
     }
     
 	public static String getRandomString() {

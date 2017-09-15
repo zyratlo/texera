@@ -1,7 +1,7 @@
 package edu.uci.ics.texera.storage;
 
 import java.io.IOException;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -53,7 +53,7 @@ import edu.uci.ics.texera.storage.utils.StorageUtils;
  */
 public class DataWriter {
 
-    private String indexDirectory;
+    private Path indexDirectory;
     private Schema schema;
     private DataStore dataStore;
     private Analyzer analyzer;
@@ -85,7 +85,7 @@ public class DataWriter {
     public void open() throws StorageException {
         if (this.luceneIndexWriter == null || ! this.luceneIndexWriter.isOpen()) {
             try {
-                Directory directory = FSDirectory.open(Paths.get(this.indexDirectory));
+                Directory directory = FSDirectory.open(this.indexDirectory);
                 IndexWriterConfig conf = new IndexWriterConfig(analyzer);
                 this.luceneIndexWriter = new IndexWriter(directory, conf);
                 this.isOpen = true;

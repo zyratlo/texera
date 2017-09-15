@@ -34,7 +34,7 @@ public class SamplerTest {
         // Create the people table and write tuples
         
         RelationManager.getRelationManager().deleteTable(SAMPLER_TABLE);
-        relationManager.createTable(SAMPLER_TABLE, "../index/test_tables/" + SAMPLER_TABLE, 
+        relationManager.createTable(SAMPLER_TABLE, TestUtils.getDefaultTestIndex().resolve(SAMPLER_TABLE), 
                 TestConstants.SCHEMA_PEOPLE, LuceneAnalyzerConstants.standardAnalyzerString());
         DataWriter dataWriter = relationManager.getTableDataWriter(SAMPLER_TABLE);
         dataWriter.open();
@@ -114,7 +114,7 @@ public class SamplerTest {
     /*
      * Sample 0 tuple in FIRST_K_ARRIVAL mode
      */
-    @Test(expected = RuntimeException.class)
+    @Test(expected = TexeraException.class)
     public void test1() throws TexeraException {
         computeSampleResults(SAMPLER_TABLE,0, SampleType.FIRST_K_ARRIVAL);
     }
@@ -163,7 +163,7 @@ public class SamplerTest {
     /*
      * RANDOM_SAMPLE mode: sample zero tuple.
      */
-    @Test(expected = RuntimeException.class)
+    @Test(expected = TexeraException.class)
     public void test6() throws TexeraException {
         computeSampleResults(SAMPLER_TABLE,0, SampleType.RANDOM_SAMPLE);
     }

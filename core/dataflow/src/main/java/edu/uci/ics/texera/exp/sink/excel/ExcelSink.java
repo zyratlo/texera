@@ -3,7 +3,7 @@ package edu.uci.ics.texera.exp.sink.excel;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -33,7 +33,7 @@ import edu.uci.ics.texera.api.utils.Utils;
 
 /**
  * ExcelSink is a sink that can write a list of tuples into an excel file
- * The path of saved files is "texera/texera/texera-perftest/src/main/resources/index/excel/"
+ * The path of saved files is "texera/texera/perftest/src/main/resources/index/excel/"
  * @author Jinggang Diao
  *
  */
@@ -50,7 +50,7 @@ public class ExcelSink implements ISink {
     private Sheet sheet;
     private int cursor = CLOSED;
     
-    private String excelIndexDirectory = Paths.get(Utils.getTexeraHomePath(), "index", "excel").toString();
+    private Path excelIndexDirectory = Utils.getDefaultIndexDirectory().resolve("excel");
     private String fileName;
 
     
@@ -88,10 +88,10 @@ public class ExcelSink implements ISink {
         DateFormat df = new SimpleDateFormat("yyyyMMdd-HHmmss");
         fileName = df.format(new Date()) + ".xlsx";
     	try {
-    	    if (Files.notExists(Paths.get(excelIndexDirectory))) {
-    	        Files.createDirectories(Paths.get(excelIndexDirectory));
+    	    if (Files.notExists(excelIndexDirectory)) {
+    	        Files.createDirectories(excelIndexDirectory);
     	    }
-			fileOut = new FileOutputStream(Paths.get(excelIndexDirectory, fileName).toString());
+			fileOut = new FileOutputStream(excelIndexDirectory.resolve(fileName).toString());
 		} catch (IOException e) {
 			throw new DataFlowException(e);
 		}
@@ -200,8 +200,8 @@ public class ExcelSink implements ISink {
     	}
     }
     
-    public String getFilePath() {
-        return Paths.get(excelIndexDirectory, fileName).toString();
+    public Path getFilePath() {
+        return excelIndexDirectory.resolve(fileName);
     }
     
 }

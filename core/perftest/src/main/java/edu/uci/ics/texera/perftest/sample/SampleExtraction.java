@@ -13,6 +13,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
 import java.io.File;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -20,9 +21,9 @@ public class SampleExtraction {
     
     public static final String PROMED_SAMPLE_TABLE = "promed";
         
-    public static String promedFilesDirectory = PerfTestUtils.getResourcePath("/sample-data-files/promed");
-    public static String promedIndexDirectory = PerfTestUtils.getResourcePath("/index/standard/promed");
-    public static String sampleDataFilesDirectory = PerfTestUtils.getResourcePath("sample-data-files");        
+    public static String promedFilesDirectory = PerfTestUtils.getResourcePath("/sample-data-files/promed").toString();
+    public static String promedIndexDirectory = PerfTestUtils.getResourcePath("/index/standard/promed").toString();
+    public static String sampleDataFilesDirectory = PerfTestUtils.getResourcePath("sample-data-files").toString();        
     
     
     public static void main(String[] args) throws Exception {
@@ -66,7 +67,7 @@ public class SampleExtraction {
         RelationManager relationManager = RelationManager.getRelationManager();
         
         relationManager.deleteTable(PROMED_SAMPLE_TABLE);
-        relationManager.createTable(PROMED_SAMPLE_TABLE, promedIndexDirectory, 
+        relationManager.createTable(PROMED_SAMPLE_TABLE, Paths.get(promedIndexDirectory), 
                 PromedSchema.PROMED_SCHEMA, LuceneAnalyzerConstants.standardAnalyzerString());
         
         DataWriter dataWriter = relationManager.getTableDataWriter(PROMED_SAMPLE_TABLE);

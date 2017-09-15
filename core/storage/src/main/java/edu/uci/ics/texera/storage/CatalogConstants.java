@@ -1,10 +1,12 @@
 package edu.uci.ics.texera.storage;
 
-import java.nio.file.Paths;
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
 import edu.uci.ics.texera.api.exception.StorageException;
+import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.field.IntegerField;
 import edu.uci.ics.texera.api.field.StringField;
 import edu.uci.ics.texera.api.schema.Attribute;
@@ -49,8 +51,8 @@ public class CatalogConstants {
     public static final String TABLE_CATALOG = "tableCatalog";
     public static final String SCHEMA_CATALOG = "schemaCatalog";
 
-    public static final String TABLE_CATALOG_DIRECTORY = Paths.get(Utils.getTexeraHomePath(), "catalog", "table").toString();
-    public static final String SCHEMA_CATALOG_DIRECTORY = Paths.get(Utils.getTexeraHomePath(), "catalog", "schema").toString();
+    public static final Path TABLE_CATALOG_DIRECTORY = Utils.getTexeraHomePath().resolve("catalog").resolve("table");
+    public static final Path SCHEMA_CATALOG_DIRECTORY = Utils.getTexeraHomePath().resolve("catalog").resolve("schema");
 
     // Schema for the "table catalog" table
     public static final String TABLE_NAME = "tableName";
@@ -96,11 +98,15 @@ public class CatalogConstants {
      * @return
      * @throws StorageException
      */
-    public static Tuple getTableCatalogTuple(String tableName, String tableDirectory, String luceneAnalyzerStr) {
-        return new Tuple(TABLE_CATALOG_SCHEMA, 
-                new StringField(tableName), 
-                new StringField(tableDirectory),
-                new StringField(luceneAnalyzerStr));
+    public static Tuple getTableCatalogTuple(String tableName, Path tableDirectory, String luceneAnalyzerStr) {
+	    	try {
+	            return new Tuple(TABLE_CATALOG_SCHEMA, 
+	                    new StringField(tableName), 
+	                    new StringField(tableDirectory.toRealPath().toString()),
+	                    new StringField(luceneAnalyzerStr));
+	    	} catch (IOException e) {
+	    		throw new TexeraException(e);
+	    	}
     }
     
     /**

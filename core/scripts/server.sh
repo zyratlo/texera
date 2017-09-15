@@ -1,1 +1,1 @@
-java -jar texera-web/target/texera-web-1.0-SNAPSHOT.jar server texera-web/sample-config.yml 
+java -jar web/target/web-0.1.0.jar server web/sample-config.yml 

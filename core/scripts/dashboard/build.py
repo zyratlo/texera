@@ -16,7 +16,7 @@ maven_repo_home = "/home/bot/.m2/repository/"
 java8_bin = "/usr/bin/java"
 
 texera_home = "texera/texera/"
-result_path = "texera-perftest/perftest-files/results/"
+result_path = "perftest/perftest-files/results/"
 branch = "master"
 main_class = "edu.uci.ics.texera.perftest.runme.RunTests"
 # Refer to the codebase to understand what arguments the main class takes in.
@@ -24,7 +24,7 @@ perftest_arguments = ["/home/bot/texeraworkspace/data-files/", "\"\"","\"\"","\"
 
 
 texera_path = texera_workspace + texera_home
-texera_perftest_path = texera_path + "texera-perftest/"
+texera_perftest_path = texera_path + "perftest/"
 result_folder = texera_workspace + texera_home + result_path
 
 
@@ -33,7 +33,7 @@ def build_run_command():
     command = "" + \
         java8_bin + " " + \
         "-Dfile.encoding=UTF-8 -classpath" + " " + \
-        texera_workspace + "/texera/texera/texera-perftest/target/classes" + ":" + \
+        texera_workspace + "/texera/texera/perftest/target/classes" + ":" + \
         maven_repo_home + "junit/junit/4.8.1/junit-4.8.1.jar" + ":" + \
         maven_repo_home + "org/apache/lucene/lucene-core/5.5.0/lucene-core-5.5.0.jar" + ":" + \
         maven_repo_home + "org/apache/lucene/lucene-analyzers-common/5.5.0/lucene-analyzers-common-5.5.0.jar" + ":" + \
@@ -41,11 +41,11 @@ def build_run_command():
         maven_repo_home + "org/apache/lucene/lucene-queries/5.5.0/lucene-queries-5.5.0.jar" + ":" + \
         maven_repo_home + "org/apache/lucene/lucene-sandbox/5.5.0/lucene-sandbox-5.5.0.jar" + ":" + \
         maven_repo_home + "org/json/json/20160212/json-20160212.jar" + ":" + \
-        texera_workspace + "/texera/texera/texera-api/target/classes" + ":" + \
-        texera_workspace + "/texera/texera/texera-common/target/classes" + ":" + \
-        texera_workspace + "/texera/texera/texera-dataflow/target/classes" + ":" + \
+        texera_workspace + "/texera/texera/api/target/classes" + ":" + \
+        texera_workspace + "/texera/texera/common/target/classes" + ":" + \
+        texera_workspace + "/texera/texera/dataflow/target/classes" + ":" + \
         maven_repo_home + "com/google/re2j/re2j/1.1/re2j-1.1.jar" + ":" + \
-        texera_workspace + "/texera/texera/texera-storage/target/classes" + ":" + \
+        texera_workspace + "/texera/texera/storage/target/classes" + ":" + \
         maven_repo_home + "edu/stanford/nlp/stanford-corenlp/3.6.0/stanford-corenlp-3.6.0.jar" + ":" + \
         maven_repo_home + "com/io7m/xom/xom/1.2.10/xom-1.2.10.jar" + ":" + \
         maven_repo_home + "xml-apis/xml-apis/1.3.03/xml-apis-1.3.03.jar" + ":" + \

@@ -183,7 +183,7 @@ public class MysqlSink implements ISink {
 
     /**
      * 
-     * Convert a textDB attribute into one line of sql statement. Texera
+     * Convert a texera attribute into one line of sql statement. Texera
      * attribute is from outputSchema. Used in the create table statement.
      * 
      * @param attribute
@@ -223,7 +223,7 @@ public class MysqlSink implements ISink {
             prepStatement.setDate(idx + 1, sqlDate);
         } else {
             /*
-             * textDB STRING, TEXT The attribute in mysql in TEXT.
+             * texera STRING, TEXT The attribute in mysql in TEXT.
              * preparedStatement.setString() works for TEXT attribute based the
              * reference below.
              * https://stackoverflow.com/questions/6772594/what-is-the-java-sql-

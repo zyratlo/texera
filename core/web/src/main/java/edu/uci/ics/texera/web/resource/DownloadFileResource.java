@@ -3,7 +3,6 @@ package edu.uci.ics.texera.web.resource;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 
 import javax.ws.rs.Consumes;
@@ -64,7 +63,7 @@ public class DownloadFileResource {
         StreamingOutput fileStream = new StreamingOutput() {
             @Override
             public void write(OutputStream output) throws IOException, WebApplicationException {
-                byte[] data = Files.readAllBytes(Paths.get(excelSink.getFilePath()));
+                byte[] data = Files.readAllBytes(excelSink.getFilePath());
                 output.write(data);
                 output.flush();
             }

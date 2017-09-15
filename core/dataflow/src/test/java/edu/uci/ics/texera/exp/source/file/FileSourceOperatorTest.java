@@ -13,6 +13,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import edu.uci.ics.texera.api.exception.StorageException;
+import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.field.TextField;
 import edu.uci.ics.texera.api.schema.Attribute;
 import edu.uci.ics.texera.api.schema.AttributeType;
@@ -224,7 +225,7 @@ public class FileSourceOperatorTest {
     /*
      * Test FileSourceOperator with a single file with an extension (.tmp) not allowed by default.
      */
-    @Test(expected = RuntimeException.class)
+    @Test(expected = TexeraException.class)
     public void test5() throws Exception {
         String attrName = "content";
         
@@ -264,7 +265,7 @@ public class FileSourceOperatorTest {
     /*
      * Test FileSourceOperator with custom extensions that won't match any file.
      */
-    @Test(expected = RuntimeException.class)
+    @Test(expected = TexeraException.class)
     public void test7() throws Exception {
         String attrName = "content";
         
@@ -276,7 +277,7 @@ public class FileSourceOperatorTest {
     /*
      * Test FileSourceOperator with a single directory that does not contain any valid files
      */
-    @Test(expected = RuntimeException.class)
+    @Test(expected = TexeraException.class)
     public void test8() throws Exception {
         String attrName = "content";
         
@@ -288,7 +289,7 @@ public class FileSourceOperatorTest {
     /*
      * Test FileSourceOperator with a file that does not exist
      */
-    @Test(expected = RuntimeException.class)
+    @Test(expected = TexeraException.class)
     public void test9() throws Exception {
         String attrName = "content";
         
@@ -300,7 +301,7 @@ public class FileSourceOperatorTest {
     /*
      * Test FileSourceOperator with a directory that does not exist
      */
-    @Test(expected = RuntimeException.class)
+    @Test(expected = TexeraException.class)
     public void test10() throws Exception {
         String attrName = "content";
         

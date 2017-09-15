@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import edu.uci.ics.texera.api.constants.SchemaConstants;
 import edu.uci.ics.texera.api.dataflow.IOperator;
 import edu.uci.ics.texera.api.exception.DataFlowException;
+import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.field.IField;
 import edu.uci.ics.texera.api.field.ListField;
 import edu.uci.ics.texera.api.schema.Attribute;
@@ -111,7 +112,7 @@ public class JoinDistancePredicate extends PredicateBase implements IJoinPredica
             @JsonProperty(value = PropertyNameConstants.SPAN_DISTANCE, required = true)
             Integer threshold) {
         if (! innerAttributeName.equalsIgnoreCase(outerAttributeName)) {
-            throw new RuntimeException("inner attribute name and outer attribute name are different");
+            throw new TexeraException("inner attribute name and outer attribute name are different");
         }
         this.joinAttributeName = innerAttributeName;
         this.threshold = threshold;

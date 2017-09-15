@@ -13,6 +13,7 @@ import edu.uci.ics.texera.api.field.IField;
 import edu.uci.ics.texera.api.schema.Attribute;
 import edu.uci.ics.texera.api.schema.Schema;
 import edu.uci.ics.texera.api.tuple.Tuple;
+import edu.uci.ics.texera.api.utils.TestUtils;
 import edu.uci.ics.texera.exp.keywordmatcher.KeywordSourcePredicate;
 import edu.uci.ics.texera.exp.regexmatcher.RegexMatcher;
 import edu.uci.ics.texera.exp.regexmatcher.RegexPredicate;
@@ -39,15 +40,15 @@ public class JoinTestHelper {
         RelationManager relationManager = RelationManager.getRelationManager();
         
         // create the book table
-        relationManager.createTable(BOOK_TABLE, "../index/test_tables/" + BOOK_TABLE, 
+        relationManager.createTable(BOOK_TABLE, TestUtils.getDefaultTestIndex().resolve(BOOK_TABLE), 
                 JoinTestConstants.BOOK_SCHEMA, LuceneAnalyzerConstants.standardAnalyzerString());     
         // data for the book table are written in each test cases
     
         // create the news table
-        relationManager.createTable(NEWS_TABLE_OUTER, "../index/test_tables/" + NEWS_TABLE_OUTER,
+        relationManager.createTable(NEWS_TABLE_OUTER, TestUtils.getDefaultTestIndex().resolve(NEWS_TABLE_OUTER),
                 JoinTestConstants.NEWS_SCHEMA, LuceneAnalyzerConstants.standardAnalyzerString());
 
-        relationManager.createTable(NEWS_TABLE_INNER, "../index/test_tables/" + NEWS_TABLE_INNER,
+        relationManager.createTable(NEWS_TABLE_INNER, TestUtils.getDefaultTestIndex().resolve(NEWS_TABLE_INNER),
                 JoinTestConstants.NEWS_SCHEMA, LuceneAnalyzerConstants.standardAnalyzerString());
     
     }

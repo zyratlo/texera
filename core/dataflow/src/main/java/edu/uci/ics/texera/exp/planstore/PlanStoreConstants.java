@@ -1,6 +1,6 @@
 package edu.uci.ics.texera.exp.planstore;
 
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.regex.Pattern;
 
 import edu.uci.ics.texera.api.schema.Attribute;
@@ -19,7 +19,7 @@ public class PlanStoreConstants {
 
     public static final Pattern VALID_PLAN_NAME = Pattern.compile("^[a-zA-Z0-9\\-_]{1,}$");
 
-    public static final String INDEX_DIR = Paths.get(Utils.getTexeraHomePath(), "plan").toString();
+    public static final Path INDEX_DIR = Utils.getTexeraHomePath().resolve("user-resources").resolve("plans");
 
     public static final String NAME = "name";
     public static final String DESCRIPTION = "description";

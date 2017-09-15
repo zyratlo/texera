@@ -126,18 +126,18 @@
                             <include>sample-config.yml</include>
                         </resource>
                         <resource>
-                            <targetPath>/texera-perftest/src/main/resources/sample-data-files/</targetPath>
-                            <directory>${project.basedir}/../texera-perftest/src/main/resources/sample-data-files/</directory>
+                            <targetPath>/perftest/src/main/resources/sample-data-files/</targetPath>
+                            <directory>${project.basedir}/../perftest/src/main/resources/sample-data-files/</directory>
                             <include>*</include>
                         </resource>
                         <resource>
-                            <targetPath>/texera-perftest/src/main/resources/sample-data-files/promed/</targetPath>
-                            <directory>${project.basedir}/../texera-perftest/src/main/resources/sample-data-files/promed/</directory>
+                            <targetPath>/perftest/src/main/resources/sample-data-files/promed/</targetPath>
+                            <directory>${project.basedir}/../perftest/src/main/resources/sample-data-files/promed/</directory>
                             <include>*</include>
                         </resource>
                         <resource>
-                            <targetPath>/texera-perftest/src/main/resources/index/standard/promed/</targetPath>
-                            <directory>${project.basedir}/../texera-perftest/src/main/resources/index/standard/promed/</directory>
+                            <targetPath>/perftest/src/main/resources/index/standard/promed/</targetPath>
+                            <directory>${project.basedir}/../perftest/src/main/resources/index/standard/promed/</directory>
                             <include>*</include>
                         </resource>
                     </resources>

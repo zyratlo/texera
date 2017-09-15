@@ -51,7 +51,7 @@ public class NlpSentimentOperator implements IOperator {
     
     public void setInputOperator(IOperator operator) {
         if (cursor != CLOSED) {  
-            throw new RuntimeException("Cannot link this operator to other operator after the operator is opened");
+            throw new TexeraException("Cannot link this operator to other operator after the operator is opened");
         }
         this.inputOperator = operator;
     }
@@ -61,7 +61,7 @@ public class NlpSentimentOperator implements IOperator {
      */
     private Schema transformSchema(Schema inputSchema) {
         if (inputSchema.containsField(predicate.getResultAttributeName())) {
-            throw new RuntimeException(String.format(
+            throw new TexeraException(String.format(
                     "result attribute name %s is already in the original schema %s", 
                     predicate.getResultAttributeName(),
                     inputSchema.getAttributeNames()));
@@ -83,7 +83,7 @@ public class NlpSentimentOperator implements IOperator {
         
         // check if input schema is present
         if (! inputSchema.containsField(predicate.getInputAttributeName())) {
-            throw new RuntimeException(String.format(
+            throw new TexeraException(String.format(
                     "input attribute %s is not in the input schema %s",
                     predicate.getInputAttributeName(),
                     inputSchema.getAttributeNames()));
@@ -95,7 +95,7 @@ public class NlpSentimentOperator implements IOperator {
         boolean isValidType = inputAttributeType.equals(AttributeType.STRING) || 
                 inputAttributeType.equals(AttributeType.TEXT);
         if (! isValidType) {
-            throw new RuntimeException(String.format(
+            throw new TexeraException(String.format(
                     "input attribute %s must have type String or Text, its actual type is %s",
                     predicate.getInputAttributeName(),
                     inputAttributeType));

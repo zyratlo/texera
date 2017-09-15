@@ -4,7 +4,7 @@ package edu.uci.ics.texera.web.healthcheck;
 import com.codahale.metrics.health.HealthCheck;
 
 /**
- * This is a sample HealthCheck created for the texera-web module. These health checks can be monitored
+ * This is a sample HealthCheck created for the web module. These health checks can be monitored
  * on the admin port of an application in order to check the status of an application. HealthChecks are runtime
  * tests of a web application.
  * Created by kishorenarendran on 10/9/16.

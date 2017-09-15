@@ -1,6 +1,7 @@
 package edu.uci.ics.texera.api.utils;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,6 +20,10 @@ import junit.framework.Assert;
  * @author Bhushan Pagariya (bhushanpagariya)
  */
 public class TestUtils {
+	
+	public static Path getDefaultTestIndex() {
+		return Utils.getDefaultIndexDirectory().resolve("test_tables");
+	}
 
     /**
      * Returns true if the tupleList contains a tuple.

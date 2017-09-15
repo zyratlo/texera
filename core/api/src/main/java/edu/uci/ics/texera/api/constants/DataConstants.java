@@ -11,12 +11,11 @@ package edu.uci.ics.texera.api.constants;
 public class DataConstants {
     
     public static final String HOME_ENV_VAR = "TEXERA_HOME";
-    public static final String HOME_FOLDER_NAME = "texera";
+    public static final String HOME_FOLDER_NAME = "core";
     
     public enum TexeraProject {
         TEXERA_API("api"),
         TEXERA_DATAFLOW("dataflow"),
-        TEXERA_EXP("exp"),
         TEXERA_PERFTEST("perftest"),
         TEXERA_SANDBOX("sandbox"),
         TEXERA_STORAGE("storage"),

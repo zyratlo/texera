@@ -3,6 +3,7 @@ package edu.uci.ics.texera.web.resource;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.exp.plangen.LogicalPlanTest;
 import edu.uci.ics.texera.web.TexeraWebApplication;
 import edu.uci.ics.texera.web.TexeraWebConfiguration;
@@ -53,7 +54,7 @@ public class PlanStoreResourceTest {
             queryPlan2 = new ObjectMapper().writeValueAsString(
                     new QueryPlanBean("plan2", "plan 2 description", LogicalPlanTest.getLogicalPlan2()));
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new TexeraException(e);
         }
 
     }

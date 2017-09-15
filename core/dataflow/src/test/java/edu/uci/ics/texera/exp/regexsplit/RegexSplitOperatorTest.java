@@ -16,6 +16,7 @@ import edu.uci.ics.texera.api.exception.DataFlowException;
 import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.span.Span;
 import edu.uci.ics.texera.api.tuple.Tuple;
+import edu.uci.ics.texera.api.utils.TestUtils;
 import edu.uci.ics.texera.exp.source.scan.ScanBasedSourceOperator;
 import edu.uci.ics.texera.exp.source.scan.ScanSourcePredicate;
 import edu.uci.ics.texera.storage.DataWriter;
@@ -39,7 +40,7 @@ public class RegexSplitOperatorTest {
         
         RelationManager.getRelationManager().deleteTable(REGEX_TABLE);
         relationManager = RelationManager.getRelationManager();
-        relationManager.createTable(REGEX_TABLE, "../index/test_tables/" + REGEX_TABLE, 
+        relationManager.createTable(REGEX_TABLE, TestUtils.getDefaultTestIndex().resolve(REGEX_TABLE), 
                 TestConstantsRegexSplit.SCHEMA_PEOPLE, LuceneAnalyzerConstants.standardAnalyzerString());
         DataWriter regexDataWriter = relationManager.getTableDataWriter(REGEX_TABLE);
         regexDataWriter.open();
@@ -49,7 +50,7 @@ public class RegexSplitOperatorTest {
         regexDataWriter.close();
         
         // create the people table and write tuples in Chinese
-        relationManager.createTable(CHINESE_TABLE, "../index/test_tables/" + CHINESE_TABLE, 
+        relationManager.createTable(CHINESE_TABLE, TestUtils.getDefaultTestIndex().resolve(CHINESE_TABLE), 
                 TestConstantsChinese.SCHEMA_PEOPLE, LuceneAnalyzerConstants.chineseAnalyzerString());
         DataWriter chineseDataWriter = relationManager.getTableDataWriter(CHINESE_TABLE);
         chineseDataWriter.open();

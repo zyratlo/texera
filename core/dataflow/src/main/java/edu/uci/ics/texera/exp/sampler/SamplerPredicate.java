@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 import edu.uci.ics.texera.api.dataflow.IOperator;
+import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.exp.common.PredicateBase;
 import edu.uci.ics.texera.exp.common.PropertyNameConstants;
 
@@ -40,8 +41,7 @@ public class SamplerPredicate extends PredicateBase {
             @JsonProperty(value = PropertyNameConstants.SAMPLE_TYPE, required = true)
             SampleType sampleType ) {
         if (sampleSize < 1) {
-            //TODO: use Texera RuntimeException
-            throw new RuntimeException("Sample size should be greater then 0.");
+            throw new TexeraException("Sample size should be greater then 0.");
         }
         
         this.sampleSize = sampleSize;

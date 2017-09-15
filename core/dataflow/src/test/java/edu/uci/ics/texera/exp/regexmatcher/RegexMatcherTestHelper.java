@@ -35,7 +35,7 @@ public class RegexMatcherTestHelper {
         RelationManager relationManager = RelationManager.getRelationManager();
         
         // create the people table and write tuples
-        relationManager.createTable(PEOPLE_TABLE, "../index/test_tables/" + PEOPLE_TABLE, 
+        relationManager.createTable(PEOPLE_TABLE, TestUtils.getDefaultTestIndex().resolve(PEOPLE_TABLE), 
                 TestConstants.SCHEMA_PEOPLE, LuceneAnalyzerConstants.standardAnalyzerString());
 
         DataWriter peopleDataWriter = relationManager.getTableDataWriter(PEOPLE_TABLE);
@@ -46,7 +46,7 @@ public class RegexMatcherTestHelper {
         peopleDataWriter.close();
         
         // create the corporation table and write tuples
-        relationManager.createTable(CORP_TABLE, "../index/test_tables/" + CORP_TABLE,
+        relationManager.createTable(CORP_TABLE, TestUtils.getDefaultTestIndex().resolve(CORP_TABLE),
                 RegexTestConstantsCorp.SCHEMA_CORP, LuceneAnalyzerConstants.nGramAnalyzerString(3));
 
         DataWriter corpDataWriter = relationManager.getTableDataWriter(CORP_TABLE);
@@ -57,7 +57,7 @@ public class RegexMatcherTestHelper {
         corpDataWriter.close();
         
         // create the staff table
-        relationManager.createTable(STAFF_TABLE, "../index/tests/" + STAFF_TABLE,
+        relationManager.createTable(STAFF_TABLE, TestUtils.getDefaultTestIndex().resolve(STAFF_TABLE),
                 RegexTestConstantStaff.SCHEMA_STAFF, LuceneAnalyzerConstants.nGramAnalyzerString(3));
 
         DataWriter staffDataWriter = relationManager.getTableDataWriter(STAFF_TABLE);
@@ -68,7 +68,7 @@ public class RegexMatcherTestHelper {
         staffDataWriter.close();
         
         // create the text table
-        relationManager.createTable(TEXT_TABLE, "../index/tests/" + TEXT_TABLE,
+        relationManager.createTable(TEXT_TABLE, TestUtils.getDefaultTestIndex().resolve(TEXT_TABLE),
                 RegexTestConstantsText.SCHEMA_TEXT, LuceneAnalyzerConstants.nGramAnalyzerString(3));
 
         DataWriter textDataWriter = relationManager.getTableDataWriter(TEXT_TABLE);

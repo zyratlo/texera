@@ -37,7 +37,7 @@ public class KeywordTestHelper {
         RelationManager relationManager = RelationManager.getRelationManager();
         
         // create the people table and write tuples
-        relationManager.createTable(PEOPLE_TABLE, "../index/test_tables/" + PEOPLE_TABLE, 
+        relationManager.createTable(PEOPLE_TABLE, TestUtils.getDefaultTestIndex().resolve(PEOPLE_TABLE), 
                 TestConstants.SCHEMA_PEOPLE, LuceneAnalyzerConstants.standardAnalyzerString());
 
         DataWriter peopleDataWriter = relationManager.getTableDataWriter(PEOPLE_TABLE);
@@ -48,7 +48,7 @@ public class KeywordTestHelper {
         peopleDataWriter.close();
         
         // create the medline table and write tuples
-        relationManager.createTable(MEDLINE_TABLE, "../index/test_tables/" + MEDLINE_TABLE,
+        relationManager.createTable(MEDLINE_TABLE, TestUtils.getDefaultTestIndex().resolve(MEDLINE_TABLE),
                 keywordTestConstants.SCHEMA_MEDLINE, LuceneAnalyzerConstants.standardAnalyzerString());
    
         DataWriter medDataWriter = relationManager.getTableDataWriter(MEDLINE_TABLE);
@@ -59,7 +59,7 @@ public class KeywordTestHelper {
         medDataWriter.close();
         
         // create the people table and write tuples in Chinese
-        relationManager.createTable(CHINESE_TABLE, "../index/test_tables/" + CHINESE_TABLE, 
+        relationManager.createTable(CHINESE_TABLE, TestUtils.getDefaultTestIndex().resolve(CHINESE_TABLE), 
                 TestConstantsChinese.SCHEMA_PEOPLE, LuceneAnalyzerConstants.chineseAnalyzerString());
         DataWriter chineseDataWriter = relationManager.getTableDataWriter(CHINESE_TABLE);
         chineseDataWriter.open();

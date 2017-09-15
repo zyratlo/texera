@@ -13,6 +13,7 @@ import edu.uci.ics.texera.api.constants.SchemaConstants;
 import edu.uci.ics.texera.api.constants.TestConstants;
 import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.tuple.Tuple;
+import edu.uci.ics.texera.api.utils.TestUtils;
 import edu.uci.ics.texera.api.utils.Utils;
 import edu.uci.ics.texera.storage.constants.LuceneAnalyzerConstants;
 
@@ -25,7 +26,7 @@ public class DataWriterReaderTest {
         RelationManager relationManager = RelationManager.getRelationManager();
         
         // create the people table and write tuples
-        relationManager.createTable(PEOPLE_TABLE, "../index/test_tables/" + PEOPLE_TABLE, 
+        relationManager.createTable(PEOPLE_TABLE, TestUtils.getDefaultTestIndex().resolve(PEOPLE_TABLE), 
                 TestConstants.SCHEMA_PEOPLE, LuceneAnalyzerConstants.standardAnalyzerString());
         
         DataWriter peopleDataWriter = relationManager.getTableDataWriter(PEOPLE_TABLE);

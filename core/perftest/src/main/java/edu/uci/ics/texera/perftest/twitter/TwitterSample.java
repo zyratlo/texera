@@ -5,10 +5,12 @@ import java.io.File;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.field.IntegerField;
 import edu.uci.ics.texera.api.field.StringField;
 import edu.uci.ics.texera.api.field.TextField;
 import edu.uci.ics.texera.api.tuple.Tuple;
+import edu.uci.ics.texera.api.utils.Utils;
 import edu.uci.ics.texera.perftest.utils.PerfTestUtils;
 import edu.uci.ics.texera.storage.DataWriter;
 import edu.uci.ics.texera.storage.RelationManager;
@@ -16,8 +18,8 @@ import edu.uci.ics.texera.storage.constants.LuceneAnalyzerConstants;
 
 public class TwitterSample {
     
-    public static String twitterFilePath = PerfTestUtils.getResourcePath("/sample-data-files/twitter/tweets.json");
-    public static String twitterClimateTable = "twitter";
+    public static String twitterFilePath = PerfTestUtils.getResourcePath("/sample-data-files/twitter/tweets.json").toString();
+    public static String twitterClimateTable = "twitter_sample";
     
     public static void main(String[] args) throws Exception {
         writeTwitterIndex();
@@ -26,13 +28,12 @@ public class TwitterSample {
     public static void writeTwitterIndex() throws Exception {
         RelationManager relationManager = RelationManager.getRelationManager();
         relationManager.deleteTable(twitterClimateTable);
-        relationManager.createTable(twitterClimateTable, "../index/twitter/", TwitterSchema.TWITTER_SCHEMA, 
+        relationManager.createTable(twitterClimateTable, Utils.getDefaultIndexDirectory().resolve(twitterClimateTable), TwitterSchema.TWITTER_SCHEMA, 
                 LuceneAnalyzerConstants.standardAnalyzerString());
         
         DataWriter dataWriter = relationManager.getTableDataWriter(twitterClimateTable);
         dataWriter.open();
         
-        int counter = 0;
         JsonNode jsonNode = new ObjectMapper().readTree(new File(twitterFilePath));
         for (JsonNode tweet : jsonNode) {
             try {
@@ -65,16 +66,12 @@ public class TwitterSample {
                         new TextField(city),
                         new StringField(createAt));
                 dataWriter.insertTuple(tuple);
-                counter++;
-            } catch (RuntimeException e) {
-                e.printStackTrace();
+            } catch (TexeraException e) {
                 continue;
             }
         }
         
         dataWriter.close();
-        System.out.println("write twitter data finished");
-        System.out.println(counter + " tweets written");
     }
 
 }

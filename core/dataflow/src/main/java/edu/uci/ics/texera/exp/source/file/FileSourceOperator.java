@@ -76,7 +76,7 @@ public class FileSourceOperator implements ISourceOperator {
         
         Path filePath = Paths.get(predicate.getFilePath());
         if (! Files.exists(filePath)) {
-            throw new RuntimeException(String.format("file %s doesn't exist", filePath));
+            throw new TexeraException(String.format("file %s doesn't exist", filePath));
         }
         
         if (Files.isDirectory(filePath)) {
@@ -88,7 +88,7 @@ public class FileSourceOperator implements ISourceOperator {
                 }
                 
             } catch (IOException e) {
-                throw new RuntimeException(String.format(
+                throw new TexeraException(String.format(
                         "opening directory %s failed: " + e.getMessage(), filePath));
             }
         } else {
@@ -105,8 +105,8 @@ public class FileSourceOperator implements ISourceOperator {
         
         // check if the path list is empty
         if (pathList.isEmpty()) {
-            // TODO: change it to Texera RuntimeException
-            throw new RuntimeException(String.format(
+            // TODO: change it to Texera TexeraException
+            throw new TexeraException(String.format(
                     "the filePath: %s doesn't contain any valid text files. " + 
                     "File extension must be one of %s .", 
                     filePath, this.predicate.getAllowedExtensions()));

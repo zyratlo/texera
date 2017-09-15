@@ -17,9 +17,11 @@ import org.junit.Test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.schema.Attribute;
 import edu.uci.ics.texera.api.schema.AttributeType;
 import edu.uci.ics.texera.api.schema.Schema;
+import edu.uci.ics.texera.api.utils.Utils;
 import edu.uci.ics.texera.exp.join.JoinDistancePredicate;
 import edu.uci.ics.texera.exp.keywordmatcher.KeywordMatchingType;
 import edu.uci.ics.texera.exp.keywordmatcher.KeywordSourcePredicate;
@@ -51,7 +53,7 @@ public class NewQueryPlanResourceTest {
     
     @BeforeClass
     public static void setUp() throws Exception {
-        RelationManager.getRelationManager().createTable(TEST_TABLE, "../index/" + TEST_TABLE,
+        RelationManager.getRelationManager().createTable(TEST_TABLE, Utils.getDefaultIndexDirectory().resolve(TEST_TABLE),
                 TEST_SCHEMA, "standard");
     }
     
@@ -96,7 +98,7 @@ public class NewQueryPlanResourceTest {
      * KeywordSource --> RegexMatcher --> TupleSink
      *
      */
-    public static LogicalPlan getLogicalPlan1() throws RuntimeException {
+    public static LogicalPlan getLogicalPlan1() throws TexeraException {
         LogicalPlan logicalPlan = new LogicalPlan();
 
         logicalPlan.addOperator(keywordSourcePredicate);

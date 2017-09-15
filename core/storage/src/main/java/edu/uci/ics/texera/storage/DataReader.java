@@ -1,7 +1,7 @@
 package edu.uci.ics.texera.storage;
 
 import java.io.IOException;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
@@ -92,8 +92,7 @@ public class DataReader implements IOperator {
             return;
         }
         try {
-            String indexDirectoryStr = this.dataStore.getDataDirectory();
-            Directory indexDirectory = FSDirectory.open(Paths.get(indexDirectoryStr));
+            Directory indexDirectory = FSDirectory.open(this.dataStore.getDataDirectory());
             luceneIndexReader = DirectoryReader.open(indexDirectory);
             luceneIndexSearcher = new IndexSearcher(luceneIndexReader);
 
@@ -231,10 +230,10 @@ public class DataReader implements IOperator {
         return outputSchema;
     }
     
-    public static boolean checkIndexExistence(String directory) {
+    public static boolean checkIndexExistence(Path directory) {
         try {
             return DirectoryReader.indexExists(
-                    FSDirectory.open(Paths.get(directory)));
+                    FSDirectory.open(directory));
         } catch (IOException e) {
             return false;
         }
