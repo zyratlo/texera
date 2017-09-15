@@ -161,7 +161,7 @@ public class RegexToGramQueryTranslatorTest {
 
         GramBooleanQuery expectedQuery = new GramBooleanQuery(GramBooleanQuery.QueryOp.AND);
 
-        expectedQuery.subQuerySet.addAll(getLeafNodeList("tex", "ext", "xtd", "tdb"));
+        expectedQuery.subQuerySet.addAll(getLeafNodeList("tex", "exe", "xer", "era"));
 
         printTranslatorResult(regex);
 
