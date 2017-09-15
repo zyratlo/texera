@@ -5,7 +5,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import edu.uci.ics.texera.api.constants.ErrorMessages;
-import edu.uci.ics.texera.api.exception.DataFlowException;
+import edu.uci.ics.texera.api.exception.DataflowException;
 import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.field.ListField;
 import edu.uci.ics.texera.api.schema.Attribute;
@@ -74,12 +74,12 @@ public class RegexMatcher extends AbstractSingleInputOperator {
     }
     
     @Override
-    protected void setUp() throws DataFlowException {
+    protected void setUp() throws DataflowException {
         inputSchema = inputOperator.getOutputSchema();
         outputSchema = inputSchema;
         
         if (this.inputSchema.containsField(predicate.getSpanListName())) {
-            throw new DataFlowException(ErrorMessages.DUPLICATE_ATTRIBUTE(predicate.getSpanListName(), inputSchema));
+            throw new DataflowException(ErrorMessages.DUPLICATE_ATTRIBUTE(predicate.getSpanListName(), inputSchema));
         }
         outputSchema = Utils.addAttributeToSchema(inputSchema, 
                 new Attribute(predicate.getSpanListName(), AttributeType.LIST));
@@ -141,10 +141,10 @@ public class RegexMatcher extends AbstractSingleInputOperator {
      *            document in which search is performed
      * @return a list of spans describing the occurrence of a matching sequence
      *         in the document
-     * @throws DataFlowException
+     * @throws DataflowException
      */
     @Override
-    public Tuple processOneInputTuple(Tuple inputTuple) throws DataFlowException {
+    public Tuple processOneInputTuple(Tuple inputTuple) throws DataflowException {
         if (inputTuple == null) {
             return null;
         }
@@ -178,7 +178,7 @@ public class RegexMatcher extends AbstractSingleInputOperator {
 
             // types other than TEXT and STRING: throw Exception for now
             if (attributeType != AttributeType.STRING && attributeType != AttributeType.TEXT) {
-                throw new DataFlowException("KeywordMatcher: Fields other than STRING and TEXT are not supported yet");
+                throw new DataflowException("KeywordMatcher: Fields other than STRING and TEXT are not supported yet");
             }
             
             Matcher javaMatcher = pattern.matcher(fieldValue);
@@ -194,7 +194,7 @@ public class RegexMatcher extends AbstractSingleInputOperator {
     }
     
     @Override
-    protected void cleanUp() throws DataFlowException {        
+    protected void cleanUp() throws DataflowException {        
     }
 
     public RegexPredicate getPredicate() {

@@ -1,7 +1,7 @@
 package edu.uci.ics.texera.exp.join;
 
 import edu.uci.ics.texera.api.dataflow.IPredicate;
-import edu.uci.ics.texera.api.exception.DataFlowException;
+import edu.uci.ics.texera.api.exception.DataflowException;
 import edu.uci.ics.texera.api.schema.Schema;
 import edu.uci.ics.texera.api.tuple.Tuple;
 
@@ -16,7 +16,7 @@ public interface IJoinPredicate extends IPredicate {
 	Tuple joinTuples(Tuple innerTuple, Tuple outerTuple, Schema outputSchema)
 			throws Exception;
 	
-	Schema generateOutputSchema(Schema innerOperatorSchema, Schema outerOperatorSchema) throws DataFlowException;
+	Schema generateOutputSchema(Schema innerOperatorSchema, Schema outerOperatorSchema) throws DataflowException;
 	
 	String getInnerAttributeName();
 	

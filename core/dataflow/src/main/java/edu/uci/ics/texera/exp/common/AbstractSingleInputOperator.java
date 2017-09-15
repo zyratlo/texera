@@ -2,7 +2,7 @@ package edu.uci.ics.texera.exp.common;
 
 import edu.uci.ics.texera.api.constants.ErrorMessages;
 import edu.uci.ics.texera.api.dataflow.IOperator;
-import edu.uci.ics.texera.api.exception.DataFlowException;
+import edu.uci.ics.texera.api.exception.DataflowException;
 import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.schema.Schema;
 import edu.uci.ics.texera.api.tuple.Tuple;
@@ -40,13 +40,13 @@ public abstract class AbstractSingleInputOperator implements IOperator {
         }
         try {
             if (this.inputOperator == null) {
-                throw new DataFlowException(ErrorMessages.INPUT_OPERATOR_NOT_SPECIFIED);
+                throw new DataflowException(ErrorMessages.INPUT_OPERATOR_NOT_SPECIFIED);
             }
             inputOperator.open();
             setUp();
             
         } catch (Exception e) {
-            throw new DataFlowException(e.getMessage(), e);
+            throw new DataflowException(e.getMessage(), e);
         }
         cursor = OPENED;
     }
@@ -61,7 +61,7 @@ public abstract class AbstractSingleInputOperator implements IOperator {
     @Override
     public Tuple getNextTuple() throws TexeraException {
         if (cursor == CLOSED) {
-            throw new DataFlowException(ErrorMessages.OPERATOR_NOT_OPENED);
+            throw new DataflowException(ErrorMessages.OPERATOR_NOT_OPENED);
         }
         if (resultCursor >= limit + offset - 1){
             return null;
@@ -80,7 +80,7 @@ public abstract class AbstractSingleInputOperator implements IOperator {
             }
             return resultTuple;
         } catch (Exception e) {
-            throw new DataFlowException(e.getMessage(), e);
+            throw new DataflowException(e.getMessage(), e);
         }
     }
 
@@ -105,7 +105,7 @@ public abstract class AbstractSingleInputOperator implements IOperator {
             }
             cleanUp();
         } catch (Exception e) {
-            throw new DataFlowException(e.getMessage(), e);
+            throw new DataflowException(e.getMessage(), e);
         }
         cursor = CLOSED;
     }

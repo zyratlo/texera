@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 
 import edu.uci.ics.texera.api.constants.SchemaConstants;
 import edu.uci.ics.texera.api.dataflow.ISourceOperator;
-import edu.uci.ics.texera.api.exception.DataFlowException;
+import edu.uci.ics.texera.api.exception.DataflowException;
 import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.field.IDField;
 import edu.uci.ics.texera.api.field.TextField;
@@ -145,7 +145,7 @@ public class FileSourceOperator implements ISourceOperator {
                 Tuple tuple = new Tuple(outputSchema, IDField.newRandomID(), new TextField(content));
                 cursor++;
                 return tuple;
-            } catch (DataFlowException e) {
+            } catch (DataflowException e) {
                 // ignore error and move on
                 // TODO: use log4j
                 System.out.println("FileSourceOperator: file read error, file is ignored. " + e.getMessage());

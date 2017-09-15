@@ -5,7 +5,7 @@ import java.util.List;
 
 import edu.uci.ics.texera.api.constants.TestConstants;
 import edu.uci.ics.texera.api.constants.TestConstantsChinese;
-import edu.uci.ics.texera.api.exception.DataFlowException;
+import edu.uci.ics.texera.api.exception.DataflowException;
 import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.tuple.Tuple;
 import edu.uci.ics.texera.api.utils.TestUtils;
@@ -79,7 +79,7 @@ public class DictionaryMatcherTestHelper {
             if (TestUtils.equals(scanSourceResults, dictionarySourceResults)) {
                 return scanSourceResults;
             } else {
-                throw new DataFlowException("results from scanSource and dictionarySource are inconsistent");
+                throw new DataflowException("results from scanSource and dictionarySource are inconsistent");
             }
         }
         // if limit and offset are relevant, then the results can be different (since the order doesn't matter)
@@ -94,7 +94,7 @@ public class DictionaryMatcherTestHelper {
                     TestUtils.containsAll(allResults, dictionarySourceResults)) {
                 return scanSourceResults;
             } else {
-                throw new DataFlowException("results from scanSource and dictionarySource are inconsistent");
+                throw new DataflowException("results from scanSource and dictionarySource are inconsistent");
             }   
         }
     }

@@ -3,7 +3,7 @@ package edu.uci.ics.texera.exp.sink;
 import edu.uci.ics.texera.api.constants.ErrorMessages;
 import edu.uci.ics.texera.api.dataflow.IOperator;
 import edu.uci.ics.texera.api.dataflow.ISink;
-import edu.uci.ics.texera.api.exception.DataFlowException;
+import edu.uci.ics.texera.api.exception.DataflowException;
 import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.schema.Schema;
 import edu.uci.ics.texera.api.tuple.Tuple;
@@ -44,7 +44,7 @@ public abstract class AbstractSink implements ISink {
     @Override
     public void processTuples() throws TexeraException {
         if (cursor == CLOSED) {
-            throw new DataFlowException(ErrorMessages.OPERATOR_NOT_OPENED);
+            throw new DataflowException(ErrorMessages.OPERATOR_NOT_OPENED);
         }
         Tuple nextTuple;
 

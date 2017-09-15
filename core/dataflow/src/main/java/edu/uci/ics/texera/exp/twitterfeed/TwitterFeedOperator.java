@@ -3,7 +3,7 @@ package edu.uci.ics.texera.exp.twitterfeed;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.uci.ics.texera.api.dataflow.ISourceOperator;
-import edu.uci.ics.texera.api.exception.DataFlowException;
+import edu.uci.ics.texera.api.exception.DataflowException;
 import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.field.IDField;
 import edu.uci.ics.texera.api.field.IntegerField;
@@ -62,11 +62,11 @@ public class TwitterFeedOperator implements ISourceOperator {
         this.predicate = predicate;
         this.twitterConnector = twitterConnector;
         if (timeout <= 0) {
-            throw new DataFlowException("Please provide a positive timeout limit.");
+            throw new DataflowException("Please provide a positive timeout limit.");
         }
         if ((predicate.getKeywordList() == null || predicate.getKeywordList().isEmpty())
                 && (predicate.getLocationList() == null || predicate.getLocationList().isEmpty())) {
-            throw new DataFlowException("At least one between KeywordList and LocationList should be specified.");
+            throw new DataflowException("At least one between KeywordList and LocationList should be specified.");
         }
 
     }
@@ -89,7 +89,7 @@ public class TwitterFeedOperator implements ISourceOperator {
             cursor = OPENED;
 
         } catch (Exception e) {
-            throw new DataFlowException(e.getMessage(), e);
+            throw new DataflowException(e.getMessage(), e);
         }
     }
 

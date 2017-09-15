@@ -5,7 +5,7 @@ import java.util.stream.Collectors;
 
 import edu.uci.ics.texera.api.constants.ErrorMessages;
 import edu.uci.ics.texera.api.constants.SchemaConstants;
-import edu.uci.ics.texera.api.exception.DataFlowException;
+import edu.uci.ics.texera.api.exception.DataflowException;
 import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.field.ListField;
 import edu.uci.ics.texera.api.schema.Attribute;
@@ -41,7 +41,7 @@ public class KeywordMatcher extends AbstractSingleInputOperator {
             outputSchema = Utils.addAttributeToSchema(outputSchema, SchemaConstants.PAYLOAD_ATTRIBUTE);
         }
         if (inputSchema.containsField(predicate.getSpanListName())) {
-            throw new DataFlowException(ErrorMessages.DUPLICATE_ATTRIBUTE(predicate.getSpanListName(), inputSchema));
+            throw new DataflowException(ErrorMessages.DUPLICATE_ATTRIBUTE(predicate.getSpanListName(), inputSchema));
         } else {
             outputSchema = Utils.addAttributeToSchema(outputSchema,
                     new Attribute(predicate.getSpanListName(), AttributeType.LIST));
@@ -104,7 +104,7 @@ public class KeywordMatcher extends AbstractSingleInputOperator {
             DataflowUtils.appendSubstringMatchingSpans(inputTuple, predicate.getAttributeNames(), predicate.getQuery(), matchingResults);
         }
         if (matchingResults == null) {
-            throw new DataFlowException("no matching result is provided");
+            throw new DataflowException("no matching result is provided");
         }
         if (matchingResults.isEmpty()) {
             return null;
@@ -121,7 +121,7 @@ public class KeywordMatcher extends AbstractSingleInputOperator {
     protected void cleanUp() {
     }
 
-    private List<Span> appendPhraseMatchingSpans(Tuple inputTuple, List<String> attributeNames, List<String> queryTokenList, List<String> queryTokenListWithStopwords, String queryKeyword) throws DataFlowException {
+    private List<Span> appendPhraseMatchingSpans(Tuple inputTuple, List<String> attributeNames, List<String> queryTokenList, List<String> queryTokenListWithStopwords, String queryKeyword) throws DataflowException {
         ListField<Span> payloadField = inputTuple.getField(SchemaConstants.PAYLOAD);
         List<Span> payload = payloadField.getValue();
         List<Span> matchingResults = new ArrayList<>();
@@ -131,7 +131,7 @@ public class KeywordMatcher extends AbstractSingleInputOperator {
 
             // types other than TEXT and STRING: throw Exception for now
             if (attributeType != AttributeType.STRING && attributeType != AttributeType.TEXT) {
-                throw new DataFlowException("KeywordMatcher: Fields other than STRING and TEXT are not supported yet");
+                throw new DataflowException("KeywordMatcher: Fields other than STRING and TEXT are not supported yet");
             }
 
             // for STRING type, the query should match the fieldValue completely
@@ -161,7 +161,7 @@ public class KeywordMatcher extends AbstractSingleInputOperator {
         return matchingResults;
     }
 
-    private List<Span> appendConjunctionMatchingSpans(Tuple inputTuple, List<String> attributeNames, Set<String> queryTokenSet, String queryKeyword) throws DataFlowException {
+    private List<Span> appendConjunctionMatchingSpans(Tuple inputTuple, List<String> attributeNames, Set<String> queryTokenSet, String queryKeyword) throws DataflowException {
         ListField<Span> payloadField = inputTuple.getField(SchemaConstants.PAYLOAD);
         List<Span> payload = payloadField.getValue();
         List<Span> matchingResults = new ArrayList<>();
@@ -171,7 +171,7 @@ public class KeywordMatcher extends AbstractSingleInputOperator {
 
             // types other than TEXT and STRING: throw Exception for now
             if (attributeType != AttributeType.STRING && attributeType != AttributeType.TEXT) {
-                throw new DataFlowException("KeywordMatcher: Fields other than STRING and TEXT are not supported yet");
+                throw new DataflowException("KeywordMatcher: Fields other than STRING and TEXT are not supported yet");
             }
 
             // for STRING type, the query should match the fieldValue completely

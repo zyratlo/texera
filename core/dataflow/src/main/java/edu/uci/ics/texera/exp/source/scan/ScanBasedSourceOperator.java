@@ -1,6 +1,6 @@
 package edu.uci.ics.texera.exp.source.scan;
 
-import edu.uci.ics.texera.api.exception.DataFlowException;
+import edu.uci.ics.texera.api.exception.DataflowException;
 import edu.uci.ics.texera.api.exception.StorageException;
 import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.schema.Schema;
@@ -22,14 +22,14 @@ public class ScanBasedSourceOperator implements ISourceOperator {
     
     private boolean isOpen = false;
 
-    public ScanBasedSourceOperator(ScanSourcePredicate predicate) throws DataFlowException {
+    public ScanBasedSourceOperator(ScanSourcePredicate predicate) throws DataflowException {
         try {
             this.dataReader = RelationManager.getRelationManager().getTableDataReader(
                     predicate.getTableName(), new MatchAllDocsQuery());
             // TODO add an option to set if payload is added in the future.
             this.dataReader.setPayloadAdded(true);
         } catch (StorageException e) {
-            throw new DataFlowException(e);
+            throw new DataflowException(e);
         }
     }
 
@@ -42,20 +42,20 @@ public class ScanBasedSourceOperator implements ISourceOperator {
             dataReader.open();
             isOpen = true;
         } catch (Exception e) {
-            throw new DataFlowException(e.getMessage(), e);
+            throw new DataflowException(e.getMessage(), e);
         }
     }
 
     @Override
     public Tuple getNextTuple() throws TexeraException {
         if (! isOpen) {
-            throw new DataFlowException(ErrorMessages.OPERATOR_NOT_OPENED);
+            throw new DataflowException(ErrorMessages.OPERATOR_NOT_OPENED);
         }
         try {
             return dataReader.getNextTuple();
         } catch (Exception e) {
             e.printStackTrace();
-            throw new DataFlowException(e.getMessage(), e);
+            throw new DataflowException(e.getMessage(), e);
         }
     }
 
@@ -68,7 +68,7 @@ public class ScanBasedSourceOperator implements ISourceOperator {
             dataReader.close();
             isOpen = false;
         } catch (Exception e) {
-            throw new DataFlowException(e.getMessage(), e);
+            throw new DataflowException(e.getMessage(), e);
         }
     }
 

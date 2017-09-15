@@ -16,7 +16,7 @@ import org.apache.lucene.search.MatchAllDocsQuery;
 import edu.uci.ics.texera.api.constants.ErrorMessages;
 import edu.uci.ics.texera.api.constants.SchemaConstants;
 import edu.uci.ics.texera.api.dataflow.ISourceOperator;
-import edu.uci.ics.texera.api.exception.DataFlowException;
+import edu.uci.ics.texera.api.exception.DataflowException;
 import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.field.IDField;
 import edu.uci.ics.texera.api.field.IField;
@@ -61,7 +61,7 @@ public class WordCountIndexSource implements ISourceOperator {
     @Override
     public Tuple getNextTuple() throws TexeraException {
         if (cursor == CLOSED) {
-            throw new DataFlowException(ErrorMessages.OPERATOR_NOT_OPENED);
+            throw new DataflowException(ErrorMessages.OPERATOR_NOT_OPENED);
         }
         return computeNextMatchingTuple();
     }
@@ -115,7 +115,7 @@ public class WordCountIndexSource implements ISourceOperator {
             wordCountIterator = sortedWordCountMap.iterator();
             
         } catch (IOException e) {
-            throw new DataFlowException(e);
+            throw new DataflowException(e);
         }
         
     }

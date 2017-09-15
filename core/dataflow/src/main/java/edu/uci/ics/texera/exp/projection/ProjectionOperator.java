@@ -3,7 +3,7 @@ package edu.uci.ics.texera.exp.projection;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import edu.uci.ics.texera.api.exception.DataFlowException;
+import edu.uci.ics.texera.api.exception.DataflowException;
 import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.field.IField;
 import edu.uci.ics.texera.api.schema.Attribute;
@@ -31,7 +31,7 @@ public class ProjectionOperator extends AbstractSingleInputOperator {
                 .collect(Collectors.toList());
         
         if (outputAttributes.size() != predicate.getProjectionFields().size()) {
-            throw new DataFlowException("input schema doesn't contain one of the attributes to be projected");
+            throw new DataflowException("input schema doesn't contain one of the attributes to be projected");
         }
         outputSchema = new Schema(outputAttributes.stream().toArray(Attribute[]::new));
     }
@@ -58,7 +58,7 @@ public class ProjectionOperator extends AbstractSingleInputOperator {
     }
 
     @Override
-    protected void cleanUp() throws DataFlowException {        
+    protected void cleanUp() throws DataflowException {        
     }
 
     public ProjectionPredicate getPredicate() {

@@ -9,7 +9,7 @@ import java.util.Map;
 
 import edu.uci.ics.texera.api.constants.SchemaConstants;
 import edu.uci.ics.texera.api.dataflow.ISourceOperator;
-import edu.uci.ics.texera.api.exception.DataFlowException;
+import edu.uci.ics.texera.api.exception.DataflowException;
 import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.field.ListField;
 import edu.uci.ics.texera.api.schema.Schema;
@@ -94,12 +94,12 @@ public class DictionaryMatcherSourceOperator implements ISourceOperator {
      *        getNextTuple().
      */
     @Override
-    public void open() throws DataFlowException {
+    public void open() throws DataflowException {
         try {
             currentDictionaryEntry = predicate.getDictionary().getNextEntry();
 
             if (currentDictionaryEntry == null) {
-                throw new DataFlowException("Dictionary is empty");
+                throw new DataflowException("Dictionary is empty");
             }
 
             if (predicate.getKeywordMatchingType() == KeywordMatchingType.SUBSTRING_SCANBASED || predicate.getKeywordMatchingType() == KeywordMatchingType.REGEX) {
@@ -136,7 +136,7 @@ public class DictionaryMatcherSourceOperator implements ISourceOperator {
 
         } catch (Exception e) {
 
-            throw new DataFlowException(e.getMessage(), e);
+            throw new DataflowException(e.getMessage(), e);
 
         }
     }
@@ -268,7 +268,7 @@ public class DictionaryMatcherSourceOperator implements ISourceOperator {
      * @about Closes the operator
      */
     @Override
-    public void close() throws DataFlowException {
+    public void close() throws DataflowException {
         try {
             if (keywordSource != null) {
                 keywordSource.close();
@@ -282,7 +282,7 @@ public class DictionaryMatcherSourceOperator implements ISourceOperator {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            throw new DataFlowException(e.getMessage(), e);
+            throw new DataflowException(e.getMessage(), e);
         }
     }
 

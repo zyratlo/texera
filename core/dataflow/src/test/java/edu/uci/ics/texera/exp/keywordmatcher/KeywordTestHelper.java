@@ -5,7 +5,7 @@ import java.util.List;
 
 import edu.uci.ics.texera.api.constants.TestConstants;
 import edu.uci.ics.texera.api.constants.TestConstantsChinese;
-import edu.uci.ics.texera.api.exception.DataFlowException;
+import edu.uci.ics.texera.api.exception.DataflowException;
 import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.tuple.Tuple;
 import edu.uci.ics.texera.api.utils.TestUtils;
@@ -97,7 +97,7 @@ public class KeywordTestHelper {
             if (TestUtils.equals(scanSourceResults, keywordSourceResults)) {
                 return scanSourceResults;
             } else {
-                throw new DataFlowException("results from scanSource and keywordSource are inconsistent");
+                throw new DataflowException("results from scanSource and keywordSource are inconsistent");
             }
         }
         // if limit and offset are relevant, then the results can be different (since the order doesn't matter)
@@ -111,7 +111,7 @@ public class KeywordTestHelper {
                     TestUtils.containsAll(allResults, keywordSourceResults)) {
                 return scanSourceResults;
             } else {
-                throw new DataFlowException("results from scanSource and keywordSource are inconsistent");
+                throw new DataflowException("results from scanSource and keywordSource are inconsistent");
             }   
         }
     }

@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 
 import edu.uci.ics.texera.api.constants.ErrorMessages;
 import edu.uci.ics.texera.api.constants.SchemaConstants;
-import edu.uci.ics.texera.api.exception.DataFlowException;
+import edu.uci.ics.texera.api.exception.DataflowException;
 import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.field.ListField;
 import edu.uci.ics.texera.api.schema.Attribute;
@@ -44,7 +44,7 @@ public class FuzzyTokenMatcher extends AbstractSingleInputOperator {
             outputSchema = Utils.addAttributeToSchema(outputSchema, SchemaConstants.PAYLOAD_ATTRIBUTE);
         }
         if (outputSchema.containsField(predicate.getSpanListName())) {
-            throw new DataFlowException(ErrorMessages.DUPLICATE_ATTRIBUTE(
+            throw new DataflowException(ErrorMessages.DUPLICATE_ATTRIBUTE(
                     predicate.getSpanListName(), outputSchema));
         }
         outputSchema = Utils.addAttributeToSchema(outputSchema, 
@@ -93,7 +93,7 @@ public class FuzzyTokenMatcher extends AbstractSingleInputOperator {
             
             // types other than TEXT and STRING: throw Exception for now
             if (attributeType != AttributeType.TEXT && attributeType != AttributeType.STRING) {
-                throw new DataFlowException("FuzzyTokenMatcher: Fields other than TEXT or STRING are not supported");
+                throw new DataflowException("FuzzyTokenMatcher: Fields other than TEXT or STRING are not supported");
             }
             
             List<Span> fieldSpans = 
@@ -131,7 +131,7 @@ public class FuzzyTokenMatcher extends AbstractSingleInputOperator {
     }
 
     @Override
-    protected void cleanUp() throws DataFlowException {        
+    protected void cleanUp() throws DataflowException {        
     }
 
     public FuzzyTokenPredicate getPredicate() {

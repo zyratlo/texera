@@ -8,7 +8,7 @@ import com.twitter.hbc.core.processor.StringDelimitedProcessor;
 import com.twitter.hbc.httpclient.BasicClient;
 import com.twitter.hbc.httpclient.auth.Authentication;
 import com.twitter.hbc.httpclient.auth.OAuth1;
-import edu.uci.ics.texera.api.exception.DataFlowException;
+import edu.uci.ics.texera.api.exception.DataflowException;
 import edu.uci.ics.texera.api.exception.TexeraException;
 
 import java.util.List;
@@ -36,7 +36,7 @@ public class TwitterConnector {
     public TwitterConnector(List<String> keywordList, List<Location> locationList, List<String> languageList, String customerKey, String customerSecret, String token, String tokenSecret) throws TexeraException {
         if ((keywordList == null || keywordList.isEmpty()) && (locationList == null || locationList.isEmpty())
                 && (languageList == null || languageList.isEmpty())) {
-            throw new DataFlowException("no filter is provided");
+            throw new DataflowException("no filter is provided");
         }
 
         //Set up the blocking queue with proper size based on expected TPS of the stream.

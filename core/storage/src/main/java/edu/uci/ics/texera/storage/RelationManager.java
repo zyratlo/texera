@@ -15,7 +15,7 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
 
 import edu.uci.ics.texera.api.constants.SchemaConstants;
-import edu.uci.ics.texera.api.exception.DataFlowException;
+import edu.uci.ics.texera.api.exception.DataflowException;
 import edu.uci.ics.texera.api.exception.StorageException;
 import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.field.IDField;
@@ -122,7 +122,7 @@ public class RelationManager {
         Analyzer luceneAnalyzer = null;
         try {
             luceneAnalyzer = LuceneAnalyzerConstants.getLuceneAnalyzer(luceneAnalyzerString);
-        } catch (DataFlowException e) {
+        } catch (DataflowException e) {
             throw new StorageException("Lucene Analyzer String is not valid.");
         }
         
@@ -337,7 +337,7 @@ public class RelationManager {
         Analyzer luceneAnalyzer = null;
         try {
             luceneAnalyzer = LuceneAnalyzerConstants.getLuceneAnalyzer(analyzerString);
-        } catch (DataFlowException e) {
+        } catch (DataflowException e) {
             throw new StorageException(e);
         }
         

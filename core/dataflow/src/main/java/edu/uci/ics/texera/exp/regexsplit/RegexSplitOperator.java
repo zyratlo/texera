@@ -1,6 +1,6 @@
 package edu.uci.ics.texera.exp.regexsplit;
 
-import edu.uci.ics.texera.api.exception.DataFlowException;
+import edu.uci.ics.texera.api.exception.DataflowException;
 import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.field.IDField;
 import edu.uci.ics.texera.api.field.IField;
@@ -58,12 +58,12 @@ public class RegexSplitOperator extends AbstractSingleInputOperator implements I
     }
 
     @Override
-    protected void setUp() throws DataFlowException {
+    protected void setUp() throws DataflowException {
         Schema inputSchema = inputOperator.getOutputSchema();
         
         // check if input schema is present
         if (! inputSchema.containsField(predicate.getInputAttributeName())) {
-            throw new DataFlowException(String.format(
+            throw new DataflowException(String.format(
                     "input attribute %s is not in the input schema %s",
                     predicate.getInputAttributeName(),
                     inputSchema.getAttributeNames()));
@@ -75,7 +75,7 @@ public class RegexSplitOperator extends AbstractSingleInputOperator implements I
         boolean isValidType = inputAttributeType.equals(AttributeType.STRING) || 
                 inputAttributeType.equals(AttributeType.TEXT);
         if (! isValidType) {
-            throw new DataFlowException(String.format(
+            throw new DataflowException(String.format(
                     "input attribute %s must have type String or Text, its actual type is %s",
                     predicate.getInputAttributeName(),
                     inputAttributeType));
@@ -89,9 +89,9 @@ public class RegexSplitOperator extends AbstractSingleInputOperator implements I
     /*
      * adds a new field to the schema, with name resultAttributeName and type list of strings
      */
-    private Schema transformSchema(Schema inputSchema) throws DataFlowException {
+    private Schema transformSchema(Schema inputSchema) throws DataflowException {
         if (inputSchema.containsField(predicate.getResultAttributeName()))
-            throw new DataFlowException(String.format("result attribute name %s is already in the original schema %s",
+            throw new DataflowException(String.format("result attribute name %s is already in the original schema %s",
                     predicate.getInputAttributeName(),
                     inputSchema.getAttributeNames()));
         if(predicate.getOutputType() == RegexOutputType.ONE_TO_ONE)

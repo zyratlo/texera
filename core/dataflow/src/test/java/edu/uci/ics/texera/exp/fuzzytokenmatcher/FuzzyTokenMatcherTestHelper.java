@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.uci.ics.texera.api.constants.TestConstants;
-import edu.uci.ics.texera.api.exception.DataFlowException;
+import edu.uci.ics.texera.api.exception.DataflowException;
 import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.tuple.Tuple;
 import edu.uci.ics.texera.api.utils.TestUtils;
@@ -79,7 +79,7 @@ public class FuzzyTokenMatcherTestHelper {
             if (TestUtils.equals(scanSourceResults, fuzzyTokenSourceResults)) {
                 return scanSourceResults;
             } else {
-                throw new DataFlowException("results from scanSource and fuzzyTokenSource are inconsistent");
+                throw new DataflowException("results from scanSource and fuzzyTokenSource are inconsistent");
             }
         }
         // if limit and offset are relevant, then the results can be different (since the order doesn't matter)
@@ -93,7 +93,7 @@ public class FuzzyTokenMatcherTestHelper {
                     TestUtils.containsAll(allResults, fuzzyTokenSourceResults)) {
                 return scanSourceResults;
             } else {
-                throw new DataFlowException("results from scanSource and fuzzyTokenSource are inconsistent");
+                throw new DataflowException("results from scanSource and fuzzyTokenSource are inconsistent");
             }   
         }
     }

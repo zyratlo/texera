@@ -9,7 +9,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import edu.uci.ics.texera.api.constants.SchemaConstants;
 import edu.uci.ics.texera.api.dataflow.IOperator;
-import edu.uci.ics.texera.api.exception.DataFlowException;
+import edu.uci.ics.texera.api.exception.DataflowException;
 import edu.uci.ics.texera.api.field.IDField;
 import edu.uci.ics.texera.api.field.IField;
 import edu.uci.ics.texera.api.field.ListField;
@@ -118,7 +118,7 @@ public class SimilarityJoinPredicate extends PredicateBase implements IJoinPredi
 
     
     @Override
-    public Schema generateOutputSchema(Schema innerOperatorSchema, Schema outerOperatorSchema) throws DataFlowException {
+    public Schema generateOutputSchema(Schema innerOperatorSchema, Schema outerOperatorSchema) throws DataflowException {
         List<Attribute> outputAttributeList = new ArrayList<>();
         
         // add _ID field first
@@ -158,7 +158,7 @@ public class SimilarityJoinPredicate extends PredicateBase implements IJoinPredi
     }
 
     @Override
-    public Tuple joinTuples(Tuple innerTuple, Tuple outerTuple, Schema outputSchema) throws DataFlowException {        
+    public Tuple joinTuples(Tuple innerTuple, Tuple outerTuple, Schema outputSchema) throws DataflowException {        
         if (similarityThreshold == 0) {
             return null;
         }

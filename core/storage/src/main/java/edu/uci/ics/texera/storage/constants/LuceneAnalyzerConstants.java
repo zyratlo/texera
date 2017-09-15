@@ -9,7 +9,7 @@ import org.apache.lucene.analysis.custom.CustomAnalyzer;
 import org.apache.lucene.analysis.ngram.NGramTokenizerFactory;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 
-import edu.uci.ics.texera.api.exception.DataFlowException;
+import edu.uci.ics.texera.api.exception.DataflowException;
 
 /**
  * LuceneAnalyzerConstants contains helper functions specifically
@@ -42,9 +42,9 @@ public class LuceneAnalyzerConstants {
      * 
      * @param luceneAnalyzerString
      * @return
-     * @throws DataFlowException, if the luceneAnalyzerString is invalid
+     * @throws DataflowException, if the luceneAnalyzerString is invalid
      */
-    public static Analyzer getLuceneAnalyzer(String luceneAnalyzerString) throws DataFlowException {
+    public static Analyzer getLuceneAnalyzer(String luceneAnalyzerString) throws DataflowException {
         if (luceneAnalyzerString.equals("standard")) {
             return LuceneAnalyzerConstants.getStandardAnalyzer();
         }
@@ -54,12 +54,12 @@ public class LuceneAnalyzerConstants {
                         luceneAnalyzerString.substring(0, luceneAnalyzerString.indexOf('-')));
                 return getNGramAnalyzer(gramNum);
             } catch (NumberFormatException e) {
-                throw new DataFlowException(luceneAnalyzerString + " is not a valid lucene analyzer");
+                throw new DataflowException(luceneAnalyzerString + " is not a valid lucene analyzer");
             }
         } else if (luceneAnalyzerString.equals("smartchinese")) {
             return new SmartChineseAnalyzer();
         }
-        throw new DataFlowException(luceneAnalyzerString + " is not a valid lucene analyzer");
+        throw new DataflowException(luceneAnalyzerString + " is not a valid lucene analyzer");
     }
 
 
@@ -69,16 +69,16 @@ public class LuceneAnalyzerConstants {
 
     /**
      * @return a n-gram analyzer that tokenizes the text into grams of length n.
-     * @throws DataFlowException
+     * @throws DataflowException
      */
-    public static Analyzer getNGramAnalyzer(int gramNum) throws DataFlowException {
+    public static Analyzer getNGramAnalyzer(int gramNum) throws DataflowException {
         try {
             return CustomAnalyzer.builder()
                     .withTokenizer(NGramTokenizerFactory.class, 
                             new String[] { "minGramSize", Integer.toString(gramNum), "maxGramSize", Integer.toString(gramNum) })
                     .addTokenFilter(LowerCaseFilterFactory.class).build();
         } catch (IOException e) {
-            throw new DataFlowException(e.getMessage(), e);
+            throw new DataflowException(e.getMessage(), e);
         }
     }
 

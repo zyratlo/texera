@@ -6,7 +6,7 @@ import java.util.List;
 
 import edu.uci.ics.texera.api.constants.SchemaConstants;
 import edu.uci.ics.texera.api.dataflow.IOperator;
-import edu.uci.ics.texera.api.exception.DataFlowException;
+import edu.uci.ics.texera.api.exception.DataflowException;
 import edu.uci.ics.texera.api.exception.StorageException;
 import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.field.IField;
@@ -135,7 +135,7 @@ public class JoinTestHelper {
             RegexMatcher regexMatcher = new RegexMatcher(new RegexPredicate(query, Arrays.asList(attrName), SchemaConstants.SPAN_LIST));
             regexMatcher.setInputOperator(scanBasedSourceOperator);
             return regexMatcher;
-        } catch (DataFlowException e) {
+        } catch (DataflowException e) {
             e.printStackTrace();
             return null;
         }

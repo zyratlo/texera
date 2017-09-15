@@ -13,7 +13,7 @@ import com.mashape.unirest.http.exceptions.UnirestException;
 import edu.uci.ics.texera.api.constants.ErrorMessages;
 import edu.uci.ics.texera.api.constants.SchemaConstants;
 import edu.uci.ics.texera.api.dataflow.ISourceOperator;
-import edu.uci.ics.texera.api.exception.DataFlowException;
+import edu.uci.ics.texera.api.exception.DataflowException;
 import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.field.IDField;
 import edu.uci.ics.texera.api.field.TextField;
@@ -57,13 +57,13 @@ public class AsterixSource implements ISourceOperator {
             if (jsonResponse.getStatus() == 200) {
                 this.resultJsonArray = jsonResponse.getBody().getObject().getJSONArray("results");
             } else {
-                throw new DataFlowException("Send query to asterix failed: " + 
+                throw new DataflowException("Send query to asterix failed: " + 
                         "error status: " + jsonResponse.getStatusText() + ", " + 
                         "error body: " + jsonResponse.getBody().toString());
             }
             cursor = OPENED;
         } catch (UnirestException e) {
-            throw new DataFlowException(e);
+            throw new DataflowException(e);
         }
     }
     
@@ -105,7 +105,7 @@ public class AsterixSource implements ISourceOperator {
     @Override
     public Tuple getNextTuple() throws TexeraException {
         if (cursor == CLOSED) {
-            throw new DataFlowException(ErrorMessages.OPERATOR_NOT_OPENED);
+            throw new DataflowException(ErrorMessages.OPERATOR_NOT_OPENED);
         }
         if (cursor < resultJsonArray.length()) {
             Tuple tuple =  new Tuple(ATERIX_SOURCE_SCHEMA, 

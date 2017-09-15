@@ -10,7 +10,7 @@ import edu.stanford.nlp.pipeline.Annotation;
 import edu.stanford.nlp.pipeline.StanfordCoreNLP;
 import edu.stanford.nlp.util.CoreMap;
 import edu.uci.ics.texera.api.constants.ErrorMessages;
-import edu.uci.ics.texera.api.exception.DataFlowException;
+import edu.uci.ics.texera.api.exception.DataflowException;
 import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.field.IField;
 import edu.uci.ics.texera.api.field.ListField;
@@ -63,7 +63,7 @@ public class NlpEntityOperator extends AbstractSingleInputOperator {
         inputSchema = inputOperator.getOutputSchema();
         outputSchema = inputSchema;
         if (outputSchema.containsField(predicate.getSpanListName())) {
-            throw new DataFlowException(ErrorMessages.DUPLICATE_ATTRIBUTE(
+            throw new DataflowException(ErrorMessages.DUPLICATE_ATTRIBUTE(
                     predicate.getSpanListName(), outputSchema));
         }
         outputSchema = Utils.addAttributeToSchema(outputSchema, 

@@ -3,7 +3,7 @@ package edu.uci.ics.texera.exp.dictionarymatcher;
 import edu.uci.ics.texera.api.constants.ErrorMessages;
 import edu.uci.ics.texera.api.constants.SchemaConstants;
 import edu.uci.ics.texera.api.dataflow.IOperator;
-import edu.uci.ics.texera.api.exception.DataFlowException;
+import edu.uci.ics.texera.api.exception.DataflowException;
 import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.field.ListField;
 import edu.uci.ics.texera.api.schema.Attribute;
@@ -39,13 +39,13 @@ public class DictionaryMatcher extends AbstractSingleInputOperator {
     protected void setUp() throws TexeraException {
 
         if (inputOperator == null) {
-            throw new DataFlowException(ErrorMessages.INPUT_OPERATOR_NOT_SPECIFIED);
+            throw new DataflowException(ErrorMessages.INPUT_OPERATOR_NOT_SPECIFIED);
         }
         inputSchema = inputOperator.getOutputSchema();
         predicate.getDictionary().resetCursor();
 
         if (predicate.getDictionary().isEmpty()) {
-            throw new DataFlowException("Dictionary is empty");
+            throw new DataflowException("Dictionary is empty");
         }
 
         inputSchema = inputOperator.getOutputSchema();
@@ -55,7 +55,7 @@ public class DictionaryMatcher extends AbstractSingleInputOperator {
             outputSchema = Utils.addAttributeToSchema(outputSchema, SchemaConstants.PAYLOAD_ATTRIBUTE);
         }
         if (inputSchema.containsField(predicate.getSpanListName())) {
-            throw new DataFlowException(ErrorMessages.DUPLICATE_ATTRIBUTE(predicate.getSpanListName(), inputSchema));
+            throw new DataflowException(ErrorMessages.DUPLICATE_ATTRIBUTE(predicate.getSpanListName(), inputSchema));
         } else {
             outputSchema = Utils.addAttributeToSchema(outputSchema,
                     new Attribute(predicate.getSpanListName(), AttributeType.LIST));
@@ -137,7 +137,7 @@ public class DictionaryMatcher extends AbstractSingleInputOperator {
 
                     // types other than TEXT and STRING: throw Exception for now
                     if (attributeType != AttributeType.STRING && attributeType != AttributeType.TEXT) {
-                        throw new DataFlowException("KeywordMatcher: Fields other than STRING and TEXT are not supported yet");
+                        throw new DataflowException("KeywordMatcher: Fields other than STRING and TEXT are not supported yet");
                     }
 
                     Matcher javaMatcher = patternList.get(i).matcher(fieldValue);
@@ -163,7 +163,7 @@ public class DictionaryMatcher extends AbstractSingleInputOperator {
         return inputTuple;
     }
 
-    private List<Span> appendConjunctionMatchingSpans4Dictionary(Tuple inputTuple, List<String> attributeNames, List<Set<String>> queryTokenSetList, List<String> queryList) throws DataFlowException {
+    private List<Span> appendConjunctionMatchingSpans4Dictionary(Tuple inputTuple, List<String> attributeNames, List<Set<String>> queryTokenSetList, List<String> queryList) throws DataflowException {
         List<Span> matchingResults = new ArrayList<>();
         ListField<Span> payloadField = inputTuple.getField(SchemaConstants.PAYLOAD);
         List<Span> payload = payloadField.getValue();
@@ -174,7 +174,7 @@ public class DictionaryMatcher extends AbstractSingleInputOperator {
 
             // types other than TEXT and STRING: throw Exception for now
             if (attributeType != AttributeType.STRING && attributeType != AttributeType.TEXT) {
-                throw new DataFlowException("KeywordMatcher: Fields other than STRING and TEXT are not supported yet");
+                throw new DataflowException("KeywordMatcher: Fields other than STRING and TEXT are not supported yet");
             }
 
             // for STRING type, check if the dictionary entries contains the complete fieldValue
@@ -199,7 +199,7 @@ public class DictionaryMatcher extends AbstractSingleInputOperator {
         return matchingResults;
     }
 
-    public List<Span> appendPhraseMatchingSpans4Dictionary(Tuple inputTuple, List<String> attributeNames, List<List<String>> queryTokenList, List<Set<String>> queryTokenSetList, List<List<String>> queryTokenListWithStopwords, List<String> queryList) throws DataFlowException {
+    public List<Span> appendPhraseMatchingSpans4Dictionary(Tuple inputTuple, List<String> attributeNames, List<List<String>> queryTokenList, List<Set<String>> queryTokenSetList, List<List<String>> queryTokenListWithStopwords, List<String> queryList) throws DataflowException {
         List<Span> matchingResults = new ArrayList<>();
         ListField<Span> payloadField = inputTuple.getField(SchemaConstants.PAYLOAD);
         List<Span> payload = payloadField.getValue();
@@ -210,7 +210,7 @@ public class DictionaryMatcher extends AbstractSingleInputOperator {
 
             // types other than TEXT and STRING: throw Exception for now
             if (attributeType != AttributeType.STRING && attributeType != AttributeType.TEXT) {
-                throw new DataFlowException("KeywordMatcher: Fields other than STRING and TEXT are not supported yet");
+                throw new DataflowException("KeywordMatcher: Fields other than STRING and TEXT are not supported yet");
             }
 
             // for STRING type, the query should match the fieldValue completely

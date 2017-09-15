@@ -10,7 +10,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import edu.uci.ics.texera.api.constants.SchemaConstants;
-import edu.uci.ics.texera.api.exception.DataFlowException;
+import edu.uci.ics.texera.api.exception.DataflowException;
 import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.field.IField;
 import edu.uci.ics.texera.api.field.IntegerField;
@@ -186,8 +186,8 @@ public class JoinDistanceTest {
     
     // This case tests for the scenario when one of the operators result lists has no span. 
     // If one of the operators doesn't have span, then an exception will be thrown.
-    // Test result: DataFlowException is thrown
-    @Test(expected = DataFlowException.class)
+    // Test result: DataflowException is thrown
+    @Test(expected = DataflowException.class)
     public void testOneOfTheOperatorResultContainsNoSpan() throws Exception {
         JoinTestHelper.insertToTable(BOOK_TABLE, JoinTestConstants.bookGroup1.get(0));
         
@@ -857,7 +857,7 @@ public class JoinDistanceTest {
      * any noticeable difference in operation. But, calling getNetTuple() when 
      * operator is closed should throw an exception.
      */
-    @Test(expected = DataFlowException.class)
+    @Test(expected = DataflowException.class)
     public void testWhenOpenOrCloseIsCalledTwiceAndTryToGetNextTupleWhenClosed() throws Exception {
         List<Tuple> tuples = JoinTestConstants.bookGroup1.subList(1, 5);
         

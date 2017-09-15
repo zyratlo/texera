@@ -5,7 +5,7 @@ import java.util.List;
 
 import edu.uci.ics.texera.api.constants.ErrorMessages;
 import edu.uci.ics.texera.api.dataflow.IOperator;
-import edu.uci.ics.texera.api.exception.DataFlowException;
+import edu.uci.ics.texera.api.exception.DataflowException;
 import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.schema.Schema;
 import edu.uci.ics.texera.api.tuple.Tuple;
@@ -75,10 +75,10 @@ public class Join implements IOperator {
         }
         
         if (innerOperator == null) {
-            throw new DataFlowException("Inner Input Operator is not set.");
+            throw new DataflowException("Inner Input Operator is not set.");
         }
         if (outerOperator == null) {
-            throw new DataFlowException("Outer Input Operator is not set.");
+            throw new DataflowException("Outer Input Operator is not set.");
         }
         
         // generate output schema from schema of inner and outer operator
@@ -103,7 +103,7 @@ public class Join implements IOperator {
     @Override
     public Tuple getNextTuple() throws TexeraException {
     	if (cursor == CLOSED) {
-            throw new DataFlowException(ErrorMessages.OPERATOR_NOT_OPENED);
+            throw new DataflowException(ErrorMessages.OPERATOR_NOT_OPENED);
         }
     	
         // load all tuples from inner operator into memory in the first time
@@ -143,7 +143,7 @@ public class Join implements IOperator {
             }
             return resultTuple;
         } catch (Exception e) {
-            throw new DataFlowException(e.getMessage(), e);
+            throw new DataflowException(e.getMessage(), e);
         }
     }
 
@@ -190,7 +190,7 @@ public class Join implements IOperator {
             innerOperator.close();
             outerOperator.close();
         } catch (Exception e) {
-            throw new DataFlowException(e.getMessage(), e);
+            throw new DataflowException(e.getMessage(), e);
         }
         
         // Set the inner tuple list back to null on close.

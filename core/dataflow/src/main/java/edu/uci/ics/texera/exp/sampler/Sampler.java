@@ -1,7 +1,7 @@
 package edu.uci.ics.texera.exp.sampler;
 
 import edu.uci.ics.texera.api.dataflow.ISourceOperator;
-import edu.uci.ics.texera.api.exception.DataFlowException;
+import edu.uci.ics.texera.api.exception.DataflowException;
 import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.tuple.Tuple;
 import java.util.ArrayList;
@@ -39,7 +39,7 @@ public class Sampler extends AbstractSingleInputOperator implements ISourceOpera
     }
     
     @Override
-    protected void setUp() throws DataFlowException {
+    protected void setUp() throws DataflowException {
         this.outputSchema = inputOperator.getOutputSchema();
     }
     

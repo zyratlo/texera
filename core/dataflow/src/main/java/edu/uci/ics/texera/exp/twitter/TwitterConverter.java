@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.uci.ics.texera.api.constants.ErrorMessages;
 import edu.uci.ics.texera.api.dataflow.IOperator;
-import edu.uci.ics.texera.api.exception.DataFlowException;
+import edu.uci.ics.texera.api.exception.DataflowException;
 import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.field.IField;
 import edu.uci.ics.texera.api.field.IntegerField;
@@ -42,7 +42,7 @@ public class TwitterConverter implements IOperator {
             return;
         }
         if (inputOperator == null) {
-            throw new DataFlowException(ErrorMessages.INPUT_OPERATOR_NOT_SPECIFIED);
+            throw new DataflowException(ErrorMessages.INPUT_OPERATOR_NOT_SPECIFIED);
         }
         inputOperator.open();
         outputSchema = transformSchema(inputOperator.getOutputSchema());
@@ -52,7 +52,7 @@ public class TwitterConverter implements IOperator {
     @Override
     public Tuple getNextTuple() throws TexeraException {
         if (cursor == CLOSED) {
-            throw new DataFlowException(ErrorMessages.OPERATOR_NOT_OPENED);
+            throw new DataflowException(ErrorMessages.OPERATOR_NOT_OPENED);
         }
         Tuple tuple;
         while ((tuple = inputOperator.getNextTuple()) != null) {
@@ -128,7 +128,7 @@ public class TwitterConverter implements IOperator {
     
     private Schema transformSchema(Schema inputSchema) {
         if (! inputSchema.containsField(rawDataAttribute)) {
-            throw new DataFlowException(String.format(
+            throw new DataflowException(String.format(
                     "raw twitter attribute %s is not present in the input schema %s",
                     rawDataAttribute, inputSchema.getAttributeNames()));
         }

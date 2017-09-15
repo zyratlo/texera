@@ -12,7 +12,7 @@ import edu.stanford.nlp.ling.Sentence;
 import edu.uci.ics.texera.api.constants.ErrorMessages;
 import edu.uci.ics.texera.api.constants.SchemaConstants;
 import edu.uci.ics.texera.api.dataflow.IOperator;
-import edu.uci.ics.texera.api.exception.DataFlowException;
+import edu.uci.ics.texera.api.exception.DataflowException;
 import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.span.Span;
 import edu.uci.ics.texera.api.field.IDField;
@@ -54,9 +54,9 @@ public class NlpSplitOperator implements IOperator {
         this.predicate = predicate;
     }
     
-    public void setInputOperator(IOperator operator) throws DataFlowException {
+    public void setInputOperator(IOperator operator) throws DataflowException {
         if (cursor != CLOSED) {  
-            throw new DataFlowException("Cannot link this operator to other operator after the operator is opened");
+            throw new DataflowException("Cannot link this operator to other operator after the operator is opened");
         }
         this.inputOperator = operator;
     }
@@ -64,9 +64,9 @@ public class NlpSplitOperator implements IOperator {
     /*
      * adds a new field to the schema, with name resultAttributeName and type list of strings
      */
-    private Schema transformSchema(Schema inputSchema) throws DataFlowException {
+    private Schema transformSchema(Schema inputSchema) throws DataflowException {
         if (inputSchema.containsField(predicate.getResultAttributeName()))
-            throw new DataFlowException(String.format("result attribute name %s is already in the original schema %s",
+            throw new DataflowException(String.format("result attribute name %s is already in the original schema %s",
                     predicate.getInputAttributeName(),
                     inputSchema.getAttributeNames()));
         if(predicate.getOutputType() == NLPOutputType.ONE_TO_ONE)
@@ -82,14 +82,14 @@ public class NlpSplitOperator implements IOperator {
             return;
         }
         if (inputOperator == null) {
-            throw new DataFlowException(ErrorMessages.INPUT_OPERATOR_NOT_SPECIFIED);
+            throw new DataflowException(ErrorMessages.INPUT_OPERATOR_NOT_SPECIFIED);
         }
         inputOperator.open();
         Schema inputSchema = inputOperator.getOutputSchema();
         
         // check if input schema is present
         if (! inputSchema.containsField(predicate.getInputAttributeName())) {
-            throw new DataFlowException(String.format(
+            throw new DataflowException(String.format(
                     "input attribute %s is not in the input schema %s",
                     predicate.getInputAttributeName(),
                     inputSchema.getAttributeNames()));
@@ -101,7 +101,7 @@ public class NlpSplitOperator implements IOperator {
         boolean isValidType = inputAttributeType.equals(AttributeType.STRING) || 
                 inputAttributeType.equals(AttributeType.TEXT);
         if (! isValidType) {
-            throw new DataFlowException(String.format(
+            throw new DataflowException(String.format(
                     "input attribute %s must have type String or Text, its actual type is %s",
                     predicate.getInputAttributeName(),
                     inputAttributeType));

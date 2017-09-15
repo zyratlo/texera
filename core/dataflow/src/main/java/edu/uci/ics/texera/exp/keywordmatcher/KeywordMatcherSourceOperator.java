@@ -15,7 +15,7 @@ import org.apache.lucene.search.TermQuery;
 
 import edu.uci.ics.texera.api.dataflow.IOperator;
 import edu.uci.ics.texera.api.dataflow.ISourceOperator;
-import edu.uci.ics.texera.api.exception.DataFlowException;
+import edu.uci.ics.texera.api.exception.DataflowException;
 import edu.uci.ics.texera.api.exception.StorageException;
 import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.schema.AttributeType;
@@ -48,7 +48,7 @@ public class KeywordMatcherSourceOperator extends AbstractSingleInputOperator im
     
 
     public KeywordMatcherSourceOperator(KeywordSourcePredicate predicate) 
-            throws DataFlowException, StorageException {
+            throws DataflowException, StorageException {
         this.predicate = predicate;
         
         this.queryTokenList = DataflowUtils.tokenizeQuery(predicate.getLuceneAnalyzerString(), predicate.getQuery());
@@ -79,7 +79,7 @@ public class KeywordMatcherSourceOperator extends AbstractSingleInputOperator im
     }
 
     @Override
-    protected void setUp() throws DataFlowException {
+    protected void setUp() throws DataflowException {
         this.outputSchema = keywordMatcher.getOutputSchema();
     }
 
@@ -94,7 +94,7 @@ public class KeywordMatcherSourceOperator extends AbstractSingleInputOperator im
     }
 
     @Override
-    protected void cleanUp() throws DataFlowException {
+    protected void cleanUp() throws DataflowException {
     }
 
     /**
@@ -117,9 +117,9 @@ public class KeywordMatcherSourceOperator extends AbstractSingleInputOperator im
      *
      * @return Query
      * @throws ParseException
-     * @throws DataFlowException
+     * @throws DataflowException
      */
-    private Query createLuceneQueryObject() throws DataFlowException {
+    private Query createLuceneQueryObject() throws DataflowException {
         Query query = null;
         if (this.predicate.getMatchingType() == KeywordMatchingType.CONJUNCTION_INDEXBASED) {
             query = buildConjunctionQuery();
@@ -134,7 +134,7 @@ public class KeywordMatcherSourceOperator extends AbstractSingleInputOperator im
         return query;
     }
 
-    private Query buildConjunctionQuery() throws DataFlowException {
+    private Query buildConjunctionQuery() throws DataflowException {
         BooleanQuery.Builder booleanQueryBuilder = new BooleanQuery.Builder();
 
         for (String attributeName : this.predicate.getAttributeNames()) {
@@ -142,7 +142,7 @@ public class KeywordMatcherSourceOperator extends AbstractSingleInputOperator im
 
             // types other than TEXT and STRING: throw Exception for now
             if (attributeType != AttributeType.STRING && attributeType != AttributeType.TEXT) {
-                throw new DataFlowException(
+                throw new DataflowException(
                         "KeywordPredicate: Fields other than STRING and TEXT are not supported yet");
             }
 
@@ -164,7 +164,7 @@ public class KeywordMatcherSourceOperator extends AbstractSingleInputOperator im
         return booleanQueryBuilder.build();
     }
 
-    private Query buildPhraseQuery() throws DataFlowException {
+    private Query buildPhraseQuery() throws DataflowException {
         BooleanQuery.Builder booleanQueryBuilder = new BooleanQuery.Builder();
 
         for (String attributeName : this.predicate.getAttributeNames()) {
@@ -172,7 +172,7 @@ public class KeywordMatcherSourceOperator extends AbstractSingleInputOperator im
 
             // types other than TEXT and STRING: throw Exception for now
             if (attributeType != AttributeType.STRING && attributeType != AttributeType.TEXT) {
-                throw new DataFlowException(
+                throw new DataflowException(
                         "KeywordPredicate: Fields other than STRING and TEXT are not supported yet");
             }
 
@@ -203,13 +203,13 @@ public class KeywordMatcherSourceOperator extends AbstractSingleInputOperator im
         return booleanQueryBuilder.build();
     }
 
-    private Query buildScanQuery() throws DataFlowException {
+    private Query buildScanQuery() throws DataflowException {
         for (String attributeName : this.predicate.getAttributeNames()) {
             AttributeType attributeType = this.inputSchema.getAttribute(attributeName).getAttributeType();
 
             // types other than TEXT and STRING: throw Exception for now
             if (attributeType != AttributeType.STRING && attributeType != AttributeType.TEXT) {
-                throw new DataFlowException(
+                throw new DataflowException(
                         "KeywordPredicate: Fields other than STRING and TEXT are not supported yet");
             }
         }

@@ -3,7 +3,7 @@ package edu.uci.ics.texera.exp.comparablematcher;
 import java.text.DateFormat;
 import java.util.Date;
 
-import edu.uci.ics.texera.api.exception.DataFlowException;
+import edu.uci.ics.texera.api.exception.DataflowException;
 import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.field.DateField;
 import edu.uci.ics.texera.api.field.DoubleField;
@@ -30,10 +30,10 @@ public class ComparableMatcher extends AbstractSingleInputOperator {
     }
 
     @Override
-    protected void setUp() throws DataFlowException {
+    protected void setUp() throws DataflowException {
         outputSchema = inputOperator.getOutputSchema();
         if (! outputSchema.containsField(predicate.getAttributeName())) {
-            throw new DataFlowException(String.format("attribute %s not contained in input schema %s",
+            throw new DataflowException(String.format("attribute %s not contained in input schema %s",
                     predicate.getAttributeName(), outputSchema.getAttributeNames()));
         }
         inputAttrType = outputSchema.getAttribute(predicate.getAttributeName()).getAttributeType();
@@ -70,14 +70,14 @@ public class ComparableMatcher extends AbstractSingleInputOperator {
             conditionSatisfied = compareString(inputTuple);
             break;
         case LIST:
-            throw new DataFlowException("Unable to do comparison: LIST type is not supported");
+            throw new DataflowException("Unable to do comparison: LIST type is not supported");
         default:
-            throw new DataFlowException("Unable to do comparison: unknown type " + inputAttrType.getName());
+            throw new DataflowException("Unable to do comparison: unknown type " + inputAttrType.getName());
         }
         return conditionSatisfied ? inputTuple : null;
     }
 
-    private boolean compareDate(Tuple inputTuple) throws DataFlowException {     
+    private boolean compareDate(Tuple inputTuple) throws DataflowException {     
         if (predicate.getCompareToValue().getClass().equals(String.class)) {
             try {
                 String compareTo = (String) predicate.getCompareToValue();
@@ -85,10 +85,10 @@ public class ComparableMatcher extends AbstractSingleInputOperator {
                 Date date = inputTuple.getField(predicate.getAttributeName(), DateField.class).getValue();
                 return compareValues(date, compareToDate, predicate.getComparisonType());
             } catch (java.text.ParseException e) {
-                throw new DataFlowException("Unable to parse date: " + e.getMessage());
+                throw new DataflowException("Unable to parse date: " + e.getMessage());
             }
         } else {
-            throw new DataFlowException("Value " + predicate.getCompareToValue() + " is not a string");
+            throw new DataflowException("Value " + predicate.getCompareToValue() + " is not a string");
         }
     }
 
@@ -106,10 +106,10 @@ public class ComparableMatcher extends AbstractSingleInputOperator {
                 Double compareToValue = Double.parseDouble((String) predicate.getCompareToValue());
                 return compareValues(value, compareToValue, predicate.getComparisonType());
             } catch (NumberFormatException e) {
-                throw new DataFlowException("Unable to parse to number " + e.getMessage());
+                throw new DataflowException("Unable to parse to number " + e.getMessage());
             }
         } else {
-            throw new DataFlowException("Value " + predicate.getCompareToValue() + " is not a valid number type");
+            throw new DataflowException("Value " + predicate.getCompareToValue() + " is not a valid number type");
         }
     }
 
@@ -127,10 +127,10 @@ public class ComparableMatcher extends AbstractSingleInputOperator {
                 Double compareToValue = Double.parseDouble((String) predicate.getCompareToValue());
                 return compareValues((double) value, compareToValue, predicate.getComparisonType());
             } catch (NumberFormatException e) {
-                throw new DataFlowException("Unable to parse to number " + e.getMessage());
+                throw new DataflowException("Unable to parse to number " + e.getMessage());
             }
         } else {
-            throw new DataFlowException("Value " + predicate.getCompareToValue() + " is not a valid number type");
+            throw new DataflowException("Value " + predicate.getCompareToValue() + " is not a valid number type");
         }
     }
 
@@ -174,14 +174,14 @@ public class ComparableMatcher extends AbstractSingleInputOperator {
             }
             break;
         default:
-            throw new DataFlowException(
+            throw new DataflowException(
                     "Unable to do comparison: unknown comparison type: " + comparisonType);
         }
         return false;
     }
 
     @Override
-    protected void cleanUp() throws DataFlowException {
+    protected void cleanUp() throws DataflowException {
     }
 
 }

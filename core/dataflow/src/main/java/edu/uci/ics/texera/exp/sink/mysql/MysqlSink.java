@@ -13,7 +13,7 @@ import java.util.stream.Stream;
 import edu.uci.ics.texera.api.constants.SchemaConstants;
 import edu.uci.ics.texera.api.dataflow.IOperator;
 import edu.uci.ics.texera.api.dataflow.ISink;
-import edu.uci.ics.texera.api.exception.DataFlowException;
+import edu.uci.ics.texera.api.exception.DataflowException;
 import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.field.DoubleField;
 import edu.uci.ics.texera.api.field.IField;
@@ -74,7 +74,7 @@ public class MysqlSink implements ISink {
             mysqlCreateTable();
             cursor = OPENED;
         } catch (SQLException | InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-            throw new DataFlowException("MysqlSink failed to connect to mysql database." + e.getMessage());
+            throw new DataflowException("MysqlSink failed to connect to mysql database." + e.getMessage());
         }
     }
 
@@ -122,7 +122,7 @@ public class MysqlSink implements ISink {
                 prepStatement.executeUpdate();
             }
         } catch (SQLException e) {
-            throw new DataFlowException(
+            throw new DataflowException(
                     "MysqlSink processTuples fails to execute prepared statement. " + e.getMessage());
         }
     }
@@ -141,7 +141,7 @@ public class MysqlSink implements ISink {
             connection.close();
             cursor = CLOSED;
         } catch (SQLException e) {
-            throw new DataFlowException("MysqlSink fail to close. " + e.getMessage());
+            throw new DataflowException("MysqlSink fail to close. " + e.getMessage());
         }
     }
 
@@ -157,7 +157,7 @@ public class MysqlSink implements ISink {
                 statement = connection.createStatement();
             return statement.executeUpdate(dropTableStatement);
         } catch (SQLException e) {
-            throw new DataFlowException(
+            throw new DataflowException(
                     "MysqlSink failed to drop table " + predicate.getTable() + ". " + e.getMessage());
         }
     }
@@ -176,7 +176,7 @@ public class MysqlSink implements ISink {
                 statement = connection.createStatement();
             return statement.executeUpdate(createTableStatement);
         } catch (SQLException e) {
-            throw new DataFlowException(
+            throw new DataflowException(
                     "MysqlSink failed to create table " + predicate.getTable() + ". " + e.getMessage());
         }
     }

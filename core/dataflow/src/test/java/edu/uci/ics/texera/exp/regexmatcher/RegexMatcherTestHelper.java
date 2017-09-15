@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.uci.ics.texera.api.constants.TestConstants;
-import edu.uci.ics.texera.api.exception.DataFlowException;
+import edu.uci.ics.texera.api.exception.DataflowException;
 import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.tuple.Tuple;
 import edu.uci.ics.texera.api.utils.TestUtils;
@@ -114,7 +114,7 @@ public class RegexMatcherTestHelper {
                 if (TestUtils.equals(scanSourceResults, regexSourceResults)) {
                     return scanSourceResults;
                 } else {
-                    throw new DataFlowException("results from scanSource and keywordSource are inconsistent");
+                    throw new DataflowException("results from scanSource and keywordSource are inconsistent");
                 }
             } else {
                 // if limit and offset are relevant, then the results can be different (since the order doesn't matter)
@@ -126,7 +126,7 @@ public class RegexMatcherTestHelper {
                         TestUtils.containsAll(allResults, regexSourceResults)) {
                     return scanSourceResults;
                 } else {
-                    throw new DataFlowException("results from scanSource and keywordSource are inconsistent");
+                    throw new DataflowException("results from scanSource and keywordSource are inconsistent");
                 }   
             }          
         }        
@@ -190,7 +190,7 @@ public class RegexMatcherTestHelper {
             if (TestUtils.equals(scanSourceResults, regexSourceResults)) {
                 return scanSourceResults;
             } else {
-                throw new DataFlowException("results from scanSource and keywordSource are inconsistent");
+                throw new DataflowException("results from scanSource and keywordSource are inconsistent");
             }
         } else {
             // if limit and offset are relevant, then the results can be different (since the order doesn't matter)
@@ -202,7 +202,7 @@ public class RegexMatcherTestHelper {
                     TestUtils.containsAll(allResults, regexSourceResults)) {
                 return scanSourceResults;
             } else {
-                throw new DataFlowException("results from regex matched scanSource and regex matched keywordSource are inconsistent");
+                throw new DataflowException("results from regex matched scanSource and regex matched keywordSource are inconsistent");
             }
         }
     }
@@ -285,7 +285,7 @@ public class RegexMatcherTestHelper {
             if (TestUtils.equals(scanSourceResults, regexSourceResults)) {
                 return regexSourceResults;
             } else {
-                throw new DataFlowException("results from scanSource and keywordSource are inconsistent");
+                throw new DataflowException("results from scanSource and keywordSource are inconsistent");
             }
         } else {
             // if limit and offset are relevant, then the results can be different (since the order doesn't matter)
@@ -297,7 +297,7 @@ public class RegexMatcherTestHelper {
                     TestUtils.containsAll(allResults, regexSourceResults)) {
                 return regexSourceResults;
             } else {
-                throw new DataFlowException("results from regex matched scanSource and regex matched keywordSource are inconsistent");
+                throw new DataflowException("results from regex matched scanSource and regex matched keywordSource are inconsistent");
             }
         }
     }

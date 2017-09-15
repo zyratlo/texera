@@ -7,7 +7,7 @@ import org.apache.lucene.search.Query;
 
 import edu.uci.ics.texera.api.constants.DataConstants;
 import edu.uci.ics.texera.api.dataflow.ISourceOperator;
-import edu.uci.ics.texera.api.exception.DataFlowException;
+import edu.uci.ics.texera.api.exception.DataflowException;
 import edu.uci.ics.texera.api.exception.StorageException;
 import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.tuple.Tuple;
@@ -22,7 +22,7 @@ public class RegexMatcherSourceOperator extends AbstractSingleInputOperator impl
     private final DataReader dataReader;
     private final RegexMatcher regexMatcher;
     
-    public RegexMatcherSourceOperator(RegexSourcePredicate predicate) throws StorageException, DataFlowException {
+    public RegexMatcherSourceOperator(RegexSourcePredicate predicate) throws StorageException, DataflowException {
         this.predicate = predicate;
         
         if (this.predicate.isUseIndex()) {

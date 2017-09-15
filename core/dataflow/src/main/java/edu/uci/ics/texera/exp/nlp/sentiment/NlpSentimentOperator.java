@@ -13,7 +13,7 @@ import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.util.CoreMap;
 import edu.uci.ics.texera.api.constants.ErrorMessages;
 import edu.uci.ics.texera.api.dataflow.IOperator;
-import edu.uci.ics.texera.api.exception.DataFlowException;
+import edu.uci.ics.texera.api.exception.DataflowException;
 import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.field.IField;
 import edu.uci.ics.texera.api.field.IntegerField;
@@ -76,7 +76,7 @@ public class NlpSentimentOperator implements IOperator {
             return;
         }
         if (inputOperator == null) {
-            throw new DataFlowException(ErrorMessages.INPUT_OPERATOR_NOT_SPECIFIED);
+            throw new DataflowException(ErrorMessages.INPUT_OPERATOR_NOT_SPECIFIED);
         }
         inputOperator.open();
         Schema inputSchema = inputOperator.getOutputSchema();

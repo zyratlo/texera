@@ -7,7 +7,7 @@ import org.apache.poi.xslf.usermodel.XSLFShape;
 import org.apache.poi.xslf.usermodel.XSLFSlide;
 import org.apache.poi.xslf.usermodel.XSLFTextShape;
 
-import edu.uci.ics.texera.api.exception.DataFlowException;
+import edu.uci.ics.texera.api.exception.DataflowException;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -26,13 +26,13 @@ public class FileExtractorUtils {
      * 
      * @param path
      * @return
-     * @throws DataFlowException
+     * @throws DataflowException
      */
-    public static String extractPlainTextFile(Path path) throws DataFlowException {
+    public static String extractPlainTextFile(Path path) throws DataflowException {
         try {
             return new String(Files.readAllBytes(path));
         } catch (IOException e) {
-            throw new DataFlowException(e);
+            throw new DataflowException(e);
         }
     }
 
@@ -41,13 +41,13 @@ public class FileExtractorUtils {
      *
      * @param path
      * @return
-     * @throws DataFlowException
+     * @throws DataflowException
      */
-    public static String extractPDFFile(Path path) throws DataFlowException {
+    public static String extractPDFFile(Path path) throws DataflowException {
         try (PDDocument doc = PDDocument.load(new File(path.toString()))) {
             return new PDFTextStripper().getText(doc);
         } catch (IOException e) {
-            throw new DataFlowException(e);
+            throw new DataflowException(e);
         }
     }
 
@@ -56,9 +56,9 @@ public class FileExtractorUtils {
      *
      * @param path
      * @return
-     * @throws DataFlowException
+     * @throws DataflowException
      */
-    public static String extractPPTFile(Path path) throws DataFlowException {
+    public static String extractPPTFile(Path path) throws DataflowException {
         try (FileInputStream inputStream = new FileInputStream(path.toString());
                 XMLSlideShow ppt = new XMLSlideShow(inputStream)) {
             StringBuffer res = new StringBuffer();
@@ -74,7 +74,7 @@ public class FileExtractorUtils {
             }
             return res.toString();
         } catch (IOException e) {
-            throw new DataFlowException(e);
+            throw new DataflowException(e);
         }
     }
 

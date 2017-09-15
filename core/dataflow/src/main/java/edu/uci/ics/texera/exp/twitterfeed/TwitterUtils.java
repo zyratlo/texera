@@ -2,7 +2,7 @@ package edu.uci.ics.texera.exp.twitterfeed;
 
 
 import com.twitter.hbc.core.endpoint.Location;
-import edu.uci.ics.texera.api.exception.DataFlowException;
+import edu.uci.ics.texera.api.exception.DataflowException;
 import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.schema.Attribute;
 import edu.uci.ics.texera.api.schema.AttributeType;
@@ -112,7 +112,7 @@ public class TwitterUtils {
         }
         List<String> boudingCoordinate = Arrays.asList(inputLocation.trim().split(","));
         if (boudingCoordinate.size() != 4 || boudingCoordinate.stream().anyMatch(s -> s.trim().isEmpty())) {
-            throw new DataFlowException("Please provide valid location coordinates");
+            throw new DataflowException("Please provide valid location coordinates");
         }
         List<Double> boundingBox = new ArrayList<>();
         boudingCoordinate.stream().forEach(s -> boundingBox.add(Double.parseDouble(s.trim())));

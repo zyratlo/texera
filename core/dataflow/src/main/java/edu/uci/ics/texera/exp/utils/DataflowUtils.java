@@ -14,7 +14,7 @@ import org.apache.lucene.analysis.util.CharArraySet;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 
 import edu.uci.ics.texera.api.constants.SchemaConstants;
-import edu.uci.ics.texera.api.exception.DataFlowException;
+import edu.uci.ics.texera.api.exception.DataflowException;
 import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.field.DateField;
 import edu.uci.ics.texera.api.field.DoubleField;
@@ -74,7 +74,7 @@ public class DataflowUtils {
     public static ArrayList<String> tokenizeQuery(String luceneAnalyzerStr, String query) {
         try {
             return tokenizeQuery(LuceneAnalyzerConstants.getLuceneAnalyzer(luceneAnalyzerStr), query);
-        } catch (DataFlowException e) {
+        } catch (DataflowException e) {
             // TODO: discuss TexeraException vs. Checked Exception
             throw new TexeraException(e);
         }
@@ -210,7 +210,7 @@ public class DataflowUtils {
         return sb.toString();
     }
 
-    public static List<Span> generatePayloadFromTuple(Tuple tuple, String luceneAnalyzer) throws DataFlowException {
+    public static List<Span> generatePayloadFromTuple(Tuple tuple, String luceneAnalyzer) throws DataflowException {
         return generatePayloadFromTuple(tuple, LuceneAnalyzerConstants.getLuceneAnalyzer(luceneAnalyzer));
     }
 
@@ -263,16 +263,16 @@ public class DataflowUtils {
      * @param attributeNames
      * @param queryKeyword
      * @param matchingResults
-     * @throws DataFlowException
+     * @throws DataflowException
      */
-    public static void appendSubstringMatchingSpans(Tuple inputTuple, List<String> attributeNames, String queryKeyword, List<Span> matchingResults) throws DataFlowException {
+    public static void appendSubstringMatchingSpans(Tuple inputTuple, List<String> attributeNames, String queryKeyword, List<Span> matchingResults) throws DataflowException {
         for (String attributeName : attributeNames) {
             //  AttributeType attributeType = this.inputSchema.getAttribute(attributeName).getAttributeType();
             String fieldValue = inputTuple.getField(attributeName).getValue().toString();
             AttributeType attributeType = inputTuple.getSchema().getAttribute(attributeName).getAttributeType();
             // types other than TEXT and STRING: throw Exception for now
             if (attributeType != AttributeType.STRING && attributeType != AttributeType.TEXT) {
-                throw new DataFlowException("KeywordMatcher: Fields other than STRING and TEXT are not supported yet");
+                throw new DataflowException("KeywordMatcher: Fields other than STRING and TEXT are not supported yet");
             }
 
             // for STRING type, the query should match the fieldValue completely

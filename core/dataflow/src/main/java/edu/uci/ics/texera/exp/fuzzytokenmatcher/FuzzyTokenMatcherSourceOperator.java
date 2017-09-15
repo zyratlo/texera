@@ -7,7 +7,7 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.BooleanClause.Occur;
 
 import edu.uci.ics.texera.api.dataflow.ISourceOperator;
-import edu.uci.ics.texera.api.exception.DataFlowException;
+import edu.uci.ics.texera.api.exception.DataflowException;
 import edu.uci.ics.texera.api.exception.StorageException;
 import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.tuple.Tuple;
@@ -24,7 +24,7 @@ public class FuzzyTokenMatcherSourceOperator extends AbstractSingleInputOperator
     private FuzzyTokenMatcher fuzzyTokenMatcher;
     
     public FuzzyTokenMatcherSourceOperator(FuzzyTokenSourcePredicate predicate) 
-            throws DataFlowException, StorageException {
+            throws DataflowException, StorageException {
         this.predicate = predicate;
 
         // generate dataReader
@@ -59,7 +59,7 @@ public class FuzzyTokenMatcherSourceOperator extends AbstractSingleInputOperator
     protected void cleanUp() throws TexeraException {        
     }
     
-    public static Query createLuceneQueryObject(FuzzyTokenPredicate predicate) throws DataFlowException {
+    public static Query createLuceneQueryObject(FuzzyTokenPredicate predicate) throws DataflowException {
         try {
             /*
              * By default the boolean query takes 1024 # of clauses as the max
@@ -78,7 +78,7 @@ public class FuzzyTokenMatcherSourceOperator extends AbstractSingleInputOperator
             }
             return builder.build();
         } catch (ParseException e) {
-            throw new DataFlowException(e);
+            throw new DataflowException(e);
         }
     }
 

@@ -1,6 +1,6 @@
 package edu.uci.ics.texera.exp.sink;
 
-import edu.uci.ics.texera.api.exception.DataFlowException;
+import edu.uci.ics.texera.api.exception.DataflowException;
 import edu.uci.ics.texera.api.exception.StorageException;
 import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.tuple.Tuple;
@@ -17,13 +17,13 @@ public class IndexSink extends AbstractSink {
     private DataWriter dataWriter;
     private boolean isAppend = false;
 
-    public IndexSink(String tableName, boolean isAppend) throws DataFlowException {
+    public IndexSink(String tableName, boolean isAppend) throws DataflowException {
         try {
             RelationManager relationManager = RelationManager.getRelationManager();
             this.dataWriter = relationManager.getTableDataWriter(tableName);
             this.isAppend = isAppend;
         } catch (StorageException e) {
-            throw new DataFlowException(e);
+            throw new DataflowException(e);
         }
 
     }

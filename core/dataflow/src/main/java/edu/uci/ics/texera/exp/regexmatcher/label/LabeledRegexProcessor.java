@@ -9,7 +9,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import edu.uci.ics.texera.api.exception.DataFlowException;
+import edu.uci.ics.texera.api.exception.DataflowException;
 import edu.uci.ics.texera.api.field.ListField;
 import edu.uci.ics.texera.api.span.Span;
 import edu.uci.ics.texera.api.tuple.Tuple;
@@ -68,11 +68,11 @@ public class LabeledRegexProcessor {
      * @param inputTuple
      * @return map of label id and corresponding attribute values
      */
-    private Map<String, Set<String>> fetchLabelValues(Tuple inputTuple) throws DataFlowException {
+    private Map<String, Set<String>> fetchLabelValues(Tuple inputTuple) throws DataflowException {
         Map<String, Set<String>> labelSpanList = new HashMap<>();
         for (String label : this.labelList) {
             if (! inputTuple.getSchema().containsField(label)) {
-                throw new DataFlowException("label " + label + " does not exist");
+                throw new DataflowException("label " + label + " does not exist");
             }
             ListField<Span> spanListField = inputTuple.getField(label);
             Set<String> labelValues = spanListField.getValue().stream()

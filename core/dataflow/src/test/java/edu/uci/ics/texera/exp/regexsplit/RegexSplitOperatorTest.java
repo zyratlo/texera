@@ -12,7 +12,7 @@ import org.junit.Test;
 import edu.uci.ics.texera.api.constants.SchemaConstants;
 import edu.uci.ics.texera.api.constants.TestConstantsChinese;
 import edu.uci.ics.texera.api.constants.TestConstantsRegexSplit;
-import edu.uci.ics.texera.api.exception.DataFlowException;
+import edu.uci.ics.texera.api.exception.DataflowException;
 import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.span.Span;
 import edu.uci.ics.texera.api.tuple.Tuple;
@@ -117,7 +117,7 @@ public class RegexSplitOperatorTest {
      *  When splitting a field that is not TextField nor StringField, the 
      *  operator will throw an exception.
      */
-    @Test(expected = DataFlowException.class)
+    @Test(expected = DataflowException.class)
     public void test1() throws TexeraException {
         String splitRegex = "19";
         String splitAttrName = TestConstantsChinese.DATE_OF_BIRTH;

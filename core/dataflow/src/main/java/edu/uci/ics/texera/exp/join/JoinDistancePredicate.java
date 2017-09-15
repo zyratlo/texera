@@ -10,7 +10,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import edu.uci.ics.texera.api.constants.SchemaConstants;
 import edu.uci.ics.texera.api.dataflow.IOperator;
-import edu.uci.ics.texera.api.exception.DataFlowException;
+import edu.uci.ics.texera.api.exception.DataflowException;
 import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.field.IField;
 import edu.uci.ics.texera.api.field.ListField;
@@ -136,7 +136,7 @@ public class JoinDistancePredicate extends PredicateBase implements IJoinPredica
     }
     
     @Override
-    public Schema generateOutputSchema(Schema innerOperatorSchema, Schema outerOperatorSchema) throws DataFlowException {
+    public Schema generateOutputSchema(Schema innerOperatorSchema, Schema outerOperatorSchema) throws DataflowException {
         return generateIntersectionSchema(innerOperatorSchema, outerOperatorSchema);
     }
     
@@ -151,7 +151,7 @@ public class JoinDistancePredicate extends PredicateBase implements IJoinPredica
      * 
      * @return outputSchema
      */
-    private Schema generateIntersectionSchema(Schema innerOperatorSchema, Schema outerOperatorSchema) throws DataFlowException {
+    private Schema generateIntersectionSchema(Schema innerOperatorSchema, Schema outerOperatorSchema) throws DataflowException {
         List<Attribute> innerAttributes = innerOperatorSchema.getAttributes();
         List<Attribute> outerAttributes = outerOperatorSchema.getAttributes();
         
@@ -164,19 +164,19 @@ public class JoinDistancePredicate extends PredicateBase implements IJoinPredica
         
         // check if output schema contain necessary attributes
         if (intersectionSchema.getAttributes().isEmpty()) {
-            throw new DataFlowException("inner operator and outer operator don't share any common attributes");
+            throw new DataflowException("inner operator and outer operator don't share any common attributes");
         } else if (intersectionSchema.getAttribute(this.joinAttributeName) == null) {
-            throw new DataFlowException("inner operator or outer operator doesn't contain join attribute");
+            throw new DataflowException("inner operator or outer operator doesn't contain join attribute");
         } else if (intersectionSchema.getAttribute(SchemaConstants._ID) == null) {
-            throw new DataFlowException("inner operator or outer operator doesn't contain _ID attribute");
+            throw new DataflowException("inner operator or outer operator doesn't contain _ID attribute");
         } else if (intersectionSchema.getAttribute(SchemaConstants.SPAN_LIST) == null) {
-            throw new DataFlowException("inner operator or outer operator doesn't contain spanList attribute");
+            throw new DataflowException("inner operator or outer operator doesn't contain spanList attribute");
         }
         
         // check if join attribute is TEXT or STRING
         AttributeType joinAttrType = intersectionSchema.getAttribute(this.joinAttributeName).getAttributeType();
         if (joinAttrType != AttributeType.TEXT && joinAttrType != AttributeType.STRING) {
-            throw new DataFlowException(
+            throw new DataflowException(
                     String.format("Join attribute %s must be either TEXT or STRING.", this.joinAttributeName));
         }
         

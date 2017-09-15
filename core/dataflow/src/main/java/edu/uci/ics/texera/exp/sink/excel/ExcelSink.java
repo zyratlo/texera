@@ -19,7 +19,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import edu.uci.ics.texera.api.constants.SchemaConstants;
 import edu.uci.ics.texera.api.dataflow.IOperator;
 import edu.uci.ics.texera.api.dataflow.ISink;
-import edu.uci.ics.texera.api.exception.DataFlowException;
+import edu.uci.ics.texera.api.exception.DataflowException;
 import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.field.DateField;
 import edu.uci.ics.texera.api.field.DoubleField;
@@ -93,7 +93,7 @@ public class ExcelSink implements ISink {
     	    }
 			fileOut = new FileOutputStream(excelIndexDirectory.resolve(fileName).toString());
 		} catch (IOException e) {
-			throw new DataFlowException(e);
+			throw new DataflowException(e);
 		}
     	sheet = wb.createSheet("new sheet");
     	Row row = sheet.createRow(0);
@@ -156,7 +156,7 @@ public class ExcelSink implements ISink {
 			fileOut.close();
             cursor = CLOSED; 
 		} catch (IOException e) {
-		    throw new DataFlowException(e);
+		    throw new DataflowException(e);
 		}
     }
 

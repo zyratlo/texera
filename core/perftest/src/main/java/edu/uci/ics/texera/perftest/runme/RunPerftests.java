@@ -8,7 +8,7 @@ import edu.uci.ics.texera.perftest.keywordmatcher.*;
 import edu.uci.ics.texera.perftest.nlpextractor.NlpExtractorPerformanceTest;
 import edu.uci.ics.texera.perftest.regexmatcher.RegexMatcherPerformanceTest;
 import edu.uci.ics.texera.perftest.utils.PerfTestUtils;
-import edu.uci.ics.texera.api.exception.DataFlowException;
+import edu.uci.ics.texera.api.exception.DataflowException;
 import edu.uci.ics.texera.api.exception.StorageException;
 import edu.uci.ics.texera.perftest.dictionarymatcher.*;
 import edu.uci.ics.texera.perftest.fuzzytokenmatcher.*;
@@ -57,7 +57,7 @@ public class RunPerftests {
             RegexMatcherPerformanceTest.runTest(regexQueries);
             NlpExtractorPerformanceTest.runTest();
 
-        } catch (StorageException | DataFlowException | IOException e) {
+        } catch (StorageException | DataflowException | IOException e) {
             e.printStackTrace();
         } catch (Exception e) {
             e.printStackTrace();

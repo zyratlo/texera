@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-import edu.uci.ics.texera.api.exception.DataFlowException;
+import edu.uci.ics.texera.api.exception.DataflowException;
 import edu.uci.ics.texera.api.exception.StorageException;
 import edu.uci.ics.texera.perftest.dictionarymatcher.DictionaryMatcherPerformanceTest;
 import edu.uci.ics.texera.perftest.fuzzytokenmatcher.FuzzyTokenMatcherPerformanceTest;
@@ -66,7 +66,7 @@ public class RunTests {
             RegexMatcherPerformanceTest.runTest(regexQueries);
             NlpExtractorPerformanceTest.runTest();
 
-        } catch (StorageException | DataFlowException | IOException e) {
+        } catch (StorageException | DataflowException | IOException e) {
             e.printStackTrace();
         } catch (Exception e) {
             e.printStackTrace();

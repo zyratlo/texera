@@ -1,7 +1,7 @@
 package edu.uci.ics.texera.exp.planstore;
 
 import edu.uci.ics.texera.api.constants.SchemaConstants;
-import edu.uci.ics.texera.api.exception.DataFlowException;
+import edu.uci.ics.texera.api.exception.DataflowException;
 import edu.uci.ics.texera.api.exception.StorageException;
 import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.field.IDField;
@@ -33,11 +33,11 @@ public class PlanStore {
     private static PlanStore instance = null;
     private RelationManager relationManager = null;
 
-    private PlanStore() throws StorageException, DataFlowException {
+    private PlanStore() throws StorageException, DataflowException {
         relationManager = RelationManager.getRelationManager();
     }
 
-    public synchronized static PlanStore getInstance() throws StorageException, DataFlowException {
+    public synchronized static PlanStore getInstance() throws StorageException, DataflowException {
         if (instance == null) {
             instance = new PlanStore();
         }

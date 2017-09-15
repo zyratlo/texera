@@ -15,7 +15,7 @@ import edu.uci.ics.texera.api.constants.ErrorMessages;
 import edu.uci.ics.texera.api.constants.SchemaConstants;
 import edu.uci.ics.texera.api.constants.DataConstants.TexeraProject;
 import edu.uci.ics.texera.api.dataflow.IOperator;
-import edu.uci.ics.texera.api.exception.DataFlowException;
+import edu.uci.ics.texera.api.exception.DataflowException;
 import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.field.IField;
 import edu.uci.ics.texera.api.field.IntegerField;
@@ -84,7 +84,7 @@ public class NltkSentimentOperator implements IOperator {
             return;
         }
         if (inputOperator == null) {
-            throw new DataFlowException(ErrorMessages.INPUT_OPERATOR_NOT_SPECIFIED);
+            throw new DataflowException(ErrorMessages.INPUT_OPERATOR_NOT_SPECIFIED);
         }
         inputOperator.open();
         Schema inputSchema = inputOperator.getOutputSchema();
@@ -146,7 +146,7 @@ public class NltkSentimentOperator implements IOperator {
             writer.close();
         } catch (IOException e) {
             // TODO Auto-generated catch block
-            throw new DataFlowException(e.getMessage(), e);
+            throw new DataflowException(e.getMessage(), e);
         }
         return true;
     }
@@ -198,7 +198,7 @@ public class NltkSentimentOperator implements IOperator {
             }
             csvReader.close();
         }catch(Exception e){
-            throw new DataFlowException(e.getMessage(), e);
+            throw new DataflowException(e.getMessage(), e);
         }
         return null;
     }

@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 
 import edu.uci.ics.texera.api.constants.SchemaConstants;
 import edu.uci.ics.texera.api.dataflow.ISourceOperator;
-import edu.uci.ics.texera.api.exception.DataFlowException;
+import edu.uci.ics.texera.api.exception.DataflowException;
 import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.field.IDField;
 import edu.uci.ics.texera.api.field.IField;
@@ -49,7 +49,7 @@ public class WordCountOperator extends AbstractSingleInputOperator implements IS
     }
     
     @Override
-    protected void setUp() throws DataFlowException {
+    protected void setUp() throws DataflowException {
         this.outputSchema = SCHEMA_WORD_COUNT;
         inputSchema = this.inputOperator.getOutputSchema();
         tmpSchema = inputSchema;
