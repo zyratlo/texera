@@ -1,6 +1,7 @@
 package edu.uci.ics.textdb.exp.twitterfeed;
 
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.twitter.hbc.core.endpoint.Location;
 import edu.uci.ics.textdb.api.exception.DataFlowException;
 import edu.uci.ics.textdb.api.exception.TextDBException;
@@ -10,6 +11,7 @@ import edu.uci.ics.textdb.api.schema.Schema;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.twitter.hbc.core.endpoint.Location.Coordinate;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -149,6 +151,22 @@ public class TwitterUtils {
         return locationList;
     }
 
+    public static String getMediaLink(JsonNode object) throws IOException {
+        if(object.hasNonNull(twitterConstant.ENTITY)) {
+            ObjectMapper mapper = new ObjectMapper();
+            List<JsonNode> List = mapper.readValue(object.get(twitterConstant.ENTITY).get(twitterConstant.URLS).toString(), mapper.getTypeFactory().constructCollectionType(List.class, JsonNode.class));
+            if(List.isEmpty()) {
+                return informationNotAvailable;
+            }
+            for (JsonNode jn : List) {
+                String display_URL = jn.get(twitterConstant.DISPLAYURL).toString();
+                String expanded_URL = jn.get(twitterConstant.EXPANDEDURL).toString();
+                return display_URL + "\n" + expanded_URL;
+            }
+        }
+        return informationNotAvailable;
+    }
+
     /**
      * Tweet Sample in Json format:
      * text : "@Toni090902 Hi, I'm here to make you feel good every day about your decision to follow me, or is that regret it, I forget :/"
@@ -194,6 +212,9 @@ public class TwitterUtils {
         public static String TEXT = "text";
         public static Attribute TEXT_ATTRIBUTE = new Attribute(TEXT, AttributeType.TEXT);
 
+        public static String MEDIA_LINK = "media_link";
+        public static Attribute MEDIA_LINK_ATTRIBUTE = new Attribute(MEDIA_LINK, AttributeType.STRING);
+
         public static String TWEET_LINK = "tweet_link";
         public static Attribute TWEET_LINK_ATTRIBUTE = new Attribute(TWEET_LINK, AttributeType.STRING);
 
@@ -232,7 +253,7 @@ public class TwitterUtils {
         public static Attribute LANGUAGE_ATTRIBUTE = new Attribute(LANGUAGE, AttributeType.STRING);
 
         public static Schema TWITTER_SCHEMA = new Schema(
-                TEXT_ATTRIBUTE, TWEET_LINK_ATTRIBUTE, USER_LINK_ATTRIBUTE,
+                TEXT_ATTRIBUTE, MEDIA_LINK_ATTRIBUTE, TWEET_LINK_ATTRIBUTE, USER_LINK_ATTRIBUTE,
                 USER_SCREEN_NAME_ATTRIBUTE, USER_NAME_ATTRIBUTE, USER_DESCRIPTION_ATTRIBUTE,
                 USER_FOLLOWERS_COUNT_ATTRIBUTE, USER_FRIENDS_COUNT_ATTRIBUTE,
                 PROFILE_LOCATION_ATTRIBUTE, CREATE_AT_ATTRIBUTE, TWEET_LOCATION_ATTRIBUTE, TWEET_COORDINATES_ATTRIBUTE, LANGUAGE_ATTRIBUTE);
@@ -267,7 +288,10 @@ public class TwitterUtils {
         private static final String TWEETLINK = "https://twitter.com/statuses/";
         private static final String TWEETID = "id_str";
         private static final String TWITTERLINK = "https://twitter.com/";
-
+        private static final String ENTITY = "entities";
+        private static final String URLS = "urls";
+        private static final String DISPLAYURL = "display_url";
+        private static final String EXPANDEDURL = "expanded_url";
     }
 
 }

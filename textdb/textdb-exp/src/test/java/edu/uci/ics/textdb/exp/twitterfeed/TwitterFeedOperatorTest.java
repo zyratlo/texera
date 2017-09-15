@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import static edu.uci.ics.textdb.exp.twitterfeed.TwitterUtils.twitterSchema.MEDIA_LINK;
 import static edu.uci.ics.textdb.exp.twitterfeed.TwitterUtils.twitterSchema.TEXT;
 import static edu.uci.ics.textdb.exp.twitterfeed.TwitterUtils.twitterSchema.USER_SCREEN_NAME;
 import static org.junit.Assert.assertTrue;
@@ -86,7 +87,7 @@ public class TwitterFeedOperatorTest {
 
     @Test
     public void testKeywordQuery() throws Exception {
-        List<String> searchableAttributes = new ArrayList<>(Arrays.asList(TEXT, USER_SCREEN_NAME));
+        List<String> searchableAttributes = new ArrayList<>(Arrays.asList(TEXT, USER_SCREEN_NAME, MEDIA_LINK));
         Assert.assertTrue(TwitterFeedTestHelper.checkKeywordInAttributes(exactResults, keywordList, searchableAttributes));
 
     }
@@ -132,6 +133,7 @@ public class TwitterFeedOperatorTest {
         JsonNode tweet = new ObjectMapper().readValue(inputStream, JsonNode.class);
         Tuple expectedTuple = new Tuple(TwitterUtils.twitterSchema.TWITTER_SCHEMA,
                 new TextField(TwitterUtils.getText(tweet)),
+                new StringField(TwitterUtils.getMediaLink(tweet)),
                 new StringField(TwitterUtils.getTweetLink(tweet)),
                 new StringField(TwitterUtils.getUserLink(tweet)),
                 new TextField(TwitterUtils.getUserScreenName(tweet)),

@@ -117,6 +117,7 @@ public class TwitterFeedOperator implements ISourceOperator {
 
             sourceTuple = new Tuple(outputSchema, IDField.newRandomID(),
                     new TextField(TwitterUtils.getText(tweet)),
+                    new StringField(TwitterUtils.getMediaLink(tweet)),
                     new StringField(TwitterUtils.getTweetLink(tweet)),
                     new StringField(TwitterUtils.getUserLink(tweet)),
                     new TextField(TwitterUtils.getUserScreenName(tweet)),
