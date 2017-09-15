@@ -137,6 +137,7 @@ public class NltkSentimentOperator implements IOperator {
             return false;
         }
         try {
+        		System.out.println("batched files dir is: " + BatchedFiles);
         		if (Files.notExists(Paths.get(BatchedFiles))) {
         			Files.createFile(Paths.get(BatchedFiles));
         		}

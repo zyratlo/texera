@@ -35,7 +35,7 @@ public class Utils {
     public static Path getResourcePath(String resourcePath, TexeraProject subProject) throws StorageException {
         return getTexeraHomePath()
         			.resolve(subProject.getProjectName())
-        			.resolve("/src/main/resources")
+        			.resolve("src/main/resources")
         			.resolve(resourcePath);
     }
     
