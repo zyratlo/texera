@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import edu.uci.ics.texera.api.constants.SchemaConstants;
 import edu.uci.ics.texera.api.field.IField;
 import edu.uci.ics.texera.api.field.TextField;
 import edu.uci.ics.texera.api.schema.Attribute;
@@ -12,7 +13,6 @@ import edu.uci.ics.texera.api.schema.AttributeType;
 import edu.uci.ics.texera.api.schema.Schema;
 import edu.uci.ics.texera.api.span.Span;
 import edu.uci.ics.texera.api.tuple.Tuple;
-import edu.uci.ics.texera.api.utils.Utils;
 import edu.uci.ics.texera.exp.utils.DataflowUtils;
 import edu.uci.ics.texera.exp.common.PropertyNameConstants;
 
@@ -53,7 +53,8 @@ public class NlpSplitTestConstants {
 
         Tuple tuple1 = getOneToOneTestTuple().get(0);
 
-        Schema returnSchema = Utils.createSpanSchema(tuple1.getSchema());
+        Schema returnSchema = new Schema.Builder().add(tuple1.getSchema()).add(SchemaConstants.SPAN_LIST_ATTRIBUTE).build();
+
 
         Tuple returnTuple = DataflowUtils.getSpanTuple(tuple1.getFields(), spanList, returnSchema);
         resultList.add(returnTuple);
@@ -68,8 +69,9 @@ public class NlpSplitTestConstants {
         
         IField sentenceText1 = new TextField(sentence1);
         Tuple tuple1 = getOneToManyTestTuple().get(0);
-        Schema returnSchema1 = Utils.addAttributeToSchema(tuple1.getSchema(), new Attribute(PropertyNameConstants.NLP_OUTPUT_TYPE, AttributeType.TEXT));
- 
+        Schema returnSchema1 = new Schema.Builder().add(tuple1.getSchema()).add(PropertyNameConstants.NLP_OUTPUT_TYPE, AttributeType.TEXT).build();
+
+        
         List<IField> outputFields1 = new ArrayList<>();
         outputFields1 = tuple1.getFields();
         outputFields1.add(sentenceText1);
@@ -80,8 +82,8 @@ public class NlpSplitTestConstants {
         
         IField sentenceText2 = new TextField(sentence2);
         Tuple tuple2 = getOneToManyTestTuple().get(0);
-        Schema returnSchema2 = Utils.addAttributeToSchema(tuple2.getSchema(), new Attribute(PropertyNameConstants.NLP_OUTPUT_TYPE, AttributeType.TEXT));
- 
+        Schema returnSchema2 = new Schema.Builder().add(tuple2.getSchema()).add(PropertyNameConstants.NLP_OUTPUT_TYPE, AttributeType.TEXT).build();
+        
         List<IField> outputFields2 = new ArrayList<>();
         outputFields2 = tuple2.getFields();
         outputFields2.add(sentenceText2);

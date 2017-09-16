@@ -25,7 +25,6 @@ import edu.uci.ics.texera.api.schema.Schema;
 import edu.uci.ics.texera.api.span.Span;
 import edu.uci.ics.texera.api.tuple.Tuple;
 import edu.uci.ics.texera.api.utils.TestUtils;
-import edu.uci.ics.texera.api.utils.Utils;
 import edu.uci.ics.texera.exp.dictionarymatcher.Dictionary;
 import edu.uci.ics.texera.exp.keywordmatcher.KeywordMatchingType;
 
@@ -141,7 +140,7 @@ public class DictionaryMatcherTest {
         Span span = new Span("firstName", 0, 2, "孔明", "孔明");
         list.add(span);
 
-        Schema resultSchema = Utils.addAttributeToSchema(TestConstantsChinese.SCHEMA_PEOPLE, RESULTS_ATTRIBUTE);
+        Schema resultSchema = new Schema.Builder().add(TestConstantsChinese.SCHEMA_PEOPLE).add(RESULTS_ATTRIBUTE).build();
 
         IField[] fields1 = { new StringField("孔明"), new StringField("洛克贝尔"), new IntegerField(42),
                 new DoubleField(5.99), new DateField(new SimpleDateFormat("MM-dd-yyyy").parse("01-13-1974")),

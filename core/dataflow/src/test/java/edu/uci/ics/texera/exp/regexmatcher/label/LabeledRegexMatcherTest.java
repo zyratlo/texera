@@ -13,13 +13,11 @@ import edu.uci.ics.texera.api.constants.TestConstants;
 import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.field.IField;
 import edu.uci.ics.texera.api.field.ListField;
-import edu.uci.ics.texera.api.schema.Attribute;
 import edu.uci.ics.texera.api.schema.AttributeType;
 import edu.uci.ics.texera.api.schema.Schema;
 import edu.uci.ics.texera.api.span.Span;
 import edu.uci.ics.texera.api.tuple.Tuple;
 import edu.uci.ics.texera.api.utils.TestUtils;
-import edu.uci.ics.texera.api.utils.Utils;
 import edu.uci.ics.texera.exp.regexmatcher.RegexMatcherTestHelper;
 
 /**
@@ -59,7 +57,8 @@ public class LabeledRegexMatcherTest {
 
         // expected to match "george lin lin"
         List<Tuple> data = TestConstants.getSamplePeopleTuples();
-        Schema spanSchema = Utils.addAttributeToSchema(TestConstants.SCHEMA_PEOPLE, new Attribute(RESULTS, AttributeType.LIST));
+        Schema spanSchema = new Schema.Builder().add(TestConstants.SCHEMA_PEOPLE).add(RESULTS, AttributeType.LIST).build();
+
         List<Span> spans = new ArrayList<>();
         spans.add(new Span(TestConstants.FIRST_NAME, 0, 14, query, "george lin lin"));
         IField spanField = new ListField<>(new ArrayList<>(spans));
@@ -83,7 +82,7 @@ public class LabeledRegexMatcherTest {
 
         // expected to match "george lin lin"
         List<Tuple> data = TestConstants.getSamplePeopleTuples();
-        Schema spanSchema = Utils.addAttributeToSchema(TestConstants.SCHEMA_PEOPLE, new Attribute(RESULTS, AttributeType.LIST));
+        Schema spanSchema = new Schema.Builder().add(TestConstants.SCHEMA_PEOPLE).add(RESULTS, AttributeType.LIST).build();
         List<Span> spans = new ArrayList<>();
         spans.add(new Span(TestConstants.FIRST_NAME, 0, 14, query, "george lin lin"));
         IField spanField = new ListField<>(new ArrayList<>(spans));
@@ -116,7 +115,7 @@ public class LabeledRegexMatcherTest {
 
         // expected to match "Short angry" and "Short and lin clooney is Angry"
         List<Tuple> data = TestConstants.getSamplePeopleTuples();
-        Schema spanSchema = Utils.addAttributeToSchema(TestConstants.SCHEMA_PEOPLE, new Attribute(RESULTS, AttributeType.LIST));
+        Schema spanSchema = new Schema.Builder().add(TestConstants.SCHEMA_PEOPLE).add(RESULTS, AttributeType.LIST).build();
         List<Span> spans = new ArrayList<>();
         spans.add(new Span(TestConstants.DESCRIPTION, 0, 11, query, "Short angry"));
         IField spanField = new ListField<>(new ArrayList<>(spans));
@@ -146,7 +145,7 @@ public class LabeledRegexMatcherTest {
 
         // expected to match "Short" and "angry"
         List<Tuple> data = TestConstants.getSamplePeopleTuples();
-        Schema spanSchema = Utils.addAttributeToSchema(TestConstants.SCHEMA_PEOPLE, new Attribute(RESULTS, AttributeType.LIST));
+        Schema spanSchema = new Schema.Builder().add(TestConstants.SCHEMA_PEOPLE).add(RESULTS, AttributeType.LIST).build();
         List<Span> spans = new ArrayList<>();
         spans.add(new Span(TestConstants.DESCRIPTION, 0, 5, query, "Short"));
         spans.add(new Span(TestConstants.DESCRIPTION, 6, 11, query, "angry"));
@@ -177,7 +176,7 @@ public class LabeledRegexMatcherTest {
 
         // expected to match "Short angry"
         List<Tuple> data = TestConstants.getSamplePeopleTuples();
-        Schema spanSchema = Utils.addAttributeToSchema(TestConstants.SCHEMA_PEOPLE, new Attribute(RESULTS, AttributeType.LIST));
+        Schema spanSchema = new Schema.Builder().add(TestConstants.SCHEMA_PEOPLE).add(RESULTS, AttributeType.LIST).build();
         List<Span> spans = new ArrayList<>();
         spans.add(new Span(TestConstants.DESCRIPTION, 0, 11, query, "Short angry"));
         IField spanField = new ListField<>(new ArrayList<>(spans));
@@ -199,7 +198,7 @@ public class LabeledRegexMatcherTest {
 
         // expected to match "Short angry"
         List<Tuple> data = TestConstants.getSamplePeopleTuples();
-        Schema spanSchema = Utils.addAttributeToSchema(TestConstants.SCHEMA_PEOPLE, new Attribute(RESULTS, AttributeType.LIST));
+        Schema spanSchema = new Schema.Builder().add(TestConstants.SCHEMA_PEOPLE).add(RESULTS, AttributeType.LIST).build();
         List<Span> spans = new ArrayList<>();
         spans.add(new Span(TestConstants.DESCRIPTION, 4, 20, query, "Clooney is Short"));
         IField spanField = new ListField<>(new ArrayList<>(spans));
@@ -221,7 +220,7 @@ public class LabeledRegexMatcherTest {
 
         // expected to match "Short angry"
         List<Tuple> data = TestConstants.getSamplePeopleTuples();
-        Schema spanSchema = Utils.addAttributeToSchema(TestConstants.SCHEMA_PEOPLE, new Attribute(RESULTS, AttributeType.LIST));
+        Schema spanSchema = new Schema.Builder().add(TestConstants.SCHEMA_PEOPLE).add(RESULTS, AttributeType.LIST).build();
         List<Span> spans = new ArrayList<>();
         spans.add(new Span(TestConstants.DESCRIPTION, 0, 45, query, "Lin Clooney is Short and lin clooney is Angry"));
         IField spanField = new ListField<>(new ArrayList<>(spans));

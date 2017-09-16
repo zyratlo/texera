@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 
 import com.twitter.hbc.core.endpoint.Location;
 
-import static edu.uci.ics.texera.exp.twitterfeed.TwitterUtils.twitterSchema.TWEET_COORDINATES;
+import static edu.uci.ics.texera.exp.twitterfeed.TwitterUtils.TwitterSchema.TWEET_COORDINATES;
 
 /**
  * Created by Chang on 7/13/17.

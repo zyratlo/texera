@@ -6,19 +6,16 @@ import edu.uci.ics.texera.api.field.IDField;
 import edu.uci.ics.texera.api.field.IField;
 import edu.uci.ics.texera.api.field.ListField;
 import edu.uci.ics.texera.api.field.TextField;
-import edu.uci.ics.texera.api.schema.Attribute;
 import edu.uci.ics.texera.api.schema.AttributeType;
 import edu.uci.ics.texera.api.schema.Schema;
 import edu.uci.ics.texera.api.span.Span;
 import edu.uci.ics.texera.api.tuple.Tuple;
-import edu.uci.ics.texera.api.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import edu.uci.ics.texera.api.constants.ErrorMessages;
 import edu.uci.ics.texera.api.constants.SchemaConstants;
 import edu.uci.ics.texera.api.dataflow.ISourceOperator;
 import edu.uci.ics.texera.exp.common.AbstractSingleInputOperator;
@@ -61,14 +58,9 @@ public class RegexSplitOperator extends AbstractSingleInputOperator implements I
     @Override
     protected void setUp() throws DataflowException {
         Schema inputSchema = inputOperator.getOutputSchema();
-        
-        // check if input schema is present
-        if (! inputSchema.containsAttribute(predicate.getInputAttributeName())) {
-            throw new DataflowException(String.format(
-                    "input attribute %s is not in the input schema %s",
-                    predicate.getInputAttributeName(),
-                    inputSchema.getAttributeNames()));
-        }
+        // generate output schema by transforming the input schema based on what output format
+        // is chosen (OneToOne vs. OneToMany)
+        this.outputSchema = transformSchema(inputSchema);
         
         // check if attribute type is valid
         AttributeType inputAttributeType =
@@ -82,41 +74,20 @@ public class RegexSplitOperator extends AbstractSingleInputOperator implements I
                     inputAttributeType));
         }
         
-        // generate output schema by transforming the input schema based on what output format
-        // is chosen (OneToOne vs. OneToMany)
-        this.outputSchema = transformSchema(inputOperator.getOutputSchema());
+
     }
     
     /*
      * adds a new field to the schema, with name resultAttributeName and type list of strings
      */
-    private Schema transformSchema(Schema inputSchema) throws DataflowException {
-        inputSchema = inputOperator.getOutputSchema();
+    private Schema transformSchema(Schema inputSchema) throws DataflowException {        
+        Schema.checkAttributeExists(inputSchema, predicate.getInputAttributeName());
+        Schema.checkAttributeNotExists(inputSchema, predicate.getResultAttributeName());
         
-        Schema.Builder outputSchemaBuilder = new Schema.Builder(inputOperator.getOutputSchema());
-        if (!outputSchema.containsAttribute(SchemaConstants.PAYLOAD)) {
-            outputSchemaBuilder.add(SchemaConstants.PAYLOAD_ATTRIBUTE);
-        }
-        
-        if (! outputSchema.containsAttribute(predicate.getSpanListName())) {
-            outputSchemaBuilder.add(predicate.getSpanListName(), AttributeType.LIST);
-        } else {
-            throw new DataflowException(ErrorMessages.DUPLICATE_ATTRIBUTE(
-                    predicate.getSpanListName(), outputSchema));
-        }
-        
-        outputSchema = outputSchemaBuilder.build();
-        
-        
-        if (inputSchema.containsAttribute(predicate.getResultAttributeName()))
-            throw new DataflowException(String.format("result attribute name %s is already in the original schema %s",
-                    predicate.getInputAttributeName(),
-                    inputSchema.getAttributeNames()));
-        
-        if(predicate.getOutputType() == RegexOutputType.ONE_TO_ONE)
-            return Utils.addAttributeToSchema(inputSchema, new Attribute(predicate.getResultAttributeName(), AttributeType.LIST));
+        if (predicate.getOutputType() == RegexOutputType.ONE_TO_ONE)
+            return new Schema.Builder().add(inputSchema).add(predicate.getResultAttributeName(), AttributeType.LIST).build();
         else
-            return Utils.addAttributeToSchema(inputSchema, new Attribute(predicate.getResultAttributeName(), AttributeType.TEXT));
+            return new Schema.Builder().add(inputSchema).add(predicate.getResultAttributeName(), AttributeType.TEXT).build();
     }
     
     @Override

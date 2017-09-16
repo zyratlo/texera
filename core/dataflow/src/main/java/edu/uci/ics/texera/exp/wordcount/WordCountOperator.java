@@ -21,7 +21,6 @@ import edu.uci.ics.texera.api.schema.AttributeType;
 import edu.uci.ics.texera.api.schema.Schema;
 import edu.uci.ics.texera.api.span.Span;
 import edu.uci.ics.texera.api.tuple.Tuple;
-import edu.uci.ics.texera.api.utils.Utils;
 import edu.uci.ics.texera.exp.common.AbstractSingleInputOperator;
 import edu.uci.ics.texera.exp.utils.DataflowUtils;
 
@@ -54,7 +53,7 @@ public class WordCountOperator extends AbstractSingleInputOperator implements IS
         inputSchema = this.inputOperator.getOutputSchema();
         tmpSchema = inputSchema;
         if (!inputSchema.containsAttribute(SchemaConstants.PAYLOAD)) {
-            tmpSchema = Utils.addAttributeToSchema(inputSchema, SchemaConstants.PAYLOAD_ATTRIBUTE);
+            tmpSchema = new Schema.Builder(inputSchema).add(SchemaConstants.PAYLOAD_ATTRIBUTE).build();
         }
     }
     

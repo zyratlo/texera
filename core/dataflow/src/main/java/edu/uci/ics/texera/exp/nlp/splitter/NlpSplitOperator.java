@@ -82,15 +82,11 @@ public class NlpSplitOperator implements IOperator {
             throw new DataflowException(ErrorMessages.INPUT_OPERATOR_NOT_SPECIFIED);
         }
         inputOperator.open();
-        Schema inputSchema = inputOperator.getOutputSchema();
         
-        // check if input schema is present
-        if (! inputSchema.containsAttribute(predicate.getInputAttributeName())) {
-            throw new DataflowException(String.format(
-                    "input attribute %s is not in the input schema %s",
-                    predicate.getInputAttributeName(),
-                    inputSchema.getAttributeNames()));
-        }
+        Schema inputSchema = inputOperator.getOutputSchema();
+        // generate output schema by transforming the input schema based on what output format
+        // is chosen (OneToOne vs. OneToMany)
+        outputSchema = transformSchema(inputOperator.getOutputSchema());
         
         // check if attribute type is valid
         AttributeType inputAttributeType =
@@ -104,11 +100,7 @@ public class NlpSplitOperator implements IOperator {
                     inputAttributeType));
         }
         
-        // generate output schema by transforming the input schema based on what output format
-        // is chosen (OneToOne vs. OneToMany)
-        outputSchema = transformSchema(inputOperator.getOutputSchema());
         cursor = OPENED;
-
     }
 
     @Override

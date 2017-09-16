@@ -18,8 +18,8 @@ import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import static edu.uci.ics.texera.exp.twitterfeed.TwitterUtils.twitterSchema.TEXT;
-import static edu.uci.ics.texera.exp.twitterfeed.TwitterUtils.twitterSchema.USER_SCREEN_NAME;
+import static edu.uci.ics.texera.exp.twitterfeed.TwitterUtils.TwitterSchema.TEXT;
+import static edu.uci.ics.texera.exp.twitterfeed.TwitterUtils.TwitterSchema.USER_SCREEN_NAME;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -133,7 +133,7 @@ public class TwitterFeedOperatorTest {
         List<Tuple> exactResults = tupleSink.collectAllTuples();
         tupleSink.close();
         JsonNode tweet = new ObjectMapper().readValue(inputStream, JsonNode.class);
-        Tuple expectedTuple = new Tuple(TwitterUtils.twitterSchema.TWITTER_SCHEMA,
+        Tuple expectedTuple = new Tuple(TwitterUtils.TwitterSchema.TWITTER_SCHEMA,
                 new TextField(TwitterUtils.getText(tweet)),
                 new StringField(TwitterUtils.getTweetLink(tweet)),
                 new StringField(TwitterUtils.getUserLink(tweet)),

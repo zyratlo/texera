@@ -12,7 +12,6 @@ import edu.uci.ics.texera.api.field.IDField;
 import edu.uci.ics.texera.api.field.IField;
 import edu.uci.ics.texera.api.schema.Schema;
 import edu.uci.ics.texera.api.tuple.Tuple;
-import edu.uci.ics.texera.api.utils.Utils;
 
 /*
  * This operator takes a collection of tuples and serves them as a source operator.
@@ -33,7 +32,7 @@ public class TupleSourceOperator implements ISourceOperator {
     
     public TupleSourceOperator(Collection<Tuple> inputTuples, Schema schema) {
         if (! schema.containsAttribute(SchemaConstants._ID)) {
-            this.outputSchema = Utils.getSchemaWithID(schema);
+            this.outputSchema = new Schema.Builder().add(SchemaConstants._ID_ATTRIBUTE).add(schema).build();
             this.inputTuples = new ArrayList<>();
             for (Tuple tuple : inputTuples) {
                 List<IField> fieldsWithID = new ArrayList<>();

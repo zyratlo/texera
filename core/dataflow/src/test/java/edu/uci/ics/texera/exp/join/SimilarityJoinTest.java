@@ -15,7 +15,6 @@ import edu.uci.ics.texera.api.schema.Schema;
 import edu.uci.ics.texera.api.span.Span;
 import edu.uci.ics.texera.api.tuple.Tuple;
 import edu.uci.ics.texera.api.utils.TestUtils;
-import edu.uci.ics.texera.api.utils.Utils;
 import edu.uci.ics.texera.exp.join.SimilarityJoinPredicate;
 import edu.uci.ics.texera.exp.keywordmatcher.KeywordMatchingType;
 import edu.uci.ics.texera.exp.regexmatcher.RegexMatcher;
@@ -94,7 +93,8 @@ public class SimilarityJoinTest {
         List<Tuple> results = JoinTestHelper.getJoinDistanceResults(
                 regexMatcherInner, regexMatcherOuter, similarityJoinPredicate, Integer.MAX_VALUE, 0);
 
-        Schema joinInputSchema = Utils.addAttributeToSchema(JoinTestConstants.NEWS_SCHEMA, SchemaConstants.SPAN_LIST_ATTRIBUTE);
+        
+        Schema joinInputSchema = new Schema.Builder().add(JoinTestConstants.NEWS_SCHEMA).add(SchemaConstants.SPAN_LIST_ATTRIBUTE).build();
         Schema resultSchema = similarityJoinPredicate.generateOutputSchema(joinInputSchema, joinInputSchema);
 
         List<Span> resultSpanList = Arrays.asList(
@@ -173,7 +173,7 @@ public class SimilarityJoinTest {
         List<Tuple> results = JoinTestHelper.getJoinDistanceResults(
                 regexMatcherInner, regexMatcherOuter, similarityJoinPredicate, Integer.MAX_VALUE, 0);
 
-        Schema joinInputSchema = Utils.addAttributeToSchema(JoinTestConstants.NEWS_SCHEMA, SchemaConstants.SPAN_LIST_ATTRIBUTE);
+        Schema joinInputSchema = new Schema.Builder().add(JoinTestConstants.NEWS_SCHEMA).add(SchemaConstants.SPAN_LIST_ATTRIBUTE).build();
         Schema resultSchema = similarityJoinPredicate.generateOutputSchema(joinInputSchema, joinInputSchema);
 
         List<Span> resultSpanList = Arrays.asList(

@@ -2,6 +2,8 @@ package edu.uci.ics.texera.exp.twitterfeed;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import edu.uci.ics.texera.api.constants.SchemaConstants;
 import edu.uci.ics.texera.api.dataflow.ISourceOperator;
 import edu.uci.ics.texera.api.exception.DataflowException;
 import edu.uci.ics.texera.api.exception.TexeraException;
@@ -11,7 +13,6 @@ import edu.uci.ics.texera.api.field.StringField;
 import edu.uci.ics.texera.api.field.TextField;
 import edu.uci.ics.texera.api.schema.Schema;
 import edu.uci.ics.texera.api.tuple.Tuple;
-import edu.uci.ics.texera.api.utils.Utils;
 
 
 import java.io.IOException;
@@ -58,7 +59,9 @@ public class TwitterFeedOperator implements ISourceOperator {
         this.resultCursor = -1;
         this.limit = Integer.MAX_VALUE;
         this.timeout = 10;
-        this.outputSchema = Utils.getSchemaWithID(TwitterUtils.twitterSchema.TWITTER_SCHEMA);
+        this.outputSchema = new Schema.Builder().add(SchemaConstants._ID_ATTRIBUTE)
+                .add(TwitterUtils.TwitterSchema.TWITTER_SCHEMA).build();
+
         this.predicate = predicate;
         this.twitterConnector = twitterConnector;
         if (timeout <= 0) {

@@ -161,7 +161,7 @@ public class TwitterUtils {
      * lang : "en"
      */
 
-    public static class twitterSchema {
+    public static class TwitterSchema {
 
         public static String TEXT = "text";
         public static Attribute TEXT_ATTRIBUTE = new Attribute(TEXT, AttributeType.TEXT);

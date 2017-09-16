@@ -23,7 +23,6 @@ import edu.uci.ics.texera.api.schema.Schema;
 import edu.uci.ics.texera.api.span.Span;
 import edu.uci.ics.texera.api.tuple.Tuple;
 import edu.uci.ics.texera.api.utils.TestUtils;
-import edu.uci.ics.texera.api.utils.Utils;
 import edu.uci.ics.texera.exp.fuzzytokenmatcher.FuzzyTokenSourcePredicate;
 import edu.uci.ics.texera.exp.join.Join;
 import edu.uci.ics.texera.exp.join.JoinDistancePredicate;
@@ -119,7 +118,8 @@ public class JoinDistanceTest {
         List<Tuple> resultList = JoinTestHelper.getJoinDistanceResults(keywordSourceInner, keywordSourceOuter, 
                 new JoinDistancePredicate(JoinTestConstants.REVIEW, 20), Integer.MAX_VALUE, 0);
         
-        Schema resultSchema = Utils.createSpanSchema(JoinTestConstants.BOOK_SCHEMA);
+        Schema resultSchema = new Schema.Builder().add(JoinTestConstants.BOOK_SCHEMA).add(SchemaConstants.SPAN_LIST_ATTRIBUTE).build();
+
         List<Span> spanList = new ArrayList<>();
 
         Span span1 = new Span(JoinTestConstants.REVIEW, 11, 33, "special_writer", "special kind of " + "writer");
@@ -234,7 +234,8 @@ public class JoinDistanceTest {
                 new JoinDistancePredicate(JoinTestConstants.REVIEW, 20), Integer.MAX_VALUE, 0);
         
         
-        Schema resultSchema = Utils.createSpanSchema(JoinTestConstants.BOOK_SCHEMA);
+        Schema resultSchema = new Schema.Builder().add(JoinTestConstants.BOOK_SCHEMA).add(SchemaConstants.SPAN_LIST_ATTRIBUTE).build();
+
         List<Span> spanList = new ArrayList<>();
 
         Span span1 = new Span(JoinTestConstants.REVIEW, 3, 33, "special_takes a special " + "kind of writer",
@@ -312,7 +313,7 @@ public class JoinDistanceTest {
         List<Tuple> resultList = JoinTestHelper.getJoinDistanceResults(keywordSourceInner, keywordSourceOuter, 
                 new JoinDistancePredicate(JoinTestConstants.REVIEW, 20), Integer.MAX_VALUE, 0);
         
-        Schema resultSchema = Utils.createSpanSchema(JoinTestConstants.BOOK_SCHEMA);
+        Schema resultSchema = new Schema.Builder().add(JoinTestConstants.BOOK_SCHEMA).add(SchemaConstants.SPAN_LIST_ATTRIBUTE).build();
         List<Span> spanList = new ArrayList<>();
 
         Span span1 = new Span(JoinTestConstants.REVIEW, 75, 109, "gastrointestinal tract_" + "tract interesting",
@@ -382,7 +383,7 @@ public class JoinDistanceTest {
         List<Tuple> resultList = JoinTestHelper.getJoinDistanceResults(keywordSourceInner, keywordSourceOuter, 
                 new JoinDistancePredicate(JoinTestConstants.REVIEW, 20), Integer.MAX_VALUE, 0);
         
-        Schema resultSchema = Utils.createSpanSchema(JoinTestConstants.BOOK_SCHEMA);
+        Schema resultSchema = new Schema.Builder().add(JoinTestConstants.BOOK_SCHEMA).add(SchemaConstants.SPAN_LIST_ATTRIBUTE).build();
         List<Span> spanList = new ArrayList<>();
 
         Span span1 = new Span(JoinTestConstants.REVIEW, 11, 18, "special_special", "special");
@@ -429,7 +430,7 @@ public class JoinDistanceTest {
         List<Tuple> resultList = JoinTestHelper.getJoinDistanceResults(keywordSourceInner, keywordSourceOuter, 
                 new JoinDistancePredicate(JoinTestConstants.REVIEW, 12), Integer.MAX_VALUE, 0);
 
-        Schema resultSchema = Utils.createSpanSchema(JoinTestConstants.BOOK_SCHEMA);
+        Schema resultSchema = new Schema.Builder().add(JoinTestConstants.BOOK_SCHEMA).add(SchemaConstants.SPAN_LIST_ATTRIBUTE).build();
         List<Span> spanList = new ArrayList<>();
 
         Span span1 = new Span(JoinTestConstants.REVIEW, 0, 16, "review_book", "Review of a " + "Book");
@@ -521,7 +522,7 @@ public class JoinDistanceTest {
         List<Tuple> resultList = JoinTestHelper.getJoinDistanceResults(keywordSourceInner, keywordSourceOuter, 
                 new JoinDistancePredicate(JoinTestConstants.REVIEW, 90), Integer.MAX_VALUE, 0);
 
-        Schema resultSchema = Utils.createSpanSchema(JoinTestConstants.BOOK_SCHEMA);
+        Schema resultSchema = new Schema.Builder().add(JoinTestConstants.BOOK_SCHEMA).add(SchemaConstants.SPAN_LIST_ATTRIBUTE).build();
         List<Span> spanList = new ArrayList<>();
 
         Span span1 = new Span(JoinTestConstants.REVIEW, 28, 119, "typical_actually", "typical review. "
@@ -599,7 +600,7 @@ public class JoinDistanceTest {
         List<Tuple> resultList = JoinTestHelper.getJoinDistanceResults(keywordSourceInner, keywordSourceOuter, 
                 new JoinDistancePredicate(JoinTestConstants.REVIEW, 90), 3, 0);
 
-        Schema resultSchema = Utils.createSpanSchema(JoinTestConstants.BOOK_SCHEMA);
+        Schema resultSchema = new Schema.Builder().add(JoinTestConstants.BOOK_SCHEMA).add(SchemaConstants.SPAN_LIST_ATTRIBUTE).build();
         List<Span> spanList = new ArrayList<>();
         
         Span span1 = new Span(JoinTestConstants.REVIEW, 28, 119, "typical_actually", "typical review. "
@@ -676,7 +677,7 @@ public class JoinDistanceTest {
         List<Tuple> resultList = JoinTestHelper.getJoinDistanceResults(keywordSourceInner, keywordSourceOuter, 
                 new JoinDistancePredicate(JoinTestConstants.REVIEW, 90), 10, 0);
 
-        Schema resultSchema = Utils.createSpanSchema(JoinTestConstants.BOOK_SCHEMA);
+        Schema resultSchema = new Schema.Builder().add(JoinTestConstants.BOOK_SCHEMA).add(SchemaConstants.SPAN_LIST_ATTRIBUTE).build();
         List<Span> spanList = new ArrayList<>();
 
         Span span1 = new Span(JoinTestConstants.REVIEW, 28, 119, "typical_actually", "typical review. "
@@ -799,7 +800,7 @@ public class JoinDistanceTest {
         List<Tuple> resultList = JoinTestHelper.getJoinDistanceResults(keywordSourceInner, keywordSourceOuter, 
                 new JoinDistancePredicate(JoinTestConstants.REVIEW, 90), 1, 2);
 
-        Schema resultSchema = Utils.createSpanSchema(JoinTestConstants.BOOK_SCHEMA);
+        Schema resultSchema = new Schema.Builder().add(JoinTestConstants.BOOK_SCHEMA).add(SchemaConstants.SPAN_LIST_ATTRIBUTE).build();
         List<Span> spanList = new ArrayList<>();
 
         Span span1 = new Span(JoinTestConstants.REVIEW, 28, 119, "typical_actually", "typical review. "

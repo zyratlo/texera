@@ -7,16 +7,15 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import edu.uci.ics.texera.api.constants.SchemaConstants;
 import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.field.ListField;
-import edu.uci.ics.texera.api.schema.Attribute;
 import edu.uci.ics.texera.api.span.Span;
 import edu.uci.ics.texera.api.tuple.Tuple;
-import edu.uci.ics.texera.api.utils.Utils;
 import edu.uci.ics.texera.exp.keywordmatcher.KeywordMatcherSourceOperator;
 import edu.uci.ics.texera.exp.keywordmatcher.KeywordMatchingType;
 import edu.uci.ics.texera.exp.keywordmatcher.KeywordSourcePredicate;
@@ -131,12 +130,12 @@ public class KeywordMatcherPerformanceTest {
     public static void match(ArrayList<String> queryList, KeywordMatchingType opType, String luceneAnalyzerStr,
             String tableName) throws TexeraException, IOException {
 
-        Attribute[] attributeList = new Attribute[] { MedlineIndexWriter.ABSTRACT_ATTR };
+        String[] attributeNames = new String[] { MedlineIndexWriter.ABSTRACT };
 
         for (String query : queryList) {
             KeywordSourcePredicate predicate = new KeywordSourcePredicate(
                     query,
-                    Utils.getAttributeNames(attributeList),
+                    Arrays.asList(attributeNames),
                     luceneAnalyzerStr, 
                     opType, 
                     tableName,

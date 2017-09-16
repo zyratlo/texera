@@ -5,7 +5,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import edu.uci.ics.texera.api.constants.ErrorMessages;
 import edu.uci.ics.texera.api.constants.SchemaConstants;
 import edu.uci.ics.texera.api.exception.DataflowException;
 import edu.uci.ics.texera.api.exception.TexeraException;
@@ -38,18 +37,15 @@ public class FuzzyTokenMatcher extends AbstractSingleInputOperator {
     protected void setUp() throws TexeraException {
         inputSchema = inputOperator.getOutputSchema();
         
+        Schema.checkAttributeExists(inputSchema, predicate.getAttributeNames());
+        Schema.checkAttributeNotExists(inputSchema, predicate.getSpanListName());
+        
         Schema.Builder outputSchemaBuilder = new Schema.Builder(inputOperator.getOutputSchema());
         if (!outputSchema.containsAttribute(SchemaConstants.PAYLOAD)) {
             outputSchemaBuilder.add(SchemaConstants.PAYLOAD_ATTRIBUTE);
         }
         
-        if (! outputSchema.containsAttribute(predicate.getSpanListName())) {
-            outputSchemaBuilder.add(predicate.getSpanListName(), AttributeType.LIST);
-        } else {
-            throw new DataflowException(ErrorMessages.DUPLICATE_ATTRIBUTE(
-                    predicate.getSpanListName(), outputSchema));
-        }
-        
+        outputSchemaBuilder.add(predicate.getSpanListName(), AttributeType.LIST);
         outputSchema = outputSchemaBuilder.build();
     }
 

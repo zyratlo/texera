@@ -31,7 +31,6 @@ import edu.uci.ics.texera.api.schema.AttributeType;
 import edu.uci.ics.texera.api.schema.Schema;
 import edu.uci.ics.texera.api.span.Span;
 import edu.uci.ics.texera.api.tuple.*;
-import edu.uci.ics.texera.api.utils.Utils;
 import edu.uci.ics.texera.storage.utils.StorageUtils;
 
 /**
@@ -101,7 +100,7 @@ public class DataReader implements IOperator {
 
             inputSchema = this.dataStore.getSchema();
             if (payloadAdded) {
-                outputSchema = Utils.addAttributeToSchema(inputSchema, SchemaConstants.PAYLOAD_ATTRIBUTE);
+                outputSchema = new Schema.Builder(inputSchema).add(SchemaConstants.PAYLOAD_ATTRIBUTE).build();
             } else {
                 outputSchema = inputSchema;
             }

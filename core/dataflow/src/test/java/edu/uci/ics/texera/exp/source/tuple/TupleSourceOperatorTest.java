@@ -13,7 +13,6 @@ import edu.uci.ics.texera.api.field.IDField;
 import edu.uci.ics.texera.api.schema.Schema;
 import edu.uci.ics.texera.api.tuple.Tuple;
 import edu.uci.ics.texera.api.utils.TestUtils;
-import edu.uci.ics.texera.api.utils.Utils;
 
 public class TupleSourceOperatorTest {
     
@@ -36,7 +35,8 @@ public class TupleSourceOperatorTest {
         // assert result is equal to input
         Assert.assertTrue(TestUtils.equals(TestConstants.getSamplePeopleTuples(), results));
         // assert _id is added to schema
-        Assert.assertTrue(outputSchema.equals(Utils.getSchemaWithID(TestConstants.SCHEMA_PEOPLE)));
+        Assert.assertTrue(outputSchema.equals(
+                new Schema.Builder().add(SchemaConstants._ID_ATTRIBUTE).add(TestConstants.SCHEMA_PEOPLE).build()));
         // assert all tuples contain _id field
         for (Tuple resultTuple : results) {
             Assert.assertTrue(resultTuple.getField(SchemaConstants._ID).getClass().equals(IDField.class));

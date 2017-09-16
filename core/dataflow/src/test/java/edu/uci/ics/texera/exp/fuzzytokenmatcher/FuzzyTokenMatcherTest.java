@@ -24,7 +24,6 @@ import edu.uci.ics.texera.api.schema.Schema;
 import edu.uci.ics.texera.api.span.Span;
 import edu.uci.ics.texera.api.tuple.Tuple;
 import edu.uci.ics.texera.api.utils.TestUtils;
-import edu.uci.ics.texera.api.utils.Utils;
 
 /**
  * @author Parag Saraogi
@@ -64,7 +63,7 @@ public class FuzzyTokenMatcherTest {
         ArrayList<String> attributeNames = new ArrayList<>();
         attributeNames.add(TestConstants.DESCRIPTION);
 
-        Schema schema = Utils.addAttributeToSchema(TestConstants.SCHEMA_PEOPLE, RESULTS_ATTR);
+        Schema schema = new Schema.Builder().add(TestConstants.SCHEMA_PEOPLE).add(RESULTS_ATTR).build();
 
         List<Span> spanList1 = Arrays.asList(
                 new Span(TestConstants.DESCRIPTION, 5, 10, "angry", "Angry", 1));
@@ -113,7 +112,8 @@ public class FuzzyTokenMatcherTest {
         ArrayList<String> attributeNames = new ArrayList<>();
         attributeNames.add(TestConstants.DESCRIPTION);
 
-        Schema schema = Utils.addAttributeToSchema(TestConstants.SCHEMA_PEOPLE, RESULTS_ATTR);
+        Schema schema = new Schema.Builder().add(TestConstants.SCHEMA_PEOPLE).add(RESULTS_ATTR).build();
+
 
         List<Span> spanList1 = Arrays.asList(
                 new Span(TestConstants.DESCRIPTION, 5, 10, "angry", "Angry", 1));
@@ -173,7 +173,7 @@ public class FuzzyTokenMatcherTest {
         ArrayList<String> attributeNames = new ArrayList<>();
         attributeNames.add(TestConstants.DESCRIPTION);
 
-        Schema schema = Utils.addAttributeToSchema(TestConstants.SCHEMA_PEOPLE, RESULTS_ATTR);
+        Schema schema = new Schema.Builder().add(TestConstants.SCHEMA_PEOPLE).add(RESULTS_ATTR).build();
 
         List<Span> spanList1 = Arrays.asList(
                 new Span(TestConstants.DESCRIPTION, 5, 10, "angry", "Angry", 1));
@@ -222,7 +222,7 @@ public class FuzzyTokenMatcherTest {
         ArrayList<String> attributeNames = new ArrayList<>();
         attributeNames.add(TestConstants.DESCRIPTION);
 
-        Schema schema = Utils.addAttributeToSchema(TestConstants.SCHEMA_PEOPLE, RESULTS_ATTR);
+        Schema schema = new Schema.Builder().add(TestConstants.SCHEMA_PEOPLE).add(RESULTS_ATTR).build();
 
         List<Span> spanList1 = Arrays.asList(
                 new Span(TestConstants.DESCRIPTION, 5, 10, "angry", "Angry", 1));
@@ -271,7 +271,7 @@ public class FuzzyTokenMatcherTest {
         ArrayList<String> attributeNames = new ArrayList<>();
         attributeNames.add(TestConstants.DESCRIPTION);
 
-        Schema schema = Utils.addAttributeToSchema(TestConstants.SCHEMA_PEOPLE, RESULTS_ATTR);
+        Schema schema = new Schema.Builder().add(TestConstants.SCHEMA_PEOPLE).add(RESULTS_ATTR).build();
 
         List<Span> list = new ArrayList<>();
         Span span = new Span(TestConstants.DESCRIPTION, 5, 10, "angry", "Angry", 1);
@@ -325,7 +325,7 @@ public class FuzzyTokenMatcherTest {
         ArrayList<String> attributeNames = new ArrayList<>();
         attributeNames.add(TestConstants.DESCRIPTION);
 
-        Schema schema = Utils.addAttributeToSchema(TestConstants.SCHEMA_PEOPLE, RESULTS_ATTR);
+        Schema schema = new Schema.Builder().add(TestConstants.SCHEMA_PEOPLE).add(RESULTS_ATTR).build();
 
         List<Span> list = new ArrayList<>();
         Span span = new Span(TestConstants.DESCRIPTION, 5, 10, "angry", "Angry", 1);

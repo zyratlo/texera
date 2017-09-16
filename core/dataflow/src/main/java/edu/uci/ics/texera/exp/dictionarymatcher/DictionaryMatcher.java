@@ -35,7 +35,6 @@ public class DictionaryMatcher extends AbstractSingleInputOperator {
 
     @Override
     protected void setUp() throws TexeraException {
-
         if (inputOperator == null) {
             throw new DataflowException(ErrorMessages.INPUT_OPERATOR_NOT_SPECIFIED);
         }
@@ -47,18 +46,15 @@ public class DictionaryMatcher extends AbstractSingleInputOperator {
 
         inputSchema = inputOperator.getOutputSchema();
         
+        Schema.checkAttributeExists(inputSchema, predicate.getAttributeNames());
+        Schema.checkAttributeNotExists(inputSchema, predicate.getSpanListName());
+        
         Schema.Builder outputSchemaBuilder = new Schema.Builder(inputOperator.getOutputSchema());
         if (!outputSchema.containsAttribute(SchemaConstants.PAYLOAD)) {
             outputSchemaBuilder.add(SchemaConstants.PAYLOAD_ATTRIBUTE);
         }
         
-        if (! outputSchema.containsAttribute(predicate.getSpanListName())) {
-            outputSchemaBuilder.add(predicate.getSpanListName(), AttributeType.LIST);
-        } else {
-            throw new DataflowException(ErrorMessages.DUPLICATE_ATTRIBUTE(
-                    predicate.getSpanListName(), outputSchema));
-        }
-        
+        outputSchemaBuilder.add(predicate.getSpanListName(), AttributeType.LIST);
         outputSchema = outputSchemaBuilder.build();
 
         if (predicate.getKeywordMatchingType() == KeywordMatchingType.CONJUNCTION_INDEXBASED) {

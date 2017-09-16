@@ -9,17 +9,13 @@ import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.pipeline.Annotation;
 import edu.stanford.nlp.pipeline.StanfordCoreNLP;
 import edu.stanford.nlp.util.CoreMap;
-import edu.uci.ics.texera.api.constants.ErrorMessages;
-import edu.uci.ics.texera.api.exception.DataflowException;
 import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.field.IField;
 import edu.uci.ics.texera.api.field.ListField;
-import edu.uci.ics.texera.api.schema.Attribute;
 import edu.uci.ics.texera.api.schema.AttributeType;
 import edu.uci.ics.texera.api.schema.Schema;
 import edu.uci.ics.texera.api.span.Span;
 import edu.uci.ics.texera.api.tuple.Tuple;
-import edu.uci.ics.texera.api.utils.Utils;
 import edu.uci.ics.texera.exp.common.AbstractSingleInputOperator;
 import edu.uci.ics.texera.exp.utils.DataflowUtils;
 
@@ -61,13 +57,11 @@ public class NlpEntityOperator extends AbstractSingleInputOperator {
     @Override
     protected void setUp() throws TexeraException {
         inputSchema = inputOperator.getOutputSchema();
-        outputSchema = inputSchema;
-        if (outputSchema.containsAttribute(predicate.getSpanListName())) {
-            throw new DataflowException(ErrorMessages.DUPLICATE_ATTRIBUTE(
-                    predicate.getSpanListName(), outputSchema));
-        }
-        outputSchema = Utils.addAttributeToSchema(outputSchema, 
-                new Attribute(predicate.getSpanListName(), AttributeType.LIST));
+        
+        Schema.checkAttributeExists(inputSchema, predicate.getAttributeNames());
+        Schema.checkAttributeNotExists(inputSchema, predicate.getSpanListName());
+
+        outputSchema = new Schema.Builder().add(inputSchema).add(predicate.getSpanListName(), AttributeType.LIST).build();
     }
     
     @Override
