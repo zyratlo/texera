@@ -125,8 +125,8 @@ public class SimilarityJoinPredicate extends PredicateBase implements IJoinPredi
         outputAttributeList.add(SchemaConstants._ID_ATTRIBUTE);
         
         for (Attribute attr : innerOperatorSchema.getAttributes()) {
-            String attrName = attr.getAttributeName();
-            AttributeType attrType = attr.getAttributeType();
+            String attrName = attr.getName();
+            AttributeType attrType = attr.getType();
             // ignore _id, spanList, and payload
             if (attrName.equals(SchemaConstants._ID) || attrName.equals(SchemaConstants.SPAN_LIST) 
                     || attrName.equals(SchemaConstants.PAYLOAD)) {
@@ -135,8 +135,8 @@ public class SimilarityJoinPredicate extends PredicateBase implements IJoinPredi
             outputAttributeList.add(new Attribute(INNER_PREFIX + attrName, attrType));
         }
         for (Attribute attr : outerOperatorSchema.getAttributes()) {
-            String attrName = attr.getAttributeName();
-            AttributeType attrType = attr.getAttributeType();
+            String attrName = attr.getName();
+            AttributeType attrType = attr.getType();
             // ignore _id, spanList, and payload
             if (attrName.equals(SchemaConstants._ID) || attrName.equals(SchemaConstants.SPAN_LIST) 
                     || attrName.equals(SchemaConstants.PAYLOAD)) {
@@ -149,8 +149,8 @@ public class SimilarityJoinPredicate extends PredicateBase implements IJoinPredi
         outputAttributeList.add(SchemaConstants.SPAN_LIST_ATTRIBUTE);
 
         // add payload field if one of them contains payload
-        if (innerOperatorSchema.containsField(SchemaConstants.PAYLOAD) || 
-                outerOperatorSchema.containsField(SchemaConstants.PAYLOAD)) {
+        if (innerOperatorSchema.containsAttribute(SchemaConstants.PAYLOAD) || 
+                outerOperatorSchema.containsAttribute(SchemaConstants.PAYLOAD)) {
             outputAttributeList.add(SchemaConstants.PAYLOAD_ATTRIBUTE);
         }
         

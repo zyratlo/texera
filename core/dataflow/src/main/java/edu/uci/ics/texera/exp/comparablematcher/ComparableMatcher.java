@@ -32,11 +32,11 @@ public class ComparableMatcher extends AbstractSingleInputOperator {
     @Override
     protected void setUp() throws DataflowException {
         outputSchema = inputOperator.getOutputSchema();
-        if (! outputSchema.containsField(predicate.getAttributeName())) {
+        if (! outputSchema.containsAttribute(predicate.getAttributeName())) {
             throw new DataflowException(String.format("attribute %s not contained in input schema %s",
                     predicate.getAttributeName(), outputSchema.getAttributeNames()));
         }
-        inputAttrType = outputSchema.getAttribute(predicate.getAttributeName()).getAttributeType();
+        inputAttrType = outputSchema.getAttribute(predicate.getAttributeName()).getType();
     }
 
     @Override

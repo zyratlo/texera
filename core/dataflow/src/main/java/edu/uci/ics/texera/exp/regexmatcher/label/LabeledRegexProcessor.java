@@ -71,7 +71,7 @@ public class LabeledRegexProcessor {
     private Map<String, Set<String>> fetchLabelValues(Tuple inputTuple) throws DataflowException {
         Map<String, Set<String>> labelSpanList = new HashMap<>();
         for (String label : this.labelList) {
-            if (! inputTuple.getSchema().containsField(label)) {
+            if (! inputTuple.getSchema().containsAttribute(label)) {
                 throw new DataflowException("label " + label + " does not exist");
             }
             ListField<Span> spanListField = inputTuple.getField(label);

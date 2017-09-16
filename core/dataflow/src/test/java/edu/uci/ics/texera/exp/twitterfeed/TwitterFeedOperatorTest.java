@@ -148,7 +148,7 @@ public class TwitterFeedOperatorTest {
                 new StringField(TwitterUtils.getCoordinates(tweet)),
                 new StringField(TwitterUtils.getLanguage(tweet)));
 
-        String exactID = exactResults.get(0).getField(0).getValue().toString();
+        String exactID = exactResults.get(0).getFields().get(0).getValue().toString();
         String expectedID = exactResults.get(0).getField(SchemaConstants._ID).getValue().toString();
 
         Assert.assertEquals(exactResults.size(), 1);

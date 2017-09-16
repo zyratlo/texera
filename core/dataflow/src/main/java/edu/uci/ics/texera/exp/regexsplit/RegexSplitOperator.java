@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import edu.uci.ics.texera.api.constants.ErrorMessages;
 import edu.uci.ics.texera.api.constants.SchemaConstants;
 import edu.uci.ics.texera.api.dataflow.ISourceOperator;
 import edu.uci.ics.texera.exp.common.AbstractSingleInputOperator;
@@ -62,7 +63,7 @@ public class RegexSplitOperator extends AbstractSingleInputOperator implements I
         Schema inputSchema = inputOperator.getOutputSchema();
         
         // check if input schema is present
-        if (! inputSchema.containsField(predicate.getInputAttributeName())) {
+        if (! inputSchema.containsAttribute(predicate.getInputAttributeName())) {
             throw new DataflowException(String.format(
                     "input attribute %s is not in the input schema %s",
                     predicate.getInputAttributeName(),
@@ -71,7 +72,7 @@ public class RegexSplitOperator extends AbstractSingleInputOperator implements I
         
         // check if attribute type is valid
         AttributeType inputAttributeType =
-                inputSchema.getAttribute(predicate.getInputAttributeName()).getAttributeType();
+                inputSchema.getAttribute(predicate.getInputAttributeName()).getType();
         boolean isValidType = inputAttributeType.equals(AttributeType.STRING) || 
                 inputAttributeType.equals(AttributeType.TEXT);
         if (! isValidType) {
@@ -90,10 +91,28 @@ public class RegexSplitOperator extends AbstractSingleInputOperator implements I
      * adds a new field to the schema, with name resultAttributeName and type list of strings
      */
     private Schema transformSchema(Schema inputSchema) throws DataflowException {
-        if (inputSchema.containsField(predicate.getResultAttributeName()))
+        inputSchema = inputOperator.getOutputSchema();
+        
+        Schema.Builder outputSchemaBuilder = new Schema.Builder(inputOperator.getOutputSchema());
+        if (!outputSchema.containsAttribute(SchemaConstants.PAYLOAD)) {
+            outputSchemaBuilder.add(SchemaConstants.PAYLOAD_ATTRIBUTE);
+        }
+        
+        if (! outputSchema.containsAttribute(predicate.getSpanListName())) {
+            outputSchemaBuilder.add(predicate.getSpanListName(), AttributeType.LIST);
+        } else {
+            throw new DataflowException(ErrorMessages.DUPLICATE_ATTRIBUTE(
+                    predicate.getSpanListName(), outputSchema));
+        }
+        
+        outputSchema = outputSchemaBuilder.build();
+        
+        
+        if (inputSchema.containsAttribute(predicate.getResultAttributeName()))
             throw new DataflowException(String.format("result attribute name %s is already in the original schema %s",
                     predicate.getInputAttributeName(),
                     inputSchema.getAttributeNames()));
+        
         if(predicate.getOutputType() == RegexOutputType.ONE_TO_ONE)
             return Utils.addAttributeToSchema(inputSchema, new Attribute(predicate.getResultAttributeName(), AttributeType.LIST));
         else

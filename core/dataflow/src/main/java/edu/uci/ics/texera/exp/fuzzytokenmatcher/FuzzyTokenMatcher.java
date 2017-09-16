@@ -10,12 +10,10 @@ import edu.uci.ics.texera.api.constants.SchemaConstants;
 import edu.uci.ics.texera.api.exception.DataflowException;
 import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.field.ListField;
-import edu.uci.ics.texera.api.schema.Attribute;
 import edu.uci.ics.texera.api.schema.AttributeType;
 import edu.uci.ics.texera.api.schema.Schema;
 import edu.uci.ics.texera.api.span.Span;
 import edu.uci.ics.texera.api.tuple.Tuple;
-import edu.uci.ics.texera.api.utils.Utils;
 import edu.uci.ics.texera.exp.common.AbstractSingleInputOperator;
 import edu.uci.ics.texera.exp.utils.DataflowUtils;
 
@@ -39,16 +37,20 @@ public class FuzzyTokenMatcher extends AbstractSingleInputOperator {
     @Override
     protected void setUp() throws TexeraException {
         inputSchema = inputOperator.getOutputSchema();
-        outputSchema = inputSchema;
-        if (!outputSchema.containsField(SchemaConstants.PAYLOAD)) {
-            outputSchema = Utils.addAttributeToSchema(outputSchema, SchemaConstants.PAYLOAD_ATTRIBUTE);
+        
+        Schema.Builder outputSchemaBuilder = new Schema.Builder(inputOperator.getOutputSchema());
+        if (!outputSchema.containsAttribute(SchemaConstants.PAYLOAD)) {
+            outputSchemaBuilder.add(SchemaConstants.PAYLOAD_ATTRIBUTE);
         }
-        if (outputSchema.containsField(predicate.getSpanListName())) {
+        
+        if (! outputSchema.containsAttribute(predicate.getSpanListName())) {
+            outputSchemaBuilder.add(predicate.getSpanListName(), AttributeType.LIST);
+        } else {
             throw new DataflowException(ErrorMessages.DUPLICATE_ATTRIBUTE(
                     predicate.getSpanListName(), outputSchema));
         }
-        outputSchema = Utils.addAttributeToSchema(outputSchema, 
-                new Attribute(predicate.getSpanListName(), AttributeType.LIST));
+        
+        outputSchema = outputSchemaBuilder.build();
     }
 
     @Override
@@ -60,7 +62,7 @@ public class FuzzyTokenMatcher extends AbstractSingleInputOperator {
             // There's an implicit assumption that, in open() method, PAYLOAD is
             // checked before SPAN_LIST.
             // Therefore, PAYLOAD needs to be checked and added first
-            if (!inputSchema.containsField(SchemaConstants.PAYLOAD)) {
+            if (!inputSchema.containsAttribute(SchemaConstants.PAYLOAD)) {
                 inputTuple = DataflowUtils.getSpanTuple(inputTuple.getFields(),
                         DataflowUtils.generatePayloadFromTuple(inputTuple, predicate.getLuceneAnalyzerStr()), outputSchema);
             }
@@ -89,7 +91,7 @@ public class FuzzyTokenMatcher extends AbstractSingleInputOperator {
          * returned is 15. So we need to filter those 5 spans for attribute B.
          */
         for (String attributeName : this.predicate.getAttributeNames()) {
-            AttributeType attributeType = this.inputSchema.getAttribute(attributeName).getAttributeType();
+            AttributeType attributeType = this.inputSchema.getAttribute(attributeName).getType();
             
             // types other than TEXT and STRING: throw Exception for now
             if (attributeType != AttributeType.TEXT && attributeType != AttributeType.STRING) {

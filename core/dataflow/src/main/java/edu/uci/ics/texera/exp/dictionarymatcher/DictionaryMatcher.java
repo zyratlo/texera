@@ -6,12 +6,10 @@ import edu.uci.ics.texera.api.dataflow.IOperator;
 import edu.uci.ics.texera.api.exception.DataflowException;
 import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.field.ListField;
-import edu.uci.ics.texera.api.schema.Attribute;
 import edu.uci.ics.texera.api.schema.AttributeType;
 import edu.uci.ics.texera.api.schema.Schema;
 import edu.uci.ics.texera.api.span.Span;
 import edu.uci.ics.texera.api.tuple.Tuple;
-import edu.uci.ics.texera.api.utils.Utils;
 import edu.uci.ics.texera.exp.common.AbstractSingleInputOperator;
 import edu.uci.ics.texera.exp.keywordmatcher.KeywordMatchingType;
 import edu.uci.ics.texera.exp.utils.DataflowUtils;
@@ -41,7 +39,6 @@ public class DictionaryMatcher extends AbstractSingleInputOperator {
         if (inputOperator == null) {
             throw new DataflowException(ErrorMessages.INPUT_OPERATOR_NOT_SPECIFIED);
         }
-        inputSchema = inputOperator.getOutputSchema();
         predicate.getDictionary().resetCursor();
 
         if (predicate.getDictionary().isEmpty()) {
@@ -49,17 +46,21 @@ public class DictionaryMatcher extends AbstractSingleInputOperator {
         }
 
         inputSchema = inputOperator.getOutputSchema();
-        outputSchema = inputSchema;
-
-        if (!inputSchema.containsField(SchemaConstants.PAYLOAD)) {
-            outputSchema = Utils.addAttributeToSchema(outputSchema, SchemaConstants.PAYLOAD_ATTRIBUTE);
+        
+        Schema.Builder outputSchemaBuilder = new Schema.Builder(inputOperator.getOutputSchema());
+        if (!outputSchema.containsAttribute(SchemaConstants.PAYLOAD)) {
+            outputSchemaBuilder.add(SchemaConstants.PAYLOAD_ATTRIBUTE);
         }
-        if (inputSchema.containsField(predicate.getSpanListName())) {
-            throw new DataflowException(ErrorMessages.DUPLICATE_ATTRIBUTE(predicate.getSpanListName(), inputSchema));
+        
+        if (! outputSchema.containsAttribute(predicate.getSpanListName())) {
+            outputSchemaBuilder.add(predicate.getSpanListName(), AttributeType.LIST);
         } else {
-            outputSchema = Utils.addAttributeToSchema(outputSchema,
-                    new Attribute(predicate.getSpanListName(), AttributeType.LIST));
+            throw new DataflowException(ErrorMessages.DUPLICATE_ATTRIBUTE(
+                    predicate.getSpanListName(), outputSchema));
         }
+        
+        outputSchema = outputSchemaBuilder.build();
+
         if (predicate.getKeywordMatchingType() == KeywordMatchingType.CONJUNCTION_INDEXBASED) {
             predicate.getDictionary().setDictionaryTokenSetList(predicate.getAnalyzerString());
         } else if (predicate.getKeywordMatchingType() == KeywordMatchingType.PHRASE_INDEXBASED) {
@@ -91,7 +92,7 @@ public class DictionaryMatcher extends AbstractSingleInputOperator {
         if (inputTuple == null) {
             return null;
         }
-        if (!inputSchema.containsField(SchemaConstants.PAYLOAD)) {
+        if (!inputSchema.containsAttribute(SchemaConstants.PAYLOAD)) {
             inputTuple = DataflowUtils.getSpanTuple(inputTuple.getFields(),
                     DataflowUtils.generatePayloadFromTuple(inputTuple, predicate.getAnalyzerString()), outputSchema);
         }
@@ -132,7 +133,7 @@ public class DictionaryMatcher extends AbstractSingleInputOperator {
 
             for (int i = 0; i < dictionaryEntries.size(); i++) {
                 for (String attributeName : predicate.getAttributeNames()) {
-                    AttributeType attributeType = inputTuple.getSchema().getAttribute(attributeName).getAttributeType();
+                    AttributeType attributeType = inputTuple.getSchema().getAttribute(attributeName).getType();
                     String fieldValue = inputTuple.getField(attributeName).getValue().toString();
 
                     // types other than TEXT and STRING: throw Exception for now
@@ -169,7 +170,7 @@ public class DictionaryMatcher extends AbstractSingleInputOperator {
         List<Span> payload = payloadField.getValue();
         Map<Integer, List<Span>> relevantSpansMap = filterRelevantSpans(payload, queryTokenSetList);
         for (String attributeName : attributeNames) {
-            AttributeType attributeType = inputTuple.getSchema().getAttribute(attributeName).getAttributeType();
+            AttributeType attributeType = inputTuple.getSchema().getAttribute(attributeName).getType();
             String fieldValue = inputTuple.getField(attributeName).getValue().toString();
 
             // types other than TEXT and STRING: throw Exception for now
@@ -205,7 +206,7 @@ public class DictionaryMatcher extends AbstractSingleInputOperator {
         List<Span> payload = payloadField.getValue();
         Map<Integer, List<Span>> relevantSpansMap = filterRelevantSpans(payload, queryTokenSetList);
         for (String attributeName : attributeNames) {
-            AttributeType attributeType = inputTuple.getSchema().getAttribute(attributeName).getAttributeType();
+            AttributeType attributeType = inputTuple.getSchema().getAttribute(attributeName).getType();
             String fieldValue = inputTuple.getField(attributeName).getValue().toString();
 
             // types other than TEXT and STRING: throw Exception for now

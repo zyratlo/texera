@@ -197,8 +197,8 @@ public class JoinDistanceTest {
         String fuzzyTokenQuery = "this writer writes well";
         double thresholdRatio = 0.25;
         List<String> textAttributeNames = JoinTestConstants.BOOK_SCHEMA.getAttributes().stream()
-                .filter(attr -> attr.getAttributeType() != AttributeType.TEXT)
-                .map(Attribute::getAttributeName).collect(Collectors.toList());
+                .filter(attr -> attr.getType() != AttributeType.TEXT)
+                .map(Attribute::getName).collect(Collectors.toList());
         FuzzyTokenSourcePredicate fuzzySourcePredicateInner = new FuzzyTokenSourcePredicate(fuzzyTokenQuery, textAttributeNames,
                 LuceneAnalyzerConstants.standardAnalyzerString(), thresholdRatio, BOOK_TABLE, SchemaConstants.SPAN_LIST);
         FuzzyTokenMatcherSourceOperator fuzzyMatcherInner = new FuzzyTokenMatcherSourceOperator(fuzzySourcePredicateInner);

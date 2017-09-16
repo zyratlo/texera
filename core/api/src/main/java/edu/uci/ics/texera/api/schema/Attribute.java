@@ -2,6 +2,7 @@ package edu.uci.ics.texera.api.schema;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 import edu.uci.ics.texera.api.constants.JsonConstants;
 
@@ -14,18 +15,19 @@ public class Attribute {
             @JsonProperty(value = JsonConstants.ATTRIBUTE_NAME, required = true)
             String attributeName, 
             @JsonProperty(value = JsonConstants.ATTRIBUTE_TYPE, required = true)
-            AttributeType attributeType) {     
+            AttributeType attributeType) {
+        checkNotNull(attributeName, attributeType);
         this.attributeName = attributeName;
         this.attributeType = attributeType;
     }
     
     @JsonProperty(value = JsonConstants.ATTRIBUTE_NAME)
-    public String getAttributeName() {
+    public String getName() {
         return attributeName;
     }
 
     @JsonProperty(value = JsonConstants.ATTRIBUTE_TYPE)
-    public AttributeType getAttributeType() {
+    public AttributeType getType() {
         return attributeType;
     }
 
@@ -55,7 +57,7 @@ public class Attribute {
             return that.attributeType == null;
         }
         
-        return this.attributeName.equals(that.attributeName) && this.attributeType.equals(that.attributeType);
+        return this.attributeName.equalsIgnoreCase(that.attributeName) && this.attributeType.equals(that.attributeType);
     }
     
     @Override

@@ -103,7 +103,7 @@ public class ComparableMatcherTest {
         // Prepare the query
         double threshold = 6.05;
         Attribute attribute = TestConstants.HEIGHT_ATTR;
-        String attributeName = attribute.getAttributeName();
+        String attributeName = attribute.getName();
         ComparisonType matchingType = ComparisonType.GREATER_THAN;
 
         // Perform the query
@@ -134,7 +134,7 @@ public class ComparableMatcherTest {
         // Prepare the query
         double threshold = 5.75;
         Attribute attribute = TestConstants.HEIGHT_ATTR;
-        String attributeName = attribute.getAttributeName();
+        String attributeName = attribute.getName();
         ComparisonType matchingType = ComparisonType.LESS_THAN;
 
         // Perform the query
@@ -161,7 +161,7 @@ public class ComparableMatcherTest {
         // Prepare the query
         double threshold = 5.95;
         Attribute attribute = TestConstants.HEIGHT_ATTR;
-        String attributeName = attribute.getAttributeName();
+        String attributeName = attribute.getName();
         ComparisonType matchingType = ComparisonType.LESS_THAN_OR_EQUAL_TO;
 
         // Perform the query
@@ -192,7 +192,7 @@ public class ComparableMatcherTest {
         // Prepare the query
         double threshold = 5.95;
         Attribute attribute = TestConstants.HEIGHT_ATTR;
-        String attributeName = attribute.getAttributeName();
+        String attributeName = attribute.getName();
         ComparisonType matchingType = ComparisonType.GREATER_THAN_OR_EQUAL_TO;
 
         // Perform the query
@@ -235,7 +235,7 @@ public class ComparableMatcherTest {
         // Prepare the query
         double threshold = 6.10;
         Attribute attribute = TestConstants.HEIGHT_ATTR;
-        String attributeName = attribute.getAttributeName();
+        String attributeName = attribute.getName();
         ComparisonType matchingType = ComparisonType.EQUAL_TO;
 
         // Perform the query
@@ -262,7 +262,7 @@ public class ComparableMatcherTest {
         // Prepare the query
         double threshold = 6.10;
         Attribute attribute = TestConstants.HEIGHT_ATTR;
-        String attributeName = attribute.getAttributeName();
+        String attributeName = attribute.getName();
         ComparisonType matchingType = ComparisonType.NOT_EQUAL_TO;
 
         // Perform the query
@@ -306,7 +306,7 @@ public class ComparableMatcherTest {
         // Prepare the query
         int threshold = 42;
         Attribute attribute = TestConstants.AGE_ATTR;
-        String attributeName = attribute.getAttributeName();
+        String attributeName = attribute.getName();
         ComparisonType matchingType = ComparisonType.EQUAL_TO;
 
         // Perform the query
@@ -337,7 +337,7 @@ public class ComparableMatcherTest {
         // Prepare the query
         int threshold = 45;
         Attribute attribute = TestConstants.AGE_ATTR;
-        String attributeName = attribute.getAttributeName();
+        String attributeName = attribute.getName();
         ComparisonType matchingType = ComparisonType.GREATER_THAN;
 
         // Perform the query
@@ -364,7 +364,7 @@ public class ComparableMatcherTest {
         // Prepare the query
         int threshold = 45;
         Attribute attribute = TestConstants.AGE_ATTR;
-        String attributeName = attribute.getAttributeName();
+        String attributeName = attribute.getName();
         ComparisonType matchingType = ComparisonType.GREATER_THAN_OR_EQUAL_TO;
 
         // Perform the query
@@ -395,7 +395,7 @@ public class ComparableMatcherTest {
         // Prepare the query
         int threshold = 43;
         Attribute attribute = TestConstants.AGE_ATTR;
-        String attributeName = attribute.getAttributeName();
+        String attributeName = attribute.getName();
         ComparisonType matchingType = ComparisonType.LESS_THAN_OR_EQUAL_TO;
 
         // Perform the query
@@ -430,7 +430,7 @@ public class ComparableMatcherTest {
         // Prepare the query
         int threshold = 43;
         Attribute attribute = TestConstants.AGE_ATTR;
-        String attributeName = attribute.getAttributeName();
+        String attributeName = attribute.getName();
         ComparisonType matchingType = ComparisonType.LESS_THAN;
 
         // Perform the query
@@ -461,7 +461,7 @@ public class ComparableMatcherTest {
         // Prepare the query
         int threshold = 43;
         Attribute attribute = TestConstants.AGE_ATTR;
-        String attributeName = attribute.getAttributeName();
+        String attributeName = attribute.getName();
         ComparisonType matchingType = ComparisonType.NOT_EQUAL_TO;
 
         // Perform the query

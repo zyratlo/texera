@@ -165,8 +165,8 @@ public class DataReader implements IOperator {
     private ArrayList<IField> documentToFields(Document luceneDocument) throws ParseException {
         ArrayList<IField> fields = new ArrayList<>();
         for (Attribute attr : inputSchema.getAttributes()) {
-            AttributeType attributeType = attr.getAttributeType();
-            String fieldValue = luceneDocument.get(attr.getAttributeName());
+            AttributeType attributeType = attr.getType();
+            String fieldValue = luceneDocument.get(attr.getName());
             fields.add(StorageUtils.getField(attributeType, fieldValue));
         }
         return fields;
@@ -176,8 +176,8 @@ public class DataReader implements IOperator {
         ArrayList<Span> payloadSpanList = new ArrayList<>();
 
         for (Attribute attr : inputSchema.getAttributes()) {
-            String attributeName = attr.getAttributeName();
-            AttributeType attributeType = attr.getAttributeType();
+            String attributeName = attr.getName();
+            AttributeType attributeType = attr.getType();
 
             // We only store positional information for TEXT fields into
             // payload.

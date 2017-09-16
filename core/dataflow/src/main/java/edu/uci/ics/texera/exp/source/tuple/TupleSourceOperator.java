@@ -32,7 +32,7 @@ public class TupleSourceOperator implements ISourceOperator {
     private int cursor = CLOSED;
     
     public TupleSourceOperator(Collection<Tuple> inputTuples, Schema schema) {
-        if (! schema.containsField(SchemaConstants._ID)) {
+        if (! schema.containsAttribute(SchemaConstants._ID)) {
             this.outputSchema = Utils.getSchemaWithID(schema);
             this.inputTuples = new ArrayList<>();
             for (Tuple tuple : inputTuples) {

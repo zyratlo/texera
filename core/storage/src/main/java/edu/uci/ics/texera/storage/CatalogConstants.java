@@ -124,8 +124,8 @@ public class CatalogConstants {
             Attribute attr = tableSchema.getAttributes().get(i);
             Tuple schemaTuple = new Tuple(SCHEMA_CATALOG_SCHEMA, 
                     new StringField(tableName),
-                    new StringField(attr.getAttributeName()),
-                    new StringField(attr.getAttributeType().toString().toLowerCase()),
+                    new StringField(attr.getName()),
+                    new StringField(attr.getType().toString().toLowerCase()),
                     new IntegerField(i));
             schemaCatalogTuples.add(schemaTuple);
         }

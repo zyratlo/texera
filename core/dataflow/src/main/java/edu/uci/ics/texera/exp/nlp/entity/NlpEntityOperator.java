@@ -62,7 +62,7 @@ public class NlpEntityOperator extends AbstractSingleInputOperator {
     protected void setUp() throws TexeraException {
         inputSchema = inputOperator.getOutputSchema();
         outputSchema = inputSchema;
-        if (outputSchema.containsField(predicate.getSpanListName())) {
+        if (outputSchema.containsAttribute(predicate.getSpanListName())) {
             throw new DataflowException(ErrorMessages.DUPLICATE_ATTRIBUTE(
                     predicate.getSpanListName(), outputSchema));
         }

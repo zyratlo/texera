@@ -6,11 +6,9 @@ import edu.uci.ics.texera.api.exception.DataflowException;
 import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.field.IField;
 import edu.uci.ics.texera.api.field.IntegerField;
-import edu.uci.ics.texera.api.schema.Attribute;
 import edu.uci.ics.texera.api.schema.AttributeType;
 import edu.uci.ics.texera.api.schema.Schema;
 import edu.uci.ics.texera.api.tuple.Tuple;
-import edu.uci.ics.texera.api.utils.Utils;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -80,14 +78,9 @@ public class EmojiSentimentOperator implements IOperator {
     }
     
     private Schema transformSchema(Schema inputSchema) {
-        if (inputSchema.containsField(predicate.getResultAttributeName())) {
-            throw new TexeraException(String.format(
-                    "result attribute name %s is already in the original schema %s",
-                    predicate.getResultAttributeName(),
-                    inputSchema.getAttributeNames()));
-        }
-        return Utils.addAttributeToSchema(inputSchema,
-                new Attribute(predicate.getResultAttributeName(), AttributeType.INTEGER));
+        Schema.checkAttributeExists(inputSchema, predicate.getInputAttributeName());
+        Schema.checkAttributeNotExists(inputSchema, predicate.getResultAttributeName());
+        return new Schema.Builder().add(inputSchema).add(predicate.getResultAttributeName(), AttributeType.LIST).build();
     }
     
     @Override
@@ -102,7 +95,7 @@ public class EmojiSentimentOperator implements IOperator {
         Schema inputSchema = inputOperator.getOutputSchema();
 
         // check if input schema is present
-        if (! inputSchema.containsField(predicate.getInputAttributeName())) {
+        if (! inputSchema.containsAttribute(predicate.getInputAttributeName())) {
             throw new TexeraException(String.format(
                     "input attribute %s is not in the input schema %s",
                     predicate.getInputAttributeName(),
@@ -111,7 +104,7 @@ public class EmojiSentimentOperator implements IOperator {
 
         // check if attribute type is valid
         AttributeType inputAttributeType =
-                inputSchema.getAttribute(predicate.getInputAttributeName()).getAttributeType();
+                inputSchema.getAttribute(predicate.getInputAttributeName()).getType();
         boolean isValidType = inputAttributeType.equals(AttributeType.STRING) ||
                 inputAttributeType.equals(AttributeType.TEXT);
         if (! isValidType) {

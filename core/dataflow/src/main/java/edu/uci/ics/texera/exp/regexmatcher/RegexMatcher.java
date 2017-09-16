@@ -5,15 +5,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import edu.uci.ics.texera.api.constants.ErrorMessages;
+import edu.uci.ics.texera.api.constants.SchemaConstants;
 import edu.uci.ics.texera.api.exception.DataflowException;
 import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.field.ListField;
-import edu.uci.ics.texera.api.schema.Attribute;
 import edu.uci.ics.texera.api.schema.AttributeType;
 import edu.uci.ics.texera.api.schema.Schema;
 import edu.uci.ics.texera.api.span.Span;
 import edu.uci.ics.texera.api.tuple.Tuple;
-import edu.uci.ics.texera.api.utils.Utils;
 import edu.uci.ics.texera.exp.common.AbstractSingleInputOperator;
 import edu.uci.ics.texera.exp.regexmatcher.label.LabeledRegexProcessor;
 import edu.uci.ics.texera.exp.regexmatcher.label.LabledRegexNoQualifierProcessor;
@@ -62,9 +61,7 @@ public class RegexMatcher extends AbstractSingleInputOperator {
     
     private final RegexPredicate predicate;
     private RegexType regexType;
-    
-    private Schema inputSchema;
-    
+        
     private Pattern regexPattern;
     LabeledRegexProcessor labeledRegexProcessor;
     LabledRegexNoQualifierProcessor labledRegexNoQualifierProcessor;
@@ -74,15 +71,20 @@ public class RegexMatcher extends AbstractSingleInputOperator {
     }
     
     @Override
-    protected void setUp() throws DataflowException {
-        inputSchema = inputOperator.getOutputSchema();
-        outputSchema = inputSchema;
-        
-        if (this.inputSchema.containsField(predicate.getSpanListName())) {
-            throw new DataflowException(ErrorMessages.DUPLICATE_ATTRIBUTE(predicate.getSpanListName(), inputSchema));
+    protected void setUp() throws DataflowException {        
+        Schema.Builder outputSchemaBuilder = new Schema.Builder(inputOperator.getOutputSchema());
+        if (!outputSchema.containsAttribute(SchemaConstants.PAYLOAD)) {
+            outputSchemaBuilder.add(SchemaConstants.PAYLOAD_ATTRIBUTE);
         }
-        outputSchema = Utils.addAttributeToSchema(inputSchema, 
-                new Attribute(predicate.getSpanListName(), AttributeType.LIST));
+        
+        if (! outputSchema.containsAttribute(predicate.getSpanListName())) {
+            outputSchemaBuilder.add(predicate.getSpanListName(), AttributeType.LIST);
+        } else {
+            throw new DataflowException(ErrorMessages.DUPLICATE_ATTRIBUTE(
+                    predicate.getSpanListName(), outputSchema));
+        }
+        
+        outputSchema = outputSchemaBuilder.build();
 
         findRegexType();
         // Check if labeled or unlabeled
@@ -173,7 +175,7 @@ public class RegexMatcher extends AbstractSingleInputOperator {
         List<Span> matchingResults = new ArrayList<>();
 
         for (String attributeName : predicate.getAttributeNames()) {
-            AttributeType attributeType = inputTuple.getSchema().getAttribute(attributeName).getAttributeType();
+            AttributeType attributeType = inputTuple.getSchema().getAttribute(attributeName).getType();
             String fieldValue = inputTuple.getField(attributeName).getValue().toString();
 
             // types other than TEXT and STRING: throw Exception for now

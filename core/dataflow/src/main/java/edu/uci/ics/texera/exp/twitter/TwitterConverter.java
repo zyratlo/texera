@@ -127,14 +127,14 @@ public class TwitterConverter implements IOperator {
     }
     
     private Schema transformSchema(Schema inputSchema) {
-        if (! inputSchema.containsField(rawDataAttribute)) {
+        if (! inputSchema.containsAttribute(rawDataAttribute)) {
             throw new DataflowException(String.format(
                     "raw twitter attribute %s is not present in the input schema %s",
                     rawDataAttribute, inputSchema.getAttributeNames()));
         }
         ArrayList<Attribute> outputAttributes = new ArrayList<>();
         outputAttributes.addAll(inputSchema.getAttributes().stream()
-                .filter(attr -> ! attr.getAttributeName().equalsIgnoreCase(rawDataAttribute))
+                .filter(attr -> ! attr.getName().equalsIgnoreCase(rawDataAttribute))
                 .collect(Collectors.toList()));
         outputAttributes.addAll(TwitterConverterConstants.additionalAttributes);
         return new Schema(outputAttributes);

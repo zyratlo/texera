@@ -187,12 +187,12 @@ public class JoinTestHelper {
         List<IField> newFields = new ArrayList<>();
         for (int i = 0; i < originalAttributes.size(); i++) {
             if (i == fieldIndex) {
-                newAttributes.add(new Attribute(originalAttributes.get(i).getAttributeName(),
+                newAttributes.add(new Attribute(originalAttributes.get(i).getName(),
                         DataflowUtils.getAttributeType(newField)));
                 newFields.add(newField);
             } else {
                 newAttributes.add(originalAttributes.get(i));
-                newFields.add(originalTuple.getField(i));
+                newFields.add(originalTuple.getFields().get(i));
             }
         }
         return new Tuple(new Schema(newAttributes.stream().toArray(Attribute[]::new)), 

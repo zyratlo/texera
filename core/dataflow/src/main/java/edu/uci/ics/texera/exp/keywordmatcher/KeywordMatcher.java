@@ -3,17 +3,14 @@ package edu.uci.ics.texera.exp.keywordmatcher;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import edu.uci.ics.texera.api.constants.ErrorMessages;
 import edu.uci.ics.texera.api.constants.SchemaConstants;
 import edu.uci.ics.texera.api.exception.DataflowException;
 import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.field.ListField;
-import edu.uci.ics.texera.api.schema.Attribute;
 import edu.uci.ics.texera.api.schema.AttributeType;
 import edu.uci.ics.texera.api.schema.Schema;
 import edu.uci.ics.texera.api.span.Span;
 import edu.uci.ics.texera.api.tuple.Tuple;
-import edu.uci.ics.texera.api.utils.Utils;
 import edu.uci.ics.texera.exp.common.AbstractSingleInputOperator;
 import edu.uci.ics.texera.exp.utils.DataflowUtils;
 
@@ -36,16 +33,17 @@ public class KeywordMatcher extends AbstractSingleInputOperator {
     @Override
     protected void setUp() throws TexeraException {
         inputSchema = inputOperator.getOutputSchema();
-        outputSchema = inputSchema;
-        if (!inputSchema.containsField(SchemaConstants.PAYLOAD)) {
-            outputSchema = Utils.addAttributeToSchema(outputSchema, SchemaConstants.PAYLOAD_ATTRIBUTE);
+        
+        Schema.checkAttributeExists(inputSchema, predicate.getAttributeNames());
+        Schema.checkAttributeNotExists(inputSchema, predicate.getSpanListName());
+        
+        Schema.Builder outputSchemaBuilder = new Schema.Builder(inputOperator.getOutputSchema());
+        if (!outputSchema.containsAttribute(SchemaConstants.PAYLOAD)) {
+            outputSchemaBuilder.add(SchemaConstants.PAYLOAD_ATTRIBUTE);
         }
-        if (inputSchema.containsField(predicate.getSpanListName())) {
-            throw new DataflowException(ErrorMessages.DUPLICATE_ATTRIBUTE(predicate.getSpanListName(), inputSchema));
-        } else {
-            outputSchema = Utils.addAttributeToSchema(outputSchema,
-                    new Attribute(predicate.getSpanListName(), AttributeType.LIST));
-        }
+        outputSchemaBuilder.add(predicate.getSpanListName(), AttributeType.LIST);       
+        outputSchema = outputSchemaBuilder.build();
+        
         if (this.predicate.getMatchingType() == KeywordMatchingType.CONJUNCTION_INDEXBASED) {
             preProcessKeywordTokens();
         } else if (this.predicate.getMatchingType() == KeywordMatchingType.PHRASE_INDEXBASED) {
@@ -84,7 +82,7 @@ public class KeywordMatcher extends AbstractSingleInputOperator {
         // There's an implicit assumption that, in open() method, PAYLOAD is
         // checked before SPAN_LIST.
         // Therefore, PAYLOAD needs to be checked and added first
-        if (!inputSchema.containsField(SchemaConstants.PAYLOAD)) {
+        if (!inputSchema.containsAttribute(SchemaConstants.PAYLOAD)) {
             inputTuple = DataflowUtils.getSpanTuple(inputTuple.getFields(),
                     DataflowUtils.generatePayloadFromTuple(inputTuple, predicate.getLuceneAnalyzerString()), outputSchema);
         }
@@ -126,7 +124,7 @@ public class KeywordMatcher extends AbstractSingleInputOperator {
         List<Span> payload = payloadField.getValue();
         List<Span> matchingResults = new ArrayList<>();
         for (String attributeName : attributeNames) {
-            AttributeType attributeType = inputTuple.getSchema().getAttribute(attributeName).getAttributeType();
+            AttributeType attributeType = inputTuple.getSchema().getAttribute(attributeName).getType();
             String fieldValue = inputTuple.getField(attributeName).getValue().toString();
 
             // types other than TEXT and STRING: throw Exception for now
@@ -166,7 +164,7 @@ public class KeywordMatcher extends AbstractSingleInputOperator {
         List<Span> payload = payloadField.getValue();
         List<Span> matchingResults = new ArrayList<>();
         for (String attributeName : attributeNames) {
-            AttributeType attributeType = inputTuple.getSchema().getAttribute(attributeName).getAttributeType();
+            AttributeType attributeType = inputTuple.getSchema().getAttribute(attributeName).getType();
             String fieldValue = inputTuple.getField(attributeName).getValue().toString();
 
             // types other than TEXT and STRING: throw Exception for now

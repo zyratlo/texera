@@ -18,13 +18,18 @@ public class ErrorMessages {
     public static final String INPUT_OPERATOR_CHANGED_AFTER_OPEN = "Input Operator cannot be changed after opening the operator";
 
 
-    public static final String DUPLICATE_ATTRIBUTE(String attributeName, Schema schema) {
-        return DUPLICATE_ATTRIBUTE(attributeName, schema);
+    public static final String DUPLICATE_ATTRIBUTE(Schema schema, String attributeName) {
+        return DUPLICATE_ATTRIBUTE(schema.getAttributeNames(), attributeName);
     }
     
-    public static final String DUPLICATE_ATTRIBUTE(String attributeName, List<String> attributeNameList) {
+    public static final String DUPLICATE_ATTRIBUTE(List<String> attributeNameList, String attributeName) {
         return String.format("attribute %s is already in the existing attributes: %s", 
                 attributeName, attributeNameList);
+    }
+    
+    public static final String ATTRIBUTE_NOT_EXIST(Schema schema, String attributeName) {
+        return String.format("attribute %s is not in the schema: %s", 
+                attributeName, schema.getAttributeNames());
     }
     
 }

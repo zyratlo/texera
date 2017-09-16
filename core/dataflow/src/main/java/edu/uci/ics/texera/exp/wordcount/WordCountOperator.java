@@ -53,7 +53,7 @@ public class WordCountOperator extends AbstractSingleInputOperator implements IS
         this.outputSchema = SCHEMA_WORD_COUNT;
         inputSchema = this.inputOperator.getOutputSchema();
         tmpSchema = inputSchema;
-        if (!inputSchema.containsField(SchemaConstants.PAYLOAD)) {
+        if (!inputSchema.containsAttribute(SchemaConstants.PAYLOAD)) {
             tmpSchema = Utils.addAttributeToSchema(inputSchema, SchemaConstants.PAYLOAD_ATTRIBUTE);
         }
     }
@@ -101,7 +101,7 @@ public class WordCountOperator extends AbstractSingleInputOperator implements IS
 
     @Override
     public Tuple processOneInputTuple(Tuple inputTuple) throws TexeraException {
-        if (!inputSchema.containsField(SchemaConstants.PAYLOAD)) {
+        if (!inputSchema.containsAttribute(SchemaConstants.PAYLOAD)) {
             inputTuple = DataflowUtils.getSpanTuple(inputTuple.getFields(),
                     DataflowUtils.generatePayloadFromTuple(inputTuple, predicate.getLuceneAnalyzerString()), tmpSchema);
         }

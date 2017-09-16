@@ -138,7 +138,7 @@ public class KeywordMatcherSourceOperator extends AbstractSingleInputOperator im
         BooleanQuery.Builder booleanQueryBuilder = new BooleanQuery.Builder();
 
         for (String attributeName : this.predicate.getAttributeNames()) {
-            AttributeType attributeType = this.inputSchema.getAttribute(attributeName).getAttributeType();
+            AttributeType attributeType = this.inputSchema.getAttribute(attributeName).getType();
 
             // types other than TEXT and STRING: throw Exception for now
             if (attributeType != AttributeType.STRING && attributeType != AttributeType.TEXT) {
@@ -168,7 +168,7 @@ public class KeywordMatcherSourceOperator extends AbstractSingleInputOperator im
         BooleanQuery.Builder booleanQueryBuilder = new BooleanQuery.Builder();
 
         for (String attributeName : this.predicate.getAttributeNames()) {
-            AttributeType attributeType = this.inputSchema.getAttribute(attributeName).getAttributeType();
+            AttributeType attributeType = this.inputSchema.getAttribute(attributeName).getType();
 
             // types other than TEXT and STRING: throw Exception for now
             if (attributeType != AttributeType.STRING && attributeType != AttributeType.TEXT) {
@@ -205,7 +205,7 @@ public class KeywordMatcherSourceOperator extends AbstractSingleInputOperator im
 
     private Query buildScanQuery() throws DataflowException {
         for (String attributeName : this.predicate.getAttributeNames()) {
-            AttributeType attributeType = this.inputSchema.getAttribute(attributeName).getAttributeType();
+            AttributeType attributeType = this.inputSchema.getAttribute(attributeName).getType();
 
             // types other than TEXT and STRING: throw Exception for now
             if (attributeType != AttributeType.STRING && attributeType != AttributeType.TEXT) {

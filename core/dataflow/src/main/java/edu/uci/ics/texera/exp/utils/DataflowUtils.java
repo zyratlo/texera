@@ -152,18 +152,18 @@ public class DataflowUtils {
 
         Schema schema = tuple.getSchema();
         for (Attribute attribute : schema.getAttributes()) {
-            if (attribute.getAttributeName().equals(SchemaConstants.SPAN_LIST)) {
+            if (attribute.getName().equals(SchemaConstants.SPAN_LIST)) {
                 ListField<Span> spanListField = tuple.getField(SchemaConstants.SPAN_LIST);
                 List<Span> spanList = spanListField.getValue();
                 sb.append(getSpanListString(spanList));
                 sb.append("\n");
             } else {
-                sb.append(attribute.getAttributeName());
+                sb.append(attribute.getName());
                 sb.append("(");
-                sb.append(attribute.getAttributeType().toString());
+                sb.append(attribute.getType().toString());
                 sb.append(")");
                 sb.append(": ");
-                sb.append(tuple.getField(attribute.getAttributeName()).getValue().toString());
+                sb.append(tuple.getField(attribute.getName()).getValue().toString());
                 sb.append("\n");
             }
         }
@@ -216,8 +216,8 @@ public class DataflowUtils {
 
     public static List<Span> generatePayloadFromTuple(Tuple tuple, Analyzer luceneAnalyzer) {
         List<Span> tuplePayload = tuple.getSchema().getAttributes().stream()
-                .filter(attr -> (attr.getAttributeType() == AttributeType.TEXT)) // generate payload only for TEXT field
-                .map(attr -> attr.getAttributeName())
+                .filter(attr -> (attr.getType() == AttributeType.TEXT)) // generate payload only for TEXT field
+                .map(attr -> attr.getName())
                 .map(attributeName -> generatePayload(attributeName, tuple.getField(attributeName).getValue().toString(),
                         luceneAnalyzer))
                 .flatMap(payload -> payload.stream()) // flatten a list of lists to a list
@@ -269,7 +269,7 @@ public class DataflowUtils {
         for (String attributeName : attributeNames) {
             //  AttributeType attributeType = this.inputSchema.getAttribute(attributeName).getAttributeType();
             String fieldValue = inputTuple.getField(attributeName).getValue().toString();
-            AttributeType attributeType = inputTuple.getSchema().getAttribute(attributeName).getAttributeType();
+            AttributeType attributeType = inputTuple.getSchema().getAttribute(attributeName).getType();
             // types other than TEXT and STRING: throw Exception for now
             if (attributeType != AttributeType.STRING && attributeType != AttributeType.TEXT) {
                 throw new DataflowException("KeywordMatcher: Fields other than STRING and TEXT are not supported yet");

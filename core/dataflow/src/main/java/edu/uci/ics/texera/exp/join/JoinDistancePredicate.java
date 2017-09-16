@@ -174,7 +174,7 @@ public class JoinDistancePredicate extends PredicateBase implements IJoinPredica
         }
         
         // check if join attribute is TEXT or STRING
-        AttributeType joinAttrType = intersectionSchema.getAttribute(this.joinAttributeName).getAttributeType();
+        AttributeType joinAttrType = intersectionSchema.getAttribute(this.joinAttributeName).getType();
         if (joinAttrType != AttributeType.TEXT && joinAttrType != AttributeType.STRING) {
             throw new DataflowException(
                     String.format("Join attribute %s must be either TEXT or STRING.", this.joinAttributeName));
@@ -271,7 +271,7 @@ public class JoinDistancePredicate extends PredicateBase implements IJoinPredica
 	    List<IField> outputFields = 
 	            outputAttrList.stream()
 	            .filter(attr -> ! attr.equals(SchemaConstants.SPAN_LIST_ATTRIBUTE))
-	            .map(attr -> attr.getAttributeName())
+	            .map(attr -> attr.getName())
 	            .map(attributeName -> innerTuple.getField(attributeName, IField.class))
 	            .collect(Collectors.toList());
 	    

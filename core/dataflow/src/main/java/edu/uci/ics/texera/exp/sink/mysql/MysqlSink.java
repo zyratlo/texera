@@ -60,9 +60,9 @@ public class MysqlSink implements ISink {
         inputOperator.open();
         Schema inputSchema = inputOperator.getOutputSchema();
         outputSchema = new Schema(inputSchema.getAttributes().stream()
-                .filter(attr -> !attr.getAttributeName().equalsIgnoreCase(SchemaConstants._ID))
-                .filter(attr -> !attr.getAttributeName().equalsIgnoreCase(SchemaConstants.PAYLOAD))
-                .filter(attr -> !attr.getAttributeType().equals(AttributeType.LIST)).toArray(Attribute[]::new));
+                .filter(attr -> !attr.getName().equalsIgnoreCase(SchemaConstants._ID))
+                .filter(attr -> !attr.getName().equalsIgnoreCase(SchemaConstants.PAYLOAD))
+                .filter(attr -> !attr.getType().equals(AttributeType.LIST)).toArray(Attribute[]::new));
         // JDBC connection
         try {
             Class.forName("com.mysql.jdbc.Driver").newInstance();
@@ -190,8 +190,8 @@ public class MysqlSink implements ISink {
      * @return
      */
     private String convertAttribute(Attribute attribute) {
-        String sqlAttrTypeName = attribute.getAttributeType().getName();
-        String sqlStatement = "\t" + attribute.getAttributeName();
+        String sqlAttrTypeName = attribute.getType().getName();
+        String sqlStatement = "\t" + attribute.getName();
         switch (sqlAttrTypeName) {
         case "integer":
             sqlStatement += " INT";

@@ -79,9 +79,9 @@ public class ExcelSink implements ISink {
         inputOperator.open();
         inputSchema = inputOperator.getOutputSchema();
         outputSchema = new Schema(inputSchema.getAttributes().stream()
-                .filter(attr -> ! attr.getAttributeName().equalsIgnoreCase(SchemaConstants._ID))
-                .filter(attr -> ! attr.getAttributeName().equalsIgnoreCase(SchemaConstants.PAYLOAD))
-                .filter(attr -> ! attr.getAttributeType().equals(AttributeType.LIST))
+                .filter(attr -> ! attr.getName().equalsIgnoreCase(SchemaConstants._ID))
+                .filter(attr -> ! attr.getName().equalsIgnoreCase(SchemaConstants.PAYLOAD))
+                .filter(attr -> ! attr.getType().equals(AttributeType.LIST))
                 .toArray(Attribute[]::new));
         
         wb = new XSSFWorkbook();

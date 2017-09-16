@@ -50,22 +50,14 @@ public class Tuple {
     public List<IField> getFields() {
         return new ArrayList<>(this.fields);
     }
-    
-    @SuppressWarnings("unchecked")
-    public <T extends IField> T getField(int index) {
-        return (T) fields.get(index);
-    }
-    
-    public <T extends IField> T getField(int index, Class<T> fieldClass) {
-        return getField(index);
-    }
 
+    @SuppressWarnings("unchecked")
     public <T extends IField> T getField(String attributeName) {
-        return getField(schema.getIndex(attributeName));
+        return (T) fields.get(schema.getIndex(attributeName));
     }
     
     public <T extends IField> T getField(String attributeName, Class<T> fieldClass) {
-        return getField(schema.getIndex(attributeName));
+        return getField(attributeName);
     }
 
     public int hashCode() {
