@@ -7,7 +7,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import edu.uci.ics.texera.api.constants.SchemaConstants;
-import edu.uci.ics.texera.api.constants.TestConstants;
+import edu.uci.ics.texera.api.constants.test.TestConstants;
 import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.field.IDField;
 import edu.uci.ics.texera.api.schema.Schema;

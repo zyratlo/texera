@@ -7,7 +7,7 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.uci.ics.texera.api.constants.TestConstants;
+import edu.uci.ics.texera.api.constants.test.TestConstants;
 import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.tuple.Tuple;
 import edu.uci.ics.texera.api.utils.TestUtils;

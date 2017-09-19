@@ -7,6 +7,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import edu.uci.ics.texera.api.constants.JsonConstants;
 
 public class Attribute {
+    
     private final String attributeName;
     private final AttributeType attributeType;
 
@@ -34,7 +35,7 @@ public class Attribute {
 
     @Override
     public String toString() {
-        return "Attribute [name=" + attributeName + ", type=" + attributeType + "]";
+        return "Attribute[name=" + attributeName + ", type=" + attributeType + "]";
     }
     
     @Override

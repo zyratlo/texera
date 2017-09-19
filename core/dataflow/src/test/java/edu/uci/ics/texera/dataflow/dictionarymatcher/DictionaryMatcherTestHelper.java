@@ -3,8 +3,8 @@ package edu.uci.ics.texera.dataflow.dictionarymatcher;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.uci.ics.texera.api.constants.TestConstants;
-import edu.uci.ics.texera.api.constants.TestConstantsChinese;
+import edu.uci.ics.texera.api.constants.test.TestConstants;
+import edu.uci.ics.texera.api.constants.test.TestConstantsChinese;
 import edu.uci.ics.texera.api.exception.DataflowException;
 import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.tuple.Tuple;

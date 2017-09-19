@@ -69,7 +69,7 @@ public class NltkSentimentOperator implements IOperator {
     private Schema transformSchema(Schema inputSchema){
         Schema.checkAttributeExists(inputSchema, predicate.getInputAttributeName());
         Schema.checkAttributeNotExists(inputSchema, predicate.getResultAttributeName());
-        return new Schema.Builder().add(inputSchema).add(predicate.getResultAttributeName(), AttributeType.LIST).build();
+        return new Schema.Builder().add(inputSchema).add(predicate.getResultAttributeName(), AttributeType.INTEGER).build();
     }
     
     @Override

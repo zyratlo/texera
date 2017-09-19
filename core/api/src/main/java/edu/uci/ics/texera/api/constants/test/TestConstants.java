@@ -1,7 +1,4 @@
-/**
- * 
- */
-package edu.uci.ics.texera.api.constants;
+package edu.uci.ics.texera.api.constants.test;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;

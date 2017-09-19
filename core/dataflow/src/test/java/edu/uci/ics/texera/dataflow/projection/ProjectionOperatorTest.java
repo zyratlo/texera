@@ -17,7 +17,7 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import edu.uci.ics.texera.api.constants.TestConstants;
+import edu.uci.ics.texera.api.constants.test.TestConstants;
 import edu.uci.ics.texera.api.dataflow.IOperator;
 import edu.uci.ics.texera.dataflow.source.scan.ScanBasedSourceOperator;
 import edu.uci.ics.texera.dataflow.source.scan.ScanSourcePredicate;

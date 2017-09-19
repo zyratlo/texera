@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.StringJoiner;
 
-import edu.uci.ics.texera.api.constants.DataConstants;
+import edu.uci.ics.texera.dataflow.utils.DataflowUtils;
 
 public class GramBooleanQuery {
 
@@ -472,7 +472,7 @@ public class GramBooleanQuery {
     public String getLuceneQueryString() {
         String luceneQueryString = toLuceneQueryString(this);
         if (luceneQueryString.isEmpty()) {
-            return DataConstants.SCAN_QUERY;
+            return DataflowUtils.LUCENE_SCAN_QUERY;
         } else {
             return luceneQueryString;
         }

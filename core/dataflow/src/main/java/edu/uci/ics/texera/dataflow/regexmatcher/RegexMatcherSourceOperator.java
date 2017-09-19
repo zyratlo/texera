@@ -5,13 +5,13 @@ import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.Query;
 
-import edu.uci.ics.texera.api.constants.DataConstants;
 import edu.uci.ics.texera.api.dataflow.ISourceOperator;
 import edu.uci.ics.texera.api.exception.DataflowException;
 import edu.uci.ics.texera.api.exception.StorageException;
 import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.tuple.Tuple;
 import edu.uci.ics.texera.dataflow.common.AbstractSingleInputOperator;
+import edu.uci.ics.texera.dataflow.utils.DataflowUtils;
 import edu.uci.ics.texera.storage.DataReader;
 import edu.uci.ics.texera.storage.RelationManager;
 
@@ -66,7 +66,7 @@ public class RegexMatcherSourceOperator extends AbstractSingleInputOperator impl
         try {
             queryString = RegexToGramQueryTranslator.translate(predicate.getRegex()).getLuceneQueryString();
         } catch (com.google.re2j.PatternSyntaxException e) {
-            queryString = DataConstants.SCAN_QUERY;
+            queryString = DataflowUtils.LUCENE_SCAN_QUERY;
         }
 
         // Try to parse the query string. It if fails, raise an exception.

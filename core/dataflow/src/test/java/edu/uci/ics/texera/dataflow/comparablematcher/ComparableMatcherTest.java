@@ -1,6 +1,6 @@
 package edu.uci.ics.texera.dataflow.comparablematcher;
 
-import edu.uci.ics.texera.api.constants.TestConstants;
+import edu.uci.ics.texera.api.constants.test.TestConstants;
 import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.field.DateField;
 import edu.uci.ics.texera.api.field.DoubleField;

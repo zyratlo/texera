@@ -15,7 +15,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import edu.uci.ics.texera.api.constants.TestConstants;
+import edu.uci.ics.texera.api.constants.test.TestConstants;
 import edu.uci.ics.texera.api.dataflow.IOperator;
 import edu.uci.ics.texera.dataflow.projection.ProjectionOperator;
 import edu.uci.ics.texera.dataflow.projection.ProjectionPredicate;

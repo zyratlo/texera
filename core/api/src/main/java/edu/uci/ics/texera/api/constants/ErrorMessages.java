@@ -1,11 +1,9 @@
-/**
- * 
- */
 package edu.uci.ics.texera.api.constants;
 
 import edu.uci.ics.texera.api.schema.Schema;
 
 /**
+ * @author Zuozhi Wang
  * @author sandeepreddy602
  *
  */

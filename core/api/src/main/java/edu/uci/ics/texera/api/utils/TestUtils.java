@@ -15,12 +15,18 @@ import junit.framework.Assert;
 
 /**
  * @author sandeepreddy602
- * @author zuozhi
+ * @author Zuozhi Wang
  * @author rajeshyarlagadda
  * @author Bhushan Pagariya (bhushanpagariya)
  */
 public class TestUtils {
 	
+    /**
+     * Returns the default parent index path for all test case tables.
+     * The test tables are highly recommended to be created under this directory.
+     * 
+     * @return
+     */
 	public static Path getDefaultTestIndex() {
 		return Utils.getDefaultIndexDirectory().resolve("test_tables");
 	}
@@ -36,7 +42,6 @@ public class TestUtils {
      * @return
      */
     public static boolean contains(List<Tuple> tupleList, Tuple containsTuple) {
-        
         tupleList = Tuple.Builder.removeIfExists(tupleList, SchemaConstants._ID, SchemaConstants.PAYLOAD);
         containsTuple = new Tuple.Builder(containsTuple)
                 .removeIfExists(SchemaConstants._ID, SchemaConstants.PAYLOAD).build();
@@ -60,6 +65,7 @@ public class TestUtils {
         
         return tupleList.containsAll(containsTupleList);
     }
+    
     /**
      * Returns true if the two tuple lists are equivalent (order doesn't matter)
      * 
@@ -82,6 +88,7 @@ public class TestUtils {
 
     /**
      * Compare two tuple lists for given attribute values
+     * 
      * @param expectedResults
      * @param exactResults
      * @param attributeNames

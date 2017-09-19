@@ -26,7 +26,7 @@ import edu.uci.ics.texera.api.schema.Schema;
 /**
  * @author chenli
  * @author sandeepreddy602
- * @author zuozhi
+ * @author Zuozhi Wang
  * 
  * Created on 3/25/16.
  */

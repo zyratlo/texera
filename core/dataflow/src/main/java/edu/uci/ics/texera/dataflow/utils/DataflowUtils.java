@@ -29,6 +29,8 @@ import edu.uci.ics.texera.api.tuple.*;
 import edu.uci.ics.texera.storage.constants.LuceneAnalyzerConstants;
 
 public class DataflowUtils {
+    
+    public static final String LUCENE_SCAN_QUERY = "*:*";
 
     /**
      * Returns the AttributeType of a field object.

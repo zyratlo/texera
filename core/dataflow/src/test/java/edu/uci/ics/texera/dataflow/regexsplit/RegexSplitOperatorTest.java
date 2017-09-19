@@ -10,8 +10,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import edu.uci.ics.texera.api.constants.SchemaConstants;
-import edu.uci.ics.texera.api.constants.TestConstantsChinese;
-import edu.uci.ics.texera.api.constants.TestConstantsRegexSplit;
+import edu.uci.ics.texera.api.constants.test.TestConstantsChinese;
+import edu.uci.ics.texera.api.constants.test.TestConstantsRegexSplit;
 import edu.uci.ics.texera.api.exception.DataflowException;
 import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.span.Span;

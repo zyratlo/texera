@@ -10,7 +10,7 @@ import org.mockito.Mockito;
 import org.mockito.stubbing.OngoingStubbing;
 
 import edu.uci.ics.texera.api.constants.SchemaConstants;
-import edu.uci.ics.texera.api.constants.TestConstants;
+import edu.uci.ics.texera.api.constants.test.TestConstants;
 import edu.uci.ics.texera.api.dataflow.IOperator;
 import edu.uci.ics.texera.api.field.DateField;
 import edu.uci.ics.texera.api.field.DoubleField;

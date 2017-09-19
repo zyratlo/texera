@@ -1,12 +1,10 @@
-/**
- * 
- */
 package edu.uci.ics.texera.api.constants;
 
 import edu.uci.ics.texera.api.schema.Attribute;
 import edu.uci.ics.texera.api.schema.AttributeType;
 
 /**
+ * @author Zuozhi Wang
  * @author sandeepreddy602
  *
  */

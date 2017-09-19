@@ -10,8 +10,8 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import edu.uci.ics.texera.api.constants.TestConstants;
-import edu.uci.ics.texera.api.constants.TestConstantsChinese;
+import edu.uci.ics.texera.api.constants.test.TestConstants;
+import edu.uci.ics.texera.api.constants.test.TestConstantsChinese;
 import edu.uci.ics.texera.api.field.DateField;
 import edu.uci.ics.texera.api.field.DoubleField;
 import edu.uci.ics.texera.api.field.IField;

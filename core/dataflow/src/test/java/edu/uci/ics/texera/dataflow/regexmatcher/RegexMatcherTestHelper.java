@@ -3,7 +3,7 @@ package edu.uci.ics.texera.dataflow.regexmatcher;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.uci.ics.texera.api.constants.TestConstants;
+import edu.uci.ics.texera.api.constants.test.TestConstants;
 import edu.uci.ics.texera.api.exception.DataflowException;
 import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.tuple.Tuple;

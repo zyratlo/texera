@@ -7,8 +7,8 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
-import edu.uci.ics.texera.api.constants.DataConstants.KeywordMatchingType;
 import edu.uci.ics.texera.dataflow.common.PredicateBase;
+import edu.uci.ics.texera.dataflow.keywordmatcher.KeywordMatchingType;
 import edu.uci.ics.texera.textql.statements.CreateViewStatement;
 import edu.uci.ics.texera.textql.statements.SelectStatement;
 import edu.uci.ics.texera.textql.statements.Statement;
