@@ -35,6 +35,8 @@
     <div id="ResultElem"></div>
 	</modal-body>
 	<modal-footer>
-		<button type="button" (click)="ModalClose()" class="btn btn-default navbar-btn">X</button>
+    <button id="ModalPreviousButton" type="button" (click)="PreviousModal()" class="btn btn-default">Previous</button>
+    <button id="ModalNextButton" type="button" (click)="NextModal()" class="btn btn-default">Next</button>
+		<button type="button" (click)="ModalClose()" class="btn btn-default">X</button>
 	</modal-footer>
 <modal>
