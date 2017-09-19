@@ -1,6 +1,6 @@
 package edu.uci.ics.texera.textql.statements.predicates;
 
-import edu.uci.ics.texera.exp.common.PredicateBase;
+import edu.uci.ics.texera.dataflow.common.PredicateBase;
 
 /**
  * Interface for representation of an extraction predicate such as "KEYWORDEXTRACT(...)" predicate 

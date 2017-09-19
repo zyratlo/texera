@@ -1,5 +1,7 @@
 package edu.uci.ics.texera.api.field;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -15,6 +17,7 @@ public class IDField implements IField {
     public IDField(
             @JsonProperty(value = JsonConstants.FIELD_VALUE, required = true)
             String idValue) {
+        checkNotNull(idValue);
         this._id = idValue;
     }
 

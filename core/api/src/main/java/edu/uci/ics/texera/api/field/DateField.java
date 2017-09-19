@@ -4,6 +4,7 @@ import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 import edu.uci.ics.texera.api.constants.JsonConstants;
 
@@ -16,6 +17,7 @@ public class DateField implements IField {
     public DateField(
             @JsonProperty(value = JsonConstants.FIELD_VALUE, required = true)
             Date value) {
+        checkNotNull(value);
         this.value = value;
     }
 

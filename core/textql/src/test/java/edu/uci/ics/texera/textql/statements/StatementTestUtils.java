@@ -7,8 +7,8 @@ import java.util.stream.Collectors;
 
 import org.junit.Assert;
 
-import edu.uci.ics.texera.exp.common.PredicateBase;
-import edu.uci.ics.texera.exp.plangen.OperatorLink;
+import edu.uci.ics.texera.dataflow.common.PredicateBase;
+import edu.uci.ics.texera.dataflow.plangen.OperatorLink;
 import edu.uci.ics.texera.textql.planbuilder.beans.PassThroughPredicate;
 import edu.uci.ics.texera.textql.statements.Statement;
 

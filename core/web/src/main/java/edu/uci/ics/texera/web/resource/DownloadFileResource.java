@@ -22,9 +22,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
 import edu.uci.ics.texera.api.tuple.Tuple;
-import edu.uci.ics.texera.exp.sink.excel.ExcelSink;
-import edu.uci.ics.texera.exp.sink.excel.ExcelSinkPredicate;
-import edu.uci.ics.texera.exp.source.tuple.TupleSourceOperator;
+import edu.uci.ics.texera.dataflow.sink.excel.ExcelSink;
+import edu.uci.ics.texera.dataflow.sink.excel.ExcelSinkPredicate;
+import edu.uci.ics.texera.dataflow.source.tuple.TupleSourceOperator;
 
 @Path("/download")
 @Produces("application/vnd.ms-excel")

@@ -2,6 +2,7 @@ package edu.uci.ics.texera.api.schema;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.field.DateField;
 import edu.uci.ics.texera.api.field.DoubleField;
 import edu.uci.ics.texera.api.field.IDField;
@@ -40,5 +41,30 @@ public enum AttributeType {
     
     public Class<? extends IField> getFieldClass() {
         return this.fieldClass;
+    }
+    
+    public static AttributeType getAttributeType(Class<? extends IField> fieldClass) {
+            if (fieldClass.equals(StringField.class)) {
+                return STRING;
+            } else if (fieldClass.equals(TextField.class)) {
+                return TEXT;
+            } else if (fieldClass.equals(IntegerField.class)) {
+                return INTEGER;
+            } else if (fieldClass.equals(DoubleField.class)) {
+                return DOUBLE;
+            } else if (fieldClass.equals(DateField.class)) {
+                return DATE;
+            } else if (fieldClass.equals(IDField.class)) {
+                return _ID_TYPE;
+            } else if (fieldClass.equals(ListField.class)) {
+                return LIST;
+            } else {
+                throw new TexeraException("Unkown IField class: " + fieldClass.getName());
+            }
+    }
+    
+    @Override
+    public String toString() {
+        return this.getName();
     }
 }

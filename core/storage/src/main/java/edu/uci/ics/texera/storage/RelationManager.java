@@ -24,7 +24,6 @@ import edu.uci.ics.texera.api.schema.Attribute;
 import edu.uci.ics.texera.api.schema.AttributeType;
 import edu.uci.ics.texera.api.schema.Schema;
 import edu.uci.ics.texera.api.tuple.Tuple;
-import edu.uci.ics.texera.api.utils.Utils;
 import edu.uci.ics.texera.storage.constants.LuceneAnalyzerConstants;
 import edu.uci.ics.texera.storage.utils.StorageUtils;
 
@@ -127,7 +126,7 @@ public class RelationManager {
         }
         
         // create the directory and clear all data in the index directory
-        Schema tableSchema = Utils.getSchemaWithID(schema);
+        Schema tableSchema = Schema.Builder.getSchemaWithID(schema);
         DataStore tableDataStore = new DataStore(indexDirectory, tableSchema);
         DataWriter dataWriter = new DataWriter(tableDataStore, luceneAnalyzer);
         dataWriter.open();
@@ -359,7 +358,7 @@ public class RelationManager {
         dataWriter.close();
        
         // write schema catalog
-        Schema tableSchema = Utils.getSchemaWithID(schema);
+        Schema tableSchema = Schema.Builder.getSchemaWithID(schema);
         DataStore schemaCatalogStore = new DataStore(CatalogConstants.SCHEMA_CATALOG_DIRECTORY,
                 CatalogConstants.SCHEMA_CATALOG_SCHEMA);
         dataWriter = new DataWriter(schemaCatalogStore, LuceneAnalyzerConstants.getStandardAnalyzer());

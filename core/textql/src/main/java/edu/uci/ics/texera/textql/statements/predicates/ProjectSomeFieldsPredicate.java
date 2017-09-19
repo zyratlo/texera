@@ -4,8 +4,8 @@ import java.util.List;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
-import edu.uci.ics.texera.exp.common.PredicateBase;
-import edu.uci.ics.texera.exp.projection.ProjectionPredicate;
+import edu.uci.ics.texera.dataflow.common.PredicateBase;
+import edu.uci.ics.texera.dataflow.projection.ProjectionPredicate;
 
 /**
  * Object representation of a "SELECT a, b, c, ..." predicate inside a { @code SelectExtractStatement },

@@ -7,10 +7,10 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
-import edu.uci.ics.texera.exp.common.PredicateBase;
-import edu.uci.ics.texera.exp.keywordmatcher.KeywordMatchingType;
-import edu.uci.ics.texera.exp.keywordmatcher.KeywordPredicate;
-import edu.uci.ics.texera.exp.projection.ProjectionPredicate;
+import edu.uci.ics.texera.dataflow.common.PredicateBase;
+import edu.uci.ics.texera.dataflow.keywordmatcher.KeywordMatchingType;
+import edu.uci.ics.texera.dataflow.keywordmatcher.KeywordPredicate;
+import edu.uci.ics.texera.dataflow.projection.ProjectionPredicate;
 import edu.uci.ics.texera.textql.statements.SelectStatement;
 import edu.uci.ics.texera.textql.statements.predicates.ExtractPredicate;
 import edu.uci.ics.texera.textql.statements.predicates.KeywordExtractPredicate;

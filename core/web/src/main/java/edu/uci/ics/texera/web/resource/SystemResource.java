@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.uci.ics.texera.api.exception.StorageException;
-import edu.uci.ics.texera.exp.resource.dictionary.DictionaryManager;
+import edu.uci.ics.texera.dataflow.resource.dictionary.DictionaryManager;
 import edu.uci.ics.texera.storage.RelationManager;
 import edu.uci.ics.texera.storage.TableMetadata;
 import edu.uci.ics.texera.web.response.TexeraWebResponse;

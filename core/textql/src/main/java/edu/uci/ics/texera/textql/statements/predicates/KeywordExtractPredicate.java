@@ -4,8 +4,8 @@ import java.util.List;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
-import edu.uci.ics.texera.exp.keywordmatcher.KeywordMatchingType;
-import edu.uci.ics.texera.exp.keywordmatcher.KeywordPredicate;
+import edu.uci.ics.texera.dataflow.keywordmatcher.KeywordMatchingType;
+import edu.uci.ics.texera.dataflow.keywordmatcher.KeywordPredicate;
 
 /**
  * Object representation of a "KEYWORDEXTRACT(...)" predicate inside a { @code SelectExtractStatement }.

@@ -7,9 +7,9 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
-import edu.uci.ics.texera.exp.common.PredicateBase;
-import edu.uci.ics.texera.exp.keywordmatcher.KeywordMatchingType;
-import edu.uci.ics.texera.exp.keywordmatcher.KeywordPredicate;
+import edu.uci.ics.texera.dataflow.common.PredicateBase;
+import edu.uci.ics.texera.dataflow.keywordmatcher.KeywordMatchingType;
+import edu.uci.ics.texera.dataflow.keywordmatcher.KeywordPredicate;
 /**
  * This class contains test cases for the KeywordExtractPredicate class.
  * The constructor, getters, setters and the generatePredicateBase methods are

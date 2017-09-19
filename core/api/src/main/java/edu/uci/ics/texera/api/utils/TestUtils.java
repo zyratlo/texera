@@ -36,9 +36,11 @@ public class TestUtils {
      * @return
      */
     public static boolean contains(List<Tuple> tupleList, Tuple containsTuple) {
-        tupleList = Utils.removeFields(tupleList, SchemaConstants._ID, SchemaConstants.PAYLOAD);
-        containsTuple = Utils.removeFields(containsTuple, SchemaConstants._ID, SchemaConstants.PAYLOAD);
         
+        tupleList = Tuple.Builder.removeIfExists(tupleList, SchemaConstants._ID, SchemaConstants.PAYLOAD);
+        containsTuple = new Tuple.Builder(containsTuple)
+                .removeIfExists(SchemaConstants._ID, SchemaConstants.PAYLOAD).build();
+                
         return tupleList.contains(containsTuple);
     }
     
@@ -53,8 +55,8 @@ public class TestUtils {
      * @return
      */
     public static boolean containsAll(List<Tuple> tupleList, List<Tuple> containsTupleList) {
-        tupleList = Utils.removeFields(tupleList, SchemaConstants._ID, SchemaConstants.PAYLOAD);
-        containsTupleList = Utils.removeFields(containsTupleList, SchemaConstants._ID, SchemaConstants.PAYLOAD);
+        tupleList = Tuple.Builder.removeIfExists(tupleList, SchemaConstants._ID, SchemaConstants.PAYLOAD);
+        containsTupleList = Tuple.Builder.removeIfExists(containsTupleList, SchemaConstants._ID, SchemaConstants.PAYLOAD);
         
         return tupleList.containsAll(containsTupleList);
     }
@@ -69,8 +71,8 @@ public class TestUtils {
      * @return
      */
     public static boolean equals(List<Tuple> expectedResults, List<Tuple> exactResults) {
-        expectedResults = Utils.removeFields(expectedResults, SchemaConstants._ID, SchemaConstants.PAYLOAD);
-        exactResults = Utils.removeFields(exactResults, SchemaConstants._ID, SchemaConstants.PAYLOAD);
+        expectedResults = Tuple.Builder.removeIfExists(expectedResults, SchemaConstants._ID, SchemaConstants.PAYLOAD);
+        exactResults = Tuple.Builder.removeIfExists(exactResults, SchemaConstants._ID, SchemaConstants.PAYLOAD);
 
         if (expectedResults.size() != exactResults.size())
             return false;
@@ -86,21 +88,23 @@ public class TestUtils {
      * @return True if two tuples have same values for given attribute, otherwise false
      */
     public static boolean attributeEquals(List<Tuple> expectedResults, List<Tuple> exactResults, List<String> attributeNames) {
-        if(expectedResults.size()!=exactResults.size())
+        if(expectedResults.size() != exactResults.size())
             return false;
         if(exactResults.size() == 0)
             return true;
+        
+        
         // Remove all unwanted attributes from expectedResults
         List<String> expectedResultAttrs = new ArrayList<>(expectedResults.get(0).getSchema().getAttributeNames());
         expectedResultAttrs.removeAll(attributeNames);
         String[] expectedResultsArr = expectedResultAttrs.toArray(new String[expectedResultAttrs.size()]);
-        expectedResults = Utils.removeFields(expectedResults, expectedResultsArr);
+        expectedResults = Tuple.Builder.removeIfExists(expectedResults, expectedResultsArr);
 
         // Remove all unwanted attributes from exactResults
         List<String> exactResultAttrs = new ArrayList<>(exactResults.get(0).getSchema().getAttributeNames());
         exactResultAttrs.removeAll(attributeNames);
         String[] exactResultsArr = exactResultAttrs.toArray(new String[exactResultAttrs.size()]);
-        exactResults = Utils.removeFields(exactResults, exactResultsArr);
+        exactResults = Tuple.Builder.removeIfExists(exactResults, exactResultsArr);
 
         // 2-way comparision between expectedResults and exactResults
         return expectedResults.containsAll(exactResults) && exactResults.containsAll(expectedResults);

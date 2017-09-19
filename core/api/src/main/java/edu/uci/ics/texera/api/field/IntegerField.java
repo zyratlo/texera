@@ -1,5 +1,7 @@
 package edu.uci.ics.texera.api.field;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -13,6 +15,7 @@ public class IntegerField implements IField {
     public IntegerField(
             @JsonProperty(value = JsonConstants.FIELD_VALUE, required = true)
             Integer value) {
+        checkNotNull(value);
         this.value = value;
     }
 

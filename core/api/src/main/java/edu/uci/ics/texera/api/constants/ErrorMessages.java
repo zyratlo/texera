@@ -3,8 +3,6 @@
  */
 package edu.uci.ics.texera.api.constants;
 
-import java.util.List;
-
 import edu.uci.ics.texera.api.schema.Schema;
 
 /**
@@ -22,14 +20,18 @@ public class ErrorMessages {
         return DUPLICATE_ATTRIBUTE(schema.getAttributeNames(), attributeName);
     }
     
-    public static final String DUPLICATE_ATTRIBUTE(List<String> attributeNameList, String attributeName) {
-        return String.format("attribute %s is already in the existing attributes: %s", 
+    public static final String DUPLICATE_ATTRIBUTE(Iterable<String> attributeNameList, String attributeName) {
+        return String.format("attribute %s already exists in the Schema: %s", 
                 attributeName, attributeNameList);
     }
     
-    public static final String ATTRIBUTE_NOT_EXIST(Schema schema, String attributeName) {
-        return String.format("attribute %s is not in the schema: %s", 
-                attributeName, schema.getAttributeNames());
+    public static final String ATTRIBUTE_NOT_EXISTS(Schema schema, String attributeName) {
+        return ATTRIBUTE_NOT_EXISTS(schema.getAttributeNames(), attributeName);
+    }
+    
+    public static final String ATTRIBUTE_NOT_EXISTS(Iterable<String> attributeNameList, String attributeName) {
+        return String.format("attribute %s does not exist in the schema: %s", 
+                attributeName, attributeNameList);
     }
     
 }

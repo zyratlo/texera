@@ -13,8 +13,8 @@ import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.field.ListField;
 import edu.uci.ics.texera.api.span.Span;
 import edu.uci.ics.texera.api.tuple.Tuple;
-import edu.uci.ics.texera.exp.regexmatcher.RegexMatcherSourceOperator;
-import edu.uci.ics.texera.exp.regexmatcher.RegexSourcePredicate;
+import edu.uci.ics.texera.dataflow.regexmatcher.RegexMatcherSourceOperator;
+import edu.uci.ics.texera.dataflow.regexmatcher.RegexSourcePredicate;
 
 import edu.uci.ics.texera.perftest.medline.MedlineIndexWriter;
 import edu.uci.ics.texera.perftest.utils.PerfTestUtils;

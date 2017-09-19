@@ -1,6 +1,6 @@
 package edu.uci.ics.texera.web.resource;
 
-import edu.uci.ics.texera.exp.resource.dictionary.DictionaryManager;
+import edu.uci.ics.texera.dataflow.resource.dictionary.DictionaryManager;
 import edu.uci.ics.texera.web.TexeraWebException;
 import edu.uci.ics.texera.web.response.TexeraWebResponse;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;

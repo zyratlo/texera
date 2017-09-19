@@ -5,12 +5,14 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.collect.ImmutableList;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 import edu.uci.ics.texera.api.constants.JsonConstants;
 
 public class ListField<T> implements IField {
 
-    private List<T> list;
+    private ImmutableList<T> list;
 
     @JsonCreator
     public ListField(
@@ -18,7 +20,9 @@ public class ListField<T> implements IField {
             List<T> list) {
         // TODO: make a copy of the list to avoid modifying the list
         // but need to investigate the cost of doing so
-        this.list = list;
+        checkNotNull(list);
+        
+        this.list = ImmutableList.copyOf(list);
     }
 
     @Override

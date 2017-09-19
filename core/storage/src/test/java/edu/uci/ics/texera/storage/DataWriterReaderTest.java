@@ -9,12 +9,10 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import edu.uci.ics.texera.api.constants.SchemaConstants;
 import edu.uci.ics.texera.api.constants.TestConstants;
 import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.tuple.Tuple;
 import edu.uci.ics.texera.api.utils.TestUtils;
-import edu.uci.ics.texera.api.utils.Utils;
 import edu.uci.ics.texera.storage.constants.LuceneAnalyzerConstants;
 
 public class DataWriterReaderTest {
@@ -57,19 +55,7 @@ public class DataWriterReaderTest {
         }
         dataReader.close();
         
-        boolean equals = containsAllResults(TestConstants.getSamplePeopleTuples(), returnedTuples);
-        Assert.assertTrue(equals);
+        Assert.assertTrue(TestUtils.equals(TestConstants.getSamplePeopleTuples(), returnedTuples));
     }
 
-    public static boolean containsAllResults(List<Tuple> expectedResults, List<Tuple> exactResults) {
-        expectedResults = Utils.removeFields(expectedResults, SchemaConstants._ID, SchemaConstants.PAYLOAD);
-        exactResults = Utils.removeFields(exactResults, SchemaConstants._ID, SchemaConstants.PAYLOAD);
-
-        if (expectedResults.size() != exactResults.size())
-            return false;
-        if (!(expectedResults.containsAll(exactResults)) || !(exactResults.containsAll(expectedResults)))
-            return false;
-
-        return true;
-    }
 }

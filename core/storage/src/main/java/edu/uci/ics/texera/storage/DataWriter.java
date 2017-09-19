@@ -24,7 +24,6 @@ import edu.uci.ics.texera.api.schema.Attribute;
 import edu.uci.ics.texera.api.schema.AttributeType;
 import edu.uci.ics.texera.api.schema.Schema;
 import edu.uci.ics.texera.api.tuple.Tuple;
-import edu.uci.ics.texera.api.utils.Utils;
 import edu.uci.ics.texera.storage.utils.StorageUtils;
 
 /**
@@ -72,7 +71,7 @@ public class DataWriter {
         // change the schema to a schema with _ID field
         this.schema = dataStore.getSchema();
         if (! this.schema.containsAttribute(SchemaConstants._ID)) {
-            this.schema = Utils.getSchemaWithID(this.schema);
+            this.schema = Schema.Builder.getSchemaWithID(this.schema);
         }
         this.dataStore = new DataStore(indexDirectory, schema);
         this.analyzer = analyzer;
@@ -235,7 +234,7 @@ public class DataWriter {
         
         Schema tupleSchema = tuple.getSchema();
         if (! tupleSchema.containsAttribute(SchemaConstants._ID)) {
-            tupleSchema = Utils.getSchemaWithID(tupleSchema);
+            tupleSchema = Schema.Builder.getSchemaWithID(tupleSchema);
             List<IField> newTupleFields = new ArrayList<>();
             newTupleFields.add(_id);
             newTupleFields.addAll(tuple.getFields());

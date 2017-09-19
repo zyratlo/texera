@@ -22,7 +22,6 @@ import edu.uci.ics.texera.api.schema.Attribute;
 import edu.uci.ics.texera.api.schema.AttributeType;
 import edu.uci.ics.texera.api.schema.Schema;
 import edu.uci.ics.texera.api.tuple.Tuple;
-import edu.uci.ics.texera.api.utils.Utils;
 import edu.uci.ics.texera.storage.constants.LuceneAnalyzerConstants;
 
 public class RelationManagerTest {
@@ -50,7 +49,7 @@ public class RelationManagerTest {
         Assert.assertEquals(tableCatalogDirectory, 
         			CatalogConstants.TABLE_CATALOG_DIRECTORY.toRealPath().toString());
         Assert.assertTrue(tableCatalogLuceneAnalyzer instanceof StandardAnalyzer);
-        Assert.assertEquals(tableCatalogSchema, Utils.getSchemaWithID(CatalogConstants.TABLE_CATALOG_SCHEMA));
+        Assert.assertEquals(tableCatalogSchema, Schema.Builder.getSchemaWithID(CatalogConstants.TABLE_CATALOG_SCHEMA));
     }
     
     /*
@@ -68,7 +67,7 @@ public class RelationManagerTest {
         Assert.assertEquals(schemaCatalogDirectory, 
                 CatalogConstants.SCHEMA_CATALOG_DIRECTORY.toRealPath().toString());
         Assert.assertTrue(schemaCatalogLuceneAnalyzer instanceof StandardAnalyzer);
-        Assert.assertEquals(schemaCatalogSchema, Utils.getSchemaWithID(CatalogConstants.SCHEMA_CATALOG_SCHEMA));  
+        Assert.assertEquals(schemaCatalogSchema, Schema.Builder.getSchemaWithID(CatalogConstants.SCHEMA_CATALOG_SCHEMA));  
     }
     
     /*
@@ -94,7 +93,7 @@ public class RelationManagerTest {
         
         Assert.assertEquals(new File(tableDirectory).getCanonicalPath(), 
                 relationManager.getTableDirectory(tableName));
-        Assert.assertEquals(Utils.getSchemaWithID(tableSchema), relationManager.getTableSchema(tableName));
+        Assert.assertEquals(Schema.Builder.getSchemaWithID(tableSchema), relationManager.getTableSchema(tableName));
         Assert.assertEquals(tableLuceneAnalyzer.getClass(), relationManager.getTableAnalyzer(tableName).getClass());
         
         relationManager.deleteTable(tableName);
@@ -158,7 +157,7 @@ public class RelationManagerTest {
         for (int i = 0; i < NUM_OF_LOOPS; i++) {
             Assert.assertEquals(new File(tableDirectory + '_' + i).getCanonicalPath(), 
                     relationManager.getTableDirectory(tableName + '_' + i));
-            Assert.assertEquals(Utils.getSchemaWithID(tableSchema), relationManager.getTableSchema(tableName + '_' + i));
+            Assert.assertEquals(Schema.Builder.getSchemaWithID(tableSchema), relationManager.getTableSchema(tableName + '_' + i));
         }
         // delete tables
         for (int i = 0; i < NUM_OF_LOOPS; i++) {

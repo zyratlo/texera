@@ -8,8 +8,8 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import edu.uci.ics.texera.api.constants.SchemaConstants;
-import edu.uci.ics.texera.exp.common.PredicateBase;
-import edu.uci.ics.texera.exp.projection.ProjectionPredicate;
+import edu.uci.ics.texera.dataflow.common.PredicateBase;
+import edu.uci.ics.texera.dataflow.projection.ProjectionPredicate;
 
 /**
  * This class contains test cases for the SelectSomeFieldsPredicate class.

@@ -12,11 +12,11 @@ import edu.uci.ics.texera.api.dataflow.ISourceOperator;
 import edu.uci.ics.texera.api.field.ListField;
 import edu.uci.ics.texera.api.span.Span;
 import edu.uci.ics.texera.api.tuple.Tuple;
-import edu.uci.ics.texera.exp.nlp.entity.NlpEntityOperator;
-import edu.uci.ics.texera.exp.nlp.entity.NlpEntityPredicate;
-import edu.uci.ics.texera.exp.nlp.entity.NlpEntityType;
-import edu.uci.ics.texera.exp.source.scan.ScanBasedSourceOperator;
-import edu.uci.ics.texera.exp.source.scan.ScanSourcePredicate;
+import edu.uci.ics.texera.dataflow.nlp.entity.NlpEntityOperator;
+import edu.uci.ics.texera.dataflow.nlp.entity.NlpEntityPredicate;
+import edu.uci.ics.texera.dataflow.nlp.entity.NlpEntityType;
+import edu.uci.ics.texera.dataflow.source.scan.ScanBasedSourceOperator;
+import edu.uci.ics.texera.dataflow.source.scan.ScanSourcePredicate;
 import edu.uci.ics.texera.perftest.medline.MedlineIndexWriter;
 import edu.uci.ics.texera.perftest.utils.*;
 

@@ -16,7 +16,8 @@ public class Attribute {
             String attributeName, 
             @JsonProperty(value = JsonConstants.ATTRIBUTE_TYPE, required = true)
             AttributeType attributeType) {
-        checkNotNull(attributeName, attributeType);
+        checkNotNull(attributeName);
+        checkNotNull(attributeType);
         this.attributeName = attributeName;
         this.attributeType = attributeType;
     }
@@ -33,7 +34,7 @@ public class Attribute {
 
     @Override
     public String toString() {
-        return "Attribute [attributeName=" + attributeName + ", attributeType=" + attributeType + "]";
+        return "Attribute [name=" + attributeName + ", type=" + attributeType + "]";
     }
     
     @Override

@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.uci.ics.texera.api.exception.TexeraException;
-import edu.uci.ics.texera.exp.plangen.LogicalPlanTest;
+import edu.uci.ics.texera.dataflow.plangen.LogicalPlanTest;
 import edu.uci.ics.texera.web.TexeraWebApplication;
 import edu.uci.ics.texera.web.TexeraWebConfiguration;
 import edu.uci.ics.texera.web.response.planstore.QueryPlanBean;

@@ -4,18 +4,10 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import edu.uci.ics.texera.api.constants.DataConstants;
-import edu.uci.ics.texera.api.constants.SchemaConstants;
 import edu.uci.ics.texera.api.constants.DataConstants.TexeraProject;
 import edu.uci.ics.texera.api.exception.StorageException;
-import edu.uci.ics.texera.api.field.IField;
-import edu.uci.ics.texera.api.schema.Attribute;
-import edu.uci.ics.texera.api.schema.Schema;
-import edu.uci.ics.texera.api.tuple.Tuple;
 
 public class Utils {
 	
@@ -84,68 +76,5 @@ public class Utils {
             throw new StorageException(e);
         }
     }
-
-   /**
-    * Removes one or more attributes from the schema and returns the new schema.
-    * 
-    * @param schema
-    * @param attributeName
-    * @return
-    */
-   public static Schema removeAttributeFromSchema(Schema schema, String... attributeName) {
-       return new Schema(schema.getAttributes().stream()
-               .filter(attr -> (! Arrays.asList(attributeName).contains(attr.getName())))
-               .toArray(Attribute[]::new));
-   }
-   
-   /**
-    * Creates a new schema object, with "_ID" attribute added to the front.
-    * If the schema already contains "_ID" attribute, returns the original schema.
-    * 
-    * @param schema
-    * @return
-    */
-   public static Schema getSchemaWithID(Schema schema) {
-       if (schema.containsAttribute(SchemaConstants._ID_ATTRIBUTE.getName())) {
-           return schema;
-       }
-       return new Schema.Builder().add(SchemaConstants._ID_ATTRIBUTE).add(schema).build();    
-   }
-   
-   /**
-    * Remove one or more fields from each tuple in tupleList.
-    * 
-    * @param tupleList
-    * @param removeFields
-    * @return
-    */
-   public static List<Tuple> removeFields(List<Tuple> tupleList, String... removeFields) {
-       List<Tuple> newTuples = tupleList.stream().map(tuple -> removeFields(tuple, removeFields))
-               .collect(Collectors.toList());
-       return newTuples;
-   }
-   
-   /**
-    * Remove one or more fields from a tuple.
-    * 
-    * @param tuple
-    * @param removeFields
-    * @return
-    */
-   public static Tuple removeFields(Tuple tuple, String... removeFields) {
-       List<String> removeFieldList = Arrays.asList(removeFields);
-       List<Integer> removedFieldsIndex = removeFieldList.stream()
-               .map(attributeName -> tuple.getSchema().getIndex(attributeName)).collect(Collectors.toList());
-       
-       Attribute[] newAttrs = tuple.getSchema().getAttributes().stream()
-               .filter(attr -> (! removeFieldList.contains(attr.getName()))).toArray(Attribute[]::new);
-       Schema newSchema = new Schema(newAttrs);
-       
-       IField[] newFields = IntStream.range(0, tuple.getSchema().getAttributes().size())
-           .filter(index -> (! removedFieldsIndex.contains(index)))
-           .mapToObj(index -> tuple.getFields().get(index)).toArray(IField[]::new);
-       
-       return new Tuple(newSchema, newFields);
-   }
 
 }

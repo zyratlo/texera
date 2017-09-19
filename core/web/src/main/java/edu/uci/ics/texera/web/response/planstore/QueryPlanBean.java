@@ -3,8 +3,8 @@ package edu.uci.ics.texera.web.response.planstore;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import edu.uci.ics.texera.exp.plangen.LogicalPlan;
-import edu.uci.ics.texera.exp.planstore.PlanStoreConstants;
+import edu.uci.ics.texera.dataflow.plangen.LogicalPlan;
+import edu.uci.ics.texera.dataflow.planstore.PlanStoreConstants;
 
 /**
  * This class is a bean to serialize a stored Query Plan and its associated information from the

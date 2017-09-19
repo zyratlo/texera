@@ -6,9 +6,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.tuple.Tuple;
-import edu.uci.ics.texera.exp.plangen.LogicalPlan;
-import edu.uci.ics.texera.exp.planstore.PlanStore;
-import edu.uci.ics.texera.exp.planstore.PlanStoreConstants;
+import edu.uci.ics.texera.dataflow.plangen.LogicalPlan;
+import edu.uci.ics.texera.dataflow.planstore.PlanStore;
+import edu.uci.ics.texera.dataflow.planstore.PlanStoreConstants;
 import edu.uci.ics.texera.storage.DataReader;
 import edu.uci.ics.texera.web.TexeraWebException;
 import edu.uci.ics.texera.web.response.TexeraWebResponse;

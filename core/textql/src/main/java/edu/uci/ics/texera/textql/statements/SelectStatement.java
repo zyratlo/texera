@@ -6,8 +6,8 @@ import java.util.List;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
-import edu.uci.ics.texera.exp.common.PredicateBase;
-import edu.uci.ics.texera.exp.plangen.OperatorLink;
+import edu.uci.ics.texera.dataflow.common.PredicateBase;
+import edu.uci.ics.texera.dataflow.plangen.OperatorLink;
 import edu.uci.ics.texera.textql.planbuilder.beans.PassThroughPredicate;
 import edu.uci.ics.texera.textql.statements.predicates.ExtractPredicate;
 import edu.uci.ics.texera.textql.statements.predicates.ProjectPredicate;

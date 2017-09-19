@@ -24,8 +24,8 @@ import edu.uci.ics.texera.api.engine.Engine;
 import edu.uci.ics.texera.api.engine.Plan;
 import edu.uci.ics.texera.api.tuple.Tuple;
 import edu.uci.ics.texera.api.utils.Utils;
-import edu.uci.ics.texera.exp.plangen.LogicalPlan;
-import edu.uci.ics.texera.exp.sink.tuple.TupleSink;
+import edu.uci.ics.texera.dataflow.plangen.LogicalPlan;
+import edu.uci.ics.texera.dataflow.sink.tuple.TupleSink;
 import edu.uci.ics.texera.web.TexeraWebException;
 
 /**

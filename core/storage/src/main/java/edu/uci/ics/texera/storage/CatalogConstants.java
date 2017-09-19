@@ -66,7 +66,7 @@ public class CatalogConstants {
 
     public static final Schema TABLE_CATALOG_SCHEMA = new Schema(TABLE_NAME_ATTR, TABLE_DIRECTORY_ATTR,
             TABLE_LUCENE_ANALYZER_ATTR);
-    public static final Schema TABLE_CATALOG_SCHEMA_WITH_ID = Utils.getSchemaWithID(TABLE_CATALOG_SCHEMA);
+    public static final Schema TABLE_CATALOG_SCHEMA_WITH_ID = Schema.Builder.getSchemaWithID(TABLE_CATALOG_SCHEMA);
 
     // Schema for "schema catalog" table
     public static final String ATTR_NAME = "attributeName";
@@ -79,7 +79,7 @@ public class CatalogConstants {
 
     public static final Schema SCHEMA_CATALOG_SCHEMA = new Schema(TABLE_NAME_ATTR, ATTR_NAME_ATTR, ATTR_TYPE_ATTR,
             ATTR_POSITION_ATTR);
-    public static final Schema SCHEMA_CATALOG_SCHEMA_WITH_ID = Utils.getSchemaWithID(SCHEMA_CATALOG_SCHEMA);
+    public static final Schema SCHEMA_CATALOG_SCHEMA_WITH_ID = Schema.Builder.getSchemaWithID(SCHEMA_CATALOG_SCHEMA);
 
     
     // DataStore for table catalog and schema catalog

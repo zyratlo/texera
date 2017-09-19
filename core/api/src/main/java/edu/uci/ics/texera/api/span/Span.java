@@ -137,4 +137,18 @@ public class Span {
 
         return true;
     }
+    
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("field: " + this.getAttributeName() + "\n");
+        sb.append("start: " + this.getStart() + "\n");
+        sb.append("end:   " + this.getEnd() + "\n");
+        sb.append("key:   " + this.getKey() + "\n");
+        sb.append("value: " + this.getValue() + "\n");
+        sb.append("token offset: " + this.getTokenOffset() + "\n");
+
+        return sb.toString();
+    }
 }
