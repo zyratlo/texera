@@ -74,6 +74,15 @@ export class SideBarComponent {
       return jQuery.inArray(name,this.optionalTwitterList);
     }
 
+    checkIsDictionary(){
+      return this.operatorTitle === "Dictionary Search" || this.operatorTitle === "Source: Dictionary";
+    }
+
+    fileChange(event) {
+      let fileList: FileList = event.target.files;
+      this.currentDataService.uploadDictionary(fileList[0]);
+    }
+
     constructor(private currentDataService: CurrentDataService) {
         currentDataService.newAddition$.subscribe(
             data => {

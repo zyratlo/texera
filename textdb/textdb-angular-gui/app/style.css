@@ -68,10 +68,24 @@ body {
     background: #D2D7DF; /* #9999A1, D2D7DF*/
     position: absolute;
     color:  #353535;
-    height: calc(100% - 100px);
+    height: calc(100% - 140px);
     overflow-y: auto;
     z-index: 1000;
 }
+
+#version-number {
+	top: calc(100% - 40px);
+	left: 0px;
+	height: 40px;
+	position: absolute;
+	background: #D2D7DF; /* #9999A1, D2D7DF*/
+	z-index: 1000;
+	width: 255px;
+	padding: 10px;
+	font-size: 16px;
+	font-weight: bold;
+}
+
 
 .sidebar-brand{
 	font-weight: bold;
@@ -220,7 +234,10 @@ body {
 		background-color: #39ac39;
 		color: white;
 		font-weight: bold;
-		font-size: 22px;
+		font-size: 19px;
+		margin-top: 12px;
+		margin-bottom: 0px;
+		width: 220px
 }
 
 .checkBox{

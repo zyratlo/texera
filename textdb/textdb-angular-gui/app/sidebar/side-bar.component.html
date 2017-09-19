@@ -4,6 +4,7 @@
         <h3 *ngIf="attributes.length === 0" class="sidebar-brand">Edit Operator</h3>
         <h3 *ngIf="attributes.length !== 0" class="sidebar-brand">{{operator}}</h3>
         <form [hidden]="attributes.length === 0" #editOperatorForm="ngForm">
+
             <div class="form-group" *ngFor="let attribute of attributes">
                 <label *ngIf="checkInHidden(attribute) === -1" for="{{attribute}}" class="attribute-type">
                   {{humanize(attribute)}} <span *ngIf="checkInOptionalTwitter(attribute) !== -1">(Optional)</span>
@@ -27,7 +28,7 @@
                 <select *ngIf="attribute === 'aggregationType'" class="form-control" id="{{attribute}}" required  [(ngModel)]="data.properties.attributes[attribute]" (ngModelChange)="onFormChange(attribute)" name="{{attribute}}" #{{attribute}}="ngModel">
                   <option *ngFor="let agg of aggregationList" [value] = "agg">{{agg}}</option>
                 </select>
-                
+
 
                 <div *ngIf="attribute === 'attributes'">
                     <select class="form-control" name="{{attribute}}+Selector" [(ngModel)]="selectedAttributeMulti" (ngModelChange)="attributeAdded('multi')">
@@ -35,6 +36,15 @@
                         <option *ngFor="let attribute of attributeItems" [value] = "attribute">{{attribute}}</option>
                     </select>
                     <input class="form-control" id="{{attribute}}" placeholder="Enter attributes" [ngModel]="selectedAttributesList.toString()" (ngModelChange)="manuallyAdded($event)" name="{{attribute}}" #{{attribute}}="ngModel">
+
+                    <!-- only display the dictionary upload button when it is related to dictionary -->
+                    <div *ngIf="checkIsDictionary()">
+                      <!-- [for] push the focus to the corresponding element with id that is identical to its for -->
+                      <label for="file-upload" class="btn btn-default navbar-btn dictionary-upload">
+                        <i class="fa fa-upload" aria-hidden="true"></i>  Dictionary Upload
+                      </label>
+                      <input id="file-upload" type="file" placeholder="File Name" name="filename" (change)="fileChange($event)" accept=".txt">
+                    </div>
                 </div>
 
                 <div *ngIf="attribute === 'dictionaryEntries'">
@@ -84,8 +94,8 @@
             <button type="button" class="btn btn-default" (click) = "onDelete()">Delete</button>
         </form>
     </div>
-
 </div>
+<div id="version-number">Version: 0.1.0</div>
 
 
 
