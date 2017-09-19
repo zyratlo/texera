@@ -11,6 +11,7 @@ import edu.uci.ics.texera.api.exception.StorageException;
 import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.field.IField;
 import edu.uci.ics.texera.api.schema.Attribute;
+import edu.uci.ics.texera.api.schema.AttributeType;
 import edu.uci.ics.texera.api.schema.Schema;
 import edu.uci.ics.texera.api.tuple.Tuple;
 import edu.uci.ics.texera.api.utils.TestUtils;
@@ -23,7 +24,6 @@ import edu.uci.ics.texera.dataflow.keywordmatcher.KeywordMatcherSourceOperator;
 import edu.uci.ics.texera.dataflow.keywordmatcher.KeywordMatchingType;
 import edu.uci.ics.texera.dataflow.source.scan.ScanBasedSourceOperator;
 import edu.uci.ics.texera.dataflow.source.scan.ScanSourcePredicate;
-import edu.uci.ics.texera.dataflow.utils.DataflowUtils;
 import edu.uci.ics.texera.storage.DataWriter;
 import edu.uci.ics.texera.storage.RelationManager;
 import edu.uci.ics.texera.storage.constants.LuceneAnalyzerConstants;
@@ -188,7 +188,7 @@ public class JoinTestHelper {
         for (int i = 0; i < originalAttributes.size(); i++) {
             if (i == fieldIndex) {
                 newAttributes.add(new Attribute(originalAttributes.get(i).getName(),
-                        DataflowUtils.getAttributeType(newField)));
+                        AttributeType.getAttributeType(newField.getClass())));
                 newFields.add(newField);
             } else {
                 newAttributes.add(originalAttributes.get(i));

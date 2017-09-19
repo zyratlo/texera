@@ -15,14 +15,6 @@ import org.apache.lucene.analysis.standard.StandardAnalyzer;
 
 import edu.uci.ics.texera.api.exception.DataflowException;
 import edu.uci.ics.texera.api.exception.TexeraException;
-import edu.uci.ics.texera.api.field.DateField;
-import edu.uci.ics.texera.api.field.DoubleField;
-import edu.uci.ics.texera.api.field.IDField;
-import edu.uci.ics.texera.api.field.IField;
-import edu.uci.ics.texera.api.field.IntegerField;
-import edu.uci.ics.texera.api.field.ListField;
-import edu.uci.ics.texera.api.field.StringField;
-import edu.uci.ics.texera.api.field.TextField;
 import edu.uci.ics.texera.api.schema.AttributeType;
 import edu.uci.ics.texera.api.span.Span;
 import edu.uci.ics.texera.api.tuple.*;
@@ -31,32 +23,6 @@ import edu.uci.ics.texera.storage.constants.LuceneAnalyzerConstants;
 public class DataflowUtils {
     
     public static final String LUCENE_SCAN_QUERY = "*:*";
-
-    /**
-     * Returns the AttributeType of a field object.
-     *
-     * @param field
-     * @return
-     */
-    public static AttributeType getAttributeType(IField field) {
-        if (field instanceof DateField) {
-            return AttributeType.DATE;
-        } else if (field instanceof DoubleField) {
-            return AttributeType.DOUBLE;
-        } else if (field instanceof IDField) {
-            return AttributeType._ID_TYPE;
-        } else if (field instanceof IntegerField) {
-            return AttributeType.INTEGER;
-        } else if (field instanceof ListField) {
-            return AttributeType.LIST;
-        } else if (field instanceof StringField) {
-            return AttributeType.STRING;
-        } else if (field instanceof TextField) {
-            return AttributeType.TEXT;
-        } else {
-            throw new TexeraException("no existing type mapping of this field object");
-        }
-    }
 
     public static ArrayList<String> tokenizeQuery(String luceneAnalyzerStr, String query) {
         try {
