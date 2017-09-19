@@ -12,7 +12,7 @@ import any = jasmine.any;
 declare var jQuery: any;
 
 const apiUrl = "http://localhost:8080/api";
-const texeraUrl = apiUrl + "/newqueryplan/execute";
+const texeraUrl = apiUrl + "/queryplan/execute";
 const metadataUrl = apiUrl + "/resources/metadata";
 const uploadDictionaryUrl = apiUrl + "/upload/dictionary";
 const getDictionariesUrl = apiUrl + "/resources/dictionaries";

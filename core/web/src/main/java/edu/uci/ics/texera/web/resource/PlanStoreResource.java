@@ -64,11 +64,9 @@ public class PlanStoreResource {
             }
         }
         catch(TexeraException e) {
-            e.printStackTrace();
             throw new TexeraWebException(e.getMessage());
         }
         catch(IOException e) {
-            e.printStackTrace();
             throw new TexeraWebException("fail to parse json:\n" + e.getMessage());
         }
         return new QueryPlanListBean(queryPlans);
@@ -108,7 +106,7 @@ public class PlanStoreResource {
             throw new TexeraWebException(e.getMessage());
         }
         catch(IOException e) {
-            e.printStackTrace();
+            throw new TexeraWebException(e.getMessage());
         }
         return new TexeraWebResponse(0, "Success");
     }

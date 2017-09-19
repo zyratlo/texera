@@ -48,7 +48,6 @@ public class SampleExtraction {
 
     public static void writeSampleIndex() throws Exception {
         // parse the original file
-        System.out.println(promedFilesDirectory);
         File sourceFileFolder = new File(promedFilesDirectory);
         ArrayList<Tuple> fileTuples = new ArrayList<>();
         for (File htmlFile : sourceFileFolder.listFiles()) {

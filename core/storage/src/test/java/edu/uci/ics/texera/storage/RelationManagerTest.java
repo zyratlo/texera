@@ -367,8 +367,6 @@ public class RelationManagerTest {
         // create another table with the same directory should fail
         try {
             relationManager.createTable(tableName2, Paths.get(indexDirectory), schema, luceneAnalyzerString);
-            System.out.println(relationManager.getTableDirectory(tableName1));
-            System.out.println(relationManager.getTableDirectory(tableName2));
             Assert.fail("Storage exception should be thrown because of duplicate index directories");
         } catch (StorageException e) {
         }

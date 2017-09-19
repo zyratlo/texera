@@ -75,7 +75,6 @@ public class MysqlSinkTest {
     	// CleanUp removes the last testTable left in previous test.
     	// Comment out cleanUp to see results in mysql.
     	test.cleanUp();
-    	System.out.println("Tests All Finished.");
     }
     
     

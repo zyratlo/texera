@@ -14,7 +14,6 @@ import org.apache.lucene.analysis.util.CharArraySet;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 
 import edu.uci.ics.texera.api.exception.DataflowException;
-import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.schema.AttributeType;
 import edu.uci.ics.texera.api.span.Span;
 import edu.uci.ics.texera.api.tuple.*;
@@ -25,12 +24,7 @@ public class DataflowUtils {
     public static final String LUCENE_SCAN_QUERY = "*:*";
 
     public static ArrayList<String> tokenizeQuery(String luceneAnalyzerStr, String query) {
-        try {
-            return tokenizeQuery(LuceneAnalyzerConstants.getLuceneAnalyzer(luceneAnalyzerStr), query);
-        } catch (DataflowException e) {
-            // TODO: discuss TexeraException vs. Checked Exception
-            throw new TexeraException(e);
-        }
+        return tokenizeQuery(LuceneAnalyzerConstants.getLuceneAnalyzer(luceneAnalyzerStr), query);
     }
 
     /**
@@ -44,17 +38,15 @@ public class DataflowUtils {
         ArrayList<String> result = new ArrayList<String>();
         TokenStream tokenStream = luceneAnalyzer.tokenStream(null, new StringReader(query));
         CharTermAttribute term = tokenStream.addAttribute(CharTermAttribute.class);
-
         try {
             tokenStream.reset();
             while (tokenStream.incrementToken()) {
                 result.add(term.toString());
             }
             tokenStream.close();
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (IOException e) {
+            throw new DataflowException(e);
         }
-
         return result;
     }
 
@@ -76,12 +68,12 @@ public class DataflowUtils {
                 result.add(actualQueryToken);
             }
             tokenStream.close();
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (IOException e) {
+            throw new DataflowException(e);
+        } finally {
+            luceneAnalyzer.close();
         }
-
-        luceneAnalyzer.close();
-
+        
         return result;
     }
 
@@ -126,7 +118,7 @@ public class DataflowUtils {
             }
             tokenStream.close();
         } catch (IOException e) {
-            payload.clear(); // return empty payload
+            throw new DataflowException(e);
         }
 
         return payload;

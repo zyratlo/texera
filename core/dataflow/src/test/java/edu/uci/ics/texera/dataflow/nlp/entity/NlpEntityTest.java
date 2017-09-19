@@ -125,8 +125,6 @@ public class NlpEntityTest {
 
         List<Tuple> expectedResults = NlpEntityTestConstants.getTest1ResultTuples();
         boolean contains = TestUtils.equals(expectedResults, returnedResults);
-        System.out.println("expected: " + expectedResults + "\n");
-        System.out.println("actual: " + returnedResults + "\n");
         Assert.assertTrue(contains);
     }
 

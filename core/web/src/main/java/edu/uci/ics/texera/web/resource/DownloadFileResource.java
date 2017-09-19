@@ -33,10 +33,8 @@ public class DownloadFileResource {
     
     @GET
     @Path("/result")
-    public Response downloadExcelFile(@QueryParam("resultID") String resultID) throws JsonParseException, JsonMappingException, IOException {
-        System.out.println("resultID is " + resultID);
-        
-        java.nio.file.Path resultFile = NewQueryPlanResource.resultDirectory.resolve(resultID + ".json");        
+    public Response downloadExcelFile(@QueryParam("resultID") String resultID) throws JsonParseException, JsonMappingException, IOException {        
+        java.nio.file.Path resultFile = QueryPlanResource.resultDirectory.resolve(resultID + ".json");        
 
         if (Files.notExists(resultFile)) {
             System.out.println(resultFile + " file does not found");
@@ -44,7 +42,6 @@ public class DownloadFileResource {
         }
         
         
-        System.out.println("reading " + resultFile + " and sends out");
         ArrayList<Tuple> result = new ObjectMapper().readValue(Files.readAllBytes(resultFile), 
                 TypeFactory.defaultInstance().constructCollectionLikeType(ArrayList.class, Tuple.class));
         

@@ -37,7 +37,7 @@ import io.dropwizard.client.JerseyClientBuilder;
 import io.dropwizard.testing.ResourceHelpers;
 import io.dropwizard.testing.junit.DropwizardAppRule;
 
-public class NewQueryPlanResourceTest {
+public class QueryPlanResourceTest {
     
     @ClassRule
     public static final DropwizardAppRule<TexeraWebConfiguration> RULE =
@@ -125,8 +125,6 @@ public class NewQueryPlanResourceTest {
                         new ObjectMapper().writeValueAsString(getLogicalPlan1()), 
                         MediaType.APPLICATION_JSON));
         
-        System.out.println("resposne is: " + response);
-
         assertThat(response.getStatus()).isEqualTo(200);
         
 

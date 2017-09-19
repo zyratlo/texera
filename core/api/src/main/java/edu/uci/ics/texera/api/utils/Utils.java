@@ -24,19 +24,14 @@ public class Utils {
      * @throws StorageException if finding fails
      */
     public static Path getResourcePath(String resourcePath, TexeraProject subProject) throws StorageException {
-        try {
-            resourcePath = resourcePath.trim();
-            if (resourcePath.startsWith("/")) {
-                resourcePath = resourcePath.substring(1);
-            }
-            return getTexeraHomePath()
-                    .resolve(subProject.getProjectName())
-                    .resolve("src/main/resources")
-                    .resolve(resourcePath)
-                    .toRealPath();
-        } catch (IOException e) { 
-            throw new StorageException(e);
+        resourcePath = resourcePath.trim();
+        if (resourcePath.startsWith("/")) {
+            resourcePath = resourcePath.substring(1);
         }
+        return getTexeraHomePath()
+                .resolve(subProject.getProjectName())
+                .resolve("src/main/resources")
+                .resolve(resourcePath);
     }
     
     /**

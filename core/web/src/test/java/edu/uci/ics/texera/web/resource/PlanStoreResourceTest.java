@@ -87,13 +87,11 @@ public class PlanStoreResourceTest {
 
     @Test
     public void checkAddOnePlan() throws IOException{
-        System.out.println("check add one plan started");
         Response response = client.target(
                 String.format(planStoreEndpoint, RULE.getLocalPort()))
                 .request()
                 .post(Entity.entity(queryPlan1, MediaType.APPLICATION_JSON));
 
-        System.out.println(response);
         assertThat(response.getStatus()).isEqualTo(200);
 
         response = client.target(

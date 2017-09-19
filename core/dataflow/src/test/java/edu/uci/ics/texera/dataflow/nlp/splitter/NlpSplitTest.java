@@ -52,7 +52,6 @@ public class NlpSplitTest {
         
         tupleSink.open();
         List<Tuple> results = tupleSink.collectAllTuples();
-        System.out.println(results);
         tupleSink.close();
         Assert.assertTrue(TestUtils.equals(NlpSplitTestConstants.getOneToManyResultTuple(), results));
         Set<IDField> compset = new HashSet<IDField>();

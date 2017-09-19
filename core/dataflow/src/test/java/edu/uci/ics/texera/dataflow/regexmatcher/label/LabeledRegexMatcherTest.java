@@ -193,7 +193,6 @@ public class LabeledRegexMatcherTest {
         String query = "<lab2> is <lab1>";
         List<Tuple> exactResults = RegexMatcherTestHelper.getQueryResults(
                 PEOPLE_TABLE, query, "short", Arrays.asList(TestConstants.DESCRIPTION), "lab1", false, Integer.MAX_VALUE, 0, "Clooney", "lab2");
-        System.out.print(exactResults.size());
         List<Tuple> expectedResults = new ArrayList<>();
 
         // expected to match "Short angry"
@@ -215,7 +214,6 @@ public class LabeledRegexMatcherTest {
         String query = "Lin <lab2> is <lab1> and lin <lab2> is Angry";
         List<Tuple> exactResults = RegexMatcherTestHelper.getQueryResults(
                 PEOPLE_TABLE, query, "short", Arrays.asList(TestConstants.DESCRIPTION), "lab1", false, Integer.MAX_VALUE, 0, "Clooney", "lab2");
-        System.out.print(exactResults.size());
         List<Tuple> expectedResults = new ArrayList<>();
 
         // expected to match "Short angry"

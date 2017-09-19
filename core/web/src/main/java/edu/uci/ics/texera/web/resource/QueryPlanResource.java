@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import edu.uci.ics.texera.api.dataflow.ISink;
 import edu.uci.ics.texera.api.engine.Engine;
 import edu.uci.ics.texera.api.engine.Plan;
+import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.tuple.Tuple;
 import edu.uci.ics.texera.api.utils.Utils;
 import edu.uci.ics.texera.dataflow.plangen.LogicalPlan;
@@ -36,10 +37,10 @@ import edu.uci.ics.texera.web.TexeraWebException;
  * @author Kishore
  * @author Zuozhi
  */
-@Path("/newqueryplan")
+@Path("/queryplan")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-public class NewQueryPlanResource {
+public class QueryPlanResource {
     
     public static java.nio.file.Path resultDirectory = Utils.getTexeraHomePath().resolve("query-results");
     
@@ -101,9 +102,7 @@ public class NewQueryPlanResource {
                 return response;
             }
             
-        } catch (IOException e) {
-            // TODO remove TexeraException after the exception refactor
-            e.printStackTrace();
+        } catch (IOException | TexeraException e) {
             throw new TexeraWebException(e.getMessage());
         }   
     }

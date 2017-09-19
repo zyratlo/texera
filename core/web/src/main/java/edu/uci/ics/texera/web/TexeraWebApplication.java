@@ -9,7 +9,7 @@ import edu.uci.ics.texera.perftest.twitter.TwitterSample;
 import edu.uci.ics.texera.web.healthcheck.SampleHealthCheck;
 import edu.uci.ics.texera.web.resource.DownloadFileResource;
 import edu.uci.ics.texera.web.resource.FileUploadResource;
-import edu.uci.ics.texera.web.resource.NewQueryPlanResource;
+import edu.uci.ics.texera.web.resource.QueryPlanResource;
 import edu.uci.ics.texera.web.resource.PlanStoreResource;
 import edu.uci.ics.texera.web.resource.SystemResource;
 import io.dropwizard.Application;
@@ -40,7 +40,7 @@ public class TexeraWebApplication extends Application<TexeraWebConfiguration> {
         // serve backend at /api
         environment.jersey().setUrlPattern("/api/*");
         
-        final NewQueryPlanResource newQueryPlanResource = new NewQueryPlanResource();
+        final QueryPlanResource newQueryPlanResource = new QueryPlanResource();
         environment.jersey().register(newQueryPlanResource);
 
         // Creates an instance of the PlanStoreResource class to register with Jersey

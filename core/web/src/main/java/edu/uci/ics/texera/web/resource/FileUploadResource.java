@@ -29,7 +29,6 @@ public class FileUploadResource {
 				dictionary.append(line);
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
 			throw new TexeraWebException("Error occurred whlie uploading dictionary");
 		}
 		
