@@ -24,10 +24,19 @@ public class Utils {
      * @throws StorageException if finding fails
      */
     public static Path getResourcePath(String resourcePath, TexeraProject subProject) throws StorageException {
-        return getTexeraHomePath()
-        			.resolve(subProject.getProjectName())
-        			.resolve("src/main/resources")
-        			.resolve(resourcePath);
+        try {
+            resourcePath = resourcePath.trim();
+            if (resourcePath.startsWith("/")) {
+                resourcePath = resourcePath.substring(1);
+            }
+            return getTexeraHomePath()
+                    .resolve(subProject.getProjectName())
+                    .resolve("src/main/resources")
+                    .resolve(resourcePath)
+                    .toRealPath();
+        } catch (IOException e) { 
+            throw new StorageException(e);
+        }
     }
     
     /**
@@ -58,7 +67,7 @@ public class Utils {
                 boolean isTexeraHome = currentWorkingDirectory.endsWith("core")
                 		&& currentWorkingDirectory.getParent().endsWith("texera");
                 if (isTexeraHome) {
-                    return currentWorkingDirectory;
+                    return currentWorkingDirectory.toRealPath();
                 }
                 
                 // if the current directory is one of the sub-projects

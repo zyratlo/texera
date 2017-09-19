@@ -5,7 +5,6 @@ import java.io.File;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.field.IntegerField;
 import edu.uci.ics.texera.api.field.StringField;
 import edu.uci.ics.texera.api.field.TextField;
@@ -66,7 +65,9 @@ public class TwitterSample {
                         new TextField(city),
                         new StringField(createAt));
                 dataWriter.insertTuple(tuple);
-            } catch (TexeraException e) {
+            } catch (Exception e) {
+                // catch all exception (including NullPointerException)
+                // continue to next tuple if something goes wrong
                 continue;
             }
         }
