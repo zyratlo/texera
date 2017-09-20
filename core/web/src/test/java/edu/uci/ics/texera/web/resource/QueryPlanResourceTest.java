@@ -43,7 +43,7 @@ public class QueryPlanResourceTest {
     public static final DropwizardAppRule<TexeraWebConfiguration> RULE =
             new DropwizardAppRule<>(TexeraWebApplication.class, ResourceHelpers.resourceFilePath("test-config.yml"));
     
-    public static String queryPlanEndpoint = "http://localhost:%d/api/newqueryplan/execute";
+    public static String queryPlanEndpoint = "http://localhost:%d/api/queryplan/execute";
     
     public static final String TEST_TABLE = "query_plan_test_table";
     
