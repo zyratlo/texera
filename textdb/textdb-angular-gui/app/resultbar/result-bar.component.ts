@@ -64,6 +64,7 @@ export class ResultBarComponent {
         // stop the loading animation of the run button
         jQuery('.navigation-btn').button('reset');
         this.attribute = [];
+        this.result = [];
         // check if the result is valid
         if (data.code === 0) {
           var ResultDisplay = (data.result.length < 20) ? data.result.length : this.ResultDisplayLimit;
