@@ -18,8 +18,6 @@ public class ListField<T> implements IField {
     public ListField(
             @JsonProperty(value = JsonConstants.FIELD_VALUE, required = true)
             List<T> list) {
-        // TODO: make a copy of the list to avoid modifying the list
-        // but need to investigate the cost of doing so
         checkNotNull(list);
         
         this.list = ImmutableList.copyOf(list);

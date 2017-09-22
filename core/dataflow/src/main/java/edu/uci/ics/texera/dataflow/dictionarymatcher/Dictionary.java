@@ -109,13 +109,12 @@ public class Dictionary {
      *
      * @param luceneAnalyzerStr
      */
-
     public void setDictionaryTokenListWithStopwords(String luceneAnalyzerStr) {
         this.tokenListsWithStopwords = new ArrayList<>();
         this.tokenListsNoStopwords = new ArrayList<>();
         for (int i = 0; i < dictionaryEntries.size(); i++) {
             tokenListsNoStopwords.add(DataflowUtils.tokenizeQuery(luceneAnalyzerStr, dictionaryEntries.get(i)));
-            tokenListsWithStopwords.add(DataflowUtils.tokenizeQueryWithStopwords(dictionaryEntries.get(i)));
+            tokenListsWithStopwords.add(DataflowUtils.tokenizeQueryWithStopwords(luceneAnalyzerStr, dictionaryEntries.get(i)));
         }
     }
 

@@ -71,7 +71,7 @@ public class MedlineIndexWriter {
     }
     
     public static void writeMedlineIndex(Path medlineFilepath, String tableName) throws IOException, StorageException, ParseException {
-        RelationManager relationManager = RelationManager.getRelationManager();
+        RelationManager relationManager = RelationManager.getInstance();
         DataWriter dataWriter = relationManager.getTableDataWriter(tableName);
         dataWriter.open();
         

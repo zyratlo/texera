@@ -30,10 +30,10 @@ public class SamplerTest {
     private static int indexSize;
     @BeforeClass
     public static void setUp() throws TexeraException {
-        RelationManager relationManager = RelationManager.getRelationManager();
+        RelationManager relationManager = RelationManager.getInstance();
         // Create the people table and write tuples
         
-        RelationManager.getRelationManager().deleteTable(SAMPLER_TABLE);
+        RelationManager.getInstance().deleteTable(SAMPLER_TABLE);
         relationManager.createTable(SAMPLER_TABLE, TestUtils.getDefaultTestIndex().resolve(SAMPLER_TABLE), 
                 TestConstants.SCHEMA_PEOPLE, LuceneAnalyzerConstants.standardAnalyzerString());
         DataWriter dataWriter = relationManager.getTableDataWriter(SAMPLER_TABLE);
@@ -48,7 +48,7 @@ public class SamplerTest {
     
     @AfterClass
     public static void cleanUp() throws TexeraException {
-        RelationManager.getRelationManager().deleteTable(SAMPLER_TABLE);
+        RelationManager.getInstance().deleteTable(SAMPLER_TABLE);
     }
     
     public static List<Tuple> computeSampleResults(String tableName, int k,

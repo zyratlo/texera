@@ -34,7 +34,7 @@ public class KeywordTestHelper {
     public static final String RESULTS = "dictionary test results";
     
     public static void writeTestTables() throws TexeraException {
-        RelationManager relationManager = RelationManager.getRelationManager();
+        RelationManager relationManager = RelationManager.getInstance();
         
         // create the people table and write tuples
         relationManager.createTable(PEOPLE_TABLE, TestUtils.getDefaultTestIndex().resolve(PEOPLE_TABLE), 
@@ -70,7 +70,7 @@ public class KeywordTestHelper {
     }
     
     public static void deleteTestTables() throws TexeraException {
-        RelationManager relationManager = RelationManager.getRelationManager();
+        RelationManager relationManager = RelationManager.getInstance();
 
         relationManager.deleteTable(PEOPLE_TABLE);
         relationManager.deleteTable(MEDLINE_TABLE);
@@ -118,14 +118,16 @@ public class KeywordTestHelper {
     
     public static List<Tuple> getScanSourceResults(String tableName, String keywordQuery, List<String> attributeNames,
             KeywordMatchingType matchingType, int limit, int offset) throws TexeraException {
-        RelationManager relationManager = RelationManager.getRelationManager();
+        RelationManager relationManager = RelationManager.getInstance();
         
         ScanBasedSourceOperator scanSource = new ScanBasedSourceOperator(new ScanSourcePredicate(tableName));
         
         KeywordPredicate keywordPredicate = new KeywordPredicate(
                 keywordQuery, attributeNames, relationManager.getTableAnalyzerString(tableName), matchingType, 
-                RESULTS, limit, offset);
+                RESULTS);
         KeywordMatcher keywordMatcher = new KeywordMatcher(keywordPredicate);
+        keywordMatcher.setLimit(limit);
+        keywordMatcher.setOffset(offset);
         
         keywordMatcher.setInputOperator(scanSource);
         
@@ -143,12 +145,14 @@ public class KeywordTestHelper {
     
     public static List<Tuple> getKeywordSourceResults(String tableName, String keywordQuery, List<String> attributeNames,
             KeywordMatchingType matchingType, int limit, int offset) throws TexeraException {
-        RelationManager relationManager = RelationManager.getRelationManager();
+        RelationManager relationManager = RelationManager.getInstance();
         KeywordSourcePredicate keywordSourcePredicate = new KeywordSourcePredicate(
                 keywordQuery, attributeNames, relationManager.getTableAnalyzerString(tableName), matchingType, 
-                tableName, RESULTS, limit, offset);
+                tableName, RESULTS);
         KeywordMatcherSourceOperator keywordSource = new KeywordMatcherSourceOperator(
                 keywordSourcePredicate);
+        keywordSource.setLimit(limit);
+        keywordSource.setOffset(offset);
         
         Tuple tuple;
         List<Tuple> results = new ArrayList<>();

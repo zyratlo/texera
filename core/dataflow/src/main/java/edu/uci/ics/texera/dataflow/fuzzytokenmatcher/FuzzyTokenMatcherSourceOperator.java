@@ -29,7 +29,7 @@ public class FuzzyTokenMatcherSourceOperator extends AbstractSingleInputOperator
 
         // generate dataReader
         Query luceneQuery = createLuceneQueryObject(this.predicate);   
-        this.dataReader = RelationManager.getRelationManager().getTableDataReader(
+        this.dataReader = RelationManager.getInstance().getTableDataReader(
                 this.predicate.getTableName(), luceneQuery);
         this.dataReader.setPayloadAdded(true);
         

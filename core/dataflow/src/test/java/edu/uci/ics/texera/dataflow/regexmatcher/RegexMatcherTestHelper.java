@@ -32,7 +32,7 @@ public class RegexMatcherTestHelper {
     public static final String TEXT_TABLE = "regex_test_text";
     
     public static void writeTestTables() throws TexeraException {
-        RelationManager relationManager = RelationManager.getRelationManager();
+        RelationManager relationManager = RelationManager.getInstance();
         
         // create the people table and write tuples
         relationManager.createTable(PEOPLE_TABLE, TestUtils.getDefaultTestIndex().resolve(PEOPLE_TABLE), 
@@ -80,7 +80,7 @@ public class RegexMatcherTestHelper {
     }
     
     public static void deleteTestTables() throws TexeraException {
-        RelationManager relationManager = RelationManager.getRelationManager();
+        RelationManager relationManager = RelationManager.getInstance();
 
         relationManager.deleteTable(PEOPLE_TABLE);
         relationManager.deleteTable(CORP_TABLE);
@@ -212,12 +212,12 @@ public class RegexMatcherTestHelper {
 
     public static List<Tuple> getScanSourceResults(String tableName, String keywordQuery, String regex, List<String> attributeNames,
                                                    KeywordMatchingType matchingType, String spanListName, int limit, int offset) throws TexeraException {
-        RelationManager relationManager = RelationManager.getRelationManager();
+        RelationManager relationManager = RelationManager.getInstance();
 
         ScanBasedSourceOperator scanSource = new ScanBasedSourceOperator(new ScanSourcePredicate(tableName));
 
         KeywordPredicate keywordPredicate = new KeywordPredicate(keywordQuery, attributeNames, relationManager.getTableAnalyzerString(tableName), matchingType,
-                spanListName, limit, offset);
+                spanListName);
         KeywordMatcher keywordMatcher = new KeywordMatcher(keywordPredicate);
 
         keywordMatcher.setInputOperator(scanSource);
@@ -244,10 +244,10 @@ public class RegexMatcherTestHelper {
     public static List<Tuple> getRegexSourceResults(String tableName, String keywordQuery, String regex, List<String> attributeNames,
                                                     KeywordMatchingType matchingType, String spanListName, int limit, int offset) throws TexeraException {
 
-        RelationManager relationManager = RelationManager.getRelationManager();
+        RelationManager relationManager = RelationManager.getInstance();
         KeywordSourcePredicate keywordSourcePredicate = new KeywordSourcePredicate(
                 keywordQuery, attributeNames, relationManager.getTableAnalyzerString(tableName), matchingType,
-                tableName, spanListName, limit, offset);
+                tableName, spanListName);
         KeywordMatcherSourceOperator keywordSource = new KeywordMatcherSourceOperator(
                 keywordSourcePredicate);
 
@@ -308,11 +308,11 @@ public class RegexMatcherTestHelper {
         ScanBasedSourceOperator scanSource = new ScanBasedSourceOperator(new ScanSourcePredicate(tableName));
 
         KeywordPredicate keywordPredicate = new KeywordPredicate(keywordQuery1, attributeNames, LuceneAnalyzerConstants.standardAnalyzerString(), matchingType,
-                spanListName1, limit, offset);
+                spanListName1);
         KeywordMatcher keywordMatcher = new KeywordMatcher(keywordPredicate);
 
         KeywordPredicate keywordPredicate1 = new KeywordPredicate(keywordQuery2, attributeNames, LuceneAnalyzerConstants.standardAnalyzerString(), matchingType,
-                spanListName2, limit, offset);
+                spanListName2);
         KeywordMatcher keywordMatcher1 = new KeywordMatcher(keywordPredicate1);
         keywordMatcher1.setInputOperator(keywordMatcher);
 
@@ -342,12 +342,12 @@ public class RegexMatcherTestHelper {
 
         KeywordSourcePredicate keywordSourcePredicate = new KeywordSourcePredicate(
                 keywordQuery1, attributeNames, LuceneAnalyzerConstants.standardAnalyzerString(), matchingType,
-                tableName, spanListName1, limit, offset);
+                tableName, spanListName1);
         KeywordMatcherSourceOperator keywordSource = new KeywordMatcherSourceOperator(
                 keywordSourcePredicate);
 
         KeywordPredicate keywordPredicate1 = new KeywordPredicate(keywordQuery2, attributeNames, LuceneAnalyzerConstants.standardAnalyzerString(), matchingType,
-                spanListName2, limit, offset);
+                spanListName2);
         KeywordMatcher keywordMatcher1 = new KeywordMatcher(keywordPredicate1);
         keywordMatcher1.setInputOperator(keywordSource);
 

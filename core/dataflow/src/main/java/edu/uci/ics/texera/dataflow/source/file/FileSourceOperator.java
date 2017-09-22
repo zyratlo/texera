@@ -105,7 +105,6 @@ public class FileSourceOperator implements ISourceOperator {
         
         // check if the path list is empty
         if (pathList.isEmpty()) {
-            // TODO: change it to Texera TexeraException
             throw new TexeraException(String.format(
                     "the filePath: %s doesn't contain any valid text files. " + 
                     "File extension must be one of %s .", 

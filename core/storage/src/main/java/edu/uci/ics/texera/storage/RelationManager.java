@@ -29,7 +29,7 @@ import edu.uci.ics.texera.storage.utils.StorageUtils;
 
 public class RelationManager {
     
-    private static volatile RelationManager singletonRelationManager = null;
+    private static volatile RelationManager singletonInstance = null;
     
     private RelationManager() throws StorageException {
         if (! checkCatalogExistence()) {
@@ -37,15 +37,15 @@ public class RelationManager {
         }
     }
 
-    public static RelationManager getRelationManager() throws StorageException {
-        if (singletonRelationManager == null) {
+    public static RelationManager getInstance() throws StorageException {
+        if (singletonInstance == null) {
             synchronized (RelationManager.class) {
-                if (singletonRelationManager == null) {
-                    singletonRelationManager = new RelationManager();
+                if (singletonInstance == null) {
+                    singletonInstance = new RelationManager();
                 }
             }
         }
-        return singletonRelationManager;
+        return singletonInstance;
     }
 
     /**
@@ -55,13 +55,8 @@ public class RelationManager {
      * @return
      */
     public boolean checkTableExistence(String tableName) {
-        try {
-            tableName = tableName.toLowerCase();
-            return getTableCatalogTuple(tableName) != null;
-        } catch (StorageException e) {
-            // TODO: change it to texera runtime exception
-            throw new TexeraException(e);
-        }
+        tableName = tableName.toLowerCase();
+        return getTableCatalogTuple(tableName) != null;
     }
 
     /**
@@ -467,7 +462,7 @@ public class RelationManager {
     }
 
     public List<TableMetadata> getMetaData() throws StorageException {
-        DataReader dataReader = RelationManager.getRelationManager().getTableDataReader(CatalogConstants.TABLE_CATALOG, new MatchAllDocsQuery());
+        DataReader dataReader = RelationManager.getInstance().getTableDataReader(CatalogConstants.TABLE_CATALOG, new MatchAllDocsQuery());
 
         List<TableMetadata> result = new ArrayList<>();
         Tuple t = null;

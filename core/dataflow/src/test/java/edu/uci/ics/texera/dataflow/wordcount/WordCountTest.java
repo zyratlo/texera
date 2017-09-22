@@ -39,7 +39,7 @@ public class WordCountTest {
     public static void setUp() throws TexeraException {
         cleanUp();
         
-        RelationManager relationManager = RelationManager.getRelationManager();
+        RelationManager relationManager = RelationManager.getInstance();
         // Create the people table and write tuples
         relationManager.createTable(COUNT_TABLE, TestUtils.getDefaultTestIndex().resolve(COUNT_TABLE), 
                 TestConstants.SCHEMA_PEOPLE, LuceneAnalyzerConstants.standardAnalyzerString());
@@ -70,8 +70,8 @@ public class WordCountTest {
     
     @AfterClass
     public static void cleanUp() throws TexeraException {
-        RelationManager.getRelationManager().deleteTable(COUNT_TABLE);
-        RelationManager.getRelationManager().deleteTable(COUNT_CHINESE_TABLE);
+        RelationManager.getInstance().deleteTable(COUNT_TABLE);
+        RelationManager.getInstance().deleteTable(COUNT_CHINESE_TABLE);
         expectedResult = null;
         expectedResultChinese = null;
     }

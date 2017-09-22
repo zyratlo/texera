@@ -36,10 +36,10 @@ public class RegexSplitOperatorTest {
     
     @BeforeClass
     public static void setUp() throws TexeraException {
-        RelationManager relationManager = RelationManager.getRelationManager();
+        RelationManager relationManager = RelationManager.getInstance();
         
-        RelationManager.getRelationManager().deleteTable(REGEX_TABLE);
-        relationManager = RelationManager.getRelationManager();
+        RelationManager.getInstance().deleteTable(REGEX_TABLE);
+        relationManager = RelationManager.getInstance();
         relationManager.createTable(REGEX_TABLE, TestUtils.getDefaultTestIndex().resolve(REGEX_TABLE), 
                 TestConstantsRegexSplit.SCHEMA_PEOPLE, LuceneAnalyzerConstants.standardAnalyzerString());
         DataWriter regexDataWriter = relationManager.getTableDataWriter(REGEX_TABLE);
@@ -62,8 +62,8 @@ public class RegexSplitOperatorTest {
     
     @AfterClass
     public static void cleanUp() throws TexeraException {
-        RelationManager.getRelationManager().deleteTable(CHINESE_TABLE);
-        RelationManager.getRelationManager().deleteTable(REGEX_TABLE);
+        RelationManager.getInstance().deleteTable(CHINESE_TABLE);
+        RelationManager.getInstance().deleteTable(REGEX_TABLE);
     }
     
     public static List<Tuple> computeRegexSplitResultsOneToMany( String tableName, String splitAttrName,

@@ -27,7 +27,7 @@ public class DictionaryManager {
     private RelationManager relationManager = null;
 
     private DictionaryManager() throws StorageException {
-        relationManager = RelationManager.getRelationManager();
+        relationManager = RelationManager.getInstance();
     }
 
     public synchronized static DictionaryManager getInstance() throws StorageException {

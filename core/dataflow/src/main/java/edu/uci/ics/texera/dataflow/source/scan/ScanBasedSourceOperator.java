@@ -24,7 +24,7 @@ public class ScanBasedSourceOperator implements ISourceOperator {
 
     public ScanBasedSourceOperator(ScanSourcePredicate predicate) throws DataflowException {
         try {
-            this.dataReader = RelationManager.getRelationManager().getTableDataReader(
+            this.dataReader = RelationManager.getInstance().getTableDataReader(
                     predicate.getTableName(), new MatchAllDocsQuery());
             // TODO add an option to set if payload is added in the future.
             this.dataReader.setPayloadAdded(true);

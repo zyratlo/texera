@@ -26,10 +26,10 @@ public class RegexMatcherSourceOperator extends AbstractSingleInputOperator impl
         this.predicate = predicate;
         
         if (this.predicate.isUseIndex()) {
-            this.dataReader = RelationManager.getRelationManager().getTableDataReader(this.predicate.getTableName(), 
+            this.dataReader = RelationManager.getInstance().getTableDataReader(this.predicate.getTableName(), 
                     createLuceneQuery(this.predicate));
         } else {
-            this.dataReader = RelationManager.getRelationManager().getTableDataReader(this.predicate.getTableName(), 
+            this.dataReader = RelationManager.getInstance().getTableDataReader(this.predicate.getTableName(), 
                     new MatchAllDocsQuery());
         }
         
@@ -73,7 +73,7 @@ public class RegexMatcherSourceOperator extends AbstractSingleInputOperator impl
         try {
             luceneQuery = new MultiFieldQueryParser(
                     predicate.getAttributeNames().stream().toArray(String[]::new), 
-                    RelationManager.getRelationManager().getTableAnalyzer(predicate.getTableName()))
+                    RelationManager.getInstance().getTableAnalyzer(predicate.getTableName()))
                     .parse(queryString);
         } catch (ParseException e) {
             throw new StorageException (e);

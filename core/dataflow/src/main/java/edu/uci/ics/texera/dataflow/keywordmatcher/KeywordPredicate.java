@@ -76,29 +76,7 @@ public class KeywordPredicate extends PredicateBase {
     private final String luceneAnalyzerString;
     private final KeywordMatchingType matchingType;
     private final String spanListName;
-    
-    private final Boolean limitNotNull; 
-    private final Integer limit;
-    private final Boolean offsetNotNull; 
-    private final Integer offset;
-    
-    /**
-     * Construct a KeywordPredicate with limit and offset set to default values.
-     * 
-     * @param query
-     * @param attributeNames
-     * @param luceneAnalyzerString
-     * @param matchingType
-     */
-    public KeywordPredicate(
-            String query,
-            List<String> attributeNames,
-            String luceneAnalyzerString, 
-            KeywordMatchingType matchingType,
-            String spanListName) {
-        this(query, attributeNames, luceneAnalyzerString, matchingType, spanListName, null, null);
-    }
-    
+
     /**
      * Construct a KeywordPredicate.
      * 
@@ -123,11 +101,7 @@ public class KeywordPredicate extends PredicateBase {
             @JsonProperty(value = PropertyNameConstants.KEYWORD_MATCHING_TYPE, required = true)
             KeywordMatchingType matchingType,
             @JsonProperty(value = PropertyNameConstants.SPAN_LIST_NAME, required = false)
-            String spanListName,
-            @JsonProperty(value = PropertyNameConstants.LIMIT, required = false)
-            Integer limit,
-            @JsonProperty(value = PropertyNameConstants.OFFSET, required = false)
-            Integer offset) {
+            String spanListName) {
         
         this.query = query;
         this.attributeNames = Collections.unmodifiableList(attributeNames);
@@ -142,30 +116,6 @@ public class KeywordPredicate extends PredicateBase {
             this.spanListName = this.getID();
         } else {
             this.spanListName = spanListName.trim();
-        }
-        
-        if (limit == null) {
-            this.limit = Integer.MAX_VALUE;
-            this.limitNotNull = false;
-        } else if (limit < 0) {
-            this.limit = Integer.MAX_VALUE;
-            this.limitNotNull = true;
-            // TODO: throw exception if limit < 0
-        } else {
-            this.limit = limit;
-            this.limitNotNull = true;
-        }
-        
-        if (offset == null) {
-            this.offset = 0;
-            this.offsetNotNull = false;
-        } else if (offset < 0) {
-            this.offset = 0;
-            this.offsetNotNull = true;
-            // TODO: throw exception if offset < 0
-        } else {
-            this.offset = offset;
-            this.offsetNotNull = true;
         }
         
     }
@@ -193,32 +143,6 @@ public class KeywordPredicate extends PredicateBase {
     @JsonProperty(PropertyNameConstants.SPAN_LIST_NAME)
     public String getSpanListName() {
         return spanListName;
-    }
-    
-    @JsonProperty(PropertyNameConstants.LIMIT)
-    private Integer getLimitJson() {
-        if (limitNotNull) {
-            return limit;
-        } else {
-            return null;
-        }
-    }
-    
-    @JsonProperty(PropertyNameConstants.OFFSET)
-    private Integer getOffsetJson() {
-        if (offsetNotNull) {
-            return limit;
-        } else {
-            return null;
-        }
-    }
-    
-    public Integer getLimit() {
-        return limit;
-    }
-    
-    public Integer getOffset() {
-        return offset;
     }
     
     @Override

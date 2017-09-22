@@ -35,7 +35,7 @@ public class ComparableMatcherTest {
 
     @BeforeClass
     public static void setUp() throws TexeraException {
-        RelationManager relationManager = RelationManager.getRelationManager();
+        RelationManager relationManager = RelationManager.getInstance();
         
         // create the people table and write tuples
         relationManager.createTable(PEOPLE_TABLE, TestUtils.getDefaultTestIndex().resolve(PEOPLE_TABLE), 
@@ -51,7 +51,7 @@ public class ComparableMatcherTest {
 
     @AfterClass
     public static void cleanUp() throws TexeraException {
-        RelationManager relationManager = RelationManager.getRelationManager();
+        RelationManager relationManager = RelationManager.getInstance();
         relationManager.deleteTable(PEOPLE_TABLE);
     }
 

@@ -3,12 +3,15 @@
  */
 package edu.uci.ics.texera.api.constants;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
 /**
  * @author Zuozhi Wang (zuozhi)
  */
 public class DataConstants {
     
-    public static final String HOME_ENV_VAR = "TEXERA_HOME";
     public static final String HOME_FOLDER_NAME = "core";
     
     public enum TexeraProject {
@@ -28,6 +31,12 @@ public class DataConstants {
         
         public String getProjectName() {
             return this.projectName;
+        }
+        
+        public static List<String> getAllProjectNames() {
+            return Arrays.asList(values()).stream()
+                    .map(enumValue -> enumValue.getProjectName())
+                    .collect(Collectors.toList());
         }
     }
 

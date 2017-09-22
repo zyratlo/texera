@@ -199,7 +199,7 @@ public class PerfTestUtils {
      * @throws Exception
      */
     public static void writeIndex(String fileName, Analyzer luceneAnalyzer, String indexType) throws Exception {
-        RelationManager relationManager = RelationManager.getRelationManager();
+        RelationManager relationManager = RelationManager.getInstance();
         
         String tableName = fileName.replace(".txt", "");
                 

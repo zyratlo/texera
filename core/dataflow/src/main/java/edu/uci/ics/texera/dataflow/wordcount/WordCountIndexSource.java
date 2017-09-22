@@ -87,7 +87,7 @@ public class WordCountIndexSource implements ISourceOperator {
     private void computeWordCount() throws TexeraException {
         try {
             HashMap<String, Integer> wordCountMap = new HashMap<>();
-            DataReader dataReader = RelationManager.getRelationManager().getTableDataReader(
+            DataReader dataReader = RelationManager.getInstance().getTableDataReader(
                     predicate.getTableName(), new MatchAllDocsQuery());
             
             dataReader.open();

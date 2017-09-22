@@ -14,6 +14,7 @@ import org.apache.lucene.analysis.util.CharArraySet;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 
 import edu.uci.ics.texera.api.exception.DataflowException;
+import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.schema.AttributeType;
 import edu.uci.ics.texera.api.span.Span;
 import edu.uci.ics.texera.api.tuple.*;
@@ -50,10 +51,23 @@ public class DataflowUtils {
         return result;
     }
 
-    public static ArrayList<String> tokenizeQueryWithStopwords(String query) {
+    public static ArrayList<String> tokenizeQueryWithStopwords(String luceneAnalyzerStr, String query) {
+        Analyzer luceneAnalyzer;
+        
+        if (luceneAnalyzerStr.equals(LuceneAnalyzerConstants.standardAnalyzerString())) {
+            // use an empty stop word list for standard analyzer
+            CharArraySet emptyStopwords = new CharArraySet(1, true);
+            luceneAnalyzer = new StandardAnalyzer(emptyStopwords);
+        } else if (luceneAnalyzerStr.equals(LuceneAnalyzerConstants.chineseAnalyzerString())) {
+            // use the default smart chinese analyzer
+            // because the smart chinese analyzer's default stopword list is simply a list of punctuations
+            // https://lucene.apache.org/core/5_5_0/analyzers-smartcn/org/apache/lucene/analysis/cn/smart/SmartChineseAnalyzer.html
+            luceneAnalyzer = LuceneAnalyzerConstants.getLuceneAnalyzer(luceneAnalyzerStr);
+        } else {
+            throw new TexeraException("tokenizeQueryWithStopwords: analyzer " + luceneAnalyzerStr + " not recgonized");
+        }
+
         ArrayList<String> result = new ArrayList<String>();
-        CharArraySet emptyStopwords = new CharArraySet(1, true);
-        Analyzer luceneAnalyzer = new StandardAnalyzer(emptyStopwords);
         TokenStream tokenStream = luceneAnalyzer.tokenStream(null, new StringReader(query));
         CharTermAttribute term = tokenStream.addAttribute(CharTermAttribute.class);
 

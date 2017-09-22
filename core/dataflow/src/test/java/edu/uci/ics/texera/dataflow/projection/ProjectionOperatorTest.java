@@ -31,7 +31,7 @@ public class ProjectionOperatorTest {
     
     @BeforeClass
     public static void setUp() throws Exception {
-        RelationManager relationManager = RelationManager.getRelationManager();
+        RelationManager relationManager = RelationManager.getInstance();
         
         // create the people table and write tuples
         relationManager.createTable(PEOPLE_TABLE, TestUtils.getDefaultTestIndex().resolve(PEOPLE_TABLE), 
@@ -47,7 +47,7 @@ public class ProjectionOperatorTest {
     
     @AfterClass
     public static void cleanUp() throws Exception {
-        RelationManager relationManager = RelationManager.getRelationManager();
+        RelationManager relationManager = RelationManager.getInstance();
         relationManager.deleteTable(PEOPLE_TABLE);
     }   
     

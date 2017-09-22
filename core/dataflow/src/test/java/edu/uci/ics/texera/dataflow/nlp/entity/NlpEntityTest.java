@@ -31,7 +31,7 @@ public class NlpEntityTest {
     
     @BeforeClass
     public static void setUp() throws TexeraException {
-        RelationManager relationManager = RelationManager.getRelationManager();
+        RelationManager relationManager = RelationManager.getInstance();
         
         relationManager.createTable(ONE_SENTENCE_TABLE, TestUtils.getDefaultTestIndex().resolve(ONE_SENTENCE_TABLE), 
                 NlpEntityTestConstants.SCHEMA_ONE_SENTENCE, LuceneAnalyzerConstants.standardAnalyzerString());
@@ -41,7 +41,7 @@ public class NlpEntityTest {
 
     @AfterClass
     public static void cleanUp() throws Exception {
-        RelationManager relationManager = RelationManager.getRelationManager();
+        RelationManager relationManager = RelationManager.getInstance();
         relationManager.deleteTable(ONE_SENTENCE_TABLE);
         relationManager.deleteTable(TWO_SENTENCE_TABLE);
     }
@@ -49,7 +49,7 @@ public class NlpEntityTest {
     // table is cleared after each test case
     @After
     public void deleteData() throws TexeraException {
-        RelationManager relationManager = RelationManager.getRelationManager();
+        RelationManager relationManager = RelationManager.getInstance();
         
         DataWriter oneSentenceDataWriter = relationManager.getTableDataWriter(ONE_SENTENCE_TABLE);
         oneSentenceDataWriter.open();
@@ -110,7 +110,7 @@ public class NlpEntityTest {
     public void getNextTupleTest1() throws Exception {
         List<Tuple> data = NlpEntityTestConstants.getTest1Tuple();
         
-        DataWriter oneSentenceDataWriter = RelationManager.getRelationManager().getTableDataWriter(ONE_SENTENCE_TABLE);
+        DataWriter oneSentenceDataWriter = RelationManager.getInstance().getTableDataWriter(ONE_SENTENCE_TABLE);
         oneSentenceDataWriter.open();
         for (Tuple tuple : data) {
             oneSentenceDataWriter.insertTuple(tuple);
@@ -137,7 +137,7 @@ public class NlpEntityTest {
     public void getNextTupleTest2() throws Exception {
         List<Tuple> data = NlpEntityTestConstants.getTest2Tuple();
 
-        DataWriter oneSentenceDataWriter = RelationManager.getRelationManager().getTableDataWriter(ONE_SENTENCE_TABLE);
+        DataWriter oneSentenceDataWriter = RelationManager.getInstance().getTableDataWriter(ONE_SENTENCE_TABLE);
         oneSentenceDataWriter.open();
         for (Tuple tuple : data) {
             oneSentenceDataWriter.insertTuple(tuple);
@@ -166,7 +166,7 @@ public class NlpEntityTest {
     public void getNextTupleTest3() throws Exception {
         List<Tuple> data = NlpEntityTestConstants.getTest3Tuple();
 
-        DataWriter oneSentenceDataWriter = RelationManager.getRelationManager().getTableDataWriter(ONE_SENTENCE_TABLE);
+        DataWriter oneSentenceDataWriter = RelationManager.getInstance().getTableDataWriter(ONE_SENTENCE_TABLE);
         oneSentenceDataWriter.open();
         for (Tuple tuple : data) {
             oneSentenceDataWriter.insertTuple(tuple);
@@ -198,7 +198,7 @@ public class NlpEntityTest {
     public void getNextTupleTest4() throws Exception {
         List<Tuple> data = NlpEntityTestConstants.getTest4Tuple();
 
-        DataWriter twoSentenceDataWriter = RelationManager.getRelationManager().getTableDataWriter(TWO_SENTENCE_TABLE);
+        DataWriter twoSentenceDataWriter = RelationManager.getInstance().getTableDataWriter(TWO_SENTENCE_TABLE);
         twoSentenceDataWriter.open();
         for (Tuple tuple : data) {
             twoSentenceDataWriter.insertTuple(tuple);
@@ -232,7 +232,7 @@ public class NlpEntityTest {
     public void getNextTupleTest5() throws Exception {
         List<Tuple> data = NlpEntityTestConstants.getTest4Tuple();
 
-        DataWriter twoSentenceDataWriter = RelationManager.getRelationManager().getTableDataWriter(TWO_SENTENCE_TABLE);
+        DataWriter twoSentenceDataWriter = RelationManager.getInstance().getTableDataWriter(TWO_SENTENCE_TABLE);
         twoSentenceDataWriter.open();
         for (Tuple tuple : data) {
             twoSentenceDataWriter.insertTuple(tuple);
@@ -264,7 +264,7 @@ public class NlpEntityTest {
     public void getNextTupleTest6() throws Exception {
         List<Tuple> data = NlpEntityTestConstants.getTest4Tuple();
 
-        DataWriter twoSentenceDataWriter = RelationManager.getRelationManager().getTableDataWriter(TWO_SENTENCE_TABLE);
+        DataWriter twoSentenceDataWriter = RelationManager.getInstance().getTableDataWriter(TWO_SENTENCE_TABLE);
         twoSentenceDataWriter.open();
         for (Tuple tuple : data) {
             twoSentenceDataWriter.insertTuple(tuple);
@@ -297,7 +297,7 @@ public class NlpEntityTest {
     public void getNextTupleTest7() throws Exception {
         List<Tuple> data = NlpEntityTestConstants.getTest7Tuple();
 
-        DataWriter oneSentenceDataWriter = RelationManager.getRelationManager().getTableDataWriter(ONE_SENTENCE_TABLE);
+        DataWriter oneSentenceDataWriter = RelationManager.getInstance().getTableDataWriter(ONE_SENTENCE_TABLE);
         oneSentenceDataWriter.open();
         for (Tuple tuple : data) {
             oneSentenceDataWriter.insertTuple(tuple);
@@ -322,7 +322,7 @@ public class NlpEntityTest {
     public void getNextTupleTest8() throws Exception {
         List<Tuple> data = NlpEntityTestConstants.getTest8Tuple();
 
-        DataWriter oneSentenceDataWriter = RelationManager.getRelationManager().getTableDataWriter(ONE_SENTENCE_TABLE);
+        DataWriter oneSentenceDataWriter = RelationManager.getInstance().getTableDataWriter(ONE_SENTENCE_TABLE);
         oneSentenceDataWriter.open();
         for (Tuple tuple : data) {
             oneSentenceDataWriter.insertTuple(tuple);
@@ -345,7 +345,7 @@ public class NlpEntityTest {
     public void getNextTupleTest9() throws Exception {
         List<Tuple> data = NlpEntityTestConstants.getTest9Tuple();
 
-        DataWriter twoSentenceDataWriter = RelationManager.getRelationManager().getTableDataWriter(TWO_SENTENCE_TABLE);
+        DataWriter twoSentenceDataWriter = RelationManager.getInstance().getTableDataWriter(TWO_SENTENCE_TABLE);
         twoSentenceDataWriter.open();
         for (Tuple tuple : data) {
             twoSentenceDataWriter.insertTuple(tuple);
@@ -370,7 +370,7 @@ public class NlpEntityTest {
     public void getNextTupleTest10() throws Exception {
         List<Tuple> data = NlpEntityTestConstants.getOneSentenceTestTuple();
 
-        DataWriter oneSentenceDataWriter = RelationManager.getRelationManager().getTableDataWriter(ONE_SENTENCE_TABLE);
+        DataWriter oneSentenceDataWriter = RelationManager.getInstance().getTableDataWriter(ONE_SENTENCE_TABLE);
         oneSentenceDataWriter.open();
         for (Tuple tuple : data) {
             oneSentenceDataWriter.insertTuple(tuple);
@@ -390,7 +390,7 @@ public class NlpEntityTest {
     public void getNextTupleTest11() throws Exception {
         List<Tuple> data = NlpEntityTestConstants.getTwoSentenceTestTuple();
         
-        DataWriter twoSentenceDataWriter = RelationManager.getRelationManager().getTableDataWriter(TWO_SENTENCE_TABLE);
+        DataWriter twoSentenceDataWriter = RelationManager.getInstance().getTableDataWriter(TWO_SENTENCE_TABLE);
         twoSentenceDataWriter.open();
         for (Tuple tuple : data) {
             twoSentenceDataWriter.insertTuple(tuple);
@@ -411,7 +411,7 @@ public class NlpEntityTest {
     public void getNextTupleTestWithLimit() throws Exception {
         List<Tuple> data = NlpEntityTestConstants.getOneSentenceTestTuple();
 
-        DataWriter oneSentenceDataWriter = RelationManager.getRelationManager().getTableDataWriter(ONE_SENTENCE_TABLE);
+        DataWriter oneSentenceDataWriter = RelationManager.getInstance().getTableDataWriter(ONE_SENTENCE_TABLE);
         oneSentenceDataWriter.open();
         for (Tuple tuple : data) {
             oneSentenceDataWriter.insertTuple(tuple);
@@ -434,7 +434,7 @@ public class NlpEntityTest {
     public void getNextTupleTestWithLimitOffset() throws Exception {
         List<Tuple> data = NlpEntityTestConstants.getOneSentenceTestTuple();
 
-        DataWriter oneSentenceDataWriter = RelationManager.getRelationManager().getTableDataWriter(ONE_SENTENCE_TABLE);
+        DataWriter oneSentenceDataWriter = RelationManager.getInstance().getTableDataWriter(ONE_SENTENCE_TABLE);
         oneSentenceDataWriter.open();
         for (Tuple tuple : data) {
             oneSentenceDataWriter.insertTuple(tuple);

@@ -53,13 +53,13 @@ public class QueryPlanResourceTest {
     
     @BeforeClass
     public static void setUp() throws Exception {
-        RelationManager.getRelationManager().createTable(TEST_TABLE, Utils.getDefaultIndexDirectory().resolve(TEST_TABLE),
+        RelationManager.getInstance().createTable(TEST_TABLE, Utils.getDefaultIndexDirectory().resolve(TEST_TABLE),
                 TEST_SCHEMA, "standard");
     }
     
     @AfterClass
     public static void cleanUp() throws Exception {
-        RelationManager.getRelationManager().deleteTable(TEST_TABLE);
+        RelationManager.getInstance().deleteTable(TEST_TABLE);
     }
     
     public static KeywordSourcePredicate keywordSourcePredicate = new KeywordSourcePredicate(

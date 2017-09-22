@@ -47,14 +47,14 @@ public class LogicalPlanTest {
     @BeforeClass
     public static void setUp() throws StorageException {
         cleanUp();
-        RelationManager.getRelationManager().createTable(
+        RelationManager.getInstance().createTable(
                 TEST_TABLE, Utils.getDefaultIndexDirectory().resolve("test_tables").resolve(TEST_TABLE),
                 TEST_SCHEMA, LuceneAnalyzerConstants.standardAnalyzerString());
     }
     
     @AfterClass
     public static void cleanUp() throws StorageException {
-        RelationManager.getRelationManager().deleteTable(TEST_TABLE);
+        RelationManager.getInstance().deleteTable(TEST_TABLE);
     }
     
     public static KeywordSourcePredicate keywordSourcePredicate = new KeywordSourcePredicate(

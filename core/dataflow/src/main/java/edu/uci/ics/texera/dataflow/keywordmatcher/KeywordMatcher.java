@@ -29,9 +29,6 @@ public class KeywordMatcher extends AbstractSingleInputOperator {
 
     public KeywordMatcher(KeywordPredicate predicate) {
         this.predicate = predicate;
-        this.limit = predicate.getLimit();
-        this.offset = predicate.getOffset();
-
     }
 
     @Override
@@ -72,7 +69,8 @@ public class KeywordMatcher extends AbstractSingleInputOperator {
 
     private void preProcessKeywordTokensWithStopwords() {
         queryTokenList = DataflowUtils.tokenizeQuery(predicate.getLuceneAnalyzerString(), predicate.getQuery());
-        queryTokenWithStopwordsList = DataflowUtils.tokenizeQueryWithStopwords(predicate.getQuery());
+        queryTokenWithStopwordsList = DataflowUtils.tokenizeQueryWithStopwords(
+                predicate.getLuceneAnalyzerString(), predicate.getQuery());
     }
 
     @Override

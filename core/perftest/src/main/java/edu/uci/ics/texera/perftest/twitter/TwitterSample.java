@@ -25,7 +25,7 @@ public class TwitterSample {
     }
     
     public static void writeTwitterIndex() throws Exception {
-        RelationManager relationManager = RelationManager.getRelationManager();
+        RelationManager relationManager = RelationManager.getInstance();
         relationManager.deleteTable(twitterClimateTable);
         relationManager.createTable(twitterClimateTable, Utils.getDefaultIndexDirectory().resolve(twitterClimateTable), TwitterSchema.TWITTER_SCHEMA, 
                 LuceneAnalyzerConstants.standardAnalyzerString());

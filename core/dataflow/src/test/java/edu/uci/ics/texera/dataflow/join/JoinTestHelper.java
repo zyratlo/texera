@@ -37,7 +37,7 @@ public class JoinTestHelper {
     public static final String NEWS_TABLE_INNER = "join_test_news_inner";
     
     public static void createTestTables() throws TexeraException {
-        RelationManager relationManager = RelationManager.getRelationManager();
+        RelationManager relationManager = RelationManager.getInstance();
         
         // create the book table
         relationManager.createTable(BOOK_TABLE, TestUtils.getDefaultTestIndex().resolve(BOOK_TABLE), 
@@ -54,7 +54,7 @@ public class JoinTestHelper {
     }
 
     public static void insertToTable(String tableName, Tuple... tuples) throws StorageException {
-        RelationManager relationManager = RelationManager.getRelationManager();
+        RelationManager relationManager = RelationManager.getInstance();
         
         DataWriter tableDataWriter = relationManager.getTableDataWriter(tableName);
         tableDataWriter.open();
@@ -65,7 +65,7 @@ public class JoinTestHelper {
     }
 
     public static void insertToTable(String tableName, List<Tuple> tuples) throws StorageException {
-        RelationManager relationManager = RelationManager.getRelationManager();
+        RelationManager relationManager = RelationManager.getInstance();
         
         DataWriter outerDataWriter = relationManager.getTableDataWriter(tableName);
         outerDataWriter.open();
@@ -80,7 +80,7 @@ public class JoinTestHelper {
      * @throws TexeraException
      */
     public static void clearTestTables() throws TexeraException {
-        RelationManager relationManager = RelationManager.getRelationManager();
+        RelationManager relationManager = RelationManager.getInstance();
 
         DataWriter bookDataWriter = relationManager.getTableDataWriter(BOOK_TABLE);
         bookDataWriter.open();
@@ -103,7 +103,7 @@ public class JoinTestHelper {
      * @throws TexeraException
      */
     public static void deleteTestTables() throws TexeraException {
-        RelationManager relationManager = RelationManager.getRelationManager();
+        RelationManager relationManager = RelationManager.getInstance();
         relationManager.deleteTable(BOOK_TABLE);
         relationManager.deleteTable(NEWS_TABLE_OUTER);
         relationManager.deleteTable(NEWS_TABLE_INNER);
@@ -122,7 +122,7 @@ public class JoinTestHelper {
             KeywordMatchingType matchingType) throws TexeraException {
         KeywordSourcePredicate keywordSourcePredicate = new KeywordSourcePredicate(query, 
                 Arrays.asList(JoinTestConstants.AUTHOR, JoinTestConstants.TITLE, JoinTestConstants.REVIEW),
-                RelationManager.getRelationManager().getTableAnalyzerString(tableName), 
+                RelationManager.getInstance().getTableAnalyzerString(tableName), 
                 matchingType, tableName, SchemaConstants.SPAN_LIST);
         KeywordMatcherSourceOperator keywordSource = new KeywordMatcherSourceOperator(keywordSourcePredicate);
         return keywordSource;

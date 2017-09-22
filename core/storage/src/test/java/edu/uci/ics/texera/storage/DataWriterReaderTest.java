@@ -21,7 +21,7 @@ public class DataWriterReaderTest {
 
     @BeforeClass
     public static void setUp() throws TexeraException {
-        RelationManager relationManager = RelationManager.getRelationManager();
+        RelationManager relationManager = RelationManager.getInstance();
         
         // create the people table and write tuples
         relationManager.createTable(PEOPLE_TABLE, TestUtils.getDefaultTestIndex().resolve(PEOPLE_TABLE), 
@@ -37,13 +37,13 @@ public class DataWriterReaderTest {
     
     @AfterClass
     public static void cleanUp() throws TexeraException {
-        RelationManager relationManager = RelationManager.getRelationManager();
+        RelationManager relationManager = RelationManager.getInstance();
         relationManager.deleteTable(PEOPLE_TABLE);
     }
 
     @Test
     public void testReadWriteData() throws Exception {
-        DataReader dataReader = RelationManager.getRelationManager().getTableDataReader(
+        DataReader dataReader = RelationManager.getInstance().getTableDataReader(
                 PEOPLE_TABLE, new MatchAllDocsQuery());
         
         Tuple nextTuple = null;

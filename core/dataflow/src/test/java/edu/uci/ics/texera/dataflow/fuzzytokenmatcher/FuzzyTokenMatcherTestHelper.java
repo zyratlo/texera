@@ -34,7 +34,7 @@ public class FuzzyTokenMatcherTestHelper {
      * Creates the test table(s) and writes data into it(them).
      */
     public static void writeTestTables() throws TexeraException {
-        RelationManager relationManager = RelationManager.getRelationManager();
+        RelationManager relationManager = RelationManager.getInstance();
         
         // create the people table and write tuples
         relationManager.createTable(PEOPLE_TABLE, TestUtils.getDefaultTestIndex().resolve(PEOPLE_TABLE), 
@@ -52,7 +52,7 @@ public class FuzzyTokenMatcherTestHelper {
      * Deletes the test table(s)
      */
     public static void deleteTestTables() throws TexeraException {
-        RelationManager relationManager = RelationManager.getRelationManager();
+        RelationManager relationManager = RelationManager.getInstance();
         relationManager.deleteTable(PEOPLE_TABLE);
     }
     
@@ -106,7 +106,7 @@ public class FuzzyTokenMatcherTestHelper {
                 
         ScanBasedSourceOperator scanSource = new ScanBasedSourceOperator(new ScanSourcePredicate(tableName)); 
         FuzzyTokenPredicate fuzzyTokenPredicate = new FuzzyTokenPredicate(
-                query, attributeNames, RelationManager.getRelationManager().getTableAnalyzerString(tableName), threshold, RESULTS);
+                query, attributeNames, RelationManager.getInstance().getTableAnalyzerString(tableName), threshold, RESULTS);
         FuzzyTokenMatcher fuzzyTokenMatcher = new FuzzyTokenMatcher(fuzzyTokenPredicate);
         
         fuzzyTokenMatcher.setLimit(limit);
@@ -133,7 +133,7 @@ public class FuzzyTokenMatcherTestHelper {
             int limit, int offset) throws TexeraException {
         
         FuzzyTokenSourcePredicate fuzzyTokenSourcePredicate = new FuzzyTokenSourcePredicate(
-                query, attributeNames, RelationManager.getRelationManager().getTableAnalyzerString(tableName), 
+                query, attributeNames, RelationManager.getInstance().getTableAnalyzerString(tableName), 
                 threshold, tableName, RESULTS);
         
         FuzzyTokenMatcherSourceOperator fuzzyTokenSource = new FuzzyTokenMatcherSourceOperator(

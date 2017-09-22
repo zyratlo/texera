@@ -30,7 +30,7 @@ public class RelationManagerTest {
     
     @Before
     public void setUpRelationManager() throws TexeraException {
-        relationManager = RelationManager.getRelationManager();
+        relationManager = RelationManager.getInstance();
     }
     
     /*
@@ -84,7 +84,7 @@ public class RelationManagerTest {
         String tableLuceneAnalyzerString = LuceneAnalyzerConstants.standardAnalyzerString();
         Analyzer tableLuceneAnalyzer = LuceneAnalyzerConstants.getLuceneAnalyzer(tableLuceneAnalyzerString);
         
-        RelationManager relationManager = RelationManager.getRelationManager();
+        RelationManager relationManager = RelationManager.getInstance();
         
         relationManager.deleteTable(tableName);
         
@@ -105,7 +105,7 @@ public class RelationManagerTest {
     @Test(expected = StorageException.class)
     public void test4() throws Exception {
         String tableName = "relation_manager_test_table_1";
-        RelationManager.getRelationManager().getTableDirectory(tableName);
+        RelationManager.getInstance().getTableDirectory(tableName);
     }
     
     /*
@@ -114,7 +114,7 @@ public class RelationManagerTest {
     @Test(expected = StorageException.class)
     public void test5() throws Exception {
         String tableName = "relation_manager_test_table_1";
-        RelationManager.getRelationManager().getTableSchema(tableName);
+        RelationManager.getInstance().getTableSchema(tableName);
     }
     
     /*
@@ -123,7 +123,7 @@ public class RelationManagerTest {
     @Test(expected = StorageException.class)
     public void test6() throws Exception {
         String tableName = "relation_manager_test_table_1";
-        RelationManager.getRelationManager().getTableAnalyzer(tableName);
+        RelationManager.getInstance().getTableAnalyzer(tableName);
     }
     
 
@@ -140,7 +140,7 @@ public class RelationManagerTest {
                 new Attribute("population", AttributeType.INTEGER), new Attribute("record time", AttributeType.DATE));
         
         int NUM_OF_LOOPS = 10;
-        RelationManager relationManager = RelationManager.getRelationManager();
+        RelationManager relationManager = RelationManager.getInstance();
         
         // create tables
         for (int i = 0; i < NUM_OF_LOOPS; i++) {
@@ -185,7 +185,7 @@ public class RelationManagerTest {
         Schema tableSchema = new Schema(
                 new Attribute("content", AttributeType.STRING));
         
-        RelationManager relationManager = RelationManager.getRelationManager();
+        RelationManager relationManager = RelationManager.getInstance();
         
         relationManager.deleteTable(tableName);
         relationManager.createTable(
@@ -223,7 +223,7 @@ public class RelationManagerTest {
         Schema tableSchema = new Schema(
                 new Attribute("content", AttributeType.STRING));
         
-        RelationManager relationManager = RelationManager.getRelationManager();
+        RelationManager relationManager = RelationManager.getInstance();
         
         relationManager.deleteTable(tableName);
         relationManager.createTable(
@@ -271,7 +271,7 @@ public class RelationManagerTest {
         Schema tableSchema = new Schema(
                 new Attribute("content", AttributeType.STRING), new Attribute("number", AttributeType.STRING));
         
-        RelationManager relationManager = RelationManager.getRelationManager();
+        RelationManager relationManager = RelationManager.getInstance();
         
         relationManager.deleteTable(tableName);
         relationManager.createTable(
@@ -406,7 +406,7 @@ public class RelationManagerTest {
         Schema tableSchema = new Schema(
                 new Attribute("content", AttributeType.STRING), new Attribute("number", AttributeType.STRING));
 
-        RelationManager relationManager = RelationManager.getRelationManager();
+        RelationManager relationManager = RelationManager.getInstance();
 
         relationManager.deleteTable(tableName);
         relationManager.createTable(

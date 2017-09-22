@@ -19,7 +19,7 @@ public class SystemResource {
 	@GET
 	@Path("/metadata")
 	public TexeraWebResponse getMetadata() throws StorageException, JsonProcessingException {
-		List<TableMetadata> tableMetadata = RelationManager.getRelationManager().getMetaData();
+		List<TableMetadata> tableMetadata = RelationManager.getInstance().getMetaData();
 		return new TexeraWebResponse(0, new ObjectMapper().writeValueAsString(tableMetadata));
 	}
 

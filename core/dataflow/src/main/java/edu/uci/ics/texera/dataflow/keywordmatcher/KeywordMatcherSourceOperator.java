@@ -54,16 +54,17 @@ public class KeywordMatcherSourceOperator extends AbstractSingleInputOperator im
         this.queryTokenList = DataflowUtils.tokenizeQuery(predicate.getLuceneAnalyzerString(), predicate.getQuery());
         this.queryTokenSet = new HashSet<>(this.queryTokenList);
         
-        // TODO: standard analyzer is assumed here, rewrite it to deal with other analyzers
-        this.queryTokensWithStopwords = DataflowUtils.tokenizeQueryWithStopwords(predicate.getQuery());
+        this.queryTokensWithStopwords = DataflowUtils.tokenizeQueryWithStopwords(
+                RelationManager.getInstance().getTableAnalyzerString(predicate.getTableName()),
+                predicate.getQuery());
                 
         // input schema must be specified before creating query
-        this.inputSchema = RelationManager.getRelationManager().getTableDataStore(predicate.getTableName()).getSchema();
+        this.inputSchema = RelationManager.getInstance().getTableDataStore(predicate.getTableName()).getSchema();
         
         // generate dataReader
         Query luceneQuery = createLuceneQueryObject();
 
-        this.dataReader = RelationManager.getRelationManager().getTableDataReader(predicate.getTableName(), luceneQuery);
+        this.dataReader = RelationManager.getInstance().getTableDataReader(predicate.getTableName(), luceneQuery);
         this.dataReader.setPayloadAdded(true);
         
         // generate KeywordMatcher

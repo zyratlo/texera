@@ -34,7 +34,7 @@ public class PlanStore {
     private RelationManager relationManager = null;
 
     private PlanStore() throws StorageException, DataflowException {
-        relationManager = RelationManager.getRelationManager();
+        relationManager = RelationManager.getInstance();
     }
 
     public synchronized static PlanStore getInstance() throws StorageException, DataflowException {

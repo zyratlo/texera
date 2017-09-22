@@ -20,18 +20,6 @@ public class KeywordSourcePredicate extends KeywordPredicate {
     
     private final String tableName;
     
-    public KeywordSourcePredicate(
-            String query,
-            List<String> attributeNames,
-            String luceneAnalyzerString, 
-            KeywordMatchingType matchingType,
-            String tableName,
-            String spanListName) {
-        
-        super(query, attributeNames, luceneAnalyzerString, matchingType, spanListName, null, null);
-        this.tableName = tableName;
-    }
-    
     //TODO find a way to not write duplicate annotations (for fields declared in superclass)
     @JsonCreator
     public KeywordSourcePredicate(
@@ -46,13 +34,9 @@ public class KeywordSourcePredicate extends KeywordPredicate {
             @JsonProperty(value = PropertyNameConstants.TABLE_NAME, required = true)
             String tableName,
             @JsonProperty(value = PropertyNameConstants.SPAN_LIST_NAME, required = false)
-            String spanListName,
-            @JsonProperty(value = PropertyNameConstants.LIMIT, required = false)
-            Integer limit,
-            @JsonProperty(value = PropertyNameConstants.OFFSET, required = false)
-            Integer offset) {
+            String spanListName) {
         
-        super(query, attributeNames, luceneAnalyzerString, matchingType, spanListName, limit, offset);
+        super(query, attributeNames, luceneAnalyzerString, matchingType, spanListName);
         this.tableName = tableName;
     }
     

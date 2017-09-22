@@ -26,7 +26,7 @@ public class DictionaryMatcherTestHelper {
     public static final String RESULTS = "dictionary test results";
     
     public static void writeTestTables() throws TexeraException {
-        RelationManager relationManager = RelationManager.getRelationManager();
+        RelationManager relationManager = RelationManager.getInstance();
         
         // create the people table and write tuples
         relationManager.createTable(PEOPLE_TABLE, TestUtils.getDefaultTestIndex().resolve(PEOPLE_TABLE), 
@@ -51,7 +51,7 @@ public class DictionaryMatcherTestHelper {
     }
     
     public static void deleteTestTables() throws TexeraException {
-        RelationManager relationManager = RelationManager.getRelationManager();
+        RelationManager relationManager = RelationManager.getInstance();
         relationManager.deleteTable(PEOPLE_TABLE);
         relationManager.deleteTable(CHINESE_TABLE);
     }
@@ -115,7 +115,7 @@ public class DictionaryMatcherTestHelper {
     public static List<Tuple> getScanSourceResults(String tableName, Dictionary dictionary, List<String> attributeNames,
             KeywordMatchingType matchingType, int limit, int offset) throws TexeraException {
         
-        RelationManager relationManager = RelationManager.getRelationManager();
+        RelationManager relationManager = RelationManager.getInstance();
         String luceneAnalyzerStr = relationManager.getTableAnalyzerString(tableName);
         
         ScanBasedSourceOperator scanSource = new ScanBasedSourceOperator(new ScanSourcePredicate(tableName));
@@ -156,7 +156,7 @@ public class DictionaryMatcherTestHelper {
      */
     public static List<Tuple> getDictionarySourceResults(String tableName, Dictionary dictionary, List<String> attributeNames,
             KeywordMatchingType matchingType, int limit, int offset) throws TexeraException {
-        RelationManager relationManager = RelationManager.getRelationManager();
+        RelationManager relationManager = RelationManager.getInstance();
         String luceneAnalyzerStr = relationManager.getTableAnalyzerString(tableName);
         
         DictionarySourcePredicate dictiaonrySourcePredicate = new DictionarySourcePredicate(

@@ -11,7 +11,6 @@ public class PlanGenUtils {
 
     public static void planGenAssert(boolean assertBoolean, String errorMessage) {
         if (! assertBoolean) {
-            // TODO: change this to runtime plangen exception
             throw new TexeraException(errorMessage);
         }
     }

@@ -19,7 +19,7 @@ public class IndexSink extends AbstractSink {
 
     public IndexSink(String tableName, boolean isAppend) throws DataflowException {
         try {
-            RelationManager relationManager = RelationManager.getRelationManager();
+            RelationManager relationManager = RelationManager.getInstance();
             this.dataWriter = relationManager.getTableDataWriter(tableName);
             this.isAppend = isAppend;
         } catch (StorageException e) {

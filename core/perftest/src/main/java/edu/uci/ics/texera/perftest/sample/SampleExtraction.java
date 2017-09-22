@@ -64,7 +64,7 @@ public class SampleExtraction {
         }
         
         // write tuples into the table
-        RelationManager relationManager = RelationManager.getRelationManager();
+        RelationManager relationManager = RelationManager.getInstance();
         
         relationManager.deleteTable(PROMED_SAMPLE_TABLE);
         relationManager.createTable(PROMED_SAMPLE_TABLE, Paths.get(promedIndexDirectory), 

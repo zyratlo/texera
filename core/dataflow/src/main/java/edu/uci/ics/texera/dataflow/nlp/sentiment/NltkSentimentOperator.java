@@ -138,7 +138,6 @@ public class NltkSentimentOperator implements IOperator {
             writer.writeAll(csvData);
             writer.close();
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             throw new DataflowException(e.getMessage(), e);
         }
         return true;
