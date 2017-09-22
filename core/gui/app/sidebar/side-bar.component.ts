@@ -23,11 +23,14 @@ export class SideBarComponent {
     operatorId: number;
     operatorTitle: string;
 
+    advancedPressed: boolean = false;
+
     hiddenList: string[] = ["operatorType", "luceneAnalyzer", "matchingType"];
 
-    selectorList: string[] = ["dictionaryEntries", "password", "matchingType",
-        "nlpEntityType", "splitType", "splitOption", "sampleType", "comparisonType",
-        "aggregationType", "attributes", "tableName", "attribute", "keywordList", "languageList", "locationList","customerKey","customerSecret","token","tokenSecret"].concat(this.hiddenList);
+    selectorList: string[] = ["dictionaryEntries", "password", "nlpEntityType",
+        "splitType", "splitOption", "sampleType", "comparisonType",
+        "aggregationType", "attributes", "tableName", "attribute", "keywordList",
+        "languageList", "locationList","customerKey","customerSecret","token","tokenSecret"];
 
     matcherList: string[] = ["conjunction", "phrase", "substring"];
     nlpEntityList: string[] = ["noun", "verb", "adjective", "adverb", "ne_all",
@@ -64,10 +67,19 @@ export class SideBarComponent {
     optionalTwitterList: Array<string> = ["customerKey","customerSecret","token","tokenSecret"];
 
     checkInHidden(name: string) {
-        return jQuery.inArray(name, this.hiddenList);
+      if (this.advancedPressed){
+        var hideItem = ["operatorType"];
+        return jQuery.inArray(name, hideItem);
+      }
+      return jQuery.inArray(name, this.hiddenList);
     }
     checkInSelector(name: string) {
-        return jQuery.inArray(name, this.selectorList);
+      if (this.advancedPressed){
+        var selectList = this.selectorList.concat(["operatorType"]);
+        return jQuery.inArray(name, selectList);
+      }
+      var selectList = this.selectorList.concat(this.hiddenList);
+      return jQuery.inArray(name, selectList);
     }
 
     checkInOptionalTwitter(name: string){
@@ -93,7 +105,8 @@ export class SideBarComponent {
                 for (var attribute in data.operatorData.properties.attributes) {
                     this.attributes.push(attribute);
                 }
-
+                // initialize the advanced button
+                this.advancedPressed = false;
                 // initialize selected attributes
                 this.selectedAttributeMulti = "";
                 this.selectedAttributeSingle = "";
@@ -247,6 +260,13 @@ export class SideBarComponent {
     this.currentDataService.setAllOperatorData(jQuery('#the-flowchart').flowchart('getData'));
   }
 
+  onAdvanced() {
+    this.advancedPressed = true;
+  }
+
+  hideAdvance() {
+    this.advancedPressed = false;
+  }
 
 
 

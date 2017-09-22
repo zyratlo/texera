@@ -9,7 +9,7 @@
                 <label *ngIf="checkInHidden(attribute) === -1" for="{{attribute}}" class="attribute-type">
                   {{humanize(attribute)}} <span *ngIf="checkInOptionalTwitter(attribute) !== -1">(Optional)</span>
                 </label>
-
+                
                 <select *ngIf="attribute === 'nlpEntityType'" class="form-control" id="{{attribute}}" required  [(ngModel)]="data.properties.attributes[attribute]" (ngModelChange)="onFormChange(attribute)" name="{{attribute}}" #{{attribute}}="ngModel">
                   <option *ngFor="let nlp of nlpEntityList" [value] = "nlp">{{nlp}}</option>
                 </select>
@@ -92,6 +92,9 @@
                 <input *ngIf="checkInSelector(attribute) === -1" [(ngModel)]="data.properties.attributes[attribute]" (ngModelChange)="onFormChange(attribute)" name="{{attribute}}" type="text" class="form-control" id="{{attribute}}" defaultValue="{{data.properties.attributes[attribute]}}" #{{attribute}}="ngModel" required>
             </div>
             <button type="button" class="btn btn-default" (click) = "onDelete()">Delete</button>
+            <button *ngIf="!advancedPressed" type="button" class="btn btn-default" (click) = "onAdvanced()">Advanced</button>
+            <button *ngIf="advancedPressed" type="button" class="btn btn-default" (click) = "hideAdvance()">Hide Advanced</button>
+
         </form>
     </div>
 </div>
