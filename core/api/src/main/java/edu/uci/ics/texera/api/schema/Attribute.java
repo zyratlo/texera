@@ -6,6 +6,12 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import edu.uci.ics.texera.api.constants.JsonConstants;
 
+/**
+ * An attribute describes the name and the type of a column.
+ * 
+ * @author zuozhiw
+ *
+ */
 public class Attribute {
     
     private final String attributeName;

@@ -3,6 +3,7 @@ package edu.uci.ics.texera.api.tuple;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -13,6 +14,9 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Streams;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -24,6 +28,11 @@ import edu.uci.ics.texera.api.schema.AttributeType;
 import edu.uci.ics.texera.api.schema.Schema;
 
 /**
+ * A Tuple is a set of values(fields) with their names as defined in the schema.
+ * A Tuple can be considered as a record/a row in a table.
+ * 
+ * Tuple instances are immutable. Use Tuple.Builder to create/manipulate Tuple objects.
+ * 
  * @author chenli
  * @author sandeepreddy602
  * @author Zuozhi Wang
@@ -115,6 +124,19 @@ public class Tuple {
         return "Tuple [schema=" + schema + ", fields=" + fields + "]";
     }
     
+    /**
+     * Get a human-readable json of this tuple. 
+     * The format is :
+     * {
+     *   "attr1": "field1",
+     *   "attr2": "field2"
+     * }
+     * 
+     * The difference of this json version and default json version is that
+     *   it no longer keeps the type of the attribute.
+     * Therefore it cannot be converted back to a tuple object again.
+     * @return
+     */
     public ObjectNode getReadableJson() {
         ObjectNode objectNode = new ObjectMapper().createObjectNode();
         for (String attrName : this.schema.getAttributeNames()) {
@@ -123,20 +145,29 @@ public class Tuple {
         return objectNode;
     }
     
-    private static void checkSchemaMatchesFields(List<Attribute> attributes, List<IField> fields) throws TexeraException {
+    /*
+     * Checks if the list of attributes matches the list of fields
+     */
+    private static void checkSchemaMatchesFields(Iterable<Attribute> attributes, Iterable<IField> fields) throws TexeraException {
+        List<Attribute> attributeList = Lists.newArrayList(attributes);
+        List<IField> fieldList = Lists.newArrayList(fields);
+        
         // check schema's size and field's size are the same
-        if (attributes.size() != fields.size()) {
+        if (attributeList.size() != fieldList.size()) {
             throw new TexeraException(String.format(
                     "Schema size (%d) and field size (%d) are different", 
-                    attributes.size(), fields.size()));
+                    attributeList.size(), fieldList.size()));
         }
         
         // check schema's type and field's type match
-        for (int i = 0; i < fields.size(); i++) {
-            checkAttributeMatchesField(attributes.get(i), fields.get(i));
+        for (int i = 0; i < fieldList.size(); i++) {
+            checkAttributeMatchesField(attributeList.get(i), fieldList.get(i));
         }
     }
     
+    /*
+     * Checks if the attribute's type matches the field object's type
+     */
     private static void checkAttributeMatchesField(Attribute attribute, IField field) throws TexeraException {
         if (! field.getClass().equals(attribute.getType().getFieldClass())) {
             throw new TexeraException(String.format(
@@ -146,16 +177,34 @@ public class Tuple {
         }
     }
     
+    /**
+     * Tuple.Builder is a helper class for creating immutable Tuple instances.
+     * 
+     * Since Tuple is immutable, Tuple.Builder provides a set of commonly used functions
+     *   to do insert/remove operations.
+     * 
+     * Tuple.Builder also provides a set of static helper function to manipulate a list of tuples.
+     * 
+     * @author Zuozhi Wang
+     *
+     */
     public static class Builder {
         
         private final Schema.Builder schemaBuilder;
         private final HashMap<String, IField> fieldNameMap;
         
+        /**
+         * Creates a new Tuple Builder.
+         */
         public Builder() {
             this.schemaBuilder = new Schema.Builder();
             this.fieldNameMap = new HashMap<>();
         }
         
+        /**
+         * Creates a new Tuple Builder based on an existing tuple object.
+         * @param tuple
+         */
         public Builder(Tuple tuple) {
             checkNotNull(tuple);
             checkNotNull(tuple.getFields());
@@ -169,6 +218,10 @@ public class Tuple {
             }
         }
         
+        /**
+         * Builds a newly created Tuple based on the builder.
+         * @return
+         */
         public Tuple build() {
             Schema schema = schemaBuilder.build();
             ArrayList<IField> fields = new ArrayList<>();
@@ -178,7 +231,15 @@ public class Tuple {
             return new Tuple(schema, fields);
         }
         
-        public Builder add(Attribute attribute, IField field) {
+        /**
+         * Adds a new attribute and field to the tuple builder.
+         * 
+         * @param attribute
+         * @param field
+         * @return this builder object
+         * @throws TexeraException, if attribute already exists, or the attribute and field type don't match.
+         */
+        public Builder add(Attribute attribute, IField field) throws TexeraException {
             checkNotNull(attribute);
             checkNotNull(field);
             checkAttributeMatchesField(attribute, field);
@@ -189,7 +250,15 @@ public class Tuple {
             return this;
         }
         
-        public Builder add(String attributeName, AttributeType attributeType, IField field) {
+        /**
+         * Adds a new attribute and field to the tuple builder
+         * @param attributeName
+         * @param attributeType
+         * @param field
+         * @return this builder object
+         * @throws TexeraException, if attribute already exists, or the attribute and field type don't match.
+         */
+        public Builder add(String attributeName, AttributeType attributeType, IField field) throws TexeraException {
             checkNotNull(attributeName);
             checkNotNull(attributeType);
             checkNotNull(field);
@@ -198,20 +267,41 @@ public class Tuple {
             return this;
         }
         
-        public Builder add(List<Attribute> attributes, List<IField> fields) {
+        /**
+         * Adds a list of new attributes and fields to the tuple builder.
+         * Each attribute in the list corresponds to the field with the same index.
+         * 
+         * @param attribute
+         * @param fields
+         * @return this builder object
+         * @throws TexeraException. if one of the attributes already exists, or attributes and fields don't match
+         */
+        public Builder add(Iterable<Attribute> attributes, Iterable<IField> fields) throws TexeraException {
             checkNotNull(attributes);
             attributes.forEach(attr -> checkNotNull(attr));
             checkNotNull(fields);
             fields.forEach(field -> checkNotNull(field));
             
             checkSchemaMatchesFields(attributes, fields);
-            for (int i = 0; i < attributes.size(); i++) {
-                this.add(attributes.get(i), fields.get(i));
+            
+            int attrSize = Iterables.size(attributes);
+            Iterator<Attribute> attributesIterator = attributes.iterator();
+            Iterator<IField> fieldsIterator = fields.iterator();
+            
+            for (int i = 0; i < attrSize; i++) {
+                this.add(attributesIterator.next(), fieldsIterator.next());
             }
             return this;
         }
         
-        public Builder remove(String attribute) {
+        /**
+         * Removes an attribute (and its corresponding field) from the tuple builder.
+         * 
+         * @param attribute, the name of the attribute
+         * @return this builder object
+         * @throws TexeraException, if the attribute doesn't exist
+         */
+        public Builder remove(String attribute) throws TexeraException {
             checkNotNull(attribute);
             
             // schemaBuilder will check if the attribute exists
@@ -220,7 +310,14 @@ public class Tuple {
             return this;
         }
         
-        public Builder remove(List<String> attributes) {
+        /**
+         * Removes a list of attributes (and their corresponding fields) from the tuple builder.
+         * 
+         * @param attributes, the names of the attributes
+         * @return this builder object
+         * @throws TexeraException, if one of the attributes doesn't exist
+         */
+        public Builder remove(Iterable<String> attributes) throws TexeraException {
             checkNotNull(attributes);
             attributes.forEach(attr -> checkNotNull(attr));
             
@@ -228,13 +325,27 @@ public class Tuple {
             return this;
         }
         
-        public Builder remove(String... attributes) {
+        /**
+         * Removes the attributes (and their corresponding fields) from the tuple builder.
+         * 
+         * @param attributes, the names of the attributes
+         * @return this builder object
+         * @throws TexeraException, if one of the attributes doesn't exist
+         */
+        public Builder remove(String... attributes) throws TexeraException{
             checkNotNull(attributes);
             
             remove(Arrays.asList(attributes));
             return this;
         }
         
+        /**
+         * Removes an attribute (and its corresponding field) from the tuple builder 
+         *   if the attribute exists.
+         * 
+         * @param attribute, the name of the attribute
+         * @return this builder object
+         */
         public Builder removeIfExists(String attribute) {
             checkNotNull(attribute);
             
@@ -243,7 +354,14 @@ public class Tuple {
             return this;
         }
         
-        public Builder removeIfExists(List<String> attributes) {
+        /**
+         * Removes a list of attributes (and their corresponding field) from the tuple builder 
+         *   if the attributes exist.
+         * 
+         * @param attributes, the names of the attributes
+         * @return this builder object
+         */
+        public Builder removeIfExists(Iterable<String> attributes) {
             checkNotNull(attributes);
             attributes.forEach(attr -> checkNotNull(attr));
             
@@ -251,6 +369,12 @@ public class Tuple {
             return this;
         }
         
+        /**
+         * Removes a list of attributes (and their corresponding field) from the tuple builder if the attributes exist.
+         * 
+         * @param attributes, the names of the attributes
+         * @return this builder object
+         */
         public Builder removeIfExists(String... attributes) {
             checkNotNull(attributes);
             
@@ -262,61 +386,170 @@ public class Tuple {
          * public static helper functions to handle a list of tuples
          *********************/
         
-        public static List<Tuple> remove(List<Tuple> tuples, String attribute) {
+        /**
+         * Adds a new attribute and field to each tuple in the list.
+         * 
+         * @param tuples
+         * @param attribute
+         * @param field
+         * @return a list of newly created tuples, with the attribute and field added.
+         * @throws TexeraException, if the attribute already exists, or the attribute and field don't match
+         */
+        public static List<Tuple> add(Iterable<Tuple> tuples, Attribute attribute, IField field) throws TexeraException {
+            checkNotNull(tuples);
+            tuples.forEach(tuple -> checkNotNull(tuple));
+            checkNotNull(attribute);
+            checkNotNull(field);
+            
+            return Streams.stream(tuples)
+                .map(tuple -> new Tuple.Builder(tuple))
+                .map(builder -> builder.add(attribute, field))
+                .map(builder -> builder.build())
+                .collect(Collectors.toList());
+        }
+        
+        /**
+         * Adds a new attribute and field to each tuple in the list.
+         * 
+         * @param tuples
+         * @param attributeName
+         * @param attributeType
+         * @param field
+         * @return a list of newly created tuples, with the attribute and field added.
+         * @throws TexeraException, if the attribute already exists, or the attribute and field don't match
+         */
+        public static List<Tuple> add(Iterable<Tuple> tuples, String attributeName, AttributeType attributeType, IField field) throws TexeraException {
+            checkNotNull(tuples);
+            tuples.forEach(tuple -> checkNotNull(tuple));
+            checkNotNull(attributeName);
+            checkNotNull(attributeType);
+            checkNotNull(field);
+            
+            return add(tuples, new Attribute(attributeName, attributeType), field);
+        }
+    
+        /**
+         * Adds a list of new attributes and fields to each tuple in the list.
+         * 
+         * @param tuples
+         * @param attributes
+         * @param fields
+         * @return a list of newly created tuples, with the attributes and fields added.
+         * @throws TexeraException, if one of the attributes already exists, or the attributes and fields don't match
+         */
+        public static List<Tuple> add(Iterable<Tuple> tuples, Iterable<Attribute> attributes, Iterable<IField> fields) throws TexeraException {
+            checkNotNull(tuples);
+            tuples.forEach(tuple -> checkNotNull(tuple));
+            checkNotNull(attributes);
+            attributes.forEach(attr -> checkNotNull(attr));
+            checkNotNull(fields);
+            fields.forEach(field -> checkNotNull(field));
+            
+            return Streams.stream(tuples)
+                    .map(tuple -> new Tuple.Builder(tuple))
+                    .map(builder -> builder.add(attributes, fields))
+                    .map(builder -> builder.build())
+                    .collect(Collectors.toList());            
+        }
+        
+        /**
+         * Removes an attribute (and its corresponding field) from each tuple in the list.
+         * 
+         * @param tuples
+         * @param attribute
+         * @return a list of newly created tuples, with the attribute removed.
+         * @throws TexeraException, if the attribute doesn't exist.
+         */
+        public static List<Tuple> remove(Iterable<Tuple> tuples, String attribute) throws TexeraException {
             checkNotNull(tuples);
             tuples.forEach(tuple -> checkNotNull(tuple));
             checkNotNull(attribute);
             
-            return tuples.stream()
+            return Streams.stream(tuples)
                     .map(tuple -> new Tuple.Builder(tuple))
                     .map(builder -> builder.remove(attribute))
                     .map(builder -> builder.build())
                     .collect(Collectors.toList());
         }
         
-        public static List<Tuple> remove(List<Tuple> tuples, List<String> attributes) {
+        /**
+         * Removes a list of attributes (and their corresponding fields) from each tuple in the list.
+         * @param tuples
+         * @param attributes
+         * @return a list of newly created tuples, with the attributes removed
+         * @throws TexeraException, if one of the attributes doesn't exist in the tuples.
+         */
+        public static List<Tuple> remove(Iterable<Tuple> tuples, Iterable<String> attributes) throws TexeraException {
             checkNotNull(tuples);
             tuples.forEach(tuple -> checkNotNull(tuple));
             checkNotNull(attributes);
             attributes.forEach(attr -> checkNotNull(attr));
             
-            return tuples.stream()
+            return Streams.stream(tuples)
                     .map(tuple -> new Tuple.Builder(tuple))
                     .map(builder -> builder.remove(attributes))
                     .map(builder -> builder.build())
                     .collect(Collectors.toList());
         }
         
-        public static List<Tuple> remove(List<Tuple> tuples, String... attributes) {
+        /**
+         * Removes a list of attributes (and their corresponding fields) from each tuple in the list.
+         * @param tuples
+         * @param attributes
+         * @return a list of newly created tuples, with the attributes removed
+         * @throws TexeraException, if one of the attributes doesn't exist in the tuples.
+         */
+        public static List<Tuple> remove(Iterable<Tuple> tuples, String... attributes) throws TexeraException {
             return(remove(tuples, Arrays.asList(attributes)));
         }
         
-        public static List<Tuple> removeIfExists(List<Tuple> tuples, String attribute) {
+        /**
+         * Removes an attributes (and its corresponding field) from each tuple in the list.
+         *   if the attribute exists
+         * @param tuples
+         * @param attribute
+         * @return a list of newly created tuples, with the attributes removed (if they exist)
+         */
+        public static List<Tuple> removeIfExists(Iterable<Tuple> tuples, String attribute) {
             checkNotNull(tuples);
             tuples.forEach(tuple -> checkNotNull(tuple));
             checkNotNull(attribute);
             
-            return tuples.stream()
+            return Streams.stream(tuples)
                     .map(tuple -> new Tuple.Builder(tuple))
                     .map(builder -> builder.removeIfExists(attribute))
                     .map(builder -> builder.build())
                     .collect(Collectors.toList());
         }
 
-        public static List<Tuple> removeIfExists(List<Tuple> tuples, List<String> attributes) {
+        /**
+         * Removes a list of attributes (and their corresponding fields) from each tuple in the list.
+         *   if the attributes exist
+         * @param tuples
+         * @param attributes
+         * @return a list of newly created tuples, with the attributes removed (if they exist)
+         */
+        public static List<Tuple> removeIfExists(Iterable<Tuple> tuples, Iterable<String> attributes) {
             checkNotNull(tuples);
             tuples.forEach(tuple -> checkNotNull(tuple));
             checkNotNull(attributes);
             attributes.forEach(attr -> checkNotNull(attr));
             
-            return tuples.stream()
+            return Streams.stream(tuples)
                     .map(tuple -> new Tuple.Builder(tuple))
                     .map(builder -> builder.removeIfExists(attributes))
                     .map(builder -> builder.build())
                     .collect(Collectors.toList());
         }
         
-        public static List<Tuple> removeIfExists(List<Tuple> tuples, String... attributes) {
+        /**
+         * Removes a list of attributes (and their corresponding fields) from each tuple in the list 
+         *   if the attributes exist
+         * @param tuples
+         * @param attributes
+         * @return a list of newly created tuples, with the attributes removed (if they exist)
+         */
+        public static List<Tuple> removeIfExists(Iterable<Tuple> tuples, String... attributes) {
             return(removeIfExists(tuples, Arrays.asList(attributes)));
         }
         

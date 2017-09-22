@@ -19,6 +19,12 @@ import edu.uci.ics.texera.api.constants.JsonConstants;
 import edu.uci.ics.texera.api.constants.SchemaConstants;
 import edu.uci.ics.texera.api.exception.TexeraException;
 
+/**
+ * A schema is a list of attributes that describe all the columns of a table.
+ * 
+ * @author zuozhiw
+ *
+ */
 public class Schema {
     private final ImmutableList<Attribute> attributes;
     private final ImmutableMap<String, Integer> attributeIndex;
