@@ -4,17 +4,19 @@ html {
 
 body {
 	height: 100%;
+	width: 100%;
 	-webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
 	-moz-box-sizing: border-box;    /* Firefox, other Gecko */
 	box-sizing: border-box;         /* Opera/IE 8+ */
 	overflow: hidden;
 }
 
+.navbar-right{
+	margin-right: 0px;
+}
 .navbar{
 	line-height: 50px;
 	margin: 0px;
-	padding: 0px;
-	padding-right: 0px;
 	height: 50px;
 }
 
@@ -45,7 +47,8 @@ body {
 }
 
 .previous-operators{
-	margin-left: 240px;
+	left: 0px;
+	margin-left: 255px;
 }
 
 .fill {
@@ -95,14 +98,6 @@ body {
 	font-size: 19px;
 }
 
-.sidebar-nav {
-    position: absolute;
-    top: 0;
-    width: 240px;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-}
 
 .form-control {
 	width : 220px;
@@ -368,4 +363,114 @@ body {
 	padding-left: 6px;
 	padding-right: 6px;
 	font-size: 14px;
+}
+
+
+
+@media screen and (min-width: 1080px) {
+	#sidebar-wrapper {
+		width: 255px;
+	}
+	#flow-chart-container{
+		width: calc(100% - 255px);;
+		left: 255px;
+	}
+	#result-container {
+			margin-left: 255px;
+			width: calc(100% - 255px);
+	}
+	.previous-operators{
+		margin-left: 255px;
+	}
+	.form-control {
+		width : 220px;
+	}
+}
+
+@media screen and (min-width: 900px) and (max-width: 1080px) {
+	#sidebar-wrapper {
+		width: 220px;
+	}
+	#flow-chart-container{
+		width: calc(100% - 220px);;
+		left: 220px;
+	}
+	#result-container {
+			margin-left: 220px;
+			width: calc(100% - 220px);
+	}
+	.previous-operators{
+		margin-left: 220px;
+	}
+	.form-control {
+		width : 185px;
+	}
+}
+
+@media screen and (min-width: 768px) and (max-width: 900px) {
+	#sidebar-wrapper {
+		width: 200px;
+	}
+	#flow-chart-container{
+		width: calc(100% - 200px);;
+		left: 200px;
+	}
+	#result-container {
+			margin-left: 200px;
+			width: calc(100% - 200px);
+	}
+	.previous-operators{
+		margin-left: 200px;
+	}
+	.form-control {
+		width : 165px;
+	}
+}
+
+
+@media screen and (max-width: 768px) {
+	#sidebar-wrapper {
+		width: 180px;
+	}
+	#flow-chart-container{
+		width: calc(100% - 180px);;
+		left: 180px;
+	}
+	#result-container {
+			margin-left: 180px;
+			width: calc(100% - 180px);
+	}
+	.previous-operators{
+		margin-left: 180px;
+	}
+	.form-control {
+		width : 145px;
+	}
+
+/* fix bootstrap issue*/
+	.navbar-left {
+    float: left !important;
+  }
+  .navbar-right {
+    float: right !important;
+    margin-right: -15px;
+  }
+  .navbar-right ~ .navbar-right {
+    margin-right: 0;
+	}
+	.navbar-header {
+    float: left;
+  }
+	.navbar-collapse {
+    width: auto;
+    border-top: 0;
+    -webkit-box-shadow: none;
+            box-shadow: none;
+  }
+	.navbar-nav {
+		float: left;
+		margin-top: 0;
+		margin-right: 0;
+		margin-bottom: 0;
+	}
 }

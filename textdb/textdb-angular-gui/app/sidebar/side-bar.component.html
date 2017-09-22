@@ -9,7 +9,7 @@
                 <label *ngIf="checkInHidden(attribute) === -1" for="{{attribute}}" class="attribute-type">
                   {{humanize(attribute)}} <span *ngIf="checkInOptionalTwitter(attribute) !== -1">(Optional)</span>
                 </label>
-
+                
                 <select *ngIf="attribute === 'nlpEntityType'" class="form-control" id="{{attribute}}" required  [(ngModel)]="data.properties.attributes[attribute]" (ngModelChange)="onFormChange(attribute)" name="{{attribute}}" #{{attribute}}="ngModel">
                   <option *ngFor="let nlp of nlpEntityList" [value] = "nlp">{{nlp}}</option>
                 </select>
