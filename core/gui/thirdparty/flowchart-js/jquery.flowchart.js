@@ -68,7 +68,6 @@ $(function () {
         globalId: null,
 
         rightClickedOperatorID : 0,
-        haveZoomed: 0,
 
         // the constructor
         _create: function () {
@@ -173,51 +172,48 @@ $(function () {
               var currentOperatorData = self.getOperatorData(operatorID);
 
               self.rightClickedOperatorID = operatorID;
-              if (self.haveZoomed === 0){
-                self.displayRightClickMenu(x,y,operatorID);
-              } else {
-                // calculate the position manually
-                var checkOnClickIsIconDiv = $(".operator-info-div");
-                var checkOnClickIsIcon = $(".operator-info-icon");
-                var checkOnClickIsOperatorInput = $(".flowchart-operator-inputs");
-                var checkOnClickIsOperatorOutput = $(".flowchart-operator-outputs");
-                var checkOnClickOperatorConnector = $(".flowchart-operator-connector");
-                var checkOnClickOperatorConnectorLabel = $(".flowchart-operator-connector-label");
-                var checkOnClickOperatorConnectorArrow = $(".flowchart-operator-connector-arrow");
-                var checkOnClickOperatorConnectorSet = $(".flowchart-operator-connector-set");
+              // calculate the position manually
+              var checkOnClickIsIconDiv = $(".operator-info-div");
+              var checkOnClickIsIcon = $(".operator-info-icon");
+              var checkOnClickIsOperatorInput = $(".flowchart-operator-inputs");
+              var checkOnClickIsOperatorOutput = $(".flowchart-operator-outputs");
+              var checkOnClickOperatorConnector = $(".flowchart-operator-connector");
+              var checkOnClickOperatorConnectorLabel = $(".flowchart-operator-connector-label");
+              var checkOnClickOperatorConnectorArrow = $(".flowchart-operator-connector-arrow");
+              var checkOnClickOperatorConnectorSet = $(".flowchart-operator-connector-set");
 
-                var titleHeight = parseInt($(".flowchart-operator-title").css('height'), 10);
-                var operatorWidth = parseInt($(".flowchart-operator").css('width'), 10);
-                var connectorTop = parseInt($(".flowchart-operator-connector").css('top'), 10);
+              var titleHeight = parseInt($(".flowchart-operator-title").css('height'), 10);
+              var operatorWidth = parseInt($(".flowchart-operator").css('width'), 10);
+              var connectorTop = parseInt($(".flowchart-operator-connector").css('top'), 10);
 
-                if (checkOnClickIsIconDiv.is(e.target) || checkOnClickIsIcon.is(e.target)){
-                  self.displayRightClickMenu(currentOperatorData.left + e.offsetX + 0.85 * operatorWidth,  currentOperatorData.top + e.offsetY ,operatorID);
-                } else if (checkOnClickIsOperatorOutput.is(e.target)) {
-                  self.displayRightClickMenu(currentOperatorData.left + e.offsetX + 0.5 * operatorWidth,  currentOperatorData.top + e.offsetY + titleHeight ,operatorID);
-                } else if (checkOnClickIsOperatorInput.is(e.target)) {
-                  self.displayRightClickMenu(currentOperatorData.left + e.offsetX,  currentOperatorData.top + e.offsetY + titleHeight ,operatorID);
-                } else if (checkOnClickOperatorConnector.is(e.target) || checkOnClickOperatorConnectorLabel.is(e.target)) {
-                  if (checkOnClickIsOperatorOutput.has(e.target).length > 0){
-                    self.displayRightClickMenu(currentOperatorData.left + e.offsetX + 0.5 * operatorWidth,  currentOperatorData.top + e.offsetY + titleHeight + connectorTop ,operatorID);
-                  } else {
-                    self.displayRightClickMenu(currentOperatorData.left + e.offsetX,  currentOperatorData.top + e.offsetY + titleHeight + connectorTop ,operatorID);
-                  }
-                } else if (checkOnClickOperatorConnectorSet.is(e.target)) {
-                  if (checkOnClickIsOperatorOutput.has(e.target).length > 0){
-                    self.displayRightClickMenu(currentOperatorData.left + e.offsetX + 0.5 * operatorWidth,  currentOperatorData.top + e.offsetY + titleHeight ,operatorID);
-                  } else {
-                    self.displayRightClickMenu(currentOperatorData.left + e.offsetX,  currentOperatorData.top + e.offsetY + titleHeight,operatorID);
-                  }
-                } else if (checkOnClickOperatorConnectorArrow.is(e.target)) {
-                  if (checkOnClickIsOperatorOutput.has(e.target).length > 0){
-                    self.displayRightClickMenu(currentOperatorData.left + e.offsetX + operatorWidth,  currentOperatorData.top + e.offsetY + titleHeight  + connectorTop ,operatorID);
-                  } else {
-                    self.displayRightClickMenu(currentOperatorData.left + e.offsetX + 1,  currentOperatorData.top + e.offsetY + titleHeight + connectorTop ,operatorID);
-                  }
+              if (checkOnClickIsIconDiv.is(e.target) || checkOnClickIsIcon.is(e.target)){
+                self.displayRightClickMenu(currentOperatorData.left + e.offsetX + 0.85 * operatorWidth,  currentOperatorData.top + e.offsetY ,operatorID);
+              } else if (checkOnClickIsOperatorOutput.is(e.target)) {
+                self.displayRightClickMenu(currentOperatorData.left + e.offsetX + 0.5 * operatorWidth,  currentOperatorData.top + e.offsetY + titleHeight ,operatorID);
+              } else if (checkOnClickIsOperatorInput.is(e.target)) {
+                self.displayRightClickMenu(currentOperatorData.left + e.offsetX,  currentOperatorData.top + e.offsetY + titleHeight ,operatorID);
+              } else if (checkOnClickOperatorConnector.is(e.target) || checkOnClickOperatorConnectorLabel.is(e.target)) {
+                if (checkOnClickIsOperatorOutput.has(e.target).length > 0){
+                  self.displayRightClickMenu(currentOperatorData.left + e.offsetX + 0.5 * operatorWidth,  currentOperatorData.top + e.offsetY + titleHeight + connectorTop ,operatorID);
                 } else {
-                  self.displayRightClickMenu(currentOperatorData.left + e.offsetX,  currentOperatorData.top + e.offsetY ,operatorID);
+                  self.displayRightClickMenu(currentOperatorData.left + e.offsetX,  currentOperatorData.top + e.offsetY + titleHeight + connectorTop ,operatorID);
                 }
+              } else if (checkOnClickOperatorConnectorSet.is(e.target)) {
+                if (checkOnClickIsOperatorOutput.has(e.target).length > 0){
+                  self.displayRightClickMenu(currentOperatorData.left + e.offsetX + 0.5 * operatorWidth,  currentOperatorData.top + e.offsetY + titleHeight ,operatorID);
+                } else {
+                  self.displayRightClickMenu(currentOperatorData.left + e.offsetX,  currentOperatorData.top + e.offsetY + titleHeight,operatorID);
+                }
+              } else if (checkOnClickOperatorConnectorArrow.is(e.target)) {
+                if (checkOnClickIsOperatorOutput.has(e.target).length > 0){
+                  self.displayRightClickMenu(currentOperatorData.left + e.offsetX + operatorWidth,  currentOperatorData.top + e.offsetY + titleHeight  + connectorTop ,operatorID);
+                } else {
+                  self.displayRightClickMenu(currentOperatorData.left + e.offsetX + 1,  currentOperatorData.top + e.offsetY + titleHeight + connectorTop ,operatorID);
+                }
+              } else {
+                self.displayRightClickMenu(currentOperatorData.left + e.offsetX,  currentOperatorData.top + e.offsetY ,operatorID);
               }
+
               // prevent default right click menu
               return false;
             });
@@ -318,10 +314,6 @@ $(function () {
             html: true,
             allowOutsideClick: true,
           });
-        },
-
-        zoomCalled: function(){
-          this.haveZoomed = 1;
         },
 
         displayRightClickMenu: function(x,y,operatorID){
