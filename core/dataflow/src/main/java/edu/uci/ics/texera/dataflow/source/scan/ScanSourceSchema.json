@@ -1,0 +1,1 @@
+{"type":"object","id":"urn:jsonschema:edu:uci:ics:texera:dataflow:source:scan:ScanSourcePredicate","properties":{"tableName":{"type":"string"},"operatorID":{"type":"string"}}}

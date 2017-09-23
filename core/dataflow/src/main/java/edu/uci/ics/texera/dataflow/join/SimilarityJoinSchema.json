@@ -1,0 +1,1 @@
+{"type":"object","id":"urn:jsonschema:edu:uci:ics:texera:dataflow:join:SimilarityJoinPredicate","properties":{"innerAttribute":{"type":"string"},"outerAttribute":{"type":"string"},"similarityThreshold":{"type":"number"},"operatorID":{"type":"string"}}}

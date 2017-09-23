@@ -1,0 +1,1 @@
+{"type":"object","id":"urn:jsonschema:edu:uci:ics:texera:dataflow:join:JoinDistancePredicate","properties":{"innerAttribute":{"type":"string"},"outerAttribute":{"type":"string"},"spanDistance":{"type":"integer"},"operatorID":{"type":"string"}}}

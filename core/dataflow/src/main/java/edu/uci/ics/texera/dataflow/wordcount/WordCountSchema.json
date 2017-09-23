@@ -1,0 +1,1 @@
+{"type":"object","id":"urn:jsonschema:edu:uci:ics:texera:dataflow:wordcount:WordCountOperatorPredicate","properties":{"attribute":{"type":"string"},"luceneAnalyzer":{"type":"string"},"operatorID":{"type":"string"}}}

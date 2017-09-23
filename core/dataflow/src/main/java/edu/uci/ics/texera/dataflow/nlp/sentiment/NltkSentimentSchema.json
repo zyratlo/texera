@@ -1,0 +1,1 @@
+{"type":"object","id":"urn:jsonschema:edu:uci:ics:texera:dataflow:nlp:sentiment:NltkSentimentOperatorPredicate","properties":{"attribute":{"type":"string"},"resultAttribute":{"type":"string"},"batchSize":{"type":"integer"},"inputAttributeModel":{"type":"string"},"operatorID":{"type":"string"}}}

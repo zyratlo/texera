@@ -1,0 +1,1 @@
+{"type":"object","id":"urn:jsonschema:edu:uci:ics:texera:dataflow:comparablematcher:ComparablePredicate","properties":{"attribute":{"type":"string"},"comparisonType":{"type":"string","enum":["=",">",">=","<","<=","≠"]},"compareTo":{"type":"any"},"operatorID":{"type":"string"}}}

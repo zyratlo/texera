@@ -1,0 +1,1 @@
+{"type":"object","id":"urn:jsonschema:edu:uci:ics:texera:dataflow:keywordmatcher:KeywordPredicate","properties":{"query":{"type":"string"},"attributes":{"type":"array","items":{"type":"string"}},"luceneAnalyzer":{"type":"string"},"matchingType":{"type":"string","enum":["substring","conjunction","phrase","regex"]},"spanListName":{"type":"string"},"operatorID":{"type":"string"}}}

@@ -1,0 +1,1 @@
+{"type":"object","id":"urn:jsonschema:edu:uci:ics:texera:dataflow:sampler:SamplerPredicate","properties":{"sampleSize":{"type":"integer"},"sampleType":{"type":"string","enum":["random","firstk"]},"operatorID":{"type":"string"}}}
