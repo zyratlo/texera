@@ -18,14 +18,10 @@ import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-<<<<<<< HEAD:textdb/textdb-exp/src/test/java/edu/uci/ics/textdb/exp/twitterfeed/TwitterFeedOperatorTest.java
-import static edu.uci.ics.textdb.exp.twitterfeed.TwitterUtils.twitterSchema.MEDIA_LINK;
-import static edu.uci.ics.textdb.exp.twitterfeed.TwitterUtils.twitterSchema.TEXT;
-import static edu.uci.ics.textdb.exp.twitterfeed.TwitterUtils.twitterSchema.USER_SCREEN_NAME;
-=======
+
 import static edu.uci.ics.texera.dataflow.twitterfeed.TwitterUtils.TwitterSchema.TEXT;
 import static edu.uci.ics.texera.dataflow.twitterfeed.TwitterUtils.TwitterSchema.USER_SCREEN_NAME;
->>>>>>> master:core/dataflow/src/test/java/edu/uci/ics/texera/dataflow/twitterfeed/TwitterFeedOperatorTest.java
+import static edu.uci.ics.texera.dataflow.twitterfeed.TwitterUtils.TwitterSchema.MEDIA_LINK;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;

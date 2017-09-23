@@ -10,13 +10,9 @@ import java.util.stream.Collectors;
 
 import com.twitter.hbc.core.endpoint.Location;
 
-<<<<<<< HEAD:textdb/textdb-exp/src/test/java/edu/uci/ics/textdb/exp/twitterfeed/TwitterFeedTestHelper.java
-import static edu.uci.ics.textdb.exp.twitterfeed.TwitterUtils.twitterSchema.TWEET_COORDINATES;
-import static edu.uci.ics.textdb.exp.twitterfeed.TwitterUtils.twitterSchema.TWEET_LOCATION;
-import static org.mockito.Mockito.mock;
-=======
+
 import static edu.uci.ics.texera.dataflow.twitterfeed.TwitterUtils.TwitterSchema.TWEET_COORDINATES;
->>>>>>> master:core/dataflow/src/test/java/edu/uci/ics/texera/dataflow/twitterfeed/TwitterFeedTestHelper.java
+import static edu.uci.ics.texera.dataflow.twitterfeed.TwitterUtils.TwitterSchema.TWEET_LOCATION;
 
 /**
  * Created by Chang on 7/13/17.
