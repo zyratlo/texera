@@ -164,10 +164,6 @@ $(function () {
                 self.hideRightClickMenu();
                 return false;
               }
-              // get position
-              var x = e.clientX;
-              var y = e.clientY;
-
               var operatorID = $this.closest('.flowchart-operator').data('operator_id');
               var currentOperatorData = self.getOperatorData(operatorID);
 
