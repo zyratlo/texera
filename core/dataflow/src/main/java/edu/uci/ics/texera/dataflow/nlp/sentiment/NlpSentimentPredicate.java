@@ -1,6 +1,9 @@
 package edu.uci.ics.texera.dataflow.nlp.sentiment;
 
+import java.util.Map;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.collect.ImmutableMap;
 
 import edu.uci.ics.texera.api.dataflow.IOperator;
 import edu.uci.ics.texera.dataflow.common.PredicateBase;
@@ -34,6 +37,14 @@ public class NlpSentimentPredicate extends PredicateBase {
     @Override
     public IOperator newOperator() {
         return new NlpSentimentOperator(this);
+    }
+    
+    public static Map<String, Object> getOperatorMetadata() {
+        return ImmutableMap.<String, Object>builder()
+            .put(PropertyNameConstants.USER_FRIENDLY_NAME, "Sentiment Analysis")
+            .put(PropertyNameConstants.OPERATOR_DESCRIPTION, "Sentiment analysis based on Stanford NLP package")
+            .put(PropertyNameConstants.OPERATOR_GROUP_NAME, "Analysis")
+            .build();
     }
 
 }

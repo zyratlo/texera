@@ -3,9 +3,11 @@ package edu.uci.ics.texera.dataflow.source.file;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.collect.ImmutableMap;
 
 import edu.uci.ics.texera.api.dataflow.IOperator;
 import edu.uci.ics.texera.dataflow.common.PredicateBase;
@@ -114,6 +116,14 @@ public class FileSourcePredicate extends PredicateBase {
     @Override
     public IOperator newOperator() {
         return new FileSourceOperator(this);
+    }
+    
+    public static Map<String, Object> getOperatorMetadata() {
+        return ImmutableMap.<String, Object>builder()
+            .put(PropertyNameConstants.USER_FRIENDLY_NAME, "Source: File")
+            .put(PropertyNameConstants.OPERATOR_DESCRIPTION, "Read the content of one file or multiple files")
+            .put(PropertyNameConstants.OPERATOR_GROUP_NAME, "Source")
+            .build();
     }
 
 }

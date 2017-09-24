@@ -1,8 +1,11 @@
 package edu.uci.ics.texera.dataflow.sampler;
 
+import java.util.Map;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.google.common.collect.ImmutableMap;
 
 import edu.uci.ics.texera.api.dataflow.IOperator;
 import edu.uci.ics.texera.api.exception.TexeraException;
@@ -61,6 +64,14 @@ public class SamplerPredicate extends PredicateBase {
     @Override
     public IOperator newOperator() {
         return new Sampler(this);
+    }
+    
+    public static Map<String, Object> getOperatorMetadata() {
+        return ImmutableMap.<String, Object>builder()
+            .put(PropertyNameConstants.USER_FRIENDLY_NAME, "Sampling")
+            .put(PropertyNameConstants.OPERATOR_DESCRIPTION, "Sample a subset of data from all the documents")
+            .put(PropertyNameConstants.OPERATOR_GROUP_NAME, "Other")
+            .build();
     }
     
 }

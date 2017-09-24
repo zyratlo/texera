@@ -1,11 +1,14 @@
 package edu.uci.ics.texera.dataflow.twitterfeed;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.collect.ImmutableMap;
+
 import edu.uci.ics.texera.api.dataflow.IOperator;
 import edu.uci.ics.texera.dataflow.common.PredicateBase;
 import edu.uci.ics.texera.dataflow.common.PropertyNameConstants;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Chang on 7/12/17.
@@ -95,5 +98,12 @@ public class TwitterFeedSourcePredicate extends PredicateBase {
         return new TwitterFeedOperator(this);
     }
 
+    public static Map<String, Object> getOperatorMetadata() {
+        return ImmutableMap.<String, Object>builder()
+            .put(PropertyNameConstants.USER_FRIENDLY_NAME, "Source: TwitterFeed")
+            .put(PropertyNameConstants.OPERATOR_DESCRIPTION, "Obtain real-time tweets using Twitter API")
+            .put(PropertyNameConstants.OPERATOR_GROUP_NAME, "Source")
+            .build();
+    }
 
 }

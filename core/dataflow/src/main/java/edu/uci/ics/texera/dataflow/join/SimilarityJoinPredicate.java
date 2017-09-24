@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.collect.ImmutableMap;
 
 import edu.uci.ics.texera.api.constants.SchemaConstants;
 import edu.uci.ics.texera.api.dataflow.IOperator;
@@ -258,6 +259,14 @@ public class SimilarityJoinPredicate extends PredicateBase implements IJoinPredi
     @Override
     public IOperator newOperator() {
         return new Join(this);
+    }
+    
+    public static Map<String, Object> getOperatorMetadata() {
+        return ImmutableMap.<String, Object>builder()
+            .put(PropertyNameConstants.USER_FRIENDLY_NAME, "Join: Similarity")
+            .put(PropertyNameConstants.OPERATOR_DESCRIPTION, "Join two tables based on the string similarity of two tuples")
+            .put(PropertyNameConstants.OPERATOR_GROUP_NAME, "Join")
+            .build();
     }
 
 }

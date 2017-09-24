@@ -1,6 +1,10 @@
 package edu.uci.ics.texera.dataflow.nlp.sentiment;
 
+import java.util.Map;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.collect.ImmutableMap;
+
 import edu.uci.ics.texera.dataflow.common.PredicateBase;
 import edu.uci.ics.texera.dataflow.common.PropertyNameConstants;
 
@@ -35,4 +39,13 @@ public class EmojiSentimentPredicate extends PredicateBase {
     public EmojiSentimentOperator newOperator() {
         return new EmojiSentimentOperator(this);
     }
+    
+    public static Map<String, Object> getOperatorMetadata() {
+        return ImmutableMap.<String, Object>builder()
+            .put(PropertyNameConstants.USER_FRIENDLY_NAME, "Emoji Sentiment Analysis")
+            .put(PropertyNameConstants.OPERATOR_DESCRIPTION, "Sentiment analysis with the emojis in consideration")
+            .put(PropertyNameConstants.OPERATOR_GROUP_NAME, "Other")
+            .build();
+    }
+    
 }

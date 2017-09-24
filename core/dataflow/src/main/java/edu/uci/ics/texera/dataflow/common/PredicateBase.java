@@ -91,7 +91,6 @@ import edu.uci.ics.texera.dataflow.wordcount.WordCountOperatorPredicate;
         @Type(value = ScanSourcePredicate.class, name = "ScanSource"),
         @Type(value = FileSourcePredicate.class, name = "FileSource"),        
         @Type(value = TupleSinkPredicate.class, name = "ViewResults"),
-        @Type(value = ExcelSinkPredicate.class, name = "ExcelSink"),
         @Type(value = MysqlSinkPredicate.class, name = "MysqlSink"),
         @Type(value = TwitterFeedSourcePredicate.class, name = "TwitterFeed"),
         

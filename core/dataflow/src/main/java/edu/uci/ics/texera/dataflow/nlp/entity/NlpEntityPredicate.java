@@ -2,9 +2,11 @@ package edu.uci.ics.texera.dataflow.nlp.entity;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.collect.ImmutableMap;
 
 import edu.uci.ics.texera.api.dataflow.IOperator;
 import edu.uci.ics.texera.dataflow.common.PredicateBase;
@@ -51,6 +53,14 @@ public class NlpEntityPredicate extends PredicateBase {
     @Override
     public IOperator newOperator() {
         return new NlpEntityOperator(this);
+    }
+    
+    public static Map<String, Object> getOperatorMetadata() {
+        return ImmutableMap.<String, Object>builder()
+            .put(PropertyNameConstants.USER_FRIENDLY_NAME, "Entity Recognition")
+            .put(PropertyNameConstants.OPERATOR_DESCRIPTION, "Recognize entities in the text (person, location, date, ..)")
+            .put(PropertyNameConstants.OPERATOR_GROUP_NAME, "Analysis")
+            .build();
     }
     
 }

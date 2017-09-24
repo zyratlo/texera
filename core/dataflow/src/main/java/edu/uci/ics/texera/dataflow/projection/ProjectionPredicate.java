@@ -2,10 +2,12 @@ package edu.uci.ics.texera.dataflow.projection;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.collect.ImmutableMap;
 
 import edu.uci.ics.texera.api.dataflow.IOperator;
 import edu.uci.ics.texera.dataflow.common.PredicateBase;
@@ -31,4 +33,13 @@ public class ProjectionPredicate extends PredicateBase {
     public IOperator newOperator() {
         return new ProjectionOperator(this);
     }
+    
+    public static Map<String, Object> getOperatorMetadata() {
+        return ImmutableMap.<String, Object>builder()
+            .put(PropertyNameConstants.USER_FRIENDLY_NAME, "Projection")
+            .put(PropertyNameConstants.OPERATOR_DESCRIPTION, "Select a subset of columns")
+            .put(PropertyNameConstants.OPERATOR_GROUP_NAME, "Other")
+            .build();
+    }
+    
 }

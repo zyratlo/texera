@@ -2,10 +2,12 @@ package edu.uci.ics.texera.dataflow.dictionarymatcher;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
+import com.google.common.collect.ImmutableMap;
 
 import edu.uci.ics.texera.api.dataflow.IOperator;
 import edu.uci.ics.texera.dataflow.common.PredicateBase;
@@ -83,6 +85,14 @@ public class DictionaryPredicate extends PredicateBase {
     @Override
     public IOperator newOperator() {
         return new DictionaryMatcher(this);
+    }
+    
+    public static Map<String, Object> getOperatorMetadata() {
+        return ImmutableMap.<String, Object>builder()
+            .put(PropertyNameConstants.USER_FRIENDLY_NAME, "Dictionary Search")
+            .put(PropertyNameConstants.OPERATOR_DESCRIPTION, "Search the documents using a dictionary (multiple keywords)")
+            .put(PropertyNameConstants.OPERATOR_GROUP_NAME, "Search")
+            .build();
     }
     
 }

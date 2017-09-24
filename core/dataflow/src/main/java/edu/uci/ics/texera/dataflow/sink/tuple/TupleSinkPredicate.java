@@ -1,7 +1,10 @@
 package edu.uci.ics.texera.dataflow.sink.tuple;
 
+import java.util.Map;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.collect.ImmutableMap;
 
 import edu.uci.ics.texera.api.dataflow.IOperator;
 import edu.uci.ics.texera.dataflow.common.PredicateBase;
@@ -47,6 +50,14 @@ public class TupleSinkPredicate extends PredicateBase {
     @Override
     public IOperator newOperator() {
         return new TupleSink(this);
+    }
+    
+    public static Map<String, Object> getOperatorMetadata() {
+        return ImmutableMap.<String, Object>builder()
+            .put(PropertyNameConstants.USER_FRIENDLY_NAME, "View Results")
+            .put(PropertyNameConstants.OPERATOR_DESCRIPTION, "View the results of the workflow")
+            .put(PropertyNameConstants.OPERATOR_GROUP_NAME, "standalone")
+            .build();
     }
 
 }

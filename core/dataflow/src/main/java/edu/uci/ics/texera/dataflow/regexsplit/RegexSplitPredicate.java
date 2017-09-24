@@ -1,8 +1,11 @@
 package edu.uci.ics.texera.dataflow.regexsplit;
 
+import java.util.Map;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.google.common.collect.ImmutableMap;
 
 import edu.uci.ics.texera.api.dataflow.IOperator;
 import edu.uci.ics.texera.dataflow.common.PredicateBase;
@@ -94,6 +97,14 @@ public class RegexSplitPredicate extends PredicateBase {
     @Override
     public IOperator newOperator() {
         return new RegexSplitOperator(this);
+    }
+    
+    public static Map<String, Object> getOperatorMetadata() {
+        return ImmutableMap.<String, Object>builder()
+            .put(PropertyNameConstants.USER_FRIENDLY_NAME, "Regex Split")
+            .put(PropertyNameConstants.OPERATOR_DESCRIPTION, "Split the text into multiple segments based on a regular expression")
+            .put(PropertyNameConstants.OPERATOR_GROUP_NAME, "Split")
+            .build();
     }
     
 }

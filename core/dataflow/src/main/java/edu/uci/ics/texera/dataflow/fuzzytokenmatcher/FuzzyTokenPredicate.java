@@ -3,9 +3,11 @@ package edu.uci.ics.texera.dataflow.fuzzytokenmatcher;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.collect.ImmutableMap;
 
 import edu.uci.ics.texera.api.dataflow.IOperator;
 import edu.uci.ics.texera.dataflow.common.PredicateBase;
@@ -111,4 +113,12 @@ public class FuzzyTokenPredicate extends PredicateBase {
         return new FuzzyTokenMatcher(this);
     }
 
+    public static Map<String, Object> getOperatorMetadata() {
+        return ImmutableMap.<String, Object>builder()
+            .put(PropertyNameConstants.USER_FRIENDLY_NAME, "Fuzzy Token Match")
+            .put(PropertyNameConstants.OPERATOR_DESCRIPTION, "Search the documents according to the similarity of given tokens")
+            .put(PropertyNameConstants.OPERATOR_GROUP_NAME, "Search")
+            .build();
+    }
+    
 }
