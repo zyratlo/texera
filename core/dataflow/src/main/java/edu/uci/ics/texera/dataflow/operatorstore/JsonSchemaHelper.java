@@ -23,7 +23,7 @@ public class JsonSchemaHelper {
     
     private static ObjectMapper objectMapper = DataConstants.defaultObjectMapper;
     
-    private static HashMap<Class<? extends PredicateBase>, String> operatorTypeMap = new HashMap<>();
+    public static HashMap<Class<? extends PredicateBase>, String> operatorTypeMap = new HashMap<>();
     static {
         // find all the operator type declarations in PredicateBase annotation
         Collection<NamedType> types = objectMapper.getSubtypeResolver().collectAndResolveSubtypesByClass(
