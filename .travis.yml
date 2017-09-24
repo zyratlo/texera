@@ -16,11 +16,11 @@ before_install:
   - sudo apt-get install python3-setuptools 
   - sudo easy_install3 pip
   - export LC_ALL=C
-  - pip3 install -U nltk
+  - sudo pip3 install -U nltk
    
 # run steps
 install:
 
 script:
-    - cd textdb 
+    - cd core 
     - mvn test
