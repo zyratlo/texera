@@ -19,7 +19,7 @@ export class ResultBarComponent {
   // attribute = all the keys to access the result
   attribute: string[] = [];
   previousResultHandleTop: number = -5;
-  checkErrorOrDetail: number = 0;
+  checkErrorOrDetail: number = 1;
   ResultDisplayLimit: number = 20;
   CurrentDisplayIndex: number;
 
@@ -65,16 +65,13 @@ export class ResultBarComponent {
         jQuery('.navigation-btn').button('reset');
         this.attribute = [];
         this.result = [];
+        this.checkErrorOrDetail = 1;
         // check if the result is valid
         if (data.code === 0) {
           var ResultDisplay = (data.result.length < 20) ? data.result.length : this.ResultDisplayLimit;
-          // console.log(ResultDisplay);
           for (var i = 0; i < ResultDisplay; ++i) {
             this.result.push(data.result[i]);
-            // console.log(data.result[i]);
           }
-          // this.result = data.result;
-          // console.log(this.result);
           for (var each in this.result[0]){
             if (each !== "_id"){
               this.attribute.push(each);
@@ -175,7 +172,9 @@ export class ResultBarComponent {
 
 
   displayRowDetail(singleResult: any){
-    this.checkErrorOrDetail = 1;
+    // restore default
+    jQuery("#ModalPreviousButton").prop('disabled',false);
+    jQuery("#ModalNextButton").prop('disabled',false);
     var count = 0;
     for (var each of this.result){
       if (each === singleResult){
@@ -184,10 +183,6 @@ export class ResultBarComponent {
       ++count;
     }
     this.CurrentDisplayIndex = count;
-    // restore default
-    jQuery("#ModalPreviousButton").prop('disabled',false);
-    jQuery("#ModalNextButton").prop('disabled',false);
-    // check first window
     if (this.CurrentDisplayIndex === 0) {
       jQuery("#ModalPreviousButton").prop('disabled',true);
     } else if (this.CurrentDisplayIndex === this.result.length - 1) {
