@@ -53,6 +53,7 @@ import edu.uci.ics.texera.api.exception.TexeraException;
  * 
  */
 public enum KeywordMatchingType {
+    
     SUBSTRING_SCANBASED("substring"),
 
     CONJUNCTION_INDEXBASED("conjunction"),
@@ -61,10 +62,11 @@ public enum KeywordMatchingType {
 
     REGEX("regex");
 
+    
+    public final String name;
+    
 
-    
-    private final String name;
-    
+
     private KeywordMatchingType(String name) {
         this.name = name;
     }
@@ -74,6 +76,8 @@ public enum KeywordMatchingType {
     public String getName() {
         return this.name;
     }
+    
+
     
     public static KeywordMatchingType fromName(String name) {
         if (name.equalsIgnoreCase(SUBSTRING_SCANBASED.getName()) || 

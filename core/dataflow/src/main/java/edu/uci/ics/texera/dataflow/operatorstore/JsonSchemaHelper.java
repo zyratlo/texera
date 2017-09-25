@@ -1,11 +1,18 @@
 package edu.uci.ics.texera.dataflow.operatorstore;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Constructor;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
@@ -39,6 +46,10 @@ public class JsonSchemaHelper {
     }
     
     public static void main(String[] args) throws Exception {
+        generateAllOperatorSchema();
+    }
+    
+    public static void generateAllOperatorSchema() throws Exception {
         for (Class<? extends PredicateBase> predicateClass : operatorTypeMap.keySet()) {
             generateJsonSchema(predicateClass);
         }
@@ -74,6 +85,10 @@ public class JsonSchemaHelper {
             schemaNode.set(key, objectMapper.valueToTree(operatorMetadata.get(key)));
         }
         
+        // add required/optional properties to the schema
+        List<String> requriedProperties = getRequiredProperties(predicateClass);
+        schemaNode.set("required", objectMapper.valueToTree(requriedProperties));
+        
         Files.write(operatorSchemaPath, objectMapper.writeValueAsBytes(schemaNode));
         
         System.out.println("generating schema of " + operatorType + " completed");
@@ -92,6 +107,33 @@ public class JsonSchemaHelper {
         Path operatorSchemaPath = classDirectory.resolve(operatorType + "Schema.json");
         
         return operatorSchemaPath;
+    }
+    
+    public static List<String> getRequiredProperties(Class<? extends PredicateBase> predicateClass) {
+        ArrayList<String> requiredProperties = new ArrayList<>();
+        
+        // get all constructors of the class
+        Constructor<?>[] constructors = predicateClass.getConstructors();
+        for (Constructor<?> constructor : constructors) {
+            // find the constructor with @JsonCreatorAnnotation
+            JsonCreator jsonCreatorAnnotation = constructor.getAnnotation(JsonCreator.class);
+            if (jsonCreatorAnnotation == null) {
+                continue;
+            }
+            // find the @JsonProperty annotation for each parameter
+            for (Annotation[] annotations : Arrays.asList(constructor.getParameterAnnotations())) {
+                for (Annotation annotation : Arrays.asList(annotations)) {
+                    if (! annotation.annotationType().equals(JsonProperty.class)) {
+                        continue;
+                    }
+                    JsonProperty jsonProperty = (JsonProperty) annotation;
+                    if (jsonProperty.required()) {
+                        requiredProperties.add(jsonProperty.value());
+                    }
+                }
+            }
+        }
+        return requiredProperties;
     }
 
 }

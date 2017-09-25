@@ -34,7 +34,6 @@ import edu.uci.ics.texera.dataflow.regexmatcher.RegexPredicate;
 import edu.uci.ics.texera.dataflow.regexmatcher.RegexSourcePredicate;
 import edu.uci.ics.texera.dataflow.regexsplit.RegexSplitPredicate;
 import edu.uci.ics.texera.dataflow.sampler.SamplerPredicate;
-import edu.uci.ics.texera.dataflow.sink.excel.ExcelSinkPredicate;
 import edu.uci.ics.texera.dataflow.sink.mysql.MysqlSinkPredicate;
 import edu.uci.ics.texera.dataflow.sink.tuple.TupleSinkPredicate;
 import edu.uci.ics.texera.dataflow.source.asterix.AsterixSourcePredicate;

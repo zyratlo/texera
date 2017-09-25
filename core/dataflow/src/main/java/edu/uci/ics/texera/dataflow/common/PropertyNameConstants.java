@@ -17,6 +17,7 @@ public class PropertyNameConstants {
     public static final String OPERATOR_GROUP_NAME = "operatorGroupName";
     public static final String OPERATOR_COLOR = "operatorColor";
     public static final String OPERATOR_IMAGE_PATH = "operatorImagePath";
+    public static final String HIDDEN_PROPERTIES = "hiddenProperties";
     
     // logical plan property names
     public static final String OPERATOR_ID = "operatorID";
