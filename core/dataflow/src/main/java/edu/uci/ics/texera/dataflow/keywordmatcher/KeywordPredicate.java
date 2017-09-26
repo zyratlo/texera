@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
 
@@ -147,9 +148,14 @@ public class KeywordPredicate extends PredicateBase {
         return query;
     }
 
-    @JsonProperty(PropertyNameConstants.ATTRIBUTE_NAMES)
+    @JsonIgnore
     public List<String> getAttributeNames() {
         return attributeNames;
+    }
+    
+    @JsonProperty(PropertyNameConstants.ATTRIBUTE_NAME)
+    public String getAttributeName() {
+        return attributeNames.get(0);
     }
 
     @JsonProperty(PropertyNameConstants.LUCENE_ANALYZER_STRING)

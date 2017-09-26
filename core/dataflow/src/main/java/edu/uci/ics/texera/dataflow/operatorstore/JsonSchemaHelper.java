@@ -14,6 +14,7 @@ import java.util.Optional;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
@@ -25,7 +26,6 @@ import edu.uci.ics.texera.api.constants.DataConstants;
 import edu.uci.ics.texera.api.utils.Utils;
 import edu.uci.ics.texera.dataflow.annotation.AdvancedOption;
 import edu.uci.ics.texera.dataflow.common.PredicateBase;
-import edu.uci.ics.texera.dataflow.keywordmatcher.KeywordPredicate;
 import edu.uci.ics.texera.dataflow.plangen.OperatorArityConstants;
 
 @SuppressWarnings("unchecked")
@@ -49,7 +49,7 @@ public class JsonSchemaHelper {
     }
     
     public static void main(String[] args) throws Exception {
-        generateJsonSchema(KeywordPredicate.class);
+        generateAllOperatorSchema();
     }
     
     public static void generateAllOperatorSchema() throws Exception {
@@ -95,6 +95,13 @@ public class JsonSchemaHelper {
         // add advancedOption properties to the schema
         List<String> advancedOptionProperties = getAdvancedOptionProperties(predicateClass);
         schemaNode.set("advancedOptions", objectMapper.valueToTree(advancedOptionProperties));
+        
+        // add property default values to the schema
+        Map<String, Object> defaultValues = getPropertyDefaultValues(predicateClass);
+        for (String property : defaultValues.keySet()) {
+            ObjectNode propertyNode = (ObjectNode) schemaNode.get("properties").get(property);
+            propertyNode.set("default", objectMapper.convertValue(defaultValues.get(property), JsonNode.class));
+        }
         
         Files.write(operatorSchemaPath, objectMapper.writeValueAsBytes(schemaNode));
         
@@ -181,8 +188,36 @@ public class JsonSchemaHelper {
         return advancedProperties;
     }
     
-    public static void getPropertyDefaultValues(Class<? extends PredicateBase> predicateClass) {
+    public static Map<String, Object> getPropertyDefaultValues(Class<? extends PredicateBase> predicateClass) {
+        HashMap<String, Object> defaultValueMap = new HashMap<>();
         
+        // get all constructors of the class
+        Constructor<?>[] constructors = predicateClass.getConstructors();
+        for (Constructor<?> constructor : constructors) {
+            // find the constructor with @JsonCreator annotation
+            JsonCreator jsonCreatorAnnotation = constructor.getAnnotation(JsonCreator.class);
+            if (jsonCreatorAnnotation == null) {
+                continue;
+            }
+            // get all the parameters
+            Class<?>[] parameterTypes = constructor.getParameterTypes();
+            // find the @JsonProperty annotation for each parameter
+            for (int i = 0; i < parameterTypes.length; i++) {
+                Annotation[] annotations = constructor.getParameterAnnotations()[i];
+                Optional<Annotation> findJsonProperty = Arrays.asList(annotations).stream()
+                        .filter(annotation -> annotation.annotationType().equals(JsonProperty.class)).findAny();
+                if (! findJsonProperty.isPresent()) {
+                    continue;
+                }
+                JsonProperty jsonProperty = (JsonProperty) findJsonProperty.get();
+                if (! jsonProperty.defaultValue().trim().isEmpty()) {
+                    defaultValueMap.put(jsonProperty.value(), 
+                            objectMapper.convertValue(jsonProperty.defaultValue(), parameterTypes[i]));
+                }
+            }
+        }
+        
+        return defaultValueMap;
     }
 
 }

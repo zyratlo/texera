@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
@@ -35,6 +36,7 @@ public class FuzzyTokenPredicate extends PredicateBase {
     private final List<String> queryTokens;
     private final Integer threshold;
 
+    @JsonCreator
     public FuzzyTokenPredicate(
             @JsonProperty(value = PropertyNameConstants.FUZZY_TOKEN_QUERY, required = true)
             String query, 
@@ -48,7 +50,7 @@ public class FuzzyTokenPredicate extends PredicateBase {
             String luceneAnalyzerStr,
             
             @JsonProperty(value = PropertyNameConstants.FUZZY_TOKEN_THRESHOLD_RATIO, required = true)
-            Double thresholdRatio,
+            double thresholdRatio,
             
             @JsonProperty(value = PropertyNameConstants.SPAN_LIST_NAME, required = true)
             String spanListName) {
