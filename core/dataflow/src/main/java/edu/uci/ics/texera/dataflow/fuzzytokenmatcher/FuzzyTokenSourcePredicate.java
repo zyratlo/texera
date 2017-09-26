@@ -3,6 +3,7 @@ package edu.uci.ics.texera.dataflow.fuzzytokenmatcher;
 import java.util.List;
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
 
@@ -15,6 +16,7 @@ public class FuzzyTokenSourcePredicate extends FuzzyTokenPredicate {
     
     private final String tableName;
 
+    @JsonCreator
     public FuzzyTokenSourcePredicate(
             @JsonProperty(value = PropertyNameConstants.FUZZY_TOKEN_QUERY, required = true)
             String query, 

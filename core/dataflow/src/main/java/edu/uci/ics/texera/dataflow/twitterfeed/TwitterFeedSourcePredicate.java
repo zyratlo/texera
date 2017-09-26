@@ -1,5 +1,6 @@
 package edu.uci.ics.texera.dataflow.twitterfeed;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
 
@@ -30,7 +31,7 @@ public class TwitterFeedSourcePredicate extends PredicateBase {
     private final String token;
     private final String tokenSecret;
 
-
+    @JsonCreator
     public TwitterFeedSourcePredicate(
             @JsonProperty(value = PropertyNameConstants.TWEET_NUM, required = true)
                     int tweetNum,

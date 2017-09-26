@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
 
@@ -34,6 +35,7 @@ public class FileSourcePredicate extends PredicateBase {
      * @param maxDepth, optional, specify the max recursive depth (if recursive is True), default Integer.MAX_VALUE
      * @param allowedExtensions, optional, specify a list of allowed extensions, default {@code defaultSupportedExtensions}
      */
+    @JsonCreator
     public FileSourcePredicate(
             @JsonProperty(value = PropertyNameConstants.FILE_PATH, required = true)
             String filePath, 

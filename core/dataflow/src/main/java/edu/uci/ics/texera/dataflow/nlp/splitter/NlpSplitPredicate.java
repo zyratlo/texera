@@ -2,6 +2,7 @@ package edu.uci.ics.texera.dataflow.nlp.splitter;
 
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
 
@@ -16,6 +17,7 @@ public class NlpSplitPredicate extends PredicateBase {
     //make a variable "outputType" that takes two values, one for one to one transformation
     // and another for one to many transformation with one to many as default
     
+    @JsonCreator
     public NlpSplitPredicate(
             @JsonProperty(value = PropertyNameConstants.NLP_OUTPUT_TYPE, required = true)
             NLPOutputType outputType,

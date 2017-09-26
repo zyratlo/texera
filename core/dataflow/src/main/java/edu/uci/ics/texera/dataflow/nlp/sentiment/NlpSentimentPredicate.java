@@ -2,6 +2,7 @@ package edu.uci.ics.texera.dataflow.nlp.sentiment;
 
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
 
@@ -14,6 +15,7 @@ public class NlpSentimentPredicate extends PredicateBase {
     private final String inputAttributeName;
     private final String resultAttributeName;
     
+    @JsonCreator
     public NlpSentimentPredicate(
             @JsonProperty(value = PropertyNameConstants.ATTRIBUTE_NAME, required = true)
             String inputAttributeName,
