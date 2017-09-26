@@ -25,6 +25,7 @@ import edu.uci.ics.texera.api.constants.DataConstants;
 import edu.uci.ics.texera.api.utils.Utils;
 import edu.uci.ics.texera.dataflow.annotation.AdvancedOption;
 import edu.uci.ics.texera.dataflow.common.PredicateBase;
+import edu.uci.ics.texera.dataflow.keywordmatcher.KeywordPredicate;
 import edu.uci.ics.texera.dataflow.plangen.OperatorArityConstants;
 
 @SuppressWarnings("unchecked")
@@ -48,7 +49,7 @@ public class JsonSchemaHelper {
     }
     
     public static void main(String[] args) throws Exception {
-        generateAllOperatorSchema();
+        generateJsonSchema(KeywordPredicate.class);
     }
     
     public static void generateAllOperatorSchema() throws Exception {
@@ -97,6 +98,7 @@ public class JsonSchemaHelper {
         
         Files.write(operatorSchemaPath, objectMapper.writeValueAsBytes(schemaNode));
         
+        System.out.println(objectMapper.writeValueAsString(schemaNode));
         System.out.println("generating schema of " + operatorType + " completed");
     }
     

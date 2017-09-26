@@ -139,7 +139,6 @@ public class KeywordPredicate extends PredicateBase {
         } else {
             this.spanListName = spanListName.trim();
         }
-        
     }
     
 
