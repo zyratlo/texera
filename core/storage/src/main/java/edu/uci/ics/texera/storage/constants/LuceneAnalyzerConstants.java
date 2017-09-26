@@ -64,7 +64,7 @@ public class LuceneAnalyzerConstants {
             } catch (NumberFormatException e) {
                 throw new DataflowException(luceneAnalyzerString + " is not a valid lucene analyzer");
             }
-        } else if (luceneAnalyzerString.equals("smartchinese")) {
+        } else if (luceneAnalyzerString.equals("chinese")) {
             return new SmartChineseAnalyzer();
         }
         throw new DataflowException(luceneAnalyzerString + " is not a valid lucene analyzer");

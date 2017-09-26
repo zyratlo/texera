@@ -24,7 +24,7 @@ public class TupleSinkPredicate extends PredicateBase {
     public TupleSinkPredicate(
             @JsonProperty(value = PropertyNameConstants.LIMIT, required = false, defaultValue = "10")
             Integer limit,
-            @JsonProperty(value = PropertyNameConstants.OFFSET, required = false)
+            @JsonProperty(value = PropertyNameConstants.OFFSET, required = false, defaultValue = "0")
             Integer offset
             ) {
         this.limit = limit;

@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
 
 import edu.uci.ics.texera.api.dataflow.IOperator;
+import edu.uci.ics.texera.dataflow.annotation.AdvancedOption;
 import edu.uci.ics.texera.dataflow.common.PredicateBase;
 import edu.uci.ics.texera.dataflow.common.PropertyNameConstants;
 
@@ -46,11 +47,16 @@ public class RegexPredicate extends PredicateBase {
     public RegexPredicate(
             @JsonProperty(value = PropertyNameConstants.REGEX, required = true)
             String regex, 
+            
             @JsonProperty(value = PropertyNameConstants.ATTRIBUTE_NAMES, required = true)
             List<String> attributeNames,
-            @JsonProperty(value = PropertyNameConstants.REGEX_IGNORE_CASE, required = false)
+            
+            @AdvancedOption
+            @JsonProperty(value = PropertyNameConstants.REGEX_IGNORE_CASE, required = false,
+                    defaultValue = "false")
             Boolean ignoreCase,
-            @JsonProperty(value = PropertyNameConstants.SPAN_LIST_NAME, required = true)
+            
+            @JsonProperty(value = PropertyNameConstants.SPAN_LIST_NAME, required = false)
             String spanListName) {
         this.regex = regex;
         this.attributeNames = attributeNames;
@@ -60,7 +66,7 @@ public class RegexPredicate extends PredicateBase {
             this.ignoreCase = ignoreCase;
         }
         if (spanListName == null || spanListName.trim().isEmpty()) {
-            this.spanListName = this.getID();
+            this.spanListName = null;
         } else {
             this.spanListName = spanListName.trim();
         }

@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
 
 import edu.uci.ics.texera.api.dataflow.IOperator;
+import edu.uci.ics.texera.dataflow.annotation.AdvancedOption;
 import edu.uci.ics.texera.dataflow.common.PredicateBase;
 import edu.uci.ics.texera.dataflow.common.PropertyNameConstants;
 
@@ -36,12 +37,19 @@ public class FileSourcePredicate extends PredicateBase {
     public FileSourcePredicate(
             @JsonProperty(value = PropertyNameConstants.FILE_PATH, required = true)
             String filePath, 
+            
             @JsonProperty(value = PropertyNameConstants.RESULT_ATTRIBUTE_NAME, required = true)
             String attributeName,
+            
+            @AdvancedOption
             @JsonProperty(value = PropertyNameConstants.FILE_RECURSIVE, required = false)
             Boolean recursive,
+            
+            @AdvancedOption
             @JsonProperty(value = PropertyNameConstants.FILE_MAX_DEPTH, required = false)
             Integer maxDepth,
+            
+            @AdvancedOption
             @JsonProperty(value = PropertyNameConstants.FILE_ALLOWED_EXTENSIONS, required = false)
             List<String> allowedExtensions) {
         this.filePath = filePath;

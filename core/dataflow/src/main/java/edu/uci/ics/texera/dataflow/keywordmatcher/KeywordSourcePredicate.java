@@ -8,7 +8,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
 
 import edu.uci.ics.texera.api.dataflow.IOperator;
+import edu.uci.ics.texera.dataflow.annotation.AdvancedOption;
 import edu.uci.ics.texera.dataflow.common.PropertyNameConstants;
+import edu.uci.ics.texera.storage.constants.LuceneAnalyzerConstants;
 
 /**
  * KeywordSourcePredicate is the predicate used by KeywordMatcherSourceOperator.
@@ -27,14 +29,23 @@ public class KeywordSourcePredicate extends KeywordPredicate {
     public KeywordSourcePredicate(
             @JsonProperty(value = PropertyNameConstants.KEYWORD_QUERY, required = true)
             String query,
+            
             @JsonProperty(value = PropertyNameConstants.ATTRIBUTE_NAMES, required = true)
             List<String> attributeNames,
-            @JsonProperty(value = PropertyNameConstants.LUCENE_ANALYZER_STRING, required = false)
+            
+            @AdvancedOption
+            @JsonProperty(value = PropertyNameConstants.LUCENE_ANALYZER_STRING, required = false,
+                    defaultValue = LuceneAnalyzerConstants.STANDARD_ANALYZER)
             String luceneAnalyzerString, 
-            @JsonProperty(value = PropertyNameConstants.KEYWORD_MATCHING_TYPE, required = false)
+            
+            @AdvancedOption
+            @JsonProperty(value = PropertyNameConstants.KEYWORD_MATCHING_TYPE, required = false,
+                    defaultValue = KeywordMatchingType.KeywordMatchingTypeName.PHRASE)
             KeywordMatchingType matchingType,
+            
             @JsonProperty(value = PropertyNameConstants.TABLE_NAME, required = true)
             String tableName,
+            
             @JsonProperty(value = PropertyNameConstants.SPAN_LIST_NAME, required = false)
             String spanListName) {
         

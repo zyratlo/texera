@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -22,6 +23,7 @@ import com.fasterxml.jackson.module.jsonSchema.JsonSchemaGenerator;
 
 import edu.uci.ics.texera.api.constants.DataConstants;
 import edu.uci.ics.texera.api.utils.Utils;
+import edu.uci.ics.texera.dataflow.annotation.AdvancedOption;
 import edu.uci.ics.texera.dataflow.common.PredicateBase;
 import edu.uci.ics.texera.dataflow.plangen.OperatorArityConstants;
 
@@ -89,6 +91,10 @@ public class JsonSchemaHelper {
         List<String> requriedProperties = getRequiredProperties(predicateClass);
         schemaNode.set("required", objectMapper.valueToTree(requriedProperties));
         
+        // add advancedOption properties to the schema
+        List<String> advancedOptionProperties = getAdvancedOptionProperties(predicateClass);
+        schemaNode.set("advancedOptions", objectMapper.valueToTree(advancedOptionProperties));
+        
         Files.write(operatorSchemaPath, objectMapper.writeValueAsBytes(schemaNode));
         
         System.out.println("generating schema of " + operatorType + " completed");
@@ -115,7 +121,7 @@ public class JsonSchemaHelper {
         // get all constructors of the class
         Constructor<?>[] constructors = predicateClass.getConstructors();
         for (Constructor<?> constructor : constructors) {
-            // find the constructor with @JsonCreatorAnnotation
+            // find the constructor with @JsonCreator annotation
             JsonCreator jsonCreatorAnnotation = constructor.getAnnotation(JsonCreator.class);
             if (jsonCreatorAnnotation == null) {
                 continue;
@@ -134,6 +140,47 @@ public class JsonSchemaHelper {
             }
         }
         return requiredProperties;
+    }
+    
+    public static List<String> getAdvancedOptionProperties(Class<? extends PredicateBase> predicateClass) {
+        ArrayList<String> advancedProperties = new ArrayList<>();
+        
+        // get all constructors of the class
+        Constructor<?>[] constructors = predicateClass.getConstructors();
+        for (Constructor<?> constructor : constructors) {
+            // find the constructor with @JsonCreator annotation
+            JsonCreator jsonCreatorAnnotation = constructor.getAnnotation(JsonCreator.class);
+            if (jsonCreatorAnnotation == null) {
+                continue;
+            }
+            // find the @AdvancedOption annotation for each parameter
+            for (Annotation[] annotations : Arrays.asList(constructor.getParameterAnnotations())) {
+                Optional<Annotation> findAdvancedOptionAnnotation = Arrays.asList(annotations).stream()
+                        .filter(annotation -> annotation.annotationType().equals(AdvancedOption.class)).findAny();
+                if (! findAdvancedOptionAnnotation.isPresent()) {
+                    continue;
+                }
+                AdvancedOption advancedOptionAnnotation = (AdvancedOption) findAdvancedOptionAnnotation.get();
+                
+                Optional<Annotation> findJsonProperty = Arrays.asList(annotations).stream()
+                        .filter(annotation -> annotation.annotationType().equals(JsonProperty.class)).findAny();
+                if (! findJsonProperty.isPresent()) {
+                    continue;
+                }
+                JsonProperty jsonProperty = (JsonProperty) findJsonProperty.get();
+                
+                if (advancedOptionAnnotation.isAdvancedOption() == true) {
+                    advancedProperties.add(jsonProperty.value());
+
+                }
+            }
+        }
+        
+        return advancedProperties;
+    }
+    
+    public static void getPropertyDefaultValues(Class<? extends PredicateBase> predicateClass) {
+        
     }
 
 }

@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
 
 import edu.uci.ics.texera.api.dataflow.IOperator;
+import edu.uci.ics.texera.dataflow.annotation.AdvancedOption;
 import edu.uci.ics.texera.dataflow.common.PropertyNameConstants;
 
 public class RegexSourcePredicate extends RegexPredicate {
@@ -40,20 +41,29 @@ public class RegexSourcePredicate extends RegexPredicate {
     public RegexSourcePredicate(
             @JsonProperty(value = PropertyNameConstants.REGEX, required = true)
             String regex, 
+            
             @JsonProperty(value = PropertyNameConstants.ATTRIBUTE_NAMES, required = true)
             List<String> attributeNames, 
-            @JsonProperty(value = PropertyNameConstants.REGEX_IGNORE_CASE, required = false)
+            
+            @AdvancedOption
+            @JsonProperty(value = PropertyNameConstants.REGEX_IGNORE_CASE, required = false,
+                    defaultValue = "false")
             Boolean ignoreCase, 
+            
             @JsonProperty(value = PropertyNameConstants.TABLE_NAME, required = true)
             String tableName,
-            @JsonProperty(value = PropertyNameConstants.REGEX_USE_INDEX, required = false)
+            
+            @AdvancedOption
+            @JsonProperty(value = PropertyNameConstants.REGEX_USE_INDEX, required = false, 
+                    defaultValue = "false")
             Boolean useIndex,
+            
             @JsonProperty(value = PropertyNameConstants.SPAN_LIST_NAME, required = true)
             String spanListName) {
         super(regex, attributeNames, ignoreCase, spanListName);
         this.tableName = tableName;
         if (useIndex == null) {
-            this.useIndex = true;
+            this.useIndex = false;
         } else {
             this.useIndex = useIndex;
         }

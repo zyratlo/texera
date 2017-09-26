@@ -7,7 +7,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
 
 import edu.uci.ics.texera.api.dataflow.IOperator;
+import edu.uci.ics.texera.dataflow.annotation.AdvancedOption;
 import edu.uci.ics.texera.dataflow.common.PropertyNameConstants;
+import edu.uci.ics.texera.storage.constants.LuceneAnalyzerConstants;
 
 public class FuzzyTokenSourcePredicate extends FuzzyTokenPredicate {
     
@@ -16,14 +18,21 @@ public class FuzzyTokenSourcePredicate extends FuzzyTokenPredicate {
     public FuzzyTokenSourcePredicate(
             @JsonProperty(value = PropertyNameConstants.FUZZY_TOKEN_QUERY, required = true)
             String query, 
+            
             @JsonProperty(value = PropertyNameConstants.ATTRIBUTE_NAMES, required = true)
             List<String> attributeNames,
-            @JsonProperty(value = PropertyNameConstants.LUCENE_ANALYZER_STRING, required = true)
+            
+            @AdvancedOption
+            @JsonProperty(value = PropertyNameConstants.LUCENE_ANALYZER_STRING, required = true,
+                    defaultValue = LuceneAnalyzerConstants.STANDARD_ANALYZER)
             String luceneAnalyzerStr,
+            
             @JsonProperty(value = PropertyNameConstants.FUZZY_TOKEN_THRESHOLD_RATIO, required = true)
             Double thresholdRatio,
+            
             @JsonProperty(value = PropertyNameConstants.TABLE_NAME, required = true)
             String tableName,
+            
             @JsonProperty(value = PropertyNameConstants.SPAN_LIST_NAME, required = true)
             String spanListName) {
         super(query, attributeNames, luceneAnalyzerStr, thresholdRatio, spanListName);

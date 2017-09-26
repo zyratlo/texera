@@ -176,9 +176,9 @@ public class PredicateBaseTest {
     @Test
     public void testRegexSplit() throws Exception {
         RegexSplitPredicate regexSplitPredicate = new RegexSplitPredicate(
-                RegexOutputType.ONE_TO_MANY,
                 "regex",
                 "attr1",
+                RegexOutputType.ONE_TO_MANY,
                 SplitType.STANDALONE,
                 "resultAttr");
         testPredicate(regexSplitPredicate);

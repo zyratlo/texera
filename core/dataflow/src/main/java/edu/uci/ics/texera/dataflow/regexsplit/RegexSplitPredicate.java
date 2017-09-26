@@ -52,16 +52,23 @@ public class RegexSplitPredicate extends PredicateBase {
      * @param splitType, a type to indicate where the regex pattern merge into. 
      */
     @JsonCreator
-    public RegexSplitPredicate(@JsonProperty(value = PropertyNameConstants.REGEX_OUTPUT_TYPE, required = true)
-            RegexOutputType outputType,
+    public RegexSplitPredicate(
             @JsonProperty(value=PropertyNameConstants.SPLIT_REGEX, required=true)
             String splitRegex,
+            
             @JsonProperty(value=PropertyNameConstants.ATTRIBUTE_NAME, required=true)
             String splitAttribute,
+            
+            @JsonProperty(value = PropertyNameConstants.REGEX_OUTPUT_TYPE, required = true,
+                    defaultValue = RegexOutputType.RegexOutputTypeName.ONE_TO_MANY)
+            RegexOutputType outputType,
+            
             @JsonProperty(value=PropertyNameConstants.SPLIT_TYPE, required=true)
             SplitType splitType,
+            
             @JsonProperty(value = PropertyNameConstants.RESULT_ATTRIBUTE_NAME, required = true)
             String resultAttributeName) {
+        
         this.outputType = outputType;
         this.splitRegex = splitRegex;
         this.inputAttributeName = splitAttribute;

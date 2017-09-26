@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
 
+import edu.uci.ics.texera.dataflow.annotation.AdvancedOption;
 import edu.uci.ics.texera.dataflow.common.PredicateBase;
 import edu.uci.ics.texera.dataflow.common.PropertyNameConstants;
 
@@ -22,7 +23,10 @@ public class NltkSentimentOperatorPredicate extends PredicateBase {
             String inputAttributeName,
             @JsonProperty(value = PropertyNameConstants.RESULT_ATTRIBUTE_NAME, required = true)
             String resultAttributeName,
-            @JsonProperty(value = PropertyNameConstants.NLP_NLTK_BATCH_SIZE, required = true)
+            
+            @AdvancedOption
+            @JsonProperty(value = PropertyNameConstants.NLP_NLTK_BATCH_SIZE, required = true,
+                    defaultValue = "10")
             int batchSize,
             @JsonProperty(value = PropertyNameConstants.NLP_NLTK_MODEL, required = true)
             String inputAttributeModel) {

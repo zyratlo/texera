@@ -10,9 +10,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
 
 import edu.uci.ics.texera.api.dataflow.IOperator;
+import edu.uci.ics.texera.dataflow.annotation.AdvancedOption;
 import edu.uci.ics.texera.dataflow.common.PredicateBase;
 import edu.uci.ics.texera.dataflow.common.PropertyNameConstants;
 import edu.uci.ics.texera.dataflow.utils.DataflowUtils;
+import edu.uci.ics.texera.storage.constants.LuceneAnalyzerConstants;
 
 /*
  * @author varun bharill, parag saraogi
@@ -36,12 +38,18 @@ public class FuzzyTokenPredicate extends PredicateBase {
     public FuzzyTokenPredicate(
             @JsonProperty(value = PropertyNameConstants.FUZZY_TOKEN_QUERY, required = true)
             String query, 
+            
             @JsonProperty(value = PropertyNameConstants.ATTRIBUTE_NAMES, required = true)
             List<String> attributeNames,
-            @JsonProperty(value = PropertyNameConstants.LUCENE_ANALYZER_STRING, required = true)
+            
+            @AdvancedOption
+            @JsonProperty(value = PropertyNameConstants.LUCENE_ANALYZER_STRING, required = true,
+                    defaultValue = LuceneAnalyzerConstants.STANDARD_ANALYZER)
             String luceneAnalyzerStr,
+            
             @JsonProperty(value = PropertyNameConstants.FUZZY_TOKEN_THRESHOLD_RATIO, required = true)
             Double thresholdRatio,
+            
             @JsonProperty(value = PropertyNameConstants.SPAN_LIST_NAME, required = true)
             String spanListName) {
         this.query = query;
@@ -50,7 +58,7 @@ public class FuzzyTokenPredicate extends PredicateBase {
         this.thresholdRatio = thresholdRatio;
         
         if (spanListName == null || spanListName.trim().isEmpty()) {
-            this.spanListName = this.getID();
+            this.spanListName = null;
         } else {
             this.spanListName = spanListName.trim();
         }

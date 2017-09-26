@@ -54,19 +54,16 @@ import edu.uci.ics.texera.api.exception.TexeraException;
  */
 public enum KeywordMatchingType {
     
-    SUBSTRING_SCANBASED("substring"),
+    SUBSTRING_SCANBASED(KeywordMatchingTypeName.SCAN),
 
-    CONJUNCTION_INDEXBASED("conjunction"),
+    CONJUNCTION_INDEXBASED(KeywordMatchingTypeName.CONJUNCTION),
 
-    PHRASE_INDEXBASED("phrase"),
+    PHRASE_INDEXBASED(KeywordMatchingTypeName.PHRASE),
 
-    REGEX("regex");
-
+    REGEX(KeywordMatchingTypeName.REGEX);
     
     public final String name;
     
-
-
     private KeywordMatchingType(String name) {
         this.name = name;
     }
@@ -76,8 +73,6 @@ public enum KeywordMatchingType {
     public String getName() {
         return this.name;
     }
-    
-
     
     public static KeywordMatchingType fromName(String name) {
         if (name.equalsIgnoreCase(SUBSTRING_SCANBASED.getName()) || 
@@ -95,5 +90,12 @@ public enum KeywordMatchingType {
         } else {
             throw new TexeraException("Cannot convert " + name + " to KeywordMatchingType");
         }
+    }
+    
+    public class KeywordMatchingTypeName {
+        public static final String SCAN = "scan";
+        public static final String CONJUNCTION = "conjunction";
+        public static final String PHRASE = "phrase";
+        public static final String REGEX = "regex";
     }
 }

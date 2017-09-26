@@ -1,5 +1,6 @@
 package edu.uci.ics.texera.dataflow.keywordmatcher;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -9,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
 
 import edu.uci.ics.texera.api.dataflow.IOperator;
+import edu.uci.ics.texera.dataflow.annotation.AdvancedOption;
 import edu.uci.ics.texera.dataflow.common.PredicateBase;
 import edu.uci.ics.texera.storage.constants.LuceneAnalyzerConstants;
 import edu.uci.ics.texera.dataflow.common.PropertyNameConstants;
@@ -96,13 +98,31 @@ public class KeywordPredicate extends PredicateBase {
     public KeywordPredicate(
             @JsonProperty(value = PropertyNameConstants.KEYWORD_QUERY, required = true)
             String query,
-            @JsonProperty(value = PropertyNameConstants.ATTRIBUTE_NAMES, required = true)
-            List<String> attributeNames,
-            @JsonProperty(value = PropertyNameConstants.LUCENE_ANALYZER_STRING, required = false)
+            
+            @JsonProperty(value = PropertyNameConstants.ATTRIBUTE_NAME, required = true)
+            String attributeName,
+            
+            @AdvancedOption
+            @JsonProperty(value = PropertyNameConstants.LUCENE_ANALYZER_STRING, required = false,
+                    defaultValue = LuceneAnalyzerConstants.STANDARD_ANALYZER)
             String luceneAnalyzerString, 
-            @JsonProperty(value = PropertyNameConstants.KEYWORD_MATCHING_TYPE, required = true)
+            
+            @AdvancedOption
+            @JsonProperty(value = PropertyNameConstants.KEYWORD_MATCHING_TYPE, required = true,
+                    defaultValue = KeywordMatchingType.KeywordMatchingTypeName.PHRASE)
             KeywordMatchingType matchingType,
+            
             @JsonProperty(value = PropertyNameConstants.SPAN_LIST_NAME, required = false)
+            String spanListName) {
+        
+        this(query, Arrays.asList(attributeName), luceneAnalyzerString, matchingType, spanListName);
+    }
+    
+    public KeywordPredicate(
+            String query,
+            List<String> attributeNames,
+            String luceneAnalyzerString, 
+            KeywordMatchingType matchingType,
             String spanListName) {
         
         this.query = query;
@@ -115,12 +135,13 @@ public class KeywordPredicate extends PredicateBase {
         this.matchingType = matchingType;
         
         if (spanListName == null || spanListName.trim().isEmpty()) {
-            this.spanListName = this.getID();
+            this.spanListName = null;
         } else {
             this.spanListName = spanListName.trim();
         }
         
     }
+    
 
     @JsonProperty(PropertyNameConstants.KEYWORD_QUERY)
     public String getQuery() {
