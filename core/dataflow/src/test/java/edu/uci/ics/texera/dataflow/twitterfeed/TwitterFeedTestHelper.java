@@ -10,7 +10,9 @@ import java.util.stream.Collectors;
 
 import com.twitter.hbc.core.endpoint.Location;
 
+
 import static edu.uci.ics.texera.dataflow.twitterfeed.TwitterUtils.TwitterSchema.TWEET_COORDINATES;
+import static edu.uci.ics.texera.dataflow.twitterfeed.TwitterUtils.TwitterSchema.TWEET_LOCATION;
 
 /**
  * Created by Chang on 7/13/17.
@@ -70,15 +72,17 @@ public class TwitterFeedTestHelper {
         Location.Coordinate northeastCoordinate = geoBox.northeastCoordinate();
 
         for (Tuple tuple : tupleList) {
-            if (!tuple.getField(TWEET_COORDINATES).getValue().toString().equals("n/a")) {
+            if (!tuple.getField(TWEET_COORDINATES).getValue().toString().equals("n/a") && !tuple.getField(TWEET_LOCATION).getValue().toString().equals("n/a")) {
                 List<String> coordString = Arrays.asList(tuple.getField(TWEET_COORDINATES).getValue().toString().split(","));
+                Location.Coordinate coordinate = new Location.Coordinate(Double.parseDouble(coordString.get(0)), Double.parseDouble(coordString.get(1)));
+                if (!(coordinate.latitude() >= southwestCoordinate.latitude() &&
+                        coordinate.longitude() >= southwestCoordinate.longitude() &&
+                        coordinate.latitude() <= northeastCoordinate.latitude() &&
+                        coordinate.longitude() <= northeastCoordinate.longitude())) {
+                    if (!tuple.getField(TWEET_LOCATION).getValue().toString().contains("United States")) {
+                        return false;
+                    }
 
-                Location.Coordinate coordinate = new Location.Coordinate(Double.parseDouble(coordString.get(0).trim()), Double.parseDouble(coordString.get(1).trim()));
-                if (!(coordinate.latitude() > southwestCoordinate.latitude() &&
-                        coordinate.longitude() > southwestCoordinate.longitude() &&
-                        coordinate.latitude() < northeastCoordinate.latitude() &&
-                        coordinate.longitude() < northeastCoordinate.longitude())) {
-                    return false;
                 }
 
             }
