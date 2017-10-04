@@ -89,7 +89,7 @@ public class ACTrie {
         char[] textArray = text.toCharArray();
         for (int i = 0; i < textArray.length; i++) {
             Character character = textArray[i];
-            currentNode = getNextTransaction(character, currentNode);
+            currentNode = getNextTransition(character, currentNode);
             if (!currentNode.getEmits().isEmpty()) {
                 resultList.addAll(storeEmits(currentNode, i));
             }
@@ -97,7 +97,7 @@ public class ACTrie {
         return resultList;
     }
 
-    private TrieNode getNextTransaction(Character c, TrieNode node) {
+    private TrieNode getNextTransition(Character c, TrieNode node) {
         TrieNode nextNode = node.getNextTrieNode(c);
         while (nextNode == null) {
             node = node.getFailure();

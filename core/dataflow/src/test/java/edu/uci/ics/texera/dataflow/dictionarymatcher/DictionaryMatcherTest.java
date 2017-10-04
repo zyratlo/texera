@@ -1236,38 +1236,5 @@ public class DictionaryMatcherTest {
         Assert.assertTrue(contains);
     }
 
-    @Test
-    public void testACTrieSinglePath() throws Exception {
-        ACTrie trie = new ACTrie();
-        trie.addKeywords(new ArrayList<>(Arrays.asList("hers")));
-        trie.constructFailureTransactions();
-        String text = "h, he, her, hers, herself";
-        List<ACTrie.Emit> exactResults = trie.parseText(text);
-        Assert.assertTrue(exactResults.size() == 2);
-    }
-
-    @Test
-    public void testACTrieMultipleMatching() throws Exception {
-        ACTrie trie = new ACTrie();
-        trie.addKeywords(new ArrayList<>(Arrays.asList("he","hers", "his", "she")));
-        trie.constructFailureTransactions();
-        String text = "ahishers";
-        List<ACTrie.Emit> exactResults = trie.parseText(text);
-        Assert.assertTrue(exactResults.size() == 4);
-    }
-
-    @Test
-    public void testACTrieCaseInsensitive() throws Exception {
-        ACTrie trie = new ACTrie();
-        trie.setCaseInsensitive(true);
-        trie.addKeywords(new ArrayList<>(Arrays.asList("Beta")));
-        trie.constructFailureTransactions();
-        String text = "Alpha Beta beta Gamma";
-        List<ACTrie.Emit> exactResults = trie.parseText(text);
-        Assert.assertTrue(exactResults.size() == 2);
-        Assert.assertEquals(exactResults.get(0).getKeyword(), "Beta");
-    }
-
-
 }
 
