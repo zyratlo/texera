@@ -19,6 +19,7 @@ import edu.uci.ics.texera.dataflow.common.PredicateBase;
 import edu.uci.ics.texera.dataflow.common.PropertyNameConstants;
 import edu.uci.ics.texera.dataflow.connector.OneToNBroadcastConnector;
 import edu.uci.ics.texera.dataflow.join.Join;
+import edu.uci.ics.texera.api.schema.Schema;
 
 /**
  * A graph of operators representing a query plan.
@@ -93,6 +94,18 @@ public class LogicalPlan {
         return linkList;
     }
     
+    /**
+     * Updates the current plan and fetch the schema from an operator
+     * @param operatorID, the ID of an operator
+     * @return Schema, which includes a list of attributes of the operator
+     */
+    public Schema getOperatorOutputSchema(String operatorID) {
+        checkGraphCyclicity();
+        checkSourceOperator();
+        checkOperatorOutputArity();
+        return null;
+    }
+
     /**
      * Adds a new operator to the logical plan.
      * @param operatorPredicate, the predicate of the operator
