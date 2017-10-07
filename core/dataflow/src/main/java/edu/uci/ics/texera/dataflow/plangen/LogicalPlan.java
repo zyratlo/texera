@@ -15,6 +15,7 @@ import edu.uci.ics.texera.api.dataflow.IOperator;
 import edu.uci.ics.texera.api.dataflow.ISink;
 import edu.uci.ics.texera.api.engine.Plan;
 import edu.uci.ics.texera.api.exception.PlanGenException;
+import edu.uci.ics.texera.dataflow.common.AbstractSingleInputOperator;
 import edu.uci.ics.texera.dataflow.common.PredicateBase;
 import edu.uci.ics.texera.dataflow.common.PropertyNameConstants;
 import edu.uci.ics.texera.dataflow.connector.OneToNBroadcastConnector;
@@ -99,11 +100,28 @@ public class LogicalPlan {
      * @param operatorID, the ID of an operator
      * @return Schema, which includes a list of attributes of the operator
      */
-    public Schema getOperatorOutputSchema(String operatorID) {
+    public Schema getOperatorOutputSchema(String operatorID) throws PlanGenException {
         checkGraphCyclicity();
         checkSourceOperator();
         checkOperatorOutputArity();
-        return null;
+
+        IOperator currentOperator = operatorPredicateMap.get(operatorID).newOperator();
+        int outputArity = adjacencyList.get(operatorID).size();
+
+        if (outputArity <= 1) {
+            return null;
+        }
+
+        OneToNBroadcastConnector outputOperator = new OneToNBroadcastConnector(outputArity);
+        outputOperator.setInputOperator(currentOperator);
+
+        // TODO: Mistakes here. Should use outputOperator to call these methods, not currentOperator
+        currentOperator.open();
+        Schema operatorSchema = currentOperator.getOutputSchema();
+        currentOperator.getNextTuple();
+        currentOperator.close();
+
+        return operatorSchema;
     }
 
     /**
