@@ -15,7 +15,6 @@ import edu.uci.ics.texera.api.dataflow.IOperator;
 import edu.uci.ics.texera.api.dataflow.ISink;
 import edu.uci.ics.texera.api.engine.Plan;
 import edu.uci.ics.texera.api.exception.PlanGenException;
-import edu.uci.ics.texera.dataflow.common.AbstractSingleInputOperator;
 import edu.uci.ics.texera.dataflow.common.PredicateBase;
 import edu.uci.ics.texera.dataflow.common.PropertyNameConstants;
 import edu.uci.ics.texera.dataflow.connector.OneToNBroadcastConnector;
@@ -98,7 +97,7 @@ public class LogicalPlan {
     /**
      * Updates the current plan and fetch the schema from an operator
      * @param operatorID, the ID of an operator
-     * @return Schema, which includes a list of attributes of the operator
+     * @return Schema, which includes the attributes setting of the operator
      */
     public Schema getOperatorOutputSchema(String operatorID) throws PlanGenException {
         checkGraphCyclicity();
@@ -108,17 +107,24 @@ public class LogicalPlan {
         IOperator currentOperator = operatorPredicateMap.get(operatorID).newOperator();
         int outputArity = adjacencyList.get(operatorID).size();
 
-        if (outputArity <= 1) {
-            return null;
+        if(outputArity > 1) {
+            OneToNBroadcastConnector oneToNConnector = new OneToNBroadcastConnector(outputArity);
+            oneToNConnector.setInputOperator(currentOperator);
+            int counter = 0;
+            for (String adjacentVertex : adjacencyList.get(operatorID)) {
+                IOperator adjacentOperator = operatorPredicateMap.get(adjacentVertex).newOperator();
+                handleSetInputOperator(oneToNConnector.getOutputOperator(counter), adjacentOperator);
+                counter++;
+            }
+        } else {
+            for (String adjacentVertex : adjacencyList.get(operatorID)) {
+                IOperator adjacentOperator = operatorPredicateMap.get(adjacentVertex).newOperator();
+                handleSetInputOperator(currentOperator, adjacentOperator);
+            }
         }
 
-        OneToNBroadcastConnector outputOperator = new OneToNBroadcastConnector(outputArity);
-        outputOperator.setInputOperator(currentOperator);
-
-        // TODO: Mistakes here. Should use outputOperator to call these methods, not currentOperator
         currentOperator.open();
         Schema operatorSchema = currentOperator.getOutputSchema();
-        currentOperator.getNextTuple();
         currentOperator.close();
 
         return operatorSchema;
