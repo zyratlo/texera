@@ -3,6 +3,7 @@ package edu.uci.ics.texera.dataflow.plangen;
 import java.util.Arrays;
 import java.util.HashSet;
 
+import edu.uci.ics.texera.api.constants.SchemaConstants;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -42,7 +43,7 @@ public class LogicalPlanTest {
     
     public static final Schema TEST_SCHEMA = new Schema(
             new Attribute("city", AttributeType.STRING), new Attribute("location", AttributeType.STRING),
-            new Attribute("content", AttributeType.TEXT));
+            new Attribute("content", AttributeType.TEXT), new Attribute(SchemaConstants.SPAN_LIST, AttributeType.LIST));
     
     @BeforeClass
     public static void setUp() throws StorageException {
@@ -84,7 +85,7 @@ public class LogicalPlanTest {
             NlpEntityType.LOCATION,
             Arrays.asList("content"),
             "nlpEntityResults");
-    public static String NLP_ENTITY_ID = "nlp eneity";
+    public static String NLP_ENTITY_ID = "nlp entity";
     
     public static JoinDistancePredicate joinDistancePredicate = new JoinDistancePredicate(
             "content",
@@ -209,6 +210,17 @@ public class LogicalPlanTest {
         IOperator keywordSource = ((RegexMatcher) regexMatcher).getInputOperator();
         Assert.assertTrue(keywordSource instanceof KeywordMatcherSourceOperator);
 
+        regexMatcher.open();
+        Schema expectedSourceOutputSchema  = keywordSource.getOutputSchema();
+        Schema expectedMatcherOutputSchema = regexMatcher.getOutputSchema();
+        regexMatcher.close();
+
+        Schema sourceOutputSchema  = logicalPlan.getOperatorOutputSchema(KEYWORD_SOURCE_ID);
+        Schema matcherOutputSchema = logicalPlan.getOperatorOutputSchema(REGEX_ID);
+
+        Assert.assertEquals(expectedSourceOutputSchema, sourceOutputSchema);
+        Assert.assertEquals(expectedMatcherOutputSchema, matcherOutputSchema);
+
     }
 
     /*
@@ -254,6 +266,23 @@ public class LogicalPlanTest {
 
         IOperator keywordSource = connector1.getInputOperator();
         Assert.assertTrue(keywordSource instanceof KeywordMatcherSourceOperator);
+
+        join.open();
+        Schema expectedJoinOutputSchema      = join.getOutputSchema();
+        Schema expectedSourceOutputSchema    = keywordSource.getOutputSchema();
+        Schema expectedMatcherOutputSchema   = joinInput1.getOutputSchema();
+        Schema expectedNlpEntityOutputSchema = joinInput2.getOutputSchema();
+        join.close();
+
+        Schema joinOutputSchema      = logicalPlan.getOperatorOutputSchema(JOIN_DISTANCE_ID);
+        Schema sourceOutputSchema    = logicalPlan.getOperatorOutputSchema(KEYWORD_SOURCE_ID);
+        Schema matcherOutputSchema   = logicalPlan.getOperatorOutputSchema(REGEX_ID);
+        Schema nlpEntityOutputSchema = logicalPlan.getOperatorOutputSchema(NLP_ENTITY_ID);
+
+        Assert.assertEquals(expectedJoinOutputSchema,      joinOutputSchema);
+        Assert.assertEquals(expectedSourceOutputSchema,    sourceOutputSchema);
+        Assert.assertEquals(expectedMatcherOutputSchema,   matcherOutputSchema);
+        Assert.assertEquals(expectedNlpEntityOutputSchema, nlpEntityOutputSchema);
     }
 
     /*

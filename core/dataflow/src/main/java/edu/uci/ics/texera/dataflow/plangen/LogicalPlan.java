@@ -100,28 +100,14 @@ public class LogicalPlan {
      * @return Schema, which includes the attributes setting of the operator
      */
     public Schema getOperatorOutputSchema(String operatorID) throws PlanGenException {
+
+        HashMap<String, IOperator> operatorObjectMap = buildOperators();
         checkGraphCyclicity();
         checkSourceOperator();
         checkOperatorOutputArity();
 
-        IOperator currentOperator = operatorPredicateMap.get(operatorID).newOperator();
-        int outputArity = adjacencyList.get(operatorID).size();
-
-        if(outputArity > 1) {
-            OneToNBroadcastConnector oneToNConnector = new OneToNBroadcastConnector(outputArity);
-            oneToNConnector.setInputOperator(currentOperator);
-            int counter = 0;
-            for (String adjacentVertex : adjacencyList.get(operatorID)) {
-                IOperator adjacentOperator = operatorPredicateMap.get(adjacentVertex).newOperator();
-                handleSetInputOperator(oneToNConnector.getOutputOperator(counter), adjacentOperator);
-                counter++;
-            }
-        } else {
-            for (String adjacentVertex : adjacencyList.get(operatorID)) {
-                IOperator adjacentOperator = operatorPredicateMap.get(adjacentVertex).newOperator();
-                handleSetInputOperator(currentOperator, adjacentOperator);
-            }
-        }
+        connectOperators(operatorObjectMap);
+        IOperator currentOperator = operatorObjectMap.get(operatorID);
 
         currentOperator.open();
         Schema operatorSchema = currentOperator.getOutputSchema();
