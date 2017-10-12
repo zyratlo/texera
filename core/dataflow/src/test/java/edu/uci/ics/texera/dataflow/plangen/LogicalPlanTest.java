@@ -3,11 +3,11 @@ package edu.uci.ics.texera.dataflow.plangen;
 import java.util.Arrays;
 import java.util.HashSet;
 
-import edu.uci.ics.texera.api.constants.SchemaConstants;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import edu.uci.ics.texera.api.constants.SchemaConstants;
 import edu.uci.ics.texera.api.dataflow.IOperator;
 import edu.uci.ics.texera.api.dataflow.ISink;
 import edu.uci.ics.texera.api.engine.Plan;
@@ -209,18 +209,6 @@ public class LogicalPlanTest {
 
         IOperator keywordSource = ((RegexMatcher) regexMatcher).getInputOperator();
         Assert.assertTrue(keywordSource instanceof KeywordMatcherSourceOperator);
-
-        regexMatcher.open();
-        Schema expectedSourceOutputSchema  = keywordSource.getOutputSchema();
-        Schema expectedMatcherOutputSchema = regexMatcher.getOutputSchema();
-        regexMatcher.close();
-
-        Schema sourceOutputSchema  = logicalPlan.getOperatorOutputSchema(KEYWORD_SOURCE_ID);
-        Schema matcherOutputSchema = logicalPlan.getOperatorOutputSchema(REGEX_ID);
-
-        Assert.assertEquals(expectedSourceOutputSchema, sourceOutputSchema);
-        Assert.assertEquals(expectedMatcherOutputSchema, matcherOutputSchema);
-
     }
 
     /*
@@ -266,23 +254,6 @@ public class LogicalPlanTest {
 
         IOperator keywordSource = connector1.getInputOperator();
         Assert.assertTrue(keywordSource instanceof KeywordMatcherSourceOperator);
-
-        join.open();
-        Schema expectedJoinOutputSchema      = join.getOutputSchema();
-        Schema expectedSourceOutputSchema    = keywordSource.getOutputSchema();
-        Schema expectedMatcherOutputSchema   = joinInput1.getOutputSchema();
-        Schema expectedNlpEntityOutputSchema = joinInput2.getOutputSchema();
-        join.close();
-
-        Schema joinOutputSchema      = logicalPlan.getOperatorOutputSchema(JOIN_DISTANCE_ID);
-        Schema sourceOutputSchema    = logicalPlan.getOperatorOutputSchema(KEYWORD_SOURCE_ID);
-        Schema matcherOutputSchema   = logicalPlan.getOperatorOutputSchema(REGEX_ID);
-        Schema nlpEntityOutputSchema = logicalPlan.getOperatorOutputSchema(NLP_ENTITY_ID);
-
-        Assert.assertEquals(expectedJoinOutputSchema,      joinOutputSchema);
-        Assert.assertEquals(expectedSourceOutputSchema,    sourceOutputSchema);
-        Assert.assertEquals(expectedMatcherOutputSchema,   matcherOutputSchema);
-        Assert.assertEquals(expectedNlpEntityOutputSchema, nlpEntityOutputSchema);
     }
 
     /*
@@ -344,7 +315,6 @@ public class LogicalPlanTest {
         IOperator keywordSource = connector1.getInputOperator();
         Assert.assertTrue(keywordSource instanceof KeywordMatcherSourceOperator);
     }
-
 
     /*
      * Test a operator graph without a source operator
@@ -416,14 +386,16 @@ public class LogicalPlanTest {
     @Test(expected = TexeraException.class)
     public void testInvalidLogicalPlan4() throws Exception {
         LogicalPlan logicalPlan = new LogicalPlan();
-        
         String REGEX_ID_2 = "regex 2";
-
+        RegexPredicate regexPredicate2 = new RegexPredicate("ca(lifornia)?",
+                                                            Arrays.asList("location", "content"),
+                                                            "regexResults");
+        
         logicalPlan.addOperator(keywordSourcePredicate);
         logicalPlan.addOperator(regexPredicate);
         logicalPlan.addOperator(tupleSinkPredicate);
 
-        logicalPlan.addOperator(regexPredicate);
+        logicalPlan.addOperator(regexPredicate2);
         logicalPlan.addOperator(nlpEntityPredicate);
 
         logicalPlan.addLink(new OperatorLink(KEYWORD_SOURCE_ID, REGEX_ID));
@@ -549,6 +521,175 @@ public class LogicalPlanTest {
         logicalPlan.addLink(new OperatorLink(TUPLE_SINK_ID, KEYWORD_SOURCE_ID));
 
         logicalPlan.buildQueryPlan();
+    }
+
+    /*
+     * Test getOutputSchema on a valid operator graph.
+     *
+     * KeywordSource --> RegexMatcher --> TupleSink
+     *
+     */
+    @Test
+    public void testGetOutputSchema1() throws Exception {
+        LogicalPlan logicalPlan = getLogicalPlan1();
+        Plan queryPlan = logicalPlan.buildQueryPlan();
+
+        ISink tupleSink = queryPlan.getRoot();
+        IOperator regexMatcher = ((TupleSink) tupleSink).getInputOperator();
+        IOperator keywordSource = ((RegexMatcher) regexMatcher).getInputOperator();
+
+        regexMatcher.open();
+        Schema expectedSourceOutputSchema  = keywordSource.getOutputSchema();
+        Schema expectedMatcherOutputSchema = regexMatcher.getOutputSchema();
+        regexMatcher.close();
+
+        Schema sourceOutputSchema  = logicalPlan.getOperatorOutputSchema(KEYWORD_SOURCE_ID);
+        Schema matcherOutputSchema = logicalPlan.getOperatorOutputSchema(REGEX_ID);
+
+        Assert.assertEquals(expectedSourceOutputSchema, sourceOutputSchema);
+        Assert.assertEquals(expectedMatcherOutputSchema, matcherOutputSchema);
+
+    }
+
+    /*
+     * Test getOutputSchema on a valid operator graph.
+     *                  -> RegexMatcher -->
+     * KeywordSource --<                     >-- Join --> TupleSink
+     *                  -> NlpEntityOperator -->
+     *
+     */
+    @Test
+    public void testGetOutputSchema2() throws Exception {
+        LogicalPlan logicalPlan = getLogicalPlan2();
+
+        Plan queryPlan = logicalPlan.buildQueryPlan();
+
+        ISink tupleSink = queryPlan.getRoot();
+        IOperator join = ((TupleSink) tupleSink).getInputOperator();
+        IOperator joinInput1 = ((Join) join).getInnerInputOperator();
+        IOperator joinInput2 = ((Join) join).getOuterInputOperator();
+        IOperator connectorOut1 = ((RegexMatcher) joinInput1).getInputOperator();
+        IOperator connectorOut2 = ((NlpEntityOperator) joinInput2).getInputOperator();
+
+        OneToNBroadcastConnector connector1 = ((ConnectorOutputOperator) connectorOut1).getOwnerConnector();
+        OneToNBroadcastConnector connector2 = ((ConnectorOutputOperator) connectorOut2).getOwnerConnector();
+        IOperator keywordSource = connector1.getInputOperator();
+
+        join.open();
+        Schema expectedJoinOutputSchema      = join.getOutputSchema();
+        Schema expectedSourceOutputSchema    = keywordSource.getOutputSchema();
+        Schema expectedMatcherOutputSchema   = joinInput1.getOutputSchema();
+        Schema expectedNlpEntityOutputSchema = joinInput2.getOutputSchema();
+        join.close();
+
+        Schema joinOutputSchema      = logicalPlan.getOperatorOutputSchema(JOIN_DISTANCE_ID);
+        Schema sourceOutputSchema    = logicalPlan.getOperatorOutputSchema(KEYWORD_SOURCE_ID);
+        Schema matcherOutputSchema   = logicalPlan.getOperatorOutputSchema(REGEX_ID);
+        Schema nlpEntityOutputSchema = logicalPlan.getOperatorOutputSchema(NLP_ENTITY_ID);
+
+        Assert.assertEquals(expectedJoinOutputSchema,      joinOutputSchema);
+        Assert.assertEquals(expectedSourceOutputSchema,    sourceOutputSchema);
+        Assert.assertEquals(expectedMatcherOutputSchema,   matcherOutputSchema);
+        Assert.assertEquals(expectedNlpEntityOutputSchema, nlpEntityOutputSchema);
+    }
+
+    /*
+     * Test getOutputSchema on a operator graph without a source operator
+     *
+     * RegexMatcher --> TupleSink
+     *
+     */
+    @Test(expected = TexeraException.class)
+    public void testGetOutputSchema3() throws Exception {
+        LogicalPlan logicalPlan = new LogicalPlan();
+
+        logicalPlan.addOperator(regexPredicate);
+        logicalPlan.addOperator(tupleSinkPredicate);
+        logicalPlan.addLink(new OperatorLink(REGEX_ID, TUPLE_SINK_ID));
+
+        logicalPlan.getOperatorOutputSchema(REGEX_ID);
+    }
+
+    /*
+     * Test getOutputSchema on a operator graph without a sink operator
+     *
+     * KeywordSource --> RegexMatcher
+     *
+     */
+    @Test
+    public void testGetOutputSchema4() throws Exception {
+        LogicalPlan validLogicalPlan = getLogicalPlan1();
+        Plan queryPlan = validLogicalPlan.buildQueryPlan();
+
+        ISink tupleSink = queryPlan.getRoot();
+        IOperator regexMatcher = ((TupleSink) tupleSink).getInputOperator();
+        IOperator keywordSource = ((RegexMatcher) regexMatcher).getInputOperator();
+
+        regexMatcher.open();
+        Schema expectedSourceOutputSchema  = keywordSource.getOutputSchema();
+        Schema expectedMatcherOutputSchema = regexMatcher.getOutputSchema();
+        regexMatcher.close();
+
+        LogicalPlan logicalPlan = new LogicalPlan();
+
+        logicalPlan.addOperator(keywordSourcePredicate);
+        logicalPlan.addOperator(regexPredicate);
+        logicalPlan.addLink(new OperatorLink(KEYWORD_SOURCE_ID, REGEX_ID));
+
+        Schema sourceOutputSchema  = logicalPlan.getOperatorOutputSchema(KEYWORD_SOURCE_ID);
+        Schema matcherOutputSchema = logicalPlan.getOperatorOutputSchema(REGEX_ID);
+
+        Assert.assertEquals(expectedSourceOutputSchema, sourceOutputSchema);
+        Assert.assertEquals(expectedMatcherOutputSchema, matcherOutputSchema);
+
+    }
+
+    /*
+     * Test a operator graph with a disconnected component
+     *
+     * KeywordSource --> RegexMatcher --> TupleSink
+     * RegexMatcher --> NlpEntityOperator
+     * (a disconnected graph)
+     *
+     */
+    @Test(expected = TexeraException.class)
+    public void testGetOutputSchema5() throws Exception {
+
+        LogicalPlan validLogicalPlan = getLogicalPlan1();
+        Plan queryPlan = validLogicalPlan.buildQueryPlan();
+
+        ISink tupleSink = queryPlan.getRoot();
+        IOperator regexMatcher = ((TupleSink) tupleSink).getInputOperator();
+        IOperator keywordSource = ((RegexMatcher) regexMatcher).getInputOperator();
+
+        regexMatcher.open();
+        Schema expectedSourceOutputSchema  = keywordSource.getOutputSchema();
+        Schema expectedMatcherOutputSchema = regexMatcher.getOutputSchema();
+        regexMatcher.close();
+
+        LogicalPlan logicalPlan = new LogicalPlan();
+        String REGEX_ID_2 = "regex 2";
+        RegexPredicate regexPredicate2 = new RegexPredicate("ca(lifornia)?",
+                                                            Arrays.asList("location", "content"),
+                                                            "regexResults");
+        regexPredicate2.setID(REGEX_ID_2);
+
+        logicalPlan.addOperator(keywordSourcePredicate);
+        logicalPlan.addOperator(regexPredicate);
+        logicalPlan.addOperator(tupleSinkPredicate);
+        logicalPlan.addOperator(regexPredicate2);
+        logicalPlan.addOperator(nlpEntityPredicate);
+
+        logicalPlan.addLink(new OperatorLink(KEYWORD_SOURCE_ID, REGEX_ID));
+        logicalPlan.addLink(new OperatorLink(REGEX_ID, TUPLE_SINK_ID));
+        logicalPlan.addLink(new OperatorLink(REGEX_ID_2, NLP_ENTITY_ID));
+
+        Schema sourceOutputSchema  = logicalPlan.getOperatorOutputSchema(KEYWORD_SOURCE_ID);
+        Schema matcherOutputSchema = logicalPlan.getOperatorOutputSchema(REGEX_ID);
+
+        Assert.assertEquals(expectedSourceOutputSchema, sourceOutputSchema);
+        Assert.assertEquals(expectedMatcherOutputSchema, matcherOutputSchema);
+        Schema raiseExceptionSchema  = logicalPlan.getOperatorOutputSchema(REGEX_ID_2);
     }
 
 }
