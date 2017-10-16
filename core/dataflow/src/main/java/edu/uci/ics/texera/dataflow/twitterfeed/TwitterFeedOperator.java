@@ -112,7 +112,7 @@ public class TwitterFeedOperator implements ISourceOperator {
 
             msg = twitterConnector.getMsgQueue().poll(timeout, TimeUnit.SECONDS);
 
-            if (msg == null) {
+            if (msg == null || msg.length() == 0) {
                 System.out.println("Did not receive a message in " + timeout + " seconds");
                 return null;
             }
@@ -120,6 +120,7 @@ public class TwitterFeedOperator implements ISourceOperator {
 
             sourceTuple = new Tuple(outputSchema, IDField.newRandomID(),
                     new TextField(TwitterUtils.getText(tweet)),
+                    new StringField(TwitterUtils.getMediaLink(tweet)),
                     new StringField(TwitterUtils.getTweetLink(tweet)),
                     new StringField(TwitterUtils.getUserLink(tweet)),
                     new TextField(TwitterUtils.getUserScreenName(tweet)),

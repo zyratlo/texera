@@ -1,6 +1,7 @@
 package edu.uci.ics.texera.dataflow.twitterfeed;
 
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.twitter.hbc.core.endpoint.Location;
 import edu.uci.ics.texera.api.exception.DataflowException;
 import edu.uci.ics.texera.api.exception.TexeraException;
@@ -9,6 +10,8 @@ import edu.uci.ics.texera.api.schema.AttributeType;
 import edu.uci.ics.texera.api.schema.Schema;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.twitter.hbc.core.endpoint.Location.Coordinate;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -25,82 +28,109 @@ public class TwitterUtils {
     private static final String informationNotAvailable = "n/a";
 
     public static String getCoordinates(JsonNode object) {
-        if (object.hasNonNull("coordinates")) {
-            JsonNode coord = object.get("coordinates").get("coordinates");
+        if (object.hasNonNull(twitterConstant.COORDINCATES)) {
+            JsonNode coord = object.get(twitterConstant.COORDINCATES).get(twitterConstant.COORDINCATES);
             return String.valueOf(coord.get(0).asDouble()) + ", " + String.valueOf(coord.get(1).asDouble());
         }
         return informationNotAvailable;
     }
 
     public static String getUserName(JsonNode object) {
-        return object.get("user").get("name").asText();
+        if (object.hasNonNull(twitterConstant.USER)) {
+            return object.get(twitterConstant.USER).get(twitterConstant.NAME).asText();
+        }
+        return informationNotAvailable;
     }
 
     public static String getUserScreenName(JsonNode object) {
-        return object.get("user").get("screen_name").asText();
+        if (object.hasNonNull(twitterConstant.USER)) {
+            return object.get(twitterConstant.USER).get(twitterConstant.SCREENNAME).asText();
+        }
+        return informationNotAvailable;
     }
 
     public static String getUserDescription(JsonNode object) {
-
-        JsonNode user = object.get("user");
-        if (user.hasNonNull("description")) {
-            return user.get("description").asText();
+        if (object.hasNonNull(twitterConstant.USER)) {
+            JsonNode user = object.get(twitterConstant.USER);
+            if (user.hasNonNull(twitterConstant.DESCRIPTION)) {
+                return user.get(twitterConstant.DESCRIPTION).asText();
+            }
         }
         return informationNotAvailable;
     }
 
     public static int getUserFollowerCnt(JsonNode object) {
-        return object.get("user").get("followers_count").asInt();
+        if (object.hasNonNull(twitterConstant.USER)) {
+            return object.get(twitterConstant.USER).get(twitterConstant.FOLLOWERCNT).asInt();
+        }
+        return 0;
     }
 
     public static int getUserFriendsCnt(JsonNode object) {
-        return object.get("user").get("friends_count").asInt();
+        if (object.hasNonNull(twitterConstant.USER)) {
+            return object.get(twitterConstant.USER).get(twitterConstant.FRIENDCNT).asInt();
+        }
+        return 0;
     }
 
     public static String getUserLocation(JsonNode object) {
-        JsonNode user = object.get("user");
-        if (user.hasNonNull("location")) {
-            return user.get("location").asText();
+        if (object.hasNonNull(twitterConstant.USER)) {
+            JsonNode user = object.get(twitterConstant.USER);
+            if (user.hasNonNull(twitterConstant.LOCATION)) {
+                return user.get(twitterConstant.LOCATION).asText();
+            }
         }
         return informationNotAvailable;
-
     }
 
     public static String getUserLink(JsonNode object) {
-        return "https://twitter.com/" + getUserScreenName(object);
+        return twitterConstant.TWITTERLINK + getUserScreenName(object);
     }
 
     public static String getPlaceName(JsonNode object) {
-        if (object.hasNonNull("place")) {
-            JsonNode place = object.get("place");
-            String placeName = place.get("full_name").asText();
-            String country = place.get("country").asText();
+        if (object.hasNonNull(twitterConstant.PLACE)) {
+            JsonNode place = object.get(twitterConstant.PLACE);
+            String placeName = place.get(twitterConstant.PLACEFULLNAME).asText();
+            String country = place.get(twitterConstant.COUNTRY).asText();
             return placeName + ", " + country;
         }
         return informationNotAvailable;
     }
 
     public static String getCreateTime(JsonNode object) {
-        return object.get("created_at").asText();
+        if (object.hasNonNull(twitterConstant.CREATTIME)) {
+            return object.get(twitterConstant.CREATTIME).asText();
+        }
+        return informationNotAvailable;
     }
 
     public static String getLanguage(JsonNode object) {
-        return object.get("lang").asText();
+        if (object.hasNonNull(twitterConstant.LANGUAGE)) {
+            return object.get(twitterConstant.LANGUAGE).asText();
+        }
+        return informationNotAvailable;
     }
 
     public static String getText(JsonNode object) {
-        return object.get("text").asText();
+        if (object.hasNonNull(twitterConstant.TEXT)) {
+            return object.get(twitterConstant.TEXT).asText();
+        }
+        return informationNotAvailable;
     }
 
     public static String getTweetLink(JsonNode object) {
-        String tweetLink = "https://twitter.com/statuses/" + object.get("id_str").asText();
-        return tweetLink;
+        if (object.hasNonNull(twitterConstant.TWEETID)) {
+            String tweetLink = twitterConstant.TWEETLINK + object.get(twitterConstant.TWEETID).asText();
+            return tweetLink;
+        }
+        return informationNotAvailable;
 
     }
 
     /**
      * To track tweets inside a geoBox defined by a List</Location>.
      * The string defines the coordinates in the order of "latitude_SW, longitude_SW, latitude_NE, longitude_NE".
+     *
      * @param inputLocation
      * @return
      * @throws TexeraException
@@ -121,6 +151,22 @@ public class TwitterUtils {
         return locationList;
     }
 
+    public static String getMediaLink(JsonNode object) throws IOException {
+        if(object.hasNonNull(twitterConstant.ENTITY)) {
+            ObjectMapper mapper = new ObjectMapper();
+            List<JsonNode> List = mapper.readValue(object.get(twitterConstant.ENTITY).get(twitterConstant.URLS).toString(), mapper.getTypeFactory().constructCollectionType(List.class, JsonNode.class));
+            if(List.isEmpty()) {
+                return informationNotAvailable;
+            }
+            for (JsonNode jn : List) {
+                String display_URL = jn.get(twitterConstant.DISPLAYURL).toString();
+                String expanded_URL = jn.get(twitterConstant.EXPANDEDURL).toString();
+                return display_URL + "\n" + expanded_URL;
+            }
+        }
+        return informationNotAvailable;
+    }
+
     /**
      * Tweet Sample in Json format:
      * text : "@Toni090902 Hi, I'm here to make you feel good every day about your decision to follow me, or is that regret it, I forget :/"
@@ -132,32 +178,32 @@ public class TwitterUtils {
      * location : "Tampa, FL"
      * created_at : "Thu Jun 16 20:21:48 +0000 2011"
      * place : {
-     *              "id": "fd70c22040963ac7",
-     *              "url": "https:\/\/api.twitter.com\/1.1\/geo\/id\/fd70c22040963ac7.json",
-     *              "place_type": "city",
-     *              "name": "Boulder",
-     *              "full_name": "Boulder, CO",
-     *              "country_code": "US",
-     *              "country": "United States",
-     *              "contained_within": [
-     *                                  ],
-     *              "bounding_box": {
-     *              "type": "Polygon",
-     *              "coordinates": [
-     *              [
-     *              [-105.301758, 39.964069],
-     *              [-105.301758, 40.094551],
-     *              [-105.178142, 40.094551],
-     *              [-105.178142, 39.964069]
-     *              ]
-     *              ]
-     *              },
-     *              "attributes": {}
-     *          }
-     *coordinates : {
-     *              "type": "Point",
-     *              "coordinates": [-105.2812196, 40.0160921]
-     *              }
+     * "id": "fd70c22040963ac7",
+     * "url": "https:\/\/api.twitter.com\/1.1\/geo\/id\/fd70c22040963ac7.json",
+     * "place_type": "city",
+     * "name": "Boulder",
+     * "full_name": "Boulder, CO",
+     * "country_code": "US",
+     * "country": "United States",
+     * "contained_within": [
+     * ],
+     * "bounding_box": {
+     * "type": "Polygon",
+     * "coordinates": [
+     * [
+     * [-105.301758, 39.964069],
+     * [-105.301758, 40.094551],
+     * [-105.178142, 40.094551],
+     * [-105.178142, 39.964069]
+     * ]
+     * ]
+     * },
+     * "attributes": {}
+     * }
+     * coordinates : {
+     * "type": "Point",
+     * "coordinates": [-105.2812196, 40.0160921]
+     * }
      * lang : "en"
      */
 
@@ -165,6 +211,9 @@ public class TwitterUtils {
 
         public static String TEXT = "text";
         public static Attribute TEXT_ATTRIBUTE = new Attribute(TEXT, AttributeType.TEXT);
+
+        public static String MEDIA_LINK = "media_link";
+        public static Attribute MEDIA_LINK_ATTRIBUTE = new Attribute(MEDIA_LINK, AttributeType.STRING);
 
         public static String TWEET_LINK = "tweet_link";
         public static Attribute TWEET_LINK_ATTRIBUTE = new Attribute(TWEET_LINK, AttributeType.STRING);
@@ -204,7 +253,7 @@ public class TwitterUtils {
         public static Attribute LANGUAGE_ATTRIBUTE = new Attribute(LANGUAGE, AttributeType.STRING);
 
         public static Schema TWITTER_SCHEMA = new Schema(
-                TEXT_ATTRIBUTE, TWEET_LINK_ATTRIBUTE, USER_LINK_ATTRIBUTE,
+                TEXT_ATTRIBUTE, MEDIA_LINK_ATTRIBUTE, TWEET_LINK_ATTRIBUTE, USER_LINK_ATTRIBUTE,
                 USER_SCREEN_NAME_ATTRIBUTE, USER_NAME_ATTRIBUTE, USER_DESCRIPTION_ATTRIBUTE,
                 USER_FOLLOWERS_COUNT_ATTRIBUTE, USER_FRIENDS_COUNT_ATTRIBUTE,
                 PROFILE_LOCATION_ATTRIBUTE, CREATE_AT_ATTRIBUTE, TWEET_LOCATION_ATTRIBUTE, TWEET_COORDINATES_ATTRIBUTE, LANGUAGE_ATTRIBUTE);
@@ -217,10 +266,32 @@ public class TwitterUtils {
      */
 
     public static class twitterConstant {
+
         public static final String consumerKey = "iJI9uxE1EKFlDwWOJnB1nvl2J";
         public static final String consumerSecret = "DjcNacjs9KOwO3w9zfBSWNJF96yerBj3GrgsJaMdERaWrG0a28";
         public static final String token = "884194955031306240-MucmXV5HBt9gFZfJ5WqGJZa11fhNTKT";
         public static final String tokenSecret = "WCEREP8SV6lhTacL1wvlluFkLRZGqBIiCC9fNLjbpM0Lt";
+        private static final String PLACE = "place";
+        private static final String COORDINCATES = "coordinates";
+        private static final String USER = "user";
+        private static final String PLACEFULLNAME = "full_name";
+        private static final String COUNTRY = "country";
+        private static final String NAME = "name";
+        private static final String SCREENNAME = "screen_name";
+        private static final String DESCRIPTION = "description";
+        private static final String FOLLOWERCNT = "followers_count";
+        private static final String FRIENDCNT = "friends_count";
+        private static final String LOCATION = "location";
+        private static final String CREATTIME = "created_at";
+        private static final String LANGUAGE = "language";
+        private static final String TEXT = "text";
+        private static final String TWEETLINK = "https://twitter.com/statuses/";
+        private static final String TWEETID = "id_str";
+        private static final String TWITTERLINK = "https://twitter.com/";
+        private static final String ENTITY = "entities";
+        private static final String URLS = "urls";
+        private static final String DISPLAYURL = "display_url";
+        private static final String EXPANDEDURL = "expanded_url";
     }
 
 }

@@ -66,7 +66,6 @@ export class TheFlowchartComponent {
     FlowChartWidth *= ZoomRatio;
     FlowChartHeight *= ZoomRatio;
     if (ZoomRatio < MAX_SCALE){
-      jQuery('#the-flowchart').flowchart('zoomCalled');
       ZoomRatio += INCREMENT;
       jQuery('#the-flowchart').flowchart('setPositionRatio', ZoomRatio);
       jQuery('#the-flowchart').panzoom('zoom', ZoomRatio, {
@@ -99,7 +98,6 @@ export class TheFlowchartComponent {
     FlowChartWidth *= ZoomRatio;
     FlowChartHeight *= ZoomRatio;
     if (ZoomRatio >= MIN_SCALE + INCREMENT){
-      jQuery('#the-flowchart').flowchart('zoomCalled');
       ZoomRatio -= INCREMENT;
       jQuery('#the-flowchart').flowchart('setPositionRatio', ZoomRatio);
       jQuery('#the-flowchart').panzoom('zoom', ZoomRatio, {
@@ -224,7 +222,6 @@ export class TheFlowchartComponent {
     }
     var currentZoom = 2;
     container.on('mousewheel.focal', function(e) {
-      jQuery('#the-flowchart').flowchart('zoomCalled');
       e.preventDefault();
       var delta = (e.delta || e.originalEvent.wheelDelta) || e.originalEvent.detail;
       var zoomOut = delta;
