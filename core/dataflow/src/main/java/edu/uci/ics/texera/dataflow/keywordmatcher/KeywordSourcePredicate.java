@@ -1,16 +1,12 @@
 package edu.uci.ics.texera.dataflow.keywordmatcher;
 
 import java.util.List;
-import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.collect.ImmutableMap;
 
 import edu.uci.ics.texera.api.dataflow.IOperator;
-import edu.uci.ics.texera.dataflow.annotation.AdvancedOption;
 import edu.uci.ics.texera.dataflow.common.PropertyNameConstants;
-import edu.uci.ics.texera.storage.constants.LuceneAnalyzerConstants;
 
 /**
  * KeywordSourcePredicate is the predicate used by KeywordMatcherSourceOperator.
@@ -29,23 +25,14 @@ public class KeywordSourcePredicate extends KeywordPredicate {
     public KeywordSourcePredicate(
             @JsonProperty(value = PropertyNameConstants.KEYWORD_QUERY, required = true)
             String query,
-            
             @JsonProperty(value = PropertyNameConstants.ATTRIBUTE_NAMES, required = true)
             List<String> attributeNames,
-            
-            @AdvancedOption
-            @JsonProperty(value = PropertyNameConstants.LUCENE_ANALYZER_STRING, required = false,
-                    defaultValue = LuceneAnalyzerConstants.STANDARD_ANALYZER)
+            @JsonProperty(value = PropertyNameConstants.LUCENE_ANALYZER_STRING, required = false)
             String luceneAnalyzerString, 
-            
-            @AdvancedOption
-            @JsonProperty(value = PropertyNameConstants.KEYWORD_MATCHING_TYPE, required = false,
-                    defaultValue = KeywordMatchingType.KeywordMatchingTypeName.PHRASE)
+            @JsonProperty(value = PropertyNameConstants.KEYWORD_MATCHING_TYPE, required = false)
             KeywordMatchingType matchingType,
-            
             @JsonProperty(value = PropertyNameConstants.TABLE_NAME, required = true)
             String tableName,
-            
             @JsonProperty(value = PropertyNameConstants.SPAN_LIST_NAME, required = false)
             String spanListName) {
         
@@ -62,14 +49,5 @@ public class KeywordSourcePredicate extends KeywordPredicate {
     public IOperator newOperator() {
         return new KeywordMatcherSourceOperator(this);
     }
-    
-    public static Map<String, Object> getOperatorMetadata() {
-        return ImmutableMap.<String, Object>builder()
-            .put(PropertyNameConstants.USER_FRIENDLY_NAME, "Source: Keyword")
-            .put(PropertyNameConstants.OPERATOR_DESCRIPTION, "Perform an index-based search on a table using a keyword")
-            .put(PropertyNameConstants.OPERATOR_GROUP_NAME, "Source")
-            .build();
-    }
 
 }
-
