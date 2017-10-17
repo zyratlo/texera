@@ -89,7 +89,7 @@ public class FuzzyTokenPredicate extends PredicateBase {
         return this.thresholdRatio;
     }
     
-    @JsonProperty(value = PropertyNameConstants.SPAN_LIST_NAME, required = true)
+    @JsonProperty(value = PropertyNameConstants.SPAN_LIST_NAME)
     public String getSpanListName() {
         return this.spanListName;
     }

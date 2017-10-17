@@ -7,7 +7,6 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
 
-import edu.uci.ics.texera.api.dataflow.IOperator;
 import edu.uci.ics.texera.dataflow.annotation.AdvancedOption;
 import edu.uci.ics.texera.dataflow.common.PropertyNameConstants;
 import edu.uci.ics.texera.storage.constants.LuceneAnalyzerConstants;
@@ -47,7 +46,7 @@ public class FuzzyTokenSourcePredicate extends FuzzyTokenPredicate {
     }
     
     @Override
-    public IOperator newOperator() {
+    public FuzzyTokenMatcherSourceOperator newOperator() {
         return new FuzzyTokenMatcherSourceOperator(this);
     }
     

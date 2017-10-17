@@ -8,7 +8,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.google.common.collect.ImmutableMap;
 
-import edu.uci.ics.texera.api.dataflow.IOperator;
 import edu.uci.ics.texera.dataflow.annotation.AdvancedOption;
 import edu.uci.ics.texera.dataflow.common.PropertyNameConstants;
 import edu.uci.ics.texera.dataflow.keywordmatcher.KeywordMatchingType;
@@ -60,7 +59,7 @@ public class DictionarySourcePredicate extends DictionaryPredicate {
     }
     
     @Override
-    public IOperator newOperator() {
+    public DictionaryMatcherSourceOperator newOperator() {
         return new DictionaryMatcherSourceOperator(this);
     }
     

@@ -80,7 +80,7 @@ public class RegexSourcePredicate extends RegexPredicate {
     }
     
     @Override
-    public IOperator newOperator() {
+    public RegexMatcherSourceOperator newOperator() {
         return new RegexMatcherSourceOperator(this);
     }
     

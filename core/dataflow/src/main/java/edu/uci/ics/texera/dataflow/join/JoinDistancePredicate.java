@@ -11,7 +11,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
 
 import edu.uci.ics.texera.api.constants.SchemaConstants;
-import edu.uci.ics.texera.api.dataflow.IOperator;
 import edu.uci.ics.texera.api.exception.DataflowException;
 import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.field.IField;
@@ -302,7 +301,7 @@ public class JoinDistancePredicate extends PredicateBase implements IJoinPredica
 	}
 	
     @Override
-    public IOperator newOperator() {
+    public Join newOperator() {
         return new Join(this);
     }
     

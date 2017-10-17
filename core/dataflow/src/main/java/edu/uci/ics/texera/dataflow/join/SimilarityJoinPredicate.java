@@ -9,7 +9,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
 
 import edu.uci.ics.texera.api.constants.SchemaConstants;
-import edu.uci.ics.texera.api.dataflow.IOperator;
 import edu.uci.ics.texera.api.exception.DataflowException;
 import edu.uci.ics.texera.api.field.IDField;
 import edu.uci.ics.texera.api.field.IField;
@@ -257,7 +256,7 @@ public class SimilarityJoinPredicate extends PredicateBase implements IJoinPredi
     }
     
     @Override
-    public IOperator newOperator() {
+    public Join newOperator() {
         return new Join(this);
     }
     

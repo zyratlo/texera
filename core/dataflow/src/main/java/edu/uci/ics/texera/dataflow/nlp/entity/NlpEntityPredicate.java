@@ -8,7 +8,6 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
 
-import edu.uci.ics.texera.api.dataflow.IOperator;
 import edu.uci.ics.texera.dataflow.common.PredicateBase;
 import edu.uci.ics.texera.dataflow.common.PropertyNameConstants;
 
@@ -51,7 +50,7 @@ public class NlpEntityPredicate extends PredicateBase {
     }
     
     @Override
-    public IOperator newOperator() {
+    public NlpEntityOperator newOperator() {
         return new NlpEntityOperator(this);
     }
     

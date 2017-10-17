@@ -7,7 +7,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.google.common.collect.ImmutableMap;
 
-import edu.uci.ics.texera.api.dataflow.IOperator;
 import edu.uci.ics.texera.dataflow.common.PredicateBase;
 import edu.uci.ics.texera.dataflow.common.PropertyNameConstants;
 
@@ -102,7 +101,7 @@ public class RegexSplitPredicate extends PredicateBase {
     }
     
     @Override
-    public IOperator newOperator() {
+    public RegexSplitOperator newOperator() {
         return new RegexSplitOperator(this);
     }
     
