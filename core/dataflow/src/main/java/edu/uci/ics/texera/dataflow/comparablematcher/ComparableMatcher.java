@@ -1,7 +1,8 @@
 package edu.uci.ics.texera.dataflow.comparablematcher;
 
-import java.text.DateFormat;
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
 
 import edu.uci.ics.texera.api.exception.DataflowException;
 import edu.uci.ics.texera.api.exception.TexeraException;
@@ -81,10 +82,10 @@ public class ComparableMatcher extends AbstractSingleInputOperator {
         if (predicate.getCompareToValue().getClass().equals(String.class)) {
             try {
                 String compareTo = (String) predicate.getCompareToValue();
-                Date compareToDate = DateFormat.getDateInstance(DateFormat.MEDIUM).parse(compareTo);
-                Date date = inputTuple.getField(predicate.getAttributeName(), DateField.class).getValue();
-                return compareValues(date, compareToDate, predicate.getComparisonType());
-            } catch (java.text.ParseException e) {
+                LocalDate compareToDate = LocalDate.parse(compareTo);
+                LocalDateTime dateTime = inputTuple.getField(predicate.getAttributeName(), DateField.class).getValue();
+                return compareValues(dateTime.toLocalDate(), compareToDate, predicate.getComparisonType());
+            } catch (DateTimeParseException e) {
                 throw new DataflowException("Unable to parse date: " + e.getMessage());
             }
         } else {
@@ -149,22 +150,22 @@ public class ComparableMatcher extends AbstractSingleInputOperator {
             }
             break;
         case GREATER_THAN:
-            if (compareResult == 1) {
+            if (compareResult > 0) {
                 return true;
             }
             break;
         case GREATER_THAN_OR_EQUAL_TO:
-            if (compareResult == 0 || compareResult == 1) {
+            if (compareResult >= 0) {
                 return true;
             }
             break;
         case LESS_THAN:
-            if (compareResult == -1) {
+            if (compareResult < 0) {
                 return true;
             }
             break;
         case LESS_THAN_OR_EQUAL_TO:
-            if (compareResult == 0 || compareResult == -1) {
+            if (compareResult <= 0) {
                 return true;
             }
             break;
