@@ -1,11 +1,7 @@
 package edu.uci.ics.texera.api.field;
 
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -17,20 +13,11 @@ import edu.uci.ics.texera.api.constants.JsonConstants;
 
 public class DateField implements IField {
 
-    public static void main(String[] args) {
-        LocalDate localDate = LocalDate.parse("2017-06-03");
-        ZonedDateTime zonedDateTime = ZonedDateTime.parse("1999-06-02T19:24:01.000Z", DateTimeFormatter.ISO_INSTANT.withZone(ZoneId.systemDefault()));
-        
-        System.out.println(localDate);
-        System.out.println(zonedDateTime.toLocalDateTime().toString());
-        System.out.println(localDate.compareTo(zonedDateTime.toLocalDate()));
-    }
-
     private String localDateTimeString;
 
     public DateField(@JsonProperty(value = JsonConstants.FIELD_VALUE, required = true) Date value) {
         checkNotNull(value);
-        this.localDateTimeString = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'").format(value);
+        this.localDateTimeString = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm").format(value);
     }
 
     public DateField(LocalDateTime localDateTime) {
