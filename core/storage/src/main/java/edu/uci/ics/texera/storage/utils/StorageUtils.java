@@ -8,11 +8,9 @@ import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.text.ParseException;
+import java.time.LocalDateTime;
 import java.util.Arrays;
-import java.util.Date;
 
-import org.apache.lucene.document.DateTools;
-import org.apache.lucene.document.DateTools.Resolution;
 import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.index.IndexOptions;
 import org.apache.lucene.index.IndexableField;
@@ -46,7 +44,7 @@ public class StorageUtils {
             field = new DoubleField(Double.parseDouble(fieldValue));
             break;
         case DATE:
-            field = new DateField(DateTools.stringToDate(fieldValue));
+            field = new DateField(LocalDateTime.parse(fieldValue));
             break;
         case TEXT:
             field = new TextField(fieldValue);
@@ -76,7 +74,7 @@ public class StorageUtils {
             luceneField = new org.apache.lucene.document.DoubleField(attributeName, value, Store.YES);
             break;
         case DATE:
-            String dateString = DateTools.dateToString((Date) fieldValue, Resolution.MILLISECOND);
+            String dateString = ((LocalDateTime) fieldValue).toString();
             luceneField = new org.apache.lucene.document.StringField(attributeName, dateString, Store.YES);
             break;
         case TEXT:
