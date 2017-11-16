@@ -7,6 +7,7 @@ import java.util.Date;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import edu.uci.ics.texera.api.constants.JsonConstants;
@@ -15,7 +16,7 @@ public class DateField implements IField {
 
     private String localDateTimeString;
 
-    public DateField(@JsonProperty(value = JsonConstants.FIELD_VALUE, required = true) Date value) {
+    public DateField(Date value) {
         checkNotNull(value);
         this.localDateTimeString = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm").format(value);
     }
@@ -26,7 +27,9 @@ public class DateField implements IField {
     }
 
     @JsonCreator
-    public DateField(@JsonProperty(value = JsonConstants.FIELD_VALUE, required = true) String localDateTimeString) {
+    public DateField(
+            @JsonProperty(value = JsonConstants.FIELD_VALUE, required = true) 
+            String localDateTimeString) {
         checkNotNull(localDateTimeString);
         this.localDateTimeString = localDateTimeString;
     }
