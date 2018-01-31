@@ -15,7 +15,7 @@ import edu.uci.ics.texera.api.constants.ErrorMessages;
 import edu.uci.ics.texera.api.dataflow.IOperator;
 import edu.uci.ics.texera.api.exception.DataflowException;
 import edu.uci.ics.texera.api.exception.TexeraException;
-import edu.uci.ics.texera.api.field.DateField;
+import edu.uci.ics.texera.api.field.DateTimeField;
 import edu.uci.ics.texera.api.field.IField;
 import edu.uci.ics.texera.api.field.IntegerField;
 import edu.uci.ics.texera.api.field.StringField;
@@ -112,7 +112,7 @@ public class TwitterConverter implements IOperator {
                     new TextField(state),
                     new TextField(county),
                     new TextField(city),
-                    new DateField(zonedCreateAt.toLocalDateTime()));
+                    new DateTimeField(zonedCreateAt.toLocalDateTime()));
         } catch (Exception e) {
             return Arrays.asList();
         }

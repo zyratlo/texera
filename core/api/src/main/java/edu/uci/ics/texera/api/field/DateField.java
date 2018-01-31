@@ -1,7 +1,7 @@
 package edu.uci.ics.texera.api.field;
 
-import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -13,43 +13,44 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import edu.uci.ics.texera.api.constants.JsonConstants;
 
 public class DateField implements IField {
+    
+    private LocalDate localDate;
 
-    private String localDateTimeString;
 
-    public DateField(Date value) {
-        checkNotNull(value);
-        this.localDateTimeString = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm").format(value);
+    public DateField(Date date) {
+        checkNotNull(date);
+        this.localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
     }
 
-    public DateField(LocalDateTime localDateTime) {
-        checkNotNull(localDateTime);
-        this.localDateTimeString = localDateTime.toString();
+    public DateField(LocalDate localDate) {
+        checkNotNull(localDate);
+        this.localDate = localDate;
     }
 
     @JsonCreator
     public DateField(
             @JsonProperty(value = JsonConstants.FIELD_VALUE, required = true) 
-            String localDateTimeString) {
-        checkNotNull(localDateTimeString);
-        this.localDateTimeString = localDateTimeString;
+            String localDateString) {
+        checkNotNull(localDateString);
+        this.localDate = LocalDate.parse(localDateString);
     }
 
     @JsonProperty(value = JsonConstants.FIELD_VALUE)
     public String getDateString() {
-        return this.localDateTimeString;
+        return this.localDate.toString();
     }
 
     @JsonIgnore
     @Override
-    public LocalDateTime getValue() {
-        return LocalDateTime.parse(this.localDateTimeString);
+    public LocalDate getValue() {
+        return this.localDate;
     }
 
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((localDateTimeString == null) ? 0 : localDateTimeString.hashCode());
+        result = prime * result + ((localDate == null) ? 0 : localDate.hashCode());
         return result;
     }
 
@@ -62,17 +63,17 @@ public class DateField implements IField {
         if (getClass() != obj.getClass())
             return false;
         DateField other = (DateField) obj;
-        if (localDateTimeString == null) {
-            if (other.localDateTimeString != null)
+        if (localDate == null) {
+            if (other.localDate != null)
                 return false;
-        } else if (!localDateTimeString.equals(other.localDateTimeString))
+        } else if (!localDate.equals(other.localDate))
             return false;
         return true;
     }
 
     @Override
     public String toString() {
-        return "DateField [value=" + localDateTimeString + "]";
+        return "DateField [value=" + localDate.toString() + "]";
     }
 
 }

@@ -45,7 +45,7 @@ public class TwitterConverterConstants {
     public static Attribute CITY_ATTRIBUTE = new Attribute(CITY, AttributeType.TEXT);
     
     public static String CREATE_AT = "create_at";
-    public static Attribute CREATE_AT_ATTRIBUTE = new Attribute(CREATE_AT, AttributeType.DATE);
+    public static Attribute CREATE_AT_ATTRIBUTE = new Attribute(CREATE_AT, AttributeType.DATETIME);
     
     public static List<Attribute> additionalAttributes = Arrays.asList(
             TWEET_ID_ATTRIBUTE, TEXT_ATTRIBUTE, TWEET_LINK_ATTRIBUTE, USER_LINK_ATTRIBUTE, 

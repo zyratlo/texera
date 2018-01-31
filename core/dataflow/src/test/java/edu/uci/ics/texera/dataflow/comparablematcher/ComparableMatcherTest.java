@@ -1,6 +1,7 @@
 package edu.uci.ics.texera.dataflow.comparablematcher;
 
 import edu.uci.ics.texera.api.constants.test.TestConstants;
+import edu.uci.ics.texera.api.constants.test.TestConstantsRegexSplit;
 import edu.uci.ics.texera.api.exception.TexeraException;
 import edu.uci.ics.texera.api.schema.Attribute;
 import edu.uci.ics.texera.api.tuple.Tuple;
@@ -25,6 +26,7 @@ import java.util.List;
 public class ComparableMatcherTest {
     
     public static final String PEOPLE_TABLE = "comparable_test_people";
+    public static final String PEOPLE_TABLE_2 = "comparable_test_people_2";
 
     @BeforeClass
     public static void setUp() throws TexeraException {
@@ -40,12 +42,24 @@ public class ComparableMatcherTest {
             peopleDataWriter.insertTuple(tuple);
         }
         peopleDataWriter.close();
+        
+        // create the people table 2 and write tuples
+        relationManager.createTable(PEOPLE_TABLE_2, TestUtils.getDefaultTestIndex().resolve(PEOPLE_TABLE_2), 
+                TestConstantsRegexSplit.SCHEMA_PEOPLE, LuceneAnalyzerConstants.standardAnalyzerString());
+        
+        DataWriter people2DataWriter = relationManager.getTableDataWriter(PEOPLE_TABLE_2);
+        people2DataWriter.open();
+        for (Tuple tuple : TestConstantsRegexSplit.constructSamplePeopleTuples()) {
+            people2DataWriter.insertTuple(tuple);
+        }
+        people2DataWriter.close();
     }
 
     @AfterClass
     public static void cleanUp() throws TexeraException {
         RelationManager relationManager = RelationManager.getInstance();
         relationManager.deleteTable(PEOPLE_TABLE);
+        relationManager.deleteTable(PEOPLE_TABLE_2);
     }
     
     public List<Tuple> getQueryResults(String attributeName, ComparisonType matchingType, Object compareToValue)
@@ -54,7 +68,10 @@ public class ComparableMatcherTest {
         ComparablePredicate comparablePredicate = new ComparablePredicate(attributeName, matchingType, compareToValue);
         ComparableMatcher comparableMatcher = new ComparableMatcher(comparablePredicate);
         setDefaultMatcherConfig(comparableMatcher);
-        return getQueryResults(comparableMatcher);
+        comparableMatcher.open();
+        List<Tuple> results =  getQueryResults(comparableMatcher);
+        comparableMatcher.close();
+        return results;
     }
 
     public void setDefaultMatcherConfig(ComparableMatcher comparableMatcher) throws TexeraException {
@@ -62,7 +79,6 @@ public class ComparableMatcherTest {
         ScanBasedSourceOperator sourceOperator = new ScanBasedSourceOperator(
                 new ScanSourcePredicate(PEOPLE_TABLE));
         comparableMatcher.setInputOperator(sourceOperator);
-        comparableMatcher.open();
         comparableMatcher.setLimit(Integer.MAX_VALUE);
         comparableMatcher.setOffset(0);
     }
@@ -510,4 +526,76 @@ public class ComparableMatcherTest {
         Assert.assertTrue(TestUtils.equals(expectedResults, returnedResults));
     }
 
+    
+    @Test
+    public void testDateTime1() throws Exception {
+        
+        // Prepare the query
+        String dateCompared = "1970-01-01T11:11:11";
+        String attributeName = TestConstants.DATE_OF_BIRTH_ATTR.getName();
+        ComparisonType matchingType = ComparisonType.EQUAL_TO;
+        
+        ComparablePredicate comparablePredicate = new ComparablePredicate(attributeName, matchingType, dateCompared);
+        ComparableMatcher comparableMatcher = new ComparableMatcher(comparablePredicate);
+        setDefaultMatcherConfig(comparableMatcher);
+        
+        // Perform the query
+        ScanBasedSourceOperator sourceOperator = new ScanBasedSourceOperator(
+                new ScanSourcePredicate(PEOPLE_TABLE_2));
+        comparableMatcher.setInputOperator(sourceOperator);
+        comparableMatcher.open();
+        comparableMatcher.setLimit(Integer.MAX_VALUE);
+        comparableMatcher.setOffset(0);
+        
+        List<Tuple> returnedResults = new ArrayList<>();
+        Tuple nextTuple = null;
+
+        while ((nextTuple = comparableMatcher.getNextTuple()) != null) {
+            returnedResults.add(nextTuple);
+        }
+        comparableMatcher.close();        
+        
+        List<Tuple> expectedResults = new ArrayList<>();
+        expectedResults.add(TestConstantsRegexSplit.constructSamplePeopleTuples().get(0));
+
+        // check the results
+        Assert.assertEquals(expectedResults.size(), returnedResults.size());
+        Assert.assertTrue(TestUtils.equals(expectedResults, returnedResults));
+    }
+    
+    @Test
+    public void testDateTime2() throws Exception {
+        
+        // Prepare the query
+        String dateCompared = "1970-01-01T11:11:12";
+        String attributeName = TestConstants.DATE_OF_BIRTH_ATTR.getName();
+        ComparisonType matchingType = ComparisonType.LESS_THAN;
+        
+        ComparablePredicate comparablePredicate = new ComparablePredicate(attributeName, matchingType, dateCompared);
+        ComparableMatcher comparableMatcher = new ComparableMatcher(comparablePredicate);
+        setDefaultMatcherConfig(comparableMatcher);
+        
+        // Perform the query
+        ScanBasedSourceOperator sourceOperator = new ScanBasedSourceOperator(
+                new ScanSourcePredicate(PEOPLE_TABLE_2));
+        comparableMatcher.setInputOperator(sourceOperator);
+        comparableMatcher.open();
+        comparableMatcher.setLimit(Integer.MAX_VALUE);
+        comparableMatcher.setOffset(0);
+        
+        List<Tuple> returnedResults = new ArrayList<>();
+        Tuple nextTuple = null;
+
+        while ((nextTuple = comparableMatcher.getNextTuple()) != null) {
+            returnedResults.add(nextTuple);
+        }
+        comparableMatcher.close();        
+        
+        List<Tuple> expectedResults = new ArrayList<>();
+        expectedResults.add(TestConstantsRegexSplit.constructSamplePeopleTuples().get(0));
+
+        // check the results
+        Assert.assertEquals(expectedResults.size(), returnedResults.size());
+        Assert.assertTrue(TestUtils.equals(expectedResults, returnedResults));
+    }
 }
