@@ -79,17 +79,21 @@ public class ComparableMatcher extends AbstractSingleInputOperator {
     }
 
     private boolean compareDate(Tuple inputTuple) throws DataflowException {     
-        if (predicate.getCompareToValue().getClass().equals(String.class)) {
+        LocalDateTime dateTime = inputTuple.getField(predicate.getAttributeName(), DateField.class).getValue();
+        String compareToString = predicate.getCompareToValue().toString();
+        
+        // try to parse the input as date string first
+        try {
+            LocalDate compareToDate = LocalDate.parse(compareToString);
+            return compareValues(dateTime.toLocalDate(), compareToDate, predicate.getComparisonType());
+        } catch (DateTimeParseException e) {
+            // if it fails, then try to parse as date time string 
             try {
-                String compareTo = (String) predicate.getCompareToValue();
-                LocalDate compareToDate = LocalDate.parse(compareTo);
-                LocalDateTime dateTime = inputTuple.getField(predicate.getAttributeName(), DateField.class).getValue();
-                return compareValues(dateTime.toLocalDate(), compareToDate, predicate.getComparisonType());
-            } catch (DateTimeParseException e) {
-                throw new DataflowException("Unable to parse date: " + e.getMessage());
+                LocalDateTime compareToDateTime = LocalDateTime.parse(compareToString);
+                return compareValues(dateTime, compareToDateTime, predicate.getComparisonType());
+            } catch ( DateTimeParseException e2) {
+                throw new DataflowException("Unable to parse date or time: " + compareToString);
             }
-        } else {
-            throw new DataflowException("Value " + predicate.getCompareToValue() + " is not a string");
         }
     }
 
