@@ -17,49 +17,16 @@
  * under the License.
  */
 
-#result {
-  position: absolute;
-  bottom: 0;
+interface MappingContent {
+  cell_to_operator: { [key: string]: any };
+  operator_to_cell: { [key: string]: any };
 }
 
-texera-menu {
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 1;
-  width: 100%;
-  background-color: white;
-}
+const mapping: { [key: string]: MappingContent } = {
+  default: {
+    cell_to_operator: {},
+    operator_to_cell: {},
+  },
+};
 
-texera-jupyter-notebook-panel {
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 1;
-  width: 100%;
-  background-color: white;
-}
-
-texera-mini-map {
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  z-index: 3;
-  user-select: none;
-}
-
-texera-workflow-editor {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: #f6f6f6;
-}
-
-.spinner-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100%;
-}
+export default mapping;

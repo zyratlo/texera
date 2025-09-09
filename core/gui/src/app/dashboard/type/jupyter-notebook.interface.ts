@@ -17,49 +17,23 @@
  * under the License.
  */
 
-#result {
-  position: absolute;
-  bottom: 0;
+export interface JupyterNotebook {
+  cells: JupyterCell[];
+  metadata: any;
+  nbformat: number;
+  nbformat_minor: number;
 }
 
-texera-menu {
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 1;
-  width: 100%;
-  background-color: white;
+export interface JupyterCell {
+  cell_type: string;
+  source: string[];
+  metadata: any;
+  outputs?: JupyterOutput[];
 }
 
-texera-jupyter-notebook-panel {
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 1;
-  width: 100%;
-  background-color: white;
-}
-
-texera-mini-map {
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  z-index: 3;
-  user-select: none;
-}
-
-texera-workflow-editor {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: #f6f6f6;
-}
-
-.spinner-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100%;
+export interface JupyterOutput {
+  output_type: string;
+  text?: string[];
+  data?: { [key: string]: any };
+  traceback?: string[];
 }

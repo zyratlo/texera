@@ -18,7 +18,7 @@
  */
 
 import { DatePipe, Location } from "@angular/common";
-import { Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from "@angular/core";
+import { Component, ElementRef, Input, OnDestroy, OnInit, ViewChild, Output, EventEmitter } from "@angular/core";
 import { UserService } from "../../../common/service/user/user.service";
 import {
   DEFAULT_WORKFLOW_NAME,
@@ -54,6 +54,8 @@ import { ComputingUnitStatusService } from "../../service/computing-unit-status/
 import { ComputingUnitState } from "../../types/computing-unit-connection.interface";
 import { ComputingUnitSelectionComponent } from "../power-button/computing-unit-selection.component";
 import { GuiConfigService } from "../../../common/service/gui-config.service";
+import { JupyterPanelService } from "../../service/jupyter-panel/jupyter-panel.service";
+import mapping from "../../../../assets/migration_tool/mapping";
 
 /**
  * MenuComponent is the top level menu bar that shows
@@ -95,6 +97,8 @@ export class MenuComponent implements OnInit, OnDestroy {
   @Input() public currentExecutionName: string = ""; // reset executionName
   @Input() public particularVersionDate: string = ""; // placeholder for the metadata information of a particular workflow version
   @ViewChild("workflowNameInput") workflowNameInput: ElementRef<HTMLInputElement> | undefined;
+  // Emit an event to parent component (workspace) when AI generation starts or stops
+  @Output() public setWaitingForOpenAi = new EventEmitter<boolean>();
 
   // variable bound with HTML to decide if the running spinner should show
   public runButtonText = "Run";
@@ -135,7 +139,8 @@ export class MenuComponent implements OnInit, OnDestroy {
     private reportGenerationService: ReportGenerationService,
     private panelService: PanelService,
     private computingUnitStatusService: ComputingUnitStatusService,
-    protected config: GuiConfigService
+    protected config: GuiConfigService,
+    private jupyterPanelService: JupyterPanelService
   ) {
     workflowWebsocketService
       .subscribeToEvent("ExecutionDurationUpdateEvent")
@@ -496,6 +501,179 @@ export class MenuComponent implements OnInit, OnDestroy {
       .map(op => op.operatorID);
     this.workflowActionService.deleteOperatorsAndLinks(allOperatorIDs);
   }
+
+  public onClickImportNotebook = (file: NzUploadFile): boolean => {
+    const reader = new FileReader();
+
+    // Check if the file is a Jupyter notebook based on its extension
+    const fileExtension = file.name.split(".").pop()?.toLowerCase();
+    if (fileExtension !== "ipynb") {
+      this.notificationService.error("Please upload a valid Jupyter Notebook (.ipynb) file.");
+      return false;
+    }
+
+    this.setWaitingForOpenAi.emit(true); // start loading
+
+    // Read the notebook file as text
+    reader.readAsText(file as any);
+    reader.onload = async () => {
+      try {
+        const result = reader.result;
+        if (typeof result !== "string") {
+          throw new Error("File content is not a valid string.");
+        }
+
+        // Parse the content of the .ipynb file (it's in JSON format)
+        const notebookContent = JSON.parse(result);
+
+        // Validate the notebook structure
+        if (!notebookContent || !Array.isArray(notebookContent.cells)) {
+          throw new Error("Invalid notebook structure.");
+        }
+
+        // Print content of notebook (JSON)
+        console.log(`Notebook JSON: ${JSON.stringify(notebookContent)}`);
+
+        // Send Notebook JSON to pod to open in jupyterlab
+        await this.sendNotebookToPod(notebookContent);
+
+        // Get workflow and mapping from OpenAI
+        console.log("Getting data from OpenAI...");
+        await this.sendToAIGenerateWorkflow()
+          .then(result => {
+            if (result) {
+              const { workflowContent, mappingContent } = result;
+              console.log("Workflow:", workflowContent);
+              console.log("Mapping:", mappingContent);
+
+              const fileExtensionIndex = file.name.lastIndexOf(".");
+              var workflowName: string;
+              if (fileExtensionIndex === -1) {
+                workflowName = file.name;
+              } else {
+                workflowName = file.name.substring(0, fileExtensionIndex);
+              }
+              if (workflowName.trim() === "") {
+                workflowName = DEFAULT_WORKFLOW_NAME;
+              }
+
+              // Create a valid Workflow object with required fields
+              const workflow: Workflow = {
+                content: workflowContent,
+                name: workflowName,
+                isPublished: 0,
+                description: undefined,
+                wid: undefined,
+                creationTime: undefined,
+                lastModifiedTime: undefined,
+                readonly: false,
+              };
+
+              this.workflowPersistService
+                .persistWorkflow(workflow)
+                .pipe(untilDestroyed(this))
+                .subscribe((updatedWorkflow: Workflow) => {
+                  const mappingID = "mapping_wid_" + updatedWorkflow.wid;
+
+                  mapping[mappingID] = {
+                    cell_to_operator: { ...mappingContent["cell_to_operator"] },
+                    operator_to_cell: { ...mappingContent["operator_to_cell"] },
+                  };
+
+                  this.workflowActionService.reloadWorkflow(updatedWorkflow, true);
+                  this.openJupyterNotebookPanel();
+                  this.notificationService.success("Successfully generated workflow and mapping from notebook.");
+                });
+            } else {
+              console.error("Result is undefined");
+            }
+          })
+          .catch(error => {
+            console.error("Error while fetching data from OpenAI:", error);
+          })
+          .finally(() => {
+            this.setWaitingForOpenAi.emit(false); // stop loading
+          });
+      } catch (error) {
+        this.notificationService.error("Failed to import the notebook.");
+        console.error(error);
+      }
+    };
+
+    return false; // Prevent automatic upload handling
+  };
+
+  private openJupyterNotebookPanel(): void {
+    // Assuming you have a service that handles the state of various panels
+    this.jupyterPanelService.openPanel("JupyterNotebookPanel");
+  }
+
+  private async sendToAIGenerateWorkflow() {
+    const apiUrl = "http://localhost:5000/get_openai_response"; // Flask API URL
+
+    try {
+      // Send POST request to the Flask server
+      const response = await fetch(apiUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({}),
+      });
+
+      // Check if the response is OK (status code 200)
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+
+      // Parse JSON response from the server
+      const data = await response.json();
+      console.log("Data received from OpenAI:", data); // { "workflow": {...}, "mapping": {...} }
+
+      // Extract individual objects
+      const workflowContent = data.workflow;
+      const mappingContent = data.mapping;
+
+      return { workflowContent, mappingContent };
+    } catch (error) {
+      console.error("Error while querying OpenAI:", error);
+    }
+  }
+
+  private async sendNotebookToPod(notebookContent: JSON) {
+    const apiUrl = "http://localhost:5000/set_notebook"; // Flask API URL
+
+    const requestBody = {
+      notebookName: "example.ipynb", // TODO: make this into the link used by jupyter-notebook-panel.component.html: e.g) "http://localhost:8888/notebooks/work/example.ipynb?token=mytoken"
+      notebookData: notebookContent,
+    };
+
+    try {
+      const response = await fetch(apiUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      // Ensure the response status is 200 (OK) before proceeding
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: "Unknown error occurred" }));
+        throw new Error(`Server Error ${response.status}: ${errorData.error || "Failed to execute notebook"}`);
+      }
+
+      const data = await response.json(); // {message: 'Notebook saved successfully', notebookPath: '/home/jovyan/work/example.ipynb'}
+      console.log("Notebook successfully sent to pod:", data);
+      this.notificationService.success("Notebook opened successfully in JupyterLab.");
+      this.openJupyterNotebookPanel(); // Open panel after successful upload
+    } catch (error) {
+      console.error("Error sending notebook to pod:", error);
+      // @ts-ignore
+      this.notificationService.error("Error sending notebook to JupyterLab: " + error.message);
+    }
+  }
+
 
   public onClickImportWorkflow = (file: NzUploadFile): boolean => {
     const reader = new FileReader();

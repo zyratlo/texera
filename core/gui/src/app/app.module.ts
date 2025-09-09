@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { DatePipe, registerLocaleData } from "@angular/common";
+import { DatePipe, registerLocaleData, CommonModule } from "@angular/common";
 import { HTTP_INTERCEPTORS, HttpClientModule } from "@angular/common/http";
 import en from "@angular/common/locales/en";
 import { NgModule, APP_INITIALIZER } from "@angular/core";
@@ -172,6 +172,8 @@ import { AdminSettingsComponent } from "./dashboard/component/admin/settings/adm
 import { catchError, of } from "rxjs";
 import { FormlyRepeatDndComponent } from "./common/formly/repeat-dnd/repeat-dnd.component";
 import { NzInputNumberModule } from "ng-zorro-antd/input-number";
+import { JupyterUploadSuccessComponent } from "./dashboard/component/user/user-workflow/notebook-migration-tool/notebook-migration.component";
+import { JupyterNotebookPanelComponent } from "./workspace/component/jupyter-notebook-panel/jupyter-notebook-panel.component";
 
 registerLocaleData(en);
 
@@ -199,6 +201,7 @@ registerLocaleData(en);
     UserAvatarComponent,
     LocalLoginComponent,
     UserWorkflowComponent,
+    JupyterUploadSuccessComponent,
     UserQuotaComponent,
     RowModalComponent,
     OperatorLabelComponent,
@@ -264,9 +267,11 @@ registerLocaleData(en);
     HubSearchResultComponent,
     ComputingUnitSelectionComponent,
     AdminSettingsComponent,
+    JupyterNotebookPanelComponent,
   ],
   imports: [
     BrowserModule,
+    CommonModule,
     AppRoutingModule,
     HttpClientModule,
     JwtModule.forRoot({

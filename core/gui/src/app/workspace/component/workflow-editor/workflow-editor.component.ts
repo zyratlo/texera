@@ -41,6 +41,7 @@ import * as _ from "lodash";
 import * as joint from "jointjs";
 import { isDefined } from "../../../common/util/predicate";
 import { GuiConfigService } from "../../../common/service/gui-config.service";
+import { JupyterPanelService } from "../../service/jupyter-panel/jupyter-panel.service";
 
 // jointjs interactive options for enabling and disabling interactivity
 // https://resources.jointjs.com/docs/jointjs/v3.2/joint.html#dia.Paper.prototype.options.interactive
@@ -109,7 +110,8 @@ export class WorkflowEditorComponent implements AfterViewInit, OnDestroy {
     private router: Router,
     public nzContextMenu: NzContextMenuService,
     private elementRef: ElementRef,
-    private config: GuiConfigService
+    private config: GuiConfigService,
+    private jupyterPanelService: JupyterPanelService
   ) {
     this.wrapper = this.workflowActionService.getJointGraphWrapper();
   }
@@ -496,12 +498,14 @@ export class WorkflowEditorComponent implements AfterViewInit, OnDestroy {
         const elementID = event[0].model.id.toString();
         const highlightedOperatorIDs = this.wrapper.getCurrentHighlightedOperatorIDs();
         const highlightedCommentBoxIDs = this.wrapper.getCurrentHighlightedCommentBoxIDs();
+        this.jupyterPanelService.onWorkflowComponentClick(elementID); // Highlight corresponding Jupyter notebook cell
         if (event[1].shiftKey) {
           // if in multiselect toggle highlights on click
           if (highlightedOperatorIDs.includes(elementID)) {
             this.workflowActionService.unhighlightOperators(elementID);
           } else if (this.workflowActionService.getTexeraGraph().hasOperator(elementID)) {
             this.workflowActionService.highlightOperators(<boolean>event[1].shiftKey, elementID);
+            this.jupyterPanelService.onWorkflowComponentClick(elementID); // Highlight corresponding Jupyter notebook cell
           }
           if (highlightedCommentBoxIDs.includes(elementID)) {
             this.wrapper.unhighlightCommentBoxes(elementID);

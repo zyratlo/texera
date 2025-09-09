@@ -45,6 +45,7 @@ import { DashboardWorkflow } from "../../../type/dashboard-workflow.interface";
 import { DownloadService } from "../../../service/user/download/download.service";
 import { DASHBOARD_USER_WORKSPACE } from "../../../../app-routing.constant";
 import { GuiConfigService } from "../../../../common/service/gui-config.service";
+import { JupyterUploadSuccessComponent } from "./notebook-migration-tool/notebook-migration.component";
 
 /**
  * Saved-workflow-section component contains information and functionality
@@ -55,6 +56,7 @@ import { GuiConfigService } from "../../../../common/service/gui-config.service"
  *  - allows easy searching for workflows by name or other parameters using Fuse.js
  *  - sorting options
  *  - creation of a new workflow
+ *  - AI generation of new workflow from jupyter notebook
  *
  * Steps to add new search parameter:
  *  1. Add a newly formatted dropdown menu in the html and css files, and a backend call to retrieve any necessary data

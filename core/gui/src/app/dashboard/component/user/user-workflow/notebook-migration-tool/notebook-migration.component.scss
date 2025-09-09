@@ -1,0 +1,130 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+.modal-content {
+  display: flex;
+  justify-content: space-between;
+  padding: 20px;
+  overflow-y: auto; // Ensure content is scrollable
+  background-color: white;
+}
+
+.left-column {
+  flex: 0 0 60%;
+  padding: 20px;
+  border-right: 1px solid #ddd;
+  overflow-y: auto; // Ensure notebook preview is scrollable
+  max-height: 100%; // Ensure content fits within modal height
+}
+
+.right-column {
+  flex: 0 0 35%;
+  padding: 20px;
+  overflow-y: auto; // Ensure dataset input section is scrollable
+}
+
+.equivalence-check {
+  display: flex;
+  justify-content: center;
+  flex-direction: row;
+}
+
+.notebook-workflow-side-by-side {
+  display: flex; /* Use flexbox for the container */
+  flex-direction: row; /* Arrange children in a row */
+  gap: 20px; /* Optional: Adds space between the columns */
+}
+
+.left-half {
+  flex: 1; /* Adjusts to take available space */
+  max-width: 50%; /* Ensures it doesn't exceed half of the container */
+}
+
+.right-half {
+  flex: 1; /* Adjusts to take available space */
+  max-width: 50%; /* Ensures it doesn't exceed half of the container */
+}
+
+.notebook-preview {
+  margin-top: 10px;
+  margin-bottom: 10px;
+  border: 2px solid #000000;
+  padding: 10px;
+  height: 60vh; // Adjust max height for better visibility
+  overflow-y: auto;
+  background-color: #f7f7f7;
+}
+
+.workflow-preview {
+  margin-top: 10px;
+  margin-bottom: 10px;
+  border: 2px solid #000000;
+  padding: 10px;
+  height: 60vh;
+  overflow-y: auto;
+  background-color: #f7f7f7;
+}
+
+// Styling for Jupyter Notebook Cells
+.notebook-cell {
+  margin-bottom: 20px;
+  border-radius: 5px;
+  padding: 15px;
+  background-color: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  position: relative;
+  border: 1px solid #e0e0e0;
+}
+
+// Markdown Cell Styles
+.jupyter-markdown-cell {
+  padding: 10px;
+  background-color: #fbfbfb;
+  font-family: "Georgia", "Times", "serif";
+  border-left: 4px solid #f1f1f1;
+}
+
+// Code Cell Styles
+.jupyter-code-cell {
+  background-color: #f7f7f7;
+  padding: 10px;
+  border-radius: 4px;
+  font-family: "Courier New", Courier, monospace;
+  border: 1px solid #ddd;
+  position: relative;
+}
+
+// Output Area Styles
+.output {
+  margin-top: 10px;
+  padding: 10px;
+  background-color: #f9f9f9;
+  border-radius: 4px;
+  border: 1px solid #e8e8e8;
+  font-family: "Courier New", Courier, monospace;
+  white-space: pre-wrap;
+}
+
+// Raw Cell Styles
+.jupyter-raw-cell {
+  padding: 10px;
+  background-color: #f1f1f1;
+  border: 1px dashed #ddd;
+  font-family: "Courier New", Courier, monospace;
+}

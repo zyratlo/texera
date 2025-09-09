@@ -1,0 +1,187 @@
+<!--
+ Licensed to the Apache Software Foundation (ASF) under one
+ or more contributor license agreements.  See the NOTICE file
+ distributed with this work for additional information
+ regarding copyright ownership.  The ASF licenses this file
+ to you under the Apache License, Version 2.0 (the
+ "License"); you may not use this file except in compliance
+ with the License.  You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing,
+ software distributed under the License is distributed on an
+ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ KIND, either express or implied.  See the License for the
+ specific language governing permissions and limitations
+ under the License.
+-->
+
+<!-- Preview and Upload Dataset Window -->
+<div
+  class="modal-content"
+  *ngIf="popupStage === 0">
+  <!-- Left Column: Jupyter Notebook Preview -->
+  <div class="left-column">
+    <h2>Upload Successful</h2>
+    <p>Your Jupyter Notebook has been successfully uploaded!</p>
+    <h3>Notebook Preview:</h3>
+
+    <div class="notebook-preview">
+      <div
+        *ngFor="let cell of notebookContent?.cells"
+        class="notebook-cell">
+        <ng-container [ngSwitch]="cell.cell_type">
+          <!-- Markdown Cell -->
+          <div
+            *ngSwitchCase="'markdown'"
+            class="jupyter-markdown-cell">
+            <pre>{{ cell.source.join("") }}</pre>
+          </div>
+
+          <!-- Code Cell -->
+          <div
+            *ngSwitchCase="'code'"
+            class="jupyter-code-cell">
+            <pre>{{ cell.source.join("") }}</pre>
+            <!-- Safe check for outputs -->
+            <div
+              *ngIf="cell.outputs && cell.outputs.length > 0"
+              class="output">
+              <h4>Output:</h4>
+              <pre *ngFor="let output of cell.outputs">{{ getOutputText(output) }}</pre>
+            </div>
+          </div>
+
+          <!-- Raw Cell -->
+          <div
+            *ngSwitchCase="'raw'"
+            class="jupyter-raw-cell">
+            <pre>{{ cell.source.join("") }}</pre>
+          </div>
+        </ng-container>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Column: Dataset Input -->
+  <div class="right-column">
+    <h3>Select Datasets for Workflow</h3>
+    <p>Add CSV files that will be used as input datasets for the workflow execution:</p>
+    <div class="dataset-input">
+      <input
+        type="file"
+        accept=".csv"
+        (change)="onFileChange($event)"
+        multiple />
+      <ul
+        *ngIf="datasets.length > 0"
+        class="dataset-list">
+        <li *ngFor="let dataset of datasets">{{ dataset.name }}</li>
+      </ul>
+    </div>
+    <!-- Disable button when no datasets are selected -->
+    <button
+      nz-button
+      nzType="primary"
+      (click)="convertToWorkflow()"
+      [disabled]="datasets.length === 0"
+      [nzLoading]="workflowGeneratingInProgress">
+      Convert to Texera Workflow
+    </button>
+  </div>
+</div>
+
+<!-- Equivalence Check Window  -->
+<div *ngIf="popupStage === 1">
+  <h2>Notebook to Workflow Equivalence Check</h2>
+  <div class="notebook-workflow-side-by-side">
+    <div class="left-half">
+      <h3>Original Notebook</h3>
+      <div class="notebook-preview">
+        <div
+          *ngFor="let cell of notebookContent?.cells"
+          class="notebook-cell">
+          <ng-container [ngSwitch]="cell.cell_type">
+            <!-- Markdown Cell -->
+            <div
+              *ngSwitchCase="'markdown'"
+              class="jupyter-markdown-cell">
+              <pre>{{ cell.source.join("") }}</pre>
+            </div>
+
+            <!-- Code Cell -->
+            <div
+              *ngSwitchCase="'code'"
+              class="jupyter-code-cell">
+              <pre>{{ cell.source.join("") }}</pre>
+              <!-- Safe check for outputs -->
+              <div
+                *ngIf="cell.outputs && cell.outputs.length > 0"
+                class="output">
+                <h4>Output:</h4>
+                <pre *ngFor="let output of cell.outputs">{{ getOutputText(output) }}</pre>
+              </div>
+            </div>
+
+            <!-- Raw Cell -->
+            <div
+              *ngSwitchCase="'raw'"
+              class="jupyter-raw-cell">
+              <pre>{{ cell.source.join("") }}</pre>
+            </div>
+          </ng-container>
+        </div>
+      </div>
+    </div>
+    <div class="right-half">
+      <h3>Generated Texera Workflow</h3>
+      <div class="workflow-preview">
+        <!-- TODO render workflow -->
+        {{workflowJsonContent}}
+      </div>
+    </div>
+  </div>
+  <div class="equivalence-check">
+    <button
+      nz-button
+      nzType="primary"
+      (click)="compareOutput()">
+      Compare Output
+    </button>
+  </div>
+</div>
+
+<div *ngIf="popupStage === 2">
+  <h2>Notebook to Workflow Equivalence Check</h2>
+  <div class="notebook-workflow-side-by-side">
+    <div class="left-half">
+      <h3>Original Notebook Output</h3>
+      <div class="notebook-preview">
+        <!-- TODO generate and show output -->
+        output goes here
+      </div>
+    </div>
+    <div class="right-half">
+      <h3>Generated Texera Workflow Output</h3>
+      <div class="workflow-preview">
+        <!-- TODO generate and show output -->
+        output goes here
+      </div>
+    </div>
+  </div>
+  <div class="equivalence-check">
+    <button
+      nz-button
+      nzType="primary"
+      [style.background-color]="'red'"
+      [style.margin-right]="'10px'">
+      Reject Workflow
+    </button>
+    <button
+      nz-button
+      nzType="primary">
+      Accept Workflow
+    </button>
+  </div>
+</div>

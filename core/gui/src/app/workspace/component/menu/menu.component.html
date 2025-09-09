@@ -156,6 +156,18 @@
             nz-icon
             nzType="download"></i>
         </button>
+        <nz-upload
+          [nzDisabled]="!isWorkflowModifiable"
+          [nzBeforeUpload]="onClickImportNotebook">
+          <button
+            nz-button
+            [disabled]="!isWorkflowModifiable"
+            title="AI Generate Workflow">
+            <i
+              nz-icon
+              nzType="robot"></i>
+          </button>
+        </nz-upload>
       </nz-button-group>
       <ng-template #utilities>
         <nz-button-group>
