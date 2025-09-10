@@ -45,7 +45,7 @@ export class JupyterNotebookPanelComponent implements OnInit, AfterViewInit, OnD
 
         if (this.isVisible) {
           // The iframe only exists once the panel is visible (because of *ngIf)
-          this.notebookUrl = "http://localhost:8888/notebooks/work/example.ipynb?token=mytoken";
+          this.notebookUrl = "http://localhost:8889/notebooks/work/example.ipynb?token=mytoken";
           this.checkIframeRef();
         }
       });

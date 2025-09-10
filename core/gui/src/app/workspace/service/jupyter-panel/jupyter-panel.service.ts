@@ -123,7 +123,7 @@ export class JupyterPanelService {
 
   // Handle messages from the Jupyter notebook iframe
   private handleNotebookMessage = (event: MessageEvent) => {
-    const allowedOrigins = ["http://localhost:4200", "http://localhost:8888"];
+    const allowedOrigins = ["http://localhost:4200", "http://localhost:8889"];
     if (!allowedOrigins.includes(event.origin)) {
       console.log("Invalid origin:", event.origin);
       return;
@@ -175,7 +175,7 @@ export class JupyterPanelService {
       if (operatorArray) {
         this.iframeRef.contentWindow.postMessage(
           { action: "triggerCellClick", operators: operatorArray },
-          "http://localhost:8888"
+          "http://localhost:8889"
         );
       } else {
         console.error(`No operators found for cellUUID: ${cellUUID}`);
