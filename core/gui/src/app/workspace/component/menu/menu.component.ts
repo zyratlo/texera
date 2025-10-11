@@ -57,6 +57,7 @@ import { GuiConfigService } from "../../../common/service/gui-config.service";
 import { JupyterPanelService } from "../../service/jupyter-panel/jupyter-panel.service";
 import mapping from "../../../../assets/migration_tool/mapping";
 import { environment } from "../../../../environments/environment";
+import { HttpClient, HttpHeaders } from "@angular/common/http";
 
 /**
  * MenuComponent is the top level menu bar that shows
@@ -141,7 +142,8 @@ export class MenuComponent implements OnInit, OnDestroy {
     private panelService: PanelService,
     private computingUnitStatusService: ComputingUnitStatusService,
     protected config: GuiConfigService,
-    private jupyterPanelService: JupyterPanelService
+    private jupyterPanelService: JupyterPanelService,
+    private http: HttpClient
   ) {
     workflowWebsocketService
       .subscribeToEvent("ExecutionDurationUpdateEvent")
@@ -611,33 +613,17 @@ export class MenuComponent implements OnInit, OnDestroy {
 
   private async sendToAIGenerateWorkflow() {
     const openaiAPIUrl = `${environment.openaiAPIUrl}/get_openai_response`; // OpenAI Flask API URL
+    const headers = new HttpHeaders({ "Content-Type": "application/json" });
 
     try {
-      // Send POST request to the Flask server
-      const response = await fetch(openaiAPIUrl, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({}),
-      });
+      const response: any = await firstValueFrom(this.http.post(openaiAPIUrl, {}, { headers }));
 
-      // Check if the response is OK (status code 200)
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
-      }
-
-      // Parse JSON response from the server
-      const data = await response.json();
-      console.log("Data received from OpenAI:", data); // { "workflow": {...}, "mapping": {...} }
-
-      // Extract individual objects
-      const workflowContent = data.workflow;
-      const mappingContent = data.mapping;
+      const workflowContent = response.workflow;
+      const mappingContent = response.mapping;
 
       return { workflowContent, mappingContent };
     } catch (error) {
-      console.error("Error while querying OpenAI:", error);
+      console.error("Network response was not ok", error);
     }
   }
 
@@ -649,27 +635,17 @@ export class MenuComponent implements OnInit, OnDestroy {
       notebookData: notebookContent,
     };
 
+    const headers = new HttpHeaders({
+      "Content-Type": "application/json",
+    });
+
     try {
-      const response = await fetch(openaiAPIUrl, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(requestBody),
-      });
-
-      // Ensure the response status is 200 (OK) before proceeding
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ error: "Unknown error occurred" }));
-        throw new Error(`Server Error ${response.status}: ${errorData.error || "Failed to execute notebook"}`);
-      }
-
-      const data = await response.json(); // {message: 'Notebook saved successfully', notebookPath: '/home/jovyan/work/example.ipynb'}
-      console.log("Notebook successfully sent to pod:", data);
+      const response: any = await firstValueFrom(this.http.post(openaiAPIUrl, requestBody, { headers }));
+      console.log("Notebook successfully sent to pod:", response);
       this.notificationService.success("Notebook opened successfully in JupyterLab.");
       this.openJupyterNotebookPanel(); // Open panel after successful upload
     } catch (error) {
-      console.error("Error sending notebook to pod:", error);
+      console.error("Error sending notebook to pod: ", error);
       // @ts-ignore
       this.notificationService.error("Error sending notebook to JupyterLab: " + error.message);
     }
