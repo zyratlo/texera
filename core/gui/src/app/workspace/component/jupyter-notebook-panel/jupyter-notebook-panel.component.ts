@@ -21,6 +21,8 @@ import { Component, ElementRef, OnDestroy, OnInit, ViewChild, AfterViewInit } fr
 import { JupyterPanelService } from "../../service/jupyter-panel/jupyter-panel.service";
 import { Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
+import { environment } from "../../../../environments/environment";
+import { DomSanitizer, SafeResourceUrl } from "@angular/platform-browser";
 
 @Component({
   selector: "texera-jupyter-notebook-panel",
@@ -31,10 +33,13 @@ export class JupyterNotebookPanelComponent implements OnInit, AfterViewInit, OnD
   @ViewChild("iframeRef", { static: false }) iframeRef!: ElementRef<HTMLIFrameElement>; // Use static: false
 
   isVisible: boolean = false; // Initialize to false, meaning the panel is hidden by default
-  notebookUrl: string = ""; // Store the notebook URL dynamically
+  jupyterUrl: SafeResourceUrl = ""; // Store the notebook URL dynamically
   private destroy$ = new Subject<void>();
 
-  constructor(private jupyterPanelService: JupyterPanelService) {}
+  constructor(
+    private jupyterPanelService: JupyterPanelService,
+    private sanitizer: DomSanitizer
+  ) {}
 
   ngOnInit(): void {
     // Subscribe to the visibility state of the panel
@@ -45,7 +50,8 @@ export class JupyterNotebookPanelComponent implements OnInit, AfterViewInit, OnD
 
         if (this.isVisible) {
           // The iframe only exists once the panel is visible (because of *ngIf)
-          this.notebookUrl = "http://localhost:8889/notebooks/work/example.ipynb?token=mytoken";
+          const url = `${environment.jupyterAPIUrl}/notebooks/work/example.ipynb?token=mytoken`;
+          this.jupyterUrl = this.sanitizer.bypassSecurityTrustResourceUrl(url);
           this.checkIframeRef();
         }
       });

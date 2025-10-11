@@ -56,6 +56,7 @@ import { ComputingUnitSelectionComponent } from "../power-button/computing-unit-
 import { GuiConfigService } from "../../../common/service/gui-config.service";
 import { JupyterPanelService } from "../../service/jupyter-panel/jupyter-panel.service";
 import mapping from "../../../../assets/migration_tool/mapping";
+import { environment } from "../../../../environments/environment";
 
 /**
  * MenuComponent is the top level menu bar that shows
@@ -609,11 +610,11 @@ export class MenuComponent implements OnInit, OnDestroy {
   }
 
   private async sendToAIGenerateWorkflow() {
-    const apiUrl = "http://localhost:5000/get_openai_response"; // Flask API URL
+    const openaiAPIUrl = `${environment.openaiAPIUrl}/get_openai_response`; // OpenAI Flask API URL
 
     try {
       // Send POST request to the Flask server
-      const response = await fetch(apiUrl, {
+      const response = await fetch(openaiAPIUrl, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -641,15 +642,15 @@ export class MenuComponent implements OnInit, OnDestroy {
   }
 
   private async sendNotebookToPod(notebookContent: JSON) {
-    const apiUrl = "http://localhost:5000/set_notebook"; // Flask API URL
+    const openaiAPIUrl = `${environment.openaiAPIUrl}/set_notebook`; // OpenAI Flask API URL
 
     const requestBody = {
-      notebookName: "example.ipynb", // TODO: make this into the link used by jupyter-notebook-panel.component.html: e.g) "http://localhost:8888/notebooks/work/example.ipynb?token=mytoken"
+      notebookName: "example.ipynb",
       notebookData: notebookContent,
     };
 
     try {
-      const response = await fetch(apiUrl, {
+      const response = await fetch(openaiAPIUrl, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

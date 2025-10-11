@@ -22,6 +22,7 @@ import { BehaviorSubject } from "rxjs";
 import { WorkflowActionService } from "../workflow-graph/model/workflow-action.service";
 import mapping from "../../../../assets/migration_tool/mapping";
 import { OperatorLink } from "../../types/workflow-common.interface";
+import { environment } from "../../../../environments/environment";
 
 @Injectable({
   providedIn: "root",
@@ -123,7 +124,7 @@ export class JupyterPanelService {
 
   // Handle messages from the Jupyter notebook iframe
   private handleNotebookMessage = (event: MessageEvent) => {
-    const allowedOrigins = ["http://localhost:4200", "http://localhost:8889"];
+    const allowedOrigins = [window.location.origin, environment.jupyterAPIUrl];
     if (!allowedOrigins.includes(event.origin)) {
       console.log("Invalid origin:", event.origin);
       return;
@@ -175,7 +176,7 @@ export class JupyterPanelService {
       if (operatorArray) {
         this.iframeRef.contentWindow.postMessage(
           { action: "triggerCellClick", operators: operatorArray },
-          "http://localhost:8889"
+          environment.jupyterAPIUrl
         );
       } else {
         console.error(`No operators found for cellUUID: ${cellUUID}`);
