@@ -625,7 +625,7 @@ export class MenuComponent implements OnInit, OnDestroy {
   }
 
   private async sendToAIGenerateWorkflow() {
-    const openaiAPIUrl = `${environment.openaiAPIUrl}/get_openai_response`; // OpenAI Flask API URL
+    const openaiAPIUrl = `${environment.notebookMigrationFastAPIUrl}/openai/get_openai_response`; // OpenAI Flask API URL
     const headers = new HttpHeaders({ "Content-Type": "application/json" });
 
     try {
@@ -641,10 +641,10 @@ export class MenuComponent implements OnInit, OnDestroy {
   }
 
   private async sendNotebookToPod(notebookContent: JSON) {
-    const openaiAPIUrl = `${environment.openaiAPIUrl}/set_notebook`; // OpenAI Flask API URL
+    const openaiAPIUrl = `${environment.notebookMigrationFastAPIUrl}/jupyter/set_notebook`;
 
     const requestBody = {
-      notebookName: "example.ipynb",
+      notebookName: "notebook.ipynb",
       notebookData: notebookContent,
     };
 
