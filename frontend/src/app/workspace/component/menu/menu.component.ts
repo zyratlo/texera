@@ -596,6 +596,28 @@ export class MenuComponent implements OnInit, OnDestroy {
                     operator_to_cell: { ...mappingContent["operator_to_cell"] },
                   };
 
+                  // Store wid, mapping, and notebook in migration database
+                  const dbAPIUrl = `${environment.notebookMigrationFastAPIUrl}/postgres/store_mapping_and_workflow`;
+                  const headers = new HttpHeaders({ "Content-Type": "application/json" });
+                  const payload = {
+                    wid: updatedWorkflow.wid,
+                    mapping: mappingContent,
+                    notebook: notebookContent,
+                  };
+
+                  this.http
+                    .post(dbAPIUrl, payload, { headers })
+                    .pipe(untilDestroyed(this))
+                    .subscribe({
+                      next: (response: any) => {
+                        console.log("wid, mapping, and notebook stored in migration database:", response?.message);
+                      },
+                      error: (error: unknown) => {
+                        console.error("Network response was not ok", error);
+                      },
+                    });
+
+                  // Load workflow and open Jupyter panel
                   this.workflowActionService.reloadWorkflow(updatedWorkflow, true);
                   this.openJupyterNotebookPanel();
                   this.notificationService.success("Successfully generated workflow and mapping from notebook.");
@@ -641,7 +663,7 @@ export class MenuComponent implements OnInit, OnDestroy {
   }
 
   private async sendNotebookToPod(notebookContent: JSON) {
-    const openaiAPIUrl = `${environment.notebookMigrationFastAPIUrl}/jupyter/set_notebook`;
+    const jupyterAPIUrl = `${environment.notebookMigrationFastAPIUrl}/jupyter/set_notebook`;
 
     const requestBody = {
       notebookName: "notebook.ipynb",
@@ -653,7 +675,7 @@ export class MenuComponent implements OnInit, OnDestroy {
     });
 
     try {
-      const response: any = await firstValueFrom(this.http.post(openaiAPIUrl, requestBody, { headers }));
+      const response: any = await firstValueFrom(this.http.post(jupyterAPIUrl, requestBody, { headers }));
       console.log("Notebook successfully sent to pod:", response);
       this.notificationService.success("Notebook opened successfully in JupyterLab.");
       this.openJupyterNotebookPanel(); // Open panel after successful upload

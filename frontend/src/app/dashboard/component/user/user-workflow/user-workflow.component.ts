@@ -46,6 +46,8 @@ import { DownloadService } from "../../../service/user/download/download.service
 import { DASHBOARD_USER_WORKSPACE } from "../../../../app-routing.constant";
 import { GuiConfigService } from "../../../../common/service/gui-config.service";
 import { JupyterUploadSuccessComponent } from "./notebook-migration-tool/notebook-migration.component";
+import { HttpClient, HttpHeaders } from "@angular/common/http";
+import { environment } from "../../../../../environments/environment";
 
 /**
  * Saved-workflow-section component contains information and functionality
@@ -122,7 +124,8 @@ export class UserWorkflowComponent implements AfterViewInit {
     private router: Router,
     private downloadService: DownloadService,
     private searchService: SearchService,
-    private config: GuiConfigService
+    private config: GuiConfigService,
+    private http: HttpClient
   ) {
     this.userService
       .userChanged()
@@ -330,6 +333,26 @@ export class UserWorkflowComponent implements AfterViewInit {
     if (entry.workflow.workflow.wid == undefined) {
       return;
     }
+
+    // Store wid, mapping, and notebook in migration database
+    const dbAPIUrl = `${environment.notebookMigrationFastAPIUrl}/postgres/delete_by_wid`;
+    const headers = new HttpHeaders({ "Content-Type": "application/json" });
+    const payload = {
+      wid: entry.workflow.workflow.wid,
+    };
+
+    this.http
+      .post(dbAPIUrl, payload, { headers })
+      .pipe(untilDestroyed(this))
+      .subscribe({
+        next: (response: any) => {
+          console.log("Migration database:", response?.message);
+        },
+        error: (error: unknown) => {
+          console.error("Network response was not ok", error);
+        },
+      });
+
     this.workflowPersistService
       .deleteWorkflow([entry.workflow.workflow.wid])
       .pipe(untilDestroyed(this))
