@@ -184,6 +184,17 @@ export class JupyterPanelService {
 
   // Expand the Jupyter Notebook panel
   public openJupyterNotebookPanel(): void {
+    const wid = this.workflowActionService.getWorkflow().wid;
+    const mappingKey = "mapping_wid_" + wid;
+
+    // Check if there is corresponding mapping data
+    if (wid === undefined || !(mappingKey in mapping)) {
+      console.warn("No Jupyter notebook found for this workflow. Cannot open panel.");
+      this.notificationService.warning("No Jupyter notebook associated with this workflow.");
+      return;
+    }
+
+    // Expand only if the mapping exists
     this.jupyterNotebookPanelVisible.next(true);
   }
 
