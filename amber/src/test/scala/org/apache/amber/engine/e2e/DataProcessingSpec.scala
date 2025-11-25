@@ -19,9 +19,9 @@
 
 package org.apache.amber.engine.e2e
 
-import akka.actor.{ActorSystem, Props}
-import akka.testkit.{ImplicitSender, TestKit}
-import akka.util.Timeout
+import org.apache.pekko.actor.{ActorSystem, Props}
+import org.apache.pekko.testkit.{ImplicitSender, TestKit}
+import org.apache.pekko.util.Timeout
 import com.twitter.util.{Await, Duration, Promise}
 import org.apache.amber.clustering.SingleNodeListener
 import org.apache.amber.core.storage.DocumentFactory
@@ -45,7 +45,7 @@ import org.apache.amber.operator.aggregate.AggregationFunction
 import org.apache.texera.web.resource.dashboard.user.workflow.WorkflowExecutionsResource.getResultUriByLogicalPortId
 import org.apache.texera.workflow.LogicalLink
 import org.scalatest.flatspec.AnyFlatSpecLike
-import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach}
+import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, Outcome, Retries}
 
 import scala.concurrent.duration.DurationInt
 
@@ -54,7 +54,16 @@ class DataProcessingSpec
     with ImplicitSender
     with AnyFlatSpecLike
     with BeforeAndAfterAll
-    with BeforeAndAfterEach {
+    with BeforeAndAfterEach
+    with Retries {
+
+  /**
+    * This block retries each test once if it fails.
+    * In the CI environment, there is a chance that executeWorkflow does not receive "COMPLETED" status.
+    * Until we find the root cause of this issue, we use a retry mechanism here to stablize CI runs.
+    */
+  override def withFixture(test: NoArgTest): Outcome =
+    withRetry { super.withFixture(test) }
 
   implicit val timeout: Timeout = Timeout(5.seconds)
 

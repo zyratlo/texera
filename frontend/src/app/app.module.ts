@@ -175,6 +175,7 @@ import { NzSliderModule } from "ng-zorro-antd/slider";
 import { AdminSettingsComponent } from "./dashboard/component/admin/settings/admin-settings.component";
 import { FormlyRepeatDndComponent } from "./common/formly/repeat-dnd/repeat-dnd.component";
 import { NzInputNumberModule } from "ng-zorro-antd/input-number";
+import { NzCheckboxModule } from "ng-zorro-antd/checkbox";
 import { JupyterUploadSuccessComponent } from "./dashboard/component/user/user-workflow/notebook-migration-tool/notebook-migration.component";
 import { JupyterNotebookPanelComponent } from "./workspace/component/jupyter-notebook-panel/jupyter-notebook-panel.component";
 
@@ -338,6 +339,7 @@ registerLocaleData(en);
     NzDividerModule,
     NzProgressModule,
     NzInputNumberModule,
+    NzCheckboxModule,
   ],
   providers: [
     provideNzI18n(en_US),

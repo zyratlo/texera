@@ -41,6 +41,8 @@ import * as _ from "lodash";
 import * as joint from "jointjs";
 import { isDefined } from "../../../common/util/predicate";
 import { GuiConfigService } from "../../../common/service/gui-config.service";
+import { line, curveCatmullRomClosed } from "d3-shape";
+import concaveman from "concaveman";
 import { JupyterPanelService } from "../../service/jupyter-panel/jupyter-panel.service";
 
 // jointjs interactive options for enabling and disabling interactivity
@@ -88,7 +90,6 @@ export class WorkflowEditorComponent implements OnInit, AfterViewInit, OnDestroy
   editorWrapper!: HTMLElement;
   paper!: joint.dia.Paper;
   private interactive: boolean = true;
-  private gridOn: boolean = false;
   private _onProcessKeyboardActionObservable: Subject<void> = new Subject();
   private wrapper;
   private currentOpenedOperatorID: string | null = null;
@@ -164,6 +165,7 @@ export class WorkflowEditorComponent implements OnInit, AfterViewInit, OnDestroy
     this.handlePortHighlightEvent();
     this.registerPortDisplayNameChangeHandler();
     this.handleOperatorStatisticsUpdate();
+    this.handleRegionEvents();
     this.handleOperatorSuggestionHighlightEvent();
     this.handleElementDelete();
     this.handleElementSelectAll();
@@ -171,7 +173,6 @@ export class WorkflowEditorComponent implements OnInit, AfterViewInit, OnDestroy
     this.handleElementCut();
     this.handleElementPaste();
     this.handleLinkCursorHover();
-    this.handleGridsToggle();
     if (this.config.env.linkBreakpointEnabled && this.workflowActionService.getHighlightingEnabled()) {
       this.handleLinkBreakpoint();
     }
@@ -248,6 +249,7 @@ export class WorkflowEditorComponent implements OnInit, AfterViewInit, OnDestroy
       width: this.editor.offsetWidth,
       height: this.editor.offsetHeight,
     });
+    this.editor.classList.add("hide-worker-count");
   }
 
   private handleDisableJointPaperInteractiveness(): void {
@@ -331,6 +333,78 @@ export class WorkflowEditorComponent implements OnInit, AfterViewInit, OnDestroy
             });
         }
       });
+  }
+
+  private handleRegionEvents(): void {
+    this.editor.classList.add("hide-region");
+    const Region = joint.dia.Element.define(
+      "region",
+      {
+        attrs: {
+          body: {
+            fill: "rgba(158,158,158,0.2)",
+            pointerEvents: "none",
+            class: "region",
+          },
+        },
+      },
+      {
+        markup: [{ tagName: "path", selector: "body" }],
+      }
+    );
+
+    let regionMap: { regionElement: joint.dia.Element; operators: joint.dia.Cell[] }[] = [];
+    // update region elements on execution
+    this.executeWorkflowService
+      .getRegionUpdateStream()
+      .pipe(untilDestroyed(this))
+      .subscribe(event => {
+        this.paper.model
+          .getCells()
+          .filter(element => element instanceof Region)
+          .forEach(element => element.remove());
+
+        regionMap = event.regions.map(([id, region]) => {
+          const element = new Region({ id: "region-" + id });
+          const ops = region.map(id => this.paper.getModelById(id));
+          this.paper.model.addCell(element);
+          this.updateRegionElement(element, ops);
+          return { regionElement: element, operators: ops };
+        });
+      });
+
+    this.paper.model.on("change:position", operator => {
+      regionMap
+        .filter(region => region.operators.includes(operator))
+        .forEach(region => this.updateRegionElement(region.regionElement, region.operators));
+    });
+
+    // update region element colors on execution
+    this.executeWorkflowService
+      .getRegionStateStream()
+      .pipe(untilDestroyed(this))
+      .subscribe(region => {
+        const colorMap: Record<string, string> = {
+          ExecutingDependeePortsPhase: "rgba(33,150,243,0.2)",
+          ExecutingNonDependeePortsPhase: "rgba(255,213,79,0.2)",
+          Completed: "rgba(76,175,80,0.2)",
+        };
+        this.paper.getModelById("region-" + region.id).attr("body/fill", colorMap[region.state]);
+      });
+  }
+
+  private updateRegionElement(regionElement: joint.dia.Element, operators: joint.dia.Cell[]) {
+    const points = operators.flatMap(op => {
+      const { x, y, width, height } = op.getBBox(),
+        padding = 15;
+      return [
+        [x - padding, y - padding],
+        [x + width + padding, y - padding],
+        [x - padding, y + height + padding + 10],
+        [x + width + padding, y + height + padding + 10],
+      ];
+    });
+    regionElement.attr("body/d", line().curve(curveCatmullRomClosed)(concaveman(points, 2, 0) as [number, number][]));
   }
 
   /**
@@ -1248,25 +1322,6 @@ export class WorkflowEditorComponent implements OnInit, AfterViewInit, OnDestroy
 
   private isSink(operatorID: string): boolean {
     return this.workflowActionService.getTexeraGraph().getOperator(operatorID).outputPorts.length == 0;
-  }
-
-  /**
-   * This function handles the event stream from jointGraph to toggle the grids in jointPaper on or off.
-   * @private
-   */
-  private handleGridsToggle(): void {
-    this.wrapper
-      .getJointPaperGridsToggleStream()
-      .pipe(untilDestroyed(this))
-      .subscribe(() => {
-        if (this.gridOn) {
-          this.paper.setGridSize(1);
-          this.gridOn = false;
-        } else {
-          this.paper.setGridSize(2);
-          this.gridOn = true;
-        }
-      });
   }
 
   /**

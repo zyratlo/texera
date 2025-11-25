@@ -17,6 +17,9 @@
 
 name: Build
 
+env:
+  NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
+  
 on:
   push:
     branches:
@@ -30,7 +33,7 @@ concurrency:
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
-  gui:
+  frontend:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -70,7 +73,7 @@ jobs:
       - name: Prod build
         run: yarn --cwd frontend run build:ci
 
-  core:
+  scala:
     strategy:
       matrix:
         os: [ ubuntu-22.04 ]
@@ -124,11 +127,11 @@ jobs:
       - name: Run backend tests
         run: sbt test
 
-  python_udf:
+  python:
     strategy:
       matrix:
         os: [ ubuntu-latest ]
-        python-version: [ '3.9', '3.10', '3.11', '3.12' ]
+        python-version: [ '3.10', '3.11', '3.12' ]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout Texera

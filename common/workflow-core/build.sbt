@@ -83,11 +83,15 @@ Test / PB.protoSources += PB.externalSourcePath.value
 // Test-related Dependencies
 /////////////////////////////////////////////////////////////////////////////
 
+val testcontainersVersion = "0.43.0"
+
 libraryDependencies ++= Seq(
   "org.scalamock" %% "scalamock" % "5.2.0" % Test,                  // ScalaMock
   "org.scalatest" %% "scalatest" % "3.2.15" % Test,                 // ScalaTest
   "junit" % "junit" % "4.13.2" % Test,                              // JUnit
-  "com.novocode" % "junit-interface" % "0.11" % Test                // SBT interface for JUnit
+  "com.novocode" % "junit-interface" % "0.11" % Test,               // SBT interface for JUnit
+  "com.dimafeng" %% "testcontainers-scala-scalatest" % testcontainersVersion % Test,   // Testcontainers ScalaTest integration
+  "com.dimafeng" %% "testcontainers-scala-minio" % testcontainersVersion % Test        // MinIO Testcontainer Scala integration
 )
 
 
@@ -97,6 +101,7 @@ libraryDependencies ++= Seq(
 
 val jacksonVersion = "2.15.1"
 libraryDependencies ++= Seq(
+  "javax.validation" % "validation-api" % "2.0.1.Final",
   "com.fasterxml.jackson.core" % "jackson-databind" % jacksonVersion,        // Jackson Databind
   "com.fasterxml.jackson.module" % "jackson-module-kotlin" % jacksonVersion % Test,   // Jackson Kotlin Module
   "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % jacksonVersion % Test, // Jackson JDK8 Datatypes
@@ -182,5 +187,10 @@ libraryDependencies ++= Seq(
   "org.apache.commons" % "commons-vfs2" % "2.9.0",                     // for FileResolver throw VFS-related exceptions
   "io.lakefs" % "sdk" % "1.51.0",                                     // for lakeFS api calls
   "com.typesafe" % "config" % "1.4.3",                                 // config reader
-  "org.apache.commons" % "commons-jcs3-core" % "3.2"                  // Apache Commons JCS
+  "org.apache.commons" % "commons-jcs3-core" % "3.2",                 // Apache Commons JCS
+  "software.amazon.awssdk" % "s3" % "2.29.51" excludeAll(
+    ExclusionRule(organization = "io.netty")
+  ),
+  "software.amazon.awssdk" % "auth" % "2.29.51",
+  "software.amazon.awssdk" % "regions" % "2.29.51",
 )
