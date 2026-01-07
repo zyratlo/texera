@@ -60,6 +60,8 @@ import { JupyterPanelService } from "../../service/jupyter-panel/jupyter-panel.s
 import mapping from "../../../../assets/migration_tool/mapping";
 import { environment } from "../../../../environments/environment";
 import { HttpClient, HttpHeaders } from "@angular/common/http";
+import { v4 as uuidv4 } from "uuid";
+import { NotebookMigrationLLM, Notebook } from '../../service/notebook-migration/migration-llm';
 
 /**
  * MenuComponent is the top level menu bar that shows
@@ -553,11 +555,19 @@ export class MenuComponent implements OnInit, OnDestroy {
         }
 
         // Parse the content of the .ipynb file (it's in JSON format)
-        const notebookContent = JSON.parse(result);
+        const notebookContent = JSON.parse(result) as Notebook;
 
         // Validate the notebook structure
         if (!notebookContent || !Array.isArray(notebookContent.cells)) {
           throw new Error("Invalid notebook structure.");
+        }
+
+        // Add UUID's to each cell in the notebook
+        for (const cell of notebookContent.cells) {
+          if (!cell.metadata) {
+            cell.metadata = {};
+          }
+          cell.metadata.uuid = uuidv4();
         }
 
         // Print content of notebook (JSON)
@@ -568,7 +578,7 @@ export class MenuComponent implements OnInit, OnDestroy {
 
         // Get workflow and mapping from OpenAI
         console.log("Getting data from OpenAI...");
-        await this.sendToAIGenerateWorkflow()
+        await this.sendToAIGenerateWorkflow(notebookContent)
           .then(result => {
             if (result) {
               const { workflowContent, mappingContent } = result;
@@ -659,23 +669,24 @@ export class MenuComponent implements OnInit, OnDestroy {
     this.jupyterPanelService.openPanel("JupyterNotebookPanel");
   }
 
-  private async sendToAIGenerateWorkflow() {
-    const openaiAPIUrl = `${environment.notebookMigrationFastAPIUrl}/openai/get_openai_response`; // OpenAI Flask API URL
-    const headers = new HttpHeaders({ "Content-Type": "application/json" });
+  private async sendToAIGenerateWorkflow(notebookContent: Notebook) {
+    const migrationLLM = new NotebookMigrationLLM();
+    migrationLLM.initialize("gpt-5-mini");
 
     try {
-      const response: any = await firstValueFrom(this.http.post(openaiAPIUrl, {}, { headers }));
-
-      const workflowContent = response.workflow;
-      const mappingContent = response.mapping;
-
+      const result = await firstValueFrom(await migrationLLM.convertNotebookToWorkflow(notebookContent));
+      const parsedResult = JSON.parse(result);
+      const workflowContent = parsedResult.workflowJSON;
+      const mappingContent = parsedResult.workflowNotebookMapping;
       return { workflowContent, mappingContent };
     } catch (error) {
-      console.error("Network response was not ok", error);
+      console.error('Error converting notebook:', error);
+    } finally {
+      migrationLLM.close();
     }
   }
 
-  private async sendNotebookToPod(notebookContent: JSON) {
+  private async sendNotebookToPod(notebookContent: Notebook) {
     const jupyterAPIUrl = `${environment.notebookMigrationFastAPIUrl}/jupyter/set_notebook`;
 
     const requestBody = {

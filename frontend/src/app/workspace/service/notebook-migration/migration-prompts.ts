@@ -17,14 +17,10 @@
  * under the License.
  */
 
-export const NOTEBOOK_PATH = '/home/jovyan/work';
-export let NOTEBOOK_NAME = '';
-export let NOTEBOOK_SAVED = false;
-
 // TEXERA DOCUMENTATION
 
 // https://github.com/Texera/texera/wiki/Guide-to-Use-a-Python-UDF
-export const texera_overview = `
+export const TEXERA_OVERVIEW = `
 You are a robust compiler that takes python code and translates it to our personal workflow environment Texera that uses python.
 
   Texera is a data analytics tool that uses workflows to do machine learning and data analytics computation. User's are able to drag and drop operators and connect their inputs and outputs in a workflow graphical user interface, which the code we are going to create.
@@ -97,7 +93,7 @@ Batch API consumes a batch of tuples at a time. Similar to Table, a Batch is als
 `;
 
 // https://github.com/Texera/texera/blob/1fa249a9d55d4dcad36d93e093c2faed5c4434f0/core/amber/src/main/python/core/models/tuple.py
-export const tuple_documentation = `
+export const TUPLE_DOCUMENTATION = `
 ### **<code>Tuple</code> Class Overview**
 
 The \`Tuple\` class is a **lazy-evaluated** data structure designed for efficient field storage and access. It provides:
@@ -124,7 +120,7 @@ The \`Tuple\` class is a **lazy-evaluated** data structure designed for efficien
 `;
 
 // https://github.com/Texera/texera/blob/1fa249a9d55d4dcad36d93e093c2faed5c4434f0/core/amber/src/main/python/core/models/table.py
-export const table_documentation = `### **<code>Table</code> Class Overview**
+export const TABLE_DOCUMENTATION = `### **<code>Table</code> Class Overview**
 
 The \`Table\` class extends \`pandas.DataFrame\`, providing **structured Tuple-based data management**. It is designed to integrate seamlessly with \`Tuple\` objects.
 
@@ -155,7 +151,7 @@ The \`Table\` class extends \`pandas.DataFrame\`, providing **structured Tuple-b
 `;
 
 // https://github.com/Texera/texera/blob/42d803310c180978a9f02992f0e05556796b293c/core/amber/src/main/python/core/models/operator.py
-export const operator_documentation = `### **Operator Class Overview**
+export const OPERATOR_DOCUMENTATION = `### **Operator Class Overview**
 
 The \`Operator\` class is an **abstract base class (ABC)** for all operators, defining the fundamental structure for processing \`Tuple\`, \`Batch\`, and \`Table\` data in a workflow.
 
@@ -189,13 +185,13 @@ The \`Operator\` class is an **abstract base class (ABC)** for all operators, de
 * **Tuple-based operators** process row-wise, while **Table operators** handle structured table transformations.
 * **Source operators** initiate the data flow by generating tuples or tables.`;
 
-export const udf_input_port_documentation = `
+export const UDF_INPUT_PORT_DOCUMENTATION = `
 Python UDF operators support multiple input and output ports, allowing a single operator to receive different types of data from various upstream operators. In the process_tuple(self, tuple_: Tuple, port: int) function in ProcessTupleOperator and the process_table(self, table: Table, port: int) function in ProcessTableOperator, the port parameter indicates the input port. The port numbers are assigned in order, starting from 0 to N, from top to bottom. When input data have different schemas, it is necessary to assign them to different input ports. However, if all input data share the same schema, additional ports are not required. In both ProcessTupleOperator and ProcessTableOperator, there is an on_finish(self, port: int) function that is executed only after all the tuples from the specified port are processed.
 
 Using this knowledge, for situations where multiple upstream UDFs act as input to a single UDF, we can introduce an intermediary UDF that collects all of the input data and reformats it into a single table, which is then passed as input to the original next downstream UDF. When it is necessary for this to occur in your translation from notebook to UDFs, include the intermediary UDF and make sure that it and the next operator that uses its output is formatted correctly and handles the data transfer properly.
 `;
 
-export const example_of_good_conversion = `
+export const EXAMPLE_OF_GOOD_CONVERSION = `
 Here is an example of python code translated into a compatible Texera UDF that gives output that abides the output schema compatible with the Texera workflow operators for tuples. Other operators do not always follow this strict format, but the yielding output structure is important.
 
 Python Code (high level idea): We have a python code that given some data, we limit the number of data.
@@ -215,14 +211,14 @@ yield tuple_
 
 `;
 
-export const visualizer_documentation = `
+export const VISUALIZER_DOCUMENTATION = `
 Texera requires a unique way of generating visualizations from ML libraries:
 1. Ensures one yield per operator (per Texera’s UDF constraints).
 2. Uses Plotly for visualization and outputs results as embeddable HTML.
 3. Error handling is built-in to notify users when data is missing.
 `;
 
-export const example_of_multiple_udf_conversion = `
+export const EXAMPLE_OF_MULTIPLE_UDF_CONVERSION = `
 Here is an example of breaking up python code into multiple Texera UDFs. Format your response structure exactly like the given example. The "code" key contains a dictionary of the UDF ID's with their respective code. The "edges" key contains a list of pairs that contains the connections between UDFs. The "outputs" key contains a dictionary of the UDF ID's with a list of variable names that they yield in the UDF code. The UDFs can branch and merge, it does not have to be a linear chain depending on your implementation.
 
 Original Code:
@@ -330,7 +326,7 @@ Texera UDF conversion:
 \`\`\`
 `;
 
-export const workflow_prompt = `You are an expert in Python coding and workflow systems.
+export const WORKFLOW_PROMPT = `You are an expert in Python coding and workflow systems.
 Many users of Texera system are non-technical, but the notebooks they provide are written by technical people.
 They want to convert their notebooks to Texera workflows.
 Your goal is to help convert these notebooks into a Texera workflow that non-technical users can use directly.
@@ -392,7 +388,7 @@ Use only unescaped single quotes inside of the code values for the UDF's, do not
 Convert following the instructions and examples given. Here is the code:
 `
 
-export const mapping_prompt = `
+export const MAPPING_PROMPT = `
 Here is an example of a mapping generated between the given example Python code and the Texera UDFs using their CELL and UDF IDs. Cell IDs are designated by the UUID following '# START'. The format should be kept the same.
 {
 "UDF1": [
@@ -410,5 +406,5 @@ Here is an example of a mapping generated between the given example Python code 
 "CELL8"
 ]
 }
-Now create a mapping for the UDFs and the original code. Link the code blocks marked by 'START CELL#' and 'END CELL#' with the numbered UDFs. The code between them should be equivalent. Multiple cells can be mapped to the same UDF if the code they contain are the same. There could be any number of cells and UDFs, so only create the correct number in the mapping. Only give the mapping.
+Now create a mapping for the UDFs and the original code. Link the code blocks marked by 'START <cell-uuid>' and 'END <cell-uuid>' with the UDF UUID's. The code between them should be equivalent. Multiple cells can be mapped to the same UDF if the code they contain are the same. There could be any number of cells and UDFs, so only create the correct number in the mapping. Only give the mapping.
 `;
