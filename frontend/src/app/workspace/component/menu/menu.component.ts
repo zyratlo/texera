@@ -625,6 +625,7 @@ export class MenuComponent implements OnInit, OnDestroy {
                   const payload = {
                     wid: updatedWorkflow.wid,
                     mapping: mappingContent,
+                    version: 1,
                     notebook: notebookContent,
                   };
 
@@ -665,7 +666,6 @@ export class MenuComponent implements OnInit, OnDestroy {
   };
 
   private openJupyterNotebookPanel(): void {
-    // Assuming you have a service that handles the state of various panels
     this.jupyterPanelService.openPanel("JupyterNotebookPanel");
   }
 

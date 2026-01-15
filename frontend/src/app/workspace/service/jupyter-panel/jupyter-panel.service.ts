@@ -61,13 +61,14 @@ export class JupyterPanelService {
     window.addEventListener("message", this.handleNotebookMessage);
   }
 
-  private fetchNotebookAndMapping() {
+  private fetchNotebookAndMapping(version: number = 1) {
     // Fetch mapping and notebook from migration database if exists for wid
     const workflowID = this.workflowActionService.getWorkflow().wid;
     const dbAPIUrl = `${environment.notebookMigrationFastAPIUrl}/postgres/get_mapping_and_workflow`;
     const headers = new HttpHeaders({ "Content-Type": "application/json" });
     const payload = {
       wid: workflowID,
+      version: version
     };
 
     this.http
