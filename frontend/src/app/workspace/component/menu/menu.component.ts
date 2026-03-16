@@ -599,7 +599,7 @@ export class MenuComponent implements OnInit, OnDestroy {
         console.log(`Notebook JSON: ${JSON.stringify(notebookContent)}`);
 
         // Send Notebook JSON to pod to open in jupyterlab
-        await this.notebookMigrationService.sendNotebookToPod(notebookContent);
+        await this.notebookMigrationService.sendNotebookToJupyter(notebookContent);
 
         // Get workflow and mapping from OpenAI
         console.log("Getting data from OpenAI...");

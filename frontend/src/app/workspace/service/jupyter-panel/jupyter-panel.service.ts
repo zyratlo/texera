@@ -28,6 +28,7 @@ import { UntilDestroy } from "@ngneat/until-destroy";
 import { NotificationService } from "src/app/common/service/notification/notification.service";
 import { distinctUntilChanged, switchMap } from "rxjs/operators";
 import { AppSettings } from "../../../common/app-setting";
+import { NotebookMigrationService } from "../notebook-migration/notebook-migration.service"
 
 @UntilDestroy()
 @Injectable({
@@ -47,7 +48,8 @@ export class JupyterPanelService {
   constructor(
     private workflowActionService: WorkflowActionService,
     private http: HttpClient,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private notebookMigrationService: NotebookMigrationService
   ) {
     this.workflowActionService
       .workflowMetaDataChanged()
@@ -56,22 +58,24 @@ export class JupyterPanelService {
         distinctUntilChanged()
       )
       .subscribe(wid => {
-        console.log("Checking for existing notebook and mapping...");
-        this.fetchNotebookAndMapping(wid).subscribe(result => {
-          if (result) {
-            console.log("Workflow graph updated, recomputing highlight mapping...");
-            this.precomputeHighlightMapping();
-            this.openJupyterNotebookPanel();
-          } else {
-            this.closeJupyterNotebookPanel();
-            console.log("No existing notebook and mapping found.")
-          }
-        });
+        this.closeJupyterNotebookPanel();
+        if (wid != 0) {
+          console.log("Checking for existing notebook and mapping...");
+          this.fetchNotebookAndMapping(wid).subscribe(result => {
+            if (result == 1) {
+              console.log("Workflow graph updated, recomputing highlight mapping...");
+              this.precomputeHighlightMapping();
+              this.openJupyterNotebookPanel();
+            } else {
+              console.log("No existing notebook and mapping found.")
+            }
+          });
+        }
       });
     window.addEventListener("message", this.handleNotebookMessage);
   }
 
-  private fetchNotebookAndMapping(workflowID: number | undefined = this.workflowActionService.getWorkflow().wid, vId: number = 1): Observable<number> {
+  private fetchNotebookAndMapping(workflowID: number | undefined = this.workflowActionService.getWorkflow().wid, vId: number = 1) {
     // Fetch mapping and notebook from migration database if exists for wid
     const dbAPIUrl = `${AppSettings.getApiEndpoint()}/notebook-migration/fetch-notebook-and-mapping`;
     const headers = new HttpHeaders({ "Content-Type": "application/json" });
@@ -83,36 +87,20 @@ export class JupyterPanelService {
     return this.http
       .post(dbAPIUrl, payload, { headers })
       .pipe(
-        switchMap((response: any) => {
+        switchMap(async (response: any) => {
           // Only load mapping and workflow if they exist
           if(response.exists) {
             const mappingID = "mapping_wid_" + workflowID;
             mapping[mappingID] = response.mapping;
-            const jupyterAPIUrl = `${environment.notebookMigrationFastAPIUrl}/jupyter/set_notebook`;
 
-            const requestBody = {
-              notebookName: "notebook.ipynb",
-              notebookData: response.notebook,
-            };
-
-            const headers = new HttpHeaders({
-              "Content-Type": "application/json",
-            });
-
-            return this.http.post(jupyterAPIUrl, requestBody, { headers }).pipe(
-              map(() => {
-                this.notificationService.success("Found existing Jupyter notebook and mapping.");
+            if (await this.notebookMigrationService.sendNotebookToJupyter(response.notebook) == 1) {
                 return 1;
-              }),
-              catchError((error) => {
-                // Handle the error
-                console.error("Error sending notebook to pod: ", error);
-                this.notificationService.error("Error sending notebook to JupyterLab: " + error.message);
-                return of(0);
-              })
-            );
+            }
+            else {
+              return 0;
+            }
           } else {
-            return of(0);
+            return 0;
           }
         }),
         catchError((error: unknown) => {
@@ -197,7 +185,6 @@ export class JupyterPanelService {
   public openJupyterNotebookPanel(): void {
     const wid = this.workflowActionService.getWorkflow().wid;
     const mappingKey = "mapping_wid_" + wid;
-
     // Check if there is corresponding mapping data
     if (wid === undefined || !(mappingKey in mapping)) {
       console.warn("No Jupyter notebook found for this workflow. Cannot open panel.");

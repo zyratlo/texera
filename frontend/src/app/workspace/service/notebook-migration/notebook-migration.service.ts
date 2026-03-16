@@ -24,7 +24,6 @@ import { Notebook, NotebookMigrationLLM } from "./migration-llm";
 import { firstValueFrom } from "rxjs";
 import { environment } from "../../../../environments/environment";
 import { HttpClient, HttpHeaders } from "@angular/common/http";
-import { JupyterPanelService } from "../jupyter-panel/jupyter-panel.service";
 import { NotificationService } from "src/app/common/service/notification/notification.service";
 
 @UntilDestroy()
@@ -33,7 +32,6 @@ import { NotificationService } from "src/app/common/service/notification/notific
 })
 export class NotebookMigrationService {
   constructor(
-    private jupyterPanelService: JupyterPanelService,
     private http: HttpClient,
     private notificationService: NotificationService
   ) {}
@@ -55,12 +53,12 @@ export class NotebookMigrationService {
     }
   }
 
-  public async sendNotebookToPod(notebookContent: Notebook) {
+  public async sendNotebookToJupyter(notebookData: Notebook) {
     const jupyterAPIUrl = `${environment.notebookMigrationFastAPIUrl}/jupyter/set_notebook`;
 
     const requestBody = {
       notebookName: "notebook.ipynb",
-      notebookData: notebookContent,
+      notebookData: notebookData,
     };
 
     const headers = new HttpHeaders({
@@ -69,12 +67,14 @@ export class NotebookMigrationService {
 
     try {
       const response: any = await firstValueFrom(this.http.post(jupyterAPIUrl, requestBody, { headers }));
-      console.log("Notebook successfully sent to pod:", response);
-      this.notificationService.success("Notebook opened successfully in JupyterLab.");
+      console.log("Notebook successfully sent to Jupyter:", response);
+      this.notificationService.success("Notebook opened successfully in Jupyter");
+      return 1;
     } catch (error) {
       console.error("Error sending notebook to pod: ", error);
       // @ts-ignore
-      this.notificationService.error("Error sending notebook to JupyterLab: " + error.message);
+      this.notificationService.error("Error sending notebook to Jupyter: " + error.message);
+      return 0;
     }
   }
 
