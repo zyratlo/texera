@@ -18,16 +18,16 @@
  */
 
 import { Injectable } from "@angular/core";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, catchError, map, Observable, of } from "rxjs";
 import { WorkflowActionService } from "../workflow-graph/model/workflow-action.service";
 import mapping from "../../../../assets/migration_tool/mapping";
 import { OperatorLink } from "../../types/workflow-common.interface";
 import { environment } from "../../../../environments/environment";
 import { HttpClient, HttpHeaders } from "@angular/common/http";
-import { UntilDestroy, untilDestroyed } from "@ngneat/until-destroy";
-import { firstValueFrom } from "rxjs";
+import { UntilDestroy } from "@ngneat/until-destroy";
 import { NotificationService } from "src/app/common/service/notification/notification.service";
-import { debounceTime } from "rxjs/operators";
+import { debounceTime, switchMap } from "rxjs/operators";
+import { AppSettings } from "../../../common/app-setting";
 
 @UntilDestroy()
 @Injectable({
@@ -54,34 +54,37 @@ export class JupyterPanelService {
       .pipe(debounceTime(300))
       .subscribe(() => {
         console.log("Checking for existing notebook and mapping...");
-        this.fetchNotebookAndMapping();
-        console.log("Workflow graph updated, recomputing highlight mapping...");
-        this.precomputeHighlightMapping();
+        this.fetchNotebookAndMapping().subscribe(result => {
+          if (result) {
+            console.log("Workflow graph updated, recomputing highlight mapping...");
+            this.precomputeHighlightMapping();
+          }
+          else {
+            console.log("No existing notebook and mapping found.")
+          }
+        });
       });
     window.addEventListener("message", this.handleNotebookMessage);
   }
 
-  private fetchNotebookAndMapping(version: number = 1) {
+  private fetchNotebookAndMapping(vid: number = 1): Observable<number> {
     // Fetch mapping and notebook from migration database if exists for wid
     const workflowID = this.workflowActionService.getWorkflow().wid;
-    const dbAPIUrl = `${environment.notebookMigrationFastAPIUrl}/postgres/get_mapping_and_workflow`;
+    const dbAPIUrl = `${AppSettings.getApiEndpoint()}/notebook-migration/fetch-notebook-and-mapping`;
     const headers = new HttpHeaders({ "Content-Type": "application/json" });
     const payload = {
       wid: workflowID,
-      version: version
+      vid: vid, // TODO
     };
 
-    this.http
+    return this.http
       .post(dbAPIUrl, payload, { headers })
-      .pipe(untilDestroyed(this))
-      .subscribe({
-        next: (response: any) => {
+      .pipe(
+        switchMap((response: any) => {
           // Only load mapping and workflow if they exist
-          if (response.exists) {
-            console.log("Mapping and workflow found for wid=", workflowID, ":", response.notebook, response.mapping);
+          if(response.exists) {
             const mappingID = "mapping_wid_" + workflowID;
             mapping[mappingID] = response.mapping;
-
             const jupyterAPIUrl = `${environment.notebookMigrationFastAPIUrl}/jupyter/set_notebook`;
 
             const requestBody = {
@@ -93,23 +96,27 @@ export class JupyterPanelService {
               "Content-Type": "application/json",
             });
 
-            try {
-              const response: any = firstValueFrom(this.http.post(jupyterAPIUrl, requestBody, { headers }));
-              console.log("Notebook successfully sent to pod:", response);
-              this.notificationService.success("Found existing Jupyter notebook and mapping.");
-            } catch (error) {
-              console.error("Error sending notebook to pod: ", error);
-              // @ts-ignore
-              this.notificationService.error("Error sending notebook to JupyterLab: " + error.message);
-            }
+            return this.http.post(jupyterAPIUrl, requestBody, { headers }).pipe(
+              map(() => {
+                this.notificationService.success("Found existing Jupyter notebook and mapping.");
+                return 1;
+              }),
+              catchError((error) => {
+                // Handle the error
+                console.error("Error sending notebook to pod: ", error);
+                this.notificationService.error("Error sending notebook to JupyterLab: " + error.message);
+                return of(0);
+              })
+            );
           } else {
-            console.log("No pre-existing notebook and mapping.");
+            return of(0);
           }
-        },
-        error: (error: unknown) => {
+        }),
+        catchError((error: unknown) => {
           console.error("Network response was not ok", error);
-        },
-      });
+          return of(0);
+        })
+      );
   }
 
   // Precompute the dictionary for O(1) highlighting
@@ -252,14 +259,12 @@ export class JupyterPanelService {
       const operatorArray = mapping[wid != undefined ? "mapping_wid_" + wid : "default"]["operator_to_cell"][cellUUID];
       if (operatorArray) {
         this.iframeRef.contentWindow.postMessage(
-          { action: "triggerCellClick", operators: operatorArray },
+          {action: "triggerCellClick", operators: operatorArray},
           environment.jupyterAPIUrl
         );
       } else {
         console.error(`No operators found for cellUUID: ${cellUUID}`);
       }
-    } else {
-      console.error("Iframe reference is null.");
     }
   }
 }

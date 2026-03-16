@@ -386,7 +386,7 @@ Do not include any extraneous UDF's in the code field that include empty strings
 Give ALL of the code, do not omit anything or use placeholders for code. Make sure ALL code in the original is translated over.
 Use only unescaped single quotes inside of the code values for the UDF's, do not use escaped double quotes.
 Convert following the instructions and examples given. Here is the code:
-`
+`;
 
 export const MAPPING_PROMPT = `
 Here is an example of a mapping generated between the given example Python code and the Texera UDFs using their CELL and UDF IDs. Cell IDs are designated by the UUID following '# START'. The format should be kept the same.

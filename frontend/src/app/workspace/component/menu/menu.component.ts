@@ -18,7 +18,6 @@
  */
 
 import { DatePipe, Location } from "@angular/common";
-import { Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { Router } from "@angular/router";
 import { Component, ElementRef, Input, OnDestroy, OnInit, ViewChild, Output, EventEmitter } from "@angular/core";
 import { UserService } from "../../../common/service/user/user.service";
@@ -60,10 +59,9 @@ import { DashboardWorkflowComputingUnit } from "../../types/workflow-computing-u
 import { Privilege } from "../../../dashboard/type/share-access.interface";
 import { JupyterPanelService } from "../../service/jupyter-panel/jupyter-panel.service";
 import mapping from "../../../../assets/migration_tool/mapping";
-import { environment } from "../../../../environments/environment";
-import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { v4 as uuidv4 } from "uuid";
-import { NotebookMigrationLLM, Notebook } from '../../service/notebook-migration/migration-llm';
+import { Notebook } from "../../service/notebook-migration/migration-llm";
+import { NotebookMigrationService } from "../../service/notebook-migration/notebook-migration.service";
 
 /**
  * MenuComponent is the top level menu bar that shows
@@ -154,9 +152,8 @@ export class MenuComponent implements OnInit, OnDestroy {
     private computingUnitStatusService: ComputingUnitStatusService,
     protected config: GuiConfigService,
     private router: Router,
-    protected config: GuiConfigService,
     private jupyterPanelService: JupyterPanelService,
-    private http: HttpClient
+    private notebookMigrationService: NotebookMigrationService
   ) {
     workflowWebsocketService
       .subscribeToEvent("ExecutionDurationUpdateEvent")
@@ -602,11 +599,12 @@ export class MenuComponent implements OnInit, OnDestroy {
         console.log(`Notebook JSON: ${JSON.stringify(notebookContent)}`);
 
         // Send Notebook JSON to pod to open in jupyterlab
-        await this.sendNotebookToPod(notebookContent);
+        await this.notebookMigrationService.sendNotebookToPod(notebookContent);
 
         // Get workflow and mapping from OpenAI
         console.log("Getting data from OpenAI...");
-        await this.sendToAIGenerateWorkflow(notebookContent)
+        await this.notebookMigrationService
+          .sendToAIGenerateWorkflow(notebookContent)
           .then(result => {
             if (result) {
               const { workflowContent, mappingContent } = result;
@@ -624,7 +622,6 @@ export class MenuComponent implements OnInit, OnDestroy {
                 workflowName = DEFAULT_WORKFLOW_NAME;
               }
 
-              // Create a valid Workflow object with required fields
               const workflow: Workflow = {
                 content: workflowContent,
                 name: workflowName,
@@ -648,30 +645,16 @@ export class MenuComponent implements OnInit, OnDestroy {
                   };
 
                   // Store wid, mapping, and notebook in migration database
-                  const dbAPIUrl = `${environment.notebookMigrationFastAPIUrl}/postgres/store_mapping_and_workflow`;
-                  const headers = new HttpHeaders({ "Content-Type": "application/json" });
-                  const payload = {
-                    wid: updatedWorkflow.wid,
-                    mapping: mappingContent,
-                    version: 1,
-                    notebook: notebookContent,
-                  };
-
-                  this.http
-                    .post(dbAPIUrl, payload, { headers })
-                    .pipe(untilDestroyed(this))
-                    .subscribe({
-                      next: (response: any) => {
-                        console.log("wid, mapping, and notebook stored in migration database:", response?.message);
-                      },
-                      error: (error: unknown) => {
-                        console.error("Network response was not ok", error);
-                      },
-                    });
+                  this.notebookMigrationService.storeNotebookAndMapping(
+                    updatedWorkflow.wid,
+                    1,
+                    mappingContent,
+                    notebookContent
+                  );
 
                   // Load workflow and open Jupyter panel
                   this.workflowActionService.reloadWorkflow(updatedWorkflow, true);
-                  this.openJupyterNotebookPanel();
+                  this.jupyterPanelService.openPanel("JupyterNotebookPanel");
                   this.notificationService.success("Successfully generated workflow and mapping from notebook.");
                 });
             } else {
@@ -692,51 +675,6 @@ export class MenuComponent implements OnInit, OnDestroy {
 
     return false; // Prevent automatic upload handling
   };
-
-  private openJupyterNotebookPanel(): void {
-    this.jupyterPanelService.openPanel("JupyterNotebookPanel");
-  }
-
-  private async sendToAIGenerateWorkflow(notebookContent: Notebook) {
-    const migrationLLM = new NotebookMigrationLLM();
-    migrationLLM.initialize("gpt-5-mini");
-
-    try {
-      const result = await firstValueFrom(await migrationLLM.convertNotebookToWorkflow(notebookContent));
-      const parsedResult = JSON.parse(result);
-      const workflowContent = parsedResult.workflowJSON;
-      const mappingContent = parsedResult.workflowNotebookMapping;
-      return { workflowContent, mappingContent };
-    } catch (error) {
-      console.error('Error converting notebook:', error);
-    } finally {
-      migrationLLM.close();
-    }
-  }
-
-  private async sendNotebookToPod(notebookContent: Notebook) {
-    const jupyterAPIUrl = `${environment.notebookMigrationFastAPIUrl}/jupyter/set_notebook`;
-
-    const requestBody = {
-      notebookName: "notebook.ipynb",
-      notebookData: notebookContent,
-    };
-
-    const headers = new HttpHeaders({
-      "Content-Type": "application/json",
-    });
-
-    try {
-      const response: any = await firstValueFrom(this.http.post(jupyterAPIUrl, requestBody, { headers }));
-      console.log("Notebook successfully sent to pod:", response);
-      this.notificationService.success("Notebook opened successfully in JupyterLab.");
-      this.openJupyterNotebookPanel(); // Open panel after successful upload
-    } catch (error) {
-      console.error("Error sending notebook to pod: ", error);
-      // @ts-ignore
-      this.notificationService.error("Error sending notebook to JupyterLab: " + error.message);
-    }
-  }
 
   public onClickImportWorkflow = (file: NzUploadFile): boolean => {
     const reader = new FileReader();
