@@ -71,7 +71,6 @@ export class NotebookMigrationService {
       const response: any = await firstValueFrom(this.http.post(jupyterAPIUrl, requestBody, { headers }));
       console.log("Notebook successfully sent to pod:", response);
       this.notificationService.success("Notebook opened successfully in JupyterLab.");
-      this.jupyterPanelService.openJupyterNotebookPanel(); // Open panel after successful upload
     } catch (error) {
       console.error("Error sending notebook to pod: ", error);
       // @ts-ignore

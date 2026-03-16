@@ -26,7 +26,7 @@ import { environment } from "../../../../environments/environment";
 import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { UntilDestroy } from "@ngneat/until-destroy";
 import { NotificationService } from "src/app/common/service/notification/notification.service";
-import { debounceTime, switchMap } from "rxjs/operators";
+import { distinctUntilChanged, switchMap } from "rxjs/operators";
 import { AppSettings } from "../../../common/app-setting";
 
 @UntilDestroy()
@@ -50,16 +50,20 @@ export class JupyterPanelService {
     private notificationService: NotificationService
   ) {
     this.workflowActionService
-      .workflowChanged()
-      .pipe(debounceTime(300))
-      .subscribe(() => {
+      .workflowMetaDataChanged()
+      .pipe(
+        map(meta => meta.wid),
+        distinctUntilChanged()
+      )
+      .subscribe(wid => {
         console.log("Checking for existing notebook and mapping...");
-        this.fetchNotebookAndMapping().subscribe(result => {
+        this.fetchNotebookAndMapping(wid).subscribe(result => {
           if (result) {
             console.log("Workflow graph updated, recomputing highlight mapping...");
             this.precomputeHighlightMapping();
-          }
-          else {
+            this.openJupyterNotebookPanel();
+          } else {
+            this.closeJupyterNotebookPanel();
             console.log("No existing notebook and mapping found.")
           }
         });
@@ -67,14 +71,13 @@ export class JupyterPanelService {
     window.addEventListener("message", this.handleNotebookMessage);
   }
 
-  private fetchNotebookAndMapping(vid: number = 1): Observable<number> {
+  private fetchNotebookAndMapping(workflowID: number | undefined = this.workflowActionService.getWorkflow().wid, vId: number = 1): Observable<number> {
     // Fetch mapping and notebook from migration database if exists for wid
-    const workflowID = this.workflowActionService.getWorkflow().wid;
     const dbAPIUrl = `${AppSettings.getApiEndpoint()}/notebook-migration/fetch-notebook-and-mapping`;
     const headers = new HttpHeaders({ "Content-Type": "application/json" });
     const payload = {
       wid: workflowID,
-      vid: vid, // TODO
+      vid: vId, // Future work: add dynamic fetching of current workflow vId
     };
 
     return this.http
