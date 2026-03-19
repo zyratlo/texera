@@ -19,9 +19,14 @@
 
 <div class="spinner-container">
   <nz-spin
-    [nzSpinning]="isLoading || isWaitingForOpenAi"
+    [nzSpinning]="isLoading"
     [nzSize]="'large'"
     nzTip="Loading workflow..."></nz-spin>
+
+  <nz-spin class="openai-spinner"
+    [nzSpinning]="isWaitingForLLM"
+    [nzSize]="'large'"
+    nzTip="Waiting for LLM response • Elapsed time: {{ formattedElapsedTime }}"></nz-spin>
 </div>
 <div id="result">
   <texera-result-panel></texera-result-panel>
@@ -30,7 +35,7 @@
 <texera-menu
   [writeAccess]="writeAccess"
   [pid]="pid"
-  (setWaitingForOpenAi)="isWaitingForOpenAi = $event">
+  (setWaitingForLLM)="onWaitingForLLMChanged($event)">
 </texera-menu>
 <texera-jupyter-notebook-panel></texera-jupyter-notebook-panel>
 <texera-mini-map class="box"></texera-mini-map>

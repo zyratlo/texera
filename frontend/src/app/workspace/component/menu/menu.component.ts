@@ -108,7 +108,7 @@ export class MenuComponent implements OnInit, OnDestroy {
   @Input() public particularVersionDate: string = ""; // placeholder for the metadata information of a particular workflow version
   @ViewChild("workflowNameInput") workflowNameInput: ElementRef<HTMLInputElement> | undefined;
   // Emit an event to parent component (workspace) when AI generation starts or stops
-  @Output() public setWaitingForOpenAi = new EventEmitter<boolean>();
+  @Output() public setWaitingForLLM = new EventEmitter<boolean>();
 
   // variable bound with HTML to decide if the running spinner should show
   public runButtonText = "Run";
@@ -568,7 +568,7 @@ export class MenuComponent implements OnInit, OnDestroy {
       return false;
     }
 
-    this.setWaitingForOpenAi.emit(true); // start loading
+    this.setWaitingForLLM.emit(true); // start loading
 
     // Read the notebook file as text
     reader.readAsText(file as any);
@@ -665,7 +665,7 @@ export class MenuComponent implements OnInit, OnDestroy {
             console.error("Error while fetching data from OpenAI:", error);
           })
           .finally(() => {
-            this.setWaitingForOpenAi.emit(false); // stop loading
+            this.setWaitingForLLM.emit(false); // stop loading
           });
       } catch (error) {
         this.notificationService.error("Failed to import the notebook.");

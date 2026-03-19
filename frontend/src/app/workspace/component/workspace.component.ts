@@ -59,8 +59,10 @@ export class WorkspaceComponent implements AfterViewInit, OnInit, OnDestroy {
   public pid?: number = undefined;
   public writeAccess: boolean = false;
   public isLoading: boolean = false;
-  // variable for track whether we are waiting for AI to finish generating (whether a loading icon should show)
-  public isWaitingForOpenAi = false;
+  // variable to track whether we are waiting for AI to finish generating (whether a loading icon should show)
+  public isWaitingForLLM = false;
+  elapsedTime: number = 0;
+  private timerInterval: any;
   @ViewChild("codeEditor", { read: ViewContainerRef }) codeEditorViewRef!: ViewContainerRef;
 
   /**
@@ -288,5 +290,33 @@ export class WorkspaceComponent implements AfterViewInit, OnInit, OnDestroy {
 
   public get copilotEnabled(): boolean {
     return this.config.env.copilotEnabled;
+  }
+
+  onWaitingForLLMChanged(isWaiting: boolean) {
+    this.isWaitingForLLM = isWaiting;
+
+    if (isWaiting) {
+      this.startTimer();
+    } else {
+      this.stopTimer();
+    }
+  }
+
+  startTimer() {
+    this.elapsedTime = 0;
+
+    this.timerInterval = setInterval(() => {
+      this.elapsedTime++;
+    }, 1000);
+  }
+
+  stopTimer() {
+    clearInterval(this.timerInterval);
+  }
+
+  get formattedElapsedTime(): string {
+    const minutes = Math.floor(this.elapsedTime / 60);
+    const seconds = this.elapsedTime % 60;
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   }
 }
