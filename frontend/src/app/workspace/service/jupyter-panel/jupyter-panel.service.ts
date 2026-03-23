@@ -20,7 +20,7 @@
 import { Injectable } from "@angular/core";
 import { BehaviorSubject, catchError, map, Observable, of } from "rxjs";
 import { WorkflowActionService } from "../workflow-graph/model/workflow-action.service";
-import mapping from "../../../../assets/migration_tool/mapping";
+import mapping from "../../../../assets/notebook_migration_tool/mapping";
 import { OperatorLink } from "../../types/workflow-common.interface";
 import { environment } from "../../../../environments/environment";
 import { HttpClient, HttpHeaders } from "@angular/common/http";

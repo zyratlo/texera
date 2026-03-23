@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { DatePipe, registerLocaleData, CommonModule } from "@angular/common";
+import { DatePipe, registerLocaleData, CommonModule, NgOptimizedImage } from "@angular/common";
 import { HTTP_INTERCEPTORS, HttpClientModule } from "@angular/common/http";
 import en from "@angular/common/locales/en";
 import { APP_INITIALIZER, NgModule, CUSTOM_ELEMENTS_SCHEMA } from "@angular/core";
@@ -357,6 +357,7 @@ registerLocaleData(en);
     NzInputNumberModule,
     NzCheckboxModule,
     NzRadioModule,
+    NgOptimizedImage,
   ],
   providers: [
     provideNzI18n(en_US),

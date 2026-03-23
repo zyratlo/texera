@@ -19,7 +19,8 @@
 
 import { DatePipe, Location } from "@angular/common";
 import { Router } from "@angular/router";
-import { Component, ElementRef, Input, OnDestroy, OnInit, ViewChild, Output, EventEmitter } from "@angular/core";
+import { Component, ElementRef, Input, OnDestroy, OnInit, ViewChild, Output, EventEmitter, TemplateRef, ViewContainerRef  } from "@angular/core";
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { UserService } from "../../../common/service/user/user.service";
 import {
   DEFAULT_WORKFLOW_NAME,
@@ -58,7 +59,7 @@ import { GuiConfigService } from "../../../common/service/gui-config.service";
 import { DashboardWorkflowComputingUnit } from "../../types/workflow-computing-unit";
 import { Privilege } from "../../../dashboard/type/share-access.interface";
 import { JupyterPanelService } from "../../service/jupyter-panel/jupyter-panel.service";
-import mapping from "../../../../assets/migration_tool/mapping";
+import mapping from "../../../../assets/notebook_migration_tool/mapping";
 import { v4 as uuidv4 } from "uuid";
 import { Notebook } from "../../service/notebook-migration/migration-llm";
 import { NotebookMigrationService } from "../../service/notebook-migration/notebook-migration.service";
@@ -129,6 +130,9 @@ export class MenuComponent implements OnInit, OnDestroy {
 
   @ViewChild(ComputingUnitSelectionComponent) computingUnitSelectionComponent!: ComputingUnitSelectionComponent;
 
+  public importForm: FormGroup;
+  @ViewChild('importNotebookModal', { static: true }) importModalTpl!: TemplateRef<any>;
+
   constructor(
     public executeWorkflowService: ExecuteWorkflowService,
     public workflowActionService: WorkflowActionService,
@@ -153,7 +157,10 @@ export class MenuComponent implements OnInit, OnDestroy {
     protected config: GuiConfigService,
     private router: Router,
     private jupyterPanelService: JupyterPanelService,
-    private notebookMigrationService: NotebookMigrationService
+    private notebookMigrationService: NotebookMigrationService,
+    private fb: FormBuilder,
+    private modal: NzModalService,
+    private viewContainerRef: ViewContainerRef
   ) {
     workflowWebsocketService
       .subscribeToEvent("ExecutionDurationUpdateEvent")
@@ -183,6 +190,12 @@ export class MenuComponent implements OnInit, OnDestroy {
     // Subscribe to computing unit
     this.subscribeToComputingUnitSelection();
     this.subscribeToComputingUnitStatus();
+
+    this.importForm = this.fb.group({
+      description: [''],
+      file: [null, Validators.required],
+      apiKey: ['']
+    });
   }
 
   public ngOnInit(): void {
@@ -558,7 +571,43 @@ export class MenuComponent implements OnInit, OnDestroy {
     this.workflowActionService.deleteOperatorsAndLinks(allOperatorIDs);
   }
 
-  public onClickImportNotebook = (file: NzUploadFile): boolean => {
+  openImportNotebookModal(): void {
+    const modalRef = this.modal.create({
+      nzTitle: 'AI Generate Workflow from Python Notebook',
+      nzContent: this.importModalTpl,
+      nzViewContainerRef: this.viewContainerRef,
+      nzWidth: 700,
+      nzFooter: [
+        {
+          label: 'Cancel',
+          onClick: () => {
+            modalRef.close();
+          }
+        },
+        {
+          label: 'Submit',
+          type: 'primary',
+          disabled: () => !this.importForm.valid,
+          onClick: () => {
+            const file: NzUploadFile = this.importForm.get('file')?.value;
+            const apiKey: string = this.importForm.get('apiKey')?.value;
+            this.onClickImportNotebook(file, apiKey);
+            modalRef.close(); // close after submit too
+          }
+        }
+      ]
+    });
+  }
+
+  beforeUpload = (file: NzUploadFile) => {
+    this.importForm.patchValue({ file });
+    this.importForm.get('file')?.markAsDirty();
+    this.importForm.get('file')?.updateValueAndValidity();
+    return false; // prevent auto upload
+  };
+
+  public onClickImportNotebook = (file: NzUploadFile, apiKey: string): boolean => {
+    // TODO dynamically fetch available models and send apiKey to LiteLLM
     const reader = new FileReader();
 
     // Check if the file is a Jupyter notebook based on its extension
