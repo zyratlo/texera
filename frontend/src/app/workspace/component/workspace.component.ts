@@ -61,9 +61,9 @@ export class WorkspaceComponent implements AfterViewInit, OnInit, OnDestroy {
   public isLoading: boolean = false;
   // variable to track whether we are waiting for AI to finish generating (whether a loading icon should show)
   public isWaitingForLLM = false;
-  elapsedTime: number = 0;
   private timerInterval: any;
-  @ViewChild("codeEditor", { read: ViewContainerRef }) codeEditorViewRef!: ViewContainerRef;
+  private startTime: number | null = null;
+  @ViewChild("codeEditor", {read: ViewContainerRef}) codeEditorViewRef!: ViewContainerRef;
 
   /**
    * Flag to ensure auto persist is registered only once.  This prevents multiple
@@ -262,6 +262,7 @@ export class WorkspaceComponent implements AfterViewInit, OnInit, OnDestroy {
         }
       });
   }
+
   onWIDChange() {
     this.workflowActionService
       .workflowMetaDataChanged()
@@ -275,6 +276,7 @@ export class WorkspaceComponent implements AfterViewInit, OnInit, OnDestroy {
         this.writeAccess = !metadata.readonly;
       });
   }
+
   updateViewCount() {
     let wid = this.route.snapshot.params.id;
     let uid = this.userService.getCurrentUser()?.uid;
@@ -284,6 +286,7 @@ export class WorkspaceComponent implements AfterViewInit, OnInit, OnDestroy {
       .pipe(untilDestroyed(this))
       .subscribe();
   }
+
   public triggerCenter(): void {
     this.workflowActionService.getTexeraGraph().triggerCenterEvent();
   }
@@ -303,20 +306,32 @@ export class WorkspaceComponent implements AfterViewInit, OnInit, OnDestroy {
   }
 
   startTimer() {
-    this.elapsedTime = 0;
-
+    this.startTime = Date.now();
+    this.updateElapsedTime();
     this.timerInterval = setInterval(() => {
-      this.elapsedTime++;
+      this.updateElapsedTime();
     }, 1000);
   }
 
   stopTimer() {
     clearInterval(this.timerInterval);
+    this.timerInterval = null;
+    this.startTime = null;
+  }
+
+  updateElapsedTime() {
+    if (!this.startTime) return;
+
+    const diff = Date.now() - this.startTime;
+    const minutes = Math.floor(diff / 60000);
+    const seconds = Math.floor((diff % 60000) / 1000);
   }
 
   get formattedElapsedTime(): string {
-    const minutes = Math.floor(this.elapsedTime / 60);
-    const seconds = this.elapsedTime % 60;
+    if (!this.startTime) return '00:00';
+    const diff = Date.now() - this.startTime;
+    const minutes = Math.floor(diff / 60000);
+    const seconds = Math.floor((diff % 60000) / 1000);
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   }
 }
