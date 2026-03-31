@@ -18,7 +18,7 @@
  */
 
 import { Location } from "@angular/common";
-import { AfterViewInit, Component, HostListener, OnDestroy, OnInit, ViewChild, ViewContainerRef } from "@angular/core";
+import { AfterViewInit, Component, HostListener, OnDestroy, OnInit, ViewChild, ViewContainerRef, ChangeDetectorRef } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { UserService } from "../../common/service/user/user.service";
 import { WorkflowPersistService } from "../../common/service/workflow-persist/workflow-persist.service";
@@ -91,7 +91,8 @@ export class WorkspaceComponent implements AfterViewInit, OnInit, OnDestroy {
     private notificationService: NotificationService,
     private hubService: HubService,
     private codeEditorService: CodeEditorService,
-    private config: GuiConfigService
+    private config: GuiConfigService,
+    private cdRef: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
@@ -320,11 +321,7 @@ export class WorkspaceComponent implements AfterViewInit, OnInit, OnDestroy {
   }
 
   updateElapsedTime() {
-    if (!this.startTime) return;
-
-    const diff = Date.now() - this.startTime;
-    const minutes = Math.floor(diff / 60000);
-    const seconds = Math.floor((diff % 60000) / 1000);
+    this.cdRef.detectChanges();
   }
 
   get formattedElapsedTime(): string {
