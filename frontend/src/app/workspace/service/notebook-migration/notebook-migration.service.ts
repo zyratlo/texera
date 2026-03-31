@@ -36,9 +36,9 @@ export class NotebookMigrationService {
     private notificationService: NotificationService
   ) {}
 
-  public async sendToAIGenerateWorkflow(notebookContent: Notebook) {
+  public async sendToAIGenerateWorkflow(notebookContent: Notebook, modelType: string, apiKey: string) {
     const migrationLLM = new NotebookMigrationLLM();
-    migrationLLM.initialize("gpt-5-mini");
+    migrationLLM.initialize(modelType, apiKey);
 
     try {
       const result = await firstValueFrom(await migrationLLM.convertNotebookToWorkflow(notebookContent));

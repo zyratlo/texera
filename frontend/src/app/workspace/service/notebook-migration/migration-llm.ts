@@ -82,13 +82,13 @@ export class NotebookMigrationLLM {
   /**
    * Initialize a new LLM session with Texera documentation
    */
-  public initialize(modelType: string): void {
+  public initialize(modelType: string = "gpt-5-mini", apiKey: string = "dummy"): void {
     console.log("Initializing new Notebook Migration LLM session");
     this.model = createOpenAI({
       baseURL: new URL(`${AppSettings.getApiEndpoint()}`, document.baseURI).toString(),
       // apiKey is required by the library for creating the OpenAI compatible client;
       // For security reason, we store the apiKey at the backend, thus the value is dummy here.
-      apiKey: "dummy",
+      apiKey: apiKey,
     }).chat(modelType);
 
     this.messages = [

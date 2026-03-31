@@ -510,6 +510,28 @@
     <nz-form-item>
       <nz-form-label [nzNoColon]="true">
         <span style="font-weight: 1000; font-size: 16px;">
+          Select Model Type
+        </span>
+      </nz-form-label>
+
+      <nz-form-control>
+        <nz-select
+          formControlName="model"
+          nzPlaceHolder="Select a model"
+          style="width: 50%;"
+        >
+          <nz-option nzValue="gpt-5-mini" nzLabel="GPT-5 Mini (pick me)"></nz-option>
+          <nz-option nzValue="gpt-4o-mini" nzLabel="GPT-4o Mini (fast & cheap)"></nz-option>
+          <nz-option nzValue="gpt-4o" nzLabel="GPT-4o (higher quality)"></nz-option>
+          <nz-option nzValue="claude-3-haiku" nzLabel="Claude 3 Haiku (fast)"></nz-option>
+          <nz-option nzValue="claude-3-sonnet" nzLabel="Claude 3 Sonnet (balanced)"></nz-option>
+        </nz-select>
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item>
+      <nz-form-label [nzNoColon]="true">
+        <span style="font-weight: 1000; font-size: 16px;">
           API Key
         </span>
       </nz-form-label>
@@ -517,7 +539,7 @@
         <input
           nz-input
           formControlName="apiKey"
-          placeholder="Enter API key (optional)" />
+          placeholder="Enter API key" />
       </nz-form-control>
     </nz-form-item>
   </form>

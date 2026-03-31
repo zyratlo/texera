@@ -195,6 +195,7 @@ export class MenuComponent implements OnInit, OnDestroy {
     this.importForm = this.fb.group({
       description: [''],
       file: [null, Validators.required],
+      model: [''],
       apiKey: ['']
     });
   }
@@ -591,8 +592,9 @@ export class MenuComponent implements OnInit, OnDestroy {
           disabled: () => !this.importForm.valid,
           onClick: () => {
             const file: NzUploadFile = this.importForm.get('file')?.value;
+            const model: string = this.importForm.get('model')?.value;
             const apiKey: string = this.importForm.get('apiKey')?.value;
-            this.onClickImportNotebook(file, apiKey);
+            this.onClickImportNotebook(file, model, apiKey);
             modalRef.close(); // close after submit too
           }
         }
@@ -607,8 +609,7 @@ export class MenuComponent implements OnInit, OnDestroy {
     return false; // prevent auto upload
   };
 
-  public onClickImportNotebook = (file: NzUploadFile, apiKey: string): boolean => {
-    // TODO dynamically fetch available models and send apiKey to LiteLLM
+  public onClickImportNotebook = (file: NzUploadFile, model: string, apiKey: string): boolean => {
     const reader = new FileReader();
 
     // Check if the file is a Jupyter notebook based on its extension
@@ -654,7 +655,7 @@ export class MenuComponent implements OnInit, OnDestroy {
         // Get workflow and mapping from OpenAI
         console.log("Getting data from OpenAI...");
         await this.notebookMigrationService
-          .sendToAIGenerateWorkflow(notebookContent)
+          .sendToAIGenerateWorkflow(notebookContent, model, apiKey)
           .then(result => {
             if (result) {
               const { workflowContent, mappingContent } = result;
