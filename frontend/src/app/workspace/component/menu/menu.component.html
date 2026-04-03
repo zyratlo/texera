@@ -484,6 +484,9 @@
         <li>The generated workflow ready to use.</li>
         <li>A floating Jupyter window containing the uploaded notebook for reference.</li>
       </ol>
+      <p style="margin: 0; font-size: 16px; font-weight: 500; user-select: text;">
+        Feel free to navigate away from this tab while you wait for the workflow to generate. Please do not close the window.
+      </p>
     </nz-form-item>
 
     <nz-form-item>
@@ -520,11 +523,8 @@
           nzPlaceHolder="Select a model"
           style="width: 50%;"
         >
-          <nz-option nzValue="gpt-5-mini" nzLabel="GPT-5 Mini (pick me)"></nz-option>
-          <nz-option nzValue="gpt-4o-mini" nzLabel="GPT-4o Mini (fast & cheap)"></nz-option>
-          <nz-option nzValue="gpt-4o" nzLabel="GPT-4o (higher quality)"></nz-option>
-          <nz-option nzValue="claude-3-haiku" nzLabel="Claude 3 Haiku (fast)"></nz-option>
-          <nz-option nzValue="claude-3-sonnet" nzLabel="Claude 3 Sonnet (balanced)"></nz-option>
+          <nz-option nzValue="gpt-5-mini" nzLabel="gpt-5-mini"></nz-option>
+          <nz-option nzValue="claude-haiku-4.5" nzLabel="claude-haiku-4.5"></nz-option>
         </nz-select>
       </nz-form-control>
     </nz-form-item>
