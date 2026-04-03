@@ -713,7 +713,8 @@ export class MenuComponent implements OnInit, OnDestroy {
             }
           })
           .catch(error => {
-            console.error("Error while fetching data from OpenAI:", error);
+            this.notificationService.error("Error while communicating with LLM, check console for details");
+            console.error("Error while fetching data from LLM: ", error);
           })
           .finally(() => {
             this.setWaitingForLLM.emit(false); // stop loading

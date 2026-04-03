@@ -40,6 +40,11 @@ export class NotebookMigrationService {
     const migrationLLM = new NotebookMigrationLLM();
     migrationLLM.initialize(modelType, apiKey);
 
+    const isValid = await migrationLLM.verifyConnection();
+    if (!isValid) {
+      throw new Error("Invalid API key or backend connection");
+    }
+
     try {
       const result = await firstValueFrom(await migrationLLM.convertNotebookToWorkflow(notebookContent));
       const parsedResult = JSON.parse(result);

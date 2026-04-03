@@ -104,6 +104,33 @@ export class NotebookMigrationLLM {
   }
 
   /**
+   * Verify the connection to the LLM using the given API key
+   */
+  public async verifyConnection(): Promise<boolean> {
+    if (!this.initialized) {
+      throw new Error("LLM session not initialized");
+    }
+
+    try {
+      await generateText({
+        model: this.model,
+        messages: [
+          {
+            role: "user",
+            content: "ping",
+          },
+        ],
+        maxOutputTokens: 1,
+      });
+
+      return true;
+    } catch (err) {
+      console.error("API key verification failed:", err);
+      return false;
+    }
+  }
+
+  /**
    * Send a prompt and receive a response.
    * All prior documentation and conversation is preserved.
    */
