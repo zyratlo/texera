@@ -120,7 +120,7 @@ export class NotebookMigrationLLM {
             content: "ping",
           },
         ],
-        maxOutputTokens: 1,
+        maxOutputTokens: 10,
       });
 
       return true;
