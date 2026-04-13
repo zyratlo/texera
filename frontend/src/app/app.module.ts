@@ -185,6 +185,8 @@ import { NzCheckboxModule } from "ng-zorro-antd/checkbox";
 import { NzRadioModule } from "ng-zorro-antd/radio";
 import { RegistrationRequestModalComponent } from "./common/service/user/registration-request-modal/registration-request-modal.component";
 import { MarkdownDescriptionComponent } from "./dashboard/component/user/markdown-description/markdown-description.component";
+import { UserComputingUnitComponent } from "./dashboard/component/user/user-computing-unit/user-computing-unit.component";
+import { UserComputingUnitListItemComponent } from "./dashboard/component/user/user-computing-unit/user-computing-unit-list-item/user-computing-unit-list-item.component";
 import { JupyterUploadSuccessComponent } from "./dashboard/component/user/user-workflow/notebook-migration-tool/notebook-migration.component";
 import { JupyterNotebookPanelComponent } from "./workspace/component/jupyter-notebook-panel/jupyter-notebook-panel.component";
 
@@ -286,6 +288,8 @@ registerLocaleData(en);
     AdminSettingsComponent,
     RegistrationRequestModalComponent,
     MarkdownDescriptionComponent,
+    UserComputingUnitComponent,
+    UserComputingUnitListItemComponent,
     JupyterNotebookPanelComponent,
   ],
   imports: [
