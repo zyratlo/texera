@@ -463,7 +463,7 @@
   </div>
 </div>
 
-<ng-template #importNotebookModal let-modal>
+<ng-template #importNotebookModal let-data>
   <form [formGroup]="importForm" nz-form>
     <div style="text-align: center; margin-bottom: 12px;">
       <img
@@ -518,14 +518,28 @@
       </nz-form-label>
 
       <nz-form-control>
-        <nz-select
-          formControlName="model"
-          nzPlaceHolder="Select a model"
-          style="width: 50%;"
-        >
-          <nz-option nzValue="gpt-5-mini" nzLabel="gpt-5-mini"></nz-option>
-          <nz-option nzValue="claude-haiku-4.5" nzLabel="claude-haiku-4.5"></nz-option>
-        </nz-select>
+        <ng-container *ngIf="data.models$ | async as models; else loadingTpl">
+          <nz-select
+            formControlName="model"
+            nzPlaceHolder="Select a model"
+            style="width: 50%;"
+          >
+            <nz-option
+              *ngFor="let model of $any(models)"
+              [nzValue]="model.name"
+              [nzLabel]="model.name"
+            ></nz-option>
+          </nz-select>
+        </ng-container>
+
+        <ng-template #loadingTpl>
+          <nz-select
+            nzPlaceHolder="Loading models..."
+            [nzLoading]="true"
+            [nzDisabled]="true"
+            style="width: 50%;"
+          ></nz-select>
+        </ng-template>
       </nz-form-control>
     </nz-form-item>
 

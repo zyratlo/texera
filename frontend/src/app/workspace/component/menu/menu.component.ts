@@ -574,11 +574,20 @@ export class MenuComponent implements OnInit, OnDestroy {
   }
 
   openImportNotebookModal(): void {
+    const models$ = this.notebookMigrationService.getAvailableModels().pipe(
+      tap({
+        error: () => this.notificationService.error("Failed to fetch models")
+      })
+    );
+
     const modalRef = this.modal.create({
       nzTitle: 'AI Generate Workflow from Python Notebook',
       nzContent: this.importModalTpl,
       nzViewContainerRef: this.viewContainerRef,
       nzWidth: 700,
+      nzData: {
+        models$: models$
+      },
       nzFooter: [
         {
           label: 'Cancel',
@@ -602,7 +611,7 @@ export class MenuComponent implements OnInit, OnDestroy {
     });
   }
 
-  beforeUpload = (file: NzUploadFile) => {
+  public beforeUpload = (file: NzUploadFile) => {
     this.importForm.patchValue({ file });
     this.importForm.get('file')?.markAsDirty();
     this.importForm.get('file')?.updateValueAndValidity();

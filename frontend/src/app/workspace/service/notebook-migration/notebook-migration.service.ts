@@ -25,6 +25,20 @@ import { firstValueFrom } from "rxjs";
 import { environment } from "../../../../environments/environment";
 import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { NotificationService } from "src/app/common/service/notification/notification.service";
+import { catchError, firstValueFrom, map, Observable, of } from "rxjs";
+
+
+interface LiteLLMModel {
+  id: string;
+  object: string;
+  created: number;
+  owned_by: string;
+}
+
+interface LiteLLMModelsResponse {
+  data: LiteLLMModel[];
+  object: string;
+}
 
 @UntilDestroy()
 @Injectable({
@@ -35,6 +49,22 @@ export class NotebookMigrationService {
     private http: HttpClient,
     private notificationService: NotificationService
   ) {}
+
+  public getAvailableModels(): Observable<{ name: string }[]> {
+    return this.http
+      .get<LiteLLMModelsResponse>(`${AppSettings.getApiEndpoint()}/models`)
+      .pipe(
+        map(response =>
+          response.data.map(model => ({
+            name: model.id
+          }))
+        ),
+        catchError(err => {
+          console.error('Failed to fetch models', err);
+          return of([]);
+        })
+      );
+  }
 
   public async sendToAIGenerateWorkflow(notebookContent: Notebook, modelType: string, apiKey: string) {
     const migrationLLM = new NotebookMigrationLLM();
