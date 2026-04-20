@@ -83,7 +83,6 @@ export class NotebookMigrationLLM {
    * Initialize a new LLM session with Texera documentation
    */
   public initialize(modelType: string = "gpt-5-mini", apiKey: string = "dummy"): void {
-    console.log("Initializing new Notebook Migration LLM session");
     this.model = createOpenAI({
       baseURL: new URL(`${AppSettings.getApiEndpoint()}`, document.baseURI).toString(),
       // apiKey is required by the library for creating the OpenAI compatible client;
@@ -177,13 +176,11 @@ export class NotebookMigrationLLM {
       })
       .join("\n\n");
 
-    console.log("Sending notebook to LLM");
     const workflow = await firstValueFrom(this.sendPrompt(`${WORKFLOW_PROMPT}\n${notebookString}`));
     const mapping = await firstValueFrom(this.sendPrompt(MAPPING_PROMPT));
-    console.log("Workflow and mapping received from LLM");
 
     // Remove ```json blocks and parse
-    const udfOpenAiResponse = JSON.parse(workflow.replace(/^```json\s*|```$/g, "").trim());
+    const udfLLMResponse = JSON.parse(workflow.replace(/^```json\s*|```$/g, "").trim());
 
     const workflowJSON: WorkflowJSON = {
       operators: [],
@@ -197,13 +194,13 @@ export class NotebookMigrationLLM {
 
     const udfMappingToUUID: Record<string, string> = {};
 
-    Object.entries(udfOpenAiResponse.code).forEach(([udfId, udfCode], i) => {
+    Object.entries(udfLLMResponse.code).forEach(([udfId, udfCode], i) => {
       const udfUUID = `PythonUDFV2-operator-${uuidv4()}`;
       udfMappingToUUID[udfId] = udfUUID;
 
       let udfOutputColumns: { attributeName: string; attributeType: string }[] = [];
-      if (udfOpenAiResponse.outputs && udfOpenAiResponse.outputs[udfId]) {
-        udfOutputColumns = udfOpenAiResponse.outputs[udfId].map((attr: string) => ({
+      if (udfLLMResponse.outputs && udfLLMResponse.outputs[udfId]) {
+        udfOutputColumns = udfLLMResponse.outputs[udfId].map((attr: string) => ({
           attributeName: attr,
           attributeType: "binary",
         }));
@@ -249,7 +246,7 @@ export class NotebookMigrationLLM {
     });
 
     // Add links/edges
-    (udfOpenAiResponse.edges || []).forEach(([source, target]: [string, string]) => {
+    (udfLLMResponse.edges || []).forEach(([source, target]: [string, string]) => {
       workflowJSON.links.push({
         linkID: `link-${uuidv4()}`,
         source: {
@@ -298,6 +295,5 @@ export class NotebookMigrationLLM {
     this.messages = [];
     this.model = null;
     this.initialized = false;
-    console.log("Notebook Migration LLM session closed");
   }
 }

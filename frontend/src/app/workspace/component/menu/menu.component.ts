@@ -665,21 +665,15 @@ export class MenuComponent implements OnInit, OnDestroy {
           cell.metadata.uuid = uuidv4();
         }
 
-        // Print content of notebook (JSON)
-        console.log(`Notebook JSON: ${JSON.stringify(notebookContent)}`);
-
         // Send Notebook JSON to pod to open in jupyterlab
         await this.notebookMigrationService.sendNotebookToJupyter(notebookContent);
 
-        // Get workflow and mapping from OpenAI
-        console.log("Getting data from OpenAI...");
+        // Get workflow and mapping from LLM
         await this.notebookMigrationService
           .sendToAIGenerateWorkflow(notebookContent, model, apiKey)
           .then(result => {
             if (result) {
               const { workflowContent, mappingContent } = result;
-              console.log("Workflow:", workflowContent);
-              console.log("Mapping:", mappingContent);
 
               const fileExtensionIndex = file.name.lastIndexOf(".");
               var workflowName: string;

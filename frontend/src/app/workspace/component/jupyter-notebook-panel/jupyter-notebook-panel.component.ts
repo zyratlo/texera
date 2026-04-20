@@ -68,10 +68,9 @@ export class JupyterNotebookPanelComponent implements OnInit, AfterViewInit, OnD
   checkIframeRef(): void {
     setTimeout(() => {
       if (this.isVisible && this.iframeRef?.nativeElement) {
-        console.log("Iframe reference found:", this.iframeRef.nativeElement);
         this.jupyterPanelService.setIframeRef(this.iframeRef.nativeElement);
       } else {
-        console.error("Iframe reference not found yet.");
+        console.error("Jupyter Iframe reference not found.");
       }
     }, 0); // Small timeout to ensure DOM is updated
   }

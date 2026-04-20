@@ -17,13 +17,9 @@
  * under the License.
  */
 
-// Log that custom.js is loaded
-console.log("Custom JS loaded successfully!");
-
 // Use Jupyter's event system to ensure the notebook is fully loaded
 require(["base/js/events"], function (events) {
   events.on("kernel_ready.Kernel", function () {
-    console.log("Notebook initialized!");
 
     // Attach click event listener to cells
     $("#notebook-container").on("click", ".cell", function (event) {
@@ -33,8 +29,6 @@ require(["base/js/events"], function (events) {
 
       // Get the UUID from the cell's metadata, or use "N/A" if it doesn't exist
       const cellUUID = Jupyter.notebook.get_cell(index).metadata.uuid || 'N/A';
-
-      console.log(`Cell ${index + 1} clicked:`, cellContent, `UUID: ${cellUUID}`);
 
       // Send a message to the parent window (Texera app)
       window.parent.postMessage(
@@ -53,8 +47,6 @@ window.addEventListener("message", function (event) {
     return;
   }
 
-  console.log("Received message in notebook:", event.data);
-
   if (event.data.action === "triggerCellClick") {
     const operatorCellUUIDs = event.data.operators || [];
 
@@ -64,23 +56,18 @@ window.addEventListener("message", function (event) {
     }
 
     operatorCellUUIDs.forEach((cellUUID) => {
-      console.log(`Attempting to find cell with UUID: ${cellUUID}`);
-
       // Search for the cell by UUID
       const allCells = Jupyter.notebook.get_cells();
       const targetCell = allCells.find((cell) => cell.metadata.uuid === cellUUID);
 
       if (targetCell) {
         const cellIndex = Jupyter.notebook.find_cell_index(targetCell);
-        console.log(`Target cell found with UUID: ${cellUUID}, at index: ${cellIndex}`);
 
         // Scroll to and highlight the cell
         let cell = document.querySelectorAll(".cell")[cellIndex];
         if (cell) {
           cell.scrollIntoView({ behavior: 'smooth', block: 'center' });
           cell.classList.add("highlighted");
-
-          console.log(`Cell at index ${cellIndex} highlighted.`);
 
           // Remove the highlight after 3 seconds
           setTimeout(() => {

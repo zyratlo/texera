@@ -62,14 +62,10 @@ export class JupyterPanelService {
       .subscribe(wid => {
         this.closeJupyterNotebookPanel();
         if (wid != 0) {
-          console.log("Checking for existing notebook and mapping...");
           this.fetchNotebookAndMapping(wid).subscribe(result => {
             if (result == 1) {
-              console.log("Workflow graph updated, recomputing highlight mapping...");
               this.precomputeHighlightMapping();
               this.openJupyterNotebookPanel();
-            } else {
-              console.log("No existing notebook and mapping found.");
             }
           });
         }
@@ -104,7 +100,7 @@ export class JupyterPanelService {
         }
       }),
       catchError((error: unknown) => {
-        console.error("Network response was not ok", error);
+        console.error("Network response was not ok when fetching notebook and mapping:", error);
         return of(0);
       })
     );
@@ -158,7 +154,6 @@ export class JupyterPanelService {
   // Set the iframe reference (from the component's ViewChild)
   setIframeRef(iframe: HTMLIFrameElement) {
     this.iframeRef = iframe;
-    this.iframeRef.onload = () => console.log("Iframe loaded successfully.");
   }
 
   // Open the Jupyter Notebook panel
@@ -188,7 +183,6 @@ export class JupyterPanelService {
     const mappingKey = "mapping_wid_" + wid;
     // Check if there is corresponding mapping data
     if (wid === undefined || !this.notebookMigrationService.hasMapping(mappingKey)) {
-      console.warn("No Jupyter notebook found for this workflow. Cannot open panel.");
       this.notificationService.warning("No Jupyter notebook associated with this workflow.");
       return;
     }
@@ -201,12 +195,10 @@ export class JupyterPanelService {
   private handleNotebookMessage = async (event: MessageEvent) => {
     const allowedOrigins = [window.location.origin, await this.notebookMigrationService.getJupyterURL()];
     if (!allowedOrigins.includes(event.origin)) {
-      console.log("Invalid origin:", event.origin);
       return;
     }
 
     const { action, cellIndex, cellContent, cellUUID } = event.data;
-    console.log(action);
     if (action === "cellClicked") {
       this.highlightedCell = cellIndex;
       this.cellContent[cellIndex] = cellContent || `Cell ${cellIndex + 1}`;
@@ -239,8 +231,6 @@ export class JupyterPanelService {
     if (highlightData.edges.length > 0) {
       this.workflowActionService.highlightLinks(true, ...highlightData.edges);
     }
-
-    console.log(`Highlighted components: ${highlightData.components}, edges: ${highlightData.edges}`);
   }
 
   // Handle when a Texera component is clicked to trigger the corresponding notebook cell
@@ -264,7 +254,6 @@ export class JupyterPanelService {
 
       const operatorArray = mappingEntry["operator_to_cell"][cellUUID];
       if (operatorArray) {
-        console.log("Found corresponding notebook cells:", operatorArray);
         this.iframeRef.contentWindow.postMessage({ action: "triggerCellClick", operators: operatorArray }, jupyterURL);
       } else {
         console.error(`No operators found for cellUUID: ${cellUUID}`);

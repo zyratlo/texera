@@ -109,7 +109,6 @@ export class NotebookMigrationService {
 
     try {
       const response: any = await firstValueFrom(this.http.post(jupyterAPIUrl, requestBody, { headers }));
-      console.log("Notebook successfully sent to Jupyter:", response);
       this.notificationService.success("Notebook successfully sent to Jupyter");
       return 1;
     } catch (error) {
