@@ -415,7 +415,7 @@ registerLocaleData(en);
       useFactory: (jupyterPanelService: JupyterPanelService) => () => jupyterPanelService.init(),
       deps: [JupyterPanelService],
       multi: true,
-    }
+    },
   ],
   bootstrap: [AppComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],

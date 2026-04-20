@@ -60,19 +60,17 @@ export class NotebookMigrationService {
   ) {}
 
   public getAvailableModels(): Observable<{ name: string }[]> {
-    return this.http
-      .get<LiteLLMModelsResponse>(`${AppSettings.getApiEndpoint()}/models`)
-      .pipe(
-        map(response =>
-          response.data.map(model => ({
-            name: model.id
-          }))
-        ),
-        catchError(err => {
-          console.error('Failed to fetch models', err);
-          return of([]);
-        })
-      );
+    return this.http.get<LiteLLMModelsResponse>(`${AppSettings.getApiEndpoint()}/models`).pipe(
+      map(response =>
+        response.data.map(model => ({
+          name: model.id,
+        }))
+      ),
+      catchError((err: unknown) => {
+        console.error("Failed to fetch models", err);
+        return of([]);
+      })
+    );
   }
 
   public async sendToAIGenerateWorkflow(notebookContent: Notebook, modelType: string, apiKey: string) {
@@ -130,7 +128,7 @@ export class NotebookMigrationService {
         return null;
       }
 
-      const data = await response.json() as { success: boolean; url?: string };
+      const data = (await response.json()) as { success: boolean; url?: string };
 
       if (!data.success || !data.url) {
         console.error("Jupyter server unavailable");
@@ -138,7 +136,6 @@ export class NotebookMigrationService {
       }
 
       return data.url;
-
     } catch (err) {
       console.error("Error fetching Jupyter URL:", err);
       return null;
@@ -153,7 +150,7 @@ export class NotebookMigrationService {
         return null;
       }
 
-      const data = await response.json() as { success: boolean; url?: string };
+      const data = (await response.json()) as { success: boolean; url?: string };
 
       if (!data.success || !data.url) {
         console.error("Jupyter server unavailable");
@@ -161,19 +158,13 @@ export class NotebookMigrationService {
       }
 
       return data.url;
-
     } catch (err) {
       console.error("Error fetching Jupyter iframe URL:", err);
       return null;
     }
   }
 
-  public storeNotebookAndMapping(
-    wid: number | undefined,
-    vid: number = 1,
-    mappingContent: any,
-    notebookContent: any
-  ) {
+  public storeNotebookAndMapping(wid: number | undefined, vid: number = 1, mappingContent: any, notebookContent: any) {
     const dbAPIUrl = `${AppSettings.getApiEndpoint()}/notebook-migration/store-notebook-and-mapping`;
     const headers = new HttpHeaders({ "Content-Type": "application/json" });
 
@@ -187,7 +178,7 @@ export class NotebookMigrationService {
     return this.http.post(dbAPIUrl, payload, { headers });
   }
 
-  public hasMapping(id:string): boolean {
+  public hasMapping(id: string): boolean {
     return id in this.mapping;
   }
 

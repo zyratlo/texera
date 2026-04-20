@@ -41,9 +41,9 @@ describe("JupyterNotebookPanelComponent", () => {
     };
 
     mockNotebookMigrationService = {
-      getJupyterIframeURL: jasmine.createSpy("getJupyterIframeURL").and.returnValue(
-        Promise.resolve("http://localhost:8888")
-      ),
+      getJupyterIframeURL: jasmine
+        .createSpy("getJupyterIframeURL")
+        .and.returnValue(Promise.resolve("http://localhost:8888")),
     };
 
     await TestBed.configureTestingModule({
@@ -93,7 +93,7 @@ describe("JupyterNotebookPanelComponent", () => {
     expect(component.jupyterUrl.toString()).toContain("http://localhost:8888");
   });
 
-  it("should call setIframeRef when iframe exists and visible", (done) => {
+  it("should call setIframeRef when iframe exists and visible", done => {
     spyOn(component, "checkIframeRef").and.stub();
     component.isVisible = true;
 
@@ -108,7 +108,7 @@ describe("JupyterNotebookPanelComponent", () => {
     }, 0);
   });
 
-  it("should NOT call setIframeRef if not visible", (done) => {
+  it("should NOT call setIframeRef if not visible", done => {
     spyOn(component, "checkIframeRef").and.stub();
     component.isVisible = false;
 

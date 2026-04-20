@@ -39,7 +39,7 @@ export class JupyterNotebookPanelComponent implements OnInit, AfterViewInit, OnD
   constructor(
     private jupyterPanelService: JupyterPanelService,
     private sanitizer: DomSanitizer,
-    private notebookMigrationService: NotebookMigrationService,
+    private notebookMigrationService: NotebookMigrationService
   ) {}
 
   ngOnInit(): void {

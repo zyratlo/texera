@@ -133,17 +133,13 @@ describe("JupyterPanelService", () => {
   });
 
   // HTTP fetchNotebookAndMapping
-  it("should return 0 when exists=false", (done) => {
-    (service as any)
-      .fetchNotebookAndMapping(1, 1)
-      .subscribe((result: any) => {
-        expect(result).toBe(0);
-        done();
-      });
+  it("should return 0 when exists=false", done => {
+    (service as any).fetchNotebookAndMapping(1, 1).subscribe((result: any) => {
+      expect(result).toBe(0);
+      done();
+    });
 
-    const req = httpMock.expectOne(r =>
-      r.url.includes("/notebook-migration/fetch-notebook-and-mapping")
-    );
+    const req = httpMock.expectOne(r => r.url.includes("/notebook-migration/fetch-notebook-and-mapping"));
 
     req.flush({ exists: false });
   });
@@ -162,8 +158,8 @@ describe("JupyterPanelService", () => {
     (service as any).cellToHighlightMapping = {
       cell1: {
         components: ["op1", "op2"],
-        edges: ["link1"]
-      }
+        edges: ["link1"],
+      },
     };
 
     const method = (service as any).highlightFromCell.bind(service);
@@ -201,8 +197,8 @@ describe("JupyterPanelService", () => {
     (mockNotebook as any).getMapping.and.returnValue({
       cell_to_operator: {},
       operator_to_cell: {
-        cell1: ["op1", "op2"]
-      }
+        cell1: ["op1", "op2"],
+      },
     });
 
     await service.onWorkflowComponentClick("cell1");
@@ -210,7 +206,7 @@ describe("JupyterPanelService", () => {
     expect(mockIframe.contentWindow.postMessage).toHaveBeenCalledWith(
       {
         action: "triggerCellClick",
-        operators: ["op1", "op2"]
+        operators: ["op1", "op2"],
       },
       "http://jupyter"
     );

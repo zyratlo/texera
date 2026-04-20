@@ -26,7 +26,7 @@ import { UntilDestroy } from "@ngneat/until-destroy";
 import { NotificationService } from "src/app/common/service/notification/notification.service";
 import { distinctUntilChanged, switchMap } from "rxjs/operators";
 import { AppSettings } from "../../../common/app-setting";
-import { NotebookMigrationService } from "../notebook-migration/notebook-migration.service"
+import { NotebookMigrationService } from "../notebook-migration/notebook-migration.service";
 
 @UntilDestroy()
 @Injectable({
@@ -69,14 +69,17 @@ export class JupyterPanelService {
               this.precomputeHighlightMapping();
               this.openJupyterNotebookPanel();
             } else {
-              console.log("No existing notebook and mapping found.")
+              console.log("No existing notebook and mapping found.");
             }
           });
         }
       });
   }
 
-  private fetchNotebookAndMapping(workflowID: number | undefined = this.workflowActionService.getWorkflow().wid, vId: number = 1) {
+  private fetchNotebookAndMapping(
+    workflowID: number | undefined = this.workflowActionService.getWorkflow().wid,
+    vId: number = 1
+  ) {
     // Fetch mapping and notebook from migration database if exists for wid
     const dbAPIUrl = `${AppSettings.getApiEndpoint()}/notebook-migration/fetch-notebook-and-mapping`;
     const headers = new HttpHeaders({ "Content-Type": "application/json" });
@@ -85,29 +88,26 @@ export class JupyterPanelService {
       vid: vId, // Future work: add dynamic fetching of current workflow vId
     };
 
-    return this.http
-      .post(dbAPIUrl, payload, { headers })
-      .pipe(
-        switchMap(async (response: any) => {
-          // Only load mapping and workflow if they exist
-          if(response.exists) {
-            this.notebookMigrationService.setMapping("mapping_wid_" + workflowID, response.mapping);
+    return this.http.post(dbAPIUrl, payload, { headers }).pipe(
+      switchMap(async (response: any) => {
+        // Only load mapping and workflow if they exist
+        if (response.exists) {
+          this.notebookMigrationService.setMapping("mapping_wid_" + workflowID, response.mapping);
 
-            if (await this.notebookMigrationService.sendNotebookToJupyter(response.notebook) == 1) {
-                return 1;
-            }
-            else {
-              return 0;
-            }
+          if ((await this.notebookMigrationService.sendNotebookToJupyter(response.notebook)) == 1) {
+            return 1;
           } else {
             return 0;
           }
-        }),
-        catchError((error: unknown) => {
-          console.error("Network response was not ok", error);
-          return of(0);
-        })
-      );
+        } else {
+          return 0;
+        }
+      }),
+      catchError((error: unknown) => {
+        console.error("Network response was not ok", error);
+        return of(0);
+      })
+    );
   }
 
   // Precompute the dictionary for O(1) highlighting
@@ -119,7 +119,7 @@ export class JupyterPanelService {
       return;
     }
     const mappingKey = "mapping_wid_" + wid;
-    const mapping = this.notebookMigrationService.getMapping(mappingKey)
+    const mapping = this.notebookMigrationService.getMapping(mappingKey);
 
     if (mapping == undefined) {
       console.warn(`Mapping key '${mappingKey}' not found. Cannot compute highlight mapping.`);
@@ -173,7 +173,7 @@ export class JupyterPanelService {
     this.jupyterNotebookPanelVisible.next(false);
     const wid = this.workflowActionService.getWorkflow().wid;
     if (wid != undefined) {
-      this.notebookMigrationService.deleteMapping("mapping_wid_" + wid)
+      this.notebookMigrationService.deleteMapping("mapping_wid_" + wid);
     }
   }
 
@@ -187,7 +187,7 @@ export class JupyterPanelService {
     const wid = this.workflowActionService.getWorkflow().wid;
     const mappingKey = "mapping_wid_" + wid;
     // Check if there is corresponding mapping data
-    if (wid === undefined || !(this.notebookMigrationService.hasMapping(mappingKey))) {
+    if (wid === undefined || !this.notebookMigrationService.hasMapping(mappingKey)) {
       console.warn("No Jupyter notebook found for this workflow. Cannot open panel.");
       this.notificationService.warning("No Jupyter notebook associated with this workflow.");
       return;
@@ -205,8 +205,8 @@ export class JupyterPanelService {
       return;
     }
 
-    const {action, cellIndex, cellContent, cellUUID} = event.data;
-    console.log(action)
+    const { action, cellIndex, cellContent, cellUUID } = event.data;
+    console.log(action);
     if (action === "cellClicked") {
       this.highlightedCell = cellIndex;
       this.cellContent[cellIndex] = cellContent || `Cell ${cellIndex + 1}`;
@@ -245,7 +245,7 @@ export class JupyterPanelService {
 
   // Handle when a Texera component is clicked to trigger the corresponding notebook cell
   async onWorkflowComponentClick(cellUUID: string): Promise<void> {
-    const jupyterURL = await this.notebookMigrationService.getJupyterURL()
+    const jupyterURL = await this.notebookMigrationService.getJupyterURL();
     if (jupyterURL && this.iframeRef && this.iframeRef.contentWindow) {
       const wid = this.workflowActionService.getWorkflow().wid;
 
@@ -264,11 +264,8 @@ export class JupyterPanelService {
 
       const operatorArray = mappingEntry["operator_to_cell"][cellUUID];
       if (operatorArray) {
-        console.log("Found corresponding notebook cells:", operatorArray)
-        this.iframeRef.contentWindow.postMessage(
-          {action: "triggerCellClick", operators: operatorArray},
-          jupyterURL
-        );
+        console.log("Found corresponding notebook cells:", operatorArray);
+        this.iframeRef.contentWindow.postMessage({ action: "triggerCellClick", operators: operatorArray }, jupyterURL);
       } else {
         console.error(`No operators found for cellUUID: ${cellUUID}`);
       }

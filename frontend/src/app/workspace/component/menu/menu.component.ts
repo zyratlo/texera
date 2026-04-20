@@ -19,8 +19,19 @@
 
 import { DatePipe, Location } from "@angular/common";
 import { Router } from "@angular/router";
-import { Component, ElementRef, Input, OnDestroy, OnInit, ViewChild, Output, EventEmitter, TemplateRef, ViewContainerRef  } from "@angular/core";
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import {
+  Component,
+  ElementRef,
+  Input,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+  Output,
+  EventEmitter,
+  TemplateRef,
+  ViewContainerRef,
+} from "@angular/core";
+import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { UserService } from "../../../common/service/user/user.service";
 import {
   DEFAULT_WORKFLOW_NAME,
@@ -131,7 +142,7 @@ export class MenuComponent implements OnInit, OnDestroy {
   @ViewChild(ComputingUnitSelectionComponent) computingUnitSelectionComponent!: ComputingUnitSelectionComponent;
 
   public importForm: FormGroup;
-  @ViewChild('importNotebookModal', { static: true }) importModalTpl!: TemplateRef<any>;
+  @ViewChild("importNotebookModal", { static: true }) importModalTpl!: TemplateRef<any>;
 
   constructor(
     public executeWorkflowService: ExecuteWorkflowService,
@@ -160,7 +171,7 @@ export class MenuComponent implements OnInit, OnDestroy {
     private modal: NzModalService,
     private viewContainerRef: ViewContainerRef,
     private jupyterPanelService: JupyterPanelService,
-    private notebookMigrationService: NotebookMigrationService,
+    private notebookMigrationService: NotebookMigrationService
   ) {
     workflowWebsocketService
       .subscribeToEvent("ExecutionDurationUpdateEvent")
@@ -192,10 +203,10 @@ export class MenuComponent implements OnInit, OnDestroy {
     this.subscribeToComputingUnitStatus();
 
     this.importForm = this.fb.group({
-      description: [''],
+      description: [""],
       file: [null, Validators.required],
-      model: [''],
-      apiKey: ['']
+      model: [""],
+      apiKey: [""],
     });
   }
 
@@ -575,45 +586,45 @@ export class MenuComponent implements OnInit, OnDestroy {
   openImportNotebookModal(): void {
     const models$ = this.notebookMigrationService.getAvailableModels().pipe(
       tap({
-        error: () => this.notificationService.error("Failed to fetch models")
+        error: () => this.notificationService.error("Failed to fetch models"),
       })
     );
 
     const modalRef = this.modal.create({
-      nzTitle: 'AI Generate Workflow from Python Notebook',
+      nzTitle: "AI Generate Workflow from Python Notebook",
       nzContent: this.importModalTpl,
       nzViewContainerRef: this.viewContainerRef,
       nzWidth: 700,
       nzData: {
-        models$: models$
+        models$: models$,
       },
       nzFooter: [
         {
-          label: 'Cancel',
+          label: "Cancel",
           onClick: () => {
             modalRef.close();
-          }
+          },
         },
         {
-          label: 'Submit',
-          type: 'primary',
+          label: "Submit",
+          type: "primary",
           disabled: () => !this.importForm.valid,
           onClick: () => {
-            const file: NzUploadFile = this.importForm.get('file')?.value;
-            const model: string = this.importForm.get('model')?.value;
-            const apiKey: string = this.importForm.get('apiKey')?.value;
+            const file: NzUploadFile = this.importForm.get("file")?.value;
+            const model: string = this.importForm.get("model")?.value;
+            const apiKey: string = this.importForm.get("apiKey")?.value;
             this.onClickImportNotebook(file, model, apiKey);
             modalRef.close(); // close after submit too
-          }
-        }
-      ]
+          },
+        },
+      ],
     });
   }
 
   public beforeUpload = (file: NzUploadFile) => {
     this.importForm.patchValue({ file });
-    this.importForm.get('file')?.markAsDirty();
-    this.importForm.get('file')?.updateValueAndValidity();
+    this.importForm.get("file")?.markAsDirty();
+    this.importForm.get("file")?.updateValueAndValidity();
     return false; // prevent auto upload
   };
 
@@ -692,38 +703,34 @@ export class MenuComponent implements OnInit, OnDestroy {
                 readonly: false,
               };
 
-              this.workflowPersistService.persistWorkflow(workflow).pipe(
-                switchMap((updatedWorkflow: Workflow) => {
-                  const mappingID = "mapping_wid_" + updatedWorkflow.wid;
+              this.workflowPersistService
+                .persistWorkflow(workflow)
+                .pipe(
+                  switchMap((updatedWorkflow: Workflow) => {
+                    const mappingID = "mapping_wid_" + updatedWorkflow.wid;
 
-                  this.notebookMigrationService.setMapping(mappingID, mappingContent);
+                    this.notebookMigrationService.setMapping(mappingID, mappingContent);
 
-                  return this.notebookMigrationService.storeNotebookAndMapping(
-                    updatedWorkflow.wid,
-                    1,
-                    mappingContent,
-                    notebookContent
-                  ).pipe(
-                    map(() => updatedWorkflow)
-                  );
-                }),
-                untilDestroyed(this)
-              ).subscribe({
-                next: (updatedWorkflow) => {
-                  this.workflowActionService.reloadWorkflow(updatedWorkflow, true);
-                  this.jupyterPanelService.openPanel("JupyterNotebookPanel");
-                  this.notificationService.success(
-                    "Successfully generated workflow and mapping from notebook."
-                  );
-                },
-                error: (err) => {
-                  this.notificationService.error("Failed to import notebook, check console for detailed error")
-                  console.error("Import notebook failed:", err);
-                },
-                complete: () => {
-                  this.setWaitingForLLM.emit(false);
-                }
-              });
+                    return this.notebookMigrationService
+                      .storeNotebookAndMapping(updatedWorkflow.wid, 1, mappingContent, notebookContent)
+                      .pipe(map(() => updatedWorkflow));
+                  }),
+                  untilDestroyed(this)
+                )
+                .subscribe({
+                  next: updatedWorkflow => {
+                    this.workflowActionService.reloadWorkflow(updatedWorkflow, true);
+                    this.jupyterPanelService.openPanel("JupyterNotebookPanel");
+                    this.notificationService.success("Successfully generated workflow and mapping from notebook.");
+                  },
+                  error: (err: unknown) => {
+                    this.notificationService.error("Failed to import notebook, check console for detailed error");
+                    console.error("Import notebook failed:", err);
+                  },
+                  complete: () => {
+                    this.setWaitingForLLM.emit(false);
+                  },
+                });
             } else {
               console.error("Result is undefined");
             }

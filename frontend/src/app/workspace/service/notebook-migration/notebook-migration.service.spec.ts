@@ -35,10 +35,7 @@ describe("NotebookMigrationService", () => {
 
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
-      providers: [
-        NotebookMigrationService,
-        { provide: NotificationService, useValue: mockNotificationService },
-      ],
+      providers: [NotebookMigrationService, { provide: NotificationService, useValue: mockNotificationService }],
     });
 
     service = TestBed.inject(NotebookMigrationService);
@@ -50,7 +47,7 @@ describe("NotebookMigrationService", () => {
   });
 
   // getAvailableModels
-  it("should fetch and map available models", (done) => {
+  it("should fetch and map available models", done => {
     const mockResponse = {
       data: [
         { id: "gpt-4", object: "", created: 0, owned_by: "" },
@@ -70,7 +67,7 @@ describe("NotebookMigrationService", () => {
     req.flush(mockResponse);
   });
 
-  it("should return empty array on getAvailableModels error", (done) => {
+  it("should return empty array on getAvailableModels error", done => {
     service.getAvailableModels().subscribe(models => {
       expect(models).toEqual([]);
       done();
@@ -86,9 +83,7 @@ describe("NotebookMigrationService", () => {
 
     const promise = service.sendNotebookToJupyter(mockNotebook);
 
-    const req = httpMock.expectOne(req =>
-      req.url.includes("/notebook-migration/set-notebook")
-    );
+    const req = httpMock.expectOne(req => req.url.includes("/notebook-migration/set-notebook"));
 
     expect(req.request.method).toBe("POST");
 
@@ -105,9 +100,7 @@ describe("NotebookMigrationService", () => {
 
     const promise = service.sendNotebookToJupyter(mockNotebook);
 
-    const req = httpMock.expectOne(req =>
-      req.url.includes("/notebook-migration/set-notebook")
-    );
+    const req = httpMock.expectOne(req => req.url.includes("/notebook-migration/set-notebook"));
 
     req.error(new ErrorEvent("Server error"));
 
@@ -187,9 +180,7 @@ describe("NotebookMigrationService", () => {
   it("should call storeNotebookAndMapping API", () => {
     service.storeNotebookAndMapping(1, 1, {}, {}).subscribe();
 
-    const req = httpMock.expectOne(req =>
-      req.url.includes("/notebook-migration/store-notebook-and-mapping")
-    );
+    const req = httpMock.expectOne(req => req.url.includes("/notebook-migration/store-notebook-and-mapping"));
 
     expect(req.request.method).toBe("POST");
   });

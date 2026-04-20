@@ -18,7 +18,16 @@
  */
 
 import { Location } from "@angular/common";
-import { AfterViewInit, Component, HostListener, OnDestroy, OnInit, ViewChild, ViewContainerRef, ChangeDetectorRef } from "@angular/core";
+import {
+  AfterViewInit,
+  Component,
+  HostListener,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+  ViewContainerRef,
+  ChangeDetectorRef,
+} from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { UserService } from "../../common/service/user/user.service";
 import { WorkflowPersistService } from "../../common/service/workflow-persist/workflow-persist.service";
@@ -63,7 +72,7 @@ export class WorkspaceComponent implements AfterViewInit, OnInit, OnDestroy {
   public isWaitingForLLM = false;
   private timerInterval: any;
   private startTime: number | null = null;
-  @ViewChild("codeEditor", {read: ViewContainerRef}) codeEditorViewRef!: ViewContainerRef;
+  @ViewChild("codeEditor", { read: ViewContainerRef }) codeEditorViewRef!: ViewContainerRef;
 
   /**
    * Flag to ensure auto persist is registered only once.  This prevents multiple
@@ -325,10 +334,10 @@ export class WorkspaceComponent implements AfterViewInit, OnInit, OnDestroy {
   }
 
   get formattedElapsedTime(): string {
-    if (!this.startTime) return '00:00';
+    if (!this.startTime) return "00:00";
     const diff = Date.now() - this.startTime;
     const minutes = Math.floor(diff / 60000);
     const seconds = Math.floor((diff % 60000) / 1000);
-    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    return `${minutes}:${seconds.toString().padStart(2, "0")}`;
   }
 }
