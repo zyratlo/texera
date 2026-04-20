@@ -27,6 +27,14 @@ lazy val Config = (project in file("common/config")).settings(asfLicensingSettin
 lazy val Auth = (project in file("common/auth"))
   .settings(asfLicensingSettings)
   .dependsOn(DAO, Config)
+lazy val NotebookMigrationService = (project in file("notebook-migration-service"))
+  .dependsOn(Auth, Config, DAO)
+  .settings(
+    dependencyOverrides ++= Seq(
+      // override it as io.dropwizard 4 require 2.16.1 or higher
+      "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.17.0"
+    )
+  )
 lazy val ConfigService = (project in file("config-service"))
   .dependsOn(Auth, Config)
   .settings(asfLicensingSettings)
