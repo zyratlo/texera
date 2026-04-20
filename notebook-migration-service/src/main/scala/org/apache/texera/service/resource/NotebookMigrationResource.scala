@@ -29,11 +29,12 @@ import org.apache.texera.dao.jooq.generated.tables.WorkflowNotebookMapping
 import java.net.{HttpURLConnection, URL}
 import java.nio.charset.StandardCharsets
 import scala.util.control.NonFatal
+import org.apache.texera.amber.config.StorageConfig
 
 object NotebookMigrationResource extends LazyLogging {
 
   private val mapper: ObjectMapper = new ObjectMapper().registerModule(DefaultScalaModule)
-  private val jupyterUrl = sys.env.getOrElse("JUPYTER_API_URL", "http://localhost:9100")
+  private val jupyterUrl = StorageConfig.jupyterURL
   private var jupyterIframeURL = s"$jupyterUrl/notebooks/work/notebook.ipynb"
 
   private def isJupyterAvailable(jupyterUrl: String): Boolean = {
