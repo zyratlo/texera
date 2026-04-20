@@ -149,6 +149,15 @@
             nz-icon
             nzType="info-circle"></i>
         </button>
+        <button
+          nz-button
+          [disabled]="!isWorkflowModifiable"
+          (click)="openImportNotebookModal()"
+          title="AI Generate Workflow">
+          <i
+            nz-icon
+            nzType="robot"></i>
+        </button>
       </nz-button-group>
       <ng-template #utilities>
         <nz-button-group>
@@ -456,3 +465,113 @@
     </div>
   </div>
 </div>
+
+<ng-template
+  #importNotebookModal
+  let-data>
+  <form
+    [formGroup]="importForm"
+    nz-form>
+    <div style="text-align: center; margin-bottom: 12px">
+      <img
+        ngSrc="assets/notebook_migration_tool/tool_popup_diagram.png"
+        alt="Notebook to Workflow"
+        width="1646"
+        height="479"
+        style="max-width: 100%; height: auto; border-radius: 8px" />
+    </div>
+
+    <nz-form-item>
+      <p style="margin: 0; font-size: 16px; font-weight: 500; user-select: text">
+        This tool converts a Python Jupyter Notebook into a Texera workflow using LLM capabilities. After you submit a
+        notebook, the LLM service will generate a corresponding Texera workflow. The conversion time depends on the
+        notebook’s complexity and can take 1–5 minutes. Once the process is complete, the workflow workspace will reload
+        with:
+      </p>
+      <ol
+        style="
+          margin-top: 4px;
+          margin-bottom: 0;
+          padding-left: 20px;
+          font-size: 16px;
+          font-weight: 500;
+          user-select: text;
+        ">
+        <li>
+          The generated workflow ready to use (Note: you will still need to upload the dataset and connect it to the
+          workflow).
+        </li>
+        <li>A floating Jupyter window containing the uploaded notebook for reference.</li>
+      </ol>
+      <p style="margin: 0; font-size: 16px; font-weight: 500; user-select: text">
+        Feel free to navigate away from this tab while you wait for the workflow to generate. Please do not close the
+        window.
+      </p>
+    </nz-form-item>
+
+    <nz-form-item>
+      <nz-form-label [nzNoColon]="true">
+        <span style="font-weight: 1000; font-size: 16px"> Upload Python Jupyter Notebook </span>
+      </nz-form-label>
+      <nz-form-control>
+        <div style="display: inline-flex; align-items: center; gap: 8px">
+          <nz-upload
+            [nzBeforeUpload]="beforeUpload"
+            [nzShowUploadList]="false">
+            <button
+              nz-button
+              style="white-space: normal">
+              <i
+                nz-icon
+                nzType="upload"></i>
+            </button>
+          </nz-upload>
+
+          <span *ngIf="importForm.get('file')?.value?.name">
+            Selected file: {{ importForm.get('file')?.value?.name }}
+          </span>
+        </div>
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item>
+      <nz-form-label [nzNoColon]="true">
+        <span style="font-weight: 1000; font-size: 16px"> Select Model Type </span>
+      </nz-form-label>
+
+      <nz-form-control>
+        <ng-container *ngIf="data.models$ | async as models; else loadingTpl">
+          <nz-select
+            formControlName="model"
+            nzPlaceHolder="Select a model"
+            style="width: 50%">
+            <nz-option
+              *ngFor="let model of $any(models)"
+              [nzValue]="model.name"
+              [nzLabel]="model.name"></nz-option>
+          </nz-select>
+        </ng-container>
+
+        <ng-template #loadingTpl>
+          <nz-select
+            nzPlaceHolder="Loading models..."
+            [nzLoading]="true"
+            [nzDisabled]="true"
+            style="width: 50%"></nz-select>
+        </ng-template>
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item>
+      <nz-form-label [nzNoColon]="true">
+        <span style="font-weight: 1000; font-size: 16px"> API Key </span>
+      </nz-form-label>
+      <nz-form-control>
+        <input
+          nz-input
+          formControlName="apiKey"
+          placeholder="Enter API key" />
+      </nz-form-control>
+    </nz-form-item>
+  </form>
+</ng-template>

@@ -18,8 +18,20 @@
  */
 
 import { DatePipe, Location } from "@angular/common";
-import { Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { Router } from "@angular/router";
+import {
+  Component,
+  ElementRef,
+  Input,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+  Output,
+  EventEmitter,
+  TemplateRef,
+  ViewContainerRef,
+} from "@angular/core";
+import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { UserService } from "../../../common/service/user/user.service";
 import {
   DEFAULT_WORKFLOW_NAME,
@@ -33,7 +45,7 @@ import { WorkflowActionService } from "../../service/workflow-graph/model/workfl
 import { ExecutionState } from "../../types/execute-workflow.interface";
 import { WorkflowWebsocketService } from "../../service/workflow-websocket/workflow-websocket.service";
 import { WorkflowResultExportService } from "../../service/workflow-result-export/workflow-result-export.service";
-import { catchError, debounceTime, filter, mergeMap, tap } from "rxjs/operators";
+import { catchError, debounceTime, filter, mergeMap, switchMap, tap } from "rxjs/operators";
 import { UntilDestroy, untilDestroyed } from "@ngneat/until-destroy";
 import { WorkflowUtilService } from "../../service/workflow-graph/util/workflow-util.service";
 import { WorkflowVersionService } from "../../../dashboard/service/user/workflow-version/workflow-version.service";
@@ -43,7 +55,7 @@ import { saveAs } from "file-saver";
 import { NotificationService } from "src/app/common/service/notification/notification.service";
 import { OperatorMenuService } from "../../service/operator-menu/operator-menu.service";
 import { CoeditorPresenceService } from "../../service/workflow-graph/model/coeditor-presence.service";
-import { firstValueFrom, of, Subscription, timer } from "rxjs";
+import { firstValueFrom, map, of, Subscription, timer } from "rxjs";
 import { isDefined } from "../../../common/util/predicate";
 import { NzModalService } from "ng-zorro-antd/modal";
 import { ResultExportationComponent } from "../result-exportation/result-exportation.component";
@@ -58,6 +70,10 @@ import { GuiConfigService } from "../../../common/service/gui-config.service";
 import { DashboardWorkflowComputingUnit } from "../../../common/type/workflow-computing-unit";
 import { Privilege } from "../../../dashboard/type/share-access.interface";
 import { MarkdownDescriptionComponent } from "../../../dashboard/component/user/markdown-description/markdown-description.component";
+import { JupyterPanelService } from "../../service/jupyter-panel/jupyter-panel.service";
+import { v4 as uuidv4 } from "uuid";
+import { Notebook } from "../../service/notebook-migration/migration-llm";
+import { NotebookMigrationService } from "../../service/notebook-migration/notebook-migration.service";
 
 /**
  * MenuComponent is the top level menu bar that shows
@@ -103,6 +119,8 @@ export class MenuComponent implements OnInit, OnDestroy {
   @Input() public currentExecutionName: string = ""; // reset executionName
   @Input() public particularVersionDate: string = ""; // placeholder for the metadata information of a particular workflow version
   @ViewChild("workflowNameInput") workflowNameInput: ElementRef<HTMLInputElement> | undefined;
+  // Emit an event to parent component (workspace) when AI generation starts or stops
+  @Output() public setWaitingForLLM = new EventEmitter<boolean>();
 
   // variable bound with HTML to decide if the running spinner should show
   public runButtonText = "Run";
@@ -122,6 +140,9 @@ export class MenuComponent implements OnInit, OnDestroy {
   public computingUnitStatus: ComputingUnitState = ComputingUnitState.NoComputingUnit;
 
   @ViewChild(ComputingUnitSelectionComponent) computingUnitSelectionComponent!: ComputingUnitSelectionComponent;
+
+  public importForm: FormGroup;
+  @ViewChild("importNotebookModal", { static: true }) importModalTpl!: TemplateRef<any>;
 
   constructor(
     public executeWorkflowService: ExecuteWorkflowService,
@@ -145,7 +166,12 @@ export class MenuComponent implements OnInit, OnDestroy {
     private panelService: PanelService,
     private computingUnitStatusService: ComputingUnitStatusService,
     protected config: GuiConfigService,
-    private router: Router
+    private router: Router,
+    private fb: FormBuilder,
+    private modal: NzModalService,
+    private viewContainerRef: ViewContainerRef,
+    private jupyterPanelService: JupyterPanelService,
+    private notebookMigrationService: NotebookMigrationService
   ) {
     workflowWebsocketService
       .subscribeToEvent("ExecutionDurationUpdateEvent")
@@ -175,6 +201,13 @@ export class MenuComponent implements OnInit, OnDestroy {
     // Subscribe to computing unit
     this.subscribeToComputingUnitSelection();
     this.subscribeToComputingUnitStatus();
+
+    this.importForm = this.fb.group({
+      description: [""],
+      file: [null, Validators.required],
+      model: [""],
+      apiKey: [""],
+    });
   }
 
   public ngOnInit(): void {
@@ -549,6 +582,168 @@ export class MenuComponent implements OnInit, OnDestroy {
       .map(op => op.operatorID);
     this.workflowActionService.deleteOperatorsAndLinks(allOperatorIDs);
   }
+
+  openImportNotebookModal(): void {
+    const models$ = this.notebookMigrationService.getAvailableModels().pipe(
+      tap({
+        error: () => this.notificationService.error("Failed to fetch models"),
+      })
+    );
+
+    const modalRef = this.modal.create({
+      nzTitle: "AI Generate Workflow from Python Notebook",
+      nzContent: this.importModalTpl,
+      nzViewContainerRef: this.viewContainerRef,
+      nzWidth: 700,
+      nzData: {
+        models$: models$,
+      },
+      nzFooter: [
+        {
+          label: "Cancel",
+          onClick: () => {
+            modalRef.close();
+          },
+        },
+        {
+          label: "Submit",
+          type: "primary",
+          disabled: () => !this.importForm.valid,
+          onClick: () => {
+            const file: NzUploadFile = this.importForm.get("file")?.value;
+            const model: string = this.importForm.get("model")?.value;
+            const apiKey: string = this.importForm.get("apiKey")?.value;
+            this.onClickImportNotebook(file, model, apiKey);
+            modalRef.close(); // close after submit too
+          },
+        },
+      ],
+    });
+  }
+
+  public beforeUpload = (file: NzUploadFile) => {
+    this.importForm.patchValue({ file });
+    this.importForm.get("file")?.markAsDirty();
+    this.importForm.get("file")?.updateValueAndValidity();
+    return false; // prevent auto upload
+  };
+
+  public onClickImportNotebook = (file: NzUploadFile, model: string, apiKey: string): boolean => {
+    const reader = new FileReader();
+
+    // Check if the file is a Jupyter notebook based on its extension
+    const fileExtension = file.name.split(".").pop()?.toLowerCase();
+    if (fileExtension !== "ipynb") {
+      this.notificationService.error("Please upload a valid Jupyter Notebook (.ipynb) file.");
+      return false;
+    }
+
+    this.setWaitingForLLM.emit(true); // start loading
+
+    // Read the notebook file as text
+    reader.readAsText(file as any);
+    reader.onload = async () => {
+      try {
+        const result = reader.result;
+        if (typeof result !== "string") {
+          throw new Error("File content is not a valid string.");
+        }
+
+        // Parse the content of the .ipynb file (it's in JSON format)
+        const notebookContent = JSON.parse(result) as Notebook;
+
+        // Validate the notebook structure
+        if (!notebookContent || !Array.isArray(notebookContent.cells)) {
+          throw new Error("Invalid notebook structure.");
+        }
+
+        // Add UUID's to each cell in the notebook
+        for (const cell of notebookContent.cells) {
+          if (!cell.metadata) {
+            cell.metadata = {};
+          }
+          cell.metadata.uuid = uuidv4();
+        }
+
+        // Send Notebook JSON to pod to open in jupyterlab
+        await this.notebookMigrationService.sendNotebookToJupyter(notebookContent);
+
+        // Get workflow and mapping from LLM
+        await this.notebookMigrationService
+          .sendToAIGenerateWorkflow(notebookContent, model, apiKey)
+          .then(result => {
+            if (result) {
+              const { workflowContent, mappingContent } = result;
+
+              const fileExtensionIndex = file.name.lastIndexOf(".");
+              var workflowName: string;
+              if (fileExtensionIndex === -1) {
+                workflowName = file.name;
+              } else {
+                workflowName = file.name.substring(0, fileExtensionIndex);
+              }
+              if (workflowName.trim() === "") {
+                workflowName = DEFAULT_WORKFLOW_NAME;
+              }
+
+              const workflow: Workflow = {
+                content: workflowContent,
+                name: `${workflowName}_GENERATED_BY_LLM`,
+                isPublished: 0,
+                description: undefined,
+                wid: undefined,
+                creationTime: undefined,
+                lastModifiedTime: undefined,
+                readonly: false,
+              };
+
+              this.workflowPersistService
+                .persistWorkflow(workflow)
+                .pipe(
+                  switchMap((updatedWorkflow: Workflow) => {
+                    const mappingID = "mapping_wid_" + updatedWorkflow.wid;
+
+                    this.notebookMigrationService.setMapping(mappingID, mappingContent);
+
+                    return this.notebookMigrationService
+                      .storeNotebookAndMapping(updatedWorkflow.wid, 1, mappingContent, notebookContent)
+                      .pipe(map(() => updatedWorkflow));
+                  }),
+                  untilDestroyed(this)
+                )
+                .subscribe({
+                  next: updatedWorkflow => {
+                    this.workflowActionService.reloadWorkflow(updatedWorkflow, true);
+                    this.jupyterPanelService.openPanel("JupyterNotebookPanel");
+                    this.notificationService.success("Successfully generated workflow and mapping from notebook.");
+                  },
+                  error: (err: unknown) => {
+                    this.notificationService.error("Failed to import notebook, check console for detailed error");
+                    console.error("Import notebook failed:", err);
+                  },
+                  complete: () => {
+                    this.setWaitingForLLM.emit(false);
+                  },
+                });
+            } else {
+              console.error("Result is undefined");
+            }
+          })
+          .catch(error => {
+            this.notificationService.error("Error while communicating with LLM, check console for details");
+            console.error("Error while fetching data from LLM: ", error);
+          })
+          .finally(() => {
+            this.setWaitingForLLM.emit(false); // stop loading
+          });
+      } catch (error) {
+        this.notificationService.error("Failed to import the notebook.");
+        console.error(error);
+      }
+    };
+
+    return false; // Prevent automatic upload handling
+  };
 
   public onClickImportWorkflow = (file: NzUploadFile): boolean => {
     const reader = new FileReader();

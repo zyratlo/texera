@@ -18,7 +18,16 @@
  */
 
 import { Location } from "@angular/common";
-import { AfterViewInit, Component, HostListener, OnDestroy, OnInit, ViewChild, ViewContainerRef } from "@angular/core";
+import {
+  AfterViewInit,
+  Component,
+  HostListener,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+  ViewContainerRef,
+  ChangeDetectorRef,
+} from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { UserService } from "../../common/service/user/user.service";
 import { WorkflowPersistService } from "../../common/service/workflow-persist/workflow-persist.service";
@@ -59,6 +68,10 @@ export class WorkspaceComponent implements AfterViewInit, OnInit, OnDestroy {
   public pid?: number = undefined;
   public writeAccess: boolean = false;
   public isLoading: boolean = false;
+  // variable to track whether we are waiting for AI to finish generating (whether a loading icon should show)
+  public isWaitingForLLM = false;
+  private timerInterval: any;
+  private startTime: number | null = null;
   @ViewChild("codeEditor", { read: ViewContainerRef }) codeEditorViewRef!: ViewContainerRef;
 
   /**
@@ -87,7 +100,8 @@ export class WorkspaceComponent implements AfterViewInit, OnInit, OnDestroy {
     private notificationService: NotificationService,
     private hubService: HubService,
     private codeEditorService: CodeEditorService,
-    private config: GuiConfigService
+    private config: GuiConfigService,
+    private cdRef: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
@@ -258,6 +272,7 @@ export class WorkspaceComponent implements AfterViewInit, OnInit, OnDestroy {
         }
       });
   }
+
   onWIDChange() {
     this.workflowActionService
       .workflowMetaDataChanged()
@@ -271,6 +286,7 @@ export class WorkspaceComponent implements AfterViewInit, OnInit, OnDestroy {
         this.writeAccess = !metadata.readonly;
       });
   }
+
   updateViewCount() {
     let wid = this.route.snapshot.params.id;
     let uid = this.userService.getCurrentUser()?.uid;
@@ -280,11 +296,48 @@ export class WorkspaceComponent implements AfterViewInit, OnInit, OnDestroy {
       .pipe(untilDestroyed(this))
       .subscribe();
   }
+
   public triggerCenter(): void {
     this.workflowActionService.getTexeraGraph().triggerCenterEvent();
   }
 
   public get copilotEnabled(): boolean {
     return this.config.env.copilotEnabled;
+  }
+
+  onWaitingForLLMChanged(isWaiting: boolean) {
+    this.isWaitingForLLM = isWaiting;
+
+    if (isWaiting) {
+      this.startTimer();
+    } else {
+      this.stopTimer();
+    }
+  }
+
+  startTimer() {
+    this.startTime = Date.now();
+    this.updateElapsedTime();
+    this.timerInterval = setInterval(() => {
+      this.updateElapsedTime();
+    }, 1000);
+  }
+
+  stopTimer() {
+    clearInterval(this.timerInterval);
+    this.timerInterval = null;
+    this.startTime = null;
+  }
+
+  updateElapsedTime() {
+    this.cdRef.detectChanges();
+  }
+
+  get formattedElapsedTime(): string {
+    if (!this.startTime) return "00:00";
+    const diff = Date.now() - this.startTime;
+    const minutes = Math.floor(diff / 60000);
+    const seconds = Math.floor((diff % 60000) / 1000);
+    return `${minutes}:${seconds.toString().padStart(2, "0")}`;
   }
 }

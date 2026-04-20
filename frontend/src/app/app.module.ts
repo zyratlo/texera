@@ -17,10 +17,10 @@
  * under the License.
  */
 
-import { DatePipe, registerLocaleData } from "@angular/common";
+import { DatePipe, registerLocaleData, CommonModule, NgOptimizedImage } from "@angular/common";
 import { HTTP_INTERCEPTORS, HttpClientModule } from "@angular/common/http";
 import en from "@angular/common/locales/en";
-import { APP_INITIALIZER, NgModule, CUSTOM_ELEMENTS_SCHEMA } from "@angular/core";
+import { APP_INITIALIZER, NgModule, CUSTOM_ELEMENTS_SCHEMA, APP_BOOTSTRAP_LISTENER } from "@angular/core";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { BrowserModule } from "@angular/platform-browser";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
@@ -188,6 +188,8 @@ import { RegistrationRequestModalComponent } from "./common/service/user/registr
 import { MarkdownDescriptionComponent } from "./dashboard/component/user/markdown-description/markdown-description.component";
 import { UserComputingUnitComponent } from "./dashboard/component/user/user-computing-unit/user-computing-unit.component";
 import { UserComputingUnitListItemComponent } from "./dashboard/component/user/user-computing-unit/user-computing-unit-list-item/user-computing-unit-list-item.component";
+import { JupyterNotebookPanelComponent } from "./workspace/component/jupyter-notebook-panel/jupyter-notebook-panel.component";
+import { JupyterPanelService } from "./workspace/service/jupyter-panel/jupyter-panel.service";
 
 registerLocaleData(en);
 
@@ -289,9 +291,11 @@ registerLocaleData(en);
     MarkdownDescriptionComponent,
     UserComputingUnitComponent,
     UserComputingUnitListItemComponent,
+    JupyterNotebookPanelComponent,
   ],
   imports: [
     BrowserModule,
+    CommonModule,
     AppRoutingModule,
     HttpClientModule,
     JwtModule.forRoot({
@@ -358,6 +362,7 @@ registerLocaleData(en);
     NzInputNumberModule,
     NzCheckboxModule,
     NzRadioModule,
+    NgOptimizedImage,
   ],
   providers: [
     provideNzI18n(en_US),
@@ -401,6 +406,12 @@ registerLocaleData(en);
           )
         ),
       deps: [GuiConfigService],
+      multi: true,
+    },
+    {
+      provide: APP_BOOTSTRAP_LISTENER,
+      useFactory: (jupyterPanelService: JupyterPanelService) => () => jupyterPanelService.init(),
+      deps: [JupyterPanelService],
       multi: true,
     },
   ],
