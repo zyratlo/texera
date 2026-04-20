@@ -37,13 +37,15 @@
           nzType="minus"
           nzTheme="outline"></i>
       </button>
-      <!-- Close button -->
+      <!-- Delete button -->
       <button
-        class="close-button"
-        (click)="closePanel()">
+        class="delete-button"
+        nz-popconfirm
+        nzPopconfirmTitle="Confirm to delete Jupyter notebook"
+        (nzOnConfirm)="closePanel()">
         <i
           nz-icon
-          nzType="close"
+          nzType="delete"
           nzTheme="outline"></i>
       </button>
     </div>
