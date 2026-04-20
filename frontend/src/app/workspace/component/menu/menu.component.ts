@@ -688,7 +688,7 @@ export class MenuComponent implements OnInit, OnDestroy {
 
               const workflow: Workflow = {
                 content: workflowContent,
-                name: workflowName,
+                name: `${workflowName}_GENERATED_BY_LLM`,
                 isPublished: 0,
                 description: undefined,
                 wid: undefined,
