@@ -188,7 +188,6 @@ import { RegistrationRequestModalComponent } from "./common/service/user/registr
 import { MarkdownDescriptionComponent } from "./dashboard/component/user/markdown-description/markdown-description.component";
 import { UserComputingUnitComponent } from "./dashboard/component/user/user-computing-unit/user-computing-unit.component";
 import { UserComputingUnitListItemComponent } from "./dashboard/component/user/user-computing-unit/user-computing-unit-list-item/user-computing-unit-list-item.component";
-import { JupyterUploadSuccessComponent } from "./dashboard/component/user/user-workflow/notebook-migration-tool/notebook-migration.component";
 import { JupyterNotebookPanelComponent } from "./workspace/component/jupyter-notebook-panel/jupyter-notebook-panel.component";
 import { JupyterPanelService } from "./workspace/service/jupyter-panel/jupyter-panel.service";
 
@@ -218,7 +217,6 @@ registerLocaleData(en);
     UserAvatarComponent,
     LocalLoginComponent,
     UserWorkflowComponent,
-    JupyterUploadSuccessComponent,
     UserQuotaComponent,
     RowModalComponent,
     OperatorLabelComponent,
