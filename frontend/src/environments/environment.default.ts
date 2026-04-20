@@ -29,24 +29,10 @@ export type AppEnv = {
    * root API URL of the backend
    */
   apiUrl: string;
-
-  /**
-   * API URL of the OpenAI Flask server (notebook migration tool)
-   */
-  notebookMigrationFastAPIUrl: string;
-
-  /**
-   * API URL of the Jupyter server (notebook migration tool)
-   */
-  jupyterAPIUrl: string;
 };
 
 export const defaultEnvironment: AppEnv = {
   production: false,
 
   apiUrl: "api",
-
-  notebookMigrationFastAPIUrl: "http://localhost:5000",
-
-  jupyterAPIUrl: "http://localhost:8889",
 };

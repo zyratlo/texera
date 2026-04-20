@@ -17,16 +17,13 @@
  * under the License.
  */
 
-import { UntilDestroy, untilDestroyed } from "@ngneat/until-destroy";
+import { UntilDestroy } from "@ngneat/until-destroy";
 import { Injectable } from "@angular/core";
 import { AppSettings } from "../../../common/app-setting";
 import { Notebook, NotebookMigrationLLM } from "./migration-llm";
-import { firstValueFrom } from "rxjs";
-import { environment } from "../../../../environments/environment";
 import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { NotificationService } from "src/app/common/service/notification/notification.service";
 import { catchError, firstValueFrom, map, Observable, of } from "rxjs";
-
 
 interface LiteLLMModel {
   id: string;
@@ -40,11 +37,23 @@ interface LiteLLMModelsResponse {
   object: string;
 }
 
+interface MappingContent {
+  cell_to_operator: { [key: string]: any };
+  operator_to_cell: { [key: string]: any };
+}
+
 @UntilDestroy()
 @Injectable({
   providedIn: "root",
 })
 export class NotebookMigrationService {
+  private mapping: { [key: string]: MappingContent } = {
+    default: {
+      cell_to_operator: {},
+      operator_to_cell: {},
+    },
+  };
+
   constructor(
     private http: HttpClient,
     private notificationService: NotificationService
@@ -89,7 +98,7 @@ export class NotebookMigrationService {
   }
 
   public async sendNotebookToJupyter(notebookData: Notebook) {
-    const jupyterAPIUrl = `${environment.notebookMigrationFastAPIUrl}/jupyter/set_notebook`;
+    const jupyterAPIUrl = `${AppSettings.getApiEndpoint()}/notebook-migration/set-notebook`;
 
     const requestBody = {
       notebookName: "notebook.ipynb",
@@ -103,7 +112,7 @@ export class NotebookMigrationService {
     try {
       const response: any = await firstValueFrom(this.http.post(jupyterAPIUrl, requestBody, { headers }));
       console.log("Notebook successfully sent to Jupyter:", response);
-      this.notificationService.success("Notebook opened successfully in Jupyter");
+      this.notificationService.success("Notebook successfully sent to Jupyter");
       return 1;
     } catch (error) {
       console.error("Error sending notebook to pod: ", error);
@@ -113,26 +122,84 @@ export class NotebookMigrationService {
     }
   }
 
-  public storeNotebookAndMapping(wid: number | undefined, vid: number = 1, mappingContent: any, notebookContent: any) {
+  public async getJupyterURL(): Promise<string | null> {
+    try {
+      const response = await fetch("/api/notebook-migration/get-jupyter-url");
+      if (!response.ok) {
+        console.error("Failed to get Jupyter URL:", response.status);
+        return null;
+      }
+
+      const data = await response.json() as { success: boolean; url?: string };
+
+      if (!data.success || !data.url) {
+        console.error("Jupyter server unavailable");
+        return null;
+      }
+
+      return data.url;
+
+    } catch (err) {
+      console.error("Error fetching Jupyter URL:", err);
+      return null;
+    }
+  }
+
+  public async getJupyterIframeURL(): Promise<string | null> {
+    try {
+      const response = await fetch("/api/notebook-migration/get-jupyter-iframe-url");
+      if (!response.ok) {
+        console.error("Failed to get Jupyter iframe URL:", response.status);
+        return null;
+      }
+
+      const data = await response.json() as { success: boolean; url?: string };
+
+      if (!data.success || !data.url) {
+        console.error("Jupyter server unavailable");
+        return null;
+      }
+
+      return data.url;
+
+    } catch (err) {
+      console.error("Error fetching Jupyter iframe URL:", err);
+      return null;
+    }
+  }
+
+  public storeNotebookAndMapping(
+    wid: number | undefined,
+    vid: number = 1,
+    mappingContent: any,
+    notebookContent: any
+  ) {
     const dbAPIUrl = `${AppSettings.getApiEndpoint()}/notebook-migration/store-notebook-and-mapping`;
     const headers = new HttpHeaders({ "Content-Type": "application/json" });
+
     const payload = {
-      wid: wid,
-      vid: vid,
+      wid,
+      vid,
       mapping: mappingContent,
       notebook: notebookContent,
     };
 
-    this.http
-      .post(dbAPIUrl, payload, { headers })
-      .pipe(untilDestroyed(this))
-      .subscribe({
-        next: (response: any) => {
-          console.log("wid, mapping, and notebook stored in migration database:", response?.message);
-        },
-        error: (error: unknown) => {
-          console.error("Network response was not ok", error);
-        },
-      });
+    return this.http.post(dbAPIUrl, payload, { headers });
+  }
+
+  public hasMapping(id:string): boolean {
+    return id in this.mapping;
+  }
+
+  public getMapping(id: string): MappingContent | undefined {
+    return this.mapping[id];
+  }
+
+  public setMapping(id: string, value: MappingContent): void {
+    this.mapping[id] = value;
+  }
+
+  public deleteMapping(id: string): void {
+    delete this.mapping[id];
   }
 }

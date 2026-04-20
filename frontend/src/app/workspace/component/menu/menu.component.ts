@@ -34,7 +34,7 @@ import { WorkflowActionService } from "../../service/workflow-graph/model/workfl
 import { ExecutionState } from "../../types/execute-workflow.interface";
 import { WorkflowWebsocketService } from "../../service/workflow-websocket/workflow-websocket.service";
 import { WorkflowResultExportService } from "../../service/workflow-result-export/workflow-result-export.service";
-import { catchError, debounceTime, filter, mergeMap, tap } from "rxjs/operators";
+import { catchError, debounceTime, filter, mergeMap, switchMap, tap } from "rxjs/operators";
 import { UntilDestroy, untilDestroyed } from "@ngneat/until-destroy";
 import { WorkflowUtilService } from "../../service/workflow-graph/util/workflow-util.service";
 import { WorkflowVersionService } from "../../../dashboard/service/user/workflow-version/workflow-version.service";
@@ -44,7 +44,7 @@ import { saveAs } from "file-saver";
 import { NotificationService } from "src/app/common/service/notification/notification.service";
 import { OperatorMenuService } from "../../service/operator-menu/operator-menu.service";
 import { CoeditorPresenceService } from "../../service/workflow-graph/model/coeditor-presence.service";
-import { firstValueFrom, of, Subscription, timer } from "rxjs";
+import { firstValueFrom, map, of, Subscription, timer } from "rxjs";
 import { isDefined } from "../../../common/util/predicate";
 import { NzModalService } from "ng-zorro-antd/modal";
 import { ResultExportationComponent } from "../result-exportation/result-exportation.component";
@@ -60,7 +60,6 @@ import { DashboardWorkflowComputingUnit } from "../../../common/type/workflow-co
 import { Privilege } from "../../../dashboard/type/share-access.interface";
 import { MarkdownDescriptionComponent } from "../../../dashboard/component/user/markdown-description/markdown-description.component";
 import { JupyterPanelService } from "../../service/jupyter-panel/jupyter-panel.service";
-import mapping from "../../../../assets/notebook_migration_tool/mapping";
 import { v4 as uuidv4 } from "uuid";
 import { Notebook } from "../../service/notebook-migration/migration-llm";
 import { NotebookMigrationService } from "../../service/notebook-migration/notebook-migration.service";
@@ -157,11 +156,11 @@ export class MenuComponent implements OnInit, OnDestroy {
     private computingUnitStatusService: ComputingUnitStatusService,
     protected config: GuiConfigService,
     private router: Router,
-    private jupyterPanelService: JupyterPanelService,
-    private notebookMigrationService: NotebookMigrationService,
     private fb: FormBuilder,
     private modal: NzModalService,
-    private viewContainerRef: ViewContainerRef
+    private viewContainerRef: ViewContainerRef,
+    private jupyterPanelService: JupyterPanelService,
+    private notebookMigrationService: NotebookMigrationService,
   ) {
     workflowWebsocketService
       .subscribeToEvent("ExecutionDurationUpdateEvent")
@@ -693,30 +692,38 @@ export class MenuComponent implements OnInit, OnDestroy {
                 readonly: false,
               };
 
-              this.workflowPersistService
-                .persistWorkflow(workflow)
-                .pipe(untilDestroyed(this))
-                .subscribe((updatedWorkflow: Workflow) => {
+              this.workflowPersistService.persistWorkflow(workflow).pipe(
+                switchMap((updatedWorkflow: Workflow) => {
                   const mappingID = "mapping_wid_" + updatedWorkflow.wid;
 
-                  mapping[mappingID] = {
-                    cell_to_operator: { ...mappingContent["cell_to_operator"] },
-                    operator_to_cell: { ...mappingContent["operator_to_cell"] },
-                  };
+                  this.notebookMigrationService.setMapping(mappingID, mappingContent);
 
-                  // Store wid, mapping, and notebook in migration database
-                  this.notebookMigrationService.storeNotebookAndMapping(
+                  return this.notebookMigrationService.storeNotebookAndMapping(
                     updatedWorkflow.wid,
                     1,
                     mappingContent,
                     notebookContent
+                  ).pipe(
+                    map(() => updatedWorkflow)
                   );
-
-                  // Load workflow and open Jupyter panel
+                }),
+                untilDestroyed(this)
+              ).subscribe({
+                next: (updatedWorkflow) => {
                   this.workflowActionService.reloadWorkflow(updatedWorkflow, true);
                   this.jupyterPanelService.openPanel("JupyterNotebookPanel");
-                  this.notificationService.success("Successfully generated workflow and mapping from notebook.");
-                });
+                  this.notificationService.success(
+                    "Successfully generated workflow and mapping from notebook."
+                  );
+                },
+                error: (err) => {
+                  this.notificationService.error("Failed to import notebook, check console for detailed error")
+                  console.error("Import notebook failed:", err);
+                },
+                complete: () => {
+                  this.setWaitingForLLM.emit(false);
+                }
+              });
             } else {
               console.error("Result is undefined");
             }

@@ -26,65 +26,153 @@ import org.apache.texera.dao.SqlServer
 import org.jooq.JSONB
 import org.apache.texera.dao.jooq.generated.tables.Notebook
 import org.apache.texera.dao.jooq.generated.tables.WorkflowNotebookMapping
-
-import java.nio.file.{Files, Paths}
+import java.net.{HttpURLConnection, URL}
+import java.nio.charset.StandardCharsets
 import scala.util.control.NonFatal
 
 object NotebookMigrationResource extends LazyLogging {
 
   private val mapper: ObjectMapper = new ObjectMapper().registerModule(DefaultScalaModule)
+  private val jupyterUrl = sys.env.getOrElse("JUPYTER_API_URL", "http://localhost:9100")
+  private var jupyterIframeURL = s"$jupyterUrl/notebooks/work/notebook.ipynb"
 
-  // Save a notebook file to disk
-  def saveNotebook(body: String): Response = {
+  private def isJupyterAvailable(jupyterUrl: String): Boolean = {
+    try {
+      val conn = new java.net.URL(s"$jupyterUrl/api")
+        .openConnection()
+        .asInstanceOf[java.net.HttpURLConnection]
+
+      conn.setRequestMethod("GET")
+      conn.setConnectTimeout(2000)
+      conn.setReadTimeout(2000)
+
+      val status = conn.getResponseCode
+
+      status == 200 || status == 403
+    } catch {
+      case _: Exception => false
+    }
+  }
+
+  // Returns the Jupyter iframe reference URL
+  def getJupyterIframeURL(): Response = {
+    if (!isJupyterAvailable(jupyterUrl)) {
+      return Response.status(500).entity(
+        """
+      {
+        "success": false,
+        "message": "Cannot connect to Jupyter server"
+      }
+      """
+      ).build()
+    }
+
     Response.ok(
       s"""
     {
-      "message": "Not implemented, you shouldn't see this message"
+      "success": true,
+      "url": "$jupyterIframeURL"
     }
     """
     ).build()
-    // TODO
-//    try {
-//      val json = mapper.readTree(body)
-//
-//      val notebookName =
-//        if (json.has("notebookName"))
-//          json.get("notebookName").asText()
-//        else
-//          "notebook.ipynb"
-//
-//      val notebookData = json.get("notebookData")
-//
-//      if (notebookData == null) {
-//        return Response.status(Response.Status.BAD_REQUEST)
-//          .entity("""{"error":"Notebook data is required"}""")
-//          .build()
-//      }
-//
-//      val path = Paths.get("/home/jovyan/work", notebookName)
-//
-//      Files.write(
-//        path,
-//        mapper.writerWithDefaultPrettyPrinter()
-//          .writeValueAsBytes(notebookData)
-//      )
-//
-//      Response.ok(
-//        s"""
-//      {
-//        "message": "Notebook saved successfully",
-//        "notebookPath": "$path"
-//      }
-//      """
-//      ).build()
-//
-//    } catch {
-//      case NonFatal(e) =>
-//        logger.error("Failed saving notebook", e)
-//        Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-//          .entity(s"""{"error":"${e.getMessage}"}""")
-//          .build()
-//    }
+  }
+
+  // Returns the URL of Jupyter
+  def getJupyterURL(): Response = {
+    if (!isJupyterAvailable(jupyterUrl)) {
+      return Response.status(500).entity(
+        """
+      {
+        "success": false,
+        "message": "Cannot connect to Jupyter server"
+      }
+      """
+      ).build()
+    }
+
+    Response.ok(
+      s"""
+    {
+      "success": true,
+      "url": "$jupyterUrl"
+    }
+    """
+    ).build()
+  }
+
+  // Set the notebook in Jupyter
+  def setNotebook(body: String): Response = {
+    if (!isJupyterAvailable(jupyterUrl)) {
+      return Response.status(500).entity(
+        """
+      {
+        "success": false,
+        "message": "Cannot connect to Jupyter server"
+      }
+      """
+      ).build()
+    }
+
+    try {
+      val json = mapper.readTree(body)
+
+      val notebookName = json.get("notebookName").asText()
+      val notebookData = json.get("notebookData")
+
+      // Construct Jupyter API URL
+      val apiUrl = s"$jupyterUrl/api/contents/work/$notebookName"
+
+      val url = new URL(apiUrl)
+      val conn = url.openConnection().asInstanceOf[HttpURLConnection]
+
+      conn.setRequestMethod("PUT")
+      conn.setDoOutput(true)
+      conn.setRequestProperty("Content-Type", "application/json")
+
+      val requestBody =
+        s"""
+      {
+        "type": "notebook",
+        "content": $notebookData
+      }
+      """
+
+      val os = conn.getOutputStream
+      os.write(requestBody.getBytes(StandardCharsets.UTF_8))
+      os.flush()
+      os.close()
+
+      val status = conn.getResponseCode
+
+      if (status != 200 && status != 201) {
+        return Response.status(500).entity(
+          s"""
+        {
+          "success": false,
+          "message": "Failed to upload notebook to Jupyter (status $status)"
+        }
+        """
+        ).build()
+      }
+
+      jupyterIframeURL = s"$jupyterUrl/notebooks/work/notebook.ipynb"
+
+      Response.ok(
+        s"""
+      {
+        "success": true,
+        "message": "Notebook successfully sent to Jupyter."
+      }
+      """
+      ).build()
+
+    } catch {
+      case NonFatal(e) =>
+        logger.error("Error sending notebook to Jupyter", e)
+        Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+          .entity(s"""{"error":"${e.getMessage}"}""")
+          .build()
+    }
   }
 
   // Store notebook + mapping in database
@@ -124,7 +212,7 @@ object NotebookMigrationResource extends LazyLogging {
         s"""
       {
         "success": true,
-        "message": "wid": $wid, vid": $vid, nid": $nid"
+        "message": "Notebook and mapping successfully stored. wid: $wid, vid: $vid, nid: $nid"
       }
       """
       ).build()
@@ -198,11 +286,25 @@ object NotebookMigrationResource extends LazyLogging {
 @Consumes(Array(MediaType.APPLICATION_JSON))
 class NotebookMigrationResource extends LazyLogging {
 
+  @GET
+  @Path("/get-jupyter-iframe-url")
+  def getJupyterIframeURL: Response = {
+    logger.info("Getting Jupyter iframe URL")
+    NotebookMigrationResource.getJupyterIframeURL()
+  }
+
+  @GET
+  @Path("/get-jupyter-url")
+  def getJupyterURL: Response = {
+    logger.info("Getting Jupyter API URL")
+    NotebookMigrationResource.getJupyterURL()
+  }
+
   @POST
-  @Path("/save-notebook")
-  def saveNotebook(body: String): Response = {
-    logger.info("Saving notebook, request body: " + body)
-    NotebookMigrationResource.saveNotebook(body)
+  @Path("/set-notebook")
+  def setNotebook(body: String): Response = {
+    logger.info("Setting notebook, request body: " + body)
+    NotebookMigrationResource.setNotebook(body)
   }
 
   @POST
