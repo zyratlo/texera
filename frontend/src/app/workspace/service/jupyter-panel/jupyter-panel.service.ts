@@ -50,6 +50,9 @@ export class JupyterPanelService {
     private notebookMigrationService: NotebookMigrationService
   ) {
     window.addEventListener("message", this.handleNotebookMessage);
+  }
+
+  public init(): void {
     this.workflowActionService
       .workflowMetaDataChanged()
       .pipe(
