@@ -19,8 +19,8 @@
 
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild, AfterViewInit } from "@angular/core";
 import { JupyterPanelService } from "../../service/jupyter-panel/jupyter-panel.service";
-import { Subject } from "rxjs";
-import { takeUntil } from "rxjs/operators";
+import { from, of, Subject } from "rxjs";
+import { switchMap, takeUntil } from "rxjs/operators";
 import { DomSanitizer, SafeResourceUrl } from "@angular/platform-browser";
 import { NotebookMigrationService } from "../../service/notebook-migration/notebook-migration.service";
 
@@ -43,19 +43,23 @@ export class JupyterNotebookPanelComponent implements OnInit, AfterViewInit, OnD
   ) {}
 
   ngOnInit(): void {
-    // Subscribe to the visibility state of the panel
     this.jupyterPanelService.jupyterNotebookPanelVisible$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(async (visible: boolean) => {
-        this.isVisible = visible;
+      .pipe(
+        switchMap((visible: boolean) => {
+          this.isVisible = visible;
 
-        if (this.isVisible) {
-          // The iframe only exists once the panel is visible (because of *ngIf)
-          const url = await this.notebookMigrationService.getJupyterIframeURL();
-          if (url) {
-            this.jupyterUrl = this.sanitizer.bypassSecurityTrustResourceUrl(url);
-            this.checkIframeRef();
+          if (!visible) {
+            return of(null);
           }
+
+          return from(this.notebookMigrationService.getJupyterIframeURL());
+        }),
+        takeUntil(this.destroy$)
+      )
+      .subscribe(url => {
+        if (url) {
+          this.jupyterUrl = this.sanitizer.bypassSecurityTrustResourceUrl(url);
+          this.checkIframeRef();
         }
       });
   }
