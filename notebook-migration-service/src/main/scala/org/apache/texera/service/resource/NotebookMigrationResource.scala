@@ -58,60 +58,73 @@ object NotebookMigrationResource extends LazyLogging {
   // Returns the Jupyter iframe reference URL
   def getJupyterIframeURL(): Response = {
     if (!isJupyterAvailable(jupyterUrl)) {
-      return Response.status(500).entity(
-        """
+      return Response
+        .status(500)
+        .entity(
+          """
       {
         "success": false,
         "message": "Cannot connect to Jupyter server"
       }
       """
-      ).build()
+        )
+        .build()
     }
 
-    Response.ok(
-      s"""
+    Response
+      .ok(
+        s"""
     {
       "success": true,
       "url": "$jupyterIframeURL"
     }
     """
-    ).build()
+      )
+      .build()
   }
 
   // Returns the URL of Jupyter
   def getJupyterURL(): Response = {
     if (!isJupyterAvailable(jupyterUrl)) {
-      return Response.status(500).entity(
-        """
+      return Response
+        .status(500)
+        .entity(
+          """
       {
         "success": false,
         "message": "Cannot connect to Jupyter server"
       }
       """
-      ).build()
+        )
+        .build()
     }
 
-    Response.ok(
-      s"""
+    Response
+      .ok(
+        s"""
     {
       "success": true,
       "url": "$jupyterUrl"
     }
     """
-    ).build()
+      )
+      .build()
   }
 
   // Set the notebook in Jupyter
   def setNotebook(body: String): Response = {
     if (!isJupyterAvailable(jupyterUrl)) {
-      return Response.status(500).entity(
-        """
+      return Response
+        .status(500)
+        .entity(
+          """
       {
         "success": false,
         "message": "Cannot connect to Jupyter server"
       }
       """
-      ).build()
+        )
+        .build()
     }
 
     try {
@@ -146,31 +159,37 @@ object NotebookMigrationResource extends LazyLogging {
       val status = conn.getResponseCode
 
       if (status != 200 && status != 201) {
-        return Response.status(500).entity(
-          s"""
+        return Response
+          .status(500)
+          .entity(
+            s"""
         {
           "success": false,
           "message": "Failed to upload notebook to Jupyter (status $status)"
         }
         """
-        ).build()
+          )
+          .build()
       }
 
       jupyterIframeURL = s"$jupyterUrl/notebooks/work/notebook.ipynb"
 
-      Response.ok(
-        s"""
+      Response
+        .ok(
+          s"""
       {
         "success": true,
         "message": "Notebook successfully sent to Jupyter."
       }
       """
-      ).build()
+        )
+        .build()
 
     } catch {
       case NonFatal(e) =>
         logger.error("Error sending notebook to Jupyter", e)
-        Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+        Response
+          .status(Response.Status.INTERNAL_SERVER_ERROR)
           .entity(s"""{"error":"${e.getMessage}"}""")
           .build()
     }
@@ -190,7 +209,8 @@ object NotebookMigrationResource extends LazyLogging {
 
       val nid: java.lang.Integer = SqlServer.withTransaction(dsl) { ctx =>
         // Insert notebook
-        val notebookRecord = ctx.insertInto(Notebook.NOTEBOOK)
+        val notebookRecord = ctx
+          .insertInto(Notebook.NOTEBOOK)
           .set(Notebook.NOTEBOOK.WID, wid)
           .set(Notebook.NOTEBOOK.NOTEBOOK_, JSONB.valueOf(notebookNode.toString))
           .returning(Notebook.NOTEBOOK.NID)
@@ -199,34 +219,40 @@ object NotebookMigrationResource extends LazyLogging {
         val nidInside: java.lang.Integer = notebookRecord.getValue(Notebook.NOTEBOOK.NID)
 
         // Insert workflow-notebook mapping
-        ctx.insertInto(WorkflowNotebookMapping.WORKFLOW_NOTEBOOK_MAPPING)
+        ctx
+          .insertInto(WorkflowNotebookMapping.WORKFLOW_NOTEBOOK_MAPPING)
           .set(WorkflowNotebookMapping.WORKFLOW_NOTEBOOK_MAPPING.WID, wid)
           .set(WorkflowNotebookMapping.WORKFLOW_NOTEBOOK_MAPPING.VID, vid)
           .set(WorkflowNotebookMapping.WORKFLOW_NOTEBOOK_MAPPING.NID, nidInside)
-          .set(WorkflowNotebookMapping.WORKFLOW_NOTEBOOK_MAPPING.MAPPING, JSONB.valueOf(mappingNode.toString))
+          .set(
+            WorkflowNotebookMapping.WORKFLOW_NOTEBOOK_MAPPING.MAPPING,
+            JSONB.valueOf(mappingNode.toString)
+          )
           .execute()
 
         nidInside
       }
 
-      Response.ok(
-        s"""
+      Response
+        .ok(
+          s"""
       {
         "success": true,
         "message": "Notebook and mapping successfully stored. wid: $wid, vid: $vid, nid: $nid"
       }
       """
-      ).build()
+        )
+        .build()
 
     } catch {
       case NonFatal(e) =>
         logger.error("Error storing mapping and workflow", e)
-        Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+        Response
+          .status(Response.Status.INTERNAL_SERVER_ERROR)
           .entity(s"""{"error":"${e.getMessage}"}""")
           .build()
     }
   }
-
 
   // Fetch notebook + mapping
   def fetchNotebookAndMapping(body: String): Response = {
@@ -239,7 +265,8 @@ object NotebookMigrationResource extends LazyLogging {
       val dsl = SqlServer.getInstance().createDSLContext()
 
       // Fetch the most recent notebook (highest nid) for this workflow version
-      val result = dsl.select(
+      val result = dsl
+        .select(
           Notebook.NOTEBOOK.NID,
           Notebook.NOTEBOOK.NOTEBOOK_,
           WorkflowNotebookMapping.WORKFLOW_NOTEBOOK_MAPPING.MAPPING
@@ -251,31 +278,38 @@ object NotebookMigrationResource extends LazyLogging {
         .where(Notebook.NOTEBOOK.WID.eq(wid))
         .and(WorkflowNotebookMapping.WORKFLOW_NOTEBOOK_MAPPING.VID.eq(vid))
         .orderBy(Notebook.NOTEBOOK.NID.desc()) // most recent nid first
-        .limit(1)                             // only take the latest
+        .limit(1) // only take the latest
         .fetchOne()
 
       if (result == null) {
         Response.ok("""{"exists": false}""").build()
       } else {
         val nid: Int = result.getValue(Notebook.NOTEBOOK.NID)
-        val notebookJson: String = result.get(Notebook.NOTEBOOK.NOTEBOOK_).asInstanceOf[JSONB].data()
-        val mappingJson: String = result.get(WorkflowNotebookMapping.WORKFLOW_NOTEBOOK_MAPPING.MAPPING).asInstanceOf[JSONB].data()
+        val notebookJson: String =
+          result.get(Notebook.NOTEBOOK.NOTEBOOK_).asInstanceOf[JSONB].data()
+        val mappingJson: String = result
+          .get(WorkflowNotebookMapping.WORKFLOW_NOTEBOOK_MAPPING.MAPPING)
+          .asInstanceOf[JSONB]
+          .data()
 
-        Response.ok(
-          s"""
+        Response
+          .ok(
+            s"""
         {
           "exists": true,
           "notebook": $notebookJson,
           "mapping": $mappingJson
         }
         """
-        ).build()
+          )
+          .build()
       }
 
     } catch {
       case NonFatal(e) =>
         logger.error("Database error retrieving mapping", e)
-        Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+        Response
+          .status(Response.Status.INTERNAL_SERVER_ERROR)
           .entity(s"""{"error":"${e.getMessage}"}""")
           .build()
     }

@@ -19,18 +19,18 @@ package org.apache.texera.service
 
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import com.typesafe.scalalogging.LazyLogging
-import io.dropwizard.auth.AuthDynamicFeature
 import io.dropwizard.configuration.{EnvironmentVariableSubstitutor, SubstitutingSourceProvider}
 import io.dropwizard.core.Application
 import io.dropwizard.core.setup.{Bootstrap, Environment}
 import org.apache.texera.amber.config.StorageConfig
-import org.apache.texera.auth.{JwtAuthFilter, RequestLoggingFilter, SessionUser}
+import org.apache.texera.auth.RequestLoggingFilter
 import org.apache.texera.dao.SqlServer
-import org.eclipse.jetty.server.session.SessionHandler
 import java.nio.file.Path
 import org.apache.texera.service.resource.NotebookMigrationResource
 
-class NotebookMigrationService extends Application[NotebookMigrationServiceConfiguration] with LazyLogging {
+class NotebookMigrationService
+    extends Application[NotebookMigrationServiceConfiguration]
+    with LazyLogging {
   override def initialize(bootstrap: Bootstrap[NotebookMigrationServiceConfiguration]): Unit = {
     // enable environment variable substitution in YAML config
     bootstrap.setConfigurationSourceProvider(
@@ -57,14 +57,6 @@ class NotebookMigrationService extends Application[NotebookMigrationServiceConfi
     environment.jersey.setUrlPattern("/api/*")
 
     environment.jersey.register(classOf[NotebookMigrationResource])
-
-    // Register JWT authentication filter
-    // environment.jersey.register(new AuthDynamicFeature(classOf[JwtAuthFilter]))
-
-    // Enable @Auth annotation for injecting SessionUser
-    // environment.jersey.register(
-    //   new io.dropwizard.auth.AuthValueFactoryProvider.Binder(classOf[SessionUser])
-    // )
 
     // Route request logs through SLF4J, controlled by TEXERA_SERVICE_LOG_LEVEL
     RequestLoggingFilter.register(environment.getApplicationContext)
