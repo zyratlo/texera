@@ -20,16 +20,6 @@
 import { Location } from "@angular/common";
 import {
   AfterViewInit,
-  Component,
-  HostListener,
-  OnDestroy,
-  OnInit,
-  ViewChild,
-  ViewContainerRef,
-  ChangeDetectorRef,
-} from "@angular/core";
-import {
-  AfterViewInit,
   ChangeDetectorRef,
   Component,
   HostListener,
