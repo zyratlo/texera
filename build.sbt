@@ -158,7 +158,6 @@ lazy val WorkflowExecutionService = (project in file("amber"))
 lazy val NotebookMigrationService = (project in file("notebook-migration-service"))
   .dependsOn(Auth, Config, DAO)
   .settings(asfLicensingSettings)
-  .settings(asfDistLicensingSettings)
   .settings(
     dependencyOverrides ++= Seq(
       // override it as io.dropwizard 4 require 2.16.1 or higher
