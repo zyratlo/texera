@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { DatePipe, Location, NgIf, NgFor, NgTemplateOutlet } from "@angular/common";
+import { DatePipe, Location, NgIf, NgFor, NgTemplateOutlet, AsyncPipe } from "@angular/common";
 import {
   Component,
   ElementRef,
@@ -29,7 +29,8 @@ import {
   EventEmitter,
   TemplateRef,
   ViewContainerRef,
-} from "@angular/core";import { Router, RouterLink } from "@angular/router";
+} from "@angular/core";
+import { Router, RouterLink } from "@angular/router";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { UserService } from "../../../common/service/user/user.service";
 import {
@@ -89,6 +90,9 @@ import { JupyterPanelService } from "../../service/jupyter-panel/jupyter-panel.s
 import { v4 as uuidv4 } from "uuid";
 import { Notebook } from "../../service/notebook-migration/migration-llm";
 import { NotebookMigrationService } from "../../service/notebook-migration/notebook-migration.service";
+import { NzFormModule } from "ng-zorro-antd/form";
+import { NzSelectModule } from "ng-zorro-antd/select";
+import { ReactiveFormsModule } from "@angular/forms";
 
 /**
  * MenuComponent is the top level menu bar that shows
@@ -137,6 +141,10 @@ import { NotebookMigrationService } from "../../service/notebook-migration/noteb
     NzTooltipDirective,
     DatePipe,
     NzSpaceCompactComponent,
+    NzFormModule,
+    AsyncPipe,
+    NzSelectModule,
+    ReactiveFormsModule,
   ],
 })
 export class MenuComponent implements OnInit, OnDestroy {

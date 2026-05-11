@@ -61,6 +61,7 @@ import { LeftPanelComponent } from "./left-panel/left-panel.component";
 import { AgentPanelComponent } from "./agent/agent-panel/agent-panel.component";
 import { PropertyEditorComponent } from "./property-editor/property-editor.component";
 import { FormlyRepeatDndComponent } from "../../common/formly/repeat-dnd/repeat-dnd.component";
+import { JupyterNotebookPanelComponent } from "../component/jupyter-notebook-panel/jupyter-notebook-panel.component";
 
 export const SAVE_DEBOUNCE_TIME_IN_MS = 5000;
 
@@ -84,6 +85,7 @@ export const SAVE_DEBOUNCE_TIME_IN_MS = 5000;
     AgentPanelComponent,
     PropertyEditorComponent,
     FormlyRepeatDndComponent,
+    JupyterNotebookPanelComponent,
   ],
 })
 export class WorkspaceComponent implements AfterViewInit, OnInit, OnDestroy {
