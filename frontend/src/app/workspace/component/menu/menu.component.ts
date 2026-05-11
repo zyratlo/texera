@@ -626,6 +626,10 @@ export class MenuComponent implements OnInit, OnDestroy {
     this.workflowActionService.deleteOperatorsAndLinks(allOperatorIDs);
   }
 
+  public get pythonNotebookMigrationEnabled(): boolean {
+    return this.config.env.pythonNotebookMigrationEnabled;
+  }
+
   openImportNotebookModal(): void {
     const models$ = this.notebookMigrationService.getAvailableModels().pipe(
       tap({

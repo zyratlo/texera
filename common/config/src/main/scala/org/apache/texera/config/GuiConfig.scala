@@ -73,4 +73,6 @@ object GuiConfig {
     conf.getBoolean("gui.workflow-workspace.copilot-enabled")
   val guiWorkflowWorkspaceLimitColumns: Int =
     conf.getInt("gui.workflow-workspace.limit-columns")
+  val guiWorkflowWorkspacePythonNotebookMigrationEnabled: Boolean =
+    conf.getBoolean("gui.workflow-workspace.python-notebook-migration-enabled")
 }

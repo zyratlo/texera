@@ -54,6 +54,7 @@
       nzType="zoom-in"></i>
   </button>
   <button
+    *ngIf="pythonNotebookMigrationEnabled"
     id="minimap-expand-jupyter-button"
     (click)="onClickExpandJupyterNotebookPanel()"
     nz-button

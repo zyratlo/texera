@@ -150,6 +150,7 @@
             nzType="info-circle"></i>
         </button>
         <button
+          *ngIf="pythonNotebookMigrationEnabled"
           nz-button
           [disabled]="!isWorkflowModifiable"
           (click)="openImportNotebookModal()"
