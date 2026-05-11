@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { DatePipe, Location, NgIf, NgFor, NgTemplateOutlet, AsyncPipe } from "@angular/common";
+import { DatePipe, Location, NgIf, NgFor, NgTemplateOutlet, AsyncPipe, NgOptimizedImage } from "@angular/common";
 import {
   Component,
   ElementRef,
@@ -145,6 +145,7 @@ import { ReactiveFormsModule } from "@angular/forms";
     AsyncPipe,
     NzSelectModule,
     ReactiveFormsModule,
+    NgOptimizedImage,
   ],
 })
 export class MenuComponent implements OnInit, OnDestroy {
