@@ -17,8 +17,7 @@
  * under the License.
  */
 
-import { DatePipe, Location } from "@angular/common";
-import { Router } from "@angular/router";
+import { DatePipe, Location, NgIf, NgFor, NgTemplateOutlet } from "@angular/common";
 import {
   Component,
   ElementRef,
@@ -30,7 +29,7 @@ import {
   EventEmitter,
   TemplateRef,
   ViewContainerRef,
-} from "@angular/core";
+} from "@angular/core";import { Router, RouterLink } from "@angular/router";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { UserService } from "../../../common/service/user/user.service";
 import {
@@ -50,7 +49,7 @@ import { UntilDestroy, untilDestroyed } from "@ngneat/until-destroy";
 import { WorkflowUtilService } from "../../service/workflow-graph/util/workflow-util.service";
 import { WorkflowVersionService } from "../../../dashboard/service/user/workflow-version/workflow-version.service";
 import { UserProjectService } from "../../../dashboard/service/user/project/user-project.service";
-import { NzUploadFile } from "ng-zorro-antd/upload";
+import { NzUploadFile, NzUploadComponent } from "ng-zorro-antd/upload";
 import { saveAs } from "file-saver";
 import { NotificationService } from "src/app/common/service/notification/notification.service";
 import { OperatorMenuService } from "../../service/operator-menu/operator-menu.service";
@@ -70,6 +69,22 @@ import { GuiConfigService } from "../../../common/service/gui-config.service";
 import { DashboardWorkflowComputingUnit } from "../../../common/type/workflow-computing-unit";
 import { Privilege } from "../../../dashboard/type/share-access.interface";
 import { MarkdownDescriptionComponent } from "../../../dashboard/component/user/markdown-description/markdown-description.component";
+import { NzSpaceCompactItemDirective, NzSpaceCompactComponent } from "ng-zorro-antd/space";
+import { NzButtonComponent } from "ng-zorro-antd/button";
+import { ɵNzTransitionPatchDirective } from "ng-zorro-antd/core/transition-patch";
+import { NzIconDirective } from "ng-zorro-antd/icon";
+import { NzAvatarComponent } from "ng-zorro-antd/avatar";
+import { FormsModule } from "@angular/forms";
+import { NzWaveDirective } from "ng-zorro-antd/core/wave";
+import { CoeditorUserIconComponent } from "./coeditor-user-icon/coeditor-user-icon.component";
+import { UserIconComponent } from "../../../dashboard/component/user/user-icon/user-icon.component";
+import { NzDropdownDirective, NzDropdownMenuComponent } from "ng-zorro-antd/dropdown";
+import { NzMenuDirective, NzMenuItemComponent } from "ng-zorro-antd/menu";
+import { NzCheckboxComponent } from "ng-zorro-antd/checkbox";
+import { NzPopoverDirective } from "ng-zorro-antd/popover";
+import { NzSwitchComponent } from "ng-zorro-antd/switch";
+import { NzBadgeComponent } from "ng-zorro-antd/badge";
+import { NzTooltipDirective } from "ng-zorro-antd/tooltip";
 import { JupyterPanelService } from "../../service/jupyter-panel/jupyter-panel.service";
 import { v4 as uuidv4 } from "uuid";
 import { Notebook } from "../../service/notebook-migration/migration-llm";
@@ -95,7 +110,34 @@ import { NotebookMigrationService } from "../../service/notebook-migration/noteb
   selector: "texera-menu",
   templateUrl: "menu.component.html",
   styleUrls: ["menu.component.scss"],
-  standalone: false,
+  imports: [
+    NgIf,
+    NzSpaceCompactItemDirective,
+    NzButtonComponent,
+    ɵNzTransitionPatchDirective,
+    NzIconDirective,
+    NzAvatarComponent,
+    FormsModule,
+    NzWaveDirective,
+    NgFor,
+    CoeditorUserIconComponent,
+    UserIconComponent,
+    RouterLink,
+    NzUploadComponent,
+    NzDropdownDirective,
+    NzDropdownMenuComponent,
+    NzMenuDirective,
+    NzMenuItemComponent,
+    NzCheckboxComponent,
+    NgTemplateOutlet,
+    ComputingUnitSelectionComponent,
+    NzPopoverDirective,
+    NzSwitchComponent,
+    NzBadgeComponent,
+    NzTooltipDirective,
+    DatePipe,
+    NzSpaceCompactComponent,
+  ],
 })
 export class MenuComponent implements OnInit, OnDestroy {
   public executionState: ExecutionState; // set this to true when the workflow is started
