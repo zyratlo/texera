@@ -594,6 +594,10 @@ export class MenuComponent implements OnInit, OnDestroy {
     this.workflowActionService.deleteOperatorsAndLinks(allOperatorIDs);
   }
 
+  public get pythonNotebookMigrationEnabled(): boolean {
+    return this.config.env.pythonNotebookMigrationEnabled;
+  }
+
   public onClickImportWorkflow = (file: NzUploadFile): boolean => {
     const reader = new FileReader();
     reader.readAsText(file as any);
