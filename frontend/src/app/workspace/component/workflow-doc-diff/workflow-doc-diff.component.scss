@@ -1,0 +1,152 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+.doc-diff {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.doc-diff-summary {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+  color: #595959;
+  padding: 8px 12px;
+  background-color: #fafafa;
+  border-radius: 4px;
+}
+
+.doc-diff-side {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.doc-diff-time {
+  font-variant-numeric: tabular-nums;
+  color: #8c8c8c;
+  font-size: 12px;
+}
+
+.doc-diff-arrow {
+  color: #bfbfbf;
+}
+
+.doc-diff-stats {
+  margin-left: auto;
+  display: inline-flex;
+  gap: 8px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+.doc-diff-stat-removed {
+  color: #cf1322;
+}
+
+.doc-diff-stat-added {
+  color: #389e0d;
+}
+
+.doc-diff-table {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #f0f0f0;
+  border-radius: 4px;
+  overflow: auto;
+  max-height: 70vh;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+}
+
+.doc-diff-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-bottom: 1px solid #fafafa;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.doc-diff-cell {
+  position: relative;
+  padding: 2px 8px 2px 22px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  border-right: 1px solid #f0f0f0;
+  min-height: 18px;
+
+  &:last-child {
+    border-right: none;
+  }
+}
+
+.doc-diff-cell-del {
+  background-color: #fff1f0;
+}
+
+.doc-diff-cell-add {
+  background-color: #f6ffed;
+}
+
+.doc-diff-cell-pad {
+  background-color: #fafafa;
+}
+
+.doc-diff-marker {
+  position: absolute;
+  left: 8px;
+  font-weight: 700;
+  user-select: none;
+}
+
+.doc-diff-cell-del .doc-diff-marker {
+  color: #cf1322;
+}
+
+.doc-diff-cell-add .doc-diff-marker {
+  color: #389e0d;
+}
+
+.doc-diff-line {
+  margin: 0;
+  font-family: inherit;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.doc-diff-word-del {
+  background-color: #ffccc7;
+  border-radius: 2px;
+}
+
+.doc-diff-word-add {
+  background-color: #b7eb8f;
+  border-radius: 2px;
+}
+
+.doc-diff-empty {
+  padding: 40px 0;
+  text-align: center;
+  color: #8c8c8c;
+  font-style: italic;
+}

@@ -61,16 +61,47 @@
     <div
       *ngIf="hasHistory"
       class="doc-history">
-      <h4 class="doc-history-title">
-        Previous reports
-        <span class="doc-history-count">{{ history.length }}</span>
-      </h4>
+      <div class="doc-history-header">
+        <h4 class="doc-history-title">
+          Previous reports
+          <span class="doc-history-count">{{ history.length }}</span>
+        </h4>
+        <button
+          *ngIf="history.length >= 2"
+          nz-button
+          nzType="text"
+          nzSize="small"
+          class="doc-history-compare-toggle"
+          [class.doc-history-compare-toggle-active]="compareMode"
+          (click)="toggleCompareMode()">
+          <i
+            nz-icon
+            [nzType]="compareMode ? 'close' : 'diff'"></i>
+          {{ compareMode ? "Cancel" : "Compare" }}
+        </button>
+      </div>
+      <div
+        *ngIf="compareMode"
+        class="doc-history-compare-hint">
+        Select {{ 2 - selectedEntries.size }} more
+        report{{ selectedEntries.size === 1 ? "" : "s" }}
+        to compare.
+      </div>
       <ul class="doc-history-list">
         <li
           *ngFor="let entry of history; let i = index"
           class="doc-history-item"
+          [class.doc-history-item-selected]="compareMode && isSelected(entry)"
           (click)="viewEntry(entry)">
+          <label
+            *ngIf="compareMode"
+            nz-checkbox
+            class="doc-history-checkbox"
+            [ngModel]="isSelected(entry)"
+            (ngModelChange)="toggleEntrySelection(entry)"
+            (click)="$event.stopPropagation()"></label>
           <i
+            *ngIf="!compareMode"
             nz-icon
             nzType="file-text"
             class="doc-history-icon"></i>
@@ -79,6 +110,7 @@
             *ngIf="i === 0"
             class="doc-history-latest">Latest</span>
           <button
+            *ngIf="!compareMode"
             nz-button
             nzType="text"
             nzSize="small"
@@ -96,11 +128,26 @@
               nzType="delete"></i>
           </button>
           <i
+            *ngIf="!compareMode"
             nz-icon
             nzType="right"
             class="doc-history-chevron"></i>
         </li>
       </ul>
+      <div
+        *ngIf="compareMode"
+        class="doc-history-compare-action">
+        <button
+          nz-button
+          nzType="primary"
+          [disabled]="!canCompare"
+          (click)="openDiff()">
+          <i
+            nz-icon
+            nzType="diff"></i>
+          Compare selected
+        </button>
+      </div>
     </div>
   </div>
 

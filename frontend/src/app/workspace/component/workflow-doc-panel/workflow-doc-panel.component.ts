@@ -26,11 +26,15 @@ import { NzTooltipDirective } from "ng-zorro-antd/tooltip";
 import { NzPopconfirmDirective } from "ng-zorro-antd/popconfirm";
 import { ɵNzTransitionPatchDirective } from "ng-zorro-antd/core/transition-patch";
 import { NzWaveDirective } from "ng-zorro-antd/core/wave";
+import { NzModalService } from "ng-zorro-antd/modal";
+import { NzCheckboxComponent } from "ng-zorro-antd/checkbox";
+import { FormsModule } from "@angular/forms";
 import { MarkdownService } from "ngx-markdown";
 import { interval, Observable, Subscription } from "rxjs";
 import { NotificationService } from "../../../common/service/notification/notification.service";
 import { WorkflowActionService } from "../../service/workflow-graph/model/workflow-action.service";
 import { DocEntry } from "../../service/workflow-doc/workflow-doc.service";
+import { WorkflowDocDiffComponent } from "../workflow-doc-diff/workflow-doc-diff.component";
 
 type DocPanelView = "intro" | "doc";
 
@@ -47,6 +51,8 @@ type DocPanelView = "intro" | "doc";
     NzIconDirective,
     NzTooltipDirective,
     NzPopconfirmDirective,
+    NzCheckboxComponent,
+    FormsModule,
     NzWaveDirective,
   ],
 })
@@ -61,6 +67,8 @@ export class WorkflowDocPanelComponent implements OnInit, OnDestroy {
   isGenerating = false;
   copied = false;
   elapsedSeconds = 0;
+  compareMode = false;
+  selectedEntries = new Set<DocEntry>();
   private elapsedStartedAtMs = 0;
   private generateSub?: Subscription;
   private elapsedTimerSub?: Subscription;
@@ -69,6 +77,7 @@ export class WorkflowDocPanelComponent implements OnInit, OnDestroy {
     private markdownService: MarkdownService,
     private notificationService: NotificationService,
     private workflowActionService: WorkflowActionService,
+    private modalService: NzModalService,
     private cdr: ChangeDetectorRef
   ) {}
 
@@ -97,8 +106,49 @@ export class WorkflowDocPanelComponent implements OnInit, OnDestroy {
   }
 
   viewEntry(entry: DocEntry): void {
+    if (this.compareMode) {
+      this.toggleEntrySelection(entry);
+      return;
+    }
     this.loadEntry(entry);
     this.setView("doc");
+  }
+
+  toggleCompareMode(): void {
+    this.compareMode = !this.compareMode;
+    this.selectedEntries.clear();
+  }
+
+  toggleEntrySelection(entry: DocEntry): void {
+    if (this.selectedEntries.has(entry)) {
+      this.selectedEntries.delete(entry);
+    } else if (this.selectedEntries.size < 2) {
+      this.selectedEntries.add(entry);
+    }
+  }
+
+  isSelected(entry: DocEntry): boolean {
+    return this.selectedEntries.has(entry);
+  }
+
+  get canCompare(): boolean {
+    return this.selectedEntries.size === 2;
+  }
+
+  openDiff(): void {
+    if (!this.canCompare) return;
+    const picked = Array.from(this.selectedEntries).sort(
+      (a, b) => a.generatedAt.getTime() - b.generatedAt.getTime()
+    );
+    const [base, head] = picked;
+    this.modalService.create({
+      nzTitle: "Compare reports",
+      nzContent: WorkflowDocDiffComponent,
+      nzData: { base, head },
+      nzWidth: "min(1100px, 92vw)",
+      nzFooter: null,
+      nzCentered: true,
+    });
   }
 
   backToIntro(): void {
@@ -140,6 +190,7 @@ export class WorkflowDocPanelComponent implements OnInit, OnDestroy {
   deleteEntry(entry: DocEntry): void {
     const wasViewing = this.isViewingEntry(entry);
     this.history = this.history.filter(e => e !== entry);
+    this.selectedEntries.delete(entry);
     const onDeleteEntry: ((entry: DocEntry) => void) | undefined = this.modalData?.onDeleteEntry;
     onDeleteEntry?.(entry);
     if (wasViewing) {

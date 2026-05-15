@@ -98,15 +98,49 @@
   margin-top: 28px;
 }
 
+.doc-history-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0 0 8px;
+}
+
 .doc-history-title {
   font-size: 13px;
   font-weight: 600;
   color: #595959;
   text-align: left;
-  margin: 0 0 8px;
+  margin: 0;
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+.doc-history-compare-toggle {
+  i {
+    margin-right: 4px;
+  }
+}
+
+.doc-history-compare-toggle-active {
+  color: #cf1322;
+}
+
+.doc-history-compare-hint {
+  font-size: 12px;
+  color: #8c8c8c;
+  margin: 0 0 8px;
+  text-align: left;
+}
+
+.doc-history-compare-action {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 8px;
+
+  i {
+    margin-right: 4px;
+  }
 }
 
 .doc-history-count {
@@ -144,6 +178,18 @@
   &:hover {
     background-color: rgba(24, 144, 255, 0.06);
   }
+}
+
+.doc-history-item-selected {
+  background-color: rgba(24, 144, 255, 0.12);
+
+  &:hover {
+    background-color: rgba(24, 144, 255, 0.18);
+  }
+}
+
+.doc-history-checkbox {
+  margin: 0;
 }
 
 .doc-history-icon {
