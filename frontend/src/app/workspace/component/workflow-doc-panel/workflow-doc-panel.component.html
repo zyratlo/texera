@@ -179,15 +179,14 @@
       </button>
       <div
         *ngIf="generatedAt && !isGenerating"
-        class="doc-timestamp">
+        class="doc-timestamp"
+        [class.doc-timestamp-written]="currentEntry?.written"
+        [class.doc-timestamp-generated]="!currentEntry?.written">
         <i
           nz-icon
           nzType="clock-circle"
           nzTheme="outline"></i>
         <span>{{ currentEntry?.written ? "Written" : currentEntry?.edited ? "Updated" : "Generated" }} {{ generatedAt | date: "short" }}</span>
-        <span
-          *ngIf="currentEntry?.written"
-          class="doc-written-badge">written</span>
         <span
           *ngIf="!currentEntry?.written && currentEntry?.edited"
           class="doc-edited-badge">edited</span>
