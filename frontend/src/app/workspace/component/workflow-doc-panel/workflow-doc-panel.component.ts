@@ -135,6 +135,21 @@ export class WorkflowDocPanelComponent implements OnInit, OnDestroy {
     });
   }
 
+  cancel(): void {
+    if (!this.isGenerating) return;
+    this.generateSub?.unsubscribe();
+    this.generateSub = undefined;
+    this.stopElapsedTimer();
+    this.isGenerating = false;
+    this.notificationService.info("Documentation generation cancelled.");
+    if (this.hasHistory) {
+      this.loadEntry(this.history[0]);
+    } else {
+      this.setView("intro");
+    }
+    this.cdr.detectChanges();
+  }
+
   private startElapsedTimer(): void {
     this.elapsedTimerSub?.unsubscribe();
     this.elapsedSeconds = 0;

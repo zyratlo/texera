@@ -221,7 +221,7 @@
   font-size: 14px;
   color: #8c8c8c;
 
-  i {
+  > i {
     font-size: 32px;
     color: #1890ff;
   }
@@ -235,6 +235,14 @@
   padding: 2px 10px;
   border-radius: 10px;
   letter-spacing: 0.5px;
+}
+
+.doc-loading-cancel {
+  margin-top: 4px;
+
+  i {
+    margin-right: 4px;
+  }
 }
 
 .doc-content {

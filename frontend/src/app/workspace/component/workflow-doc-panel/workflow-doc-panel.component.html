@@ -136,6 +136,17 @@
         nzType="loading"></i>
       <span>Generating documentation…</span>
       <span class="doc-loading-elapsed">{{ elapsedDisplay }}</span>
+      <button
+        nz-button
+        nzType="default"
+        nzSize="small"
+        class="doc-loading-cancel"
+        (click)="cancel()">
+        <i
+          nz-icon
+          nzType="close"></i>
+        Cancel
+      </button>
     </div>
     <div
       *ngIf="renderedMarkdown && !isGenerating"
