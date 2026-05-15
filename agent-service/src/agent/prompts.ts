@@ -320,9 +320,15 @@ List each sink operator and what it produces or where it writes, including outpu
 ## Caveats
 Note anything a reviewer should be aware of: unconfigured required properties, hardcoded file paths or credentials visible in properties, UDF operators whose correctness depends on user code, disabled operators that are excluded from execution, or columns referenced in one operator that do not appear in the upstream schema. Omit this section if there are no notable caveats.
 
+Operator references:
+- Whenever you mention a specific operator by name in any section, format the mention as a markdown link with the operator's display name as the link text and a special URI of the form \`texera:op:<OPERATOR_ID>\` as the link target. The OPERATOR_ID is the exact value shown after \`### Operator\` in the context (e.g., \`Filter-operator-abc123\`).
+- Example: if an operator has display name "Customer Filter" and ID \`Filter-operator-9f3a\`, write it as \`[Customer Filter](texera:op:Filter-operator-9f3a)\` — not as a plain name.
+- Use the link form everywhere the operator is named, including in the Inputs, Pipeline Stages, Outputs, and Caveats sections.
+- If you must group several operators together (e.g., "the three filter operators"), still emit each one as a link.
+
 Rules:
 - Write concise, precise technical prose. Prefer specific column names, file paths, and operator names over vague descriptions.
 - If you cannot infer something with reasonable confidence, say so briefly rather than guessing.
-- Do not reproduce raw property dictionaries or operator IDs in the output.
+- Do not reproduce raw property dictionaries in the output. Operator IDs may appear only inside \`texera:op:\` link targets, never as plain text.
 - If the workflow is empty or has no connected operators, state that it contains no connected pipeline.`;
 

@@ -39,6 +39,13 @@
       <li><strong>Outputs</strong> — sink operators and the schemas they produce</li>
       <li><strong>Caveats</strong> — unconfigured properties, hardcoded paths, or schema mismatches</li>
     </ul>
+    <p class="doc-intro-tip">
+      <i
+        nz-icon
+        nzType="bulb"
+        nzTheme="twotone"></i>
+      Operator names in the report are clickable — click one to jump to and highlight that operator on the canvas.
+    </p>
     <p
       *ngIf="hasCached"
       class="doc-intro-cached">
@@ -137,6 +144,7 @@
     <div
       *ngIf="renderedMarkdown && !isGenerating"
       class="doc-content md-rendered"
+      (click)="onContentClick($event)"
       [innerHTML]="renderedMarkdown"></div>
     <div
       *ngIf="!renderedMarkdown && !isGenerating"

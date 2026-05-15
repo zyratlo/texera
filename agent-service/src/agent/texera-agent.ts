@@ -883,7 +883,7 @@ export class TexeraAgent {
       const desc = this.metadataStore.getDescription(op.operatorType);
       const disabled = op.isDisabled ? " [DISABLED — excluded from execution]" : "";
 
-      lines.push(`### "${label}" (${op.operatorType})${disabled}`);
+      lines.push(`### Operator \`${op.operatorID}\` — "${label}" (${op.operatorType})${disabled}`);
       if (desc) lines.push(`Description: ${desc}`);
 
       const props = op.operatorProperties ?? {};
@@ -929,9 +929,9 @@ export class TexeraAgent {
       const opMap = new Map(content.operators.map(op => [op.operatorID, opDisplayName(op)]));
       lines.push("## Data Flow\n");
       for (const link of content.links) {
-        const from = opMap.get(link.source.operatorID) ?? link.source.operatorID;
-        const to = opMap.get(link.target.operatorID) ?? link.target.operatorID;
-        lines.push(`- "${from}" → "${to}"`);
+        const fromName = opMap.get(link.source.operatorID) ?? link.source.operatorID;
+        const toName = opMap.get(link.target.operatorID) ?? link.target.operatorID;
+        lines.push(`- "${fromName}" \`${link.source.operatorID}\` → "${toName}" \`${link.target.operatorID}\``);
       }
       lines.push("");
     }

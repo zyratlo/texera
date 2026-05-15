@@ -204,6 +204,7 @@ export class WorkflowEditorComponent implements OnInit, AfterViewInit, OnDestroy
     this.handleURLFragment();
     this.invokeResize();
     this.handleCenterEvent();
+    this.handleCenterOnOperatorEvent();
     this.handleOperatorChatButton();
   }
 
@@ -1443,6 +1444,31 @@ export class WorkflowEditorComponent implements OnInit, AfterViewInit, OnDestroy
         };
 
         this.paper.translate(-targetCoord.x, -targetCoord.y);
+      });
+  }
+
+  /**
+   * Centers the canvas on a single operator and highlights it.
+   * Triggered when the user clicks an operator reference in the AI-generated workflow doc.
+   */
+  private handleCenterOnOperatorEvent(): void {
+    this.workflowActionService
+      .getTexeraGraph()
+      .getCenterOnOperatorEventStream()
+      .pipe(untilDestroyed(this))
+      .subscribe(operatorID => {
+        if (!this.workflowActionService.getTexeraGraph().hasOperator(operatorID)) return;
+        const view = this.paper.findViewByModel(operatorID);
+        if (!view) return;
+        const bbox = view.model.getBBox();
+        const scale = this.paper.scale().sx || 1;
+        const viewportWidth = this.editor.offsetWidth;
+        const viewportHeight = this.editor.offsetHeight;
+        const opCenterX = (bbox.x + bbox.width / 2) * scale;
+        const opCenterY = (bbox.y + bbox.height / 2) * scale;
+        this.paper.translate(viewportWidth / 2 - opCenterX, viewportHeight / 2 - opCenterY);
+        this.wrapper.unhighlightElements(this.wrapper.getCurrentHighlights());
+        this.wrapper.highlightOperators(operatorID);
       });
   }
 

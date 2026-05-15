@@ -28,6 +28,7 @@ import { NzWaveDirective } from "ng-zorro-antd/core/wave";
 import { MarkdownService } from "ngx-markdown";
 import { Observable, Subscription } from "rxjs";
 import { NotificationService } from "../../../common/service/notification/notification.service";
+import { WorkflowActionService } from "../../service/workflow-graph/model/workflow-action.service";
 
 type DocPanelView = "intro" | "doc";
 
@@ -58,7 +59,8 @@ export class WorkflowDocPanelComponent implements OnInit, OnDestroy {
 
   constructor(
     private markdownService: MarkdownService,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private workflowActionService: WorkflowActionService
   ) {}
 
   ngOnInit(): void {
@@ -108,6 +110,21 @@ export class WorkflowDocPanelComponent implements OnInit, OnDestroy {
         }
       },
     });
+  }
+
+  onContentClick(event: MouseEvent): void {
+    const anchor = (event.target as HTMLElement | null)?.closest("a") as HTMLAnchorElement | null;
+    if (!anchor) return;
+    const href = anchor.getAttribute("href") ?? "";
+    const opRefPrefix = "texera:op:";
+    if (!href.startsWith(opRefPrefix)) return;
+    event.preventDefault();
+    const operatorID = href.slice(opRefPrefix.length);
+    if (!this.workflowActionService.getTexeraGraph().hasOperator(operatorID)) {
+      this.notificationService.error(`Operator "${operatorID}" is not on the canvas (it may have been deleted or renamed since this report was generated)`);
+      return;
+    }
+    this.workflowActionService.getTexeraGraph().triggerCenterOnOperatorEvent(operatorID);
   }
 
   copyToClipboard(): void {

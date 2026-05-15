@@ -97,6 +97,7 @@ export class WorkflowGraph {
   public sharedModel!: SharedModel;
   public newYDocLoadedSubject = new Subject();
   private readonly centerEventSubject = new Subject<void>();
+  private readonly centerOnOperatorEventSubject = new Subject<string>();
 
   public readonly operatorAddSubject = new Subject<OperatorPredicate>();
 
@@ -1012,6 +1013,14 @@ export class WorkflowGraph {
 
   public triggerCenterEvent(): void {
     this.centerEventSubject.next();
+  }
+
+  public getCenterOnOperatorEventStream(): Observable<string> {
+    return this.centerOnOperatorEventSubject.asObservable();
+  }
+
+  public triggerCenterOnOperatorEvent(operatorID: string): void {
+    this.centerOnOperatorEventSubject.next(operatorID);
   }
 
   /**
