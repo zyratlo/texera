@@ -26,7 +26,7 @@ import { NzTooltipDirective } from "ng-zorro-antd/tooltip";
 import { ɵNzTransitionPatchDirective } from "ng-zorro-antd/core/transition-patch";
 import { NzWaveDirective } from "ng-zorro-antd/core/wave";
 import { MarkdownService } from "ngx-markdown";
-import { Observable, Subscription } from "rxjs";
+import { interval, Observable, Subscription } from "rxjs";
 import { NotificationService } from "../../../common/service/notification/notification.service";
 import { WorkflowActionService } from "../../service/workflow-graph/model/workflow-action.service";
 
@@ -55,7 +55,9 @@ export class WorkflowDocPanelComponent implements OnInit, OnDestroy {
   generatedAt: Date | null = null;
   isGenerating = false;
   copied = false;
+  elapsedSeconds = 0;
   private generateSub?: Subscription;
+  private elapsedTimerSub?: Subscription;
 
   constructor(
     private markdownService: MarkdownService,
@@ -78,6 +80,13 @@ export class WorkflowDocPanelComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.generateSub?.unsubscribe();
+    this.elapsedTimerSub?.unsubscribe();
+  }
+
+  get elapsedDisplay(): string {
+    const m = Math.floor(this.elapsedSeconds / 60);
+    const s = this.elapsedSeconds % 60;
+    return `${m}:${s.toString().padStart(2, "0")}`;
   }
 
   get hasCached(): boolean {
@@ -100,16 +109,19 @@ export class WorkflowDocPanelComponent implements OnInit, OnDestroy {
     if (!onGenerate || this.isGenerating) return;
     this.isGenerating = true;
     this.setView("doc");
+    this.startElapsedTimer();
     this.generateSub = onGenerate().subscribe({
       next: markdown => {
         this.rawMarkdown = markdown;
         this.generatedAt = new Date();
         this.isGenerating = false;
+        this.stopElapsedTimer();
         this.renderMarkdown(markdown);
         this.cdr.detectChanges();
       },
       error: (err: unknown) => {
         this.isGenerating = false;
+        this.stopElapsedTimer();
         this.notificationService.error("Failed to generate documentation: " + (err as Error).message);
         if (!this.hasCached) {
           this.setView("intro");
@@ -117,6 +129,20 @@ export class WorkflowDocPanelComponent implements OnInit, OnDestroy {
         this.cdr.detectChanges();
       },
     });
+  }
+
+  private startElapsedTimer(): void {
+    this.elapsedTimerSub?.unsubscribe();
+    this.elapsedSeconds = 0;
+    this.elapsedTimerSub = interval(1000).subscribe(() => {
+      this.elapsedSeconds += 1;
+      this.cdr.detectChanges();
+    });
+  }
+
+  private stopElapsedTimer(): void {
+    this.elapsedTimerSub?.unsubscribe();
+    this.elapsedTimerSub = undefined;
   }
 
   onContentClick(event: MouseEvent): void {

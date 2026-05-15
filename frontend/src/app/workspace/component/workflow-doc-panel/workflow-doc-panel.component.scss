@@ -164,6 +164,16 @@
   }
 }
 
+.doc-loading-elapsed {
+  font-variant-numeric: tabular-nums;
+  font-size: 13px;
+  color: #595959;
+  background-color: #f5f5f5;
+  padding: 2px 10px;
+  border-radius: 10px;
+  letter-spacing: 0.5px;
+}
+
 .doc-content {
   line-height: 1.6;
   overflow-y: auto;
