@@ -200,6 +200,31 @@ describe("Agent control routes", () => {
   });
 });
 
+describe(`POST ${API}/agents/:id/document-workflow`, () => {
+  test("returns 404 for an unknown agent", async () => {
+    const res = await postJson(`${API}/agents/agent-does-not-exist/document-workflow`, {});
+    expect(res.status).toBe(404);
+    const body = await readJson<{ error: string }>(res);
+    expect(body.error).toBe("Agent not found");
+  });
+
+  test("accepts an empty body without schema error", async () => {
+    const created = await readJson<{ id: string }>(await postJson(`${API}/agents`, { modelType: "m" }));
+    const res = await postJson(`${API}/agents/${created.id}/document-workflow`, {});
+    // In the test environment the LLM call will fail (no real model backend).
+    // We accept any non-schema-validation failure (4xx/5xx) as long as it is not a 422.
+    expect(res.status).not.toBe(422);
+  });
+
+  test("accepts a workflowContent body without schema error", async () => {
+    const created = await readJson<{ id: string }>(await postJson(`${API}/agents`, { modelType: "m" }));
+    const res = await postJson(`${API}/agents/${created.id}/document-workflow`, {
+      workflowContent: { operators: [], links: [], operatorPositions: {}, commentBoxes: [], settings: { dataTransferBatchSize: 10 } },
+    });
+    expect(res.status).not.toBe(422);
+  });
+});
+
 describe(`PATCH ${API}/agents/:id/settings`, () => {
   test("updates settings and returns the new values", async () => {
     const created = await readJson<{ id: string }>(await postJson(`${API}/agents`, { modelType: "m" }));

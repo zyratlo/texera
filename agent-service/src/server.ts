@@ -294,6 +294,23 @@ const agentsRouter = new Elysia({ prefix: "/agents" })
     return { status: "stopping" };
   })
 
+  .post(
+    "/:id/document-workflow",
+    async ({ params: { id }, body }) => {
+      const agent = getAgent(id);
+      const { workflowContent } = (body ?? {}) as { workflowContent?: any };
+      const markdown = await agent.documentWorkflow(workflowContent);
+      return { markdown };
+    },
+    {
+      body: t.Optional(
+        t.Object({
+          workflowContent: t.Optional(t.Any()),
+        })
+      ),
+    }
+  )
+
   .post("/:id/clear", ({ params: { id } }) => {
     const agent = getAgent(id);
     agent.clearHistory();

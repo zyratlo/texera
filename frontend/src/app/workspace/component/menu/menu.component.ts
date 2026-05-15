@@ -50,6 +50,8 @@ import { ResultExportationComponent } from "../result-exportation/result-exporta
 import { ReportGenerationService } from "../../service/report-generation/report-generation.service";
 import { ShareAccessComponent } from "src/app/dashboard/component/user/share-access/share-access.component";
 import { PanelService } from "../../service/panel/panel.service";
+import { WorkflowDocService } from "../../service/workflow-doc/workflow-doc.service";
+import { WorkflowDocPanelComponent } from "../workflow-doc-panel/workflow-doc-panel.component";
 import { DASHBOARD_USER_WORKFLOW } from "../../../app-routing.constant";
 import { ComputingUnitStatusService } from "../../../common/service/computing-unit/computing-unit-status/computing-unit-status.service";
 import { ComputingUnitState } from "../../../common/type/computing-unit-connection.interface";
@@ -130,6 +132,7 @@ export class MenuComponent implements OnInit, OnDestroy {
   public ComputingUnitState = ComputingUnitState; // make Angular HTML access enum definition
   public isWorkflowValid: boolean = true; // this will check whether the workflow error or not
   public isWorkflowEmpty: boolean = false;
+  public isGeneratingDoc: boolean = false;
   public isSaving: boolean = false;
   public isWorkflowModifiable: boolean = false;
   public workflowId?: number;
@@ -189,7 +192,8 @@ export class MenuComponent implements OnInit, OnDestroy {
     private panelService: PanelService,
     private computingUnitStatusService: ComputingUnitStatusService,
     protected config: GuiConfigService,
-    private router: Router
+    private router: Router,
+    private workflowDocService: WorkflowDocService
   ) {
     workflowWebsocketService
       .subscribeToEvent("ExecutionDurationUpdateEvent")
@@ -688,6 +692,33 @@ export class MenuComponent implements OnInit, OnDestroy {
 
       modalRef.close();
     });
+  }
+
+  public onClickDocumentWorkflow(): void {
+    this.isGeneratingDoc = true;
+    this.notificationService.blank("", "Generating workflow documentation…", { nzDuration: 0 });
+
+    this.workflowDocService
+      .generateDocumentation()
+      .pipe(untilDestroyed(this))
+      .subscribe({
+        next: markdown => {
+          this.isGeneratingDoc = false;
+          this.notificationService.remove();
+          this.modalService.create({
+            nzTitle: "Workflow Documentation",
+            nzContent: WorkflowDocPanelComponent,
+            nzData: { markdown },
+            nzWidth: "800px",
+            nzFooter: null,
+          });
+        },
+        error: (err: unknown) => {
+          this.isGeneratingDoc = false;
+          this.notificationService.remove();
+          this.notificationService.error("Failed to generate documentation: " + (err as Error).message);
+        },
+      });
   }
 
   /**

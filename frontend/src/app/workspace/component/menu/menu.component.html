@@ -149,6 +149,15 @@
             nz-icon
             nzType="info-circle"></i>
         </button>
+        <button
+          (click)="onClickDocumentWorkflow()"
+          [disabled]="isWorkflowEmpty || isGeneratingDoc"
+          nz-button
+          title="document workflow with AI">
+          <i
+            nz-icon
+            [nzType]="isGeneratingDoc ? 'loading' : 'file-text'"></i>
+        </button>
       </nz-space-compact>
       <ng-template #utilities>
         <nz-space-compact>

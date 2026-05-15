@@ -31,7 +31,7 @@ import {
   OperatorResultSerializationMode,
   INITIAL_STEP_ID,
 } from "../types/agent";
-import { buildSystemPrompt } from "./prompts";
+import { buildSystemPrompt, WORKFLOW_DOCUMENTATION_PROMPT } from "./prompts";
 import {
   createAddOperatorTool,
   createModifyOperatorTool,
@@ -41,6 +41,7 @@ import {
   TOOL_NAME_DELETE_OPERATOR,
   type ToolContext,
 } from "./tools/workflow-crud-tools";
+import type { WorkflowContent } from "../types/workflow";
 import {
   createExecuteOperatorTool,
   executeOperatorAndFormat,
@@ -821,6 +822,16 @@ export class TexeraAgent {
     }
 
     return relevantSteps;
+  }
+
+  async documentWorkflow(workflowContent?: WorkflowContent): Promise<string> {
+    const content = workflowContent ?? this.workflowState.getWorkflowContent();
+    const { text } = await generateText({
+      model: this.model,
+      system: WORKFLOW_DOCUMENTATION_PROMPT,
+      prompt: JSON.stringify(content, null, 2),
+    });
+    return text;
   }
 
   destroy(): void {
