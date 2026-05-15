@@ -113,8 +113,10 @@
           <i
             *ngIf="!compareMode"
             nz-icon
-            nzType="file-text"
-            class="doc-history-icon"></i>
+            [nzType]="entry.written ? 'edit' : 'thunderbolt'"
+            class="doc-history-icon"
+            [class.doc-history-icon-written]="entry.written"
+            [nz-tooltip]="entry.written ? 'Written by you' : 'AI-generated'"></i>
           <span class="doc-history-time">{{ entry.generatedAt | date: "short" }}</span>
           <span
             *ngIf="i === 0"
