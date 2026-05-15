@@ -287,6 +287,18 @@
   letter-spacing: 0.5px;
 }
 
+.doc-written-badge {
+  font-size: 10px;
+  font-weight: 600;
+  color: #722ed1;
+  background-color: rgba(114, 46, 209, 0.12);
+  padding: 1px 6px;
+  border-radius: 8px;
+  margin-left: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
 .doc-editor {
   flex: 1;
   min-height: 0;

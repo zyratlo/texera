@@ -88,9 +88,15 @@ export class WorkflowDocPanelComponent implements OnInit, OnDestroy {
     this.history = [...(this.modalData?.history ?? [])];
     const requestedView: DocPanelView | undefined = this.modalData?.initialView;
     const editingState: DocEditingState | undefined = this.modalData?.editingState;
-    const editingEntry = editingState ? this.history.find(e => e === editingState.entry) : undefined;
-    if (editingEntry && editingState) {
-      this.loadEntry(editingEntry);
+    if (editingState && editingState.entry === null) {
+      this.currentEntry = null;
+      this.rawMarkdown = "";
+      this.generatedAt = null;
+      this.editorContent = editingState.content;
+      this.editMode = true;
+      this.view = "doc";
+    } else if (editingState && editingState.entry && this.history.includes(editingState.entry)) {
+      this.loadEntry(editingState.entry);
       this.view = "doc";
       this.editorContent = editingState.content;
       this.editMode = true;
@@ -319,11 +325,30 @@ export class WorkflowDocPanelComponent implements OnInit, OnDestroy {
     this.persistEditingState();
   }
 
+  startBlank(): void {
+    if (this.isGenerating) return;
+    this.currentEntry = null;
+    this.rawMarkdown = "";
+    this.renderedMarkdown = "";
+    this.generatedAt = null;
+    this.editorContent = "";
+    this.editMode = true;
+    this.setView("doc");
+    this.persistEditingState();
+  }
+
   cancelEdit(): void {
     if (!this.editMode) return;
+    const wasDrafting = this.currentEntry === null;
     this.editMode = false;
     this.editorContent = "";
     this.persistEditingState();
+    if (wasDrafting) {
+      this.rawMarkdown = "";
+      this.renderedMarkdown = "";
+      this.generatedAt = null;
+      this.setView("intro");
+    }
   }
 
   onEditorContentChange(content: string): void {
@@ -335,7 +360,7 @@ export class WorkflowDocPanelComponent implements OnInit, OnDestroy {
     const onEditingChange: ((state: DocEditingState | null) => void) | undefined =
       this.modalData?.onEditingChange;
     if (!onEditingChange) return;
-    if (this.editMode && this.currentEntry) {
+    if (this.editMode) {
       onEditingChange({ entry: this.currentEntry, content: this.editorContent });
     } else {
       onEditingChange(null);
@@ -343,21 +368,38 @@ export class WorkflowDocPanelComponent implements OnInit, OnDestroy {
   }
 
   saveEdit(): void {
-    if (!this.editMode || !this.currentEntry) return;
-    const trimmed = this.editorContent;
-    if (trimmed === this.rawMarkdown) {
+    if (!this.editMode) return;
+    const content = this.editorContent;
+    if (this.currentEntry === null) {
+      if (!content.trim()) {
+        this.notificationService.error("Write some content before saving.");
+        return;
+      }
+      const onCreateEntry: ((markdown: string) => DocEntry) | undefined = this.modalData?.onCreateEntry;
+      const created = onCreateEntry?.(content) ?? { markdown: content, generatedAt: new Date(), written: true };
+      this.history = [created, ...this.history];
+      this.loadEntry(created);
       this.editMode = false;
+      this.editorContent = "";
+      this.persistEditingState();
+      this.notificationService.success("Documentation saved.");
+      this.cdr.detectChanges();
+      return;
+    }
+    if (content === this.rawMarkdown) {
+      this.editMode = false;
+      this.persistEditingState();
       return;
     }
     const onUpdateEntry: ((entry: DocEntry, newMarkdown: string) => Date | void) | undefined =
       this.modalData?.onUpdateEntry;
-    const newTimestamp = onUpdateEntry?.(this.currentEntry, trimmed) ?? new Date();
-    this.currentEntry.markdown = trimmed;
+    const newTimestamp = onUpdateEntry?.(this.currentEntry, content) ?? new Date();
+    this.currentEntry.markdown = content;
     this.currentEntry.generatedAt = newTimestamp;
     this.currentEntry.edited = true;
-    this.rawMarkdown = trimmed;
+    this.rawMarkdown = content;
     this.generatedAt = newTimestamp;
-    this.renderMarkdown(trimmed);
+    this.renderMarkdown(content);
     this.editMode = false;
     this.editorContent = "";
     this.persistEditingState();

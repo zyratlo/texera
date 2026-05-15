@@ -27,12 +27,13 @@ export interface DocEntry {
   markdown: string;
   generatedAt: Date;
   edited?: boolean;
+  written?: boolean;
 }
 
 export type DocPanelView = "intro" | "doc";
 
 export interface DocEditingState {
-  entry: DocEntry;
+  entry: DocEntry | null;
   content: string;
 }
 
@@ -82,6 +83,13 @@ export class WorkflowDocService {
     if (editing && editing.entry === entry) {
       this.editingStates.delete(wid);
     }
+  }
+
+  createBlankEntry(wid: number | undefined, markdown: string): DocEntry {
+    const entry: DocEntry = { markdown, generatedAt: new Date(), written: true };
+    const list = [entry, ...(this.history.get(wid) ?? [])];
+    this.history.set(wid, list);
+    return entry;
   }
 
   updateHistoryEntry(wid: number | undefined, entry: DocEntry, newMarkdown: string): Date {

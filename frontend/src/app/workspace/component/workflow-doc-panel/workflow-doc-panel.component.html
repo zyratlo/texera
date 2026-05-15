@@ -57,6 +57,16 @@
           nzType="thunderbolt"></i>
         {{ hasHistory ? "Generate New" : "Generate Documentation" }}
       </button>
+      <button
+        nz-button
+        nzType="default"
+        nzSize="large"
+        (click)="startBlank()">
+        <i
+          nz-icon
+          nzType="edit"></i>
+        Write Your Own
+      </button>
     </div>
     <div
       *ngIf="hasHistory"
@@ -172,13 +182,16 @@
           nz-icon
           nzType="clock-circle"
           nzTheme="outline"></i>
-        <span>{{ currentEntry?.edited ? "Updated" : "Generated" }} {{ generatedAt | date: "short" }}</span>
+        <span>{{ currentEntry?.written ? "Written" : currentEntry?.edited ? "Updated" : "Generated" }} {{ generatedAt | date: "short" }}</span>
         <span
-          *ngIf="currentEntry?.edited"
+          *ngIf="currentEntry?.written"
+          class="doc-written-badge">written</span>
+        <span
+          *ngIf="!currentEntry?.written && currentEntry?.edited"
           class="doc-edited-badge">edited</span>
       </div>
       <div
-        *ngIf="rawMarkdown"
+        *ngIf="rawMarkdown || editMode"
         class="doc-actions">
         <ng-container *ngIf="!editMode">
           <button

@@ -703,7 +703,8 @@ export class MenuComponent implements OnInit, OnDestroy {
     const history = this.workflowDocService.getHistory(wid);
     const lastView = this.workflowDocService.getLastView(wid);
     const editingState = this.workflowDocService.getEditingState(wid);
-    const initialView = (editingState || lastView === "doc") && history.length > 0 ? "doc" : "intro";
+    const hasDraftOrViewable = !!editingState || (lastView === "doc" && history.length > 0);
+    const initialView = hasDraftOrViewable ? "doc" : "intro";
     this.docDrawerRef = this.drawerService.create({
       nzTitle: "Workflow Documentation",
       nzContent: WorkflowDocPanelComponent,
@@ -715,6 +716,7 @@ export class MenuComponent implements OnInit, OnDestroy {
         onDeleteEntry: (entry: DocEntry) => this.workflowDocService.deleteHistoryEntry(wid, entry),
         onUpdateEntry: (entry: DocEntry, newMarkdown: string) =>
           this.workflowDocService.updateHistoryEntry(wid, entry, newMarkdown),
+        onCreateEntry: (markdown: string) => this.workflowDocService.createBlankEntry(wid, markdown),
         editingState,
         onEditingChange: (state: DocEditingState | null) =>
           this.workflowDocService.setEditingState(wid, state),
