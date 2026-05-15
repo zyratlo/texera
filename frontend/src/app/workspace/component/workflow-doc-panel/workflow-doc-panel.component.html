@@ -126,6 +126,18 @@
             nz-button
             nzType="text"
             nzSize="small"
+            class="doc-history-duplicate"
+            (click)="duplicateEntry(entry); $event.stopPropagation()"
+            [nz-tooltip]="'Duplicate this report'">
+            <i
+              nz-icon
+              nzType="copy"></i>
+          </button>
+          <button
+            *ngIf="!compareMode"
+            nz-button
+            nzType="text"
+            nzSize="small"
             class="doc-history-delete"
             nz-popconfirm
             nzPopconfirmTitle="Delete this report?"

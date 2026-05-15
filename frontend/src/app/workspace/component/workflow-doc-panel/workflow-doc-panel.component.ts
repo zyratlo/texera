@@ -215,6 +215,16 @@ export class WorkflowDocPanelComponent implements OnInit, OnDestroy {
     });
   }
 
+  duplicateEntry(entry: DocEntry): void {
+    const onDuplicateEntry: ((entry: DocEntry) => DocEntry) | undefined =
+      this.modalData?.onDuplicateEntry;
+    if (!onDuplicateEntry) return;
+    const copy = onDuplicateEntry(entry);
+    this.history = [copy, ...this.history];
+    this.notificationService.success("Report duplicated.");
+    this.cdr.detectChanges();
+  }
+
   deleteEntry(entry: DocEntry): void {
     const wasViewing = this.isViewingEntry(entry);
     this.history = this.history.filter(e => e !== entry);

@@ -107,6 +107,20 @@ export class WorkflowDocService {
     return entry;
   }
 
+  duplicateEntry(wid: number | undefined, source: DocEntry): DocEntry {
+    const entry: DocEntry = {
+      id: this.generateId(),
+      markdown: source.markdown,
+      generatedAt: new Date(),
+      edited: source.edited,
+      written: source.written,
+    };
+    const list = [entry, ...(this.history.get(wid) ?? [])];
+    this.history.set(wid, list);
+    this.writeAll();
+    return entry;
+  }
+
   updateHistoryEntry(wid: number | undefined, entry: DocEntry, newMarkdown: string): Date {
     const list = this.history.get(wid) ?? [];
     const target = list.find(e => e === entry);

@@ -241,6 +241,23 @@
   }
 }
 
+.doc-history-duplicate {
+  color: #bfbfbf;
+  padding: 0 4px;
+  height: 22px;
+  line-height: 22px;
+  transition: color 0.15s ease;
+
+  i {
+    font-size: 14px;
+  }
+
+  &:hover {
+    color: #1890ff;
+    background-color: transparent;
+  }
+}
+
 .doc-header {
   display: flex;
   align-items: center;
