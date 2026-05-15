@@ -29,6 +29,7 @@ export interface DocEntry {
   generatedAt: Date;
   edited?: boolean;
   written?: boolean;
+  title?: string;
 }
 
 export type DocPanelView = "intro" | "doc";
@@ -107,6 +108,20 @@ export class WorkflowDocService {
     return entry;
   }
 
+  renameEntry(wid: number | undefined, entry: DocEntry, newTitle: string): void {
+    const list = this.history.get(wid) ?? [];
+    const target = list.find(e => e === entry);
+    if (target) {
+      const trimmed = newTitle.trim();
+      if (trimmed) {
+        target.title = trimmed;
+      } else {
+        delete target.title;
+      }
+      this.writeAll();
+    }
+  }
+
   duplicateEntry(wid: number | undefined, source: DocEntry): DocEntry {
     const entry: DocEntry = {
       id: this.generateId(),
@@ -114,6 +129,7 @@ export class WorkflowDocService {
       generatedAt: new Date(),
       edited: source.edited,
       written: source.written,
+      title: source.title ? `${source.title} (copy)` : undefined,
     };
     const list = [entry, ...(this.history.get(wid) ?? [])];
     this.history.set(wid, list);

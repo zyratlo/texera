@@ -206,6 +206,37 @@
   font-size: 13px;
   color: #262626;
   font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.doc-history-rename {
+  color: #bfbfbf;
+  padding: 0 4px;
+  height: 22px;
+  line-height: 22px;
+  transition: color 0.15s ease;
+
+  i {
+    font-size: 14px;
+  }
+
+  &:hover {
+    color: #1890ff;
+    background-color: transparent;
+  }
+}
+
+.doc-history-rename-input {
+  flex: 1;
+  font-size: 13px;
+  border: 1px solid #1890ff;
+  border-radius: 3px;
+  padding: 2px 6px;
+  outline: none;
+  min-width: 0;
 }
 
 .doc-history-latest {
@@ -264,6 +295,61 @@
   gap: 12px;
   padding-bottom: 12px;
   border-bottom: 1px solid #f0f0f0;
+}
+
+.doc-header-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  flex: 1;
+}
+
+.doc-title-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+
+.doc-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #262626;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.doc-title-rename {
+  color: #bfbfbf;
+  padding: 0 4px;
+  height: 22px;
+  line-height: 22px;
+  flex-shrink: 0;
+
+  i {
+    font-size: 13px;
+  }
+
+  &:hover {
+    color: #1890ff;
+    background-color: transparent;
+  }
+}
+
+.doc-title-rename-input {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 600;
+  color: #262626;
+  border: 1px solid #1890ff;
+  border-radius: 3px;
+  padding: 2px 6px;
+  outline: none;
+  background-color: #fff;
+  min-width: 0;
 }
 
 .doc-back-button {

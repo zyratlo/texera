@@ -117,10 +117,34 @@
             class="doc-history-icon"
             [class.doc-history-icon-written]="entry.written"
             [nz-tooltip]="entry.written ? 'Written by you' : 'AI-generated'"></i>
-          <span class="doc-history-time">{{ entry.generatedAt | date: "short" }}</span>
-          <span
-            *ngIf="i === 0"
-            class="doc-history-latest">Latest</span>
+          <ng-container *ngIf="!isRenaming(entry)">
+            <span class="doc-history-time">{{ entry.title || (entry.generatedAt | date: "short") }}</span>
+            <span
+              *ngIf="i === 0"
+              class="doc-history-latest">Latest</span>
+          </ng-container>
+          <input
+            *ngIf="isRenaming(entry)"
+            class="doc-history-rename-input"
+            [(ngModel)]="renameDraft"
+            (keydown.enter)="commitRename(); $event.stopPropagation()"
+            (keydown.escape)="cancelRename(); $event.stopPropagation()"
+            (blur)="commitRename()"
+            (click)="$event.stopPropagation()"
+            placeholder="Untitled report"
+            autofocus />
+          <button
+            *ngIf="!compareMode && !isRenaming(entry)"
+            nz-button
+            nzType="text"
+            nzSize="small"
+            class="doc-history-rename"
+            (click)="startRename(entry); $event.stopPropagation()"
+            [nz-tooltip]="'Rename'">
+            <i
+              nz-icon
+              nzType="edit"></i>
+          </button>
           <button
             *ngIf="!compareMode"
             nz-button
@@ -190,18 +214,49 @@
         Back
       </button>
       <div
-        *ngIf="generatedAt && !isGenerating"
-        class="doc-timestamp"
-        [class.doc-timestamp-written]="currentEntry?.written"
-        [class.doc-timestamp-generated]="!currentEntry?.written">
-        <i
-          nz-icon
-          nzType="clock-circle"
-          nzTheme="outline"></i>
-        <span>{{ currentEntry?.written ? "Written" : currentEntry?.edited ? "Updated" : "Generated" }} {{ generatedAt | date: "short" }}</span>
-        <span
-          *ngIf="!currentEntry?.written && currentEntry?.edited"
-          class="doc-edited-badge">edited</span>
+        *ngIf="!isGenerating"
+        class="doc-header-info">
+        <div
+          *ngIf="currentEntry"
+          class="doc-title-row">
+          <ng-container *ngIf="!isRenaming(currentEntry)">
+            <span class="doc-title">{{ currentEntry.title || "Untitled report" }}</span>
+            <button
+              nz-button
+              nzType="text"
+              nzSize="small"
+              class="doc-title-rename"
+              (click)="startRename(currentEntry)"
+              [nz-tooltip]="'Rename'">
+              <i
+                nz-icon
+                nzType="edit"></i>
+            </button>
+          </ng-container>
+          <input
+            *ngIf="isRenaming(currentEntry)"
+            class="doc-title-rename-input"
+            [(ngModel)]="renameDraft"
+            (keydown.enter)="commitRename()"
+            (keydown.escape)="cancelRename()"
+            (blur)="commitRename()"
+            placeholder="Untitled report"
+            autofocus />
+        </div>
+        <div
+          *ngIf="generatedAt"
+          class="doc-timestamp"
+          [class.doc-timestamp-written]="currentEntry?.written"
+          [class.doc-timestamp-generated]="!currentEntry?.written">
+          <i
+            nz-icon
+            nzType="clock-circle"
+            nzTheme="outline"></i>
+          <span>{{ currentEntry?.written ? "Written" : currentEntry?.edited ? "Updated" : "Generated" }} {{ generatedAt | date: "short" }}</span>
+          <span
+            *ngIf="!currentEntry?.written && currentEntry?.edited"
+            class="doc-edited-badge">edited</span>
+        </div>
       </div>
       <div
         *ngIf="rawMarkdown || editMode"

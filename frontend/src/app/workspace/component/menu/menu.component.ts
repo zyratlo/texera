@@ -720,6 +720,8 @@ export class MenuComponent implements OnInit, OnDestroy {
           this.workflowDocService.updateHistoryEntry(wid, entry, newMarkdown),
         onCreateEntry: (markdown: string) => this.workflowDocService.createBlankEntry(wid, markdown),
         onDuplicateEntry: (entry: DocEntry) => this.workflowDocService.duplicateEntry(wid, entry),
+        onRenameEntry: (entry: DocEntry, newTitle: string) =>
+          this.workflowDocService.renameEntry(wid, entry, newTitle),
         editingState,
         onEditingChange: (state: DocEditingState | null) =>
           this.workflowDocService.setEditingState(wid, state),

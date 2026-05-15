@@ -72,6 +72,8 @@ export class WorkflowDocPanelComponent implements OnInit, OnDestroy {
   editMode = false;
   editorContent = "";
   currentEntry: DocEntry | null = null;
+  renamingEntryId: string | null = null;
+  renameDraft = "";
   private elapsedStartedAtMs = 0;
   private generateSub?: Subscription;
   private elapsedTimerSub?: Subscription;
@@ -213,6 +215,47 @@ export class WorkflowDocPanelComponent implements OnInit, OnDestroy {
         this.cdr.detectChanges();
       },
     });
+  }
+
+  startRename(entry: DocEntry): void {
+    this.commitRename();
+    this.renamingEntryId = entry.id;
+    this.renameDraft = entry.title ?? "";
+  }
+
+  commitRename(): void {
+    if (!this.renamingEntryId) return;
+    const target = this.history.find(e => e.id === this.renamingEntryId);
+    if (!target) {
+      this.cancelRename();
+      return;
+    }
+    const trimmed = this.renameDraft.trim();
+    const onRenameEntry: ((entry: DocEntry, title: string) => void) | undefined =
+      this.modalData?.onRenameEntry;
+    if (onRenameEntry) {
+      onRenameEntry(target, trimmed);
+    } else if (trimmed) {
+      target.title = trimmed;
+    } else {
+      delete target.title;
+    }
+    this.renamingEntryId = null;
+    this.renameDraft = "";
+    this.cdr.detectChanges();
+  }
+
+  cancelRename(): void {
+    this.renamingEntryId = null;
+    this.renameDraft = "";
+  }
+
+  isRenaming(entry: DocEntry): boolean {
+    return this.renamingEntryId === entry.id;
+  }
+
+  displayTitle(entry: DocEntry): string {
+    return entry.title ?? "";
   }
 
   duplicateEntry(entry: DocEntry): void {

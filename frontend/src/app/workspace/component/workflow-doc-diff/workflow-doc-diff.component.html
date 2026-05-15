@@ -22,14 +22,14 @@
     <span
       *ngIf="base"
       class="doc-diff-side doc-diff-side-left">
-      <strong>Base</strong>
+      <strong>{{ base.title || "Base" }}</strong>
       <span class="doc-diff-time">{{ base.generatedAt | date: "short" }}</span>
     </span>
     <span class="doc-diff-arrow">→</span>
     <span
       *ngIf="head"
       class="doc-diff-side doc-diff-side-right">
-      <strong>Head</strong>
+      <strong>{{ head.title || "Head" }}</strong>
       <span class="doc-diff-time">{{ head.generatedAt | date: "short" }}</span>
     </span>
     <span class="doc-diff-stats">
