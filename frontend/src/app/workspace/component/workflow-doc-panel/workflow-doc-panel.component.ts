@@ -23,6 +23,7 @@ import { NZ_DRAWER_DATA } from "ng-zorro-antd/drawer";
 import { NzButtonComponent } from "ng-zorro-antd/button";
 import { NzIconDirective } from "ng-zorro-antd/icon";
 import { NzTooltipDirective } from "ng-zorro-antd/tooltip";
+import { NzPopconfirmDirective } from "ng-zorro-antd/popconfirm";
 import { ɵNzTransitionPatchDirective } from "ng-zorro-antd/core/transition-patch";
 import { NzWaveDirective } from "ng-zorro-antd/core/wave";
 import { MarkdownService } from "ngx-markdown";
@@ -45,6 +46,7 @@ type DocPanelView = "intro" | "doc";
     ɵNzTransitionPatchDirective,
     NzIconDirective,
     NzTooltipDirective,
+    NzPopconfirmDirective,
     NzWaveDirective,
   ],
 })
@@ -104,7 +106,7 @@ export class WorkflowDocPanelComponent implements OnInit, OnDestroy {
   }
 
   generate(): void {
-    const onGenerate: (() => Observable<string>) | undefined = this.modalData?.onGenerate;
+    const onGenerate: (() => Observable<DocEntry>) | undefined = this.modalData?.onGenerate;
     if (!onGenerate || this.isGenerating) return;
     this.isGenerating = true;
     this.rawMarkdown = "";
@@ -113,8 +115,7 @@ export class WorkflowDocPanelComponent implements OnInit, OnDestroy {
     this.setView("doc");
     this.startElapsedTimer();
     this.generateSub = onGenerate().subscribe({
-      next: markdown => {
-        const entry: DocEntry = { markdown, generatedAt: new Date() };
+      next: entry => {
         this.history = [entry, ...this.history];
         this.isGenerating = false;
         this.stopElapsedTimer();
@@ -133,6 +134,24 @@ export class WorkflowDocPanelComponent implements OnInit, OnDestroy {
         this.cdr.detectChanges();
       },
     });
+  }
+
+  deleteEntry(entry: DocEntry): void {
+    const wasViewing = this.isViewingEntry(entry);
+    this.history = this.history.filter(e => e !== entry);
+    const onDeleteEntry: ((entry: DocEntry) => void) | undefined = this.modalData?.onDeleteEntry;
+    onDeleteEntry?.(entry);
+    if (wasViewing) {
+      if (this.hasHistory) {
+        this.loadEntry(this.history[0]);
+      } else {
+        this.rawMarkdown = "";
+        this.renderedMarkdown = "";
+        this.generatedAt = null;
+        this.setView("intro");
+      }
+    }
+    this.cdr.detectChanges();
   }
 
   cancel(): void {

@@ -78,6 +78,23 @@
           <span
             *ngIf="i === 0"
             class="doc-history-latest">Latest</span>
+          <button
+            nz-button
+            nzType="text"
+            nzSize="small"
+            class="doc-history-delete"
+            nz-popconfirm
+            nzPopconfirmTitle="Delete this report?"
+            nzPopconfirmPlacement="left"
+            nzOkText="Delete"
+            nzOkDanger="true"
+            (nzOnConfirm)="deleteEntry(entry)"
+            (click)="$event.stopPropagation()"
+            [nz-tooltip]="'Delete this report'">
+            <i
+              nz-icon
+              nzType="delete"></i>
+          </button>
           <i
             nz-icon
             nzType="right"

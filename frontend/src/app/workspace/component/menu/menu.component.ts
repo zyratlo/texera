@@ -51,7 +51,7 @@ import { ResultExportationComponent } from "../result-exportation/result-exporta
 import { ReportGenerationService } from "../../service/report-generation/report-generation.service";
 import { ShareAccessComponent } from "src/app/dashboard/component/user/share-access/share-access.component";
 import { PanelService } from "../../service/panel/panel.service";
-import { WorkflowDocService } from "../../service/workflow-doc/workflow-doc.service";
+import { DocEntry, WorkflowDocService } from "../../service/workflow-doc/workflow-doc.service";
 import { WorkflowDocPanelComponent } from "../workflow-doc-panel/workflow-doc-panel.component";
 import { DASHBOARD_USER_WORKFLOW } from "../../../app-routing.constant";
 import { ComputingUnitStatusService } from "../../../common/service/computing-unit/computing-unit-status/computing-unit-status.service";
@@ -708,6 +708,7 @@ export class MenuComponent implements OnInit, OnDestroy {
         initialView,
         onGenerate: () => this.workflowDocService.generateDocumentation(),
         onViewChange: (view: "intro" | "doc") => this.workflowDocService.setLastView(wid, view),
+        onDeleteEntry: (entry: DocEntry) => this.workflowDocService.deleteHistoryEntry(wid, entry),
       },
       nzWidth: 520,
       nzPlacement: "right",

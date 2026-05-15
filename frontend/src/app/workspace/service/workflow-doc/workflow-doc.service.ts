@@ -56,7 +56,12 @@ export class WorkflowDocService {
     this.lastViews.set(wid, view);
   }
 
-  generateDocumentation(): Observable<string> {
+  deleteHistoryEntry(wid: number | undefined, entry: DocEntry): void {
+    const list = this.history.get(wid) ?? [];
+    this.history.set(wid, list.filter(e => e !== entry));
+  }
+
+  generateDocumentation(): Observable<DocEntry> {
     const wid = this.workflowActionService.getWorkflow()?.wid;
     const workflowContent = this.workflowActionService.getWorkflowContent();
     let tempAgentId: string | null = null;
@@ -80,7 +85,7 @@ export class WorkflowDocService {
               const list = [...(this.history.get(wid) ?? [])];
               list.unshift(entry);
               this.history.set(wid, list);
-              return response.markdown;
+              return entry;
             }),
             finalize(() => {
               if (tempAgentId) {
