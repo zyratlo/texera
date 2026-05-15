@@ -126,21 +126,6 @@
             [nzType]="copied ? 'check' : 'copy'"></i>
           {{ copied ? "Copied" : "Copy Markdown" }}
         </button>
-        <button
-          nz-button
-          nzType="primary"
-          nzSize="small"
-          class="doc-action-regenerate"
-          [nzLoading]="isGenerating"
-          [disabled]="isGenerating"
-          [nz-tooltip]="'Run the LLM again to produce a fresh report'"
-          (click)="generate()">
-          <i
-            *ngIf="!isGenerating"
-            nz-icon
-            nzType="sync"></i>
-          {{ isGenerating ? "Regenerating…" : "Re-generate" }}
-        </button>
       </div>
     </div>
     <div
