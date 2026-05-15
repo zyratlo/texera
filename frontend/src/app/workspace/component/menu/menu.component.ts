@@ -261,6 +261,7 @@ export class MenuComponent implements OnInit, OnDestroy {
     this.workflowResultExportService.resetFlags();
     this.computingUnitStatusSubscription.unsubscribe();
     this.docDrawerRef?.close();
+    this.workflowDocService.setLastView(this.workflowId, "intro");
   }
 
   private subscribeToComputingUnitSelection(): void {
