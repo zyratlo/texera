@@ -18,7 +18,7 @@
  */
 
 import { ChangeDetectorRef, Component, inject, OnDestroy, OnInit } from "@angular/core";
-import { DatePipe, NgIf } from "@angular/common";
+import { DatePipe, NgFor, NgIf } from "@angular/common";
 import { NZ_DRAWER_DATA } from "ng-zorro-antd/drawer";
 import { NzButtonComponent } from "ng-zorro-antd/button";
 import { NzIconDirective } from "ng-zorro-antd/icon";
@@ -29,6 +29,7 @@ import { MarkdownService } from "ngx-markdown";
 import { interval, Observable, Subscription } from "rxjs";
 import { NotificationService } from "../../../common/service/notification/notification.service";
 import { WorkflowActionService } from "../../service/workflow-graph/model/workflow-action.service";
+import { DocEntry } from "../../service/workflow-doc/workflow-doc.service";
 
 type DocPanelView = "intro" | "doc";
 
@@ -38,6 +39,7 @@ type DocPanelView = "intro" | "doc";
   styleUrls: ["./workflow-doc-panel.component.scss"],
   imports: [
     NgIf,
+    NgFor,
     DatePipe,
     NzButtonComponent,
     ɵNzTransitionPatchDirective,
@@ -53,6 +55,7 @@ export class WorkflowDocPanelComponent implements OnInit, OnDestroy {
   renderedMarkdown = "";
   rawMarkdown = "";
   generatedAt: Date | null = null;
+  history: DocEntry[] = [];
   isGenerating = false;
   copied = false;
   elapsedSeconds = 0;
@@ -67,13 +70,10 @@ export class WorkflowDocPanelComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.rawMarkdown = this.modalData?.cachedMarkdown ?? "";
-    this.generatedAt = this.modalData?.cachedGeneratedAt ?? null;
-    if (this.rawMarkdown) {
-      this.renderMarkdown(this.rawMarkdown);
-    }
+    this.history = [...(this.modalData?.history ?? [])];
     const requestedView: DocPanelView | undefined = this.modalData?.initialView;
-    if (requestedView === "doc" && this.rawMarkdown) {
+    if (requestedView === "doc" && this.history.length > 0) {
+      this.loadEntry(this.history[0]);
       this.view = "doc";
     }
   }
@@ -89,14 +89,13 @@ export class WorkflowDocPanelComponent implements OnInit, OnDestroy {
     return `${m}:${s.toString().padStart(2, "0")}`;
   }
 
-  get hasCached(): boolean {
-    return this.rawMarkdown.length > 0;
+  get hasHistory(): boolean {
+    return this.history.length > 0;
   }
 
-  viewLatest(): void {
-    if (this.hasCached) {
-      this.setView("doc");
-    }
+  viewEntry(entry: DocEntry): void {
+    this.loadEntry(entry);
+    this.setView("doc");
   }
 
   backToIntro(): void {
@@ -108,23 +107,28 @@ export class WorkflowDocPanelComponent implements OnInit, OnDestroy {
     const onGenerate: (() => Observable<string>) | undefined = this.modalData?.onGenerate;
     if (!onGenerate || this.isGenerating) return;
     this.isGenerating = true;
+    this.rawMarkdown = "";
+    this.renderedMarkdown = "";
+    this.generatedAt = null;
     this.setView("doc");
     this.startElapsedTimer();
     this.generateSub = onGenerate().subscribe({
       next: markdown => {
-        this.rawMarkdown = markdown;
-        this.generatedAt = new Date();
+        const entry: DocEntry = { markdown, generatedAt: new Date() };
+        this.history = [entry, ...this.history];
         this.isGenerating = false;
         this.stopElapsedTimer();
-        this.renderMarkdown(markdown);
+        this.loadEntry(entry);
         this.cdr.detectChanges();
       },
       error: (err: unknown) => {
         this.isGenerating = false;
         this.stopElapsedTimer();
         this.notificationService.error("Failed to generate documentation: " + (err as Error).message);
-        if (!this.hasCached) {
+        if (!this.hasHistory) {
           this.setView("intro");
+        } else {
+          this.loadEntry(this.history[0]);
         }
         this.cdr.detectChanges();
       },
@@ -165,6 +169,16 @@ export class WorkflowDocPanelComponent implements OnInit, OnDestroy {
       this.copied = true;
       setTimeout(() => (this.copied = false), 2000);
     });
+  }
+
+  isViewingEntry(entry: DocEntry): boolean {
+    return this.generatedAt === entry.generatedAt;
+  }
+
+  private loadEntry(entry: DocEntry): void {
+    this.rawMarkdown = entry.markdown;
+    this.generatedAt = entry.generatedAt;
+    this.renderMarkdown(entry.markdown);
   }
 
   private setView(next: DocPanelView): void {

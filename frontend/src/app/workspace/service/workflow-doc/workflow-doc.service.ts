@@ -35,7 +35,7 @@ export type DocPanelView = "intro" | "doc";
 })
 export class WorkflowDocService {
   private readonly AGENT_API_BASE = "/api";
-  private cache = new Map<number | undefined, DocEntry>();
+  private history = new Map<number | undefined, DocEntry[]>();
   private lastViews = new Map<number | undefined, DocPanelView>();
 
   constructor(
@@ -44,8 +44,8 @@ export class WorkflowDocService {
     private workflowActionService: WorkflowActionService
   ) {}
 
-  getCached(wid: number | undefined): DocEntry | null {
-    return this.cache.get(wid) ?? null;
+  getHistory(wid: number | undefined): readonly DocEntry[] {
+    return this.history.get(wid) ?? [];
   }
 
   getLastView(wid: number | undefined): DocPanelView | null {
@@ -76,7 +76,10 @@ export class WorkflowDocService {
           })
           .pipe(
             map(response => {
-              this.cache.set(wid, { markdown: response.markdown, generatedAt: new Date() });
+              const entry: DocEntry = { markdown: response.markdown, generatedAt: new Date() };
+              const list = [...(this.history.get(wid) ?? [])];
+              list.unshift(entry);
+              this.history.set(wid, list);
               return response.markdown;
             }),
             finalize(() => {

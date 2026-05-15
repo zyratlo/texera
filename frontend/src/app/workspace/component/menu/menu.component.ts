@@ -697,15 +697,14 @@ export class MenuComponent implements OnInit, OnDestroy {
 
   public onClickDocumentWorkflow(): void {
     const wid = this.workflowId;
-    const cached = this.workflowDocService.getCached(wid);
+    const history = this.workflowDocService.getHistory(wid);
     const lastView = this.workflowDocService.getLastView(wid);
-    const initialView = lastView === "doc" && cached ? "doc" : "intro";
+    const initialView = lastView === "doc" && history.length > 0 ? "doc" : "intro";
     this.drawerService.create({
       nzTitle: "Workflow Documentation",
       nzContent: WorkflowDocPanelComponent,
       nzData: {
-        cachedMarkdown: cached?.markdown,
-        cachedGeneratedAt: cached?.generatedAt,
+        history,
         initialView,
         onGenerate: () => this.workflowDocService.generateDocumentation(),
         onViewChange: (view: "intro" | "doc") => this.workflowDocService.setLastView(wid, view),

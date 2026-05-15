@@ -68,17 +68,6 @@
   }
 }
 
-.doc-intro-cached {
-  font-size: 12px;
-  color: #8c8c8c;
-  margin: 0 0 16px;
-  font-style: italic;
-
-  i {
-    margin-right: 4px;
-  }
-}
-
 .doc-intro-tip {
   font-size: 12px;
   color: #595959;
@@ -101,6 +90,88 @@
   i {
     margin-right: 6px;
   }
+}
+
+.doc-history {
+  width: 100%;
+  max-width: 520px;
+  margin-top: 28px;
+}
+
+.doc-history-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #595959;
+  text-align: left;
+  margin: 0 0 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.doc-history-count {
+  font-size: 11px;
+  font-weight: 500;
+  color: #8c8c8c;
+  background-color: #f0f0f0;
+  padding: 1px 8px;
+  border-radius: 10px;
+}
+
+.doc-history-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  text-align: left;
+  border: 1px solid #f0f0f0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.doc-history-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  cursor: pointer;
+  border-bottom: 1px solid #f5f5f5;
+  transition: background-color 0.15s ease;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:hover {
+    background-color: rgba(24, 144, 255, 0.06);
+  }
+}
+
+.doc-history-icon {
+  color: #1890ff;
+  font-size: 16px;
+}
+
+.doc-history-time {
+  flex: 1;
+  font-size: 13px;
+  color: #262626;
+  font-variant-numeric: tabular-nums;
+}
+
+.doc-history-latest {
+  font-size: 10px;
+  font-weight: 600;
+  color: #1890ff;
+  background-color: rgba(24, 144, 255, 0.1);
+  padding: 2px 8px;
+  border-radius: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.doc-history-chevron {
+  color: #bfbfbf;
+  font-size: 12px;
 }
 
 .doc-header {
