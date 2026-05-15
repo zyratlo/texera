@@ -260,6 +260,7 @@ export class MenuComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.workflowResultExportService.resetFlags();
     this.computingUnitStatusSubscription.unsubscribe();
+    this.docDrawerRef?.close();
   }
 
   private subscribeToComputingUnitSelection(): void {
