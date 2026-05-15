@@ -17,8 +17,8 @@
  * under the License.
  */
 
-import { Component, inject, OnInit } from "@angular/core";
-import { NgIf } from "@angular/common";
+import { Component, inject, OnDestroy, OnInit } from "@angular/core";
+import { DatePipe, NgIf } from "@angular/common";
 import { NZ_MODAL_DATA } from "ng-zorro-antd/modal";
 import { NzButtonComponent } from "ng-zorro-antd/button";
 import { NzIconDirective } from "ng-zorro-antd/icon";
@@ -26,6 +26,7 @@ import { NzTooltipDirective } from "ng-zorro-antd/tooltip";
 import { ɵNzTransitionPatchDirective } from "ng-zorro-antd/core/transition-patch";
 import { NzWaveDirective } from "ng-zorro-antd/core/wave";
 import { MarkdownService } from "ngx-markdown";
+import { Observable, Subscription } from "rxjs";
 
 @Component({
   selector: "texera-workflow-doc-panel",
@@ -33,6 +34,7 @@ import { MarkdownService } from "ngx-markdown";
   styleUrls: ["./workflow-doc-panel.component.scss"],
   imports: [
     NgIf,
+    DatePipe,
     NzButtonComponent,
     ɵNzTransitionPatchDirective,
     NzIconDirective,
@@ -40,22 +42,53 @@ import { MarkdownService } from "ngx-markdown";
     NzWaveDirective,
   ],
 })
-export class WorkflowDocPanelComponent implements OnInit {
+export class WorkflowDocPanelComponent implements OnInit, OnDestroy {
   private modalData = inject(NZ_MODAL_DATA, { optional: true });
 
   renderedMarkdown = "";
   copied = false;
   rawMarkdown = "";
+  generatedAt: Date | null = null;
+  isRegenerating = false;
+  private regenerateSub?: Subscription;
 
   constructor(private markdownService: MarkdownService) {}
 
   ngOnInit(): void {
     this.rawMarkdown = this.modalData?.markdown ?? "";
-    if (this.rawMarkdown) {
-      Promise.resolve(this.markdownService.parse(this.rawMarkdown)).then(html => {
+    this.generatedAt = this.modalData?.generatedAt ?? null;
+    this.renderMarkdown(this.rawMarkdown);
+  }
+
+  ngOnDestroy(): void {
+    this.regenerateSub?.unsubscribe();
+  }
+
+  private renderMarkdown(md: string): void {
+    if (md) {
+      Promise.resolve(this.markdownService.parse(md)).then(html => {
         this.renderedMarkdown = html;
       });
+    } else {
+      this.renderedMarkdown = "";
     }
+  }
+
+  regenerate(): void {
+    const onRegenerate: (() => Observable<string>) | undefined = this.modalData?.onRegenerate;
+    if (!onRegenerate || this.isRegenerating) return;
+    this.isRegenerating = true;
+    this.regenerateSub = onRegenerate().subscribe({
+      next: markdown => {
+        this.rawMarkdown = markdown;
+        this.generatedAt = new Date();
+        this.renderMarkdown(markdown);
+        this.isRegenerating = false;
+      },
+      error: () => {
+        this.isRegenerating = false;
+      },
+    });
   }
 
   copyToClipboard(): void {

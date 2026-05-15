@@ -695,6 +695,29 @@ export class MenuComponent implements OnInit, OnDestroy {
   }
 
   public onClickDocumentWorkflow(): void {
+    const cached = this.workflowDocService.getCached(this.workflowId);
+    if (cached) {
+      this.openDocModal(cached.markdown, cached.generatedAt);
+      return;
+    }
+    this.runDocGeneration();
+  }
+
+  private openDocModal(markdown: string, generatedAt: Date): void {
+    this.modalService.create({
+      nzTitle: "Workflow Documentation",
+      nzContent: WorkflowDocPanelComponent,
+      nzData: {
+        markdown,
+        generatedAt,
+        onRegenerate: () => this.workflowDocService.generateDocumentation(),
+      },
+      nzWidth: "800px",
+      nzFooter: null,
+    });
+  }
+
+  private runDocGeneration(): void {
     this.isGeneratingDoc = true;
     this.notificationService.blank("", "Generating workflow documentation…", { nzDuration: 0 });
 
@@ -705,13 +728,8 @@ export class MenuComponent implements OnInit, OnDestroy {
         next: markdown => {
           this.isGeneratingDoc = false;
           this.notificationService.remove();
-          this.modalService.create({
-            nzTitle: "Workflow Documentation",
-            nzContent: WorkflowDocPanelComponent,
-            nzData: { markdown },
-            nzWidth: "800px",
-            nzFooter: null,
-          });
+          const entry = this.workflowDocService.getCached(this.workflowId);
+          this.openDocModal(markdown, entry?.generatedAt ?? new Date());
         },
         error: (err: unknown) => {
           this.isGeneratingDoc = false;

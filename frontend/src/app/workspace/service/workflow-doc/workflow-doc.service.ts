@@ -23,11 +23,17 @@ import { Observable, switchMap, map, finalize, throwError } from "rxjs";
 import { AgentService } from "../agent/agent.service";
 import { WorkflowActionService } from "../workflow-graph/model/workflow-action.service";
 
+export interface DocEntry {
+  markdown: string;
+  generatedAt: Date;
+}
+
 @Injectable({
   providedIn: "root",
 })
 export class WorkflowDocService {
   private readonly AGENT_API_BASE = "/api";
+  private cache = new Map<number | undefined, DocEntry>();
 
   constructor(
     private http: HttpClient,
@@ -35,7 +41,12 @@ export class WorkflowDocService {
     private workflowActionService: WorkflowActionService
   ) {}
 
+  getCached(wid: number | undefined): DocEntry | null {
+    return this.cache.get(wid) ?? null;
+  }
+
   generateDocumentation(): Observable<string> {
+    const wid = this.workflowActionService.getWorkflow()?.wid;
     const workflowContent = this.workflowActionService.getWorkflowContent();
     let tempAgentId: string | null = null;
 
@@ -53,7 +64,10 @@ export class WorkflowDocService {
             workflowContent,
           })
           .pipe(
-            map(response => response.markdown),
+            map(response => {
+              this.cache.set(wid, { markdown: response.markdown, generatedAt: new Date() });
+              return response.markdown;
+            }),
             finalize(() => {
               if (tempAgentId) {
                 this.agentService.deleteAgent(tempAgentId).subscribe();

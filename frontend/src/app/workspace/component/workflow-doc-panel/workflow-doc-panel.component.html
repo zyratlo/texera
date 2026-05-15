@@ -19,6 +19,22 @@
 
 <div class="doc-panel">
   <div class="doc-actions">
+    <span
+      *ngIf="generatedAt"
+      class="doc-timestamp">
+      Generated {{ generatedAt | date: "short" }}
+    </span>
+    <button
+      nz-button
+      nzType="text"
+      nzSize="small"
+      [disabled]="isRegenerating"
+      (click)="regenerate()">
+      <i
+        nz-icon
+        [nzType]="isRegenerating ? 'loading' : 'sync'"></i>
+      {{ isRegenerating ? "Regenerating…" : "Re-generate" }}
+    </button>
     <button
       nz-button
       nzType="text"
