@@ -46,7 +46,7 @@ import { CoeditorPresenceService } from "../../service/workflow-graph/model/coed
 import { firstValueFrom, of, Subscription, timer } from "rxjs";
 import { isDefined } from "../../../common/util/predicate";
 import { NzModalService } from "ng-zorro-antd/modal";
-import { NzDrawerService } from "ng-zorro-antd/drawer";
+import { NzDrawerRef, NzDrawerService } from "ng-zorro-antd/drawer";
 import { ResultExportationComponent } from "../result-exportation/result-exportation.component";
 import { ReportGenerationService } from "../../service/report-generation/report-generation.service";
 import { ShareAccessComponent } from "src/app/dashboard/component/user/share-access/share-access.component";
@@ -695,12 +695,15 @@ export class MenuComponent implements OnInit, OnDestroy {
     });
   }
 
+  private docDrawerRef: NzDrawerRef | null = null;
+
   public onClickDocumentWorkflow(): void {
+    if (this.docDrawerRef) return;
     const wid = this.workflowId;
     const history = this.workflowDocService.getHistory(wid);
     const lastView = this.workflowDocService.getLastView(wid);
     const initialView = lastView === "doc" && history.length > 0 ? "doc" : "intro";
-    this.drawerService.create({
+    this.docDrawerRef = this.drawerService.create({
       nzTitle: "Workflow Documentation",
       nzContent: WorkflowDocPanelComponent,
       nzData: {
@@ -714,6 +717,9 @@ export class MenuComponent implements OnInit, OnDestroy {
       nzPlacement: "right",
       nzMask: false,
       nzClosable: true,
+    });
+    this.docDrawerRef.afterClose.pipe(untilDestroyed(this)).subscribe(() => {
+      this.docDrawerRef = null;
     });
   }
 
