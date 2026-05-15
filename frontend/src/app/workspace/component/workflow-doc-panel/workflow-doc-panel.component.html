@@ -102,13 +102,15 @@
           nzTheme="outline"></i>
         <span>Generated {{ generatedAt | date: "short" }}</span>
       </div>
-      <div class="doc-actions">
+      <div
+        *ngIf="rawMarkdown"
+        class="doc-actions">
         <button
           nz-button
           nzType="default"
           nzSize="small"
           class="doc-action-copy"
-          [disabled]="!rawMarkdown || isGenerating"
+          [disabled]="isGenerating"
           [nz-tooltip]="copied ? 'Copied to clipboard!' : 'Copy as Markdown'"
           (click)="copyToClipboard()">
           <i
