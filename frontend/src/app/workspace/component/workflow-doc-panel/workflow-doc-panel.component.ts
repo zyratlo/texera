@@ -88,18 +88,24 @@ export class WorkflowDocPanelComponent implements OnInit, OnDestroy {
     this.history = [...(this.modalData?.history ?? [])];
     const requestedView: DocPanelView | undefined = this.modalData?.initialView;
     const editingState: DocEditingState | undefined = this.modalData?.editingState;
-    if (editingState && editingState.entry === null) {
+    if (editingState && editingState.entryId === null) {
       this.currentEntry = null;
       this.rawMarkdown = "";
       this.generatedAt = null;
       this.editorContent = editingState.content;
       this.editMode = true;
       this.view = "doc";
-    } else if (editingState && editingState.entry && this.history.includes(editingState.entry)) {
-      this.loadEntry(editingState.entry);
-      this.view = "doc";
-      this.editorContent = editingState.content;
-      this.editMode = true;
+    } else if (editingState && editingState.entryId) {
+      const found = this.history.find(e => e.id === editingState.entryId);
+      if (found) {
+        this.loadEntry(found);
+        this.view = "doc";
+        this.editorContent = editingState.content;
+        this.editMode = true;
+      } else if (requestedView === "doc" && this.history.length > 0) {
+        this.loadEntry(this.history[0]);
+        this.view = "doc";
+      }
     } else if (requestedView === "doc" && this.history.length > 0) {
       this.loadEntry(this.history[0]);
       this.view = "doc";
@@ -286,7 +292,7 @@ export class WorkflowDocPanelComponent implements OnInit, OnDestroy {
   }
 
   isViewingEntry(entry: DocEntry): boolean {
-    return this.generatedAt === entry.generatedAt;
+    return this.currentEntry?.id === entry.id;
   }
 
   private loadEntry(entry: DocEntry): void {
@@ -361,7 +367,7 @@ export class WorkflowDocPanelComponent implements OnInit, OnDestroy {
       this.modalData?.onEditingChange;
     if (!onEditingChange) return;
     if (this.editMode) {
-      onEditingChange({ entry: this.currentEntry, content: this.editorContent });
+      onEditingChange({ entryId: this.currentEntry?.id ?? null, content: this.editorContent });
     } else {
       onEditingChange(null);
     }
@@ -376,7 +382,8 @@ export class WorkflowDocPanelComponent implements OnInit, OnDestroy {
         return;
       }
       const onCreateEntry: ((markdown: string) => DocEntry) | undefined = this.modalData?.onCreateEntry;
-      const created = onCreateEntry?.(content) ?? { markdown: content, generatedAt: new Date(), written: true };
+      if (!onCreateEntry) return;
+      const created = onCreateEntry(content);
       this.history = [created, ...this.history];
       this.loadEntry(created);
       this.editMode = false;

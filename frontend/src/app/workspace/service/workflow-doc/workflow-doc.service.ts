@@ -24,6 +24,7 @@ import { AgentService } from "../agent/agent.service";
 import { WorkflowActionService } from "../workflow-graph/model/workflow-action.service";
 
 export interface DocEntry {
+  id: string;
   markdown: string;
   generatedAt: Date;
   edited?: boolean;
@@ -33,9 +34,17 @@ export interface DocEntry {
 export type DocPanelView = "intro" | "doc";
 
 export interface DocEditingState {
-  entry: DocEntry | null;
+  entryId: string | null;
   content: string;
 }
+
+interface PersistedShape {
+  history: Record<string, DocEntry[]>;
+  lastView: Record<string, DocPanelView>;
+  editing: Record<string, DocEditingState>;
+}
+
+const STORAGE_KEY = "texera.workflowDoc.v1";
 
 @Injectable({
   providedIn: "root",
@@ -50,7 +59,9 @@ export class WorkflowDocService {
     private http: HttpClient,
     private agentService: AgentService,
     private workflowActionService: WorkflowActionService
-  ) {}
+  ) {
+    this.loadFromStorage();
+  }
 
   getHistory(wid: number | undefined): readonly DocEntry[] {
     return this.history.get(wid) ?? [];
@@ -62,6 +73,7 @@ export class WorkflowDocService {
 
   setLastView(wid: number | undefined, view: DocPanelView): void {
     this.lastViews.set(wid, view);
+    this.writeAll();
   }
 
   getEditingState(wid: number | undefined): DocEditingState | null {
@@ -74,21 +86,24 @@ export class WorkflowDocService {
     } else {
       this.editingStates.delete(wid);
     }
+    this.writeAll();
   }
 
   deleteHistoryEntry(wid: number | undefined, entry: DocEntry): void {
     const list = this.history.get(wid) ?? [];
     this.history.set(wid, list.filter(e => e !== entry));
     const editing = this.editingStates.get(wid);
-    if (editing && editing.entry === entry) {
+    if (editing && editing.entryId === entry.id) {
       this.editingStates.delete(wid);
     }
+    this.writeAll();
   }
 
   createBlankEntry(wid: number | undefined, markdown: string): DocEntry {
-    const entry: DocEntry = { markdown, generatedAt: new Date(), written: true };
+    const entry: DocEntry = { id: this.generateId(), markdown, generatedAt: new Date(), written: true };
     const list = [entry, ...(this.history.get(wid) ?? [])];
     this.history.set(wid, list);
+    this.writeAll();
     return entry;
   }
 
@@ -101,6 +116,7 @@ export class WorkflowDocService {
       target.generatedAt = newTimestamp;
       target.edited = true;
     }
+    this.writeAll();
     return newTimestamp;
   }
 
@@ -124,10 +140,15 @@ export class WorkflowDocService {
           })
           .pipe(
             map(response => {
-              const entry: DocEntry = { markdown: response.markdown, generatedAt: new Date() };
+              const entry: DocEntry = {
+                id: this.generateId(),
+                markdown: response.markdown,
+                generatedAt: new Date(),
+              };
               const list = [...(this.history.get(wid) ?? [])];
               list.unshift(entry);
               this.history.set(wid, list);
+              this.writeAll();
               return entry;
             }),
             finalize(() => {
@@ -139,5 +160,73 @@ export class WorkflowDocService {
           );
       })
     );
+  }
+
+  private generateId(): string {
+    if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+      return crypto.randomUUID();
+    }
+    return `doc-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+  }
+
+  private widFromKey(key: string): number | undefined {
+    return key === "undefined" ? undefined : Number(key);
+  }
+
+  private widToKey(wid: number | undefined): string {
+    return wid === undefined ? "undefined" : String(wid);
+  }
+
+  private loadFromStorage(): void {
+    if (typeof localStorage === "undefined") return;
+    let raw: string | null;
+    try {
+      raw = localStorage.getItem(STORAGE_KEY);
+    } catch {
+      return;
+    }
+    if (!raw) return;
+    let parsed: PersistedShape;
+    try {
+      parsed = JSON.parse(raw) as PersistedShape;
+    } catch {
+      return;
+    }
+    if (parsed.history) {
+      for (const [key, entries] of Object.entries(parsed.history)) {
+        const wid = this.widFromKey(key);
+        const revived = entries.map(e => ({ ...e, generatedAt: new Date(e.generatedAt) }));
+        this.history.set(wid, revived);
+      }
+    }
+    if (parsed.lastView) {
+      for (const [key, view] of Object.entries(parsed.lastView)) {
+        this.lastViews.set(this.widFromKey(key), view);
+      }
+    }
+    if (parsed.editing) {
+      for (const [key, state] of Object.entries(parsed.editing)) {
+        this.editingStates.set(this.widFromKey(key), state);
+      }
+    }
+  }
+
+  private writeAll(): void {
+    if (typeof localStorage === "undefined") return;
+    const payload: PersistedShape = { history: {}, lastView: {}, editing: {} };
+    this.history.forEach((entries, wid) => {
+      payload.history[this.widToKey(wid)] = entries;
+    });
+    this.lastViews.forEach((view, wid) => {
+      payload.lastView[this.widToKey(wid)] = view;
+    });
+    this.editingStates.forEach((state, wid) => {
+      payload.editing[this.widToKey(wid)] = state;
+    });
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+    } catch {
+      // Quota exceeded or storage unavailable — degrade silently to in-memory.
+    }
   }
 }
