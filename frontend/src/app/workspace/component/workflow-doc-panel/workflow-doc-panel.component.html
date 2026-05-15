@@ -18,34 +18,45 @@
 -->
 
 <div class="doc-panel">
-  <div class="doc-actions">
-    <span
+  <div class="doc-header">
+    <div
       *ngIf="generatedAt"
       class="doc-timestamp">
-      Generated {{ generatedAt | date: "short" }}
-    </span>
-    <button
-      nz-button
-      nzType="text"
-      nzSize="small"
-      [disabled]="isRegenerating"
-      (click)="regenerate()">
       <i
         nz-icon
-        [nzType]="isRegenerating ? 'loading' : 'sync'"></i>
-      {{ isRegenerating ? "Regenerating…" : "Re-generate" }}
-    </button>
-    <button
-      nz-button
-      nzType="text"
-      nzSize="small"
-      [nz-tooltip]="copied ? 'Copied!' : 'Copy as Markdown'"
-      (click)="copyToClipboard()">
-      <i
-        nz-icon
-        [nzType]="copied ? 'check' : 'copy'"></i>
-      {{ copied ? "Copied" : "Copy Markdown" }}
-    </button>
+        nzType="clock-circle"
+        nzTheme="outline"></i>
+      <span>Generated {{ generatedAt | date: "short" }}</span>
+    </div>
+    <div class="doc-actions">
+      <button
+        nz-button
+        nzType="default"
+        nzSize="small"
+        class="doc-action-copy"
+        [nz-tooltip]="copied ? 'Copied to clipboard!' : 'Copy as Markdown'"
+        (click)="copyToClipboard()">
+        <i
+          nz-icon
+          [nzType]="copied ? 'check' : 'copy'"></i>
+        {{ copied ? "Copied" : "Copy Markdown" }}
+      </button>
+      <button
+        nz-button
+        nzType="primary"
+        nzSize="small"
+        class="doc-action-regenerate"
+        [nzLoading]="isRegenerating"
+        [disabled]="isRegenerating"
+        [nz-tooltip]="'Run the LLM again to produce a fresh report'"
+        (click)="regenerate()">
+        <i
+          *ngIf="!isRegenerating"
+          nz-icon
+          nzType="sync"></i>
+        {{ isRegenerating ? "Regenerating…" : "Re-generate" }}
+      </button>
+    </div>
   </div>
   <div
     *ngIf="renderedMarkdown"

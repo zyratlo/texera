@@ -20,13 +20,45 @@
 .doc-panel {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
   padding: 4px 0;
+}
+
+.doc-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.doc-timestamp {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #8c8c8c;
+  font-size: 12px;
+  font-style: italic;
 }
 
 .doc-actions {
   display: flex;
-  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.doc-action-regenerate {
+  font-weight: 500;
+
+  i {
+    margin-right: 4px;
+  }
+}
+
+.doc-action-copy i {
+  margin-right: 4px;
 }
 
 .doc-content {
