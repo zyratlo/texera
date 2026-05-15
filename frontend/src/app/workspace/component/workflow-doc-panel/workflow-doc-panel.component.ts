@@ -17,9 +17,9 @@
  * under the License.
  */
 
-import { Component, inject, OnDestroy, OnInit } from "@angular/core";
+import { ChangeDetectorRef, Component, inject, OnDestroy, OnInit } from "@angular/core";
 import { DatePipe, NgIf } from "@angular/common";
-import { NZ_MODAL_DATA } from "ng-zorro-antd/modal";
+import { NZ_DRAWER_DATA } from "ng-zorro-antd/drawer";
 import { NzButtonComponent } from "ng-zorro-antd/button";
 import { NzIconDirective } from "ng-zorro-antd/icon";
 import { NzTooltipDirective } from "ng-zorro-antd/tooltip";
@@ -47,7 +47,7 @@ type DocPanelView = "intro" | "doc";
   ],
 })
 export class WorkflowDocPanelComponent implements OnInit, OnDestroy {
-  private modalData = inject(NZ_MODAL_DATA, { optional: true });
+  private modalData = inject(NZ_DRAWER_DATA, { optional: true });
 
   view: DocPanelView = "intro";
   renderedMarkdown = "";
@@ -60,7 +60,8 @@ export class WorkflowDocPanelComponent implements OnInit, OnDestroy {
   constructor(
     private markdownService: MarkdownService,
     private notificationService: NotificationService,
-    private workflowActionService: WorkflowActionService
+    private workflowActionService: WorkflowActionService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -68,6 +69,10 @@ export class WorkflowDocPanelComponent implements OnInit, OnDestroy {
     this.generatedAt = this.modalData?.cachedGeneratedAt ?? null;
     if (this.rawMarkdown) {
       this.renderMarkdown(this.rawMarkdown);
+    }
+    const requestedView: DocPanelView | undefined = this.modalData?.initialView;
+    if (requestedView === "doc" && this.rawMarkdown) {
+      this.view = "doc";
     }
   }
 
@@ -81,33 +86,35 @@ export class WorkflowDocPanelComponent implements OnInit, OnDestroy {
 
   viewLatest(): void {
     if (this.hasCached) {
-      this.view = "doc";
+      this.setView("doc");
     }
   }
 
   backToIntro(): void {
     if (this.isGenerating) return;
-    this.view = "intro";
+    this.setView("intro");
   }
 
   generate(): void {
     const onGenerate: (() => Observable<string>) | undefined = this.modalData?.onGenerate;
     if (!onGenerate || this.isGenerating) return;
     this.isGenerating = true;
-    this.view = "doc";
+    this.setView("doc");
     this.generateSub = onGenerate().subscribe({
       next: markdown => {
         this.rawMarkdown = markdown;
         this.generatedAt = new Date();
-        this.renderMarkdown(markdown);
         this.isGenerating = false;
+        this.renderMarkdown(markdown);
+        this.cdr.detectChanges();
       },
       error: (err: unknown) => {
         this.isGenerating = false;
         this.notificationService.error("Failed to generate documentation: " + (err as Error).message);
         if (!this.hasCached) {
-          this.view = "intro";
+          this.setView("intro");
         }
+        this.cdr.detectChanges();
       },
     });
   }
@@ -134,10 +141,18 @@ export class WorkflowDocPanelComponent implements OnInit, OnDestroy {
     });
   }
 
+  private setView(next: DocPanelView): void {
+    if (this.view === next) return;
+    this.view = next;
+    const onViewChange: ((view: DocPanelView) => void) | undefined = this.modalData?.onViewChange;
+    onViewChange?.(next);
+  }
+
   private renderMarkdown(md: string): void {
     if (md) {
       Promise.resolve(this.markdownService.parse(md)).then(html => {
         this.renderedMarkdown = html;
+        this.cdr.detectChanges();
       });
     } else {
       this.renderedMarkdown = "";

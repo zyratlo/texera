@@ -46,6 +46,7 @@ import { CoeditorPresenceService } from "../../service/workflow-graph/model/coed
 import { firstValueFrom, of, Subscription, timer } from "rxjs";
 import { isDefined } from "../../../common/util/predicate";
 import { NzModalService } from "ng-zorro-antd/modal";
+import { NzDrawerService } from "ng-zorro-antd/drawer";
 import { ResultExportationComponent } from "../result-exportation/result-exportation.component";
 import { ReportGenerationService } from "../../service/report-generation/report-generation.service";
 import { ShareAccessComponent } from "src/app/dashboard/component/user/share-access/share-access.component";
@@ -187,6 +188,7 @@ export class MenuComponent implements OnInit, OnDestroy {
     public operatorMenu: OperatorMenuService,
     public coeditorPresenceService: CoeditorPresenceService,
     private modalService: NzModalService,
+    private drawerService: NzDrawerService,
     private reportGenerationService: ReportGenerationService,
     private panelService: PanelService,
     private computingUnitStatusService: ComputingUnitStatusService,
@@ -694,17 +696,24 @@ export class MenuComponent implements OnInit, OnDestroy {
   }
 
   public onClickDocumentWorkflow(): void {
-    const cached = this.workflowDocService.getCached(this.workflowId);
-    this.modalService.create({
+    const wid = this.workflowId;
+    const cached = this.workflowDocService.getCached(wid);
+    const lastView = this.workflowDocService.getLastView(wid);
+    const initialView = lastView === "doc" && cached ? "doc" : "intro";
+    this.drawerService.create({
       nzTitle: "Workflow Documentation",
       nzContent: WorkflowDocPanelComponent,
       nzData: {
         cachedMarkdown: cached?.markdown,
         cachedGeneratedAt: cached?.generatedAt,
+        initialView,
         onGenerate: () => this.workflowDocService.generateDocumentation(),
+        onViewChange: (view: "intro" | "doc") => this.workflowDocService.setLastView(wid, view),
       },
-      nzWidth: "800px",
-      nzFooter: null,
+      nzWidth: 520,
+      nzPlacement: "right",
+      nzMask: false,
+      nzClosable: true,
     });
   }
 

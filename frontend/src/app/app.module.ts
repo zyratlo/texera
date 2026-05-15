@@ -138,6 +138,7 @@ import { NzResizableModule } from "ng-zorro-antd/resizable";
 import { WorkflowRuntimeStatisticsComponent } from "./dashboard/component/user/user-workflow/ngbd-modal-workflow-executions/workflow-runtime-statistics/workflow-runtime-statistics.component";
 import { TimeTravelComponent } from "./workspace/component/left-panel/time-travel/time-travel.component";
 import { NzModalModule } from "ng-zorro-antd/modal";
+import { NzDrawerModule } from "ng-zorro-antd/drawer";
 import { NzDescriptionsModule } from "ng-zorro-antd/descriptions";
 import { OverlayModule } from "@angular/cdk/overlay";
 import { HighlightSearchTermsPipe } from "./dashboard/component/user/user-workflow/user-workflow-list-item/highlight-search-terms.pipe";
@@ -232,6 +233,7 @@ registerLocaleData(en);
     NzUploadModule,
     NgxJsonViewerModule,
     NzModalModule,
+    NzDrawerModule,
     NzDescriptionsModule,
     NzCardModule,
     NzTagModule,

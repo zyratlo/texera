@@ -28,12 +28,15 @@ export interface DocEntry {
   generatedAt: Date;
 }
 
+export type DocPanelView = "intro" | "doc";
+
 @Injectable({
   providedIn: "root",
 })
 export class WorkflowDocService {
   private readonly AGENT_API_BASE = "/api";
   private cache = new Map<number | undefined, DocEntry>();
+  private lastViews = new Map<number | undefined, DocPanelView>();
 
   constructor(
     private http: HttpClient,
@@ -43,6 +46,14 @@ export class WorkflowDocService {
 
   getCached(wid: number | undefined): DocEntry | null {
     return this.cache.get(wid) ?? null;
+  }
+
+  getLastView(wid: number | undefined): DocPanelView | null {
+    return this.lastViews.get(wid) ?? null;
+  }
+
+  setLastView(wid: number | undefined, view: DocPanelView): void {
+    this.lastViews.set(wid, view);
   }
 
   generateDocumentation(): Observable<string> {
