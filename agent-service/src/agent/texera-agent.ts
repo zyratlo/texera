@@ -937,11 +937,11 @@ export class TexeraAgent {
     }
 
     // Comment boxes (author notes)
-    const notes = (content.commentBoxes ?? []).filter(b => b.comments?.trim());
+    const notes = (content.commentBoxes ?? []).filter(b => typeof b.comments === "string" && b.comments.trim());
     if (notes.length > 0) {
       lines.push("## Author Notes\n");
       for (const box of notes) {
-        lines.push(`- ${box.comments.trim()}`);
+        lines.push(`- ${(box.comments as string).trim()}`);
       }
       lines.push("");
     }
