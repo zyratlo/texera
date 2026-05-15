@@ -172,24 +172,64 @@
           nz-icon
           nzType="clock-circle"
           nzTheme="outline"></i>
-        <span>Generated {{ generatedAt | date: "short" }}</span>
+        <span>{{ currentEntry?.edited ? "Updated" : "Generated" }} {{ generatedAt | date: "short" }}</span>
+        <span
+          *ngIf="currentEntry?.edited"
+          class="doc-edited-badge">edited</span>
       </div>
       <div
         *ngIf="rawMarkdown"
         class="doc-actions">
-        <button
-          nz-button
-          nzType="default"
-          nzSize="small"
-          class="doc-action-copy"
-          [disabled]="isGenerating"
-          [nz-tooltip]="copied ? 'Copied to clipboard!' : 'Copy as Markdown'"
-          (click)="copyToClipboard()">
-          <i
-            nz-icon
-            [nzType]="copied ? 'check' : 'copy'"></i>
-          {{ copied ? "Copied" : "Copy Markdown" }}
-        </button>
+        <ng-container *ngIf="!editMode">
+          <button
+            nz-button
+            nzType="default"
+            nzSize="small"
+            class="doc-action-edit"
+            [disabled]="isGenerating"
+            [nz-tooltip]="'Edit this report'"
+            (click)="enterEditMode()">
+            <i
+              nz-icon
+              nzType="edit"></i>
+            Edit
+          </button>
+          <button
+            nz-button
+            nzType="default"
+            nzSize="small"
+            class="doc-action-copy"
+            [disabled]="isGenerating"
+            [nz-tooltip]="copied ? 'Copied to clipboard!' : 'Copy as Markdown'"
+            (click)="copyToClipboard()">
+            <i
+              nz-icon
+              [nzType]="copied ? 'check' : 'copy'"></i>
+            {{ copied ? "Copied" : "Copy Markdown" }}
+          </button>
+        </ng-container>
+        <ng-container *ngIf="editMode">
+          <button
+            nz-button
+            nzType="default"
+            nzSize="small"
+            (click)="cancelEdit()">
+            <i
+              nz-icon
+              nzType="close"></i>
+            Cancel
+          </button>
+          <button
+            nz-button
+            nzType="primary"
+            nzSize="small"
+            (click)="saveEdit()">
+            <i
+              nz-icon
+              nzType="save"></i>
+            Save
+          </button>
+        </ng-container>
       </div>
     </div>
     <div
@@ -212,13 +252,19 @@
         Cancel
       </button>
     </div>
+    <textarea
+      *ngIf="editMode && !isGenerating"
+      class="doc-editor"
+      [ngModel]="editorContent"
+      (ngModelChange)="onEditorContentChange($event)"
+      spellcheck="false"></textarea>
     <div
-      *ngIf="renderedMarkdown && !isGenerating"
+      *ngIf="!editMode && renderedMarkdown && !isGenerating"
       class="doc-content md-rendered"
       (click)="onContentClick($event)"
       [innerHTML]="renderedMarkdown"></div>
     <div
-      *ngIf="!renderedMarkdown && !isGenerating"
+      *ngIf="!editMode && !renderedMarkdown && !isGenerating"
       class="doc-empty">
       No documentation available.
     </div>

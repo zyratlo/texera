@@ -270,8 +270,43 @@
   margin-left: auto;
 }
 
-.doc-action-copy i {
+.doc-action-copy i,
+.doc-action-edit i {
   margin-right: 4px;
+}
+
+.doc-edited-badge {
+  font-size: 10px;
+  font-weight: 600;
+  color: #fa8c16;
+  background-color: rgba(250, 140, 22, 0.12);
+  padding: 1px 6px;
+  border-radius: 8px;
+  margin-left: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.doc-editor {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  resize: none;
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+  padding: 8px 10px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #262626;
+  background-color: #fafafa;
+
+  &:focus {
+    outline: none;
+    border-color: #1890ff;
+    box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.15);
+    background-color: #ffffff;
+  }
 }
 
 .doc-loading {

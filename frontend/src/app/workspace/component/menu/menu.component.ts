@@ -51,7 +51,7 @@ import { ResultExportationComponent } from "../result-exportation/result-exporta
 import { ReportGenerationService } from "../../service/report-generation/report-generation.service";
 import { ShareAccessComponent } from "src/app/dashboard/component/user/share-access/share-access.component";
 import { PanelService } from "../../service/panel/panel.service";
-import { DocEntry, WorkflowDocService } from "../../service/workflow-doc/workflow-doc.service";
+import { DocEditingState, DocEntry, WorkflowDocService } from "../../service/workflow-doc/workflow-doc.service";
 import { WorkflowDocPanelComponent } from "../workflow-doc-panel/workflow-doc-panel.component";
 import { DASHBOARD_USER_WORKFLOW } from "../../../app-routing.constant";
 import { ComputingUnitStatusService } from "../../../common/service/computing-unit/computing-unit-status/computing-unit-status.service";
@@ -702,7 +702,8 @@ export class MenuComponent implements OnInit, OnDestroy {
     const wid = this.workflowId;
     const history = this.workflowDocService.getHistory(wid);
     const lastView = this.workflowDocService.getLastView(wid);
-    const initialView = lastView === "doc" && history.length > 0 ? "doc" : "intro";
+    const editingState = this.workflowDocService.getEditingState(wid);
+    const initialView = (editingState || lastView === "doc") && history.length > 0 ? "doc" : "intro";
     this.docDrawerRef = this.drawerService.create({
       nzTitle: "Workflow Documentation",
       nzContent: WorkflowDocPanelComponent,
@@ -712,6 +713,11 @@ export class MenuComponent implements OnInit, OnDestroy {
         onGenerate: () => this.workflowDocService.generateDocumentation(),
         onViewChange: (view: "intro" | "doc") => this.workflowDocService.setLastView(wid, view),
         onDeleteEntry: (entry: DocEntry) => this.workflowDocService.deleteHistoryEntry(wid, entry),
+        onUpdateEntry: (entry: DocEntry, newMarkdown: string) =>
+          this.workflowDocService.updateHistoryEntry(wid, entry, newMarkdown),
+        editingState,
+        onEditingChange: (state: DocEditingState | null) =>
+          this.workflowDocService.setEditingState(wid, state),
       },
       nzWidth: 520,
       nzPlacement: "right",

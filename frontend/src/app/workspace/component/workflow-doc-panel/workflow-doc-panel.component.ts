@@ -33,7 +33,7 @@ import { MarkdownService } from "ngx-markdown";
 import { interval, Observable, Subscription } from "rxjs";
 import { NotificationService } from "../../../common/service/notification/notification.service";
 import { WorkflowActionService } from "../../service/workflow-graph/model/workflow-action.service";
-import { DocEntry } from "../../service/workflow-doc/workflow-doc.service";
+import { DocEditingState, DocEntry } from "../../service/workflow-doc/workflow-doc.service";
 import { WorkflowDocDiffComponent } from "../workflow-doc-diff/workflow-doc-diff.component";
 
 type DocPanelView = "intro" | "doc";
@@ -69,6 +69,9 @@ export class WorkflowDocPanelComponent implements OnInit, OnDestroy {
   elapsedSeconds = 0;
   compareMode = false;
   selectedEntries = new Set<DocEntry>();
+  editMode = false;
+  editorContent = "";
+  currentEntry: DocEntry | null = null;
   private elapsedStartedAtMs = 0;
   private generateSub?: Subscription;
   private elapsedTimerSub?: Subscription;
@@ -84,7 +87,14 @@ export class WorkflowDocPanelComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.history = [...(this.modalData?.history ?? [])];
     const requestedView: DocPanelView | undefined = this.modalData?.initialView;
-    if (requestedView === "doc" && this.history.length > 0) {
+    const editingState: DocEditingState | undefined = this.modalData?.editingState;
+    const editingEntry = editingState ? this.history.find(e => e === editingState.entry) : undefined;
+    if (editingEntry && editingState) {
+      this.loadEntry(editingEntry);
+      this.view = "doc";
+      this.editorContent = editingState.content;
+      this.editMode = true;
+    } else if (requestedView === "doc" && this.history.length > 0) {
       this.loadEntry(this.history[0]);
       this.view = "doc";
     }
@@ -110,8 +120,11 @@ export class WorkflowDocPanelComponent implements OnInit, OnDestroy {
       this.toggleEntrySelection(entry);
       return;
     }
-    this.loadEntry(entry);
-    this.setView("doc");
+    this.confirmDiscardOrProceed(() => {
+      this.cancelEdit();
+      this.loadEntry(entry);
+      this.setView("doc");
+    });
   }
 
   toggleCompareMode(): void {
@@ -153,7 +166,10 @@ export class WorkflowDocPanelComponent implements OnInit, OnDestroy {
 
   backToIntro(): void {
     if (this.isGenerating) return;
-    this.setView("intro");
+    this.confirmDiscardOrProceed(() => {
+      this.cancelEdit();
+      this.setView("intro");
+    });
   }
 
   generate(): void {
@@ -194,9 +210,11 @@ export class WorkflowDocPanelComponent implements OnInit, OnDestroy {
     const onDeleteEntry: ((entry: DocEntry) => void) | undefined = this.modalData?.onDeleteEntry;
     onDeleteEntry?.(entry);
     if (wasViewing) {
+      this.cancelEdit();
       if (this.hasHistory) {
         this.loadEntry(this.history[0]);
       } else {
+        this.currentEntry = null;
         this.rawMarkdown = "";
         this.renderedMarkdown = "";
         this.generatedAt = null;
@@ -266,9 +284,85 @@ export class WorkflowDocPanelComponent implements OnInit, OnDestroy {
   }
 
   private loadEntry(entry: DocEntry): void {
+    this.currentEntry = entry;
     this.rawMarkdown = entry.markdown;
     this.generatedAt = entry.generatedAt;
     this.renderMarkdown(entry.markdown);
+  }
+
+  get hasUnsavedChanges(): boolean {
+    return this.editMode && this.editorContent !== this.rawMarkdown;
+  }
+
+  private confirmDiscardOrProceed(action: () => void): void {
+    if (!this.hasUnsavedChanges) {
+      action();
+      return;
+    }
+    this.modalService.confirm({
+      nzTitle: "Discard unsaved changes?",
+      nzContent: "Your edits to this report will be lost.",
+      nzOkText: "Discard",
+      nzOkDanger: true,
+      nzCancelText: "Keep editing",
+      nzOnOk: () => {
+        action();
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  enterEditMode(): void {
+    if (!this.currentEntry || this.isGenerating) return;
+    this.editorContent = this.rawMarkdown;
+    this.editMode = true;
+    this.persistEditingState();
+  }
+
+  cancelEdit(): void {
+    if (!this.editMode) return;
+    this.editMode = false;
+    this.editorContent = "";
+    this.persistEditingState();
+  }
+
+  onEditorContentChange(content: string): void {
+    this.editorContent = content;
+    this.persistEditingState();
+  }
+
+  private persistEditingState(): void {
+    const onEditingChange: ((state: DocEditingState | null) => void) | undefined =
+      this.modalData?.onEditingChange;
+    if (!onEditingChange) return;
+    if (this.editMode && this.currentEntry) {
+      onEditingChange({ entry: this.currentEntry, content: this.editorContent });
+    } else {
+      onEditingChange(null);
+    }
+  }
+
+  saveEdit(): void {
+    if (!this.editMode || !this.currentEntry) return;
+    const trimmed = this.editorContent;
+    if (trimmed === this.rawMarkdown) {
+      this.editMode = false;
+      return;
+    }
+    const onUpdateEntry: ((entry: DocEntry, newMarkdown: string) => Date | void) | undefined =
+      this.modalData?.onUpdateEntry;
+    const newTimestamp = onUpdateEntry?.(this.currentEntry, trimmed) ?? new Date();
+    this.currentEntry.markdown = trimmed;
+    this.currentEntry.generatedAt = newTimestamp;
+    this.currentEntry.edited = true;
+    this.rawMarkdown = trimmed;
+    this.generatedAt = newTimestamp;
+    this.renderMarkdown(trimmed);
+    this.editMode = false;
+    this.editorContent = "";
+    this.persistEditingState();
+    this.notificationService.success("Documentation updated.");
+    this.cdr.detectChanges();
   }
 
   private setView(next: DocPanelView): void {

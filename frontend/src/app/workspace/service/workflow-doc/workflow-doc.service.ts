@@ -26,9 +26,15 @@ import { WorkflowActionService } from "../workflow-graph/model/workflow-action.s
 export interface DocEntry {
   markdown: string;
   generatedAt: Date;
+  edited?: boolean;
 }
 
 export type DocPanelView = "intro" | "doc";
+
+export interface DocEditingState {
+  entry: DocEntry;
+  content: string;
+}
 
 @Injectable({
   providedIn: "root",
@@ -37,6 +43,7 @@ export class WorkflowDocService {
   private readonly AGENT_API_BASE = "/api";
   private history = new Map<number | undefined, DocEntry[]>();
   private lastViews = new Map<number | undefined, DocPanelView>();
+  private editingStates = new Map<number | undefined, DocEditingState>();
 
   constructor(
     private http: HttpClient,
@@ -56,9 +63,37 @@ export class WorkflowDocService {
     this.lastViews.set(wid, view);
   }
 
+  getEditingState(wid: number | undefined): DocEditingState | null {
+    return this.editingStates.get(wid) ?? null;
+  }
+
+  setEditingState(wid: number | undefined, state: DocEditingState | null): void {
+    if (state) {
+      this.editingStates.set(wid, state);
+    } else {
+      this.editingStates.delete(wid);
+    }
+  }
+
   deleteHistoryEntry(wid: number | undefined, entry: DocEntry): void {
     const list = this.history.get(wid) ?? [];
     this.history.set(wid, list.filter(e => e !== entry));
+    const editing = this.editingStates.get(wid);
+    if (editing && editing.entry === entry) {
+      this.editingStates.delete(wid);
+    }
+  }
+
+  updateHistoryEntry(wid: number | undefined, entry: DocEntry, newMarkdown: string): Date {
+    const list = this.history.get(wid) ?? [];
+    const target = list.find(e => e === entry);
+    const newTimestamp = new Date();
+    if (target) {
+      target.markdown = newMarkdown;
+      target.generatedAt = newTimestamp;
+      target.edited = true;
+    }
+    return newTimestamp;
   }
 
   generateDocumentation(): Observable<DocEntry> {
