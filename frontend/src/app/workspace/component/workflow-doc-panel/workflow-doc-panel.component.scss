@@ -24,13 +24,85 @@
   padding: 4px 0;
 }
 
+.doc-intro {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 16px 24px 8px;
+}
+
+.doc-intro-icon {
+  font-size: 48px;
+  color: #1890ff;
+  margin-bottom: 12px;
+  line-height: 1;
+}
+
+.doc-intro-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 10px;
+  color: #262626;
+}
+
+.doc-intro-description {
+  font-size: 14px;
+  color: #595959;
+  margin: 0 0 12px;
+  max-width: 560px;
+}
+
+.doc-intro-features {
+  text-align: left;
+  font-size: 13px;
+  color: #595959;
+  max-width: 520px;
+  margin: 0 0 16px;
+  padding-left: 20px;
+  line-height: 1.7;
+
+  strong {
+    color: #262626;
+  }
+}
+
+.doc-intro-cached {
+  font-size: 12px;
+  color: #8c8c8c;
+  margin: 0 0 16px;
+  font-style: italic;
+
+  i {
+    margin-right: 4px;
+  }
+}
+
+.doc-intro-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 4px;
+
+  i {
+    margin-right: 6px;
+  }
+}
+
 .doc-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 12px;
   padding-bottom: 12px;
   border-bottom: 1px solid #f0f0f0;
+}
+
+.doc-back-button {
+  padding-left: 4px;
+  padding-right: 8px;
+
+  i {
+    margin-right: 4px;
+  }
 }
 
 .doc-timestamp {
@@ -61,6 +133,22 @@
   margin-right: 4px;
 }
 
+.doc-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 0;
+  gap: 12px;
+  font-size: 14px;
+  color: #8c8c8c;
+
+  i {
+    font-size: 32px;
+    color: #1890ff;
+  }
+}
+
 .doc-content {
   line-height: 1.6;
   overflow-y: auto;
@@ -89,4 +177,6 @@
 .doc-empty {
   color: #999;
   font-style: italic;
+  text-align: center;
+  padding: 40px 0;
 }

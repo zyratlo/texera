@@ -151,12 +151,12 @@
         </button>
         <button
           (click)="onClickDocumentWorkflow()"
-          [disabled]="isWorkflowEmpty || isGeneratingDoc"
+          [disabled]="isWorkflowEmpty"
           nz-button
           title="document workflow with AI">
           <i
             nz-icon
-            [nzType]="isGeneratingDoc ? 'loading' : 'file-text'"></i>
+            nzType="file-text"></i>
         </button>
       </nz-space-compact>
       <ng-template #utilities>

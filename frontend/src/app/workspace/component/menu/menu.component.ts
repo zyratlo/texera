@@ -132,7 +132,6 @@ export class MenuComponent implements OnInit, OnDestroy {
   public ComputingUnitState = ComputingUnitState; // make Angular HTML access enum definition
   public isWorkflowValid: boolean = true; // this will check whether the workflow error or not
   public isWorkflowEmpty: boolean = false;
-  public isGeneratingDoc: boolean = false;
   public isSaving: boolean = false;
   public isWorkflowModifiable: boolean = false;
   public workflowId?: number;
@@ -696,47 +695,17 @@ export class MenuComponent implements OnInit, OnDestroy {
 
   public onClickDocumentWorkflow(): void {
     const cached = this.workflowDocService.getCached(this.workflowId);
-    if (cached) {
-      this.openDocModal(cached.markdown, cached.generatedAt);
-      return;
-    }
-    this.runDocGeneration();
-  }
-
-  private openDocModal(markdown: string, generatedAt: Date): void {
     this.modalService.create({
       nzTitle: "Workflow Documentation",
       nzContent: WorkflowDocPanelComponent,
       nzData: {
-        markdown,
-        generatedAt,
-        onRegenerate: () => this.workflowDocService.generateDocumentation(),
+        cachedMarkdown: cached?.markdown,
+        cachedGeneratedAt: cached?.generatedAt,
+        onGenerate: () => this.workflowDocService.generateDocumentation(),
       },
       nzWidth: "800px",
       nzFooter: null,
     });
-  }
-
-  private runDocGeneration(): void {
-    this.isGeneratingDoc = true;
-    this.notificationService.blank("", "Generating workflow documentation…", { nzDuration: 0 });
-
-    this.workflowDocService
-      .generateDocumentation()
-      .pipe(untilDestroyed(this))
-      .subscribe({
-        next: markdown => {
-          this.isGeneratingDoc = false;
-          this.notificationService.remove();
-          const entry = this.workflowDocService.getCached(this.workflowId);
-          this.openDocModal(markdown, entry?.generatedAt ?? new Date());
-        },
-        error: (err: unknown) => {
-          this.isGeneratingDoc = false;
-          this.notificationService.remove();
-          this.notificationService.error("Failed to generate documentation: " + (err as Error).message);
-        },
-      });
   }
 
   /**

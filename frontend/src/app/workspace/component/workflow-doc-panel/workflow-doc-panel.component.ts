@@ -27,6 +27,9 @@ import { ɵNzTransitionPatchDirective } from "ng-zorro-antd/core/transition-patc
 import { NzWaveDirective } from "ng-zorro-antd/core/wave";
 import { MarkdownService } from "ngx-markdown";
 import { Observable, Subscription } from "rxjs";
+import { NotificationService } from "../../../common/service/notification/notification.service";
+
+type DocPanelView = "intro" | "doc";
 
 @Component({
   selector: "texera-workflow-doc-panel",
@@ -45,23 +48,73 @@ import { Observable, Subscription } from "rxjs";
 export class WorkflowDocPanelComponent implements OnInit, OnDestroy {
   private modalData = inject(NZ_MODAL_DATA, { optional: true });
 
+  view: DocPanelView = "intro";
   renderedMarkdown = "";
-  copied = false;
   rawMarkdown = "";
   generatedAt: Date | null = null;
-  isRegenerating = false;
-  private regenerateSub?: Subscription;
+  isGenerating = false;
+  copied = false;
+  private generateSub?: Subscription;
 
-  constructor(private markdownService: MarkdownService) {}
+  constructor(
+    private markdownService: MarkdownService,
+    private notificationService: NotificationService
+  ) {}
 
   ngOnInit(): void {
-    this.rawMarkdown = this.modalData?.markdown ?? "";
-    this.generatedAt = this.modalData?.generatedAt ?? null;
-    this.renderMarkdown(this.rawMarkdown);
+    this.rawMarkdown = this.modalData?.cachedMarkdown ?? "";
+    this.generatedAt = this.modalData?.cachedGeneratedAt ?? null;
+    if (this.rawMarkdown) {
+      this.renderMarkdown(this.rawMarkdown);
+    }
   }
 
   ngOnDestroy(): void {
-    this.regenerateSub?.unsubscribe();
+    this.generateSub?.unsubscribe();
+  }
+
+  get hasCached(): boolean {
+    return this.rawMarkdown.length > 0;
+  }
+
+  viewLatest(): void {
+    if (this.hasCached) {
+      this.view = "doc";
+    }
+  }
+
+  backToIntro(): void {
+    if (this.isGenerating) return;
+    this.view = "intro";
+  }
+
+  generate(): void {
+    const onGenerate: (() => Observable<string>) | undefined = this.modalData?.onGenerate;
+    if (!onGenerate || this.isGenerating) return;
+    this.isGenerating = true;
+    this.view = "doc";
+    this.generateSub = onGenerate().subscribe({
+      next: markdown => {
+        this.rawMarkdown = markdown;
+        this.generatedAt = new Date();
+        this.renderMarkdown(markdown);
+        this.isGenerating = false;
+      },
+      error: (err: unknown) => {
+        this.isGenerating = false;
+        this.notificationService.error("Failed to generate documentation: " + (err as Error).message);
+        if (!this.hasCached) {
+          this.view = "intro";
+        }
+      },
+    });
+  }
+
+  copyToClipboard(): void {
+    navigator.clipboard.writeText(this.rawMarkdown).then(() => {
+      this.copied = true;
+      setTimeout(() => (this.copied = false), 2000);
+    });
   }
 
   private renderMarkdown(md: string): void {
@@ -72,29 +125,5 @@ export class WorkflowDocPanelComponent implements OnInit, OnDestroy {
     } else {
       this.renderedMarkdown = "";
     }
-  }
-
-  regenerate(): void {
-    const onRegenerate: (() => Observable<string>) | undefined = this.modalData?.onRegenerate;
-    if (!onRegenerate || this.isRegenerating) return;
-    this.isRegenerating = true;
-    this.regenerateSub = onRegenerate().subscribe({
-      next: markdown => {
-        this.rawMarkdown = markdown;
-        this.generatedAt = new Date();
-        this.renderMarkdown(markdown);
-        this.isRegenerating = false;
-      },
-      error: () => {
-        this.isRegenerating = false;
-      },
-    });
-  }
-
-  copyToClipboard(): void {
-    navigator.clipboard.writeText(this.rawMarkdown).then(() => {
-      this.copied = true;
-      setTimeout(() => (this.copied = false), 2000);
-    });
   }
 }
