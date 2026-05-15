@@ -61,6 +61,7 @@ export class WorkflowDocPanelComponent implements OnInit, OnDestroy {
   isGenerating = false;
   copied = false;
   elapsedSeconds = 0;
+  private elapsedStartedAtMs = 0;
   private generateSub?: Subscription;
   private elapsedTimerSub?: Subscription;
 
@@ -171,9 +172,10 @@ export class WorkflowDocPanelComponent implements OnInit, OnDestroy {
 
   private startElapsedTimer(): void {
     this.elapsedTimerSub?.unsubscribe();
+    this.elapsedStartedAtMs = Date.now();
     this.elapsedSeconds = 0;
     this.elapsedTimerSub = interval(1000).subscribe(() => {
-      this.elapsedSeconds += 1;
+      this.elapsedSeconds = Math.floor((Date.now() - this.elapsedStartedAtMs) / 1000);
       this.cdr.detectChanges();
     });
   }
@@ -181,6 +183,9 @@ export class WorkflowDocPanelComponent implements OnInit, OnDestroy {
   private stopElapsedTimer(): void {
     this.elapsedTimerSub?.unsubscribe();
     this.elapsedTimerSub = undefined;
+    if (this.elapsedStartedAtMs) {
+      this.elapsedSeconds = Math.floor((Date.now() - this.elapsedStartedAtMs) / 1000);
+    }
   }
 
   onContentClick(event: MouseEvent): void {
