@@ -41,7 +41,7 @@ import {
   TOOL_NAME_DELETE_OPERATOR,
   type ToolContext,
 } from "./tools/workflow-crud-tools";
-import type { WorkflowContent } from "../types/workflow";
+import type { WorkflowContent, LogicalPlan } from "../types/workflow";
 import {
   createExecuteOperatorTool,
   executeOperatorAndFormat,
@@ -826,12 +826,127 @@ export class TexeraAgent {
 
   async documentWorkflow(workflowContent?: WorkflowContent): Promise<string> {
     const content = workflowContent ?? this.workflowState.getWorkflowContent();
+    const context = await this.buildDocumentationContext(content);
     const { text } = await generateText({
       model: this.model,
       system: WORKFLOW_DOCUMENTATION_PROMPT,
-      prompt: JSON.stringify(content, null, 2),
+      prompt: context,
     });
     return text;
+  }
+
+  private async buildDocumentationContext(content: WorkflowContent): Promise<string> {
+    const UDF_CODE_KEYS = new Set(["code", "script"]);
+    const UDF_TYPES = new Set(["PythonUDFV2", "RUDF"]);
+
+    // Attempt compilation to get port schemas; fail gracefully.
+    let outputSchemas: Record<string, Record<string, readonly { attributeName: string; attributeType: string }[] | undefined>> = {};
+    const enabledOps = content.operators.filter(op => !op.isDisabled);
+    if (enabledOps.length > 0) {
+      try {
+        const logicalPlan: LogicalPlan = {
+          operators: enabledOps.map(op => ({
+            operatorID: op.operatorID,
+            operatorType: op.operatorType,
+            ...op.operatorProperties,
+            inputPorts: op.inputPorts,
+            outputPorts: op.outputPorts,
+          })),
+          links: content.links
+            .filter(l => enabledOps.some(o => o.operatorID === l.source.operatorID) &&
+                         enabledOps.some(o => o.operatorID === l.target.operatorID))
+            .map(l => ({
+              fromOpId: l.source.operatorID,
+              fromPortId: { id: parseInt(l.source.portID) || 0, internal: false },
+              toOpId: l.target.operatorID,
+              toPortId: { id: parseInt(l.target.portID) || 0, internal: false },
+            })),
+        };
+        const compiled = await compileWorkflowAsync(logicalPlan);
+        if (compiled) {
+          outputSchemas = compiled.operatorOutputSchemas as typeof outputSchemas;
+        }
+      } catch {
+        // schema enrichment is best-effort
+      }
+    }
+
+    const opDisplayName = (op: WorkflowContent["operators"][number]) =>
+      op.customDisplayName || op.operatorType;
+
+    const lines: string[] = [];
+
+    // Operators
+    lines.push("## Operators\n");
+    for (const op of content.operators) {
+      const label = opDisplayName(op);
+      const desc = this.metadataStore.getDescription(op.operatorType);
+      const disabled = op.isDisabled ? " [DISABLED — excluded from execution]" : "";
+
+      lines.push(`### "${label}" (${op.operatorType})${disabled}`);
+      if (desc) lines.push(`Description: ${desc}`);
+
+      const props = op.operatorProperties ?? {};
+      const isUDF = UDF_TYPES.has(op.operatorType);
+
+      if (isUDF) {
+        for (const key of UDF_CODE_KEYS) {
+          const code = props[key];
+          if (typeof code === "string" && code.trim()) {
+            lines.push(`${key}:\n\`\`\`python\n${code.trim()}\n\`\`\``);
+          }
+        }
+        const otherEntries = Object.entries(props).filter(([k, v]) => !UDF_CODE_KEYS.has(k) && v !== undefined && v !== null && v !== "");
+        if (otherEntries.length > 0) {
+          lines.push("Other properties: " + otherEntries.map(([k, v]) => `${k}=${JSON.stringify(v)}`).join(", "));
+        }
+      } else {
+        const entries = Object.entries(props).filter(([, v]) => v !== undefined && v !== null && v !== "");
+        if (entries.length > 0) {
+          lines.push("Properties:");
+          for (const [k, v] of entries) {
+            lines.push(`  - ${k}: ${JSON.stringify(v)}`);
+          }
+        }
+      }
+
+      // Output schemas from compilation
+      const opSchemas = outputSchemas[op.operatorID];
+      if (opSchemas) {
+        for (const [portId, schema] of Object.entries(opSchemas)) {
+          if (schema && schema.length > 0) {
+            const cols = schema.map(a => `${a.attributeName}: ${a.attributeType}`).join(", ");
+            lines.push(`Output port ${portId} schema: [${cols}]`);
+          }
+        }
+      }
+
+      lines.push("");
+    }
+
+    // Links
+    if (content.links.length > 0) {
+      const opMap = new Map(content.operators.map(op => [op.operatorID, opDisplayName(op)]));
+      lines.push("## Data Flow\n");
+      for (const link of content.links) {
+        const from = opMap.get(link.source.operatorID) ?? link.source.operatorID;
+        const to = opMap.get(link.target.operatorID) ?? link.target.operatorID;
+        lines.push(`- "${from}" → "${to}"`);
+      }
+      lines.push("");
+    }
+
+    // Comment boxes (author notes)
+    const notes = (content.commentBoxes ?? []).filter(b => b.comments?.trim());
+    if (notes.length > 0) {
+      lines.push("## Author Notes\n");
+      for (const box of notes) {
+        lines.push(`- ${box.comments.trim()}`);
+      }
+      lines.push("");
+    }
+
+    return lines.join("\n");
   }
 
   destroy(): void {
