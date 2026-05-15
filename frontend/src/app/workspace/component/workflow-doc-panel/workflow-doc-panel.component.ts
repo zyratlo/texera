@@ -243,11 +243,11 @@ export class WorkflowDocPanelComponent implements OnInit, OnDestroy {
     this.stopElapsedTimer();
     this.isGenerating = false;
     this.notificationService.info("Documentation generation cancelled.");
-    if (this.hasHistory) {
-      this.loadEntry(this.history[0]);
-    } else {
-      this.setView("intro");
-    }
+    this.currentEntry = null;
+    this.rawMarkdown = "";
+    this.renderedMarkdown = "";
+    this.generatedAt = null;
+    this.setView("intro");
     this.cdr.detectChanges();
   }
 
