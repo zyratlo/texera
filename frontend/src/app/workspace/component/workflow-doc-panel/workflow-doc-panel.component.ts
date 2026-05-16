@@ -32,6 +32,7 @@ import { NzCheckboxComponent } from "ng-zorro-antd/checkbox";
 import { FormsModule } from "@angular/forms";
 import { MarkdownService } from "ngx-markdown";
 import { interval, Observable, Subscription } from "rxjs";
+import { saveAs } from "file-saver";
 import { NotificationService } from "../../../common/service/notification/notification.service";
 import { WorkflowActionService } from "../../service/workflow-graph/model/workflow-action.service";
 import { DocEditingState, DocEntry } from "../../service/workflow-doc/workflow-doc.service";
@@ -90,7 +91,6 @@ export class WorkflowDocPanelComponent implements OnInit, OnDestroy {
   generatedAt: Date | null = null;
   history: DocEntry[] = [];
   isGenerating = false;
-  copied = false;
   elapsedSeconds = 0;
   compareMode = false;
   selectedEntries = new Set<DocEntry>();
@@ -362,11 +362,17 @@ export class WorkflowDocPanelComponent implements OnInit, OnDestroy {
     this.workflowActionService.getTexeraGraph().triggerCenterOnOperatorEvent(operatorID);
   }
 
-  copyToClipboard(): void {
-    navigator.clipboard.writeText(this.rawMarkdown).then(() => {
-      this.copied = true;
-      setTimeout(() => (this.copied = false), 2000);
-    });
+  downloadMarkdown(): void {
+    if (!this.rawMarkdown) return;
+    const workflowName = this.workflowActionService.getWorkflow()?.name?.trim() || "Untitled Workflow";
+    const reportPart =
+      this.currentEntry?.title?.trim() ||
+      `workflow-doc-${new Date().toISOString().replace(/[:.]/g, "-")}`;
+    const safeName = `${workflowName} - ${reportPart}`
+      .replace(/[<>:"/\\|?*\x00-\x1f]/g, "_")
+      .slice(0, 160);
+    const blob = new Blob([this.rawMarkdown], { type: "text/markdown;charset=utf-8" });
+    saveAs(blob, `${safeName}.md`);
   }
 
   isViewingEntry(entry: DocEntry): boolean {

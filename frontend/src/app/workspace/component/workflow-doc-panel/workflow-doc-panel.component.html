@@ -285,12 +285,12 @@
             nzSize="small"
             class="doc-action-copy"
             [disabled]="isGenerating"
-            [nz-tooltip]="copied ? 'Copied to clipboard!' : 'Copy as Markdown'"
-            (click)="copyToClipboard()">
+            [nz-tooltip]="'Download as Markdown file'"
+            (click)="downloadMarkdown()">
             <i
               nz-icon
-              [nzType]="copied ? 'check' : 'copy'"></i>
-            {{ copied ? "Copied" : "Copy Markdown" }}
+              nzType="download"></i>
+            Download
           </button>
         </ng-container>
         <ng-container *ngIf="editMode">
