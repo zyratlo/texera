@@ -145,6 +145,8 @@ export class WorkflowDocService {
       target.markdown = newMarkdown;
       target.generatedAt = newTimestamp;
       target.edited = true;
+      const reordered = [target, ...list.filter(e => e !== target)];
+      this.history.set(wid, reordered);
     }
     this.writeAll();
     return newTimestamp;

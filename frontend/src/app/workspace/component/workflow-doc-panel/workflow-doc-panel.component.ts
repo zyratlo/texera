@@ -454,9 +454,11 @@ export class WorkflowDocPanelComponent implements OnInit, OnDestroy {
     const onUpdateEntry: ((entry: DocEntry, newMarkdown: string) => Date | void) | undefined =
       this.modalData?.onUpdateEntry;
     const newTimestamp = onUpdateEntry?.(this.currentEntry, content) ?? new Date();
-    this.currentEntry.markdown = content;
-    this.currentEntry.generatedAt = newTimestamp;
-    this.currentEntry.edited = true;
+    const updated = this.currentEntry;
+    updated.markdown = content;
+    updated.generatedAt = newTimestamp;
+    updated.edited = true;
+    this.history = [updated, ...this.history.filter(e => e !== updated)];
     this.rawMarkdown = content;
     this.generatedAt = newTimestamp;
     this.renderMarkdown(content);
