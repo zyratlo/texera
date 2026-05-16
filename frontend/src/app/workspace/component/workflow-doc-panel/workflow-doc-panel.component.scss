@@ -25,6 +25,14 @@
   min-height: 0;
 }
 
+.doc-view-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  flex: 1;
+  min-height: 0;
+}
+
 .doc-intro {
   display: flex;
   flex-direction: column;

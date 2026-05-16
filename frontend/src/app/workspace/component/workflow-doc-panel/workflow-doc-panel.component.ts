@@ -18,6 +18,7 @@
  */
 
 import { ChangeDetectorRef, Component, inject, OnDestroy, OnInit } from "@angular/core";
+import { animate, query, style, transition, trigger } from "@angular/animations";
 import { DatePipe, NgFor, NgIf } from "@angular/common";
 import { NZ_DRAWER_DATA } from "ng-zorro-antd/drawer";
 import { NzButtonComponent } from "ng-zorro-antd/button";
@@ -54,6 +55,30 @@ type DocPanelView = "intro" | "doc";
     NzCheckboxComponent,
     FormsModule,
     NzWaveDirective,
+  ],
+  animations: [
+    trigger("slideView", [
+      transition("intro => doc", [
+        query(
+          ":enter",
+          [
+            style({ opacity: 0, transform: "translateX(30px)" }),
+            animate("250ms ease-out", style({ opacity: 1, transform: "translateX(0)" })),
+          ],
+          { optional: true }
+        ),
+      ]),
+      transition("doc => intro", [
+        query(
+          ":enter",
+          [
+            style({ opacity: 0, transform: "translateX(-30px)" }),
+            animate("250ms ease-out", style({ opacity: 1, transform: "translateX(0)" })),
+          ],
+          { optional: true }
+        ),
+      ]),
+    ]),
   ],
 })
 export class WorkflowDocPanelComponent implements OnInit, OnDestroy {

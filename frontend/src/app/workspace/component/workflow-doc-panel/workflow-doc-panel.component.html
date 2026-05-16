@@ -17,7 +17,9 @@
  under the License.
 -->
 
-<div class="doc-panel">
+<div
+  class="doc-panel"
+  [@slideView]="view">
   <div
     *ngIf="view === 'intro'"
     class="doc-intro">
@@ -199,7 +201,9 @@
     </div>
   </div>
 
-  <ng-container *ngIf="view === 'doc'">
+  <div
+    *ngIf="view === 'doc'"
+    class="doc-view-container">
     <div class="doc-header">
       <button
         nz-button
@@ -349,5 +353,5 @@
       class="doc-empty">
       No documentation available.
     </div>
-  </ng-container>
+  </div>
 </div>
