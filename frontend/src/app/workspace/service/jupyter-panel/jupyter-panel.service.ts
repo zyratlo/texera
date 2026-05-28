@@ -27,6 +27,7 @@ import { NotificationService } from "src/app/common/service/notification/notific
 import { distinctUntilChanged, switchMap } from "rxjs/operators";
 import { AppSettings } from "../../../common/app-setting";
 import { NotebookMigrationService } from "../notebook-migration/notebook-migration.service";
+import { GuiConfigService } from "../../../common/service/gui-config.service";
 
 @UntilDestroy()
 @Injectable({
@@ -47,12 +48,18 @@ export class JupyterPanelService {
     private workflowActionService: WorkflowActionService,
     private http: HttpClient,
     private notificationService: NotificationService,
-    private notebookMigrationService: NotebookMigrationService
+    private notebookMigrationService: NotebookMigrationService,
+    private config: GuiConfigService
   ) {
     window.addEventListener("message", this.handleNotebookMessage);
   }
 
+  private get enabled(): boolean {
+    return this.config.env.pythonNotebookMigrationEnabled;
+  }
+
   public init(): void {
+    if (!this.enabled) return;
     this.workflowActionService
       .workflowMetaDataChanged()
       .pipe(
@@ -158,6 +165,7 @@ export class JupyterPanelService {
 
   // Open the Jupyter Notebook panel
   openPanel(panelName: string): void {
+    if (!this.enabled) return;
     if (panelName === "JupyterNotebookPanel") {
       this.jupyterNotebookPanelVisible.next(true);
     }
@@ -165,6 +173,7 @@ export class JupyterPanelService {
 
   // Close the Jupyter Notebook panel
   closeJupyterNotebookPanel(): void {
+    if (!this.enabled) return;
     this.jupyterNotebookPanelVisible.next(false);
     const wid = this.workflowActionService.getWorkflow().wid;
     if (wid != undefined) {
@@ -174,11 +183,13 @@ export class JupyterPanelService {
 
   // Minimize the Jupyter Notebook panel
   public minimizeJupyterNotebookPanel(): void {
+    if (!this.enabled) return;
     this.jupyterNotebookPanelVisible.next(false);
   }
 
   // Expand the Jupyter Notebook panel
   public openJupyterNotebookPanel(): void {
+    if (!this.enabled) return;
     const wid = this.workflowActionService.getWorkflow().wid;
     const mappingKey = "mapping_wid_" + wid;
     // Check if there is corresponding mapping data
@@ -193,6 +204,7 @@ export class JupyterPanelService {
 
   // Handle messages from the Jupyter notebook iframe
   private handleNotebookMessage = async (event: MessageEvent) => {
+    if (!this.enabled) return;
     const allowedOrigins = [window.location.origin, await this.notebookMigrationService.getJupyterURL()];
     if (!allowedOrigins.includes(event.origin)) {
       return;
@@ -235,6 +247,7 @@ export class JupyterPanelService {
 
   // Handle when a Texera component is clicked to trigger the corresponding notebook cell
   async onWorkflowComponentClick(cellUUID: string): Promise<void> {
+    if (!this.enabled) return;
     const jupyterURL = await this.notebookMigrationService.getJupyterURL();
     if (jupyterURL && this.iframeRef && this.iframeRef.contentWindow) {
       const wid = this.workflowActionService.getWorkflow().wid;

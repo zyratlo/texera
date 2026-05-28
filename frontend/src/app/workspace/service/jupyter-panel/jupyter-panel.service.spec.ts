@@ -23,6 +23,7 @@ import { WorkflowActionService } from "../workflow-graph/model/workflow-action.s
 import { HttpClientTestingModule, HttpTestingController } from "@angular/common/http/testing";
 import { NotificationService } from "src/app/common/service/notification/notification.service";
 import { NotebookMigrationService } from "../notebook-migration/notebook-migration.service";
+import { GuiConfigService } from "src/app/common/service/gui-config.service";
 import { of } from "rxjs";
 
 describe("JupyterPanelService", () => {
@@ -32,6 +33,9 @@ describe("JupyterPanelService", () => {
   let mockWorkflow: any;
   let mockNotification: any;
   let mockNotebook: any;
+  // Mutable so individual describe blocks can flip the flag mid-spec; the
+  // service stores a reference, so mutations are observed on the next read.
+  let mockGuiConfig: { env: { pythonNotebookMigrationEnabled: boolean } };
 
   beforeEach(() => {
     mockWorkflow = {
@@ -70,6 +74,8 @@ describe("JupyterPanelService", () => {
       getJupyterURL: jasmine.createSpy().and.resolveTo("http://jupyter"),
     };
 
+    mockGuiConfig = { env: { pythonNotebookMigrationEnabled: true } };
+
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
       providers: [
@@ -77,6 +83,7 @@ describe("JupyterPanelService", () => {
         { provide: WorkflowActionService, useValue: mockWorkflow },
         { provide: NotificationService, useValue: mockNotification },
         { provide: NotebookMigrationService, useValue: mockNotebook },
+        { provide: GuiConfigService, useValue: mockGuiConfig },
       ],
     });
 
@@ -210,5 +217,63 @@ describe("JupyterPanelService", () => {
       },
       "http://jupyter"
     );
+  });
+
+  // Feature flag gate (defence in depth). With the flag off, every public
+  // method must short-circuit — no subscription in init, no visibility flips,
+  // no postMessage. The window message listener is installed in the constructor
+  // unconditionally, but the handler returns early on the flag check.
+  describe("when the feature flag is disabled", () => {
+    beforeEach(() => {
+      mockGuiConfig.env.pythonNotebookMigrationEnabled = false;
+    });
+
+    it("init does not subscribe to workflowMetaDataChanged", () => {
+      service.init();
+      expect(mockWorkflow.workflowMetaDataChanged).not.toHaveBeenCalled();
+    });
+
+    it("openPanel does not flip the visibility stream", () => {
+      let state: boolean | null = false;
+      service.jupyterNotebookPanelVisible$.subscribe(v => (state = v));
+      service.openPanel("JupyterNotebookPanel");
+      expect(state).toBeFalse();
+    });
+
+    it("closeJupyterNotebookPanel does not flip visibility or delete the mapping", () => {
+      let state: boolean | null = true;
+      service.jupyterNotebookPanelVisible$.subscribe(v => (state = v));
+      service.closeJupyterNotebookPanel();
+      // BehaviorSubject's initial value is false; we asserted via subscription
+      // that no `next(false)` was emitted by the gated method itself. With the
+      // initial value also being false, the meaningful check is that
+      // deleteMapping was never called.
+      expect(mockNotebook.deleteMapping).not.toHaveBeenCalled();
+    });
+
+    it("minimizeJupyterNotebookPanel does not flip visibility", () => {
+      const visibleSubject = (service as any).jupyterNotebookPanelVisible;
+      visibleSubject.next(true);
+      service.minimizeJupyterNotebookPanel();
+      expect(visibleSubject.value).toBeTrue();
+    });
+
+    it("openJupyterNotebookPanel does not warn or flip visibility", () => {
+      mockNotebook.hasMapping.and.returnValue(false);
+      let state: boolean | null = false;
+      service.jupyterNotebookPanelVisible$.subscribe(v => (state = v));
+      service.openJupyterNotebookPanel();
+      expect(state).toBeFalse();
+      expect(mockNotification.warning).not.toHaveBeenCalled();
+    });
+
+    it("onWorkflowComponentClick does not postMessage to the iframe", async () => {
+      const mockIframe = {
+        contentWindow: { postMessage: jasmine.createSpy() },
+      } as any;
+      service.setIframeRef(mockIframe);
+      await service.onWorkflowComponentClick("cell1");
+      expect(mockIframe.contentWindow.postMessage).not.toHaveBeenCalled();
+    });
   });
 });
