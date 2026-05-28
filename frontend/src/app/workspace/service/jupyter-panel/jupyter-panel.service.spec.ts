@@ -95,50 +95,6 @@ describe("JupyterPanelService", () => {
     httpMock.verify();
   });
 
-  // Panel visibility
-  it("should open and close panel", () => {
-    let state: boolean | null = null;
-
-    service.jupyterNotebookPanelVisible$.subscribe(v => (state = v));
-
-    service.openPanel("JupyterNotebookPanel");
-    expect(state).toBeTrue();
-
-    service.closeJupyterNotebookPanel();
-    expect(state).toBeFalse();
-  });
-
-  it("should minimize panel", () => {
-    let state: boolean | null = true;
-
-    service.jupyterNotebookPanelVisible$.subscribe(v => (state = v));
-
-    service.minimizeJupyterNotebookPanel();
-
-    expect(state).toBeFalse();
-  });
-
-  // openJupyterNotebookPanel
-  it("should warn if no mapping exists", () => {
-    mockNotebook.hasMapping.and.returnValue(false);
-
-    service.openJupyterNotebookPanel();
-
-    expect(mockNotification.warning).toHaveBeenCalled();
-  });
-
-  it("should open panel if mapping exists", () => {
-    mockNotebook.hasMapping.and.returnValue(true);
-
-    let state: boolean | null = false;
-
-    service.jupyterNotebookPanelVisible$.subscribe(v => (state = v));
-
-    service.openJupyterNotebookPanel();
-
-    expect(state).toBeTrue();
-  });
-
   // HTTP fetchNotebookAndMapping
   it("should return 0 when exists=false", done => {
     (service as any).fetchNotebookAndMapping(1, 1).subscribe((result: any) => {
@@ -179,19 +135,6 @@ describe("JupyterPanelService", () => {
     expect(mockWorkflow.highlightLinks).toHaveBeenCalledWith(true, "link1");
   });
 
-  // openPanel
-  it("should open panel only for correct name", () => {
-    let state: boolean | null = false;
-
-    service.jupyterNotebookPanelVisible$.subscribe(v => (state = v));
-
-    service.openPanel("WrongPanel");
-    expect(state).toBeFalse();
-
-    service.openPanel("JupyterNotebookPanel");
-    expect(state).toBeTrue();
-  });
-
   // onWorkflowComponentClick
   it("should postMessage when mapping exists", async () => {
     const mockIframe = {
@@ -219,10 +162,11 @@ describe("JupyterPanelService", () => {
     );
   });
 
-  // Feature flag gate (defence in depth). With the flag off, every public
-  // method must short-circuit — no subscription in init, no visibility flips,
-  // no postMessage. The window message listener is installed in the constructor
-  // unconditionally, but the handler returns early on the flag check.
+  // Feature flag gate (defence in depth). With the flag off, init must not
+  // subscribe to workflow changes, and onWorkflowComponentClick must not
+  // postMessage to the iframe. The window message listener is installed in
+  // the constructor unconditionally, but handleNotebookMessage returns early
+  // on the flag check.
   describe("when the feature flag is disabled", () => {
     beforeEach(() => {
       mockGuiConfig.env.pythonNotebookMigrationEnabled = false;
@@ -231,40 +175,6 @@ describe("JupyterPanelService", () => {
     it("init does not subscribe to workflowMetaDataChanged", () => {
       service.init();
       expect(mockWorkflow.workflowMetaDataChanged).not.toHaveBeenCalled();
-    });
-
-    it("openPanel does not flip the visibility stream", () => {
-      let state: boolean | null = false;
-      service.jupyterNotebookPanelVisible$.subscribe(v => (state = v));
-      service.openPanel("JupyterNotebookPanel");
-      expect(state).toBeFalse();
-    });
-
-    it("closeJupyterNotebookPanel does not flip visibility or delete the mapping", () => {
-      let state: boolean | null = true;
-      service.jupyterNotebookPanelVisible$.subscribe(v => (state = v));
-      service.closeJupyterNotebookPanel();
-      // BehaviorSubject's initial value is false; we asserted via subscription
-      // that no `next(false)` was emitted by the gated method itself. With the
-      // initial value also being false, the meaningful check is that
-      // deleteMapping was never called.
-      expect(mockNotebook.deleteMapping).not.toHaveBeenCalled();
-    });
-
-    it("minimizeJupyterNotebookPanel does not flip visibility", () => {
-      const visibleSubject = (service as any).jupyterNotebookPanelVisible;
-      visibleSubject.next(true);
-      service.minimizeJupyterNotebookPanel();
-      expect(visibleSubject.value).toBeTrue();
-    });
-
-    it("openJupyterNotebookPanel does not warn or flip visibility", () => {
-      mockNotebook.hasMapping.and.returnValue(false);
-      let state: boolean | null = false;
-      service.jupyterNotebookPanelVisible$.subscribe(v => (state = v));
-      service.openJupyterNotebookPanel();
-      expect(state).toBeFalse();
-      expect(mockNotification.warning).not.toHaveBeenCalled();
     });
 
     it("onWorkflowComponentClick does not postMessage to the iframe", async () => {
