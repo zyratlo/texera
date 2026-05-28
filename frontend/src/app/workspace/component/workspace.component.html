@@ -21,7 +21,22 @@
   <nz-spin
     [nzSpinning]="isLoading"
     [nzSize]="'large'"
-    nzTip="Loading workflow..."></nz-spin>
+    nzTip="Loading workflow...">
+  </nz-spin>
+</div>
+<div class="openai-spinner">
+  <nz-spin
+    [nzSize]="'large'"
+    [nzSpinning]="isWaitingForLLM"></nz-spin>
+
+  <div
+    class="llm-spinner-text"
+    *ngIf="isWaitingForLLM">
+    <div>Waiting for LLM response...</div>
+    <div>Estimated time 1-3 minutes</div>
+    <div class="elapsed-time">Do not close this tab</div>
+    <div class="elapsed-time">Elapsed time: {{ formattedElapsedTime }}</div>
+  </div>
 </div>
 <div id="result">
   <texera-result-panel></texera-result-panel>
@@ -29,8 +44,10 @@
 <texera-workflow-editor></texera-workflow-editor>
 <texera-menu
   [writeAccess]="writeAccess"
-  [pid]="pid">
+  [pid]="pid"
+  (setWaitingForLLM)="onWaitingForLLMChanged($event)">
 </texera-menu>
+<texera-jupyter-notebook-panel></texera-jupyter-notebook-panel>
 <texera-mini-map class="box"></texera-mini-map>
 <texera-left-panel> </texera-left-panel>
 <texera-agent-panel
