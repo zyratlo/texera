@@ -48,6 +48,7 @@ import { NzNoAnimationDirective } from "ng-zorro-antd/core/animation";
 import { ContextMenuComponent } from "./context-menu/context-menu/context-menu.component";
 import { NgIf } from "@angular/common";
 import { AgentInteractionComponent } from "../agent/agent-interaction/agent-interaction.component";
+import { JupyterPanelService } from "../../service/jupyter-panel/jupyter-panel.service";
 
 // jointjs interactive options for enabling and disabling interactivity
 // https://resources.jointjs.com/docs/jointjs/v3.2/joint.html#dia.Paper.prototype.options.interactive
@@ -128,7 +129,8 @@ export class WorkflowEditorComponent implements OnInit, AfterViewInit, OnDestroy
     public nzContextMenu: NzContextMenuService,
     private elementRef: ElementRef,
     private config: GuiConfigService,
-    private agentService: AgentService
+    private agentService: AgentService,
+    private jupyterPanelService: JupyterPanelService
   ) {
     this.wrapper = this.workflowActionService.getJointGraphWrapper();
   }
@@ -603,12 +605,14 @@ export class WorkflowEditorComponent implements OnInit, AfterViewInit, OnDestroy
         const elementID = event[0].model.id.toString();
         const highlightedOperatorIDs = this.wrapper.getCurrentHighlightedOperatorIDs();
         const highlightedCommentBoxIDs = this.wrapper.getCurrentHighlightedCommentBoxIDs();
+        this.jupyterPanelService.onWorkflowComponentClick(elementID); // Highlight corresponding Jupyter notebook cell
         if (event[1].shiftKey) {
           // if in multiselect toggle highlights on click
           if (highlightedOperatorIDs.includes(elementID)) {
             this.workflowActionService.unhighlightOperators(elementID);
           } else if (this.workflowActionService.getTexeraGraph().hasOperator(elementID)) {
             this.workflowActionService.highlightOperators(<boolean>event[1].shiftKey, elementID);
+            this.jupyterPanelService.onWorkflowComponentClick(elementID); // Highlight corresponding Jupyter notebook cell
           }
           if (highlightedCommentBoxIDs.includes(elementID)) {
             this.wrapper.unhighlightCommentBoxes(elementID);

@@ -17,6 +17,7 @@
  * under the License.
  */
 
+import { CommonModule } from "@angular/common";
 import { AfterViewInit, Component, HostListener, OnDestroy, ViewChild } from "@angular/core";
 import { UntilDestroy, untilDestroyed } from "@ngneat/until-destroy";
 import { WorkflowActionService } from "../../../service/workflow-graph/model/workflow-action.service";
@@ -31,6 +32,8 @@ import { NzWaveDirective } from "ng-zorro-antd/core/wave";
 import { ɵNzTransitionPatchDirective } from "ng-zorro-antd/core/transition-patch";
 import { NzIconDirective } from "ng-zorro-antd/icon";
 import { FormlyRepeatDndComponent } from "../../../../common/formly/repeat-dnd/repeat-dnd.component";
+import { JupyterPanelService } from "../../../service/jupyter-panel/jupyter-panel.service";
+import { GuiConfigService } from "../../../../common/service/gui-config.service";
 
 @UntilDestroy()
 @Component({
@@ -45,6 +48,7 @@ import { FormlyRepeatDndComponent } from "../../../../common/formly/repeat-dnd/r
     NzIconDirective,
     CdkDrag,
     FormlyRepeatDndComponent,
+    CommonModule,
   ],
 })
 export class MiniMapComponent implements AfterViewInit, OnDestroy {
@@ -57,7 +61,9 @@ export class MiniMapComponent implements AfterViewInit, OnDestroy {
 
   constructor(
     private workflowActionService: WorkflowActionService,
-    private panelService: PanelService
+    private panelService: PanelService,
+    protected config: GuiConfigService,
+    private jupyterPanelService: JupyterPanelService
   ) {}
 
   ngAfterViewInit() {
@@ -154,6 +160,17 @@ export class MiniMapComponent implements AfterViewInit, OnDestroy {
       .setZoomProperty(
         this.workflowActionService.getJointGraphWrapper().getZoomRatio() + JointGraphWrapper.ZOOM_CLICK_DIFF
       );
+  }
+
+  /**
+   * This method will expand and redisplay the jupyter notebook.
+   */
+  public get pythonNotebookMigrationEnabled(): boolean {
+    return this.config.env.pythonNotebookMigrationEnabled;
+  }
+
+  public onClickExpandJupyterNotebookPanel(): void {
+    this.jupyterPanelService.openJupyterNotebookPanel();
   }
 
   public triggerCenter(): void {

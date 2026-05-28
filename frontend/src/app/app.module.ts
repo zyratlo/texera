@@ -20,7 +20,7 @@
 import { DatePipe, registerLocaleData } from "@angular/common";
 import { HTTP_INTERCEPTORS, HttpClientModule } from "@angular/common/http";
 import en from "@angular/common/locales/en";
-import { APP_INITIALIZER, CUSTOM_ELEMENTS_SCHEMA, NgModule } from "@angular/core";
+import { APP_INITIALIZER, CUSTOM_ELEMENTS_SCHEMA, APP_BOOTSTRAP_LISTENER, NgModule } from "@angular/core";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { BrowserModule } from "@angular/platform-browser";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
@@ -191,6 +191,7 @@ import { NzCheckboxModule } from "ng-zorro-antd/checkbox";
 import { RegistrationRequestModalComponent } from "./common/service/user/registration-request-modal/registration-request-modal.component";
 import { UserComputingUnitComponent } from "./dashboard/component/user/user-computing-unit/user-computing-unit.component";
 import { UserComputingUnitListItemComponent } from "./dashboard/component/user/user-computing-unit/user-computing-unit-list-item/user-computing-unit-list-item.component";
+import { JupyterPanelService } from "./workspace/service/jupyter-panel/jupyter-panel.service";
 
 registerLocaleData(en);
 
@@ -402,6 +403,12 @@ registerLocaleData(en);
           )
         ),
       deps: [GuiConfigService],
+      multi: true,
+    },
+    {
+      provide: APP_BOOTSTRAP_LISTENER,
+      useFactory: (jupyterPanelService: JupyterPanelService) => () => jupyterPanelService.init(),
+      deps: [JupyterPanelService],
       multi: true,
     },
   ],
