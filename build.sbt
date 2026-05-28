@@ -167,6 +167,15 @@ lazy val WorkflowExecutionService = (project in file("amber"))
   )
   .configs(Test)
   .dependsOn(DAO % "test->test", Auth % "test->test") // test scope dependency
+lazy val NotebookMigrationService = (project in file("notebook-migration-service"))
+  .dependsOn(Auth, Config, DAO)
+  .settings(asfLicensingSettings)
+  .settings(
+    dependencyOverrides ++= Seq(
+      // override it as io.dropwizard 4 require 2.16.1 or higher
+      "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.17.0"
+    )
+  )
 
 // root project definition
 lazy val TexeraProject = (project in file("."))
@@ -184,7 +193,8 @@ lazy val TexeraProject = (project in file("."))
     ConfigService,
     FileService,
     WorkflowCompilingService,
-    WorkflowExecutionService
+    WorkflowExecutionService,
+    NotebookMigrationService
   )
   .settings(
     name := "texera",
