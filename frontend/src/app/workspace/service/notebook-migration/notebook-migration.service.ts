@@ -23,6 +23,7 @@ import { AppSettings } from "../../../common/app-setting";
 import { Notebook, NotebookMigrationLLM } from "./migration-llm";
 import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { NotificationService } from "src/app/common/service/notification/notification.service";
+import { GuiConfigService } from "../../../common/service/gui-config.service";
 import { catchError, firstValueFrom, map, Observable, of } from "rxjs";
 
 interface LiteLLMModel {
@@ -56,10 +57,16 @@ export class NotebookMigrationService {
 
   constructor(
     private http: HttpClient,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private config: GuiConfigService
   ) {}
 
+  private get enabled(): boolean {
+    return this.config.env.pythonNotebookMigrationEnabled;
+  }
+
   public getAvailableModels(): Observable<{ name: string }[]> {
+    if (!this.enabled) return of([]);
     return this.http.get<LiteLLMModelsResponse>(`${AppSettings.getApiEndpoint()}/models`).pipe(
       map(response =>
         response.data.map(model => ({
@@ -74,6 +81,7 @@ export class NotebookMigrationService {
   }
 
   public async sendToAIGenerateWorkflow(notebookContent: Notebook, modelType: string, apiKey: string) {
+    if (!this.enabled) throw new Error("Notebook migration feature is disabled");
     const migrationLLM = new NotebookMigrationLLM();
     migrationLLM.initialize(modelType, apiKey);
 
@@ -96,6 +104,7 @@ export class NotebookMigrationService {
   }
 
   public async sendNotebookToJupyter(notebookData: Notebook) {
+    if (!this.enabled) return 0;
     const jupyterAPIUrl = `${AppSettings.getApiEndpoint()}/notebook-migration/set-notebook`;
 
     const requestBody = {
@@ -120,6 +129,7 @@ export class NotebookMigrationService {
   }
 
   public async getJupyterURL(): Promise<string | null> {
+    if (!this.enabled) return null;
     try {
       const response = await fetch("/api/notebook-migration/get-jupyter-url");
       if (!response.ok) {
@@ -142,6 +152,7 @@ export class NotebookMigrationService {
   }
 
   public async getJupyterIframeURL(): Promise<string | null> {
+    if (!this.enabled) return null;
     try {
       const response = await fetch("/api/notebook-migration/get-jupyter-iframe-url");
       if (!response.ok) {
@@ -164,6 +175,7 @@ export class NotebookMigrationService {
   }
 
   public storeNotebookAndMapping(wid: number | undefined, vid: number = 1, mappingContent: any, notebookContent: any) {
+    if (!this.enabled) return of(null);
     const dbAPIUrl = `${AppSettings.getApiEndpoint()}/notebook-migration/store-notebook-and-mapping`;
     const headers = new HttpHeaders({ "Content-Type": "application/json" });
 

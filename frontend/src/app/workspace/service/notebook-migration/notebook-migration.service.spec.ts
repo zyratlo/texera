@@ -21,21 +21,32 @@ import { TestBed } from "@angular/core/testing";
 import { NotebookMigrationService } from "./notebook-migration.service";
 import { HttpClientTestingModule, HttpTestingController } from "@angular/common/http/testing";
 import { NotificationService } from "src/app/common/service/notification/notification.service";
+import { GuiConfigService } from "src/app/common/service/gui-config.service";
 
 describe("NotebookMigrationService", () => {
   let service: NotebookMigrationService;
   let httpMock: HttpTestingController;
   let mockNotificationService: any;
+  // Mutable so individual describe blocks can flip the flag mid-spec by
+  // reassigning `mockGuiConfigService.env.pythonNotebookMigrationEnabled`.
+  // The service stores a reference to this object, so mutations are observed
+  // on the next read of `this.enabled`.
+  let mockGuiConfigService: { env: { pythonNotebookMigrationEnabled: boolean } };
 
   beforeEach(() => {
     mockNotificationService = {
       success: jasmine.createSpy("success"),
       error: jasmine.createSpy("error"),
     };
+    mockGuiConfigService = { env: { pythonNotebookMigrationEnabled: true } };
 
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
-      providers: [NotebookMigrationService, { provide: NotificationService, useValue: mockNotificationService }],
+      providers: [
+        NotebookMigrationService,
+        { provide: NotificationService, useValue: mockNotificationService },
+        { provide: GuiConfigService, useValue: mockGuiConfigService },
+      ],
     });
 
     service = TestBed.inject(NotebookMigrationService);
@@ -183,5 +194,59 @@ describe("NotebookMigrationService", () => {
     const req = httpMock.expectOne(req => req.url.includes("/notebook-migration/store-notebook-and-mapping"));
 
     expect(req.request.method).toBe("POST");
+  });
+
+  // Feature flag gate (defence in depth). With the flag off, every public
+  // method must short-circuit — no HTTP traffic, no fetch, no LLM lifecycle,
+  // no notifications.
+  describe("when the feature flag is disabled", () => {
+    beforeEach(() => {
+      mockGuiConfigService.env.pythonNotebookMigrationEnabled = false;
+    });
+
+    it("getAvailableModels emits an empty array and makes no HTTP call", done => {
+      service.getAvailableModels().subscribe(models => {
+        expect(models).toEqual([]);
+        done();
+      });
+      httpMock.expectNone(req => req.url.includes("/models"));
+    });
+
+    it("sendToAIGenerateWorkflow rejects with a disabled-feature error", async () => {
+      await expectAsync(
+        service.sendToAIGenerateWorkflow({ cells: [] } as any, "gpt-4", "key")
+      ).toBeRejectedWithError(/disabled/i);
+    });
+
+    it("sendNotebookToJupyter returns 0 with no HTTP call or notification", async () => {
+      const result = await service.sendNotebookToJupyter({ cells: [] } as any);
+      expect(result).toBe(0);
+      expect(mockNotificationService.success).not.toHaveBeenCalled();
+      expect(mockNotificationService.error).not.toHaveBeenCalled();
+      httpMock.expectNone(req => req.url.includes("/notebook-migration/set-notebook"));
+    });
+
+    it("getJupyterURL returns null without calling fetch", async () => {
+      const fetchSpy = spyOn(window, "fetch");
+      const result = await service.getJupyterURL();
+      expect(result).toBeNull();
+      expect(fetchSpy).not.toHaveBeenCalled();
+    });
+
+    it("getJupyterIframeURL returns null without calling fetch", async () => {
+      const fetchSpy = spyOn(window, "fetch");
+      const result = await service.getJupyterIframeURL();
+      expect(result).toBeNull();
+      expect(fetchSpy).not.toHaveBeenCalled();
+    });
+
+    it("storeNotebookAndMapping emits without making an HTTP call", done => {
+      service.storeNotebookAndMapping(1, 1, {}, {}).subscribe({
+        next: () => {
+          httpMock.expectNone(req => req.url.includes("/notebook-migration/store-notebook-and-mapping"));
+          done();
+        },
+      });
+    });
   });
 });
