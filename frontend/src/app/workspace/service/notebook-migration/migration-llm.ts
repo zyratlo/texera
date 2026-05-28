@@ -18,6 +18,7 @@
  */
 
 import { Injectable } from "@angular/core";
+import { GuiConfigService } from "../../../common/service/gui-config.service";
 import { firstValueFrom, from, Observable, of } from "rxjs";
 import { map } from "rxjs/operators";
 import { createOpenAI } from "@ai-sdk/openai";
@@ -79,10 +80,17 @@ export class NotebookMigrationLLM {
     EXAMPLE_OF_MULTIPLE_UDF_CONVERSION,
   ];
 
+  constructor(private config: GuiConfigService) {}
+
+  private get enabled(): boolean {
+    return this.config.env.pythonNotebookMigrationEnabled;
+  }
+
   /**
    * Initialize a new LLM session with Texera documentation
    */
   public initialize(modelType: string = "gpt-5-mini", apiKey: string = "dummy"): void {
+    if (!this.enabled) return;
     this.model = createOpenAI({
       baseURL: new URL(`${AppSettings.getApiEndpoint()}`, document.baseURI).toString(),
       // apiKey is required by the library for creating the OpenAI compatible client;
@@ -106,6 +114,7 @@ export class NotebookMigrationLLM {
    * Verify the connection to the LLM using the given API key
    */
   public async verifyConnection(): Promise<boolean> {
+    if (!this.enabled) return false;
     if (!this.initialized) {
       throw new Error("LLM session not initialized");
     }
@@ -164,6 +173,7 @@ export class NotebookMigrationLLM {
    * Send a Jupyter Notebook to be converted into a workflow and mapping.
    */
   public async convertNotebookToWorkflow(notebook: Notebook): Promise<Observable<string>> {
+    if (!this.enabled) throw new Error("Notebook migration feature is disabled");
     if (!this.initialized) {
       throw new Error("LLM session not initialized");
     }
