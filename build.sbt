@@ -176,6 +176,7 @@ lazy val NotebookMigrationService = (project in file("notebook-migration-service
       "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.17.0"
     )
   )
+  .dependsOn(DAO % "test->test") // test scope dependency
 
 // root project definition
 lazy val TexeraProject = (project in file("."))
