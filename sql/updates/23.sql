@@ -28,22 +28,24 @@ SET search_path TO texera_db;
 
 BEGIN;
 
-CREATE TABLE IF NOT EXISTS notebook (
+CREATE TABLE IF NOT EXISTS notebook
+(
     nid         SERIAL  NOT NULL PRIMARY KEY,
-    wid         INT     NOT NULL,
+    wid         INT     NOT NULL UNIQUE,
     notebook    JSONB   NOT NULL,
+    UNIQUE (wid, nid),
     FOREIGN KEY (wid) REFERENCES workflow(wid) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS workflow_notebook_mapping (
+CREATE TABLE IF NOT EXISTS workflow_notebook_mapping
+(
     wid         INT     NOT NULL,
     vid         INT     NOT NULL,
     nid         INT     NOT NULL,
     mapping     JSONB   NOT NULL,
     PRIMARY KEY (wid, vid, nid),
-    FOREIGN KEY (wid) REFERENCES workflow(wid) ON DELETE CASCADE,
     FOREIGN KEY (vid) REFERENCES workflow_version(vid) ON DELETE CASCADE,
-    FOREIGN KEY (nid) REFERENCES notebook(nid) ON DELETE CASCADE
+    FOREIGN KEY (wid, nid) REFERENCES notebook(wid, nid) ON DELETE CASCADE
 );
 
 COMMIT;
