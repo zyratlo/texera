@@ -134,7 +134,12 @@ class NotebookMigrationResourceSpec
     NotebookMigrationResource.storeNotebookAndMapping(storePayload(notebook, mapping))
 
     val storedNotebookJson =
-      getDSLContext.selectFrom(NOTEBOOK).fetchOne().get(NOTEBOOK.NOTEBOOK_).asInstanceOf[JSONB].data()
+      getDSLContext
+        .selectFrom(NOTEBOOK)
+        .fetchOne()
+        .get(NOTEBOOK.NOTEBOOK_)
+        .asInstanceOf[JSONB]
+        .data()
     val storedMappingJson =
       getDSLContext
         .selectFrom(WORKFLOW_NOTEBOOK_MAPPING)
@@ -178,7 +183,8 @@ class NotebookMigrationResourceSpec
   it should "return exists=true with the stored notebook and mapping when a row exists" in {
     NotebookMigrationResource.storeNotebookAndMapping(storePayload())
 
-    val entity = NotebookMigrationResource.fetchNotebookAndMapping(fetchPayload()).getEntity.toString
+    val entity =
+      NotebookMigrationResource.fetchNotebookAndMapping(fetchPayload()).getEntity.toString
     entity should include("\"exists\": true")
     entity should include("\"notebook\":")
     entity should include("\"mapping\":")
@@ -197,7 +203,8 @@ class NotebookMigrationResourceSpec
     NotebookMigrationResource.storeNotebookAndMapping(storePayload(first, sampleMapping))
     NotebookMigrationResource.storeNotebookAndMapping(storePayload(second, sampleMapping))
 
-    val entity = NotebookMigrationResource.fetchNotebookAndMapping(fetchPayload()).getEntity.toString
+    val entity =
+      NotebookMigrationResource.fetchNotebookAndMapping(fetchPayload()).getEntity.toString
     entity should include("\"v2\"")
     entity should not include "\"v1\""
   }
