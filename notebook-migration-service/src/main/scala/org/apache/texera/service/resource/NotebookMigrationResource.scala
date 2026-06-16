@@ -29,7 +29,7 @@ import org.apache.texera.dao.jooq.generated.tables.WorkflowNotebookMapping
 import java.net.{HttpURLConnection, URL}
 import java.nio.charset.StandardCharsets
 import scala.util.control.NonFatal
-import org.apache.texera.amber.config.StorageConfig
+import org.apache.texera.common.config.StorageConfig
 
 object NotebookMigrationResource extends LazyLogging {
 
