@@ -90,6 +90,20 @@ export class NotebookMigrationLLM {
     }
   }
 
+  private parseJsonResponse(raw: string, context: string): any {
+    // Trim first, then strip optional markdown code fences (```json ... ``` or ``` ... ```)
+    const cleaned = raw
+      .trim()
+      .replace(/^```[a-zA-Z]*\s*/, "")
+      .replace(/\s*```$/, "")
+      .trim();
+    try {
+      return JSON.parse(cleaned);
+    } catch (err) {
+      throw new Error(`Failed to parse LLM ${context} response as JSON: ${(err as Error).message}`);
+    }
+  }
+
   /**
    * Initialize a new LLM session with Texera documentation
    */
@@ -190,7 +204,7 @@ export class NotebookMigrationLLM {
     const mapping = await this.sendPrompt(MAPPING_PROMPT);
 
     // Remove ```json blocks and parse
-    const udfLLMResponse = JSON.parse(workflow.replace(/^```json\s*|```$/g, "").trim());
+    const udfLLMResponse = this.parseJsonResponse(workflow, "workflow");
 
     const workflowJSON: WorkflowJSON = {
       operators: [],
@@ -271,7 +285,7 @@ export class NotebookMigrationLLM {
     });
 
     // Parse mapping
-    const parsedMapping: Record<string, string[]> = JSON.parse(mapping.replace(/^```json\s*|```$/g, "").trim());
+    const parsedMapping: Record<string, string[]> = this.parseJsonResponse(mapping, "mapping");
 
     const udfToCell: Record<string, string[]> = {};
     const cellToUdf: Record<string, string[]> = {};
