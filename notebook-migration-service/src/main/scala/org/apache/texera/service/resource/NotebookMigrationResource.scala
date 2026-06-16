@@ -358,21 +358,21 @@ class NotebookMigrationResource extends LazyLogging {
   @POST
   @Path("/set-notebook")
   def setNotebook(body: String): Response = {
-    logger.info("Setting notebook, request body: " + body)
+    logger.info("Setting notebook")
     NotebookMigrationResource.setNotebook(body)
   }
 
   @POST
   @Path("/store-notebook-and-mapping")
   def storeNotebookAndMapping(body: String): Response = {
-    logger.info("Storing notebook and mapping, request body: " + body)
+    logger.info("Storing notebook and mapping")
     NotebookMigrationResource.storeNotebookAndMapping(body)
   }
 
   @POST
   @Path("/fetch-notebook-and-mapping")
   def fetchNotebookAndMapping(body: String): Response = {
-    logger.info("Fetching notebook and mapping, request body: " + body)
+    logger.info("Fetching notebook and mapping")
     NotebookMigrationResource.fetchNotebookAndMapping(body)
   }
 }
