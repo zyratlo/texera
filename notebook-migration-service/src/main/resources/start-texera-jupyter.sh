@@ -1,3 +1,4 @@
+#!/bin/bash
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
 # distributed with this work for additional information
@@ -15,17 +16,19 @@
 # specific language governing permissions and limitations
 # under the License.
 
-FROM jupyter/base-notebook:notebook-6.5.4
+set -euo pipefail
 
-# Copy custom JavaScript for Jupyter and the startup script
-COPY custom.js /home/jovyan/.jupyter/custom/custom.js
-COPY start-texera-jupyter.sh /usr/local/bin/start-texera-jupyter.sh
+# Texera app origin used by custom.js (postMessage targetOrigin + inbound origin
+# check) and by the iframe CSP frame-ancestors. Override TEXERA_ORIGIN for
+# deployments under a real hostname; defaults to the local dev origin.
+TEXERA_ORIGIN="${TEXERA_ORIGIN:-http://localhost:4200}"
 
-# Ensure correct permissions. custom.js must stay writable by jovyan so the
-# startup script can substitute the origin placeholder at runtime.
-USER root
-RUN mkdir -p /home/jovyan/.jupyter/custom && \
-    chown -R jovyan:users /home/jovyan/.jupyter && \
-    chmod +x /usr/local/bin/start-texera-jupyter.sh
+# Substitute the origin placeholder in custom.js before the server starts serving it.
+sed -i "s|__TEXERA_ORIGIN__|${TEXERA_ORIGIN}|g" /home/jovyan/.jupyter/custom/custom.js
 
-USER jovyan
+exec start-notebook.sh \
+  --NotebookApp.token='' \
+  --NotebookApp.password='' \
+  --NotebookApp.disable_check_xsrf=True \
+  --NotebookApp.tornado_settings="{'headers': {'Content-Security-Policy': 'frame-ancestors ${TEXERA_ORIGIN}'}}" \
+  --NotebookApp.default_url=/tree
