@@ -136,4 +136,5 @@ object StorageConfig {
 
   // Jupyter
   val jupyterURL: String = conf.getString("storage.jupyter.url")
+  val jupyterToken: String = conf.getString("storage.jupyter.token")
 }

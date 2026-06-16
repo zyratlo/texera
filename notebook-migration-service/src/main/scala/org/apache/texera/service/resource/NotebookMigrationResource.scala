@@ -35,7 +35,9 @@ object NotebookMigrationResource extends LazyLogging {
 
   private val mapper: ObjectMapper = new ObjectMapper().registerModule(DefaultScalaModule)
   private val jupyterUrl = StorageConfig.jupyterURL
-  private var jupyterIframeURL = s"$jupyterUrl/notebooks/work/notebook.ipynb"
+  private val jupyterToken = StorageConfig.jupyterToken
+  // The token is passed as a URL param so the browser iframe can authenticate when loading the notebook.
+  private var jupyterIframeURL = s"$jupyterUrl/notebooks/work/notebook.ipynb?token=$jupyterToken"
 
   private def isJupyterAvailable(jupyterUrl: String): Boolean = {
     try {
@@ -142,6 +144,8 @@ object NotebookMigrationResource extends LazyLogging {
       conn.setRequestMethod("PUT")
       conn.setDoOutput(true)
       conn.setRequestProperty("Content-Type", "application/json")
+      // The Jupyter Contents API requires authentication; send the configured token.
+      conn.setRequestProperty("Authorization", s"token $jupyterToken")
 
       val requestBody =
         s"""
@@ -172,7 +176,7 @@ object NotebookMigrationResource extends LazyLogging {
           .build()
       }
 
-      jupyterIframeURL = s"$jupyterUrl/notebooks/work/notebook.ipynb"
+      jupyterIframeURL = s"$jupyterUrl/notebooks/work/notebook.ipynb?token=$jupyterToken"
 
       Response
         .ok(
