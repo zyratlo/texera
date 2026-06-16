@@ -91,7 +91,7 @@ export class NotebookMigrationService {
     }
 
     try {
-      const result = await firstValueFrom(await migrationLLM.convertNotebookToWorkflow(notebookContent));
+      const result = await migrationLLM.convertNotebookToWorkflow(notebookContent);
       const parsedResult = JSON.parse(result);
       const workflowContent = parsedResult.workflowJSON;
       const mappingContent = parsedResult.workflowNotebookMapping;
