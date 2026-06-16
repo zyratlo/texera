@@ -180,7 +180,7 @@ object NotebookMigrationResource extends LazyLogging {
           .build()
       }
 
-      jupyterIframeURL = s"$jupyterUrl/notebooks/work/notebook.ipynb?token=$jupyterToken"
+      jupyterIframeURL = s"$jupyterUrl/notebooks/work/$notebookName?token=$jupyterToken"
 
       Response
         .ok(
