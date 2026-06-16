@@ -23,6 +23,7 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: texera-jupyter
+    restart: unless-stopped
     ports:
       - "9100:8888"
     command: >
@@ -32,3 +33,11 @@ services:
       --NotebookApp.disable_check_xsrf=True
       --NotebookApp.tornado_settings="{'headers': {'Content-Security-Policy': 'frame-ancestors http://localhost:*'}}"
       --NotebookApp.default_url=/tree
+    healthcheck:
+      # /api returns the server version without requiring the token, so it is a
+      # reliable liveness probe even with auth enabled.
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8888/api')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
