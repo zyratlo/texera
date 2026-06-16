@@ -23,11 +23,15 @@ set -euo pipefail
 # deployments under a real hostname; defaults to the local dev origin.
 TEXERA_ORIGIN="${TEXERA_ORIGIN:-http://localhost:4200}"
 
+# Weak default token so the server is not fully open to anyone reachable on the
+# published port. The Texera-side iframe URL must pass this through ?token=<value>.
+JUPYTER_TOKEN="${JUPYTER_TOKEN:-texera}"
+
 # Substitute the origin placeholder in custom.js before the server starts serving it.
 sed -i "s|__TEXERA_ORIGIN__|${TEXERA_ORIGIN}|g" /home/jovyan/.jupyter/custom/custom.js
 
 exec start-notebook.sh \
-  --NotebookApp.token='' \
+  --NotebookApp.token="${JUPYTER_TOKEN}" \
   --NotebookApp.password='' \
   --NotebookApp.disable_check_xsrf=True \
   --NotebookApp.tornado_settings="{'headers': {'Content-Security-Policy': 'frame-ancestors ${TEXERA_ORIGIN}'}}" \

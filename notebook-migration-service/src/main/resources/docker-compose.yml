@@ -30,6 +30,9 @@ services:
       # Texera app origin, used for the iframe CSP frame-ancestors and the
       # postMessage origin checks in custom.js. Override for non-local deployments.
       - TEXERA_ORIGIN=http://localhost:4200
+      # Weak default token so the server is not fully open. The Texera-side iframe
+      # URL must pass this through ?token=<value>.
+      - JUPYTER_TOKEN=texera
     command: ["start-texera-jupyter.sh"]
     healthcheck:
       # /api returns the server version without requiring the token, so it is a
