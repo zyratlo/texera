@@ -84,11 +84,17 @@ export class NotebookMigrationLLM {
     return this.config.env.pythonNotebookMigrationEnabled;
   }
 
+  private assertEnabled(): void {
+    if (!this.enabled) {
+      throw new Error("Notebook migration feature is disabled");
+    }
+  }
+
   /**
    * Initialize a new LLM session with Texera documentation
    */
   public initialize(modelType: string = "gpt-5-mini", apiKey: string = "dummy"): void {
-    if (!this.enabled) return;
+    this.assertEnabled();
     this.model = createOpenAI({
       baseURL: new URL(`${AppSettings.getApiEndpoint()}`, document.baseURI).toString(),
       // apiKey is required by the library for creating the OpenAI compatible client;
@@ -167,7 +173,7 @@ export class NotebookMigrationLLM {
    * Send a Jupyter Notebook to be converted into a workflow and mapping.
    */
   public async convertNotebookToWorkflow(notebook: Notebook): Promise<string> {
-    if (!this.enabled) throw new Error("Notebook migration feature is disabled");
+    this.assertEnabled();
     if (!this.initialized) {
       throw new Error("LLM session not initialized");
     }
