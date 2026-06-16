@@ -40,8 +40,9 @@ object NotebookMigrationResource extends LazyLogging {
   private var jupyterIframeURL = s"$jupyterUrl/notebooks/work/notebook.ipynb?token=$jupyterToken"
 
   private def isJupyterAvailable(jupyterUrl: String): Boolean = {
+    var conn: java.net.HttpURLConnection = null
     try {
-      val conn = new java.net.URL(s"$jupyterUrl/api")
+      conn = new java.net.URL(s"$jupyterUrl/api")
         .openConnection()
         .asInstanceOf[java.net.HttpURLConnection]
 
@@ -54,6 +55,8 @@ object NotebookMigrationResource extends LazyLogging {
       status == 200 || status == 403
     } catch {
       case _: Exception => false
+    } finally {
+      if (conn != null) conn.disconnect()
     }
   }
 
@@ -129,6 +132,7 @@ object NotebookMigrationResource extends LazyLogging {
         .build()
     }
 
+    var conn: HttpURLConnection = null
     try {
       val json = mapper.readTree(body)
 
@@ -139,7 +143,7 @@ object NotebookMigrationResource extends LazyLogging {
       val apiUrl = s"$jupyterUrl/api/contents/work/$notebookName"
 
       val url = new URL(apiUrl)
-      val conn = url.openConnection().asInstanceOf[HttpURLConnection]
+      conn = url.openConnection().asInstanceOf[HttpURLConnection]
 
       conn.setRequestMethod("PUT")
       conn.setDoOutput(true)
@@ -196,6 +200,8 @@ object NotebookMigrationResource extends LazyLogging {
           .status(Response.Status.INTERNAL_SERVER_ERROR)
           .entity(s"""{"error":"${e.getMessage}"}""")
           .build()
+    } finally {
+      if (conn != null) conn.disconnect()
     }
   }
 
