@@ -21,8 +21,10 @@
 require(["base/js/events"], function (events) {
   events.on("kernel_ready.Kernel", function () {
 
-    // Attach click event listener to cells
-    $("#notebook-container").on("click", ".cell", function (event) {
+    // Attach click event listener to cells. kernel_ready.Kernel fires on every
+    // kernel (re)start, so remove any previously bound handler first to avoid
+    // stacking duplicate listeners that would post N messages per click.
+    $("#notebook-container").off("click", ".cell").on("click", ".cell", function (event) {
       const cell = $(this);
       const index = $(".cell").index(cell);
       const cellContent = cell.find(".input_area").text();
