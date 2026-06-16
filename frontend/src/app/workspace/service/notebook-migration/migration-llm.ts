@@ -19,8 +19,6 @@
 
 import { Injectable } from "@angular/core";
 import { GuiConfigService } from "../../../common/service/gui-config.service";
-import { firstValueFrom, from, Observable, of } from "rxjs";
-import { map } from "rxjs/operators";
 import { createOpenAI } from "@ai-sdk/openai";
 import { generateText, type ModelMessage } from "ai";
 import { AppSettings } from "../../../common/app-setting";
@@ -142,7 +140,7 @@ export class NotebookMigrationLLM {
    * Send a prompt and receive a response.
    * All prior documentation and conversation is preserved.
    */
-  private sendPrompt(prompt: string): Observable<string> {
+  private async sendPrompt(prompt: string): Promise<string> {
     if (!this.initialized) {
       throw new Error("LLM session not initialized");
     }
@@ -152,27 +150,23 @@ export class NotebookMigrationLLM {
       content: prompt,
     });
 
-    return from(
-      generateText({
-        model: this.model,
-        messages: this.messages,
-      })
-    ).pipe(
-      map(result => {
-        this.messages.push({
-          role: "assistant",
-          content: result.text,
-        });
+    const result = await generateText({
+      model: this.model,
+      messages: this.messages,
+    });
 
-        return result.text;
-      })
-    );
+    this.messages.push({
+      role: "assistant",
+      content: result.text,
+    });
+
+    return result.text;
   }
 
   /**
    * Send a Jupyter Notebook to be converted into a workflow and mapping.
    */
-  public async convertNotebookToWorkflow(notebook: Notebook): Promise<Observable<string>> {
+  public async convertNotebookToWorkflow(notebook: Notebook): Promise<string> {
     if (!this.enabled) throw new Error("Notebook migration feature is disabled");
     if (!this.initialized) {
       throw new Error("LLM session not initialized");
@@ -186,8 +180,8 @@ export class NotebookMigrationLLM {
       })
       .join("\n\n");
 
-    const workflow = await firstValueFrom(this.sendPrompt(`${WORKFLOW_PROMPT}\n${notebookString}`));
-    const mapping = await firstValueFrom(this.sendPrompt(MAPPING_PROMPT));
+    const workflow = await this.sendPrompt(`${WORKFLOW_PROMPT}\n${notebookString}`);
+    const mapping = await this.sendPrompt(MAPPING_PROMPT);
 
     // Remove ```json blocks and parse
     const udfLLMResponse = JSON.parse(workflow.replace(/^```json\s*|```$/g, "").trim());
@@ -293,8 +287,7 @@ export class NotebookMigrationLLM {
       cell_to_operator: cellToUdf,
     };
 
-    const result = JSON.stringify({ workflowJSON, workflowNotebookMapping });
-    return of(result);
+    return JSON.stringify({ workflowJSON, workflowNotebookMapping });
   }
 
   /**
