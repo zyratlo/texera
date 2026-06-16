@@ -37,6 +37,10 @@ object NotebookMigrationResource extends LazyLogging {
   private val jupyterUrl = StorageConfig.jupyterURL
   private val jupyterToken = StorageConfig.jupyterToken
   // The token is passed as a URL param so the browser iframe can authenticate when loading the notebook.
+  // jupyterIframeURL is process-global state. This is safe ONLY because each user runs their own pod
+  // (own notebook-migration-service JVM + own Jupyter) in the k8s deployment, so this singleton is
+  // effectively per-user. Do NOT deploy this service as a shared multi-user instance without adding
+  // per-user keying here, or one user's upload would overwrite another's iframe URL.
   private var jupyterIframeURL = s"$jupyterUrl/notebooks/work/notebook.ipynb?token=$jupyterToken"
 
   private def isJupyterAvailable(jupyterUrl: String): Boolean = {
