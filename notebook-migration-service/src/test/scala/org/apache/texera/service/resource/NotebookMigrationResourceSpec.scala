@@ -190,22 +190,17 @@ class NotebookMigrationResourceSpec
     entity should include("\"mapping\":")
   }
 
-  it should "return the most recent notebook (highest nid) when multiple are stored for the same (wid, vid)" in {
-    // The endpoint uses orderBy(NID.desc).limit(1) to surface the latest
-    // notebook. Pin that ordering — a refactor that drops the limit or flips
-    // to ASC would silently regress workflow-reopen UX (the panel would
-    // restore from a stale notebook).
-    val first =
+  it should "return the stored notebook content for a (wid, vid) on fetch" in {
+    // notebook.wid is UNIQUE — one notebook per workflow — so the endpoint's
+    // orderBy(NID.desc).limit(1) resolves to that single row. This pins the
+    // workflow-reopen path: after a store, fetch must return that notebook's content.
+    val notebook =
       """{"cells":[{"cell_type":"code","metadata":{},"source":"v1"}]}"""
-    val second =
-      """{"cells":[{"cell_type":"code","metadata":{},"source":"v2"}]}"""
 
-    NotebookMigrationResource.storeNotebookAndMapping(storePayload(first, sampleMapping))
-    NotebookMigrationResource.storeNotebookAndMapping(storePayload(second, sampleMapping))
+    NotebookMigrationResource.storeNotebookAndMapping(storePayload(notebook, sampleMapping))
 
     val entity =
       NotebookMigrationResource.fetchNotebookAndMapping(fetchPayload()).getEntity.toString
-    entity should include("\"v2\"")
-    entity should not include "\"v1\""
+    entity should include("\"v1\"")
   }
 }
