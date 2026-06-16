@@ -34,6 +34,12 @@ import org.apache.texera.common.config.StorageConfig
 object NotebookMigrationResource extends LazyLogging {
 
   private val mapper: ObjectMapper = new ObjectMapper().registerModule(DefaultScalaModule)
+
+  // Build an error response body via the mapper so the message is JSON-escaped; interpolating
+  // e.getMessage directly produces malformed JSON when it contains quotes, backslashes, or newlines.
+  private def errorJson(message: String): String =
+    mapper.writeValueAsString(mapper.createObjectNode().put("error", message))
+
   private val jupyterUrl = StorageConfig.jupyterURL
   private val jupyterToken = StorageConfig.jupyterToken
   // The token is passed as a URL param so the browser iframe can authenticate when loading the notebook.
@@ -202,7 +208,7 @@ object NotebookMigrationResource extends LazyLogging {
         logger.error("Error sending notebook to Jupyter", e)
         Response
           .status(Response.Status.INTERNAL_SERVER_ERROR)
-          .entity(s"""{"error":"${e.getMessage}"}""")
+          .entity(errorJson(e.getMessage))
           .build()
     } finally {
       if (conn != null) conn.disconnect()
@@ -263,7 +269,7 @@ object NotebookMigrationResource extends LazyLogging {
         logger.error("Error storing mapping and workflow", e)
         Response
           .status(Response.Status.INTERNAL_SERVER_ERROR)
-          .entity(s"""{"error":"${e.getMessage}"}""")
+          .entity(errorJson(e.getMessage))
           .build()
     }
   }
@@ -324,7 +330,7 @@ object NotebookMigrationResource extends LazyLogging {
         logger.error("Database error retrieving mapping", e)
         Response
           .status(Response.Status.INTERNAL_SERVER_ERROR)
-          .entity(s"""{"error":"${e.getMessage}"}""")
+          .entity(errorJson(e.getMessage))
           .build()
     }
   }
