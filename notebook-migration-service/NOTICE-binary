@@ -461,7 +461,7 @@ jackson-core bundles a shaded copy of FastDoubleParser <https://github.com/wrand
 That code is available under an MIT license <https://github.com/wrandelshofer/FastDoubleParser/blob/main/LICENSE>
 under the following copyright.
 
-Copyright © 2023 Werner Randelshofer, Switzerland. MIT License.
+Copyright Â© 2023 Werner Randelshofer, Switzerland. MIT License.
 
 See FastDoubleParser-NOTICE for details of other source code included in FastDoubleParser
 and the licenses and copyrights that apply to that code.
@@ -473,7 +473,7 @@ This project provides parsers for double, float, BigDecimal and BigInteger value
 
 ## Copyright
 
-Copyright © 2024 Werner Randelshofer, Switzerland.
+Copyright Â© 2024 Werner Randelshofer, Switzerland.
 
 ## Licensing
 
