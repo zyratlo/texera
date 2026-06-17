@@ -175,7 +175,7 @@ lazy val NotebookMigrationService = (project in file("notebook-migration-service
   .settings(
     dependencyOverrides ++= Seq(
       // override it as io.dropwizard 4 require 2.16.1 or higher
-      "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.17.0"
+      "com.fasterxml.jackson.module" %% "jackson-module-scala" % jacksonVersion
     )
   )
   .dependsOn(DAO % "test->test") // test scope dependency
