@@ -227,6 +227,19 @@ object NotebookMigrationResource extends LazyLogging {
 
       val dsl = SqlServer.getInstance().createDSLContext()
 
+      // notebook.wid is UNIQUE: a workflow has at most one notebook. If one already
+      // exists, reject the re-store with a 409 rather than letting the INSERT trip the
+      // constraint and surface as a 500.
+      val alreadyStored = dsl.fetchExists(
+        dsl.selectFrom(Notebook.NOTEBOOK).where(Notebook.NOTEBOOK.WID.eq(wid))
+      )
+      if (alreadyStored) {
+        return Response
+          .status(Response.Status.CONFLICT)
+          .entity(errorJson(s"A notebook is already stored for workflow $wid"))
+          .build()
+      }
+
       val nid: java.lang.Integer = SqlServer.withTransaction(dsl) { ctx =>
         // Insert notebook
         val notebookRecord = ctx

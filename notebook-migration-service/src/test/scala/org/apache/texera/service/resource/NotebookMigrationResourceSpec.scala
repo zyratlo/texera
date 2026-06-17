@@ -172,6 +172,20 @@ class NotebookMigrationResourceSpec
     getDSLContext.fetchCount(WORKFLOW_NOTEBOOK_MAPPING) shouldBe 0
   }
 
+  it should "return 409 Conflict on a second store for a workflow that already has a notebook" in {
+    // notebook.wid is UNIQUE — one notebook per workflow. The second store must be
+    // rejected with an explicit 409 (not a 500 from the constraint violation), and
+    // must not add a second notebook or mapping row.
+    val first = NotebookMigrationResource.storeNotebookAndMapping(storePayload())
+    first.getStatus shouldBe Response.Status.OK.getStatusCode
+
+    val second = NotebookMigrationResource.storeNotebookAndMapping(storePayload())
+    second.getStatus shouldBe Response.Status.CONFLICT.getStatusCode
+
+    getDSLContext.fetchCount(NOTEBOOK) shouldBe 1
+    getDSLContext.fetchCount(WORKFLOW_NOTEBOOK_MAPPING) shouldBe 1
+  }
+
   // -- fetchNotebookAndMapping ------------------------------------------------
 
   "fetchNotebookAndMapping" should "return exists=false when no notebook is stored for the (wid, vid)" in {
