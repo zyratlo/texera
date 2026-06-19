@@ -23,6 +23,8 @@ import { createOpenAI } from "@ai-sdk/openai";
 import { generateText, type ModelMessage } from "ai";
 import { AppSettings } from "../../../common/app-setting";
 import { v4 as uuidv4 } from "uuid";
+import { WorkflowUtilService } from "../workflow-graph/util/workflow-util.service";
+import { OperatorPredicate } from "../../types/workflow-common.interface";
 import {
   TEXERA_OVERVIEW,
   TUPLE_DOCUMENTATION,
@@ -47,7 +49,7 @@ export interface Notebook {
 }
 
 interface WorkflowJSON {
-  operators: any[];
+  operators: OperatorPredicate[];
   operatorPositions: Record<string, { x: number; y: number }>;
   links: any[];
   commentBoxes: any[];
@@ -78,7 +80,10 @@ export class NotebookMigrationLLM {
     EXAMPLE_OF_MULTIPLE_UDF_CONVERSION,
   ];
 
-  constructor(private config: GuiConfigService) {}
+  constructor(
+    private config: GuiConfigService,
+    private workflowUtilService: WorkflowUtilService
+  ) {}
 
   private get enabled(): boolean {
     return this.config.env.pythonNotebookMigrationEnabled;
@@ -219,9 +224,6 @@ export class NotebookMigrationLLM {
     const udfMappingToUUID: Record<string, string> = {};
 
     Object.entries(udfLLMResponse.code).forEach(([udfId, udfCode], i) => {
-      const udfUUID = `PythonUDFV2-operator-${uuidv4()}`;
-      udfMappingToUUID[udfId] = udfUUID;
-
       let udfOutputColumns: { attributeName: string; attributeType: string }[] = [];
       if (udfLLMResponse.outputs && udfLLMResponse.outputs[udfId]) {
         udfOutputColumns = udfLLMResponse.outputs[udfId].map((attr: string) => ({
@@ -230,43 +232,22 @@ export class NotebookMigrationLLM {
         }));
       }
 
-      // Add UDF to operators
-      workflowJSON.operators.push({
-        operatorID: udfUUID,
-        operatorType: "PythonUDFV2",
-        operatorVersion: "3d69fdcedbb409b47162c4b55406c77e54abe416",
+      // Build the operator from the live PythonUDFV2 schema so the operatorVersion, ports, and
+      // property defaults track the backend definition, then overlay the generated code/outputs.
+      const base = this.workflowUtilService.getNewOperatorPredicate("PythonUDFV2", udfId);
+      const operator: OperatorPredicate = {
+        ...base,
         operatorProperties: {
+          ...base.operatorProperties,
           code: udfCode,
-          workers: 1,
           retainInputColumns: false,
           outputColumns: udfOutputColumns,
         },
-        inputPorts: [
-          {
-            portID: "input-0",
-            displayName: "",
-            allowMultiInputs: true,
-            isDynamicPort: false,
-            dependencies: [],
-          },
-        ],
-        outputPorts: [
-          {
-            portID: "output-0",
-            displayName: "",
-            allowMultiInputs: false,
-            isDynamicPort: false,
-          },
-        ],
-        showAdvanced: false,
-        isDisabled: false,
-        customDisplayName: udfId,
-        dynamicInputPorts: true,
-        dynamicOutputPorts: true,
-      });
+      };
 
-      // Add UDF to operatorPositions
-      workflowJSON.operatorPositions[udfUUID] = { x: 140 * (i + 1), y: 0 };
+      udfMappingToUUID[udfId] = operator.operatorID;
+      workflowJSON.operators.push(operator);
+      workflowJSON.operatorPositions[operator.operatorID] = { x: 140 * (i + 1), y: 0 };
     });
 
     // Add links/edges
