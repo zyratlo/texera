@@ -20,6 +20,7 @@
 package org.apache.texera.service.resource
 
 import jakarta.ws.rs.core.Response
+import org.apache.texera.auth.SessionUser
 import org.apache.texera.dao.MockTexeraDB
 import org.apache.texera.dao.jooq.generated.enums.{PrivilegeEnum, UserRoleEnum}
 import org.apache.texera.dao.jooq.generated.tables.Notebook.NOTEBOOK
@@ -157,6 +158,14 @@ class NotebookMigrationResourceSpec
   private def fetchPayload(vid: Integer = seededVid): String =
     s"""{"wid": $testWid, "vid": $vid}"""
 
+  private val resource = new NotebookMigrationResource()
+
+  private def sessionUser(uid: Integer): SessionUser = {
+    val u = new User
+    u.setUid(uid)
+    new SessionUser(u)
+  }
+
   // -- storeNotebookAndMapping ------------------------------------------------
 
   "storeNotebookAndMapping" should "insert one notebook and one mapping tied to the workflow version" in {
@@ -293,6 +302,39 @@ class NotebookMigrationResourceSpec
       .getStatus shouldBe Response.Status.FORBIDDEN.getStatusCode
 
     getDSLContext.fetchCount(NOTEBOOK) shouldBe 0
+  }
+
+  // -- JAX-RS resource class (@Auth wrappers + Jupyter reachability) ----------
+
+  "the resource class endpoints" should "store and fetch via the authenticated class methods for a write-access user" in {
+    resource
+      .storeNotebookAndMapping(storePayload(), sessionUser(writerUid))
+      .getStatus shouldBe Response.Status.OK.getStatusCode
+
+    resource
+      .fetchNotebookAndMapping(fetchPayload(), sessionUser(writerUid))
+      .getEntity
+      .toString should include("\"exists\": true")
+  }
+
+  it should "reject the class methods for a read-only user with 403" in {
+    resource
+      .storeNotebookAndMapping(storePayload(), sessionUser(readerUid))
+      .getStatus shouldBe Response.Status.FORBIDDEN.getStatusCode
+    resource
+      .fetchNotebookAndMapping(fetchPayload(), sessionUser(readerUid))
+      .getStatus shouldBe Response.Status.FORBIDDEN.getStatusCode
+  }
+
+  it should "return 500 from the Jupyter endpoints when the Jupyter server is unreachable" in {
+    // No Jupyter server runs in the unit-test environment, so isJupyterAvailable
+    // fails the connection and these endpoints surface a 500 rather than crashing.
+    val user = sessionUser(writerUid)
+    val validNotebook = """{"notebookName": "notebook.ipynb", "notebookData": {"cells": []}}"""
+
+    resource.setNotebook(validNotebook, user).getStatus shouldBe 500
+    resource.getJupyterURL(user).getStatus shouldBe 500
+    resource.getJupyterIframeURL(user).getStatus shouldBe 500
   }
 
   // -- setNotebook ------------------------------------------------------------
