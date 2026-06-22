@@ -26,7 +26,7 @@ import org.apache.texera.common.config.StorageConfig
 import org.apache.texera.auth.RequestLoggingFilter
 import org.apache.texera.dao.SqlServer
 import java.nio.file.Path
-import org.apache.texera.service.resource.NotebookMigrationResource
+import org.apache.texera.service.resource.{HealthCheckResource, NotebookMigrationResource}
 
 class NotebookMigrationService
     extends Application[NotebookMigrationServiceConfiguration]
@@ -56,6 +56,7 @@ class NotebookMigrationService
     // Serve backend at /api
     environment.jersey.setUrlPattern("/api/*")
 
+    environment.jersey.register(classOf[HealthCheckResource])
     environment.jersey.register(classOf[NotebookMigrationResource])
 
     // Route request logs through SLF4J, controlled by TEXERA_SERVICE_LOG_LEVEL
