@@ -131,13 +131,11 @@ export class NotebookMigrationService {
   public async getJupyterURL(): Promise<string | null> {
     if (!this.enabled) return null;
     try {
-      const response = await fetch("/api/notebook-migration/get-jupyter-url");
-      if (!response.ok) {
-        console.error("Failed to get Jupyter URL:", response.status);
-        return null;
-      }
-
-      const data = (await response.json()) as { success: boolean; url?: string };
+      const data = await firstValueFrom(
+        this.http.get<{ success: boolean; url?: string }>(
+          `${AppSettings.getApiEndpoint()}/notebook-migration/get-jupyter-url`
+        )
+      );
 
       if (!data.success || !data.url) {
         console.error("Jupyter server unavailable");
@@ -154,13 +152,11 @@ export class NotebookMigrationService {
   public async getJupyterIframeURL(): Promise<string | null> {
     if (!this.enabled) return null;
     try {
-      const response = await fetch("/api/notebook-migration/get-jupyter-iframe-url");
-      if (!response.ok) {
-        console.error("Failed to get Jupyter iframe URL:", response.status);
-        return null;
-      }
-
-      const data = (await response.json()) as { success: boolean; url?: string };
+      const data = await firstValueFrom(
+        this.http.get<{ success: boolean; url?: string }>(
+          `${AppSettings.getApiEndpoint()}/notebook-migration/get-jupyter-iframe-url`
+        )
+      );
 
       if (!data.success || !data.url) {
         console.error("Jupyter server unavailable");

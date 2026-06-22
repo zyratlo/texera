@@ -121,49 +121,43 @@ describe("NotebookMigrationService", () => {
     expect(mockNotificationService.error).toHaveBeenCalled();
   });
 
-  // fetch methods
-  it("should return Jupyter URL when fetch succeeds", async () => {
-    spyOn(window, "fetch").and.resolveTo({
-      ok: true,
-      json: async () => ({ success: true, url: "http://jupyter" }),
-    } as any);
+  // jupyter URL methods (HttpClient so the JwtModule interceptor attaches the auth token)
+  it("should return Jupyter URL when the request succeeds", async () => {
+    const promise = service.getJupyterURL();
 
-    const result = await service.getJupyterURL();
+    const req = httpMock.expectOne(req => req.url.includes("/notebook-migration/get-jupyter-url"));
+    expect(req.request.method).toBe("GET");
+    req.flush({ success: true, url: "http://jupyter" });
 
-    expect(result).toBe("http://jupyter");
+    expect(await promise).toBe("http://jupyter");
   });
 
-  it("should return null when fetch fails", async () => {
-    spyOn(window, "fetch").and.resolveTo({
-      ok: false,
-      status: 500,
-    } as any);
+  it("should return null when the Jupyter URL request fails", async () => {
+    const promise = service.getJupyterURL();
 
-    const result = await service.getJupyterURL();
+    const req = httpMock.expectOne(req => req.url.includes("/notebook-migration/get-jupyter-url"));
+    req.flush({ success: false }, { status: 500, statusText: "Server Error" });
 
-    expect(result).toBeNull();
+    expect(await promise).toBeNull();
   });
 
-  it("should return iframe URL when fetch succeeds", async () => {
-    spyOn(window, "fetch").and.resolveTo({
-      ok: true,
-      json: async () => ({ success: true, url: "http://iframe" }),
-    } as any);
+  it("should return iframe URL when the request succeeds", async () => {
+    const promise = service.getJupyterIframeURL();
 
-    const result = await service.getJupyterIframeURL();
+    const req = httpMock.expectOne(req => req.url.includes("/notebook-migration/get-jupyter-iframe-url"));
+    expect(req.request.method).toBe("GET");
+    req.flush({ success: true, url: "http://iframe" });
 
-    expect(result).toBe("http://iframe");
+    expect(await promise).toBe("http://iframe");
   });
 
-  it("should return null when iframe fetch fails", async () => {
-    spyOn(window, "fetch").and.resolveTo({
-      ok: false,
-      status: 500,
-    } as any);
+  it("should return null when the iframe URL request fails", async () => {
+    const promise = service.getJupyterIframeURL();
 
-    const result = await service.getJupyterIframeURL();
+    const req = httpMock.expectOne(req => req.url.includes("/notebook-migration/get-jupyter-iframe-url"));
+    req.flush({ success: false }, { status: 500, statusText: "Server Error" });
 
-    expect(result).toBeNull();
+    expect(await promise).toBeNull();
   });
 
   // mapping logic
@@ -226,18 +220,16 @@ describe("NotebookMigrationService", () => {
       httpMock.expectNone(req => req.url.includes("/notebook-migration/set-notebook"));
     });
 
-    it("getJupyterURL returns null without calling fetch", async () => {
-      const fetchSpy = spyOn(window, "fetch");
+    it("getJupyterURL returns null without making an HTTP call", async () => {
       const result = await service.getJupyterURL();
       expect(result).toBeNull();
-      expect(fetchSpy).not.toHaveBeenCalled();
+      httpMock.expectNone(req => req.url.includes("/notebook-migration/get-jupyter-url"));
     });
 
-    it("getJupyterIframeURL returns null without calling fetch", async () => {
-      const fetchSpy = spyOn(window, "fetch");
+    it("getJupyterIframeURL returns null without making an HTTP call", async () => {
       const result = await service.getJupyterIframeURL();
       expect(result).toBeNull();
-      expect(fetchSpy).not.toHaveBeenCalled();
+      httpMock.expectNone(req => req.url.includes("/notebook-migration/get-jupyter-iframe-url"));
     });
 
     it("storeNotebookAndMapping emits without making an HTTP call", done => {
