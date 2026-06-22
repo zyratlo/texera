@@ -128,26 +128,37 @@ object NotebookMigrationResource extends LazyLogging {
 
   // Set the notebook in Jupyter
   def setNotebook(body: String): Response = {
-    if (!isJupyterAvailable(jupyterUrl)) {
-      return Response
-        .status(500)
-        .entity(
-          """
-      {
-        "success": false,
-        "message": "Cannot connect to Jupyter server"
-      }
-      """
-        )
-        .build()
-    }
-
     var conn: HttpURLConnection = null
     try {
       val json = mapper.readTree(body)
 
       val notebookName = json.get("notebookName").asText()
       val notebookData = json.get("notebookData")
+
+      // Allow only a plain ".ipynb" filename. Validated before any network call so a
+      // bad name is rejected with a 400 up front. This blocks path traversal in the
+      // Jupyter contents URL (e.g. "../../etc/x.ipynb") and keeps notebookName out of
+      // the raw-interpolated jupyterIframeURL JSON (no quotes/control chars).
+      if (!notebookName.matches("[A-Za-z0-9._-]+\\.ipynb")) {
+        return Response
+          .status(Response.Status.BAD_REQUEST)
+          .entity(errorJson(s"Invalid notebook name: $notebookName"))
+          .build()
+      }
+
+      if (!isJupyterAvailable(jupyterUrl)) {
+        return Response
+          .status(500)
+          .entity(
+            """
+        {
+          "success": false,
+          "message": "Cannot connect to Jupyter server"
+        }
+        """
+          )
+          .build()
+      }
 
       // Construct Jupyter API URL
       val apiUrl = s"$jupyterUrl/api/contents/work/$notebookName"

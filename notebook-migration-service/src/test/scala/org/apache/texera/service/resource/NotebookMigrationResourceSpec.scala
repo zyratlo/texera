@@ -217,4 +217,20 @@ class NotebookMigrationResourceSpec
       NotebookMigrationResource.fetchNotebookAndMapping(fetchPayload()).getEntity.toString
     entity should include("\"v1\"")
   }
+
+  // -- setNotebook ------------------------------------------------------------
+
+  "setNotebook" should "reject a notebook name that is not a plain .ipynb filename with 400" in {
+    // The name is validated before any Jupyter call, so these are rejected with a
+    // 400 without a running Jupyter server. Covers path traversal, a wrong
+    // extension, and an embedded subpath.
+    Seq("../../etc/evil.ipynb", "notebook.txt", "work/notebook.ipynb").foreach { name =>
+      val body = s"""{"notebookName": "$name", "notebookData": {"cells": []}}"""
+      withClue(s"name=$name: ") {
+        NotebookMigrationResource
+          .setNotebook(body)
+          .getStatus shouldBe Response.Status.BAD_REQUEST.getStatusCode
+      }
+    }
+  }
 }
