@@ -70,9 +70,7 @@ describe("NotebookMigrationLLM", () => {
 
   // Queue the two responses convertNotebookToWorkflow consumes, in order.
   function mockResponses(workflowResponse: string, mappingResponse: string) {
-    mockGenerateText
-      .mockResolvedValueOnce({ text: workflowResponse })
-      .mockResolvedValueOnce({ text: mappingResponse });
+    mockGenerateText.mockResolvedValueOnce({ text: workflowResponse }).mockResolvedValueOnce({ text: mappingResponse });
   }
 
   beforeEach(() => {
@@ -94,14 +92,9 @@ describe("NotebookMigrationLLM", () => {
         JSON.stringify({ UDF1: ["CELL1"], UDF2: ["CELL2"] })
       );
 
-      const { workflowJSON, workflowNotebookMapping } = JSON.parse(
-        await makeLLM().convertNotebookToWorkflow(notebook)
-      );
+      const { workflowJSON, workflowNotebookMapping } = JSON.parse(await makeLLM().convertNotebookToWorkflow(notebook));
 
-      expect(workflowJSON.operators.map((op: any) => op.operatorID)).toEqual([
-        "PythonUDFV2-0",
-        "PythonUDFV2-1",
-      ]);
+      expect(workflowJSON.operators.map((op: any) => op.operatorID)).toEqual(["PythonUDFV2-0", "PythonUDFV2-1"]);
       expect(workflowJSON.operators[0].operatorProperties).toMatchObject({
         code: "code1",
         retainInputColumns: false,
@@ -179,9 +172,7 @@ describe("NotebookMigrationLLM", () => {
       const notebook: Notebook = { cells: [] };
       mockResponses(JSON.stringify({ code: {}, edges: [], outputs: {} }), JSON.stringify({}));
 
-      const { workflowJSON, workflowNotebookMapping } = JSON.parse(
-        await makeLLM().convertNotebookToWorkflow(notebook)
-      );
+      const { workflowJSON, workflowNotebookMapping } = JSON.parse(await makeLLM().convertNotebookToWorkflow(notebook));
 
       expect(workflowJSON.operators).toEqual([]);
       expect(workflowJSON.links).toEqual([]);
