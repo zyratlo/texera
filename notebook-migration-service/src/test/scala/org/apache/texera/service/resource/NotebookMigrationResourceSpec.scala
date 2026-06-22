@@ -46,6 +46,9 @@ import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach}
 
+import com.sun.net.httpserver.HttpServer
+
+import java.net.InetSocketAddress
 import java.sql.Timestamp
 import java.util.UUID
 
@@ -164,6 +167,41 @@ class NotebookMigrationResourceSpec
     val u = new User
     u.setUid(uid)
     new SessionUser(u)
+  }
+
+  // Runs `test` with a stub Jupyter server on localhost:9100 (the configured
+  // jupyter URL): GET /api returns 200 so isJupyterAvailable() passes, and PUT
+  // /api/contents/<name> returns `contentsStatus`. Lets the HTTP success/failure
+  // paths run without a real Jupyter. Sequential test execution (Tags.limit) keeps
+  // this from colliding with the "unreachable" test, which needs the port free.
+  private def withFakeJupyter(contentsStatus: Int)(test: => Unit): Unit = {
+    val server = HttpServer.create(new InetSocketAddress("localhost", 9100), 0)
+    server.createContext(
+      "/api",
+      (exchange: com.sun.net.httpserver.HttpExchange) => {
+        exchange.getRequestBody.readAllBytes()
+        val body = """{"version":"2.7.0"}""".getBytes("UTF-8")
+        exchange.sendResponseHeaders(200, body.length)
+        val os = exchange.getResponseBody
+        os.write(body)
+        os.close()
+      }
+    )
+    // Longest-prefix match means /api/contents/... routes here, not to /api.
+    server.createContext(
+      "/api/contents",
+      (exchange: com.sun.net.httpserver.HttpExchange) => {
+        exchange.getRequestBody.readAllBytes()
+        val body = "{}".getBytes("UTF-8")
+        exchange.sendResponseHeaders(contentsStatus, body.length)
+        val os = exchange.getResponseBody
+        os.write(body)
+        os.close()
+      }
+    )
+    server.start()
+    try test
+    finally server.stop(0)
   }
 
   // -- storeNotebookAndMapping ------------------------------------------------
@@ -335,6 +373,41 @@ class NotebookMigrationResourceSpec
     resource.setNotebook(validNotebook, user).getStatus shouldBe 500
     resource.getJupyterURL(user).getStatus shouldBe 500
     resource.getJupyterIframeURL(user).getStatus shouldBe 500
+  }
+
+  it should "return 500 when the request body is malformed JSON" in {
+    // Exercises the NonFatal catch paths in setNotebook and fetchNotebookAndMapping.
+    val user = sessionUser(writerUid)
+    resource.setNotebook("not json", user).getStatus shouldBe 500
+    resource.fetchNotebookAndMapping("not json", user).getStatus shouldBe 500
+  }
+
+  it should "upload the notebook and return success when Jupyter accepts it" in {
+    withFakeJupyter(contentsStatus = 201) {
+      val body = """{"notebookName": "notebook.ipynb", "notebookData": {"cells": []}}"""
+      val resp = resource.setNotebook(body, sessionUser(writerUid))
+      resp.getStatus shouldBe Response.Status.OK.getStatusCode
+      resp.getEntity.toString should include("success")
+    }
+  }
+
+  it should "return 500 when Jupyter rejects the notebook upload" in {
+    withFakeJupyter(contentsStatus = 500) {
+      val body = """{"notebookName": "notebook.ipynb", "notebookData": {"cells": []}}"""
+      resource.setNotebook(body, sessionUser(writerUid)).getStatus shouldBe 500
+    }
+  }
+
+  it should "return the Jupyter URL and iframe URL when the server is reachable" in {
+    withFakeJupyter(contentsStatus = 201) {
+      val urlResp = resource.getJupyterURL(sessionUser(writerUid))
+      urlResp.getStatus shouldBe Response.Status.OK.getStatusCode
+      urlResp.getEntity.toString should include("localhost:9100")
+
+      val iframeResp = resource.getJupyterIframeURL(sessionUser(writerUid))
+      iframeResp.getStatus shouldBe Response.Status.OK.getStatusCode
+      iframeResp.getEntity.toString should include("/notebooks/work/")
+    }
   }
 
   // -- setNotebook ------------------------------------------------------------
