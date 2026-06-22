@@ -20,8 +20,11 @@ package org.apache.texera.service.resource
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import com.typesafe.scalalogging.LazyLogging
+import io.dropwizard.auth.Auth
+import jakarta.annotation.security.RolesAllowed
 import jakarta.ws.rs._
 import jakarta.ws.rs.core._
+import org.apache.texera.auth.SessionUser
 import org.apache.texera.dao.SqlServer
 import org.jooq.JSONB
 import org.apache.texera.dao.jooq.generated.tables.Notebook
@@ -227,7 +230,7 @@ object NotebookMigrationResource extends LazyLogging {
   }
 
   // Store notebook + mapping in database
-  def storeNotebookAndMapping(body: String): Response = {
+  def storeNotebookAndMapping(body: String, uid: java.lang.Integer): Response = {
     try {
       val json = mapper.readTree(body)
 
@@ -235,6 +238,14 @@ object NotebookMigrationResource extends LazyLogging {
       val vid: java.lang.Integer = json.get("vid").asInt()
       val mappingNode = json.get("mapping")
       val notebookNode = json.get("notebook")
+
+      // Only a user with write access to the workflow may store its notebook.
+      if (!WorkflowAccessResource.hasWriteAccess(wid, uid)) {
+        return Response
+          .status(Response.Status.FORBIDDEN)
+          .entity(errorJson(s"No write access to workflow $wid"))
+          .build()
+      }
 
       val dsl = SqlServer.getInstance().createDSLContext()
 
@@ -299,12 +310,20 @@ object NotebookMigrationResource extends LazyLogging {
   }
 
   // Fetch notebook + mapping
-  def fetchNotebookAndMapping(body: String): Response = {
+  def fetchNotebookAndMapping(body: String, uid: java.lang.Integer): Response = {
     try {
       val json = mapper.readTree(body)
 
       val wid: java.lang.Integer = json.get("wid").asInt()
       val vid: java.lang.Integer = json.get("vid").asInt()
+
+      // Only a user with write access to the workflow may fetch its notebook.
+      if (!WorkflowAccessResource.hasWriteAccess(wid, uid)) {
+        return Response
+          .status(Response.Status.FORBIDDEN)
+          .entity(errorJson(s"No write access to workflow $wid"))
+          .build()
+      }
 
       val dsl = SqlServer.getInstance().createDSLContext()
 
@@ -361,42 +380,43 @@ object NotebookMigrationResource extends LazyLogging {
 }
 
 @Path("/notebook-migration")
+@RolesAllowed(Array("REGULAR", "ADMIN"))
 @Produces(Array(MediaType.APPLICATION_JSON))
 @Consumes(Array(MediaType.APPLICATION_JSON))
 class NotebookMigrationResource extends LazyLogging {
 
   @GET
   @Path("/get-jupyter-iframe-url")
-  def getJupyterIframeURL: Response = {
+  def getJupyterIframeURL(@Auth user: SessionUser): Response = {
     logger.info("Getting Jupyter iframe URL")
     NotebookMigrationResource.getJupyterIframeURL()
   }
 
   @GET
   @Path("/get-jupyter-url")
-  def getJupyterURL: Response = {
+  def getJupyterURL(@Auth user: SessionUser): Response = {
     logger.info("Getting Jupyter API URL")
     NotebookMigrationResource.getJupyterURL()
   }
 
   @POST
   @Path("/set-notebook")
-  def setNotebook(body: String): Response = {
+  def setNotebook(body: String, @Auth user: SessionUser): Response = {
     logger.info("Setting notebook")
     NotebookMigrationResource.setNotebook(body)
   }
 
   @POST
   @Path("/store-notebook-and-mapping")
-  def storeNotebookAndMapping(body: String): Response = {
+  def storeNotebookAndMapping(body: String, @Auth user: SessionUser): Response = {
     logger.info("Storing notebook and mapping")
-    NotebookMigrationResource.storeNotebookAndMapping(body)
+    NotebookMigrationResource.storeNotebookAndMapping(body, user.getUid)
   }
 
   @POST
   @Path("/fetch-notebook-and-mapping")
-  def fetchNotebookAndMapping(body: String): Response = {
+  def fetchNotebookAndMapping(body: String, @Auth user: SessionUser): Response = {
     logger.info("Fetching notebook and mapping")
-    NotebookMigrationResource.fetchNotebookAndMapping(body)
+    NotebookMigrationResource.fetchNotebookAndMapping(body, user.getUid)
   }
 }

@@ -21,12 +21,25 @@ package org.apache.texera.service.resource
 
 import jakarta.ws.rs.core.Response
 import org.apache.texera.dao.MockTexeraDB
+import org.apache.texera.dao.jooq.generated.enums.{PrivilegeEnum, UserRoleEnum}
 import org.apache.texera.dao.jooq.generated.tables.Notebook.NOTEBOOK
+import org.apache.texera.dao.jooq.generated.tables.User.USER
 import org.apache.texera.dao.jooq.generated.tables.Workflow.WORKFLOW
 import org.apache.texera.dao.jooq.generated.tables.WorkflowNotebookMapping.WORKFLOW_NOTEBOOK_MAPPING
+import org.apache.texera.dao.jooq.generated.tables.WorkflowUserAccess.WORKFLOW_USER_ACCESS
 import org.apache.texera.dao.jooq.generated.tables.WorkflowVersion.WORKFLOW_VERSION
-import org.apache.texera.dao.jooq.generated.tables.daos.{WorkflowDao, WorkflowVersionDao}
-import org.apache.texera.dao.jooq.generated.tables.pojos.{Workflow, WorkflowVersion}
+import org.apache.texera.dao.jooq.generated.tables.daos.{
+  UserDao,
+  WorkflowDao,
+  WorkflowUserAccessDao,
+  WorkflowVersionDao
+}
+import org.apache.texera.dao.jooq.generated.tables.pojos.{
+  User,
+  Workflow,
+  WorkflowUserAccess,
+  WorkflowVersion
+}
 import org.jooq.JSONB
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
@@ -45,10 +58,16 @@ class NotebookMigrationResourceSpec
   // Randomise the seeded wid so a parallel run of unrelated specs that happen
   // to seed the same id wouldn't collide on the embedded postgres.
   private val testWid = 9000 + scala.util.Random.nextInt(1000)
+  private val writerEmail = s"nbms_writer_$testWid@example.com"
+  private val readerEmail = s"nbms_reader_$testWid@example.com"
 
   private var workflowDao: WorkflowDao = _
   private var workflowVersionDao: WorkflowVersionDao = _
+  private var userDao: UserDao = _
+  private var workflowUserAccessDao: WorkflowUserAccessDao = _
   private var seededVid: Integer = _
+  private var writerUid: Integer = _ // holds WRITE access to testWid
+  private var readerUid: Integer = _ // holds READ access to testWid
 
   private val sampleNotebook =
     """{"cells":[{"cell_type":"code","metadata":{},"source":"print(1)"}]}"""
@@ -62,6 +81,8 @@ class NotebookMigrationResourceSpec
     val cfg = getDSLContext.configuration()
     workflowDao = new WorkflowDao(cfg)
     workflowVersionDao = new WorkflowVersionDao(cfg)
+    userDao = new UserDao(cfg)
+    workflowUserAccessDao = new WorkflowUserAccessDao(cfg)
     cleanup()
 
     val workflow = new Workflow
@@ -79,21 +100,51 @@ class NotebookMigrationResourceSpec
     version.setCreationTime(new Timestamp(System.currentTimeMillis()))
     workflowVersionDao.insert(version)
     seededVid = version.getVid
+
+    // One user with WRITE access (the happy path) and one with only READ
+    // access, so the write-access gate can be exercised both ways.
+    writerUid = insertUser("nbms_writer", writerEmail)
+    readerUid = insertUser("nbms_reader", readerEmail)
+    insertAccess(writerUid, PrivilegeEnum.WRITE)
+    insertAccess(readerUid, PrivilegeEnum.READ)
   }
 
   override protected def afterEach(): Unit = cleanup()
 
+  private def insertUser(name: String, email: String): Integer = {
+    val user = new User
+    user.setName(name)
+    user.setEmail(email)
+    user.setRole(UserRoleEnum.REGULAR)
+    user.setPassword("password")
+    userDao.insert(user)
+    user.getUid
+  }
+
+  private def insertAccess(uid: Integer, privilege: PrivilegeEnum): Unit = {
+    val access = new WorkflowUserAccess
+    access.setWid(testWid)
+    access.setUid(uid)
+    access.setPrivilege(privilege)
+    workflowUserAccessDao.insert(access)
+  }
+
   private def cleanup(): Unit = {
-    // notebook and workflow_notebook_mapping cascade on workflow/version delete,
-    // but explicit deletes here keep state observable across tests and avoid
-    // depending on cascade ordering.
+    // Delete children before parents. workflow_user_access and notebook cascade
+    // on workflow delete, but explicit deletes keep state observable across tests
+    // and avoid depending on cascade ordering.
     getDSLContext.deleteFrom(WORKFLOW_NOTEBOOK_MAPPING).execute()
     getDSLContext.deleteFrom(NOTEBOOK).execute()
+    getDSLContext
+      .deleteFrom(WORKFLOW_USER_ACCESS)
+      .where(WORKFLOW_USER_ACCESS.WID.eq(testWid))
+      .execute()
     getDSLContext
       .deleteFrom(WORKFLOW_VERSION)
       .where(WORKFLOW_VERSION.WID.eq(testWid))
       .execute()
     getDSLContext.deleteFrom(WORKFLOW).where(WORKFLOW.WID.eq(testWid)).execute()
+    getDSLContext.deleteFrom(USER).where(USER.EMAIL.in(writerEmail, readerEmail)).execute()
   }
 
   private def storePayload(
@@ -109,7 +160,7 @@ class NotebookMigrationResourceSpec
   // -- storeNotebookAndMapping ------------------------------------------------
 
   "storeNotebookAndMapping" should "insert one notebook and one mapping tied to the workflow version" in {
-    val response = NotebookMigrationResource.storeNotebookAndMapping(storePayload())
+    val response = NotebookMigrationResource.storeNotebookAndMapping(storePayload(), writerUid)
     response.getStatus shouldBe Response.Status.OK.getStatusCode
 
     getDSLContext.fetchCount(NOTEBOOK) shouldBe 1
@@ -131,7 +182,7 @@ class NotebookMigrationResourceSpec
     val mapping =
       """{"operator_to_cell":{"op1":["cell1"]},"cell_to_operator":{"cell1":["op1"]}}"""
 
-    NotebookMigrationResource.storeNotebookAndMapping(storePayload(notebook, mapping))
+    NotebookMigrationResource.storeNotebookAndMapping(storePayload(notebook, mapping), writerUid)
 
     val storedNotebookJson =
       getDSLContext
@@ -165,7 +216,8 @@ class NotebookMigrationResourceSpec
     // failed store.
     val unknownVid: Integer = -1
     val response = NotebookMigrationResource.storeNotebookAndMapping(
-      storePayload(vid = unknownVid)
+      storePayload(vid = unknownVid),
+      writerUid
     )
     response.getStatus shouldBe Response.Status.INTERNAL_SERVER_ERROR.getStatusCode
     getDSLContext.fetchCount(NOTEBOOK) shouldBe 0
@@ -176,10 +228,10 @@ class NotebookMigrationResourceSpec
     // notebook.wid is UNIQUE — one notebook per workflow. The second store must be
     // rejected with an explicit 409 (not a 500 from the constraint violation), and
     // must not add a second notebook or mapping row.
-    val first = NotebookMigrationResource.storeNotebookAndMapping(storePayload())
+    val first = NotebookMigrationResource.storeNotebookAndMapping(storePayload(), writerUid)
     first.getStatus shouldBe Response.Status.OK.getStatusCode
 
-    val second = NotebookMigrationResource.storeNotebookAndMapping(storePayload())
+    val second = NotebookMigrationResource.storeNotebookAndMapping(storePayload(), writerUid)
     second.getStatus shouldBe Response.Status.CONFLICT.getStatusCode
 
     getDSLContext.fetchCount(NOTEBOOK) shouldBe 1
@@ -189,16 +241,19 @@ class NotebookMigrationResourceSpec
   // -- fetchNotebookAndMapping ------------------------------------------------
 
   "fetchNotebookAndMapping" should "return exists=false when no notebook is stored for the (wid, vid)" in {
-    val response = NotebookMigrationResource.fetchNotebookAndMapping(fetchPayload())
+    val response = NotebookMigrationResource.fetchNotebookAndMapping(fetchPayload(), writerUid)
     response.getStatus shouldBe Response.Status.OK.getStatusCode
     response.getEntity.toString should include("\"exists\": false")
   }
 
   it should "return exists=true with the stored notebook and mapping when a row exists" in {
-    NotebookMigrationResource.storeNotebookAndMapping(storePayload())
+    NotebookMigrationResource.storeNotebookAndMapping(storePayload(), writerUid)
 
     val entity =
-      NotebookMigrationResource.fetchNotebookAndMapping(fetchPayload()).getEntity.toString
+      NotebookMigrationResource
+        .fetchNotebookAndMapping(fetchPayload(), writerUid)
+        .getEntity
+        .toString
     entity should include("\"exists\": true")
     entity should include("\"notebook\":")
     entity should include("\"mapping\":")
@@ -211,11 +266,33 @@ class NotebookMigrationResourceSpec
     val notebook =
       """{"cells":[{"cell_type":"code","metadata":{},"source":"v1"}]}"""
 
-    NotebookMigrationResource.storeNotebookAndMapping(storePayload(notebook, sampleMapping))
+    NotebookMigrationResource.storeNotebookAndMapping(
+      storePayload(notebook, sampleMapping),
+      writerUid
+    )
 
     val entity =
-      NotebookMigrationResource.fetchNotebookAndMapping(fetchPayload()).getEntity.toString
+      NotebookMigrationResource
+        .fetchNotebookAndMapping(fetchPayload(), writerUid)
+        .getEntity
+        .toString
     entity should include("\"v1\"")
+  }
+
+  // -- workflow write-access enforcement --------------------------------------
+
+  "store/fetch" should "return 403 Forbidden when the user lacks write access to the workflow" in {
+    // readerUid holds only READ access; the endpoints require WRITE, so both must
+    // be rejected with a 403 and no notebook may be written.
+    NotebookMigrationResource
+      .storeNotebookAndMapping(storePayload(), readerUid)
+      .getStatus shouldBe Response.Status.FORBIDDEN.getStatusCode
+
+    NotebookMigrationResource
+      .fetchNotebookAndMapping(fetchPayload(), readerUid)
+      .getStatus shouldBe Response.Status.FORBIDDEN.getStatusCode
+
+    getDSLContext.fetchCount(NOTEBOOK) shouldBe 0
   }
 
   // -- setNotebook ------------------------------------------------------------
