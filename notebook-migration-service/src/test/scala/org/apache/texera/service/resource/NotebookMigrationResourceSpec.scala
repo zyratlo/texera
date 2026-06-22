@@ -413,7 +413,9 @@ class NotebookMigrationResourceSpec
   it should "treat a 403 from Jupyter's /api as reachable" in {
     // isJupyterAvailable accepts 200 OR 403 (403 = server up but auth-gated).
     withFakeJupyter(contentsStatus = 201, apiStatus = 403) {
-      resource.getJupyterURL(sessionUser(writerUid)).getStatus shouldBe Response.Status.OK.getStatusCode
+      resource
+        .getJupyterURL(sessionUser(writerUid))
+        .getStatus shouldBe Response.Status.OK.getStatusCode
     }
   }
 
@@ -427,7 +429,9 @@ class NotebookMigrationResourceSpec
     // Jupyter returns 200 when overwriting an existing notebook, 201 when creating.
     withFakeJupyter(contentsStatus = 200) {
       val body = """{"notebookName": "notebook.ipynb", "notebookData": {"cells": []}}"""
-      resource.setNotebook(body, sessionUser(writerUid)).getStatus shouldBe Response.Status.OK.getStatusCode
+      resource
+        .setNotebook(body, sessionUser(writerUid))
+        .getStatus shouldBe Response.Status.OK.getStatusCode
     }
   }
 
