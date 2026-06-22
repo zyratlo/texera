@@ -174,14 +174,14 @@ class NotebookMigrationResourceSpec
   // /api/contents/<name> returns `contentsStatus`. Lets the HTTP success/failure
   // paths run without a real Jupyter. Sequential test execution (Tags.limit) keeps
   // this from colliding with the "unreachable" test, which needs the port free.
-  private def withFakeJupyter(contentsStatus: Int)(test: => Unit): Unit = {
+  private def withFakeJupyter(contentsStatus: Int, apiStatus: Int = 200)(test: => Unit): Unit = {
     val server = HttpServer.create(new InetSocketAddress("localhost", 9100), 0)
     server.createContext(
       "/api",
       (exchange: com.sun.net.httpserver.HttpExchange) => {
         exchange.getRequestBody.readAllBytes()
         val body = """{"version":"2.7.0"}""".getBytes("UTF-8")
-        exchange.sendResponseHeaders(200, body.length)
+        exchange.sendResponseHeaders(apiStatus, body.length)
         val os = exchange.getResponseBody
         os.write(body)
         os.close()
@@ -407,6 +407,27 @@ class NotebookMigrationResourceSpec
       val iframeResp = resource.getJupyterIframeURL(sessionUser(writerUid))
       iframeResp.getStatus shouldBe Response.Status.OK.getStatusCode
       iframeResp.getEntity.toString should include("/notebooks/work/")
+    }
+  }
+
+  it should "treat a 403 from Jupyter's /api as reachable" in {
+    // isJupyterAvailable accepts 200 OR 403 (403 = server up but auth-gated).
+    withFakeJupyter(contentsStatus = 201, apiStatus = 403) {
+      resource.getJupyterURL(sessionUser(writerUid)).getStatus shouldBe Response.Status.OK.getStatusCode
+    }
+  }
+
+  it should "treat an unexpected /api status (neither 200 nor 403) as unavailable" in {
+    withFakeJupyter(contentsStatus = 201, apiStatus = 500) {
+      resource.getJupyterURL(sessionUser(writerUid)).getStatus shouldBe 500
+    }
+  }
+
+  it should "treat a 200 from the contents API as a successful upload" in {
+    // Jupyter returns 200 when overwriting an existing notebook, 201 when creating.
+    withFakeJupyter(contentsStatus = 200) {
+      val body = """{"notebookName": "notebook.ipynb", "notebookData": {"cells": []}}"""
+      resource.setNotebook(body, sessionUser(writerUid)).getStatus shouldBe Response.Status.OK.getStatusCode
     }
   }
 
