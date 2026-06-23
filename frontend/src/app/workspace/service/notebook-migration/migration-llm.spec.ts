@@ -193,22 +193,12 @@ describe("NotebookMigrationLLM", () => {
       expect(workflowNotebookMapping.cell_to_operator).toEqual({});
     });
 
-    it("emits the 'undefined' cell marker in the prompt when a code cell lacks metadata.uuid", async () => {
+    it("rejects when a code cell is missing metadata.uuid", async () => {
       const notebook: Notebook = { cells: [codeCell(undefined, "print(1)")] };
-      mockResponses(
-        JSON.stringify({ code: { UDF1: "c1" }, edges: [], outputs: {} }),
-        JSON.stringify({ UDF1: ["CELL1"] })
-      );
 
-      await makeLLM().convertNotebookToWorkflow(notebook);
-
-      // The notebook string (embedded in the workflow prompt) is sent to generateText.
-      // messages is a shared, mutated array, so search every message content rather than
-      // assuming a fixed index.
-      const allPromptContent = mockGenerateText.mock.calls
-        .flatMap(call => call[0].messages.map((m: any) => m.content))
-        .join("\n");
-      expect(allPromptContent).toContain("# START undefined");
+      await expect(makeLLM().convertNotebookToWorkflow(notebook)).rejects.toThrow(/metadata\.uuid/);
+      // It fails before prompting, so the LLM is never called.
+      expect(mockGenerateText).not.toHaveBeenCalled();
     });
 
     it("joins array-form cell source (nbformat lines) without inserting commas", async () => {

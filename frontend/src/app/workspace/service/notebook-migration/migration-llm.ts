@@ -223,6 +223,14 @@ export class NotebookMigrationLLM {
     this.seedDocumentation();
 
     const codeCells = notebook.cells.filter(cell => cell.cell_type === "code");
+
+    // Every code cell must carry a unique metadata.uuid; it is the join key for the
+    // cell<->operator mapping. Without it, untagged cells collide on the "undefined" marker.
+    const untagged = codeCells.find(cell => cell.metadata?.uuid == null || String(cell.metadata.uuid).trim() === "");
+    if (untagged) {
+      throw new Error("Notebook code cells must each have a metadata.uuid before conversion");
+    }
+
     const notebookString = codeCells
       .map(cell => {
         const uuid = String(cell.metadata.uuid);
