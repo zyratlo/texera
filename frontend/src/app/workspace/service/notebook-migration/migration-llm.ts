@@ -251,9 +251,7 @@ export class NotebookMigrationLLM {
     // UDFs that are never the source of an edge are terminal (result-facing). Their outputs
     // default to "string" so the result panel renders typed values; intermediate UDFs keep
     // "binary" so rich objects (DataFrames, arrays, models) round-trip between operators via pickle.
-    const edgeSources = new Set<string>(
-      (udfLLMResponse.edges || []).map(([source]: [string, string]) => source)
-    );
+    const edgeSources = new Set<string>((udfLLMResponse.edges || []).map(([source]: [string, string]) => source));
 
     Object.entries(udfLLMResponse.code).forEach(([udfId, udfCode], i) => {
       let udfOutputColumns: { attributeName: string; attributeType: string }[] = [];
