@@ -40,7 +40,11 @@ describe("NotebookMigrationLLM", () => {
   // getNewOperatorPredicate hands out deterministic ids (PythonUDFV2-0, -1, ...).
   function makeLLM(): NotebookMigrationLLM {
     const stubConfig = {
-      env: { pythonNotebookMigrationEnabled: true },
+      env: {
+        pythonNotebookMigrationEnabled: true,
+        defaultDataTransferBatchSize: 400,
+        defaultExecutionMode: "PIPELINED",
+      },
     } as unknown as GuiConfigService;
 
     stubUtil = {
@@ -114,6 +118,8 @@ describe("NotebookMigrationLLM", () => {
         CELL1: ["PythonUDFV2-0"],
         CELL2: ["PythonUDFV2-1"],
       });
+      // Settings come from GUI config defaults, not hardcoded values.
+      expect(workflowJSON.settings).toEqual({ dataTransferBatchSize: 400, executionMode: "PIPELINED" });
     });
 
     // Intermediate UDFs (a source of some edge) keep "binary" for object passing; terminal

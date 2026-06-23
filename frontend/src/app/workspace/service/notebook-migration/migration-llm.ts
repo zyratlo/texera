@@ -25,6 +25,7 @@ import { AppSettings } from "../../../common/app-setting";
 import { v4 as uuidv4 } from "uuid";
 import { WorkflowUtilService } from "../workflow-graph/util/workflow-util.service";
 import { OperatorPredicate } from "../../types/workflow-common.interface";
+import { WorkflowSettings } from "../../../common/type/workflow";
 import {
   TEXERA_OVERVIEW,
   TUPLE_DOCUMENTATION,
@@ -53,9 +54,7 @@ interface WorkflowJSON {
   operatorPositions: Record<string, { x: number; y: number }>;
   links: any[];
   commentBoxes: any[];
-  settings: {
-    dataTransferBatchSize: number;
-  };
+  settings: WorkflowSettings;
 }
 
 interface CombinedMapping {
@@ -242,7 +241,8 @@ export class NotebookMigrationLLM {
       links: [],
       commentBoxes: [],
       settings: {
-        dataTransferBatchSize: 400,
+        dataTransferBatchSize: this.config.env.defaultDataTransferBatchSize,
+        executionMode: this.config.env.defaultExecutionMode,
       },
     };
 
