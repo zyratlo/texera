@@ -19,7 +19,7 @@
 
 // TEXERA DOCUMENTATION
 
-// https://github.com/Texera/texera/wiki/Guide-to-Use-a-Python-UDF
+// https://github.com/apache/texera/wiki/Guide-to-Use-a-Python-UDF
 export const TEXERA_OVERVIEW = `
 You are a robust compiler that takes python code and translates it to our personal workflow environment Texera that uses python.
 
@@ -92,7 +92,7 @@ Batch API consumes a batch of tuples at a time. Similar to Table, a Batch is als
 #         yield table
 `;
 
-// https://github.com/Texera/texera/blob/1fa249a9d55d4dcad36d93e093c2faed5c4434f0/core/amber/src/main/python/core/models/tuple.py
+// https://github.com/apache/texera/blob/main/amber/src/main/python/core/models/tuple.py
 export const TUPLE_DOCUMENTATION = `
 ### **<code>Tuple</code> Class Overview**
 
@@ -119,7 +119,7 @@ The \`Tuple\` class is a **lazy-evaluated** data structure designed for efficien
 * \`tuple.get_partial_tuple(attribute_names)\` returns a new \`Tuple\` instance containing only the specified fields.
 `;
 
-// https://github.com/Texera/texera/blob/1fa249a9d55d4dcad36d93e093c2faed5c4434f0/core/amber/src/main/python/core/models/table.py
+// https://github.com/apache/texera/blob/main/amber/src/main/python/core/models/table.py
 export const TABLE_DOCUMENTATION = `### **<code>Table</code> Class Overview**
 
 The \`Table\` class extends \`pandas.DataFrame\`, providing **structured Tuple-based data management**. It is designed to integrate seamlessly with \`Tuple\` objects.
@@ -150,7 +150,7 @@ The \`Table\` class extends \`pandas.DataFrame\`, providing **structured Tuple-b
 * Provides an **efficient bridge** between \`Tuple\`-based data and \`pandas.DataFrame\`, enabling compatibility with Python's data analysis tools.
 `;
 
-// https://github.com/Texera/texera/blob/42d803310c180978a9f02992f0e05556796b293c/core/amber/src/main/python/core/models/operator.py
+// https://github.com/apache/texera/blob/main/amber/src/main/python/core/models/operator.py
 export const OPERATOR_DOCUMENTATION = `### **Operator Class Overview**
 
 The \`Operator\` class is an **abstract base class (ABC)** for all operators, defining the fundamental structure for processing \`Tuple\`, \`Batch\`, and \`Table\` data in a workflow.
@@ -254,7 +254,7 @@ data = data.dropna()
 print("Minimum values:\n", data.min())
 print("\nMaximum values:\n", data.max())
 print("\nMean values:\n", data.mean())
-# END CELL 4
+# END CELL4
 
 # START CELL5
 # Create a boxplot for the 'Pregnancies' field
