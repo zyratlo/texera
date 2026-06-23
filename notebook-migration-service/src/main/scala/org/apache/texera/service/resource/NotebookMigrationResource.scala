@@ -56,7 +56,8 @@ object NotebookMigrationResource extends LazyLogging {
   // (own notebook-migration-service JVM + own Jupyter) in the k8s deployment, so this singleton is
   // effectively per-user. Do NOT deploy this service as a shared multi-user instance without adding
   // per-user keying here, or one user's upload would overwrite another's iframe URL.
-  @volatile private var jupyterIframeURL = s"$jupyterUrl/notebooks/work/notebook.ipynb?token=$jupyterToken"
+  @volatile private var jupyterIframeURL =
+    s"$jupyterUrl/notebooks/work/notebook.ipynb?token=$jupyterToken"
 
   private def isJupyterAvailable(jupyterUrl: String): Boolean = {
     var conn: java.net.HttpURLConnection = null
