@@ -63,6 +63,16 @@ interface CombinedMapping {
   cell_to_operator: Record<string, string[]>;
 }
 
+/**
+ * Wraps a single LLM chat session that converts a Jupyter notebook into a Texera
+ * workflow plus a cell<->operator mapping.
+ *
+ * Lifecycle: `initialize()` -> `verifyConnection()` (optional) ->
+ * `convertNotebookToWorkflow()` -> `close()`. The session keeps a running `messages`
+ * history shared by the prompts within one conversion. `convertNotebookToWorkflow()`
+ * resets that history to the documentation prelude at its start, so the same instance
+ * can convert multiple notebooks without leaking one conversion's context into the next.
+ */
 @Injectable()
 export class NotebookMigrationLLM {
   private model: any;
@@ -95,6 +105,19 @@ export class NotebookMigrationLLM {
     }
   }
 
+  /**
+   * Seed the conversation with the Texera documentation prelude, discarding any
+   * prior conversation. Used by initialize() and at the start of each conversion.
+   */
+  private seedDocumentation(): void {
+    this.messages = NotebookMigrationLLM.DOCUMENTATION.map(
+      (doc): ModelMessage => ({
+        role: "system",
+        content: doc,
+      })
+    );
+  }
+
   private parseJsonResponse(raw: string, context: string): any {
     // Trim first, then strip optional markdown code fences (```json ... ``` or ``` ... ```)
     const cleaned = raw
@@ -121,14 +144,7 @@ export class NotebookMigrationLLM {
       apiKey: apiKey,
     }).chat(modelType);
 
-    this.messages = [
-      ...NotebookMigrationLLM.DOCUMENTATION.map(
-        (doc): ModelMessage => ({
-          role: "system",
-          content: doc,
-        })
-      ),
-    ];
+    this.seedDocumentation();
 
     this.initialized = true;
   }
@@ -196,6 +212,10 @@ export class NotebookMigrationLLM {
     if (!this.initialized) {
       throw new Error("LLM session not initialized");
     }
+
+    // Reset to the documentation prelude so a prior conversion's prompts/responses
+    // don't leak into this one. The two sendPrompt calls below still share history.
+    this.seedDocumentation();
 
     const codeCells = notebook.cells.filter(cell => cell.cell_type === "code");
     const notebookString = codeCells

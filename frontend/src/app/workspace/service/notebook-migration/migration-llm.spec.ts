@@ -197,6 +197,31 @@ describe("NotebookMigrationLLM", () => {
         .join("\n");
       expect(allPromptContent).toContain("# START undefined");
     });
+
+    it("resets conversation history between conversions so a prior notebook does not leak", async () => {
+      const llm = makeLLM();
+
+      // First conversion (notebook AAA) on the instance.
+      mockResponses(
+        JSON.stringify({ code: { UDF1: "codeAAA" }, edges: [], outputs: {} }),
+        JSON.stringify({ UDF1: ["AAA"] })
+      );
+      await llm.convertNotebookToWorkflow({ cells: [codeCell("AAA", "a = 1")] });
+
+      // Second conversion (notebook BBB) on the SAME instance, no close()/initialize() between.
+      mockResponses(
+        JSON.stringify({ code: { UDF1: "codeBBB" }, edges: [], outputs: {} }),
+        JSON.stringify({ UDF1: ["BBB"] })
+      );
+      await llm.convertNotebookToWorkflow({ cells: [codeCell("BBB", "b = 2")] });
+
+      // The 3rd generateText call is the workflow prompt of the second conversion.
+      const secondConversionMessages = mockGenerateText.mock.calls[2][0].messages.map((m: any) => m.content).join("\n");
+
+      expect(secondConversionMessages).toContain("# START BBB");
+      expect(secondConversionMessages).not.toContain("AAA");
+      expect(secondConversionMessages).not.toContain("codeAAA");
+    });
   });
 
   describe("parseJsonResponse", () => {
