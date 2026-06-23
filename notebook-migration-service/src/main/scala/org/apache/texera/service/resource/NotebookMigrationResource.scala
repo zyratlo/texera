@@ -27,6 +27,7 @@ import jakarta.ws.rs.core._
 import org.apache.texera.auth.SessionUser
 import org.apache.texera.dao.SqlServer
 import org.jooq.JSONB
+import org.jooq.exception.DataAccessException
 import org.apache.texera.dao.jooq.generated.tables.Notebook
 import org.apache.texera.dao.jooq.generated.tables.WorkflowNotebookMapping
 import java.net.{HttpURLConnection, URL}
@@ -287,6 +288,14 @@ object NotebookMigrationResource extends LazyLogging {
         .build()
 
     } catch {
+      // Backstop for the pre-check TOCTOU race: two writers on a shared workflow can both
+      // pass the existence check, then one INSERT trips the UNIQUE(wid) constraint. Translate
+      // that (Postgres SQLState 23505) to a 409 rather than a generic 500.
+      case e: DataAccessException if e.sqlState == "23505" =>
+        Response
+          .status(Response.Status.CONFLICT)
+          .entity(errorJson("A notebook is already stored for this workflow"))
+          .build()
       case NonFatal(e) =>
         logger.error("Error storing mapping and workflow", e)
         Response
