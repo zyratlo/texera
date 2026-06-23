@@ -167,7 +167,8 @@ describe("NotebookMigrationLLM", () => {
       });
     });
 
-    it("produces a link with an undefined endpoint when an edge references an unknown UDF id", async () => {
+    it("skips (with a warning) an edge that references an unknown UDF id", async () => {
+      const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
       const notebook: Notebook = { cells: [codeCell("CELL1", "a")] };
       mockResponses(
         JSON.stringify({ code: { UDF1: "c1" }, edges: [["UDF1", "UDFX"]], outputs: {} }),
@@ -176,9 +177,27 @@ describe("NotebookMigrationLLM", () => {
 
       const { workflowJSON } = JSON.parse(await makeLLM().convertNotebookToWorkflow(notebook));
 
-      // Documents current behavior: udfMappingToUUID["UDFX"] is undefined.
-      expect(workflowJSON.links[0].source.operatorID).toBe("PythonUDFV2-0");
-      expect(workflowJSON.links[0].target.operatorID).toBeUndefined();
+      // The dangling edge is dropped rather than producing an undefined endpoint.
+      expect(workflowJSON.links).toEqual([]);
+      expect(warn).toHaveBeenCalledWith(expect.stringContaining("UDFX"));
+      warn.mockRestore();
+    });
+
+    it("skips (with a warning) a mapping entry that references an unknown UDF id", async () => {
+      const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+      const notebook: Notebook = { cells: [codeCell("CELL1", "a")] };
+      mockResponses(
+        JSON.stringify({ code: { UDF1: "c1" }, edges: [], outputs: {} }),
+        JSON.stringify({ UDF1: ["CELL1"], UDFTYPO: ["CELL1"] })
+      );
+
+      const { workflowNotebookMapping } = JSON.parse(await makeLLM().convertNotebookToWorkflow(notebook));
+
+      // Only the valid UDF id survives in the mapping.
+      expect(workflowNotebookMapping.operator_to_cell).toEqual({ "PythonUDFV2-0": ["CELL1"] });
+      expect(workflowNotebookMapping.cell_to_operator).toEqual({ CELL1: ["PythonUDFV2-0"] });
+      expect(warn).toHaveBeenCalledWith(expect.stringContaining("UDFTYPO"));
+      warn.mockRestore();
     });
 
     it("handles empty code, edges, and outputs", async () => {

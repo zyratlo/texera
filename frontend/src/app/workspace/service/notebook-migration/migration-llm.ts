@@ -292,8 +292,15 @@ export class NotebookMigrationLLM {
       workflowJSON.operatorPositions[operator.operatorID] = { x: 140 * (i + 1), y: 0 };
     });
 
-    // Add links/edges
+    const knownUdfIds = new Set(Object.keys(udfMappingToUUID));
+
+    // Add links/edges. Skip (with a warning) any edge that references a UDF id the LLM
+    // never defined in `code`, rather than emitting a link with an undefined endpoint.
     (udfLLMResponse.edges || []).forEach(([source, target]: [string, string]) => {
+      if (!knownUdfIds.has(source) || !knownUdfIds.has(target)) {
+        console.warn(`Skipping edge with unknown UDF id: ${source} -> ${target}`);
+        return;
+      }
       workflowJSON.links.push({
         linkID: `link-${uuidv4()}`,
         source: {
@@ -314,6 +321,10 @@ export class NotebookMigrationLLM {
     const cellToUdf: Record<string, string[]> = {};
 
     Object.entries(parsedMapping).forEach(([udf, cells]) => {
+      if (!knownUdfIds.has(udf)) {
+        console.warn(`Skipping mapping entry with unknown UDF id: ${udf}`);
+        return;
+      }
       const udfUUID = udfMappingToUUID[udf];
       udfToCell[udfUUID] = cells;
       cells.forEach(cell => {
