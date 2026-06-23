@@ -211,6 +211,30 @@ describe("NotebookMigrationLLM", () => {
       expect(allPromptContent).toContain("# START undefined");
     });
 
+    it("joins array-form cell source (nbformat lines) without inserting commas", async () => {
+      const notebook: Notebook = {
+        cells: [
+          {
+            cell_type: "code",
+            metadata: { uuid: "CELL1" },
+            source: ["import pandas as pd\n", "x = 1\n"],
+          },
+        ],
+      };
+      mockResponses(
+        JSON.stringify({ code: { UDF1: "c1" }, edges: [], outputs: {} }),
+        JSON.stringify({ UDF1: ["CELL1"] })
+      );
+
+      await makeLLM().convertNotebookToWorkflow(notebook);
+
+      const allPromptContent = mockGenerateText.mock.calls
+        .flatMap(call => call[0].messages.map((m: any) => m.content))
+        .join("\n");
+      expect(allPromptContent).toContain("import pandas as pd\nx = 1\n");
+      expect(allPromptContent).not.toContain("import pandas as pd\n,");
+    });
+
     it("resets conversation history between conversions so a prior notebook does not leak", async () => {
       const llm = makeLLM();
 

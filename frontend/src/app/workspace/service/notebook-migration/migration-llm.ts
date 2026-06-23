@@ -42,7 +42,8 @@ import {
 interface Cell {
   cell_type: string;
   metadata: { [key: string]: any };
-  source: string;
+  // nbformat stores source as either a single string or an array of line strings.
+  source: string | string[];
 }
 
 export interface Notebook {
@@ -225,7 +226,9 @@ export class NotebookMigrationLLM {
     const notebookString = codeCells
       .map(cell => {
         const uuid = String(cell.metadata.uuid);
-        return `# START ${uuid}\n${cell.source}\n# END ${uuid}`;
+        // nbformat line arrays already include trailing newlines, so join with "".
+        const source = Array.isArray(cell.source) ? cell.source.join("") : cell.source;
+        return `# START ${uuid}\n${source}\n# END ${uuid}`;
       })
       .join("\n\n");
 
