@@ -72,6 +72,11 @@ interface CombinedMapping {
  * history shared by the prompts within one conversion. `convertNotebookToWorkflow()`
  * resets that history to the documentation prelude at its start, so the same instance
  * can convert multiple notebooks without leaking one conversion's context into the next.
+ *
+ * Output column types: intermediate UDFs declare their output columns as `binary` so rich
+ * Python objects (DataFrames, arrays, models) round-trip between operators via pickle.
+ * Terminal UDFs (no outgoing edge) declare their outputs as `string` so the result panel
+ * renders viewable values rather than opaque binary blobs.
  */
 @Injectable()
 export class NotebookMigrationLLM {
@@ -243,12 +248,20 @@ export class NotebookMigrationLLM {
 
     const udfMappingToUUID: Record<string, string> = {};
 
+    // UDFs that are never the source of an edge are terminal (result-facing). Their outputs
+    // default to "string" so the result panel renders typed values; intermediate UDFs keep
+    // "binary" so rich objects (DataFrames, arrays, models) round-trip between operators via pickle.
+    const edgeSources = new Set<string>(
+      (udfLLMResponse.edges || []).map(([source]: [string, string]) => source)
+    );
+
     Object.entries(udfLLMResponse.code).forEach(([udfId, udfCode], i) => {
       let udfOutputColumns: { attributeName: string; attributeType: string }[] = [];
       if (udfLLMResponse.outputs && udfLLMResponse.outputs[udfId]) {
+        const attributeType = edgeSources.has(udfId) ? "binary" : "string";
         udfOutputColumns = udfLLMResponse.outputs[udfId].map((attr: string) => ({
           attributeName: attr,
-          attributeType: "binary",
+          attributeType,
         }));
       }
 

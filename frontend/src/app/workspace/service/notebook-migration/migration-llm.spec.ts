@@ -116,20 +116,27 @@ describe("NotebookMigrationLLM", () => {
       });
     });
 
-    // NOTE (C2): the attributeType is currently hardcoded to "binary". If C2 lands as
-    // "LLM returns per-column types", update the expected attributeType values here.
-    it("declares output columns with attributeType binary", async () => {
-      const notebook: Notebook = { cells: [codeCell("CELL1", "x = 1")] };
+    // Intermediate UDFs (a source of some edge) keep "binary" for object passing; terminal
+    // UDFs (no outgoing edge) default to "string" so the result panel renders typed values.
+    it("types intermediate UDF outputs as binary and terminal UDF outputs as string", async () => {
+      const notebook: Notebook = { cells: [codeCell("CELL1", "a"), codeCell("CELL2", "b")] };
       mockResponses(
-        JSON.stringify({ code: { UDF1: "code1" }, edges: [], outputs: { UDF1: ["a", "b"] } }),
-        JSON.stringify({ UDF1: ["CELL1"] })
+        JSON.stringify({
+          code: { UDF1: "code1", UDF2: "code2" },
+          edges: [["UDF1", "UDF2"]],
+          outputs: { UDF1: ["x"], UDF2: ["y"] },
+        }),
+        JSON.stringify({ UDF1: ["CELL1"], UDF2: ["CELL2"] })
       );
 
       const { workflowJSON } = JSON.parse(await makeLLM().convertNotebookToWorkflow(notebook));
 
+      // UDF1 is a source (intermediate) -> binary; UDF2 is terminal -> string.
       expect(workflowJSON.operators[0].operatorProperties.outputColumns).toEqual([
-        { attributeName: "a", attributeType: "binary" },
-        { attributeName: "b", attributeType: "binary" },
+        { attributeName: "x", attributeType: "binary" },
+      ]);
+      expect(workflowJSON.operators[1].operatorProperties.outputColumns).toEqual([
+        { attributeName: "y", attributeType: "string" },
       ]);
     });
 
