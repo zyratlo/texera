@@ -124,14 +124,23 @@ export class NotebookMigrationLLM {
   }
 
   private parseJsonResponse(raw: string, context: string): any {
-    // Trim first, then strip optional markdown code fences (```json ... ``` or ``` ... ```)
-    const cleaned = raw
-      .trim()
-      .replace(/^```[a-zA-Z]*\s*/, "")
-      .replace(/\s*```$/, "")
-      .trim();
+    let text = raw.trim();
+
+    // Prefer the contents of a fenced code block if present (```json ... ``` or ``` ... ```),
+    // even when wrapped in prose. Otherwise fall back to the outermost {...} object.
+    const fenced = text.match(/```(?:[a-zA-Z]+)?\s*([\s\S]*?)```/);
+    if (fenced) {
+      text = fenced[1].trim();
+    } else {
+      const firstBrace = text.indexOf("{");
+      const lastBrace = text.lastIndexOf("}");
+      if (firstBrace !== -1 && lastBrace > firstBrace) {
+        text = text.slice(firstBrace, lastBrace + 1);
+      }
+    }
+
     try {
-      return JSON.parse(cleaned);
+      return JSON.parse(text);
     } catch (err) {
       throw new Error(`Failed to parse LLM ${context} response as JSON: ${(err as Error).message}`);
     }

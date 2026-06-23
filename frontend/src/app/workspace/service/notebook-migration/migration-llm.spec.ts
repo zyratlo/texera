@@ -294,10 +294,12 @@ describe("NotebookMigrationLLM", () => {
       expect(() => parse("not json")).toThrow("Failed to parse LLM workflow response as JSON");
     });
 
-    it("does not strip a fence preceded by prose (documents current limitation)", () => {
-      expect(() => parse('Here is the JSON: ```json\n{"a":1}\n```\nThanks!')).toThrow(
-        "Failed to parse LLM workflow response as JSON"
-      );
+    it("extracts fenced JSON even when surrounded by prose", () => {
+      expect(parse('Here is the JSON: ```json\n{"a":1}\n```\nThanks!')).toEqual({ a: 1 });
+    });
+
+    it("extracts the outermost object from fence-less prose", () => {
+      expect(parse('Sure! {"a":1} hope that helps')).toEqual({ a: 1 });
     });
   });
 });
