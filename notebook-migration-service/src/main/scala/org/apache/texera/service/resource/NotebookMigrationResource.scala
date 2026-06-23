@@ -43,6 +43,11 @@ object NotebookMigrationResource extends LazyLogging {
   private def errorJson(message: String): String =
     mapper.writeValueAsString(mapper.createObjectNode().put("error", message))
 
+  // Build a {"success": true, "url": ...} body via the mapper so the URL is JSON-escaped
+  // rather than raw-interpolated.
+  private def successUrlJson(url: String): String =
+    mapper.writeValueAsString(mapper.createObjectNode().put("success", true).put("url", url))
+
   private val jupyterUrl = StorageConfig.jupyterURL
   private val jupyterToken = StorageConfig.jupyterToken
   // The token is passed as a URL param so the browser iframe can authenticate when loading the notebook.
@@ -89,16 +94,7 @@ object NotebookMigrationResource extends LazyLogging {
         .build()
     }
 
-    Response
-      .ok(
-        s"""
-    {
-      "success": true,
-      "url": "$jupyterIframeURL"
-    }
-    """
-      )
-      .build()
+    Response.ok(successUrlJson(jupyterIframeURL)).build()
   }
 
   // Returns the URL of Jupyter
@@ -117,16 +113,7 @@ object NotebookMigrationResource extends LazyLogging {
         .build()
     }
 
-    Response
-      .ok(
-        s"""
-    {
-      "success": true,
-      "url": "$jupyterUrl"
-    }
-    """
-      )
-      .build()
+    Response.ok(successUrlJson(jupyterUrl)).build()
   }
 
   // Set the notebook in Jupyter
