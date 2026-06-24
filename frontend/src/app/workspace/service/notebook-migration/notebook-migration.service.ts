@@ -82,14 +82,15 @@ export class NotebookMigrationService {
     );
   }
 
-  public async sendToAIGenerateWorkflow(notebookContent: Notebook, modelType: string, apiKey: string) {
+  public async sendToAIGenerateWorkflow(notebookContent: Notebook, modelType: string) {
     if (!this.enabled) throw new Error("Notebook migration feature is disabled");
     const migrationLLM = new NotebookMigrationLLM(this.config, this.workflowUtilService);
-    migrationLLM.initialize(modelType, apiKey);
+    // initialize() defaults to the user's Texera JWT via AuthService.getAccessToken().
+    migrationLLM.initialize(modelType);
 
     const isValid = await migrationLLM.verifyConnection();
     if (!isValid) {
-      throw new Error("Invalid API key or backend connection");
+      throw new Error("Unable to authenticate with or reach the LLM backend");
     }
 
     try {
