@@ -24,6 +24,7 @@ import { Notebook, NotebookMigrationLLM } from "./migration-llm";
 import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { NotificationService } from "src/app/common/service/notification/notification.service";
 import { GuiConfigService } from "../../../common/service/gui-config.service";
+import { WorkflowUtilService } from "../workflow-graph/util/workflow-util.service";
 import { catchError, firstValueFrom, map, Observable, of } from "rxjs";
 
 interface LiteLLMModel {
@@ -58,7 +59,8 @@ export class NotebookMigrationService {
   constructor(
     private http: HttpClient,
     private notificationService: NotificationService,
-    private config: GuiConfigService
+    private config: GuiConfigService,
+    private workflowUtilService: WorkflowUtilService
   ) {}
 
   private get enabled(): boolean {
@@ -82,7 +84,7 @@ export class NotebookMigrationService {
 
   public async sendToAIGenerateWorkflow(notebookContent: Notebook, modelType: string, apiKey: string) {
     if (!this.enabled) throw new Error("Notebook migration feature is disabled");
-    const migrationLLM = new NotebookMigrationLLM();
+    const migrationLLM = new NotebookMigrationLLM(this.config, this.workflowUtilService);
     migrationLLM.initialize(modelType, apiKey);
 
     const isValid = await migrationLLM.verifyConnection();
