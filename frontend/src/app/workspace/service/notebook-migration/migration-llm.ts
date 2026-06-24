@@ -19,6 +19,7 @@
 
 import { Injectable } from "@angular/core";
 import { GuiConfigService } from "../../../common/service/gui-config.service";
+import { AuthService } from "../../../common/service/user/auth.service";
 import { createOpenAI } from "@ai-sdk/openai";
 import { generateText, type ModelMessage } from "ai";
 import { AppSettings } from "../../../common/app-setting";
@@ -149,13 +150,14 @@ export class NotebookMigrationLLM {
   /**
    * Initialize a new LLM session with Texera documentation
    */
-  public initialize(modelType: string = "gpt-5-mini", apiKey: string = "dummy"): void {
+  public initialize(modelType: string = "gpt-5-mini", accessToken: string = AuthService.getAccessToken() ?? ""): void {
     this.assertEnabled();
     this.model = createOpenAI({
       baseURL: new URL(`${AppSettings.getApiEndpoint()}`, document.baseURI).toString(),
-      // apiKey is required by the library for creating the OpenAI compatible client;
-      // For security reason, we store the apiKey at the backend, thus the value is dummy here.
-      apiKey: apiKey,
+      // The /api/chat/* LiteLLM proxy authenticates the caller with the Texera JWT. The AI SDK
+      // sends this value verbatim as `Authorization: Bearer <token>`, so we pass the user's
+      // access token; the backend validates it, then substitutes the LiteLLM master key upstream.
+      apiKey: accessToken,
     }).chat(modelType);
 
     this.seedDocumentation();
@@ -164,7 +166,7 @@ export class NotebookMigrationLLM {
   }
 
   /**
-   * Verify the connection to the LLM using the given API key
+   * Verify the connection to the LLM using the current access token
    */
   public async verifyConnection(): Promise<boolean> {
     if (!this.enabled) return false;

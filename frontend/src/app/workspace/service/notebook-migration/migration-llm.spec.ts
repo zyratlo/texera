@@ -64,7 +64,8 @@ describe("NotebookMigrationLLM", () => {
     } as unknown as WorkflowUtilService;
 
     const llm = new NotebookMigrationLLM(stubConfig, stubUtil);
-    llm.initialize();
+    // Pass an explicit token so tests don't depend on AuthService/localStorage state.
+    llm.initialize("gpt-5-mini", "test-token");
     return llm;
   }
 
