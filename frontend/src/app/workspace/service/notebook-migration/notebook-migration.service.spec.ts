@@ -207,7 +207,7 @@ describe("NotebookMigrationService", () => {
     });
 
     it("sendToAIGenerateWorkflow rejects with a disabled-feature error", async () => {
-      await expectAsync(service.sendToAIGenerateWorkflow({ cells: [] } as any, "gpt-4", "key")).toBeRejectedWithError(
+      await expectAsync(service.sendToAIGenerateWorkflow({ cells: [] } as any, "gpt-4")).toBeRejectedWithError(
         /disabled/i
       );
     });
