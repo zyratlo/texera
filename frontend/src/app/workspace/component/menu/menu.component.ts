@@ -253,7 +253,6 @@ export class MenuComponent implements OnInit, OnDestroy {
       description: [""],
       file: [null, Validators.required],
       model: [""],
-      apiKey: [""],
     });
   }
 
@@ -658,8 +657,7 @@ export class MenuComponent implements OnInit, OnDestroy {
           onClick: () => {
             const file: NzUploadFile = this.importForm.get("file")?.value;
             const model: string = this.importForm.get("model")?.value;
-            const apiKey: string = this.importForm.get("apiKey")?.value;
-            this.onClickImportNotebook(file, model, apiKey);
+            this.onClickImportNotebook(file, model);
             modalRef.close(); // close after submit too
           },
         },
@@ -674,7 +672,7 @@ export class MenuComponent implements OnInit, OnDestroy {
     return false; // prevent auto upload
   };
 
-  public onClickImportNotebook = (file: NzUploadFile, model: string, apiKey: string): boolean => {
+  public onClickImportNotebook = (file: NzUploadFile, model: string): boolean => {
     const reader = new FileReader();
 
     // Check if the file is a Jupyter notebook based on its extension
@@ -716,7 +714,7 @@ export class MenuComponent implements OnInit, OnDestroy {
 
         // Get workflow and mapping from LLM
         await this.notebookMigrationService
-          .sendToAIGenerateWorkflow(notebookContent, model, apiKey)
+          .sendToAIGenerateWorkflow(notebookContent, model)
           .then(result => {
             if (result) {
               const { workflowContent, mappingContent } = result;
