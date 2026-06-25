@@ -22,6 +22,7 @@ import { NotebookMigrationService } from "./notebook-migration.service";
 import { HttpClientTestingModule, HttpTestingController } from "@angular/common/http/testing";
 import { NotificationService } from "src/app/common/service/notification/notification.service";
 import { GuiConfigService } from "src/app/common/service/gui-config.service";
+import { WorkflowUtilService } from "../workflow-graph/util/workflow-util.service";
 import { firstValueFrom } from "rxjs";
 
 describe("NotebookMigrationService", () => {
@@ -47,6 +48,11 @@ describe("NotebookMigrationService", () => {
         NotebookMigrationService,
         { provide: NotificationService, useValue: mockNotificationService },
         { provide: GuiConfigService, useValue: mockGuiConfigService },
+        // Stub so the real WorkflowUtilService (and its OperatorMetadataService,
+        // which fires GET /api/resources/operator-metadata on construction) is
+        // never built. The service only passes it to NotebookMigrationLLM, which
+        // no test exercises.
+        { provide: WorkflowUtilService, useValue: {} },
       ],
     });
 
