@@ -123,8 +123,8 @@ export class NotebookMigrationService {
       return 1;
     } catch (error) {
       console.error("Error sending notebook to pod: ", error);
-      // @ts-ignore
-      this.notificationService.error("Error sending notebook to Jupyter: " + error.message);
+      const message = error instanceof Error ? error.message : String(error);
+      this.notificationService.error("Error sending notebook to Jupyter: " + message);
       return 0;
     }
   }
