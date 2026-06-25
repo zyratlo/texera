@@ -52,12 +52,7 @@ interface StoreNotebookResponse {
   providedIn: "root",
 })
 export class NotebookMigrationService {
-  private mapping: { [key: string]: MappingContent } = {
-    default: {
-      cell_to_operator: {},
-      operator_to_cell: {},
-    },
-  };
+  private mapping: { [key: string]: MappingContent } = {};
 
   constructor(
     private http: HttpClient,
