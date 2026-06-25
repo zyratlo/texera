@@ -17,7 +17,6 @@
  * under the License.
  */
 
-import { UntilDestroy } from "@ngneat/until-destroy";
 import { Injectable } from "@angular/core";
 import { AppSettings } from "../../../common/app-setting";
 import { Notebook, NotebookMigrationLLM } from "./migration-llm";
@@ -44,7 +43,6 @@ interface MappingContent {
   operator_to_cell: { [key: string]: any };
 }
 
-@UntilDestroy()
 @Injectable({
   providedIn: "root",
 })
