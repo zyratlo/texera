@@ -22,11 +22,12 @@ import { NotebookMigrationService } from "./notebook-migration.service";
 import { HttpClientTestingModule, HttpTestingController } from "@angular/common/http/testing";
 import { NotificationService } from "src/app/common/service/notification/notification.service";
 import { GuiConfigService } from "src/app/common/service/gui-config.service";
+import { firstValueFrom } from "rxjs";
 
 describe("NotebookMigrationService", () => {
   let service: NotebookMigrationService;
   let httpMock: HttpTestingController;
-  let mockNotificationService: any;
+  let mockNotificationService: { success: ReturnType<typeof vi.fn>; error: ReturnType<typeof vi.fn> };
   // Mutable so individual describe blocks can flip the flag mid-spec by
   // reassigning `mockGuiConfigService.env.pythonNotebookMigrationEnabled`.
   // The service stores a reference to this object, so mutations are observed
@@ -35,8 +36,8 @@ describe("NotebookMigrationService", () => {
 
   beforeEach(() => {
     mockNotificationService = {
-      success: jasmine.createSpy("success"),
-      error: jasmine.createSpy("error"),
+      success: vi.fn(),
+      error: vi.fn(),
     };
     mockGuiConfigService = { env: { pythonNotebookMigrationEnabled: true } };
 
@@ -58,7 +59,7 @@ describe("NotebookMigrationService", () => {
   });
 
   // getAvailableModels
-  it("should fetch and map available models", done => {
+  it("should fetch and map available models", async () => {
     const mockResponse = {
       data: [
         { id: "gpt-4", object: "", created: 0, owned_by: "" },
@@ -67,25 +68,24 @@ describe("NotebookMigrationService", () => {
       object: "",
     };
 
-    service.getAvailableModels().subscribe(models => {
-      expect(models.length).toBe(2);
-      expect(models[0].name).toBe("gpt-4");
-      done();
-    });
+    const promise = firstValueFrom(service.getAvailableModels());
 
     const req = httpMock.expectOne(req => req.url.includes("/models"));
     expect(req.request.method).toBe("GET");
     req.flush(mockResponse);
+
+    const models = await promise;
+    expect(models.length).toBe(2);
+    expect(models[0].name).toBe("gpt-4");
   });
 
-  it("should return empty array on getAvailableModels error", done => {
-    service.getAvailableModels().subscribe(models => {
-      expect(models).toEqual([]);
-      done();
-    });
+  it("should return empty array on getAvailableModels error", async () => {
+    const promise = firstValueFrom(service.getAvailableModels());
 
     const req = httpMock.expectOne(req => req.url.includes("/models"));
     req.error(new ErrorEvent("Network error"));
+
+    expect(await promise).toEqual([]);
   });
 
   // sendNotebookToJupyter
@@ -169,7 +169,7 @@ describe("NotebookMigrationService", () => {
 
     service.setMapping("test", mockMapping);
 
-    expect(service.hasMapping("test")).toBeTrue();
+    expect(service.hasMapping("test")).toBe(true);
     expect(service.getMapping("test")).toEqual(mockMapping);
   });
 
@@ -178,7 +178,7 @@ describe("NotebookMigrationService", () => {
 
     service.deleteMapping("test");
 
-    expect(service.hasMapping("test")).toBeFalse();
+    expect(service.hasMapping("test")).toBe(false);
   });
 
   // storeNotebookAndMapping
@@ -198,18 +198,14 @@ describe("NotebookMigrationService", () => {
       mockGuiConfigService.env.pythonNotebookMigrationEnabled = false;
     });
 
-    it("getAvailableModels emits an empty array and makes no HTTP call", done => {
-      service.getAvailableModels().subscribe(models => {
-        expect(models).toEqual([]);
-        done();
-      });
+    it("getAvailableModels emits an empty array and makes no HTTP call", async () => {
+      const models = await firstValueFrom(service.getAvailableModels());
+      expect(models).toEqual([]);
       httpMock.expectNone(req => req.url.includes("/models"));
     });
 
     it("sendToAIGenerateWorkflow rejects with a disabled-feature error", async () => {
-      await expectAsync(service.sendToAIGenerateWorkflow({ cells: [] } as any, "gpt-4")).toBeRejectedWithError(
-        /disabled/i
-      );
+      await expect(service.sendToAIGenerateWorkflow({ cells: [] } as any, "gpt-4")).rejects.toThrow(/disabled/i);
     });
 
     it("sendNotebookToJupyter returns 0 with no HTTP call or notification", async () => {
@@ -232,13 +228,9 @@ describe("NotebookMigrationService", () => {
       httpMock.expectNone(req => req.url.includes("/notebook-migration/get-jupyter-iframe-url"));
     });
 
-    it("storeNotebookAndMapping emits without making an HTTP call", done => {
-      service.storeNotebookAndMapping(1, 1, {}, {}).subscribe({
-        next: () => {
-          httpMock.expectNone(req => req.url.includes("/notebook-migration/store-notebook-and-mapping"));
-          done();
-        },
-      });
+    it("storeNotebookAndMapping emits without making an HTTP call", async () => {
+      await firstValueFrom(service.storeNotebookAndMapping(1, 1, {}, {}));
+      httpMock.expectNone(req => req.url.includes("/notebook-migration/store-notebook-and-mapping"));
     });
   });
 });
