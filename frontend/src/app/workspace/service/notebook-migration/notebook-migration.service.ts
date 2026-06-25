@@ -43,6 +43,11 @@ interface MappingContent {
   operator_to_cell: { [key: string]: any };
 }
 
+interface StoreNotebookResponse {
+  success: boolean;
+  message: string;
+}
+
 @Injectable({
   providedIn: "root",
 })
@@ -171,8 +176,15 @@ export class NotebookMigrationService {
     }
   }
 
-  public storeNotebookAndMapping(wid: number | undefined, vid: number = 1, mappingContent: any, notebookContent: any) {
-    if (!this.enabled) return of(null);
+  public storeNotebookAndMapping(
+    wid: number | undefined,
+    vid: number = 1,
+    mappingContent: any,
+    notebookContent: any
+  ): Observable<StoreNotebookResponse> {
+    if (!this.enabled) {
+      return of({ success: false, message: "Notebook migration feature is disabled" });
+    }
     const dbAPIUrl = `${AppSettings.getApiEndpoint()}/notebook-migration/store-notebook-and-mapping`;
     const headers = new HttpHeaders({ "Content-Type": "application/json" });
 
@@ -183,7 +195,7 @@ export class NotebookMigrationService {
       notebook: notebookContent,
     };
 
-    return this.http.post(dbAPIUrl, payload, { headers });
+    return this.http.post<StoreNotebookResponse>(dbAPIUrl, payload, { headers });
   }
 
   public hasMapping(id: string): boolean {

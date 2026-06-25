@@ -228,8 +228,9 @@ describe("NotebookMigrationService", () => {
       httpMock.expectNone(req => req.url.includes("/notebook-migration/get-jupyter-iframe-url"));
     });
 
-    it("storeNotebookAndMapping emits without making an HTTP call", async () => {
-      await firstValueFrom(service.storeNotebookAndMapping(1, 1, {}, {}));
+    it("storeNotebookAndMapping emits a disabled result without making an HTTP call", async () => {
+      const result = await firstValueFrom(service.storeNotebookAndMapping(1, 1, {}, {}));
+      expect(result.success).toBe(false);
       httpMock.expectNone(req => req.url.includes("/notebook-migration/store-notebook-and-mapping"));
     });
   });
