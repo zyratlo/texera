@@ -99,6 +99,7 @@ export class NotebookMigrationService {
       return { workflowContent, mappingContent };
     } catch (error) {
       console.error("Error converting notebook:", error);
+      throw error;
     } finally {
       migrationLLM.close();
     }
