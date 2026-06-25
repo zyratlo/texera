@@ -19,11 +19,28 @@
 
 import { TestBed } from "@angular/core/testing";
 import { NotebookMigrationService } from "./notebook-migration.service";
+import { HttpClient } from "@angular/common/http";
 import { HttpClientTestingModule, HttpTestingController } from "@angular/common/http/testing";
 import { NotificationService } from "src/app/common/service/notification/notification.service";
 import { GuiConfigService } from "src/app/common/service/gui-config.service";
 import { WorkflowUtilService } from "../workflow-graph/util/workflow-util.service";
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, throwError } from "rxjs";
+
+// NotebookMigrationLLM is constructed inside sendToAIGenerateWorkflow. Mock the
+// whole module so the LLM lifecycle is driven by `mockLLM` instead of real
+// network / AI-SDK calls. vi.hoisted lets the mock instance be referenced from
+// the (hoisted) vi.mock factory.
+const { mockLLM } = vi.hoisted(() => ({
+  mockLLM: {
+    initialize: vi.fn(),
+    verifyConnection: vi.fn(),
+    convertNotebookToWorkflow: vi.fn(),
+    close: vi.fn(),
+  },
+}));
+vi.mock("./migration-llm", () => ({
+  NotebookMigrationLLM: vi.fn(() => mockLLM),
+}));
 
 describe("NotebookMigrationService", () => {
   let service: NotebookMigrationService;
@@ -62,6 +79,7 @@ describe("NotebookMigrationService", () => {
 
   afterEach(() => {
     httpMock.verify();
+    vi.restoreAllMocks();
   });
 
   // getAvailableModels
@@ -127,6 +145,18 @@ describe("NotebookMigrationService", () => {
     expect(mockNotificationService.error).toHaveBeenCalled();
   });
 
+  it("includes the Error message in the failure toast when an Error is thrown", async () => {
+    // HttpTestingController's req.error yields an HttpErrorResponse (not an Error
+    // instance), so spy on http.post directly to exercise the `error instanceof
+    // Error` branch. No request reaches the testing backend, so verify() stays happy.
+    vi.spyOn(TestBed.inject(HttpClient), "post").mockReturnValue(throwError(() => new Error("network down")));
+
+    const result = await service.sendNotebookToJupyter({ cells: [] } as any);
+
+    expect(result).toBe(0);
+    expect(mockNotificationService.error).toHaveBeenCalledWith(expect.stringContaining("network down"));
+  });
+
   // jupyter URL methods (HttpClient so the JwtModule interceptor attaches the auth token)
   it("should return Jupyter URL when the request succeeds", async () => {
     const promise = service.getJupyterURL();
@@ -147,6 +177,15 @@ describe("NotebookMigrationService", () => {
     expect(await promise).toBeNull();
   });
 
+  it("should return null when the Jupyter URL response is 200 but unsuccessful", async () => {
+    const promise = service.getJupyterURL();
+
+    const req = httpMock.expectOne(req => req.url.includes("/notebook-migration/get-jupyter-url"));
+    req.flush({ success: false });
+
+    expect(await promise).toBeNull();
+  });
+
   it("should return iframe URL when the request succeeds", async () => {
     const promise = service.getJupyterIframeURL();
 
@@ -162,6 +201,15 @@ describe("NotebookMigrationService", () => {
 
     const req = httpMock.expectOne(req => req.url.includes("/notebook-migration/get-jupyter-iframe-url"));
     req.flush({ success: false }, { status: 500, statusText: "Server Error" });
+
+    expect(await promise).toBeNull();
+  });
+
+  it("should return null when the iframe URL response is 200 but unsuccessful", async () => {
+    const promise = service.getJupyterIframeURL();
+
+    const req = httpMock.expectOne(req => req.url.includes("/notebook-migration/get-jupyter-iframe-url"));
+    req.flush({ success: false });
 
     expect(await promise).toBeNull();
   });
@@ -194,6 +242,43 @@ describe("NotebookMigrationService", () => {
     const req = httpMock.expectOne(req => req.url.includes("/notebook-migration/store-notebook-and-mapping"));
 
     expect(req.request.method).toBe("POST");
+  });
+
+  // sendToAIGenerateWorkflow (enabled) — drives the mocked NotebookMigrationLLM lifecycle.
+  describe("sendToAIGenerateWorkflow (enabled)", () => {
+    beforeEach(() => {
+      mockLLM.initialize.mockReset();
+      mockLLM.verifyConnection.mockReset().mockResolvedValue(true);
+      mockLLM.convertNotebookToWorkflow.mockReset();
+      mockLLM.close.mockReset();
+    });
+
+    it("returns the parsed workflow and mapping, and closes the client", async () => {
+      mockLLM.convertNotebookToWorkflow.mockResolvedValue(
+        JSON.stringify({ workflowJSON: { ops: 1 }, workflowNotebookMapping: { m: 2 } })
+      );
+
+      const result = await service.sendToAIGenerateWorkflow({ cells: [] } as any, "gpt-4");
+
+      expect(result).toEqual({ workflowContent: { ops: 1 }, mappingContent: { m: 2 } });
+      expect(mockLLM.initialize).toHaveBeenCalledWith("gpt-4");
+      expect(mockLLM.close).toHaveBeenCalled();
+    });
+
+    it("rejects when the connection cannot be verified, before opening the convert/close lifecycle", async () => {
+      mockLLM.verifyConnection.mockResolvedValue(false);
+
+      await expect(service.sendToAIGenerateWorkflow({ cells: [] } as any, "gpt-4")).rejects.toThrow(/authenticate/i);
+      // The throw precedes the try/finally, so close() is never reached.
+      expect(mockLLM.close).not.toHaveBeenCalled();
+    });
+
+    it("rethrows conversion errors and still closes the client", async () => {
+      mockLLM.convertNotebookToWorkflow.mockRejectedValue(new Error("conversion boom"));
+
+      await expect(service.sendToAIGenerateWorkflow({ cells: [] } as any, "gpt-4")).rejects.toThrow(/conversion boom/);
+      expect(mockLLM.close).toHaveBeenCalled();
+    });
   });
 
   // Feature flag gate (defence in depth). With the flag off, every public
