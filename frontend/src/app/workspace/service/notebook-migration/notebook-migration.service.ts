@@ -82,7 +82,7 @@ export class NotebookMigrationService {
 
   public async sendToAIGenerateWorkflow(notebookContent: Notebook, modelType: string) {
     if (!this.enabled) throw new Error("Notebook migration feature is disabled");
-    const migrationLLM = new NotebookMigrationLLM(this.config, this.workflowUtilService);
+    const migrationLLM = this.createMigrationLLM();
     // initialize() defaults to the user's Texera JWT via AuthService.getAccessToken().
     // The outer try/finally guarantees close() runs for the whole lifecycle,
     // including a verifyConnection failure.
@@ -107,6 +107,13 @@ export class NotebookMigrationService {
     } finally {
       migrationLLM.close();
     }
+  }
+
+  // Factory seam for the LLM client. Extracted so specs can override it to supply
+  // a fake, keeping the real NotebookMigrationLLM (and its `ai` transport) out of
+  // the test module graph. A new instance is created per conversion.
+  protected createMigrationLLM(): NotebookMigrationLLM {
+    return new NotebookMigrationLLM(this.config, this.workflowUtilService);
   }
 
   public async sendNotebookToJupyter(notebookData: Notebook) {
