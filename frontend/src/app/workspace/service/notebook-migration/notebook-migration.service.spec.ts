@@ -19,28 +19,13 @@
 
 import { TestBed } from "@angular/core/testing";
 import { NotebookMigrationService } from "./notebook-migration.service";
+import { NotebookMigrationLLM } from "./migration-llm";
 import { HttpClient } from "@angular/common/http";
 import { HttpClientTestingModule, HttpTestingController } from "@angular/common/http/testing";
 import { NotificationService } from "src/app/common/service/notification/notification.service";
 import { GuiConfigService } from "src/app/common/service/gui-config.service";
 import { WorkflowUtilService } from "../workflow-graph/util/workflow-util.service";
 import { firstValueFrom, throwError } from "rxjs";
-
-// NotebookMigrationLLM is constructed inside sendToAIGenerateWorkflow. Mock the
-// whole module so the LLM lifecycle is driven by `mockLLM` instead of real
-// network / AI-SDK calls. vi.hoisted lets the mock instance be referenced from
-// the (hoisted) vi.mock factory.
-const { mockLLM } = vi.hoisted(() => ({
-  mockLLM: {
-    initialize: vi.fn(),
-    verifyConnection: vi.fn(),
-    convertNotebookToWorkflow: vi.fn(),
-    close: vi.fn(),
-  },
-}));
-vi.mock("./migration-llm", () => ({
-  NotebookMigrationLLM: vi.fn(() => mockLLM),
-}));
 
 describe("NotebookMigrationService", () => {
   let service: NotebookMigrationService;
@@ -244,40 +229,45 @@ describe("NotebookMigrationService", () => {
     expect(req.request.method).toBe("POST");
   });
 
-  // sendToAIGenerateWorkflow (enabled) — drives the mocked NotebookMigrationLLM lifecycle.
+  // sendToAIGenerateWorkflow (enabled) — drives the NotebookMigrationLLM lifecycle.
+  // The service constructs the LLM with `new`, so spy its prototype methods rather
+  // than mocking the module (vi.mock on relative imports is unsupported by the
+  // Angular unit-test builder). The real lifecycle bodies never run.
   describe("sendToAIGenerateWorkflow (enabled)", () => {
     beforeEach(() => {
-      mockLLM.initialize.mockReset();
-      mockLLM.verifyConnection.mockReset().mockResolvedValue(true);
-      mockLLM.convertNotebookToWorkflow.mockReset();
-      mockLLM.close.mockReset();
+      vi.spyOn(NotebookMigrationLLM.prototype, "initialize").mockReturnValue(undefined);
+      vi.spyOn(NotebookMigrationLLM.prototype, "verifyConnection").mockResolvedValue(true);
+      vi.spyOn(NotebookMigrationLLM.prototype, "convertNotebookToWorkflow").mockResolvedValue("");
+      vi.spyOn(NotebookMigrationLLM.prototype, "close").mockReturnValue(undefined);
     });
 
     it("returns the parsed workflow and mapping, and closes the client", async () => {
-      mockLLM.convertNotebookToWorkflow.mockResolvedValue(
+      vi.spyOn(NotebookMigrationLLM.prototype, "convertNotebookToWorkflow").mockResolvedValue(
         JSON.stringify({ workflowJSON: { ops: 1 }, workflowNotebookMapping: { m: 2 } })
       );
 
       const result = await service.sendToAIGenerateWorkflow({ cells: [] } as any, "gpt-4");
 
       expect(result).toEqual({ workflowContent: { ops: 1 }, mappingContent: { m: 2 } });
-      expect(mockLLM.initialize).toHaveBeenCalledWith("gpt-4");
-      expect(mockLLM.close).toHaveBeenCalled();
+      expect(NotebookMigrationLLM.prototype.initialize).toHaveBeenCalledWith("gpt-4");
+      expect(NotebookMigrationLLM.prototype.close).toHaveBeenCalled();
     });
 
     it("rejects when the connection cannot be verified, before opening the convert/close lifecycle", async () => {
-      mockLLM.verifyConnection.mockResolvedValue(false);
+      vi.spyOn(NotebookMigrationLLM.prototype, "verifyConnection").mockResolvedValue(false);
 
       await expect(service.sendToAIGenerateWorkflow({ cells: [] } as any, "gpt-4")).rejects.toThrow(/authenticate/i);
       // The throw precedes the try/finally, so close() is never reached.
-      expect(mockLLM.close).not.toHaveBeenCalled();
+      expect(NotebookMigrationLLM.prototype.close).not.toHaveBeenCalled();
     });
 
     it("rethrows conversion errors and still closes the client", async () => {
-      mockLLM.convertNotebookToWorkflow.mockRejectedValue(new Error("conversion boom"));
+      vi.spyOn(NotebookMigrationLLM.prototype, "convertNotebookToWorkflow").mockRejectedValue(
+        new Error("conversion boom")
+      );
 
       await expect(service.sendToAIGenerateWorkflow({ cells: [] } as any, "gpt-4")).rejects.toThrow(/conversion boom/);
-      expect(mockLLM.close).toHaveBeenCalled();
+      expect(NotebookMigrationLLM.prototype.close).toHaveBeenCalled();
     });
   });
 
