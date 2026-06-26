@@ -84,22 +84,26 @@ export class NotebookMigrationService {
     if (!this.enabled) throw new Error("Notebook migration feature is disabled");
     const migrationLLM = new NotebookMigrationLLM(this.config, this.workflowUtilService);
     // initialize() defaults to the user's Texera JWT via AuthService.getAccessToken().
-    migrationLLM.initialize(modelType);
-
-    const isValid = await migrationLLM.verifyConnection();
-    if (!isValid) {
-      throw new Error("Unable to authenticate with or reach the LLM backend");
-    }
-
+    // The outer try/finally guarantees close() runs for the whole lifecycle,
+    // including a verifyConnection failure.
     try {
-      const result = await migrationLLM.convertNotebookToWorkflow(notebookContent);
-      const parsedResult = JSON.parse(result);
-      const workflowContent = parsedResult.workflowJSON;
-      const mappingContent = parsedResult.workflowNotebookMapping;
-      return { workflowContent, mappingContent };
-    } catch (error) {
-      console.error("Error converting notebook:", error);
-      throw error;
+      migrationLLM.initialize(modelType);
+
+      const isValid = await migrationLLM.verifyConnection();
+      if (!isValid) {
+        throw new Error("Unable to authenticate with or reach the LLM backend");
+      }
+
+      try {
+        const result = await migrationLLM.convertNotebookToWorkflow(notebookContent);
+        const parsedResult = JSON.parse(result);
+        const workflowContent = parsedResult.workflowJSON;
+        const mappingContent = parsedResult.workflowNotebookMapping;
+        return { workflowContent, mappingContent };
+      } catch (error) {
+        console.error("Error converting notebook:", error);
+        throw error;
+      }
     } finally {
       migrationLLM.close();
     }

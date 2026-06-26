@@ -253,12 +253,12 @@ describe("NotebookMigrationService", () => {
       expect(NotebookMigrationLLM.prototype.close).toHaveBeenCalled();
     });
 
-    it("rejects when the connection cannot be verified, before opening the convert/close lifecycle", async () => {
+    it("rejects when the connection cannot be verified, and still closes the client", async () => {
       vi.spyOn(NotebookMigrationLLM.prototype, "verifyConnection").mockResolvedValue(false);
 
       await expect(service.sendToAIGenerateWorkflow({ cells: [] } as any, "gpt-4")).rejects.toThrow(/authenticate/i);
-      // The throw precedes the try/finally, so close() is never reached.
-      expect(NotebookMigrationLLM.prototype.close).not.toHaveBeenCalled();
+      // verifyConnection runs inside the outer try, so the finally still closes the client.
+      expect(NotebookMigrationLLM.prototype.close).toHaveBeenCalled();
     });
 
     it("rethrows conversion errors and still closes the client", async () => {
