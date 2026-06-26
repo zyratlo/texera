@@ -236,6 +236,7 @@ describe("NotebookMigrationService", () => {
     const req = httpMock.expectOne(req => req.url.includes("/notebook-migration/store-notebook-and-mapping"));
 
     expect(req.request.method).toBe("POST");
+    req.flush({ success: true, message: "stored" });
   });
 
   // sendToAIGenerateWorkflow (enabled) — drives the NotebookMigrationLLM lifecycle.
