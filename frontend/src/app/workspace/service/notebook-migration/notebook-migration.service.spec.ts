@@ -27,6 +27,15 @@ import { GuiConfigService } from "src/app/common/service/gui-config.service";
 import { WorkflowUtilService } from "../workflow-graph/util/workflow-util.service";
 import { firstValueFrom, throwError } from "rxjs";
 
+// This spec spies NotebookMigrationLLM's prototype, so importing it pulls in the
+// real "ai"/"@ai-sdk/openai" transport. Mock them (as migration-llm.spec.ts does)
+// so the real module never loads — otherwise it pollutes the shared module
+// registry and breaks the "ai" mock in migration-llm.spec.ts, hanging its
+// convertNotebookToWorkflow tests on real network calls. The lifecycle methods
+// are spied per-test, so the transport is never actually invoked here.
+vi.mock("ai", () => ({ generateText: vi.fn() }));
+vi.mock("@ai-sdk/openai", () => ({ createOpenAI: vi.fn(() => ({ chat: vi.fn(() => ({})) })) }));
+
 describe("NotebookMigrationService", () => {
   let service: NotebookMigrationService;
   let httpMock: HttpTestingController;
