@@ -39,8 +39,8 @@ interface LiteLLMModelsResponse {
 }
 
 interface MappingContent {
-  cell_to_operator: { [key: string]: any };
-  operator_to_cell: { [key: string]: any };
+  cell_to_operator: Record<string, string[]>;
+  operator_to_cell: Record<string, string[]>;
 }
 
 interface StoreNotebookResponse {
