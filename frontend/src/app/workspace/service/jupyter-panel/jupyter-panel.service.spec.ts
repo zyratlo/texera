@@ -217,6 +217,25 @@ describe("JupyterPanelService", () => {
     );
   });
 
+  // The Jupyter origin is process-static, so it must be resolved once and cached
+  // rather than re-fetched on every click / incoming message.
+  it("resolves the Jupyter URL only once across multiple clicks", async () => {
+    const mockIframe = {
+      contentWindow: { postMessage: vi.fn() },
+    } as any;
+    service.setIframeRef(mockIframe);
+    mockNotebook.getMapping.mockReturnValue({
+      cell_to_operator: {},
+      operator_to_cell: { cell1: ["op1"] },
+    });
+
+    await service.onWorkflowComponentClick("cell1");
+    await service.onWorkflowComponentClick("cell1");
+    await service.onWorkflowComponentClick("cell1");
+
+    expect(mockNotebook.getJupyterURL).toHaveBeenCalledTimes(1);
+  });
+
   // Feature flag gate (defence in depth). With the flag off, every public
   // method must short-circuit — no subscription in init, no visibility flips,
   // no postMessage. The window message listener is installed in the constructor

@@ -44,6 +44,9 @@ export class JupyterPanelService {
   // Precomputed dictionary for cell to highlight mapping
   private cellToHighlightMapping: Record<string, { components: string[]; edges: string[] }> = {};
 
+  // Cached Jupyter server origin (see resolveJupyterOrigin)
+  private jupyterOrigin: Promise<string | null> | null = null;
+
   constructor(
     private workflowActionService: WorkflowActionService,
     private http: HttpClient,
@@ -56,6 +59,32 @@ export class JupyterPanelService {
 
   private get enabled(): boolean {
     return this.config.env.pythonNotebookMigrationEnabled;
+  }
+
+  /**
+   * Resolve and cache the Jupyter server origin, used both to validate incoming
+   * iframe messages and as the postMessage target. The backend serves a
+   * process-static base URL, so the origin is fixed for the app's lifetime.
+   * A failed/unavailable lookup is not cached, so it can be retried once the
+   * Jupyter pod becomes reachable.
+   */
+  private resolveJupyterOrigin(): Promise<string | null> {
+    if (this.jupyterOrigin) {
+      return this.jupyterOrigin;
+    }
+    const pending: Promise<string | null> = this.notebookMigrationService.getJupyterURL().then(url => {
+      if (url) {
+        try {
+          return new URL(url).origin;
+        } catch {
+          /* malformed URL — fall through to retry */
+        }
+      }
+      this.jupyterOrigin = null; // don't cache failures
+      return null;
+    });
+    this.jupyterOrigin = pending;
+    return pending;
   }
 
   public init(): void {
@@ -205,7 +234,9 @@ export class JupyterPanelService {
   // Handle messages from the Jupyter notebook iframe
   private handleNotebookMessage = async (event: MessageEvent) => {
     if (!this.enabled) return;
-    const allowedOrigins = [window.location.origin, await this.notebookMigrationService.getJupyterURL()];
+    const jupyterOrigin = await this.resolveJupyterOrigin();
+    const allowedOrigins = [window.location.origin];
+    if (jupyterOrigin) allowedOrigins.push(jupyterOrigin);
     if (!allowedOrigins.includes(event.origin)) {
       return;
     }
@@ -248,8 +279,8 @@ export class JupyterPanelService {
   // Handle when a Texera component is clicked to trigger the corresponding notebook cell
   async onWorkflowComponentClick(cellUUID: string): Promise<void> {
     if (!this.enabled) return;
-    const jupyterURL = await this.notebookMigrationService.getJupyterURL();
-    if (jupyterURL && this.iframeRef && this.iframeRef.contentWindow) {
+    const jupyterOrigin = await this.resolveJupyterOrigin();
+    if (jupyterOrigin && this.iframeRef && this.iframeRef.contentWindow) {
       const wid = this.workflowActionService.getWorkflow().wid;
 
       if (wid == undefined) {
@@ -267,7 +298,10 @@ export class JupyterPanelService {
 
       const operatorArray = mappingEntry["operator_to_cell"][cellUUID];
       if (operatorArray) {
-        this.iframeRef.contentWindow.postMessage({ action: "triggerCellClick", operators: operatorArray }, jupyterURL);
+        this.iframeRef.contentWindow.postMessage(
+          { action: "triggerCellClick", operators: operatorArray },
+          jupyterOrigin
+        );
       } else {
         console.error(`No operators found for cellUUID: ${cellUUID}`);
       }
