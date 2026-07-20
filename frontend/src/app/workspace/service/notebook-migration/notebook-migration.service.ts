@@ -121,6 +121,10 @@ export class NotebookMigrationService {
     const jupyterAPIUrl = `${AppSettings.getApiEndpoint()}/notebook-migration/set-notebook`;
 
     const requestBody = {
+      // Fixed filename is intentional for the v1 per-user-pod design: each user runs
+      // their own notebook-migration-service and Jupyter, so a single notebook.ipynb
+      // never collides. A shared multi-user (global) service would need per-user or
+      // per-workflow keying here and for the backend's process-global jupyterIframeURL.
       notebookName: "notebook.ipynb",
       notebookData: notebookData,
     };
