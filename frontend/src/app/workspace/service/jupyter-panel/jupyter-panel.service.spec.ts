@@ -24,7 +24,7 @@ import { HttpClientTestingModule, HttpTestingController } from "@angular/common/
 import { NotificationService } from "src/app/common/service/notification/notification.service";
 import { NotebookMigrationService } from "../notebook-migration/notebook-migration.service";
 import { GuiConfigService } from "src/app/common/service/gui-config.service";
-import { of } from "rxjs";
+import { firstValueFrom, of } from "rxjs";
 
 describe("JupyterPanelService", () => {
   let service: JupyterPanelService;
@@ -39,9 +39,9 @@ describe("JupyterPanelService", () => {
 
   beforeEach(() => {
     mockWorkflow = {
-      workflowMetaDataChanged: jasmine.createSpy().and.returnValue(of({ wid: 1 })),
-      getWorkflow: jasmine.createSpy().and.returnValue({ wid: 1 }),
-      getTexeraGraph: jasmine.createSpy().and.returnValue({
+      workflowMetaDataChanged: vi.fn().mockReturnValue(of({ wid: 1 })),
+      getWorkflow: vi.fn().mockReturnValue({ wid: 1 }),
+      getTexeraGraph: vi.fn().mockReturnValue({
         getAllLinks: () => [
           {
             linkID: "L1",
@@ -51,27 +51,27 @@ describe("JupyterPanelService", () => {
         ],
         getAllOperators: () => [{ operatorID: "A" }, { operatorID: "B" }],
       }),
-      highlightOperators: jasmine.createSpy(),
-      highlightLinks: jasmine.createSpy(),
-      unhighlightOperators: jasmine.createSpy(),
-      unhighlightLinks: jasmine.createSpy(),
+      highlightOperators: vi.fn(),
+      highlightLinks: vi.fn(),
+      unhighlightOperators: vi.fn(),
+      unhighlightLinks: vi.fn(),
     };
 
     mockNotification = {
-      warning: jasmine.createSpy(),
+      warning: vi.fn(),
     };
 
     mockNotebook = {
-      hasMapping: jasmine.createSpy().and.returnValue(true),
-      getMapping: jasmine.createSpy().and.returnValue({
+      hasMapping: vi.fn().mockReturnValue(true),
+      getMapping: vi.fn().mockReturnValue({
         cell_to_operator: {
           cell1: ["A", "B"],
         },
         operator_to_cell: {},
       }),
-      deleteMapping: jasmine.createSpy(),
-      setMapping: jasmine.createSpy(),
-      getJupyterURL: jasmine.createSpy().and.resolveTo("http://jupyter"),
+      deleteMapping: vi.fn(),
+      setMapping: vi.fn(),
+      getJupyterURL: vi.fn().mockResolvedValue("http://jupyter"),
     };
 
     mockGuiConfig = { env: { pythonNotebookMigrationEnabled: true } };
@@ -102,10 +102,10 @@ describe("JupyterPanelService", () => {
     service.jupyterNotebookPanelVisible$.subscribe(v => (state = v));
 
     service.openPanel("JupyterNotebookPanel");
-    expect(state).toBeTrue();
+    expect(state).toBe(true);
 
     service.closeJupyterNotebookPanel();
-    expect(state).toBeFalse();
+    expect(state).toBe(false);
   });
 
   it("should minimize panel", () => {
@@ -115,12 +115,12 @@ describe("JupyterPanelService", () => {
 
     service.minimizeJupyterNotebookPanel();
 
-    expect(state).toBeFalse();
+    expect(state).toBe(false);
   });
 
   // openJupyterNotebookPanel
   it("should warn if no mapping exists", () => {
-    mockNotebook.hasMapping.and.returnValue(false);
+    mockNotebook.hasMapping.mockReturnValue(false);
 
     service.openJupyterNotebookPanel();
 
@@ -128,7 +128,7 @@ describe("JupyterPanelService", () => {
   });
 
   it("should open panel if mapping exists", () => {
-    mockNotebook.hasMapping.and.returnValue(true);
+    mockNotebook.hasMapping.mockReturnValue(true);
 
     let state: boolean | null = false;
 
@@ -136,7 +136,7 @@ describe("JupyterPanelService", () => {
 
     service.openJupyterNotebookPanel();
 
-    expect(state).toBeTrue();
+    expect(state).toBe(true);
   });
 
   // openPanel
@@ -146,22 +146,20 @@ describe("JupyterPanelService", () => {
     service.jupyterNotebookPanelVisible$.subscribe(v => (state = v));
 
     service.openPanel("WrongPanel");
-    expect(state).toBeFalse();
+    expect(state).toBe(false);
 
     service.openPanel("JupyterNotebookPanel");
-    expect(state).toBeTrue();
+    expect(state).toBe(true);
   });
 
   // HTTP fetchNotebookAndMapping
-  it("should return 0 when exists=false", done => {
-    (service as any).fetchNotebookAndMapping(1, 1).subscribe((result: any) => {
-      expect(result).toBe(0);
-      done();
-    });
+  it("should return 0 when exists=false", async () => {
+    const resultPromise = firstValueFrom((service as any).fetchNotebookAndMapping(1, 1));
 
     const req = httpMock.expectOne(r => r.url.includes("/notebook-migration/fetch-notebook-and-mapping"));
-
     req.flush({ exists: false });
+
+    expect(await resultPromise).toBe(0);
   });
 
   // iframe ref
@@ -196,12 +194,12 @@ describe("JupyterPanelService", () => {
   it("should postMessage when mapping exists", async () => {
     const mockIframe = {
       contentWindow: {
-        postMessage: jasmine.createSpy(),
+        postMessage: vi.fn(),
       },
     } as any;
 
     service.setIframeRef(mockIframe);
-    (mockNotebook as any).getMapping.and.returnValue({
+    mockNotebook.getMapping.mockReturnValue({
       cell_to_operator: {},
       operator_to_cell: {
         cell1: ["op1", "op2"],
@@ -237,7 +235,7 @@ describe("JupyterPanelService", () => {
       let state: boolean | null = false;
       service.jupyterNotebookPanelVisible$.subscribe(v => (state = v));
       service.openPanel("JupyterNotebookPanel");
-      expect(state).toBeFalse();
+      expect(state).toBe(false);
     });
 
     it("closeJupyterNotebookPanel does not flip visibility or delete the mapping", () => {
@@ -251,21 +249,21 @@ describe("JupyterPanelService", () => {
       const visibleSubject = (service as any).jupyterNotebookPanelVisible;
       visibleSubject.next(true);
       service.minimizeJupyterNotebookPanel();
-      expect(visibleSubject.value).toBeTrue();
+      expect(visibleSubject.value).toBe(true);
     });
 
     it("openJupyterNotebookPanel does not warn or flip visibility", () => {
-      mockNotebook.hasMapping.and.returnValue(false);
+      mockNotebook.hasMapping.mockReturnValue(false);
       let state: boolean | null = false;
       service.jupyterNotebookPanelVisible$.subscribe(v => (state = v));
       service.openJupyterNotebookPanel();
-      expect(state).toBeFalse();
+      expect(state).toBe(false);
       expect(mockNotification.warning).not.toHaveBeenCalled();
     });
 
     it("onWorkflowComponentClick does not postMessage to the iframe", async () => {
       const mockIframe = {
-        contentWindow: { postMessage: jasmine.createSpy() },
+        contentWindow: { postMessage: vi.fn() },
       } as any;
       service.setIframeRef(mockIframe);
       await service.onWorkflowComponentClick("cell1");
