@@ -22,24 +22,23 @@ import { catchError, map, of } from "rxjs";
 import { WorkflowActionService } from "../workflow-graph/model/workflow-action.service";
 import { OperatorLink } from "../../types/workflow-common.interface";
 import { HttpClient, HttpHeaders } from "@angular/common/http";
-import { UntilDestroy } from "@ngneat/until-destroy";
 import { NotificationService } from "src/app/common/service/notification/notification.service";
 import { distinctUntilChanged, switchMap } from "rxjs/operators";
 import { AppSettings } from "../../../common/app-setting";
 import { NotebookMigrationService } from "../notebook-migration/notebook-migration.service";
 import { GuiConfigService } from "../../../common/service/gui-config.service";
 
-@UntilDestroy()
 @Injectable({
   providedIn: "root",
 })
 export class JupyterPanelService {
   private iframeRef: HTMLIFrameElement | null = null; // Store reference to iframe element
-  private cellContent: string[] = []; // Store the content of the cells
-  private highlightedCell: number | null = null; // Track the highlighted cell
 
   // Precomputed dictionary for cell to highlight mapping
   private cellToHighlightMapping: Record<string, { components: string[]; edges: string[] }> = {};
+
+  // Cached Jupyter server origin (see resolveJupyterOrigin)
+  private jupyterOrigin: Promise<string | null> | null = null;
 
   constructor(
     private workflowActionService: WorkflowActionService,
@@ -53,6 +52,32 @@ export class JupyterPanelService {
 
   private get enabled(): boolean {
     return this.config.env.pythonNotebookMigrationEnabled;
+  }
+
+  /**
+   * Resolve and cache the Jupyter server origin, used both to validate incoming
+   * iframe messages and as the postMessage target. The backend serves a
+   * process-static base URL, so the origin is fixed for the app's lifetime.
+   * A failed/unavailable lookup is not cached, so it can be retried once the
+   * Jupyter pod becomes reachable.
+   */
+  private resolveJupyterOrigin(): Promise<string | null> {
+    if (this.jupyterOrigin) {
+      return this.jupyterOrigin;
+    }
+    const pending: Promise<string | null> = this.notebookMigrationService.getJupyterURL().then(url => {
+      if (url) {
+        try {
+          return new URL(url).origin;
+        } catch {
+          /* malformed URL — fall through to retry */
+        }
+      }
+      this.jupyterOrigin = null; // don't cache failures
+      return null;
+    });
+    this.jupyterOrigin = pending;
+    return pending;
   }
 
   public init(): void {
@@ -120,6 +145,9 @@ export class JupyterPanelService {
 
   // Precompute the dictionary for O(1) highlighting
   private precomputeHighlightMapping(): void {
+    // Rebuild from scratch so entries from a previously opened workflow don't linger.
+    this.cellToHighlightMapping = {};
+
     const wid = this.workflowActionService.getWorkflow().wid;
 
     if (wid === undefined) {
@@ -136,10 +164,6 @@ export class JupyterPanelService {
     const cellToOperator = mapping.cell_to_operator;
 
     const allLinks: OperatorLink[] = this.workflowActionService.getTexeraGraph().getAllLinks();
-    if (allLinks.length === 0) {
-      console.warn("No links found in the graph during precompute.");
-      return;
-    }
 
     for (const cellUUID in cellToOperator) {
       const components = cellToOperator[cellUUID] || [];
@@ -172,15 +196,15 @@ export class JupyterPanelService {
   // Handle messages from the Jupyter notebook iframe
   private handleNotebookMessage = async (event: MessageEvent) => {
     if (!this.enabled) return;
-    const allowedOrigins = [window.location.origin, await this.notebookMigrationService.getJupyterURL()];
+    const jupyterOrigin = await this.resolveJupyterOrigin();
+    const allowedOrigins = [window.location.origin];
+    if (jupyterOrigin) allowedOrigins.push(jupyterOrigin);
     if (!allowedOrigins.includes(event.origin)) {
       return;
     }
 
-    const { action, cellIndex, cellContent, cellUUID } = event.data;
+    const { action, cellUUID } = event.data;
     if (action === "cellClicked") {
-      this.highlightedCell = cellIndex;
-      this.cellContent[cellIndex] = cellContent || `Cell ${cellIndex + 1}`;
       this.highlightFromCell(cellUUID);
     }
   };
@@ -215,8 +239,8 @@ export class JupyterPanelService {
   // Handle when a Texera component is clicked to trigger the corresponding notebook cell
   async onWorkflowComponentClick(cellUUID: string): Promise<void> {
     if (!this.enabled) return;
-    const jupyterURL = await this.notebookMigrationService.getJupyterURL();
-    if (jupyterURL && this.iframeRef && this.iframeRef.contentWindow) {
+    const jupyterOrigin = await this.resolveJupyterOrigin();
+    if (jupyterOrigin && this.iframeRef && this.iframeRef.contentWindow) {
       const wid = this.workflowActionService.getWorkflow().wid;
 
       if (wid == undefined) {
@@ -234,7 +258,10 @@ export class JupyterPanelService {
 
       const operatorArray = mappingEntry["operator_to_cell"][cellUUID];
       if (operatorArray) {
-        this.iframeRef.contentWindow.postMessage({ action: "triggerCellClick", operators: operatorArray }, jupyterURL);
+        this.iframeRef.contentWindow.postMessage(
+          { action: "triggerCellClick", operators: operatorArray },
+          jupyterOrigin
+        );
       } else {
         console.error(`No operators found for cellUUID: ${cellUUID}`);
       }

@@ -24,7 +24,7 @@ import { HttpClientTestingModule, HttpTestingController } from "@angular/common/
 import { NotificationService } from "src/app/common/service/notification/notification.service";
 import { NotebookMigrationService } from "../notebook-migration/notebook-migration.service";
 import { GuiConfigService } from "src/app/common/service/gui-config.service";
-import { of } from "rxjs";
+import { firstValueFrom, of } from "rxjs";
 
 describe("JupyterPanelService", () => {
   let service: JupyterPanelService;
@@ -39,9 +39,9 @@ describe("JupyterPanelService", () => {
 
   beforeEach(() => {
     mockWorkflow = {
-      workflowMetaDataChanged: jasmine.createSpy().and.returnValue(of({ wid: 1 })),
-      getWorkflow: jasmine.createSpy().and.returnValue({ wid: 1 }),
-      getTexeraGraph: jasmine.createSpy().and.returnValue({
+      workflowMetaDataChanged: vi.fn().mockReturnValue(of({ wid: 1 })),
+      getWorkflow: vi.fn().mockReturnValue({ wid: 1 }),
+      getTexeraGraph: vi.fn().mockReturnValue({
         getAllLinks: () => [
           {
             linkID: "L1",
@@ -51,27 +51,27 @@ describe("JupyterPanelService", () => {
         ],
         getAllOperators: () => [{ operatorID: "A" }, { operatorID: "B" }],
       }),
-      highlightOperators: jasmine.createSpy(),
-      highlightLinks: jasmine.createSpy(),
-      unhighlightOperators: jasmine.createSpy(),
-      unhighlightLinks: jasmine.createSpy(),
+      highlightOperators: vi.fn(),
+      highlightLinks: vi.fn(),
+      unhighlightOperators: vi.fn(),
+      unhighlightLinks: vi.fn(),
     };
 
     mockNotification = {
-      warning: jasmine.createSpy(),
+      warning: vi.fn(),
     };
 
     mockNotebook = {
-      hasMapping: jasmine.createSpy().and.returnValue(true),
-      getMapping: jasmine.createSpy().and.returnValue({
+      hasMapping: vi.fn().mockReturnValue(true),
+      getMapping: vi.fn().mockReturnValue({
         cell_to_operator: {
           cell1: ["A", "B"],
         },
         operator_to_cell: {},
       }),
-      deleteMapping: jasmine.createSpy(),
-      setMapping: jasmine.createSpy(),
-      getJupyterURL: jasmine.createSpy().and.resolveTo("http://jupyter"),
+      deleteMapping: vi.fn(),
+      setMapping: vi.fn(),
+      getJupyterURL: vi.fn().mockResolvedValue("http://jupyter"),
     };
 
     mockGuiConfig = { env: { pythonNotebookMigrationEnabled: true } };
@@ -96,15 +96,13 @@ describe("JupyterPanelService", () => {
   });
 
   // HTTP fetchNotebookAndMapping
-  it("should return 0 when exists=false", done => {
-    (service as any).fetchNotebookAndMapping(1, 1).subscribe((result: any) => {
-      expect(result).toBe(0);
-      done();
-    });
+  it("should return 0 when exists=false", async () => {
+    const resultPromise = firstValueFrom((service as any).fetchNotebookAndMapping(1, 1));
 
     const req = httpMock.expectOne(r => r.url.includes("/notebook-migration/fetch-notebook-and-mapping"));
-
     req.flush({ exists: false });
+
+    expect(await resultPromise).toBe(0);
   });
 
   // iframe ref
@@ -135,16 +133,60 @@ describe("JupyterPanelService", () => {
     expect(mockWorkflow.highlightLinks).toHaveBeenCalledWith(true, "link1");
   });
 
+  // A workflow with operators but no links is valid; precompute must still
+  // record each cell's components (with empty edges) so cell clicks highlight.
+  it("precomputes component mappings even when the graph has no links", () => {
+    mockWorkflow.getTexeraGraph.mockReturnValue({
+      getAllLinks: () => [],
+      getAllOperators: () => [{ operatorID: "A" }, { operatorID: "B" }],
+    });
+    mockNotebook.getMapping.mockReturnValue({
+      cell_to_operator: { cell1: ["A", "B"] },
+      operator_to_cell: {},
+    });
+
+    (service as any).precomputeHighlightMapping();
+
+    expect((service as any).cellToHighlightMapping).toEqual({
+      cell1: { components: ["A", "B"], edges: [] },
+    });
+  });
+
+  // Switching workflows re-runs precompute; the map must reflect only the
+  // current workflow, not accumulate entries from previously opened ones.
+  it("resets the highlight mapping on each precompute", () => {
+    mockWorkflow.getTexeraGraph.mockReturnValue({
+      getAllLinks: () => [],
+      getAllOperators: () => [],
+    });
+
+    mockNotebook.getMapping.mockReturnValue({
+      cell_to_operator: { cellA: ["A"] },
+      operator_to_cell: {},
+    });
+    (service as any).precomputeHighlightMapping();
+
+    mockNotebook.getMapping.mockReturnValue({
+      cell_to_operator: { cellB: ["B"] },
+      operator_to_cell: {},
+    });
+    (service as any).precomputeHighlightMapping();
+
+    expect((service as any).cellToHighlightMapping).toEqual({
+      cellB: { components: ["B"], edges: [] },
+    });
+  });
+
   // onWorkflowComponentClick
   it("should postMessage when mapping exists", async () => {
     const mockIframe = {
       contentWindow: {
-        postMessage: jasmine.createSpy(),
+        postMessage: vi.fn(),
       },
     } as any;
 
     service.setIframeRef(mockIframe);
-    (mockNotebook as any).getMapping.and.returnValue({
+    mockNotebook.getMapping.mockReturnValue({
       cell_to_operator: {},
       operator_to_cell: {
         cell1: ["op1", "op2"],
@@ -160,6 +202,25 @@ describe("JupyterPanelService", () => {
       },
       "http://jupyter"
     );
+  });
+
+  // The Jupyter origin is process-static, so it must be resolved once and cached
+  // rather than re-fetched on every click / incoming message.
+  it("resolves the Jupyter URL only once across multiple clicks", async () => {
+    const mockIframe = {
+      contentWindow: { postMessage: vi.fn() },
+    } as any;
+    service.setIframeRef(mockIframe);
+    mockNotebook.getMapping.mockReturnValue({
+      cell_to_operator: {},
+      operator_to_cell: { cell1: ["op1"] },
+    });
+
+    await service.onWorkflowComponentClick("cell1");
+    await service.onWorkflowComponentClick("cell1");
+    await service.onWorkflowComponentClick("cell1");
+
+    expect(mockNotebook.getJupyterURL).toHaveBeenCalledTimes(1);
   });
 
   // Feature flag gate (defence in depth). With the flag off, init must not
@@ -179,7 +240,7 @@ describe("JupyterPanelService", () => {
 
     it("onWorkflowComponentClick does not postMessage to the iframe", async () => {
       const mockIframe = {
-        contentWindow: { postMessage: jasmine.createSpy() },
+        contentWindow: { postMessage: vi.fn() },
       } as any;
       service.setIframeRef(mockIframe);
       await service.onWorkflowComponentClick("cell1");
