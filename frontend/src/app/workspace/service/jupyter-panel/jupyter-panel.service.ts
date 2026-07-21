@@ -38,8 +38,6 @@ export class JupyterPanelService {
   public jupyterNotebookPanelVisible$ = this.jupyterNotebookPanelVisible.asObservable();
 
   private iframeRef: HTMLIFrameElement | null = null; // Store reference to iframe element
-  private cellContent: string[] = []; // Store the content of the cells
-  private highlightedCell: number | null = null; // Track the highlighted cell
 
   // Precomputed dictionary for cell to highlight mapping
   private cellToHighlightMapping: Record<string, { components: string[]; edges: string[] }> = {};
@@ -240,10 +238,8 @@ export class JupyterPanelService {
       return;
     }
 
-    const { action, cellIndex, cellContent, cellUUID } = event.data;
+    const { action, cellUUID } = event.data;
     if (action === "cellClicked") {
-      this.highlightedCell = cellIndex;
-      this.cellContent[cellIndex] = cellContent || `Cell ${cellIndex + 1}`;
       this.highlightFromCell(cellUUID);
     }
   };
