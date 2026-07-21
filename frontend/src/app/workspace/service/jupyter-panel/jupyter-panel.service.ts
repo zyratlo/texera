@@ -144,6 +144,9 @@ export class JupyterPanelService {
 
   // Precompute the dictionary for O(1) highlighting
   private precomputeHighlightMapping(): void {
+    // Rebuild from scratch so entries from a previously opened workflow don't linger.
+    this.cellToHighlightMapping = {};
+
     const wid = this.workflowActionService.getWorkflow().wid;
 
     if (wid === undefined) {

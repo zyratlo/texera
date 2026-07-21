@@ -209,6 +209,31 @@ describe("JupyterPanelService", () => {
     });
   });
 
+  // Switching workflows re-runs precompute; the map must reflect only the
+  // current workflow, not accumulate entries from previously opened ones.
+  it("resets the highlight mapping on each precompute", () => {
+    mockWorkflow.getTexeraGraph.mockReturnValue({
+      getAllLinks: () => [],
+      getAllOperators: () => [],
+    });
+
+    mockNotebook.getMapping.mockReturnValue({
+      cell_to_operator: { cellA: ["A"] },
+      operator_to_cell: {},
+    });
+    (service as any).precomputeHighlightMapping();
+
+    mockNotebook.getMapping.mockReturnValue({
+      cell_to_operator: { cellB: ["B"] },
+      operator_to_cell: {},
+    });
+    (service as any).precomputeHighlightMapping();
+
+    expect((service as any).cellToHighlightMapping).toEqual({
+      cellB: { components: ["B"], edges: [] },
+    });
+  });
+
   // onWorkflowComponentClick
   it("should postMessage when mapping exists", async () => {
     const mockIframe = {
