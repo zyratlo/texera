@@ -681,14 +681,15 @@ export class WorkflowEditorComponent implements OnInit, AfterViewInit, OnDestroy
         const elementID = event[0].model.id.toString();
         const highlightedOperatorIDs = this.wrapper.getCurrentHighlightedOperatorIDs();
         const highlightedCommentBoxIDs = this.wrapper.getCurrentHighlightedCommentBoxIDs();
-        this.jupyterPanelService.onWorkflowComponentClick(elementID); // Highlight corresponding Jupyter notebook cell
+        if (this.workflowActionService.getTexeraGraph().hasOperator(elementID)) {
+          this.jupyterPanelService.onWorkflowComponentClick(elementID); // highlight corresponding Jupyter notebook cell
+        }
         if (event[1].shiftKey) {
           // if in multiselect toggle highlights on click
           if (highlightedOperatorIDs.includes(elementID)) {
             this.workflowActionService.unhighlightOperators(elementID);
           } else if (this.workflowActionService.getTexeraGraph().hasOperator(elementID)) {
             this.workflowActionService.highlightOperators(<boolean>event[1].shiftKey, elementID);
-            this.jupyterPanelService.onWorkflowComponentClick(elementID); // Highlight corresponding Jupyter notebook cell
           }
           if (highlightedCommentBoxIDs.includes(elementID)) {
             this.wrapper.unhighlightCommentBoxes(elementID);
