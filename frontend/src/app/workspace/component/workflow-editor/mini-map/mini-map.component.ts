@@ -60,7 +60,7 @@ export class MiniMapComponent implements AfterViewInit, OnDestroy {
   constructor(
     private workflowActionService: WorkflowActionService,
     private panelService: PanelService,
-    protected config: GuiConfigService,
+    private config: GuiConfigService,
     private jupyterPanelService: JupyterPanelService
   ) {}
 
@@ -160,13 +160,13 @@ export class MiniMapComponent implements AfterViewInit, OnDestroy {
       );
   }
 
-  /**
-   * This method will expand and redisplay the jupyter notebook.
-   */
   public get pythonNotebookMigrationEnabled(): boolean {
     return this.config.env.pythonNotebookMigrationEnabled;
   }
 
+  /**
+   * Expand and redisplay the Jupyter notebook panel.
+   */
   public onClickExpandJupyterNotebookPanel(): void {
     this.jupyterPanelService.openJupyterNotebookPanel();
   }
