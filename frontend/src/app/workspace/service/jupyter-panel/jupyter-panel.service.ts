@@ -22,14 +22,12 @@ import { BehaviorSubject, catchError, map, of } from "rxjs";
 import { WorkflowActionService } from "../workflow-graph/model/workflow-action.service";
 import { OperatorLink } from "../../types/workflow-common.interface";
 import { HttpClient, HttpHeaders } from "@angular/common/http";
-import { UntilDestroy } from "@ngneat/until-destroy";
 import { NotificationService } from "src/app/common/service/notification/notification.service";
 import { distinctUntilChanged, switchMap } from "rxjs/operators";
 import { AppSettings } from "../../../common/app-setting";
 import { NotebookMigrationService } from "../notebook-migration/notebook-migration.service";
 import { GuiConfigService } from "../../../common/service/gui-config.service";
 
-@UntilDestroy()
 @Injectable({
   providedIn: "root",
 })
