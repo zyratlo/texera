@@ -190,6 +190,25 @@ describe("JupyterPanelService", () => {
     expect(mockWorkflow.highlightLinks).toHaveBeenCalledWith(true, "link1");
   });
 
+  // A workflow with operators but no links is valid; precompute must still
+  // record each cell's components (with empty edges) so cell clicks highlight.
+  it("precomputes component mappings even when the graph has no links", () => {
+    mockWorkflow.getTexeraGraph.mockReturnValue({
+      getAllLinks: () => [],
+      getAllOperators: () => [{ operatorID: "A" }, { operatorID: "B" }],
+    });
+    mockNotebook.getMapping.mockReturnValue({
+      cell_to_operator: { cell1: ["A", "B"] },
+      operator_to_cell: {},
+    });
+
+    (service as any).precomputeHighlightMapping();
+
+    expect((service as any).cellToHighlightMapping).toEqual({
+      cell1: { components: ["A", "B"], edges: [] },
+    });
+  });
+
   // onWorkflowComponentClick
   it("should postMessage when mapping exists", async () => {
     const mockIframe = {

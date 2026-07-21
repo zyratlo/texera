@@ -160,10 +160,6 @@ export class JupyterPanelService {
     const cellToOperator = mapping.cell_to_operator;
 
     const allLinks: OperatorLink[] = this.workflowActionService.getTexeraGraph().getAllLinks();
-    if (allLinks.length === 0) {
-      console.warn("No links found in the graph during precompute.");
-      return;
-    }
 
     for (const cellUUID in cellToOperator) {
       const components = cellToOperator[cellUUID] || [];
