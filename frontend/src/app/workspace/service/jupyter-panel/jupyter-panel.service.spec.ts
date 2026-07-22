@@ -98,6 +98,18 @@ describe("JupyterPanelService", () => {
     expect(await resultPromise).toBe(0);
   });
 
+  // init(): subscribes to workflow changes, drops the stale mapping for the
+  // current workflow, and fetches the incoming workflow's notebook + mapping.
+  it("init subscribes, drops the stale mapping, and fetches for the new workflow", () => {
+    service.init();
+
+    expect(mockWorkflow.workflowMetaDataChanged).toHaveBeenCalled();
+    expect(mockNotebook.deleteMapping).toHaveBeenCalledWith("mapping_wid_1");
+
+    const req = httpMock.expectOne(r => r.url.includes("/notebook-migration/fetch-notebook-and-mapping"));
+    req.flush({ exists: false });
+  });
+
   // iframe ref
   it("should store iframe reference", () => {
     const iframe = document.createElement("iframe");

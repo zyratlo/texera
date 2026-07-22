@@ -201,7 +201,7 @@ export class JupyterPanelService {
       return;
     }
 
-    const { action, cellUUID } = event.data;
+    const { action, cellUUID } = event.data ?? {};
     if (action === "cellClicked") {
       this.highlightFromCell(cellUUID);
     }
