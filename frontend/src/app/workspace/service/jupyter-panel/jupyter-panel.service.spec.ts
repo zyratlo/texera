@@ -110,6 +110,30 @@ describe("JupyterPanelService", () => {
     req.flush({ exists: false });
   });
 
+  // Switching workflows must clear the highlight index even when the incoming
+  // workflow has no stored notebook (fetch returns exists=false), otherwise the
+  // previous workflow's highlights stay active.
+  it("init clears the highlight index on every workflow change", () => {
+    (service as any).cellToHighlightMapping = { stale: { components: ["X"], edges: [] } };
+
+    service.init();
+
+    // Cleared synchronously in the subscription, before the fetch resolves.
+    expect((service as any).cellToHighlightMapping).toEqual({});
+
+    httpMock.expectOne(r => r.url.includes("/notebook-migration/fetch-notebook-and-mapping")).flush({ exists: false });
+  });
+
+  // An unsaved workflow has an undefined wid; init must not POST for it.
+  it("init does not fetch for an unsaved workflow (undefined wid)", () => {
+    mockWorkflow.workflowMetaDataChanged.mockReturnValue(of({ wid: undefined }));
+    mockWorkflow.getWorkflow.mockReturnValue({ wid: undefined });
+
+    service.init();
+
+    httpMock.expectNone(r => r.url.includes("/notebook-migration/fetch-notebook-and-mapping"));
+  });
+
   // iframe ref
   it("should store iframe reference", () => {
     const iframe = document.createElement("iframe");

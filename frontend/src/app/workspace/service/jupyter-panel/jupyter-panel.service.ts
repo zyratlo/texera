@@ -87,15 +87,22 @@ export class JupyterPanelService {
         distinctUntilChanged()
       )
       .subscribe(wid => {
-        // Drop any stale mapping for the current workflow. This previously
+        // On every workflow change, drop the outgoing workflow's stale mapping
+        // and clear the highlight index. Clearing here (not only inside
+        // precomputeHighlightMapping, which runs only on a successful fetch)
+        // ensures switching to a workflow without a stored notebook can't leave
+        // the previous workflow's highlights active. This cleanup previously
         // happened inside closeJupyterNotebookPanel; the panel-visibility
         // surface lives with the iframe component in
-        // `migration-tool-jupyter-panel` now, so the cleanup is inlined.
+        // `migration-tool-jupyter-panel` now, so it is inlined.
         const currentWid = this.workflowActionService.getWorkflow().wid;
         if (currentWid !== undefined) {
           this.notebookMigrationService.deleteMapping("mapping_wid_" + currentWid);
         }
-        if (wid != 0) {
+        this.cellToHighlightMapping = {};
+        // Skip unsaved workflows (wid undefined) and wid 0; both would POST
+        // without a usable wid and 500 on the backend.
+        if (wid) {
           this.fetchNotebookAndMapping(wid).subscribe(result => {
             if (result == 1) {
               this.precomputeHighlightMapping();
