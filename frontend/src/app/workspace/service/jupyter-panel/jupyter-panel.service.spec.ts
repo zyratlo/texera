@@ -21,7 +21,6 @@ import { TestBed } from "@angular/core/testing";
 import { JupyterPanelService } from "./jupyter-panel.service";
 import { WorkflowActionService } from "../workflow-graph/model/workflow-action.service";
 import { HttpClientTestingModule, HttpTestingController } from "@angular/common/http/testing";
-import { NotificationService } from "src/app/common/service/notification/notification.service";
 import { NotebookMigrationService } from "../notebook-migration/notebook-migration.service";
 import { GuiConfigService } from "src/app/common/service/gui-config.service";
 import { firstValueFrom, of } from "rxjs";
@@ -31,7 +30,6 @@ describe("JupyterPanelService", () => {
   let httpMock: HttpTestingController;
 
   let mockWorkflow: any;
-  let mockNotification: any;
   let mockNotebook: any;
   // Mutable so individual describe blocks can flip the flag mid-spec; the
   // service stores a reference, so mutations are observed on the next read.
@@ -57,10 +55,6 @@ describe("JupyterPanelService", () => {
       unhighlightLinks: vi.fn(),
     };
 
-    mockNotification = {
-      warning: vi.fn(),
-    };
-
     mockNotebook = {
       hasMapping: vi.fn().mockReturnValue(true),
       getMapping: vi.fn().mockReturnValue({
@@ -81,7 +75,6 @@ describe("JupyterPanelService", () => {
       providers: [
         JupyterPanelService,
         { provide: WorkflowActionService, useValue: mockWorkflow },
-        { provide: NotificationService, useValue: mockNotification },
         { provide: NotebookMigrationService, useValue: mockNotebook },
         { provide: GuiConfigService, useValue: mockGuiConfig },
       ],

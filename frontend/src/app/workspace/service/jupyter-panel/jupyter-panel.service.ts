@@ -22,7 +22,6 @@ import { catchError, map, of } from "rxjs";
 import { WorkflowActionService } from "../workflow-graph/model/workflow-action.service";
 import { OperatorLink } from "../../types/workflow-common.interface";
 import { HttpClient, HttpHeaders } from "@angular/common/http";
-import { NotificationService } from "src/app/common/service/notification/notification.service";
 import { distinctUntilChanged, switchMap } from "rxjs/operators";
 import { AppSettings } from "../../../common/app-setting";
 import { NotebookMigrationService } from "../notebook-migration/notebook-migration.service";
@@ -43,7 +42,6 @@ export class JupyterPanelService {
   constructor(
     private workflowActionService: WorkflowActionService,
     private http: HttpClient,
-    private notificationService: NotificationService,
     private notebookMigrationService: NotebookMigrationService,
     private config: GuiConfigService
   ) {
