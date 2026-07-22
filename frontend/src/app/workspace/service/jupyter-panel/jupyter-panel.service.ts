@@ -92,12 +92,30 @@ export class JupyterPanelService {
         distinctUntilChanged()
       )
       .subscribe(wid => {
+        // On every workflow change, drop the outgoing workflow's stale mapping
+        // and clear the highlight index. Clearing here (not only inside
+        // precomputeHighlightMapping, which runs only on a successful fetch)
+        // ensures switching to a workflow without a stored notebook can't leave
+        // the previous workflow's highlights active. This cleanup previously
+        // happened inside closeJupyterNotebookPanel; the panel-visibility
+        // surface lives with the iframe component in
+        // `migration-tool-jupyter-panel` now, so it is inlined.
+        const currentWid = this.workflowActionService.getWorkflow().wid;
+        if (currentWid !== undefined) {
+          this.notebookMigrationService.deleteMapping("mapping_wid_" + currentWid);
+        }
+        this.cellToHighlightMapping = {};
+        // Skip unsaved workflows (wid undefined) and wid 0; both would POST
+        // without a usable wid and 500 on the backend.
+        if (wid) {
         this.closeJupyterNotebookPanel();
         if (wid != 0) {
           this.fetchNotebookAndMapping(wid).subscribe(result => {
             if (result == 1) {
               this.precomputeHighlightMapping();
               this.openJupyterNotebookPanel();
+              // Panel auto-open on workflow restore is wired in
+              // `migration-tool-jupyter-panel` once the visibility API exists.
             }
           });
         }
@@ -183,6 +201,8 @@ export class JupyterPanelService {
   }
 
   // Set the iframe reference (from the component's ViewChild)
+  // Set the iframe reference (from the component's ViewChild). The panel
+  // component that calls this lives in `migration-tool-jupyter-panel`.
   setIframeRef(iframe: HTMLIFrameElement) {
     this.iframeRef = iframe;
   }
@@ -229,14 +249,22 @@ export class JupyterPanelService {
   // Handle messages from the Jupyter notebook iframe
   private handleNotebookMessage = async (event: MessageEvent) => {
     if (!this.enabled) return;
-    const jupyterOrigin = await this.resolveJupyterOrigin();
-    const allowedOrigins = [window.location.origin];
-    if (jupyterOrigin) allowedOrigins.push(jupyterOrigin);
-    if (!allowedOrigins.includes(event.origin)) {
+
+    // Only accept messages posted by our own notebook iframe. This is the
+    // strong check: it rejects any other same-origin frame or script trying to
+    // drive highlighting with a synthetic cellClicked message.
+    if (!this.iframeRef || event.source !== this.iframeRef.contentWindow) {
       return;
     }
 
-    const { action, cellUUID } = event.data;
+    // Defense in depth: also require the message origin to match the resolved
+    // Jupyter origin.
+    const jupyterOrigin = await this.resolveJupyterOrigin();
+    if (!jupyterOrigin || event.origin !== jupyterOrigin) {
+      return;
+    }
+
+    const { action, cellUUID } = event.data ?? {};
     if (action === "cellClicked") {
       this.highlightFromCell(cellUUID);
     }
@@ -269,8 +297,8 @@ export class JupyterPanelService {
     }
   }
 
-  // Handle when a Texera component is clicked to trigger the corresponding notebook cell
-  async onWorkflowComponentClick(cellUUID: string): Promise<void> {
+  // Handle when a Texera operator is clicked to trigger the corresponding notebook cell(s)
+  async onWorkflowComponentClick(operatorId: string): Promise<void> {
     if (!this.enabled) return;
     const jupyterOrigin = await this.resolveJupyterOrigin();
     if (jupyterOrigin && this.iframeRef && this.iframeRef.contentWindow) {
@@ -289,14 +317,13 @@ export class JupyterPanelService {
         return;
       }
 
-      const operatorArray = mappingEntry["operator_to_cell"][cellUUID];
-      if (operatorArray) {
-        this.iframeRef.contentWindow.postMessage(
-          { action: "triggerCellClick", operators: operatorArray },
-          jupyterOrigin
-        );
+      const cellIds = mappingEntry["operator_to_cell"][operatorId];
+      if (cellIds && cellIds.length > 0) {
+        // "operators" is the payload key custom.js expects; the values are the
+        // mapped cell UUIDs for the clicked operator.
+        this.iframeRef.contentWindow.postMessage({ action: "triggerCellClick", operators: cellIds }, jupyterOrigin);
       } else {
-        console.error(`No operators found for cellUUID: ${cellUUID}`);
+        console.error(`No cells mapped to operator: ${operatorId}`);
       }
     }
   }

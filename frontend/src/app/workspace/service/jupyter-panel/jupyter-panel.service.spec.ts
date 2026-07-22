@@ -162,6 +162,42 @@ describe("JupyterPanelService", () => {
     expect(await resultPromise).toBe(0);
   });
 
+  // init(): subscribes to workflow changes, drops the stale mapping for the
+  // current workflow, and fetches the incoming workflow's notebook + mapping.
+  it("init subscribes, drops the stale mapping, and fetches for the new workflow", () => {
+    service.init();
+
+    expect(mockWorkflow.workflowMetaDataChanged).toHaveBeenCalled();
+    expect(mockNotebook.deleteMapping).toHaveBeenCalledWith("mapping_wid_1");
+
+    const req = httpMock.expectOne(r => r.url.includes("/notebook-migration/fetch-notebook-and-mapping"));
+    req.flush({ exists: false });
+  });
+
+  // Switching workflows must clear the highlight index even when the incoming
+  // workflow has no stored notebook (fetch returns exists=false), otherwise the
+  // previous workflow's highlights stay active.
+  it("init clears the highlight index on every workflow change", () => {
+    (service as any).cellToHighlightMapping = { stale: { components: ["X"], edges: [] } };
+
+    service.init();
+
+    // Cleared synchronously in the subscription, before the fetch resolves.
+    expect((service as any).cellToHighlightMapping).toEqual({});
+
+    httpMock.expectOne(r => r.url.includes("/notebook-migration/fetch-notebook-and-mapping")).flush({ exists: false });
+  });
+
+  // An unsaved workflow has an undefined wid; init must not POST for it.
+  it("init does not fetch for an unsaved workflow (undefined wid)", () => {
+    mockWorkflow.workflowMetaDataChanged.mockReturnValue(of({ wid: undefined }));
+    mockWorkflow.getWorkflow.mockReturnValue({ wid: undefined });
+
+    service.init();
+
+    httpMock.expectNone(r => r.url.includes("/notebook-migration/fetch-notebook-and-mapping"));
+  });
+
   // iframe ref
   it("should store iframe reference", () => {
     const iframe = document.createElement("iframe");
@@ -188,6 +224,27 @@ describe("JupyterPanelService", () => {
     expect(mockWorkflow.unhighlightLinks).toHaveBeenCalled();
     expect(mockWorkflow.highlightOperators).toHaveBeenCalledWith(true, "op1", "op2");
     expect(mockWorkflow.highlightLinks).toHaveBeenCalledWith(true, "link1");
+  });
+
+  // handleNotebookMessage must only act on cellClicked messages that come from
+  // our own iframe (event.source) AND carry the Jupyter origin.
+  it("handleNotebookMessage highlights only for messages from the iframe at the Jupyter origin", async () => {
+    const iframeWindow = {} as Window;
+    service.setIframeRef({ contentWindow: iframeWindow } as any);
+    const highlightSpy = vi.spyOn(service as any, "highlightFromCell").mockImplementation(() => {});
+    const handle = (service as any).handleNotebookMessage;
+
+    // wrong source (some other frame/script): ignored
+    await handle({ source: {}, origin: "http://jupyter", data: { action: "cellClicked", cellUUID: "c1" } });
+    expect(highlightSpy).not.toHaveBeenCalled();
+
+    // right source, wrong origin: ignored
+    await handle({ source: iframeWindow, origin: "http://evil", data: { action: "cellClicked", cellUUID: "c1" } });
+    expect(highlightSpy).not.toHaveBeenCalled();
+
+    // right source and origin: highlights
+    await handle({ source: iframeWindow, origin: "http://jupyter", data: { action: "cellClicked", cellUUID: "c1" } });
+    expect(highlightSpy).toHaveBeenCalledWith("c1");
   });
 
   // A workflow with operators but no links is valid; precompute must still
@@ -261,6 +318,21 @@ describe("JupyterPanelService", () => {
     );
   });
 
+  it("does not postMessage when the operator maps to no cells", async () => {
+    const mockIframe = {
+      contentWindow: { postMessage: vi.fn() },
+    } as any;
+    service.setIframeRef(mockIframe);
+    mockNotebook.getMapping.mockReturnValue({
+      cell_to_operator: {},
+      operator_to_cell: { op1: [] },
+    });
+
+    await service.onWorkflowComponentClick("op1");
+
+    expect(mockIframe.contentWindow.postMessage).not.toHaveBeenCalled();
+  });
+
   // The Jupyter origin is process-static, so it must be resolved once and cached
   // rather than re-fetched on every click / incoming message.
   it("resolves the Jupyter URL only once across multiple clicks", async () => {
@@ -280,10 +352,11 @@ describe("JupyterPanelService", () => {
     expect(mockNotebook.getJupyterURL).toHaveBeenCalledTimes(1);
   });
 
-  // Feature flag gate (defence in depth). With the flag off, every public
-  // method must short-circuit — no subscription in init, no visibility flips,
-  // no postMessage. The window message listener is installed in the constructor
-  // unconditionally, but handleNotebookMessage returns early on the flag check.
+  // Feature flag gate (defence in depth). With the flag off, init must not
+  // subscribe to workflow changes, and onWorkflowComponentClick must not
+  // postMessage to the iframe. The window message listener is installed in
+  // the constructor unconditionally, but handleNotebookMessage returns early
+  // on the flag check.
   describe("when the feature flag is disabled", () => {
     beforeEach(() => {
       mockGuiConfig.env.pythonNotebookMigrationEnabled = false;
