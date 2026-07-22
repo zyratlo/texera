@@ -162,6 +162,27 @@ describe("JupyterPanelService", () => {
     expect(mockWorkflow.highlightLinks).toHaveBeenCalledWith(true, "link1");
   });
 
+  // handleNotebookMessage must only act on cellClicked messages that come from
+  // our own iframe (event.source) AND carry the Jupyter origin.
+  it("handleNotebookMessage highlights only for messages from the iframe at the Jupyter origin", async () => {
+    const iframeWindow = {} as Window;
+    service.setIframeRef({ contentWindow: iframeWindow } as any);
+    const highlightSpy = vi.spyOn(service as any, "highlightFromCell").mockImplementation(() => {});
+    const handle = (service as any).handleNotebookMessage;
+
+    // wrong source (some other frame/script): ignored
+    await handle({ source: {}, origin: "http://jupyter", data: { action: "cellClicked", cellUUID: "c1" } });
+    expect(highlightSpy).not.toHaveBeenCalled();
+
+    // right source, wrong origin: ignored
+    await handle({ source: iframeWindow, origin: "http://evil", data: { action: "cellClicked", cellUUID: "c1" } });
+    expect(highlightSpy).not.toHaveBeenCalled();
+
+    // right source and origin: highlights
+    await handle({ source: iframeWindow, origin: "http://jupyter", data: { action: "cellClicked", cellUUID: "c1" } });
+    expect(highlightSpy).toHaveBeenCalledWith("c1");
+  });
+
   // A workflow with operators but no links is valid; precompute must still
   // record each cell's components (with empty edges) so cell clicks highlight.
   it("precomputes component mappings even when the graph has no links", () => {

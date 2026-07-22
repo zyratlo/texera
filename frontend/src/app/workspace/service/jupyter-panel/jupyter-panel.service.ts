@@ -201,10 +201,18 @@ export class JupyterPanelService {
   // Handle messages from the Jupyter notebook iframe
   private handleNotebookMessage = async (event: MessageEvent) => {
     if (!this.enabled) return;
+
+    // Only accept messages posted by our own notebook iframe. This is the
+    // strong check: it rejects any other same-origin frame or script trying to
+    // drive highlighting with a synthetic cellClicked message.
+    if (!this.iframeRef || event.source !== this.iframeRef.contentWindow) {
+      return;
+    }
+
+    // Defense in depth: also require the message origin to match the resolved
+    // Jupyter origin.
     const jupyterOrigin = await this.resolveJupyterOrigin();
-    const allowedOrigins = [window.location.origin];
-    if (jupyterOrigin) allowedOrigins.push(jupyterOrigin);
-    if (!allowedOrigins.includes(event.origin)) {
+    if (!jupyterOrigin || event.origin !== jupyterOrigin) {
       return;
     }
 
