@@ -254,6 +254,21 @@ describe("JupyterPanelService", () => {
     );
   });
 
+  it("does not postMessage when the operator maps to no cells", async () => {
+    const mockIframe = {
+      contentWindow: { postMessage: vi.fn() },
+    } as any;
+    service.setIframeRef(mockIframe);
+    mockNotebook.getMapping.mockReturnValue({
+      cell_to_operator: {},
+      operator_to_cell: { op1: [] },
+    });
+
+    await service.onWorkflowComponentClick("op1");
+
+    expect(mockIframe.contentWindow.postMessage).not.toHaveBeenCalled();
+  });
+
   // The Jupyter origin is process-static, so it must be resolved once and cached
   // rather than re-fetched on every click / incoming message.
   it("resolves the Jupyter URL only once across multiple clicks", async () => {

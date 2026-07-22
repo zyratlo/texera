@@ -249,8 +249,8 @@ export class JupyterPanelService {
     }
   }
 
-  // Handle when a Texera component is clicked to trigger the corresponding notebook cell
-  async onWorkflowComponentClick(cellUUID: string): Promise<void> {
+  // Handle when a Texera operator is clicked to trigger the corresponding notebook cell(s)
+  async onWorkflowComponentClick(operatorId: string): Promise<void> {
     if (!this.enabled) return;
     const jupyterOrigin = await this.resolveJupyterOrigin();
     if (jupyterOrigin && this.iframeRef && this.iframeRef.contentWindow) {
@@ -269,14 +269,13 @@ export class JupyterPanelService {
         return;
       }
 
-      const operatorArray = mappingEntry["operator_to_cell"][cellUUID];
-      if (operatorArray) {
-        this.iframeRef.contentWindow.postMessage(
-          { action: "triggerCellClick", operators: operatorArray },
-          jupyterOrigin
-        );
+      const cellIds = mappingEntry["operator_to_cell"][operatorId];
+      if (cellIds && cellIds.length > 0) {
+        // "operators" is the payload key custom.js expects; the values are the
+        // mapped cell UUIDs for the clicked operator.
+        this.iframeRef.contentWindow.postMessage({ action: "triggerCellClick", operators: cellIds }, jupyterOrigin);
       } else {
-        console.error(`No operators found for cellUUID: ${cellUUID}`);
+        console.error(`No cells mapped to operator: ${operatorId}`);
       }
     }
   }
