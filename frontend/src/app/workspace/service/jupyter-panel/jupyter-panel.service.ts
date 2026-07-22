@@ -92,30 +92,19 @@ export class JupyterPanelService {
         distinctUntilChanged()
       )
       .subscribe(wid => {
-        // On every workflow change, drop the outgoing workflow's stale mapping
-        // and clear the highlight index. Clearing here (not only inside
-        // precomputeHighlightMapping, which runs only on a successful fetch)
-        // ensures switching to a workflow without a stored notebook can't leave
-        // the previous workflow's highlights active. This cleanup previously
-        // happened inside closeJupyterNotebookPanel; the panel-visibility
-        // surface lives with the iframe component in
-        // `migration-tool-jupyter-panel` now, so it is inlined.
-        const currentWid = this.workflowActionService.getWorkflow().wid;
-        if (currentWid !== undefined) {
-          this.notebookMigrationService.deleteMapping("mapping_wid_" + currentWid);
-        }
+        // On every workflow change, close the panel (which also drops the
+        // outgoing workflow's stale mapping) and clear the highlight index, so a
+        // switch to a workflow without a stored notebook can't leave the
+        // previous workflow's highlights active.
+        this.closeJupyterNotebookPanel();
         this.cellToHighlightMapping = {};
         // Skip unsaved workflows (wid undefined) and wid 0; both would POST
         // without a usable wid and 500 on the backend.
         if (wid) {
-        this.closeJupyterNotebookPanel();
-        if (wid != 0) {
           this.fetchNotebookAndMapping(wid).subscribe(result => {
             if (result == 1) {
               this.precomputeHighlightMapping();
               this.openJupyterNotebookPanel();
-              // Panel auto-open on workflow restore is wired in
-              // `migration-tool-jupyter-panel` once the visibility API exists.
             }
           });
         }
@@ -200,7 +189,6 @@ export class JupyterPanelService {
     }
   }
 
-  // Set the iframe reference (from the component's ViewChild)
   // Set the iframe reference (from the component's ViewChild). The panel
   // component that calls this lives in `migration-tool-jupyter-panel`.
   setIframeRef(iframe: HTMLIFrameElement) {
