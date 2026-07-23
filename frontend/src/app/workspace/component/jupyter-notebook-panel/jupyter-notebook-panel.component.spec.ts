@@ -35,15 +35,13 @@ describe("JupyterNotebookPanelComponent", () => {
   beforeEach(async () => {
     mockJupyterPanelService = {
       jupyterNotebookPanelVisible$: new Subject<boolean>(),
-      setIframeRef: jasmine.createSpy("setIframeRef"),
-      closeJupyterNotebookPanel: jasmine.createSpy("closeJupyterNotebookPanel"),
-      minimizeJupyterNotebookPanel: jasmine.createSpy("minimizeJupyterNotebookPanel"),
+      setIframeRef: vi.fn(),
+      closeJupyterNotebookPanel: vi.fn(),
+      minimizeJupyterNotebookPanel: vi.fn(),
     };
 
     mockNotebookMigrationService = {
-      getJupyterIframeURL: jasmine
-        .createSpy("getJupyterIframeURL")
-        .and.returnValue(Promise.resolve("http://localhost:8888")),
+      getJupyterIframeURL: vi.fn().mockResolvedValue("http://localhost:8888"),
     };
 
     await TestBed.configureTestingModule({
@@ -63,27 +61,27 @@ describe("JupyterNotebookPanelComponent", () => {
   });
 
   it("should create", () => {
-    spyOn(component, "checkIframeRef").and.stub();
+    vi.spyOn(component, "checkIframeRef").mockImplementation(() => {});
     expect(component).toBeTruthy();
   });
 
   it("should be hidden by default", () => {
-    spyOn(component, "checkIframeRef").and.stub();
-    expect(component.isVisible).toBeFalse();
+    vi.spyOn(component, "checkIframeRef").mockImplementation(() => {});
+    expect(component.isVisible).toBe(false);
   });
 
   it("should update visibility when service emits", async () => {
-    spyOn(component, "checkIframeRef").and.stub();
+    vi.spyOn(component, "checkIframeRef").mockImplementation(() => {});
     mockJupyterPanelService.jupyterNotebookPanelVisible$.next(true);
 
     await fixture.whenStable();
     fixture.detectChanges();
 
-    expect(component.isVisible).toBeTrue();
+    expect(component.isVisible).toBe(true);
   });
 
   it("should fetch and sanitize URL when panel becomes visible", async () => {
-    spyOn(component, "checkIframeRef").and.stub();
+    vi.spyOn(component, "checkIframeRef").mockImplementation(() => {});
     mockJupyterPanelService.jupyterNotebookPanelVisible$.next(true);
 
     await fixture.whenStable();
@@ -93,8 +91,7 @@ describe("JupyterNotebookPanelComponent", () => {
     expect(component.jupyterUrl.toString()).toContain("http://localhost:8888");
   });
 
-  it("should call setIframeRef when iframe exists and visible", done => {
-    spyOn(component, "checkIframeRef").and.stub();
+  it("should call setIframeRef when iframe exists and visible", async () => {
     component.isVisible = true;
 
     const mockIframe = document.createElement("iframe");
@@ -102,14 +99,11 @@ describe("JupyterNotebookPanelComponent", () => {
 
     component.checkIframeRef();
 
-    setTimeout(() => {
-      expect(mockJupyterPanelService.setIframeRef).toHaveBeenCalledWith(mockIframe);
-      done();
-    }, 0);
+    await new Promise<void>(resolve => setTimeout(resolve, 0));
+    expect(mockJupyterPanelService.setIframeRef).toHaveBeenCalledWith(mockIframe);
   });
 
-  it("should NOT call setIframeRef if not visible", done => {
-    spyOn(component, "checkIframeRef").and.stub();
+  it("should NOT call setIframeRef if not visible", async () => {
     component.isVisible = false;
 
     const mockIframe = document.createElement("iframe");
@@ -117,32 +111,30 @@ describe("JupyterNotebookPanelComponent", () => {
 
     component.checkIframeRef();
 
-    setTimeout(() => {
-      expect(mockJupyterPanelService.setIframeRef).not.toHaveBeenCalled();
-      done();
-    }, 0);
+    await new Promise<void>(resolve => setTimeout(resolve, 0));
+    expect(mockJupyterPanelService.setIframeRef).not.toHaveBeenCalled();
   });
 
   it("should close panel via service", () => {
-    spyOn(component, "checkIframeRef").and.stub();
+    vi.spyOn(component, "checkIframeRef").mockImplementation(() => {});
     component.closePanel();
     expect(mockJupyterPanelService.closeJupyterNotebookPanel).toHaveBeenCalled();
   });
 
   it("should minimize panel and update visibility", () => {
-    spyOn(component, "checkIframeRef").and.stub();
+    vi.spyOn(component, "checkIframeRef").mockImplementation(() => {});
     component.isVisible = true;
 
     component.minimizePanel();
 
-    expect(component.isVisible).toBeFalse();
+    expect(component.isVisible).toBe(false);
     expect(mockJupyterPanelService.minimizeJupyterNotebookPanel).toHaveBeenCalled();
   });
 
   it("should clean up on destroy", () => {
-    spyOn(component, "checkIframeRef").and.stub();
-    const nextSpy = spyOn<any>(component["destroy$"], "next");
-    const completeSpy = spyOn<any>(component["destroy$"], "complete");
+    vi.spyOn(component, "checkIframeRef").mockImplementation(() => {});
+    const nextSpy = vi.spyOn(component["destroy$"] as any, "next");
+    const completeSpy = vi.spyOn(component["destroy$"] as any, "complete");
 
     component.ngOnDestroy();
 
