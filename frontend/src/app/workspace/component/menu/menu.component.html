@@ -85,7 +85,7 @@
       <nz-space-compact
         id="user-buttons"
         *ngIf="!displayParticularWorkflowVersion">
-        <a [routerLink]="DASHBOARD_USER_WORKFLOW">
+        <a [routerLink]="USER_WORKFLOW">
           <button
             nz-button
             title="dashboard">
@@ -560,20 +560,6 @@
             [nzDisabled]="true"
             style="width: 50%"></nz-select>
         </ng-template>
-      </nz-form-control>
-    </nz-form-item>
-
-    <nz-form-item>
-      <nz-form-label [nzNoColon]="true">
-        <span style="font-weight: 1000; font-size: 16px"> API Key </span>
-      </nz-form-label>
-      <nz-form-control>
-        <input
-          nz-input
-          type="password"
-          autocomplete="off"
-          formControlName="apiKey"
-          placeholder="Enter API key" />
       </nz-form-control>
     </nz-form-item>
   </form>

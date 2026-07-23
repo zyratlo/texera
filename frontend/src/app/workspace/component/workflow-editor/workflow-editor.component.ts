@@ -25,7 +25,7 @@ import { DragDropService } from "../../service/drag-drop/drag-drop.service";
 import { DynamicSchemaService } from "../../service/dynamic-schema/dynamic-schema.service";
 import { ExecuteWorkflowService } from "../../service/execute-workflow/execute-workflow.service";
 import { fromJointPaperEvent, JointUIService, linkPathStrokeColor } from "../../service/joint-ui/joint-ui.service";
-import { ValidationWorkflowService } from "../../service/validation/validation-workflow.service";
+import { Validation, ValidationWorkflowService } from "../../service/validation/validation-workflow.service";
 import { WorkflowActionService } from "../../service/workflow-graph/model/workflow-action.service";
 import { WorkflowStatusService } from "../../service/workflow-status/workflow-status.service";
 import { ExecutionState, OperatorState } from "../../types/execute-workflow.interface";
@@ -277,6 +277,7 @@ export class WorkflowEditorComponent implements OnInit, AfterViewInit, OnDestroy
       height: this.editor.offsetHeight,
     });
     this.editor.classList.add("hide-worker-count");
+    this.editor.classList.add("hide-operator-status");
   }
 
   private handleDisableJointPaperInteractiveness(): void {
@@ -360,10 +361,68 @@ export class WorkflowEditorComponent implements OnInit, AfterViewInit, OnDestroy
             });
         }
       });
+
+    // When operators are (re)added to the graph — e.g. after navigating back to
+    // the workflow page, where WorkspaceComponent calls reloadWorkflow and
+    // operators are recreated from the workflow JSON — restore their visual
+    // state from the cached status so completed runs don't appear to reset.
+    // Restores port labels / worker count via changeOperatorStatistics, then
+    // delegates the final border color to applyOperatorBorder so the same
+    // priority rules apply as for the validation pass.
+    this.workflowActionService
+      .getTexeraGraph()
+      .getOperatorAddStream()
+      .pipe(untilDestroyed(this))
+      .subscribe(operator => {
+        const statistics = this.workflowStatusService.getCurrentStatus()[operator.operatorID];
+        if (statistics) {
+          this.jointUIService.changeOperatorStatistics(
+            this.paper,
+            operator.operatorID,
+            statistics,
+            this.isSource(operator.operatorID),
+            this.isSink(operator.operatorID)
+          );
+        }
+        this.applyOperatorBorder(
+          operator.operatorID,
+          this.validationWorkflowService.validateOperator(operator.operatorID)
+        );
+      });
+  }
+
+  /**
+   * Single source of truth for the operator's border color. Both the
+   * validation stream and the operator-add stream route through here so
+   * the priority order is consistent regardless of which event fires last:
+   *   1. Invalid operator → red (validation takes priority).
+   *   2. Valid operator with a cached execution status → execution-state color.
+   *   3. Valid operator with no cached status → default valid (gray).
+   *
+   * Centralizing this here avoids the race where the validation pass
+   * overwrites a state-derived stroke (or vice versa) for an operator that
+   * is both invalid and has a cached execution status.
+   *
+   * Both callers obtain the Validation themselves and pass it in: the
+   * validation-stream subscriber forwards the result the stream just emitted,
+   * and the operator-add subscriber computes it via validateOperator. Keeping
+   * the parameter required means the color decision never silently depends on
+   * a recompute hidden inside this helper.
+   */
+  private applyOperatorBorder(operatorID: string, validation: Validation): void {
+    if (!validation.isValid) {
+      this.jointUIService.changeOperatorColor(this.paper, operatorID, false);
+      return;
+    }
+    const statistics = this.workflowStatusService.getCurrentStatus()[operatorID];
+    if (statistics) {
+      this.jointUIService.changeOperatorState(this.paper, operatorID, statistics.operatorState);
+    } else {
+      this.jointUIService.changeOperatorColor(this.paper, operatorID, true);
+    }
   }
 
   private handleRegionEvents(): void {
-    this.editor.classList.add("hide-region");
     const Region = joint.dia.Element.define(
       "region",
       {
@@ -371,7 +430,9 @@ export class WorkflowEditorComponent implements OnInit, AfterViewInit, OnDestroy
           body: {
             fill: "rgba(158,158,158,0.2)",
             pointerEvents: "none",
-            class: "region",
+            // Regions start hidden and are revealed via the View > Regions toggle. Driving visibility
+            // through this model attribute keeps the main canvas and the mini-map in sync (see #4027).
+            visibility: "hidden",
           },
         },
       },
@@ -398,7 +459,15 @@ export class WorkflowEditorComponent implements OnInit, AfterViewInit, OnDestroy
           this.updateRegionElement(element, ops);
           return { regionElement: element, operators: ops };
         });
+        // regions are recreated on every update, so reapply the current toggle state to the new elements
+        this.setRegionsVisibility(this.wrapper.getRegionsDisplayed());
       });
+
+    // apply the View > Regions toggle to all existing region elements (canvas and mini-map share the model)
+    this.wrapper
+      .getRegionsDisplayedStream()
+      .pipe(untilDestroyed(this))
+      .subscribe(displayed => this.setRegionsVisibility(displayed));
 
     this.paper.model.on("change:position", operator => {
       regionMap
@@ -418,6 +487,13 @@ export class WorkflowEditorComponent implements OnInit, AfterViewInit, OnDestroy
         };
         this.paper.getModelById("region-" + region.id).attr("body/fill", colorMap[region.state]);
       });
+  }
+
+  private setRegionsVisibility(displayed: boolean): void {
+    this.paper.model
+      .getElements()
+      .filter(element => element.get("type") === "region")
+      .forEach(element => element.attr("body/visibility", displayed ? "visible" : "hidden"));
   }
 
   private updateRegionElement(regionElement: joint.dia.Element, operators: joint.dia.Cell[]) {
@@ -605,14 +681,15 @@ export class WorkflowEditorComponent implements OnInit, AfterViewInit, OnDestroy
         const elementID = event[0].model.id.toString();
         const highlightedOperatorIDs = this.wrapper.getCurrentHighlightedOperatorIDs();
         const highlightedCommentBoxIDs = this.wrapper.getCurrentHighlightedCommentBoxIDs();
-        this.jupyterPanelService.onWorkflowComponentClick(elementID); // Highlight corresponding Jupyter notebook cell
+        if (this.workflowActionService.getTexeraGraph().hasOperator(elementID)) {
+          this.jupyterPanelService.onWorkflowComponentClick(elementID); // highlight corresponding Jupyter notebook cell
+        }
         if (event[1].shiftKey) {
           // if in multiselect toggle highlights on click
           if (highlightedOperatorIDs.includes(elementID)) {
             this.workflowActionService.unhighlightOperators(elementID);
           } else if (this.workflowActionService.getTexeraGraph().hasOperator(elementID)) {
             this.workflowActionService.highlightOperators(<boolean>event[1].shiftKey, elementID);
-            this.jupyterPanelService.onWorkflowComponentClick(elementID); // Highlight corresponding Jupyter notebook cell
           }
           if (highlightedCommentBoxIDs.includes(elementID)) {
             this.wrapper.unhighlightCommentBoxes(elementID);
@@ -953,15 +1030,15 @@ export class WorkflowEditorComponent implements OnInit, AfterViewInit, OnDestroy
   }
 
   /**
-   * if the operator is valid , the border of the box will be default
+   * Applies the validation result to the operator's border. Delegates to
+   * applyOperatorBorder so validation, cached-execution-status, and the
+   * default-valid case are decided in one place.
    */
   private handleOperatorValidation(): void {
     this.validationWorkflowService
       .getOperatorValidationStream()
       .pipe(untilDestroyed(this))
-      .subscribe(value =>
-        this.jointUIService.changeOperatorColor(this.paper, value.operatorID, value.validation.isValid)
-      );
+      .subscribe(value => this.applyOperatorBorder(value.operatorID, value.validation));
   }
 
   /**
@@ -1548,6 +1625,12 @@ export class WorkflowEditorComponent implements OnInit, AfterViewInit, OnDestroy
               displayName,
               position,
             };
+            // Results are pulled on demand (not pushed over the socket); refresh
+            // the active agent's summaries so the popover shows current data.
+            const activeAgentId = this.agentService.getActivelyConnectedAgentIds()[0];
+            if (activeAgentId) {
+              this.agentService.fetchOperatorResults(activeAgentId);
+            }
           }
         }
         this.changeDetectorRef.detectChanges();

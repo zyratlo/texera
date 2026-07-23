@@ -23,6 +23,14 @@ import { WorkflowPersistService } from "../../../common/service/workflow-persist
 import { DatasetService } from "../../../dashboard/service/user/dataset/dataset.service";
 import { ChangeDetectorRef } from "@angular/core";
 import { commonTestProviders } from "../../../common/testing/test-utils";
+import { DashboardEntry } from "../../../dashboard/type/dashboard-entry";
+import { AppSettings } from "../../../common/app-setting";
+import {
+  HUB_DATASET_RESULT_DETAIL,
+  HUB_WORKFLOW_RESULT_DETAIL,
+  USER_DATASET,
+  USER_WORKSPACE,
+} from "../../../app-routing.constant";
 
 describe("BrowseSectionComponent", () => {
   let component: BrowseSectionComponent;
@@ -45,5 +53,72 @@ describe("BrowseSectionComponent", () => {
 
   it("should create", () => {
     expect(component).toBeTruthy();
+  });
+
+  describe("entityRoutes initialization", () => {
+    it("routes owned workflows to the user workspace", () => {
+      component.currentUid = 1;
+      component.entities = [{ id: 100, type: "workflow", accessibleUserIds: [1] } as unknown as DashboardEntry];
+      component.ngOnInit();
+      expect(component.entityRoutes[100]).toEqual([USER_WORKSPACE, "100"]);
+    });
+
+    it("routes non-owned workflows to the hub workflow detail page", () => {
+      component.currentUid = 1;
+      component.entities = [{ id: 101, type: "workflow", accessibleUserIds: [2] } as unknown as DashboardEntry];
+      component.ngOnInit();
+      expect(component.entityRoutes[101]).toEqual([HUB_WORKFLOW_RESULT_DETAIL, "101"]);
+    });
+
+    it("routes owned datasets to the user dataset page", () => {
+      component.currentUid = 1;
+      component.entities = [{ id: 200, type: "dataset", accessibleUserIds: [1] } as unknown as DashboardEntry];
+      component.ngOnInit();
+      expect(component.entityRoutes[200]).toEqual([USER_DATASET, "200"]);
+    });
+
+    it("routes non-owned datasets to the hub dataset detail page", () => {
+      component.currentUid = 1;
+      component.entities = [{ id: 201, type: "dataset", accessibleUserIds: [2] } as unknown as DashboardEntry];
+      component.ngOnInit();
+      expect(component.entityRoutes[201]).toEqual([HUB_DATASET_RESULT_DETAIL, "201"]);
+    });
+  });
+
+  describe("initializeEntry edge cases", () => {
+    it("skips entries whose id is not a number", () => {
+      component.entities = [{ id: undefined, type: "dataset", accessibleUserIds: [] } as unknown as DashboardEntry];
+      component.ngOnInit();
+      expect(Object.keys(component.entityRoutes)).toHaveLength(0);
+    });
+
+    it("throws on an unexpected entity type", () => {
+      const bad = { id: 7, type: "project", accessibleUserIds: [] } as unknown as DashboardEntry;
+      expect(() => (component as any).initializeEntry(bad)).toThrowError("Unexpected type in DashboardEntry.");
+    });
+  });
+
+  describe("cover images", () => {
+    it("builds and caches the cover URL for a dataset that has a cover image", () => {
+      const entity = {
+        id: 5,
+        type: "dataset",
+        coverImageUrl: "has-cover",
+        accessibleUserIds: [],
+      } as unknown as DashboardEntry;
+      component.entities = [entity];
+      component.ngOnInit();
+
+      expect(component.getCoverImage(entity)).toBe(`${AppSettings.getApiEndpoint()}/dataset/5/cover`);
+    });
+
+    it("falls back to the default background when no cover was cached", () => {
+      // No coverImageUrl -> loadCoverImages skips it -> getCoverImage returns the default.
+      const entity = { id: 6, type: "dataset", accessibleUserIds: [] } as unknown as DashboardEntry;
+      component.entities = [entity];
+      component.ngOnInit();
+
+      expect(component.getCoverImage(entity)).toBe(component.defaultBackground);
+    });
   });
 });

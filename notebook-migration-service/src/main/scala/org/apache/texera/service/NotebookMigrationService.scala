@@ -19,14 +19,22 @@ package org.apache.texera.service
 
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import com.typesafe.scalalogging.LazyLogging
+import io.dropwizard.auth.AuthDynamicFeature
 import io.dropwizard.configuration.{EnvironmentVariableSubstitutor, SubstitutingSourceProvider}
 import io.dropwizard.core.Application
 import io.dropwizard.core.setup.{Bootstrap, Environment}
-import org.apache.texera.amber.config.StorageConfig
-import org.apache.texera.auth.RequestLoggingFilter
+import org.apache.texera.common.config.StorageConfig
+import org.apache.texera.auth.{
+  JwtAuthFilter,
+  RequestLoggingFilter,
+  SessionUser,
+  UnauthorizedExceptionMapper
+}
+import org.apache.texera.auth.RoleAnnotationEnforcer
 import org.apache.texera.dao.SqlServer
+import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature
 import java.nio.file.Path
-import org.apache.texera.service.resource.NotebookMigrationResource
+import org.apache.texera.service.resource.{HealthCheckResource, NotebookMigrationResource}
 
 class NotebookMigrationService
     extends Application[NotebookMigrationServiceConfiguration]
@@ -56,13 +64,38 @@ class NotebookMigrationService
     // Serve backend at /api
     environment.jersey.setUrlPattern("/api/*")
 
+    environment.jersey.register(classOf[HealthCheckResource])
+
+    NotebookMigrationService.registerAuthFeatures(environment)
+
     environment.jersey.register(classOf[NotebookMigrationResource])
+
+    RoleAnnotationEnforcer.enforce(
+      environment.jersey.getResourceConfig,
+      "NotebookMigrationService"
+    )
 
     // Route request logs through SLF4J, controlled by TEXERA_SERVICE_LOG_LEVEL
     RequestLoggingFilter.register(environment.getApplicationContext)
   }
 }
 object NotebookMigrationService {
+  // Registers JWT auth, @Auth injection, and @RolesAllowed enforcement.
+  // Mirrors the other Dropwizard services' registerAuthFeatures so they don't drift apart.
+  def registerAuthFeatures(environment: Environment): Unit = {
+    // Register JWT authentication filter
+    environment.jersey.register(new AuthDynamicFeature(classOf[JwtAuthFilter]))
+    environment.jersey.register(classOf[UnauthorizedExceptionMapper])
+
+    // Enable @Auth annotation for injecting SessionUser
+    environment.jersey.register(
+      new io.dropwizard.auth.AuthValueFactoryProvider.Binder(classOf[SessionUser])
+    )
+
+    // Enforce @RolesAllowed annotations on resource methods
+    environment.jersey.register(classOf[RolesAllowedDynamicFeature])
+  }
+
   def main(args: Array[String]): Unit = {
     val notebookMigrationPath = Path
       .of(sys.env.getOrElse("TEXERA_HOME", "."))

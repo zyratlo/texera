@@ -19,7 +19,7 @@
 
 import { of, Subject } from "rxjs";
 import { UserDatasetComponent } from "./user-dataset.component";
-import { DASHBOARD_USER_DATASET } from "../../../../app-routing.constant";
+import { USER_DATASET } from "../../../../app-routing.constant";
 import { UserDatasetVersionCreatorComponent } from "./user-dataset-explorer/user-dataset-version-creator/user-dataset-version-creator.component";
 import { SortMethod } from "../../../type/sort-method";
 import { User } from "../../../../common/type/user";
@@ -127,6 +127,13 @@ describe("UserDatasetComponent", () => {
 
       expect(component.isLogin).toBe(true);
       expect(component.currentUid).toBe(99);
+    });
+  });
+
+  describe("default sort", () => {
+    it("defaults to CreateTimeDesc so newest datasets appear first", () => {
+      // Datasets have no last-modified time, so EditTimeDesc would leave the sort key NULL.
+      expect(component.sortMethod).toBe(SortMethod.CreateTimeDesc);
     });
   });
 
@@ -278,7 +285,7 @@ describe("UserDatasetComponent", () => {
 
       component.onClickOpenDatasetAddComponent();
 
-      expect(routerMock.navigate).toHaveBeenCalledWith([`${DASHBOARD_USER_DATASET}/123`]);
+      expect(routerMock.navigate).toHaveBeenCalledWith([`${USER_DATASET}/123`]);
     });
 
     it("on close with null result: does not navigate", () => {
@@ -307,6 +314,57 @@ describe("UserDatasetComponent", () => {
 
       expect(datasetServiceMock.deleteDatasets).toHaveBeenCalledWith(2);
       expect(searchResultsStub.entries).toEqual([e1, e3]);
+    });
+  });
+
+  describe("view mode toggle", () => {
+    const VIEW_MODE_KEY = "texera.userDataset.viewMode";
+
+    afterEach(() => localStorage.removeItem(VIEW_MODE_KEY));
+
+    it("setViewType updates viewType, persists it, and is a no-op when unchanged", () => {
+      // viewType defaults to "card", so switching to "list" is the real change
+      component.setViewType("list");
+      expect(component.viewType).toBe("list");
+      expect(localStorage.getItem(VIEW_MODE_KEY)).toBe("list");
+
+      // setting the same value should not write again
+      localStorage.removeItem(VIEW_MODE_KEY);
+      component.setViewType("list");
+      expect(localStorage.getItem(VIEW_MODE_KEY)).toBeNull();
+
+      component.setViewType("card");
+      expect(component.viewType).toBe("card");
+      expect(localStorage.getItem(VIEW_MODE_KEY)).toBe("card");
+    });
+
+    const makeFreshComponent = () => {
+      const userServiceMock = {
+        userChanged: () => new Subject<User | undefined>().asObservable(),
+        isLogin: () => true,
+        getCurrentUser: () => ({ uid: 42 }) as User,
+      };
+      return new UserDatasetComponent(
+        modalServiceMock as any,
+        userServiceMock as any,
+        routerMock as any,
+        searchServiceMock as any,
+        datasetServiceMock as any,
+        messageMock as any
+      );
+    };
+
+    it("defaults viewType to card when nothing is stored", () => {
+      localStorage.removeItem(VIEW_MODE_KEY);
+      expect(makeFreshComponent().viewType).toBe("card");
+    });
+
+    it("initializes viewType to list only when explicitly stored", () => {
+      localStorage.setItem(VIEW_MODE_KEY, "list");
+      expect(makeFreshComponent().viewType).toBe("list");
+
+      localStorage.setItem(VIEW_MODE_KEY, "card");
+      expect(makeFreshComponent().viewType).toBe("card");
     });
   });
 });

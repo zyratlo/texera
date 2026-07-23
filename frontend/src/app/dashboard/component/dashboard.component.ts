@@ -29,17 +29,19 @@ import { AdminSettingsService } from "../service/admin/settings/admin-settings.s
 import { GuiConfigService } from "../../common/service/gui-config.service";
 
 import {
-  DASHBOARD_ABOUT,
-  DASHBOARD_ADMIN_EXECUTION,
-  DASHBOARD_ADMIN_GMAIL,
-  DASHBOARD_ADMIN_SETTINGS,
-  DASHBOARD_ADMIN_USER,
-  DASHBOARD_USER_COMPUTING_UNIT,
-  DASHBOARD_USER_DATASET,
-  DASHBOARD_USER_DISCUSSION,
-  DASHBOARD_USER_PROJECT,
-  DASHBOARD_USER_QUOTA,
-  DASHBOARD_USER_WORKFLOW,
+  ABOUT,
+  ADMIN_EXECUTION,
+  ADMIN_GMAIL,
+  ADMIN_SETTINGS,
+  ADMIN_USER,
+  USER_COMPUTING_UNIT,
+  USER_DATASET,
+  USER_DISCUSSION,
+  USER_PROJECT,
+  USER_PYTHON_VENV,
+  USER_QUOTA,
+  USER_WORKFLOW,
+  USER_FEEDBACK,
 } from "../../app-routing.constant";
 import { Version } from "../../../environments/version";
 import { SidebarTabs } from "../../common/type/gui-config";
@@ -83,13 +85,17 @@ export class DashboardComponent implements OnInit {
 
   isAdmin: boolean = this.userService.isAdmin();
   isLogin = this.userService.isLogin();
-  public gitCommitHash: string = Version.raw;
+  public buildNumber: string = Version.buildNumber;
   displayForum: boolean = true;
   displayNavbar: boolean = true;
   isCollapsed: boolean = false;
   showLinks: boolean = false;
   logo: string = "";
   miniLogo: string = "";
+  // Every tab starts hidden; loadTabs turns on the ones /config/settings/public
+  // reports as enabled. The frontend keeps no copy of the default.conf gui.tabs
+  // defaults, so an unfetched or failed load shows no tabs (each *ngIf sees
+  // false) rather than a guessed set — the backend stays the single source.
   sidebarTabs: SidebarTabs = {
     hub_enabled: false,
     home_enabled: false,
@@ -105,16 +111,20 @@ export class DashboardComponent implements OnInit {
     about_enabled: false,
   };
 
-  protected readonly DASHBOARD_USER_PROJECT = DASHBOARD_USER_PROJECT;
-  protected readonly DASHBOARD_USER_WORKFLOW = DASHBOARD_USER_WORKFLOW;
-  protected readonly DASHBOARD_USER_DATASET = DASHBOARD_USER_DATASET;
-  protected readonly DASHBOARD_USER_COMPUTING_UNIT = DASHBOARD_USER_COMPUTING_UNIT;
-  protected readonly DASHBOARD_USER_QUOTA = DASHBOARD_USER_QUOTA;
-  protected readonly DASHBOARD_USER_DISCUSSION = DASHBOARD_USER_DISCUSSION;
-  protected readonly DASHBOARD_ADMIN_USER = DASHBOARD_ADMIN_USER;
-  protected readonly DASHBOARD_ADMIN_GMAIL = DASHBOARD_ADMIN_GMAIL;
-  protected readonly DASHBOARD_ADMIN_EXECUTION = DASHBOARD_ADMIN_EXECUTION;
-  protected readonly DASHBOARD_ADMIN_SETTINGS = DASHBOARD_ADMIN_SETTINGS;
+  protected readonly USER_PROJECT = USER_PROJECT;
+  protected readonly USER_WORKFLOW = USER_WORKFLOW;
+  protected readonly USER_DATASET = USER_DATASET;
+  protected readonly USER_COMPUTING_UNIT = USER_COMPUTING_UNIT;
+  protected readonly USER_PYTHON_VENV = USER_PYTHON_VENV;
+  protected readonly USER_QUOTA = USER_QUOTA;
+  protected readonly USER_DISCUSSION = USER_DISCUSSION;
+  protected readonly USER_FEEDBACK = USER_FEEDBACK;
+  protected readonly ADMIN_USER = ADMIN_USER;
+  protected readonly ADMIN_GMAIL = ADMIN_GMAIL;
+  protected readonly ADMIN_EXECUTION = ADMIN_EXECUTION;
+  protected readonly ADMIN_SETTINGS = ADMIN_SETTINGS;
+  protected readonly ABOUT = ABOUT;
+  protected readonly String = String;
 
   constructor(
     private userService: UserService,
@@ -158,7 +168,7 @@ export class DashboardComponent implements OnInit {
         .pipe(untilDestroyed(this))
         .subscribe(() => {
           this.ngZone.run(() => {
-            this.router.navigateByUrl(this.route.snapshot.queryParams["returnUrl"] || DASHBOARD_USER_WORKFLOW);
+            this.router.navigateByUrl(this.route.snapshot.queryParams["returnUrl"] || USER_WORKFLOW);
           });
         });
     });
@@ -168,41 +178,62 @@ export class DashboardComponent implements OnInit {
     this.loadTabs();
   }
 
+  // A missing key or a failed settings fetch keeps the branding/tab defaults;
+  // the error callbacks stop a single failed shared request from surfacing as
+  // one unhandled RxJS error per subscription.
   loadLogos(): void {
     this.adminSettingsService
-      .getSetting("logo")
+      .getPublicSetting("logo")
       .pipe(untilDestroyed(this))
-      .subscribe(dataUri => {
-        this.logo = dataUri;
+      .subscribe({
+        next: dataUri => {
+          if (dataUri) {
+            this.logo = dataUri;
+          }
+        },
+        error: () => {},
       });
 
     this.adminSettingsService
-      .getSetting("mini_logo")
+      .getPublicSetting("mini_logo")
       .pipe(untilDestroyed(this))
-      .subscribe(dataUri => {
-        this.miniLogo = dataUri;
+      .subscribe({
+        next: dataUri => {
+          if (dataUri) {
+            this.miniLogo = dataUri;
+          }
+        },
+        error: () => {},
       });
 
     this.adminSettingsService
-      .getSetting("favicon")
+      .getPublicSetting("favicon")
       .pipe(untilDestroyed(this))
-      .subscribe(dataUri => {
-        document.querySelectorAll("link[rel*='icon']").forEach(el => ((el as HTMLLinkElement).href = dataUri));
+      .subscribe({
+        next: dataUri => {
+          if (dataUri) {
+            document.querySelectorAll("link[rel*='icon']").forEach(el => ((el as HTMLLinkElement).href = dataUri));
+          }
+        },
+        error: () => {},
       });
   }
 
   loadTabs(): void {
     (Object.keys(this.sidebarTabs) as (keyof SidebarTabs)[]).forEach(tab => {
       this.adminSettingsService
-        .getSetting(tab)
+        .getPublicSetting(tab)
         .pipe(untilDestroyed(this))
-        .subscribe(value => {
-          this.sidebarTabs[tab] = value === "true";
+        .subscribe({
+          next: value => {
+            this.sidebarTabs[tab] = value === "true";
+          },
+          error: () => {},
         });
     });
   }
 
-  forumLogin() {
+  forumLogin(attemptRegister: boolean = true) {
     if (!document.cookie.includes("flarum_remember") && this.isLogin) {
       this.flarumService
         .auth()
@@ -212,13 +243,19 @@ export class DashboardComponent implements OnInit {
             document.cookie = `flarum_remember=${response.token};path=/`;
           },
           error: (err: unknown) => {
-            if ([404, 500].includes((err as HttpErrorResponse).status)) {
+            // Stop retrying on a missing/broken forum service, or once we have
+            // already attempted a registration, to avoid an infinite
+            // auth -> register -> auth loop when auth keeps failing.
+            if ([404, 500].includes((err as HttpErrorResponse).status) || !attemptRegister) {
               this.displayForum = false;
             } else {
               this.flarumService
                 .register()
                 .pipe(untilDestroyed(this))
-                .subscribe(() => this.forumLogin());
+                .subscribe({
+                  next: () => this.forumLogin(false),
+                  error: () => (this.displayForum = false),
+                });
             }
           },
         });
@@ -232,7 +269,7 @@ export class DashboardComponent implements OnInit {
 
   isNavbarEnabled(currentRoute: string) {
     // Hide navbar for workflow workspace pages (with numeric ID)
-    if (currentRoute.match(/\/dashboard\/user\/workflow\/\d+/)) {
+    if (currentRoute.match(/\/user\/workflow\/\d+/)) {
       return false;
     }
     return true;
@@ -248,7 +285,4 @@ export class DashboardComponent implements OnInit {
       }, 175);
     }
   }
-
-  protected readonly DASHBOARD_ABOUT = DASHBOARD_ABOUT;
-  protected readonly String = String;
 }

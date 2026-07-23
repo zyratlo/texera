@@ -19,11 +19,11 @@
 
 // TEXERA DOCUMENTATION
 
-// https://github.com/Texera/texera/wiki/Guide-to-Use-a-Python-UDF
+// https://github.com/apache/texera/wiki/Guide-to-Use-a-Python-UDF
 export const TEXERA_OVERVIEW = `
 You are a robust compiler that takes python code and translates it to our personal workflow environment Texera that uses python.
 
-  Texera is a data analytics tool that uses workflows to do machine learning and data analytics computation. User's are able to drag and drop operators and connect their inputs and outputs in a workflow graphical user interface, which the code we are going to create.
+  Texera is a data analytics tool that uses workflows to do machine learning and data analytics computation. Users are able to drag and drop operators and connect their inputs and outputs in a workflow graphical user interface, which the code we are going to create.
 
 Texera is able to use Python user defined functions. Documentation of a Python UDF in Texera follows:
   Process Data APIs
@@ -67,7 +67,7 @@ Batch API consumes a batch of tuples at a time. Similar to Table, a Batch is als
 
   All three APIs can return an empty iterator by yield None.
 
-  The template code for a Python UDF follows: MAKE SURE TO USE THE CLASS NAMES AND FUNCTIONS DEFINED, THIS IS A MUST FOR THE PROGRAM TO WORK. SELECT 1 OUT OF THE 3 PROCESSING OPERATOR FUNCTIONS TO BUILD DEPENDINGO ON THE CONTEXT OF CODE TRANSLATION.
+  The template code for a Python UDF follows: MAKE SURE TO USE THE CLASS NAMES AND FUNCTIONS DEFINED, THIS IS A MUST FOR THE PROGRAM TO WORK. SELECT 1 OUT OF THE 3 PROCESSING OPERATOR FUNCTIONS TO BUILD DEPENDING ON THE CONTEXT OF CODE TRANSLATION.
 # Choose from the following templates:
   #
 # from pytexera import *
@@ -92,7 +92,7 @@ Batch API consumes a batch of tuples at a time. Similar to Table, a Batch is als
 #         yield table
 `;
 
-// https://github.com/Texera/texera/blob/1fa249a9d55d4dcad36d93e093c2faed5c4434f0/core/amber/src/main/python/core/models/tuple.py
+// https://github.com/apache/texera/blob/main/amber/src/main/python/core/models/tuple.py
 export const TUPLE_DOCUMENTATION = `
 ### **<code>Tuple</code> Class Overview**
 
@@ -119,7 +119,7 @@ The \`Tuple\` class is a **lazy-evaluated** data structure designed for efficien
 * \`tuple.get_partial_tuple(attribute_names)\` returns a new \`Tuple\` instance containing only the specified fields.
 `;
 
-// https://github.com/Texera/texera/blob/1fa249a9d55d4dcad36d93e093c2faed5c4434f0/core/amber/src/main/python/core/models/table.py
+// https://github.com/apache/texera/blob/main/amber/src/main/python/core/models/table.py
 export const TABLE_DOCUMENTATION = `### **<code>Table</code> Class Overview**
 
 The \`Table\` class extends \`pandas.DataFrame\`, providing **structured Tuple-based data management**. It is designed to integrate seamlessly with \`Tuple\` objects.
@@ -150,7 +150,7 @@ The \`Table\` class extends \`pandas.DataFrame\`, providing **structured Tuple-b
 * Provides an **efficient bridge** between \`Tuple\`-based data and \`pandas.DataFrame\`, enabling compatibility with Python's data analysis tools.
 `;
 
-// https://github.com/Texera/texera/blob/42d803310c180978a9f02992f0e05556796b293c/core/amber/src/main/python/core/models/operator.py
+// https://github.com/apache/texera/blob/main/amber/src/main/python/core/models/operator.py
 export const OPERATOR_DOCUMENTATION = `### **Operator Class Overview**
 
 The \`Operator\` class is an **abstract base class (ABC)** for all operators, defining the fundamental structure for processing \`Tuple\`, \`Batch\`, and \`Table\` data in a workflow.
@@ -219,7 +219,7 @@ Texera requires a unique way of generating visualizations from ML libraries:
 `;
 
 export const EXAMPLE_OF_MULTIPLE_UDF_CONVERSION = `
-Here is an example of breaking up python code into multiple Texera UDFs. Format your response structure exactly like the given example. The "code" key contains a dictionary of the UDF ID's with their respective code. The "edges" key contains a list of pairs that contains the connections between UDFs. The "outputs" key contains a dictionary of the UDF ID's with a list of variable names that they yield in the UDF code. The UDFs can branch and merge, it does not have to be a linear chain depending on your implementation.
+Here is an example of breaking up python code into multiple Texera UDFs. Format your response structure exactly like the given example. The "code" key contains a dictionary of the UDF ID's with their respective code. The "edges" key contains a list of pairs that contains the connections between UDFs. The "outputs" key contains a dictionary of the UDF ID's with a list of the output column names of the DataFrame that the UDF yields. The UDFs can branch and merge, it does not have to be a linear chain depending on your implementation.
 
 Original Code:
 \`\`\`python
@@ -254,7 +254,7 @@ data = data.dropna()
 print("Minimum values:\n", data.min())
 print("\nMaximum values:\n", data.max())
 print("\nMean values:\n", data.mean())
-# END CELL 4
+# END CELL4
 
 # START CELL5
 # Create a boxplot for the 'Pregnancies' field
@@ -345,8 +345,10 @@ Use the documentation of Table, Tuple, or Batch to work with parameters within T
 Do not import other libraries to define these types.
 
 There is no need for an __init__ function. Assume all inputs are valid pandas DataFrames,
-so do not use .to_pandas(), .to_dataframe(), etc. Do not load data from a file in the first UDF, assume
-that the data is already given to you in the table parameter.
+so do not use .to_pandas(), .to_dataframe(), etc. Do not load data from a file in the first UDF;
+the workflow's source operator supplies the initial data, so assume it is already given to you in the
+table parameter. Replacing file-loading code with this input is the one exception to preserving all
+original code (see below).
 Ensure proper data flow between functions. Separate operators as if they will run in different files.
 
 Current UDF operators can only have one output. Build a dataframe to yield all necessary variables
@@ -360,12 +362,14 @@ Ensure import statements cover all used functions and separate them as necessary
 
 It is VERY important that all of the original code in the Jupyter notebook is represented in the generated workflow.
 Make sure that nothing in the original is removed and that the semantic meaning of what the original code was doing is retained.
+The only exception is data-loading code (e.g. pd.read_csv); it is represented by the workflow's input/source operator rather than copied into a UDF.
 If there are user-defined Python classes, include the entire class definition in the appropriate UDF(s) that use that class.
 Always include the code that defines the class inside of every distinct UDF that uses that constructs an object of that class.
 Python classes are allowed in Texera UDFs and follow the same semantics as standard Python.
 They can be defined outside of ProcessTableOperator, ProcessTupleOperator, and ProcessBatchOperator.
 
 Return only the JSON formatted response, do not give any explanation.
+Do not wrap the JSON in markdown code fences. Output raw JSON only.
 Make sure the response is a valid JSON structure, including closing all braces and not including commas after the last element.
 Follow this JSON format (don't reuse the values, this is just the format). 'code', 'edges', and 'outputs' are all their own key's, do not nest any of these in another one and make sure to close their braces:
 {
@@ -384,7 +388,7 @@ Follow this JSON format (don't reuse the values, this is just the format). 'code
 Make sure only the keys in the code section appear in the edges and outputs sections. Do not include any extraneous fields.
 Do not include any extraneous UDF's in the code field that include empty strings.
 Give ALL of the code, do not omit anything or use placeholders for code. Make sure ALL code in the original is translated over.
-Use only unescaped single quotes inside of the code values for the UDF's, do not use escaped double quotes.
+The value of each UDF must be a valid JSON string: escape newlines, quotes, and backslashes correctly so that the decoded string is runnable Python. Use whichever quotes the Python code requires.
 Convert following the instructions and examples given. Here is the code:
 `;
 
@@ -392,7 +396,7 @@ export const MAPPING_PROMPT = `
 Here is an example of a mapping generated between the given example Python code and the Texera UDFs using their CELL and UDF IDs. Cell IDs are designated by the UUID following '# START'. The format should be kept the same.
 {
 "UDF1": [
-"CEll3",
+"CELL3",
 "CELL4"
 ],
 "UDF2": [
@@ -401,10 +405,10 @@ Here is an example of a mapping generated between the given example Python code 
 "UDF3": [
 "CELL6",
 "CELL7"
-]
+],
 "UDF4": [
 "CELL8"
 ]
 }
-Now create a mapping for the UDFs and the original code. Link the code blocks marked by 'START <cell-uuid>' and 'END <cell-uuid>' with the UDF UUID's. The code between them should be equivalent. Multiple cells can be mapped to the same UDF if the code they contain are the same. There could be any number of cells and UDFs, so only create the correct number in the mapping. Only give the mapping.
+Now create a mapping for the UDFs and the original code. Link the code blocks marked by 'START <cell-uuid>' and 'END <cell-uuid>' with the UDF UUID's. The code between them should be equivalent. Multiple cells can be mapped to the same UDF when that UDF implements the logic of those cells. There could be any number of cells and UDFs, so only create the correct number in the mapping. Only give the mapping.
 `;

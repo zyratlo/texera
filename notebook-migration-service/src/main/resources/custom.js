@@ -17,12 +17,20 @@
  * under the License.
  */
 
+// The Texera app origin. The "__TEXERA_ORIGIN__" placeholder is substituted at
+// container startup by start-texera-jupyter.sh from the TEXERA_ORIGIN env var
+// (defaults to http://localhost:4200), so deployments under a real hostname work
+// without editing this file.
+const TEXERA_ORIGIN = "__TEXERA_ORIGIN__";
+
 // Use Jupyter's event system to ensure the notebook is fully loaded
 require(["base/js/events"], function (events) {
   events.on("kernel_ready.Kernel", function () {
 
-    // Attach click event listener to cells
-    $("#notebook-container").on("click", ".cell", function (event) {
+    // Attach click event listener to cells. kernel_ready.Kernel fires on every
+    // kernel (re)start, so remove any previously bound handler first to avoid
+    // stacking duplicate listeners that would post N messages per click.
+    $("#notebook-container").off("click", ".cell").on("click", ".cell", function (event) {
       const cell = $(this);
       const index = $(".cell").index(cell);
       const cellContent = cell.find(".input_area").text();
@@ -33,7 +41,7 @@ require(["base/js/events"], function (events) {
       // Send a message to the parent window (Texera app)
       window.parent.postMessage(
         { action: "cellClicked", cellIndex: index, cellContent: cellContent, cellUUID: cellUUID },
-        "http://localhost:4200"
+        TEXERA_ORIGIN
       );
     });
   });
@@ -42,7 +50,7 @@ require(["base/js/events"], function (events) {
 // Listen for messages from the Texera app (or parent window)
 window.addEventListener("message", function (event) {
   // Verify the message origin
-  if (event.origin !== 'http://localhost:4200') {
+  if (event.origin !== TEXERA_ORIGIN) {
     console.warn("Message received from unrecognized origin:", event.origin);
     return;
   }

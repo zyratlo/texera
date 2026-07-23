@@ -18,12 +18,15 @@
  */
 
 import { Injectable } from "@angular/core";
-import { firstValueFrom, from, Observable, of } from "rxjs";
-import { map } from "rxjs/operators";
+import { GuiConfigService } from "../../../common/service/gui-config.service";
+import { AuthService } from "../../../common/service/user/auth.service";
 import { createOpenAI } from "@ai-sdk/openai";
 import { generateText, type ModelMessage } from "ai";
 import { AppSettings } from "../../../common/app-setting";
 import { v4 as uuidv4 } from "uuid";
+import { WorkflowUtilService } from "../workflow-graph/util/workflow-util.service";
+import { OperatorPredicate } from "../../types/workflow-common.interface";
+import { WorkflowSettings } from "../../../common/type/workflow";
 import {
   TEXERA_OVERVIEW,
   TUPLE_DOCUMENTATION,
@@ -40,7 +43,8 @@ import {
 interface Cell {
   cell_type: string;
   metadata: { [key: string]: any };
-  source: string;
+  // nbformat stores source as either a single string or an array of line strings.
+  source: string | string[];
 }
 
 export interface Notebook {
@@ -48,13 +52,11 @@ export interface Notebook {
 }
 
 interface WorkflowJSON {
-  operators: any[];
+  operators: OperatorPredicate[];
   operatorPositions: Record<string, { x: number; y: number }>;
   links: any[];
   commentBoxes: any[];
-  settings: {
-    dataTransferBatchSize: number;
-  };
+  settings: WorkflowSettings;
 }
 
 interface CombinedMapping {
@@ -62,6 +64,21 @@ interface CombinedMapping {
   cell_to_operator: Record<string, string[]>;
 }
 
+/**
+ * Wraps a single LLM chat session that converts a Jupyter notebook into a Texera
+ * workflow plus a cell<->operator mapping.
+ *
+ * Lifecycle: `initialize()` -> `verifyConnection()` (optional) ->
+ * `convertNotebookToWorkflow()` -> `close()`. The session keeps a running `messages`
+ * history shared by the prompts within one conversion. `convertNotebookToWorkflow()`
+ * resets that history to the documentation prelude at its start, so the same instance
+ * can convert multiple notebooks without leaking one conversion's context into the next.
+ *
+ * Output column types: intermediate UDFs declare their output columns as `binary` so rich
+ * Python objects (DataFrames, arrays, models) round-trip between operators via pickle.
+ * Terminal UDFs (no outgoing edge) declare their outputs as `string` so the result panel
+ * renders viewable values rather than opaque binary blobs.
+ */
 @Injectable()
 export class NotebookMigrationLLM {
   private model: any;
@@ -79,48 +96,86 @@ export class NotebookMigrationLLM {
     EXAMPLE_OF_MULTIPLE_UDF_CONVERSION,
   ];
 
+  constructor(
+    private config: GuiConfigService,
+    private workflowUtilService: WorkflowUtilService
+  ) {}
+
+  private get enabled(): boolean {
+    return this.config.env.pythonNotebookMigrationEnabled;
+  }
+
+  private assertEnabled(): void {
+    if (!this.enabled) {
+      throw new Error("Notebook migration feature is disabled");
+    }
+  }
+
+  /**
+   * Seed the conversation with the Texera documentation prelude, discarding any
+   * prior conversation. Used by initialize() and at the start of each conversion.
+   */
+  private seedDocumentation(): void {
+    this.messages = NotebookMigrationLLM.DOCUMENTATION.map(
+      (doc): ModelMessage => ({
+        role: "system",
+        content: doc,
+      })
+    );
+  }
+
+  private parseJsonResponse(raw: string, context: string): any {
+    let text = raw.trim();
+
+    // Prefer the contents of a fenced code block if present (```json ... ``` or ``` ... ```),
+    // even when wrapped in prose. Otherwise fall back to the outermost {...} object.
+    const fenced = text.match(/```(?:[a-zA-Z]+)?\s*([\s\S]*?)```/);
+    if (fenced) {
+      text = fenced[1].trim();
+    } else {
+      const firstBrace = text.indexOf("{");
+      const lastBrace = text.lastIndexOf("}");
+      if (firstBrace !== -1 && lastBrace > firstBrace) {
+        text = text.slice(firstBrace, lastBrace + 1);
+      }
+    }
+
+    try {
+      return JSON.parse(text);
+    } catch (err) {
+      throw new Error(`Failed to parse LLM ${context} response as JSON: ${(err as Error).message}`);
+    }
+  }
+
   /**
    * Initialize a new LLM session with Texera documentation
    */
-  public initialize(modelType: string = "gpt-5-mini", apiKey: string = "dummy"): void {
+  public initialize(modelType: string = "gpt-5-mini", accessToken: string = AuthService.getAccessToken() ?? ""): void {
+    this.assertEnabled();
     this.model = createOpenAI({
       baseURL: new URL(`${AppSettings.getApiEndpoint()}`, document.baseURI).toString(),
-      // apiKey is required by the library for creating the OpenAI compatible client;
-      // For security reason, we store the apiKey at the backend, thus the value is dummy here.
-      apiKey: apiKey,
+      // The /api/chat/* LiteLLM proxy authenticates the caller with the Texera JWT. The AI SDK
+      // sends this value verbatim as `Authorization: Bearer <token>`, so we pass the user's
+      // access token; the backend validates it, then substitutes the LiteLLM master key upstream.
+      apiKey: accessToken,
     }).chat(modelType);
 
-    this.messages = [
-      ...NotebookMigrationLLM.DOCUMENTATION.map(
-        (doc): ModelMessage => ({
-          role: "system",
-          content: doc,
-        })
-      ),
-    ];
+    this.seedDocumentation();
 
     this.initialized = true;
   }
 
   /**
-   * Verify the connection to the LLM using the given API key
+   * Verify the connection to the LLM using the current access token
    */
   public async verifyConnection(): Promise<boolean> {
+    if (!this.enabled) return false;
     if (!this.initialized) {
       throw new Error("LLM session not initialized");
     }
 
     try {
-      await generateText({
-        model: this.model,
-        messages: [
-          {
-            role: "user",
-            content: "ping",
-          },
-        ],
-        maxOutputTokens: 10,
-      });
+      await this.callModel([{ role: "user", content: "ping" }], 10);
 
       return true;
     } catch (err) {
@@ -129,11 +184,20 @@ export class NotebookMigrationLLM {
     }
   }
 
+  // Seam over the `ai` transport. Specs stub this by spying the method, instead of
+  // mocking the "ai" module — module mocks are unreliable in the Angular unit-test
+  // builder when "ai" is also loaded by a sibling spec (e.g. via
+  // NotebookMigrationService), which silently breaks the mock and hangs these
+  // tests on a real network call.
+  protected callModel(messages: ModelMessage[], maxOutputTokens?: number): Promise<{ text: string }> {
+    return generateText({ model: this.model, messages, maxOutputTokens });
+  }
+
   /**
    * Send a prompt and receive a response.
    * All prior documentation and conversation is preserved.
    */
-  private sendPrompt(prompt: string): Observable<string> {
+  private async sendPrompt(prompt: string): Promise<string> {
     if (!this.initialized) {
       throw new Error("LLM session not initialized");
     }
@@ -143,44 +207,52 @@ export class NotebookMigrationLLM {
       content: prompt,
     });
 
-    return from(
-      generateText({
-        model: this.model,
-        messages: this.messages,
-      })
-    ).pipe(
-      map(result => {
-        this.messages.push({
-          role: "assistant",
-          content: result.text,
-        });
+    const result = await this.callModel(this.messages);
 
-        return result.text;
-      })
-    );
+    this.messages.push({
+      role: "assistant",
+      content: result.text,
+    });
+
+    return result.text;
   }
 
   /**
    * Send a Jupyter Notebook to be converted into a workflow and mapping.
    */
-  public async convertNotebookToWorkflow(notebook: Notebook): Promise<Observable<string>> {
+  public async convertNotebookToWorkflow(notebook: Notebook): Promise<string> {
+    this.assertEnabled();
     if (!this.initialized) {
       throw new Error("LLM session not initialized");
     }
 
+    // Reset to the documentation prelude so a prior conversion's prompts/responses
+    // don't leak into this one. The two sendPrompt calls below still share history.
+    this.seedDocumentation();
+
     const codeCells = notebook.cells.filter(cell => cell.cell_type === "code");
+
+    // Every code cell must carry a unique metadata.uuid; it is the join key for the
+    // cell<->operator mapping. Without it, untagged cells collide on the "undefined" marker.
+    const untagged = codeCells.find(cell => cell.metadata?.uuid == null || String(cell.metadata.uuid).trim() === "");
+    if (untagged) {
+      throw new Error("Notebook code cells must each have a metadata.uuid before conversion");
+    }
+
     const notebookString = codeCells
       .map(cell => {
         const uuid = String(cell.metadata.uuid);
-        return `# START ${uuid}\n${cell.source}\n# END ${uuid}`;
+        // nbformat line arrays already include trailing newlines, so join with "".
+        const source = Array.isArray(cell.source) ? cell.source.join("") : cell.source;
+        return `# START ${uuid}\n${source}\n# END ${uuid}`;
       })
       .join("\n\n");
 
-    const workflow = await firstValueFrom(this.sendPrompt(`${WORKFLOW_PROMPT}\n${notebookString}`));
-    const mapping = await firstValueFrom(this.sendPrompt(MAPPING_PROMPT));
+    const workflow = await this.sendPrompt(`${WORKFLOW_PROMPT}\n${notebookString}`);
+    const mapping = await this.sendPrompt(MAPPING_PROMPT);
 
     // Remove ```json blocks and parse
-    const udfLLMResponse = JSON.parse(workflow.replace(/^```json\s*|```$/g, "").trim());
+    const udfLLMResponse = this.parseJsonResponse(workflow, "workflow");
 
     const workflowJSON: WorkflowJSON = {
       operators: [],
@@ -188,65 +260,55 @@ export class NotebookMigrationLLM {
       links: [],
       commentBoxes: [],
       settings: {
-        dataTransferBatchSize: 400,
+        dataTransferBatchSize: this.config.env.defaultDataTransferBatchSize,
+        executionMode: this.config.env.defaultExecutionMode,
       },
     };
 
     const udfMappingToUUID: Record<string, string> = {};
 
-    Object.entries(udfLLMResponse.code).forEach(([udfId, udfCode], i) => {
-      const udfUUID = `PythonUDFV2-operator-${uuidv4()}`;
-      udfMappingToUUID[udfId] = udfUUID;
+    // UDFs that are never the source of an edge are terminal (result-facing). Their outputs
+    // default to "string" so the result panel renders typed values; intermediate UDFs keep
+    // "binary" so rich objects (DataFrames, arrays, models) round-trip between operators via pickle.
+    const edgeSources = new Set<string>((udfLLMResponse.edges || []).map(([source]: [string, string]) => source));
 
+    Object.entries(udfLLMResponse.code).forEach(([udfId, udfCode], i) => {
       let udfOutputColumns: { attributeName: string; attributeType: string }[] = [];
       if (udfLLMResponse.outputs && udfLLMResponse.outputs[udfId]) {
+        const attributeType = edgeSources.has(udfId) ? "binary" : "string";
         udfOutputColumns = udfLLMResponse.outputs[udfId].map((attr: string) => ({
           attributeName: attr,
-          attributeType: "binary",
+          attributeType,
         }));
       }
 
-      // Add UDF to operators
-      workflowJSON.operators.push({
-        operatorID: udfUUID,
-        operatorType: "PythonUDFV2",
-        operatorVersion: "3d69fdcedbb409b47162c4b55406c77e54abe416",
+      // Build the operator from the live PythonUDFV2 schema so the operatorVersion, ports, and
+      // property defaults track the backend definition, then overlay the generated code/outputs.
+      const base = this.workflowUtilService.getNewOperatorPredicate("PythonUDFV2", udfId);
+      const operator: OperatorPredicate = {
+        ...base,
         operatorProperties: {
+          ...base.operatorProperties,
           code: udfCode,
-          workers: 1,
           retainInputColumns: false,
           outputColumns: udfOutputColumns,
         },
-        inputPorts: [
-          {
-            portID: "input-0",
-            displayName: "",
-            allowMultiInputs: true,
-            isDynamicPort: false,
-            dependencies: [],
-          },
-        ],
-        outputPorts: [
-          {
-            portID: "output-0",
-            displayName: "",
-            allowMultiInputs: false,
-            isDynamicPort: false,
-          },
-        ],
-        showAdvanced: false,
-        isDisabled: false,
-        customDisplayName: udfId,
-        dynamicInputPorts: true,
-        dynamicOutputPorts: true,
-      });
+      };
 
-      // Add UDF to operatorPositions
-      workflowJSON.operatorPositions[udfUUID] = { x: 140 * (i + 1), y: 0 };
+      udfMappingToUUID[udfId] = operator.operatorID;
+      workflowJSON.operators.push(operator);
+      workflowJSON.operatorPositions[operator.operatorID] = { x: 140 * (i + 1), y: 0 };
     });
 
-    // Add links/edges
+    const knownUdfIds = new Set(Object.keys(udfMappingToUUID));
+
+    // Add links/edges. Skip (with a warning) any edge that references a UDF id the LLM
+    // never defined in `code`, rather than emitting a link with an undefined endpoint.
     (udfLLMResponse.edges || []).forEach(([source, target]: [string, string]) => {
+      if (!knownUdfIds.has(source) || !knownUdfIds.has(target)) {
+        console.warn(`Skipping edge with unknown UDF id: ${source} -> ${target}`);
+        return;
+      }
       workflowJSON.links.push({
         linkID: `link-${uuidv4()}`,
         source: {
@@ -261,12 +323,16 @@ export class NotebookMigrationLLM {
     });
 
     // Parse mapping
-    const parsedMapping: Record<string, string[]> = JSON.parse(mapping.replace(/^```json\s*|```$/g, "").trim());
+    const parsedMapping: Record<string, string[]> = this.parseJsonResponse(mapping, "mapping");
 
     const udfToCell: Record<string, string[]> = {};
     const cellToUdf: Record<string, string[]> = {};
 
     Object.entries(parsedMapping).forEach(([udf, cells]) => {
+      if (!knownUdfIds.has(udf)) {
+        console.warn(`Skipping mapping entry with unknown UDF id: ${udf}`);
+        return;
+      }
       const udfUUID = udfMappingToUUID[udf];
       udfToCell[udfUUID] = cells;
       cells.forEach(cell => {
@@ -283,8 +349,7 @@ export class NotebookMigrationLLM {
       cell_to_operator: cellToUdf,
     };
 
-    const result = JSON.stringify({ workflowJSON, workflowNotebookMapping });
-    return of(result);
+    return JSON.stringify({ workflowJSON, workflowNotebookMapping });
   }
 
   /**

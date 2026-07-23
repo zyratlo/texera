@@ -23,12 +23,22 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: texera-jupyter
+    restart: unless-stopped
     ports:
       - "9100:8888"
-    command: >
-      start-notebook.sh
-      --NotebookApp.token=''
-      --NotebookApp.password=''
-      --NotebookApp.disable_check_xsrf=True
-      --NotebookApp.tornado_settings="{'headers': {'Content-Security-Policy': 'frame-ancestors http://localhost:*'}}"
-      --NotebookApp.default_url=/tree
+    environment:
+      # Texera app origin, used for the iframe CSP frame-ancestors and the
+      # postMessage origin checks in custom.js. Override for non-local deployments.
+      - TEXERA_ORIGIN=http://localhost:4200
+      # Weak default token so the server is not fully open. The Texera-side iframe
+      # URL must pass this through ?token=<value>.
+      - JUPYTER_TOKEN=texera
+    command: ["start-texera-jupyter.sh"]
+    healthcheck:
+      # /api returns the server version without requiring the token, so it is a
+      # reliable liveness probe even with auth enabled.
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8888/api')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
