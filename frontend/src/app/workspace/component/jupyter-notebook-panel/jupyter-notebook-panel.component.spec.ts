@@ -45,8 +45,7 @@ describe("JupyterNotebookPanelComponent", () => {
     };
 
     await TestBed.configureTestingModule({
-      declarations: [JupyterNotebookPanelComponent],
-      imports: [BrowserModule],
+      imports: [JupyterNotebookPanelComponent, BrowserModule],
       providers: [
         { provide: JupyterPanelService, useValue: mockJupyterPanelService },
         { provide: NotebookMigrationService, useValue: mockNotebookMigrationService },
