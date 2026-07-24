@@ -30,12 +30,12 @@
     [nzSpinning]="isWaitingForLLM"></nz-spin>
 
   @if (isWaitingForLLM) {
-    <div class="llm-spinner-text">
-      <div>Waiting for LLM response...</div>
-      <div>Estimated time 1-3 minutes</div>
-      <div class="elapsed-time">Do not close this tab</div>
-      <div class="elapsed-time">Elapsed time: {{ formattedElapsedTime }}</div>
-    </div>
+  <div class="llm-spinner-text">
+    <div>Waiting for LLM response...</div>
+    <div>Estimated time 1-3 minutes</div>
+    <div class="elapsed-time">Do not close this tab</div>
+    <div class="elapsed-time">Elapsed time: {{ formattedElapsedTime }}</div>
+  </div>
   }
 </div>
 <div id="result">
