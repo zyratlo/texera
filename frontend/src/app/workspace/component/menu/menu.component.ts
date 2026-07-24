@@ -628,6 +628,13 @@ export class MenuComponent implements OnInit, OnDestroy {
     return this.config.env.pythonNotebookMigrationEnabled;
   }
 
+  /**
+   * Expand and redisplay the Jupyter notebook panel.
+   */
+  public onClickExpandJupyterNotebookPanel(): void {
+    this.jupyterPanelService.openJupyterNotebookPanel();
+  }
+
   openImportNotebookModal(): void {
     const models$ = this.notebookMigrationService.getAvailableModels().pipe(
       tap({

@@ -50,6 +50,9 @@ import { WorkflowContent } from "../../../common/type/workflow";
 import { Router } from "@angular/router";
 import { ReportGenerationService } from "../../service/report-generation/report-generation.service";
 import { USER_WORKFLOW } from "../../../app-routing.constant";
+import { JupyterPanelService } from "../../service/jupyter-panel/jupyter-panel.service";
+import { GuiConfigService } from "../../../common/service/gui-config.service";
+import { MockGuiConfigService } from "../../../common/service/gui-config.service.mock";
 import type { Mocked } from "vitest";
 
 vi.mock("file-saver", () => ({ saveAs: vi.fn() }));
@@ -112,6 +115,31 @@ describe("MenuComponent", () => {
 
   it("should create", () => {
     expect(component).toBeTruthy();
+  });
+
+  describe("expand jupyter notebook panel", () => {
+    it("onClickExpandJupyterNotebookPanel delegates to JupyterPanelService", () => {
+      const openSpy = vi
+        .spyOn(TestBed.inject(JupyterPanelService), "openJupyterNotebookPanel")
+        .mockImplementation(() => {});
+
+      component.onClickExpandJupyterNotebookPanel();
+
+      expect(openSpy).toHaveBeenCalled();
+    });
+
+    it("shows the expand-jupyter button only when the migration flag is on", () => {
+      const button = () => fixture.nativeElement.querySelector('button[title="Expand Jupyter Notebook"]');
+      // commonTestProviders' MockGuiConfigService defaults the flag to false.
+      expect(button()).toBeNull();
+
+      (TestBed.inject(GuiConfigService) as unknown as MockGuiConfigService).setConfig({
+        pythonNotebookMigrationEnabled: true,
+      });
+      fixture.detectChanges();
+
+      expect(button()).not.toBeNull();
+    });
   });
 
   describe("getRunButtonBehavior", () => {
