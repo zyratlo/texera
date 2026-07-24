@@ -128,16 +128,21 @@ describe("MenuComponent", () => {
       expect(openSpy).toHaveBeenCalled();
     });
 
-    it("shows the expand-jupyter button only when the migration flag is on", () => {
+    it("shows the expand-jupyter button only when the flag is on and a notebook exists", () => {
       const button = () => fixture.nativeElement.querySelector('button[title="Expand Jupyter Notebook"]');
-      // commonTestProviders' MockGuiConfigService defaults the flag to false.
+      // commonTestProviders' MockGuiConfigService defaults the flag to false, and no notebook exists.
       expect(button()).toBeNull();
 
       (TestBed.inject(GuiConfigService) as unknown as MockGuiConfigService).setConfig({
         pythonNotebookMigrationEnabled: true,
       });
       fixture.detectChanges();
+      // Flag on but the current workflow still has no notebook -> hidden.
+      expect(button()).toBeNull();
 
+      (TestBed.inject(JupyterPanelService) as any).jupyterNotebookExists$ = of(true);
+      fixture.detectChanges();
+      // Flag on and a notebook exists -> shown.
       expect(button()).not.toBeNull();
     });
   });

@@ -160,7 +160,7 @@
             nzType="robot"></i>
         </button>
         <button
-          *ngIf="pythonNotebookMigrationEnabled"
+          *ngIf="pythonNotebookMigrationEnabled && (jupyterNotebookExists$ | async)"
           nz-button
           (click)="onClickExpandJupyterNotebookPanel()"
           title="Expand Jupyter Notebook">

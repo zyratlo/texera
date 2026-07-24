@@ -162,6 +162,23 @@ describe("JupyterPanelService", () => {
     expect(await resultPromise).toBe(0);
   });
 
+  // jupyterNotebookExists$ starts false and flips true once init()'s fetch finds
+  // a notebook for the workflow; the toolbar's expand button binds to this.
+  it("sets jupyterNotebookExists$ true after a workflow's notebook is fetched", async () => {
+    mockNotebook.sendNotebookToJupyter = vi.fn().mockResolvedValue(1);
+    const states: boolean[] = [];
+    service.jupyterNotebookExists$.subscribe(v => states.push(v));
+
+    service.init();
+    httpMock
+      .expectOne(r => r.url.includes("/notebook-migration/fetch-notebook-and-mapping"))
+      .flush({ exists: true, mapping: { cell_to_operator: {}, operator_to_cell: {} }, notebook: {} });
+    await new Promise(resolve => setTimeout(resolve, 0));
+
+    expect(states[0]).toBe(false); // starts false
+    expect(states.at(-1)).toBe(true); // true once the notebook is found
+  });
+
   // init(): subscribes to workflow changes, drops the stale mapping for the
   // current workflow, and fetches the incoming workflow's notebook + mapping.
   it("init subscribes, drops the stale mapping, and fetches for the new workflow", () => {

@@ -35,6 +35,13 @@ export class JupyterPanelService {
   private jupyterNotebookPanelVisible = new BehaviorSubject<boolean>(false);
   public jupyterNotebookPanelVisible$ = this.jupyterNotebookPanelVisible.asObservable();
 
+  // Whether the current workflow has an associated notebook in the migration DB.
+  // Driven by the per-workflow fetch in init(): reset on every workflow change,
+  // set true only when a notebook/mapping is found. Used to gate the toolbar's
+  // expand button so it appears only for workflows that actually have a notebook.
+  private jupyterNotebookExists = new BehaviorSubject<boolean>(false);
+  public jupyterNotebookExists$ = this.jupyterNotebookExists.asObservable();
+
   private iframeRef: HTMLIFrameElement | null = null; // Store reference to iframe element
 
   // Precomputed dictionary for cell to highlight mapping
@@ -98,11 +105,13 @@ export class JupyterPanelService {
         // previous workflow's highlights active.
         this.closeJupyterNotebookPanel();
         this.cellToHighlightMapping = {};
+        this.jupyterNotebookExists.next(false);
         // Skip unsaved workflows (wid undefined) and wid 0; both would POST
         // without a usable wid and 500 on the backend.
         if (wid) {
           this.fetchNotebookAndMapping(wid).subscribe(result => {
             if (result == 1) {
+              this.jupyterNotebookExists.next(true);
               this.precomputeHighlightMapping();
               this.openJupyterNotebookPanel();
             }
