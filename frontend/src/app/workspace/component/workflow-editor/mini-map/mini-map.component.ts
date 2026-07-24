@@ -17,7 +17,6 @@
  * under the License.
  */
 
-import { CommonModule } from "@angular/common";
 import { AfterViewInit, Component, HostListener, OnDestroy, ViewChild } from "@angular/core";
 import { UntilDestroy, untilDestroyed } from "@ngneat/until-destroy";
 import { WorkflowActionService } from "../../../service/workflow-graph/model/workflow-action.service";
@@ -31,8 +30,6 @@ import { NzButtonComponent } from "ng-zorro-antd/button";
 import { NzWaveDirective } from "ng-zorro-antd/core/wave";
 import { ɵNzTransitionPatchDirective } from "ng-zorro-antd/core/transition-patch";
 import { NzIconDirective } from "ng-zorro-antd/icon";
-import { JupyterPanelService } from "../../../service/jupyter-panel/jupyter-panel.service";
-import { GuiConfigService } from "../../../../common/service/gui-config.service";
 
 @UntilDestroy()
 @Component({
@@ -46,7 +43,6 @@ import { GuiConfigService } from "../../../../common/service/gui-config.service"
     ɵNzTransitionPatchDirective,
     NzIconDirective,
     CdkDrag,
-    CommonModule,
   ],
 })
 export class MiniMapComponent implements AfterViewInit, OnDestroy {
@@ -59,9 +55,7 @@ export class MiniMapComponent implements AfterViewInit, OnDestroy {
 
   constructor(
     private workflowActionService: WorkflowActionService,
-    private panelService: PanelService,
-    private config: GuiConfigService,
-    private jupyterPanelService: JupyterPanelService
+    private panelService: PanelService
   ) {}
 
   ngAfterViewInit() {
@@ -158,17 +152,6 @@ export class MiniMapComponent implements AfterViewInit, OnDestroy {
       .setZoomProperty(
         this.workflowActionService.getJointGraphWrapper().getZoomRatio() + JointGraphWrapper.ZOOM_CLICK_DIFF
       );
-  }
-
-  public get pythonNotebookMigrationEnabled(): boolean {
-    return this.config.env.pythonNotebookMigrationEnabled;
-  }
-
-  /**
-   * Expand and redisplay the Jupyter notebook panel.
-   */
-  public onClickExpandJupyterNotebookPanel(): void {
-    this.jupyterPanelService.openJupyterNotebookPanel();
   }
 
   public triggerCenter(): void {

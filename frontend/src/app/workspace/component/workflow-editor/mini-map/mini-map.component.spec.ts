@@ -28,11 +28,6 @@ import { UndoRedoService } from "../../../service/undo-redo/undo-redo.service";
 import { WorkflowUtilService } from "../../../service/workflow-graph/util/workflow-util.service";
 import { DragDropModule } from "@angular/cdk/drag-drop";
 import { commonTestProviders } from "../../../../common/testing/test-utils";
-import { GuiConfigService } from "../../../../common/service/gui-config.service";
-import { MockGuiConfigService } from "../../../../common/service/gui-config.service.mock";
-import { JupyterPanelService } from "../../../service/jupyter-panel/jupyter-panel.service";
-
-const EXPAND_JUPYTER_BUTTON = "#minimap-expand-jupyter-button";
 
 describe("MiniMapComponent", () => {
   let fixture: ComponentFixture<MiniMapComponent>;
@@ -62,34 +57,5 @@ describe("MiniMapComponent", () => {
 
   it("should create", () => {
     expect(fixture.componentInstance).toBeTruthy();
-  });
-
-  it("hides the expand-jupyter button when the migration flag is off", () => {
-    // commonTestProviders' MockGuiConfigService defaults the flag to false.
-    expect(fixture.nativeElement.querySelector(EXPAND_JUPYTER_BUTTON)).toBeNull();
-  });
-
-  it("shows the expand-jupyter button when the migration flag is on", () => {
-    (TestBed.inject(GuiConfigService) as unknown as MockGuiConfigService).setConfig({
-      pythonNotebookMigrationEnabled: true,
-    });
-    fixture.detectChanges();
-
-    expect(fixture.componentInstance.pythonNotebookMigrationEnabled).toBe(true);
-    expect(fixture.nativeElement.querySelector(EXPAND_JUPYTER_BUTTON)).not.toBeNull();
-  });
-
-  it("opens the jupyter panel when the expand button is clicked", () => {
-    (TestBed.inject(GuiConfigService) as unknown as MockGuiConfigService).setConfig({
-      pythonNotebookMigrationEnabled: true,
-    });
-    fixture.detectChanges();
-    const openSpy = vi
-      .spyOn(TestBed.inject(JupyterPanelService), "openJupyterNotebookPanel")
-      .mockImplementation(() => {});
-
-    fixture.nativeElement.querySelector(EXPAND_JUPYTER_BUTTON).click();
-
-    expect(openSpy).toHaveBeenCalled();
   });
 });
