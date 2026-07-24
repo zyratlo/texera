@@ -628,6 +628,19 @@ export class MenuComponent implements OnInit, OnDestroy {
     return this.config.env.pythonNotebookMigrationEnabled;
   }
 
+  // Emits whether the current workflow has an associated Jupyter notebook, used to
+  // show the expand button only when there is a notebook to expand.
+  public get jupyterNotebookExists$() {
+    return this.jupyterPanelService.jupyterNotebookExists$;
+  }
+
+  /**
+   * Expand and redisplay the Jupyter notebook panel.
+   */
+  public onClickExpandJupyterNotebookPanel(): void {
+    this.jupyterPanelService.openJupyterNotebookPanel();
+  }
+
   openImportNotebookModal(): void {
     const models$ = this.notebookMigrationService.getAvailableModels().pipe(
       tap({
