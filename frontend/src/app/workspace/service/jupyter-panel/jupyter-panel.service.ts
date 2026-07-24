@@ -205,7 +205,7 @@ export class JupyterPanelService {
   }
 
   // Open the Jupyter Notebook panel
-  openPanel(panelName: string): void {
+  public openPanel(panelName: string): void {
     if (!this.enabled) return;
     if (panelName === "JupyterNotebookPanel") {
       this.jupyterNotebookPanelVisible.next(true);
@@ -213,7 +213,7 @@ export class JupyterPanelService {
   }
 
   // Close the Jupyter Notebook panel
-  closeJupyterNotebookPanel(): void {
+  public closeJupyterNotebookPanel(): void {
     if (!this.enabled) return;
     this.jupyterNotebookPanelVisible.next(false);
     const wid = this.workflowActionService.getWorkflow().wid;
