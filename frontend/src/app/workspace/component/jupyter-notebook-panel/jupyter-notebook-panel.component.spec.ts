@@ -59,6 +59,14 @@ describe("JupyterNotebookPanelComponent", () => {
     fixture.detectChanges();
   });
 
+  // Destroy the component so its subscriptions complete, and restore spies so a
+  // shared spy's call history (e.g. console.error) does not accumulate across
+  // tests. Mocks are not auto-reset by the Vitest config.
+  afterEach(() => {
+    fixture.destroy();
+    vi.restoreAllMocks();
+  });
+
   it("should create", () => {
     vi.spyOn(component, "checkIframeRef").mockImplementation(() => {});
     expect(component).toBeTruthy();
@@ -142,6 +150,29 @@ describe("JupyterNotebookPanelComponent", () => {
     component.checkIframeRef();
 
     await new Promise<void>(resolve => setTimeout(resolve, 0));
+    expect(mockJupyterPanelService.setIframeRef).not.toHaveBeenCalled();
+  });
+
+  it("should not log an error when checkIframeRef runs while the panel is hidden", async () => {
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    component.isVisible = false;
+
+    component.checkIframeRef();
+
+    await new Promise<void>(resolve => setTimeout(resolve, 0));
+    expect(errorSpy).not.toHaveBeenCalled();
+    expect(mockJupyterPanelService.setIframeRef).not.toHaveBeenCalled();
+  });
+
+  it("should log an error when visible but the iframe ref is missing", async () => {
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    component.isVisible = true;
+    component.iframeRef = undefined as any;
+
+    component.checkIframeRef();
+
+    await new Promise<void>(resolve => setTimeout(resolve, 0));
+    expect(errorSpy).toHaveBeenCalledWith("Jupyter Iframe reference not found.");
     expect(mockJupyterPanelService.setIframeRef).not.toHaveBeenCalled();
   });
 
