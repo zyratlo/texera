@@ -17,24 +17,26 @@
  * under the License.
  */
 
-package org.apache.texera.web.model.websocket.request
+package org.apache.texera.amber.util
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
-import org.apache.texera.amber.core.workflow.WorkflowSettings
-import org.apache.texera.common.compiler.model.LogicalPlanPojo
+object StackTraceUtils {
 
-case class ReplayExecutionInfo(
-    @JsonDeserialize(contentAs = classOf[java.lang.Long])
-    eid: Long,
-    interaction: String
-)
-
-case class WorkflowExecuteRequest(
-    executionName: String,
-    engineVersion: String,
-    logicalPlan: LogicalPlanPojo,
-    replayFromExecution: Option[ReplayExecutionInfo], // contains execution Id, interaction Id.
-    workflowSettings: WorkflowSettings,
-    emailNotificationEnabled: Boolean,
-    computingUnitId: Int
-) extends TexeraWebSocketRequest
+  /**
+    * Renders a throwable and its full cause chain as a single string for
+    * user-facing error details. Shared by amber's ErrorUtils and the
+    * workflow compiler.
+    */
+  def getStackTraceWithAllCauses(err: Throwable, topLevel: Boolean = true): String = {
+    val header = if (topLevel) {
+      "Stack trace for developers: \n\n"
+    } else {
+      "\n\nCaused by:\n"
+    }
+    val message = header + err.toString + "\n" + err.getStackTrace.mkString("\n")
+    if (err.getCause != null) {
+      message + getStackTraceWithAllCauses(err.getCause, topLevel = false)
+    } else {
+      message
+    }
+  }
+}
