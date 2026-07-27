@@ -53,6 +53,7 @@
 
   <div class="iframe-container">
     <iframe
+      *ngIf="jupyterUrl"
       #iframeRef
       [src]="jupyterUrl"
       title="Jupyter Notebook"

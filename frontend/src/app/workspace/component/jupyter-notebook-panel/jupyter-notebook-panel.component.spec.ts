@@ -97,6 +97,28 @@ describe("JupyterNotebookPanelComponent", () => {
     expect(component.jupyterUrl.toString()).toContain("http://localhost:8888");
   });
 
+  it("should not render the iframe while visible without a URL", () => {
+    vi.spyOn(component, "checkIframeRef").mockImplementation(() => {});
+    component.isVisible = true;
+
+    // Rendering with an unset jupyterUrl must not throw NG0904 (unsafe resource
+    // URL); the iframe should simply be absent until a URL is available.
+    expect(() => fixture.detectChanges()).not.toThrow();
+    expect(fixture.nativeElement.querySelector("iframe")).toBeNull();
+  });
+
+  it("should render the iframe once a URL is available", async () => {
+    vi.spyOn(component, "checkIframeRef").mockImplementation(() => {});
+    mockJupyterPanelService.jupyterNotebookPanelVisible$.next(true);
+
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const iframe = fixture.nativeElement.querySelector("iframe");
+    expect(iframe).not.toBeNull();
+    expect(iframe.getAttribute("src")).toContain("http://localhost:8888");
+  });
+
   it("should not update jupyterUrl when the iframe URL fetch rejects", async () => {
     vi.spyOn(component, "checkIframeRef").mockImplementation(() => {});
     vi.spyOn(console, "error").mockImplementation(() => {});
