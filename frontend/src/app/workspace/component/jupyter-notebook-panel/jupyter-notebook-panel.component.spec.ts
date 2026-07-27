@@ -90,6 +90,37 @@ describe("JupyterNotebookPanelComponent", () => {
     expect(component.jupyterUrl.toString()).toContain("http://localhost:8888");
   });
 
+  it("should not update jupyterUrl when the iframe URL fetch rejects", async () => {
+    vi.spyOn(component, "checkIframeRef").mockImplementation(() => {});
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    mockNotebookMigrationService.getJupyterIframeURL.mockRejectedValueOnce(new Error("network error"));
+
+    mockJupyterPanelService.jupyterNotebookPanelVisible$.next(true);
+
+    await fixture.whenStable();
+
+    expect(mockNotebookMigrationService.getJupyterIframeURL).toHaveBeenCalled();
+    expect(component.jupyterUrl.toString()).toBe("");
+  });
+
+  it("should keep handling visibility emissions after a failed fetch", async () => {
+    vi.spyOn(component, "checkIframeRef").mockImplementation(() => {});
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    mockNotebookMigrationService.getJupyterIframeURL
+      .mockRejectedValueOnce(new Error("network error"))
+      .mockResolvedValueOnce("http://localhost:9999");
+
+    mockJupyterPanelService.jupyterNotebookPanelVisible$.next(true);
+    await fixture.whenStable();
+
+    mockJupyterPanelService.jupyterNotebookPanelVisible$.next(true);
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(mockNotebookMigrationService.getJupyterIframeURL).toHaveBeenCalledTimes(2);
+    expect(component.jupyterUrl.toString()).toContain("http://localhost:9999");
+  });
+
   it("should call setIframeRef when iframe exists and visible", async () => {
     component.isVisible = true;
 

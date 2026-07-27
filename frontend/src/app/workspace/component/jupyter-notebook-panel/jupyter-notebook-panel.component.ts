@@ -20,7 +20,7 @@
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild, AfterViewInit } from "@angular/core";
 import { JupyterPanelService } from "../../service/jupyter-panel/jupyter-panel.service";
 import { from, of, Subject } from "rxjs";
-import { switchMap, takeUntil } from "rxjs/operators";
+import { catchError, switchMap, takeUntil } from "rxjs/operators";
 import { DomSanitizer, SafeResourceUrl } from "@angular/platform-browser";
 import { NotebookMigrationService } from "../../service/notebook-migration/notebook-migration.service";
 import { CommonModule } from "@angular/common";
@@ -58,7 +58,12 @@ export class JupyterNotebookPanelComponent implements OnInit, AfterViewInit, OnD
             return of(null);
           }
 
-          return from(this.notebookMigrationService.getJupyterIframeURL());
+          return from(this.notebookMigrationService.getJupyterIframeURL()).pipe(
+            catchError(() => {
+              console.error("Failed to fetch Jupyter iframe URL.");
+              return of(null);
+            })
+          );
         }),
         takeUntil(this.destroy$)
       )
