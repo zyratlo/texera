@@ -21,7 +21,6 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { JupyterNotebookPanelComponent } from "./jupyter-notebook-panel.component";
 import { JupyterPanelService } from "../../service/jupyter-panel/jupyter-panel.service";
 import { NotebookMigrationService } from "../../service/notebook-migration/notebook-migration.service";
-import { BrowserModule } from "@angular/platform-browser";
 import { Subject } from "rxjs";
 import { ElementRef } from "@angular/core";
 
@@ -45,7 +44,7 @@ describe("JupyterNotebookPanelComponent", () => {
     };
 
     await TestBed.configureTestingModule({
-      imports: [JupyterNotebookPanelComponent, BrowserModule],
+      imports: [JupyterNotebookPanelComponent],
       providers: [
         { provide: JupyterPanelService, useValue: mockJupyterPanelService },
         { provide: NotebookMigrationService, useValue: mockNotebookMigrationService },
