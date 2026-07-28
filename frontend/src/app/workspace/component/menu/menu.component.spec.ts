@@ -962,7 +962,10 @@ describe("MenuComponent", () => {
       );
       vi.spyOn(workflowPersistService, "persistWorkflow").mockReturnValue(of(persistedWorkflow));
       const reloadSpy = vi.spyOn(workflowActionService, "reloadWorkflow").mockImplementation(() => {});
-      const openPanelSpy = vi.spyOn(jupyterPanelService, "openJupyterNotebookPanel").mockImplementation(() => {});
+      // openPanel (not openJupyterNotebookPanel) is used deliberately: reloadWorkflow's
+      // synchronous wid-change handler deletes the just-stored mapping, so the hasMapping
+      // gate in openJupyterNotebookPanel would spuriously fail. See the component comment.
+      const openPanelSpy = vi.spyOn(jupyterPanelService, "openPanel").mockImplementation(() => {});
       const successSpy = vi.spyOn(notificationService, "success").mockImplementation(() => {});
       const emitSpy = vi.spyOn(component.setWaitingForLLM, "emit");
 
@@ -972,7 +975,7 @@ describe("MenuComponent", () => {
 
       expect(emitSpy).toHaveBeenCalledWith(true);
       expect(reloadSpy).toHaveBeenCalledWith(persistedWorkflow, true);
-      expect(openPanelSpy).toHaveBeenCalledTimes(1);
+      expect(openPanelSpy).toHaveBeenCalledWith("JupyterNotebookPanel");
       expect(successSpy).toHaveBeenCalled();
     });
 

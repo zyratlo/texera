@@ -766,7 +766,12 @@ export class MenuComponent implements OnInit, OnDestroy {
                 .subscribe({
                   next: updatedWorkflow => {
                     this.workflowActionService.reloadWorkflow(updatedWorkflow, true);
-                    this.jupyterPanelService.openJupyterNotebookPanel();
+                    // Use openPanel, not openJupyterNotebookPanel, here on purpose: reloadWorkflow
+                    // above changes the wid, and JupyterPanelService.init()'s synchronous
+                    // wid-change handler runs closeJupyterNotebookPanel(), which deletes the
+                    // mapping we just stored. openJupyterNotebookPanel() gates on hasMapping and
+                    // would therefore fail with a spurious warning; openPanel opens unconditionally.
+                    this.jupyterPanelService.openPanel("JupyterNotebookPanel");
                     this.notificationService.success("Successfully generated workflow and mapping from notebook.");
                   },
                   error: (err: unknown) => {
