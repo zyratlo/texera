@@ -252,7 +252,7 @@ export class MenuComponent implements OnInit, OnDestroy {
     this.importForm = this.fb.group({
       description: [""],
       file: [null, Validators.required],
-      model: [""],
+      model: ["", Validators.required],
     });
   }
 
