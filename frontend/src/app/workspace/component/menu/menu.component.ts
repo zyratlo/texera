@@ -796,7 +796,13 @@ export class MenuComponent implements OnInit, OnDestroy {
       } catch (error) {
         this.notificationService.error("Failed to import the notebook.");
         console.error(error);
+        this.setWaitingForLLM.emit(false);
       }
+    };
+
+    reader.onerror = () => {
+      this.notificationService.error("Failed to read the notebook file.");
+      this.setWaitingForLLM.emit(false);
     };
 
     return false; // Prevent automatic upload handling
