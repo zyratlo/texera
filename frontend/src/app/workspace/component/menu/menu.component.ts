@@ -780,6 +780,7 @@ export class MenuComponent implements OnInit, OnDestroy {
                   },
                 });
             } else {
+              this.notificationService.error("No workflow was generated from the notebook.");
               console.error("Result is undefined");
               this.setWaitingForLLM.emit(false);
             }
