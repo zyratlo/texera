@@ -205,6 +205,7 @@ export class WorkspaceComponent implements AfterViewInit, OnInit, OnDestroy {
     // re-entered workflow starts clean instead of reusing the previous one.
     this.computingUnitStatusService.disconnect();
     this.resetWorkflowSessionState();
+    this.stopTimer();
   }
 
   /**
