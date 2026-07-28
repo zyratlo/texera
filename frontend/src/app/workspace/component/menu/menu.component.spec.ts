@@ -129,7 +129,7 @@ describe("MenuComponent", () => {
     });
 
     it("shows the expand-jupyter button only when the flag is on and a notebook exists", () => {
-      const button = () => fixture.nativeElement.querySelector('button[title="Expand Jupyter Notebook"]');
+      const button = () => fixture.nativeElement.querySelector('button[title="expand Jupyter notebook"]');
       // commonTestProviders' MockGuiConfigService defaults the flag to false, and no notebook exists.
       expect(button()).toBeNull();
 

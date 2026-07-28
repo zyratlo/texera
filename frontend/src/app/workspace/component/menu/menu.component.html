@@ -154,7 +154,7 @@
           nz-button
           [disabled]="!isWorkflowModifiable"
           (click)="openImportNotebookModal()"
-          title="AI Generate Workflow">
+          title="AI generate workflow">
           <i
             nz-icon
             nzType="robot"></i>
@@ -163,7 +163,7 @@
           *ngIf="pythonNotebookMigrationEnabled && (jupyterNotebookExists$ | async)"
           nz-button
           (click)="onClickExpandJupyterNotebookPanel()"
-          title="Expand Jupyter Notebook">
+          title="expand Jupyter notebook">
           <img
             class="jupyter-notebook-icon"
             src="assets/notebook_migration_tool/jupyter-logo.svg"
