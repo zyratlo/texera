@@ -95,7 +95,7 @@ export class WorkspaceComponent implements AfterViewInit, OnInit, OnDestroy {
   public isLoading: boolean = false;
   // variable to track whether we are waiting for AI to finish generating (whether a loading icon should show)
   public isWaitingForLLM = false;
-  private timerInterval: any;
+  private timerInterval: ReturnType<typeof setInterval> | null = null;
   private startTime: number | null = null;
   @ViewChild("codeEditor", { read: ViewContainerRef }) codeEditorViewRef!: ViewContainerRef;
 
@@ -382,7 +382,9 @@ export class WorkspaceComponent implements AfterViewInit, OnInit, OnDestroy {
   }
 
   stopTimer() {
-    clearInterval(this.timerInterval);
+    if (this.timerInterval !== null) {
+      clearInterval(this.timerInterval);
+    }
     this.timerInterval = null;
     this.startTime = null;
   }
