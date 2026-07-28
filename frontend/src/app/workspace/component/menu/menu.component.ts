@@ -738,12 +738,24 @@ export class MenuComponent implements OnInit, OnDestroy {
                 workflowName = DEFAULT_WORKFLOW_NAME;
               }
 
+              // Overwrite the current workflow only when it is empty (the common
+              // case: a freshly opened "Untitled workflow"). Reusing its wid makes
+              // persistWorkflow update that row in place instead of inserting a new
+              // one, which would otherwise leave the empty workflow behind as a
+              // duplicate. If the current workflow has any content, keep wid
+              // undefined so the generated workflow is created separately and the
+              // user's existing work is not clobbered.
+              const currentGraph = this.workflowActionService.getTexeraGraph();
+              const currentWorkflowEmpty =
+                currentGraph.getAllOperators().length === 0 && currentGraph.getAllCommentBoxes().length === 0;
+              const reuseWid = currentWorkflowEmpty ? this.workflowActionService.getWorkflow().wid : undefined;
+
               const workflow: Workflow = {
                 content: workflowContent,
                 name: `${workflowName}_GENERATED_BY_LLM`,
                 isPublished: 0,
                 description: undefined,
-                wid: undefined,
+                wid: reuseWid,
                 creationTime: undefined,
                 lastModifiedTime: undefined,
                 readonly: false,

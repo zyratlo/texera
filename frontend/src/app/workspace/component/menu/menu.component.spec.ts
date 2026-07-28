@@ -979,6 +979,49 @@ describe("MenuComponent", () => {
       expect(successSpy).toHaveBeenCalled();
     });
 
+    // The guarded wid reuse avoids leaving the empty "Untitled workflow" behind as
+    // a duplicate: an empty current workflow is overwritten in place, while a
+    // non-empty one is preserved and the generated workflow is created separately.
+    function stubGenerationServices() {
+      vi.spyOn(notebookMigrationService, "sendNotebookToJupyter").mockResolvedValue(undefined as any);
+      vi.spyOn(notebookMigrationService, "sendToAIGenerateWorkflow").mockResolvedValue({
+        workflowContent: { operators: [], links: [], commentBoxes: [], settings: {} } as unknown as WorkflowContent,
+        mappingContent: {} as any,
+      });
+      vi.spyOn(notebookMigrationService, "setMapping").mockImplementation(() => {});
+      vi.spyOn(notebookMigrationService, "storeNotebookAndMapping").mockReturnValue(of({ success: true }) as any);
+      vi.spyOn(workflowActionService, "reloadWorkflow").mockImplementation(() => {});
+      vi.spyOn(jupyterPanelService, "openPanel").mockImplementation(() => {});
+      vi.spyOn(notificationService, "success").mockImplementation(() => {});
+    }
+
+    it("reuses the current workflow's wid (overwrite in place) when the current workflow is empty", async () => {
+      stubGenerationServices();
+      // Empty graph (no operators/comment boxes) + an existing wid -> overwrite it.
+      vi.spyOn(workflowActionService, "getWorkflow").mockReturnValue({ wid: 7 } as any);
+      const persistSpy = vi.spyOn(workflowPersistService, "persistWorkflow").mockReturnValue(of({ wid: 7 } as any));
+      const emitSpy = vi.spyOn(component.setWaitingForLLM, "emit");
+
+      component.onClickImportNotebook(ipynbFile(validNotebook), "gpt-4");
+      await vi.waitFor(() => expect(emitSpy).toHaveBeenCalledWith(false));
+
+      expect(persistSpy).toHaveBeenCalledTimes(1);
+      expect(persistSpy.mock.calls[0][0].wid).toBe(7);
+    });
+
+    it("creates a new workflow (undefined wid) when the current workflow has operators", async () => {
+      stubGenerationServices();
+      workflowActionService.addOperator(mockScanPredicate, mockPoint);
+      const persistSpy = vi.spyOn(workflowPersistService, "persistWorkflow").mockReturnValue(of({ wid: 99 } as any));
+      const emitSpy = vi.spyOn(component.setWaitingForLLM, "emit");
+
+      component.onClickImportNotebook(ipynbFile(validNotebook), "gpt-4");
+      await vi.waitFor(() => expect(emitSpy).toHaveBeenCalledWith(false));
+
+      expect(persistSpy).toHaveBeenCalledTimes(1);
+      expect(persistSpy.mock.calls[0][0].wid).toBeUndefined();
+    });
+
     it("on LLM error: surfaces an error notification and clears the loading flag", async () => {
       vi.spyOn(console, "error").mockImplementation(() => {});
       vi.spyOn(notebookMigrationService, "sendNotebookToJupyter").mockResolvedValue(undefined as any);
