@@ -481,6 +481,7 @@
   #importNotebookModal
   let-data>
   <form
+    class="import-modal-form"
     [formGroup]="importForm"
     nz-form>
     <div class="import-modal-diagram">
@@ -495,8 +496,7 @@
       class="import-modal-warning"
       nzType="warning"
       nzShowIcon
-      nzMessage="This replaces your current workflow"
-      nzDescription="Generating will overwrite the contents of the workflow you have open. The previous version is kept in this workflow's version history."></nz-alert>
+      nzMessage="Generating overwrites your current workflow; the previous version is kept in version history."></nz-alert>
 
     <nz-form-item>
       <p class="import-modal-text">
