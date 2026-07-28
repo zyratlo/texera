@@ -394,7 +394,7 @@ export class WorkspaceComponent implements AfterViewInit, OnInit, OnDestroy {
   }
 
   get formattedElapsedTime(): string {
-    if (!this.startTime) return "00:00";
+    if (!this.startTime) return "0:00";
     const diff = Date.now() - this.startTime;
     const minutes = Math.floor(diff / 60000);
     const seconds = Math.floor((diff % 60000) / 1000);
