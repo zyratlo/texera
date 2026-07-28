@@ -766,7 +766,7 @@ export class MenuComponent implements OnInit, OnDestroy {
                 .subscribe({
                   next: updatedWorkflow => {
                     this.workflowActionService.reloadWorkflow(updatedWorkflow, true);
-                    this.jupyterPanelService.openPanel("JupyterNotebookPanel");
+                    this.jupyterPanelService.openJupyterNotebookPanel();
                     this.notificationService.success("Successfully generated workflow and mapping from notebook.");
                   },
                   error: (err: unknown) => {
