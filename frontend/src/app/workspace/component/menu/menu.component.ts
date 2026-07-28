@@ -62,7 +62,7 @@ import { ResultExportationComponent } from "../result-exportation/result-exporta
 import { ReportGenerationService } from "../../service/report-generation/report-generation.service";
 import { ShareAccessComponent } from "src/app/dashboard/component/user/share-access/share-access.component";
 import { PanelService } from "../../service/panel/panel.service";
-import { USER_WORKFLOW } from "../../../app-routing.constant";
+import { USER_WORKFLOW, USER_WORKSPACE } from "../../../app-routing.constant";
 import { ComputingUnitStatusService } from "../../../common/service/computing-unit/computing-unit-status/computing-unit-status.service";
 import { ComputingUnitState } from "../../../common/type/computing-unit-connection.interface";
 import { ComputingUnitSelectionComponent } from "../power-button/computing-unit-selection.component";
@@ -92,6 +92,7 @@ import { Notebook } from "../../service/notebook-migration/migration-llm";
 import { NotebookMigrationService } from "../../service/notebook-migration/notebook-migration.service";
 import { NzFormModule } from "ng-zorro-antd/form";
 import { NzSelectModule } from "ng-zorro-antd/select";
+import { NzAlertModule } from "ng-zorro-antd/alert";
 import { ReactiveFormsModule } from "@angular/forms";
 
 /**
@@ -144,6 +145,7 @@ import { ReactiveFormsModule } from "@angular/forms";
     NzFormModule,
     AsyncPipe,
     NzSelectModule,
+    NzAlertModule,
     ReactiveFormsModule,
     NgOptimizedImage,
   ],
@@ -665,8 +667,28 @@ export class MenuComponent implements OnInit, OnDestroy {
           onClick: () => {
             const file: NzUploadFile = this.importForm.get("file")?.value;
             const model: string = this.importForm.get("model")?.value;
-            this.onClickImportNotebook(file, model);
-            modalRef.close(); // close after submit too
+            const startImport = () => {
+              this.onClickImportNotebook(file, model);
+              modalRef.close();
+            };
+            // Generating overwrites the currently open workflow. Confirm first only when
+            // there is actual content to replace; a fresh empty workflow needs no prompt.
+            const graph = this.workflowActionService.getTexeraGraph();
+            const currentWorkflowHasContent =
+              graph.getAllOperators().length > 0 || graph.getAllCommentBoxes().length > 0;
+            if (currentWorkflowHasContent) {
+              this.modal.confirm({
+                nzTitle: "Overwrite current workflow?",
+                nzContent:
+                  "Generating will replace the contents of the workflow you have open. " +
+                  "The previous version is kept in this workflow's version history.",
+                nzOkText: "Overwrite",
+                nzOkDanger: true,
+                nzOnOk: startImport,
+              });
+            } else {
+              startImport();
+            }
           },
         },
       ],
@@ -717,9 +739,6 @@ export class MenuComponent implements OnInit, OnDestroy {
           cell.metadata.uuid = uuidv4();
         }
 
-        // Send Notebook JSON to pod to open in jupyterlab
-        await this.notebookMigrationService.sendNotebookToJupyter(notebookContent);
-
         // Get workflow and mapping from LLM
         await this.notebookMigrationService
           .sendToAIGenerateWorkflow(notebookContent, model)
@@ -738,12 +757,19 @@ export class MenuComponent implements OnInit, OnDestroy {
                 workflowName = DEFAULT_WORKFLOW_NAME;
               }
 
+              // Always overwrite the current workflow: reuse its wid so persistWorkflow
+              // updates that row in place instead of inserting a new one (which would leave
+              // a duplicate behind). Read it now, after generation, so a wid assigned by
+              // auto-persist during the wait is picked up. If the current workflow was never
+              // saved, wid is undefined and a new row is created (there is nothing to overwrite).
+              const reuseWid = this.workflowActionService.getWorkflow().wid;
+
               const workflow: Workflow = {
                 content: workflowContent,
                 name: `${workflowName}_GENERATED_BY_LLM`,
                 isPublished: 0,
                 description: undefined,
-                wid: undefined,
+                wid: reuseWid,
                 creationTime: undefined,
                 lastModifiedTime: undefined,
                 readonly: false,
@@ -765,14 +791,27 @@ export class MenuComponent implements OnInit, OnDestroy {
                 )
                 .subscribe({
                   next: updatedWorkflow => {
-                    this.workflowActionService.reloadWorkflow(updatedWorkflow, true);
-                    // Use openPanel, not openJupyterNotebookPanel, here on purpose: reloadWorkflow
-                    // above changes the wid, and JupyterPanelService.init()'s synchronous
-                    // wid-change handler runs closeJupyterNotebookPanel(), which deletes the
-                    // mapping we just stored. openJupyterNotebookPanel() gates on hasMapping and
-                    // would therefore fail with a spurious warning; openPanel opens unconditionally.
-                    this.jupyterPanelService.openPanel("JupyterNotebookPanel");
                     this.notificationService.success("Successfully generated workflow and mapping from notebook.");
+                    // Reload the generated workflow onto the current (already live) canvas so it
+                    // renders immediately; we never remount the workspace.
+                    this.workflowActionService.reloadWorkflow(updatedWorkflow, true);
+                    if (reuseWid === updatedWorkflow.wid) {
+                      // Overwrote the current workflow in place: the wid did not change, so
+                      // JupyterPanelService.init() does not react. Send the notebook to Jupyter
+                      // and open the panel ourselves. Use openPanel, not openJupyterNotebookPanel:
+                      // init()'s wid-change handler is not involved and openPanel opens
+                      // unconditionally without the hasMapping gate.
+                      this.notebookMigrationService
+                        .sendNotebookToJupyter(notebookContent)
+                        .then(() => this.jupyterPanelService.openPanel("JupyterNotebookPanel"));
+                    } else {
+                      // The current workflow had never been saved, so a new row was created and the
+                      // wid changed. reloadWorkflow's synchronous wid change drives init() to fetch
+                      // the stored notebook/mapping, send it to Jupyter, and open the panel, so we
+                      // do not do that here (doing so would double the "sent to Jupyter" toast).
+                      // Point the URL at the generated workflow.
+                      this.location.go(`${USER_WORKSPACE}/${updatedWorkflow.wid}`);
+                    }
                   },
                   error: (err: unknown) => {
                     this.notificationService.error("Failed to import notebook, check console for detailed error");

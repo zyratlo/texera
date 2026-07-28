@@ -49,7 +49,7 @@ import type { ComputingUnitSelectionComponent } from "../power-button/computing-
 import { WorkflowContent } from "../../../common/type/workflow";
 import { Router } from "@angular/router";
 import { ReportGenerationService } from "../../service/report-generation/report-generation.service";
-import { USER_WORKFLOW } from "../../../app-routing.constant";
+import { USER_WORKFLOW, USER_WORKSPACE } from "../../../app-routing.constant";
 import { JupyterPanelService } from "../../service/jupyter-panel/jupyter-panel.service";
 import { NotebookMigrationService } from "../../service/notebook-migration/notebook-migration.service";
 import { NzUploadFile } from "ng-zorro-antd/upload";
@@ -922,6 +922,50 @@ describe("MenuComponent", () => {
       expect(notebookMigrationService.getAvailableModels).toHaveBeenCalledTimes(1);
     });
 
+    // Opens the modal, returns its Submit button's onClick and the modal ref so tests can
+    // drive the submit path (which is where the overwrite confirmation lives).
+    function openModalAndGetSubmit(): { submit: () => void; modalRef: NzModalRef } {
+      vi.spyOn(notebookMigrationService, "getAvailableModels").mockReturnValue(of([]));
+      const modalRef = { close: vi.fn() } as unknown as NzModalRef;
+      const createSpy = vi.spyOn(modalService, "create").mockReturnValue(modalRef);
+      component.openImportNotebookModal();
+      const config = createSpy.mock.calls[0][0] as ModalOptions;
+      const submit = (config.nzFooter as { label: string; onClick: () => void }[]).find(b => b.label === "Submit")!;
+      return { submit: submit.onClick, modalRef };
+    }
+
+    it("Submit imports directly (no confirmation) when the current workflow is empty", () => {
+      const importSpy = vi.spyOn(component, "onClickImportNotebook").mockReturnValue(false);
+      const confirmSpy = vi.spyOn(modalService, "confirm").mockImplementation(() => ({}) as NzModalRef);
+
+      const { submit, modalRef } = openModalAndGetSubmit();
+      submit();
+
+      expect(confirmSpy).not.toHaveBeenCalled();
+      expect(importSpy).toHaveBeenCalledTimes(1);
+      expect(modalRef.close).toHaveBeenCalled();
+    });
+
+    it("Submit confirms before overwriting a non-empty workflow, and imports only on confirm", () => {
+      workflowActionService.addOperator(mockScanPredicate, mockPoint);
+      const importSpy = vi.spyOn(component, "onClickImportNotebook").mockReturnValue(false);
+      const confirmSpy = vi.spyOn(modalService, "confirm").mockImplementation(() => ({}) as NzModalRef);
+
+      const { submit, modalRef } = openModalAndGetSubmit();
+      submit();
+
+      // Confirmation is shown; the import has not started and the modal is still open.
+      expect(confirmSpy).toHaveBeenCalledTimes(1);
+      expect(importSpy).not.toHaveBeenCalled();
+      expect(modalRef.close).not.toHaveBeenCalled();
+
+      // Confirming ("Overwrite") starts the import and closes the modal.
+      const confirmConfig = confirmSpy.mock.calls[0][0] as { nzOnOk: () => void };
+      confirmConfig.nzOnOk();
+      expect(importSpy).toHaveBeenCalledTimes(1);
+      expect(modalRef.close).toHaveBeenCalled();
+    });
+
     it("beforeUpload stores the file on the form and prevents auto-upload", () => {
       const file = { name: "x.ipynb" } as NzUploadFile;
 
@@ -942,41 +986,64 @@ describe("MenuComponent", () => {
       expect(emitSpy).not.toHaveBeenCalledWith(true);
     });
 
-    it("on success: reloads the workflow, opens the jupyter panel, and toggles the loading flag on then off", async () => {
-      const persistedWorkflow = {
-        wid: 99,
-        name: "my_nb_GENERATED_BY_LLM",
-        content: { operators: [], links: [], commentBoxes: [], settings: {} } as unknown as WorkflowContent,
-        isPublished: 0,
-        readonly: false,
-      } as any;
-
+    // Import always overwrites the current workflow: it reuses the current wid so
+    // persistWorkflow updates that row in place. When the current workflow was never
+    // saved (no wid) a new row is created and the wid changes, which routes the notebook
+    // send + panel open through JupyterPanelService.init() instead of doing it here.
+    function stubGenerationServices() {
       vi.spyOn(notebookMigrationService, "sendNotebookToJupyter").mockResolvedValue(undefined as any);
       vi.spyOn(notebookMigrationService, "sendToAIGenerateWorkflow").mockResolvedValue({
-        workflowContent: persistedWorkflow.content,
-        mappingContent: { some: "mapping" } as any,
+        workflowContent: { operators: [], links: [], commentBoxes: [], settings: {} } as unknown as WorkflowContent,
+        mappingContent: {} as any,
       });
       vi.spyOn(notebookMigrationService, "setMapping").mockImplementation(() => {});
-      vi.spyOn(notebookMigrationService, "storeNotebookAndMapping").mockReturnValue(
-        of({ success: true, message: "ok" }) as any
-      );
-      vi.spyOn(workflowPersistService, "persistWorkflow").mockReturnValue(of(persistedWorkflow));
-      const reloadSpy = vi.spyOn(workflowActionService, "reloadWorkflow").mockImplementation(() => {});
-      // openPanel (not openJupyterNotebookPanel) is used deliberately: reloadWorkflow's
-      // synchronous wid-change handler deletes the just-stored mapping, so the hasMapping
-      // gate in openJupyterNotebookPanel would spuriously fail. See the component comment.
-      const openPanelSpy = vi.spyOn(jupyterPanelService, "openPanel").mockImplementation(() => {});
-      const successSpy = vi.spyOn(notificationService, "success").mockImplementation(() => {});
+      vi.spyOn(notebookMigrationService, "storeNotebookAndMapping").mockReturnValue(of({ success: true }) as any);
+      vi.spyOn(workflowActionService, "reloadWorkflow").mockImplementation(() => {});
+      vi.spyOn(jupyterPanelService, "openPanel").mockImplementation(() => {});
+      vi.spyOn(notificationService, "success").mockImplementation(() => {});
+      // The new-row branch updates the URL via Location.go; stub it out.
+      vi.spyOn(location, "go").mockImplementation(() => {});
+    }
+
+    it("overwrites the saved current workflow in place, reloads it, and opens the panel itself", async () => {
+      stubGenerationServices();
+      // Saved current workflow (wid 7); persist keeps the same wid, so the wid does not change.
+      vi.spyOn(workflowActionService, "getWorkflow").mockReturnValue({ wid: 7 } as any);
+      const persistSpy = vi.spyOn(workflowPersistService, "persistWorkflow").mockReturnValue(of({ wid: 7 } as any));
       const emitSpy = vi.spyOn(component.setWaitingForLLM, "emit");
 
       component.onClickImportNotebook(ipynbFile(validNotebook), "gpt-4");
-
       await vi.waitFor(() => expect(emitSpy).toHaveBeenCalledWith(false));
 
       expect(emitSpy).toHaveBeenCalledWith(true);
-      expect(reloadSpy).toHaveBeenCalledWith(persistedWorkflow, true);
-      expect(openPanelSpy).toHaveBeenCalledWith("JupyterNotebookPanel");
-      expect(successSpy).toHaveBeenCalled();
+      // Reuses the current wid so the row is overwritten in place, and reloads on the live canvas.
+      expect(persistSpy.mock.calls[0][0].wid).toBe(7);
+      expect(workflowActionService.reloadWorkflow).toHaveBeenCalledWith({ wid: 7 }, true);
+      // wid unchanged: we send the notebook + open the panel ourselves (init() does not react).
+      expect(notebookMigrationService.sendNotebookToJupyter).toHaveBeenCalled();
+      expect(jupyterPanelService.openPanel).toHaveBeenCalledWith("JupyterNotebookPanel");
+      // Stayed on the same workflow, so the URL is not changed.
+      expect(location.go).not.toHaveBeenCalled();
+    });
+
+    it("creates a new row and points the URL at it when the current workflow was never saved", async () => {
+      stubGenerationServices();
+      // Current workflow has no wid; persist returns a new wid, so the wid changes.
+      vi.spyOn(workflowActionService, "getWorkflow").mockReturnValue({ wid: undefined } as any);
+      const persistSpy = vi.spyOn(workflowPersistService, "persistWorkflow").mockReturnValue(of({ wid: 99 } as any));
+      const emitSpy = vi.spyOn(component.setWaitingForLLM, "emit");
+
+      component.onClickImportNotebook(ipynbFile(validNotebook), "gpt-4");
+      await vi.waitFor(() => expect(emitSpy).toHaveBeenCalledWith(false));
+
+      // No current wid -> the backend inserts a new row.
+      expect(persistSpy.mock.calls[0][0].wid).toBeUndefined();
+      expect(workflowActionService.reloadWorkflow).toHaveBeenCalledWith({ wid: 99 }, true);
+      expect(location.go).toHaveBeenCalledWith(`${USER_WORKSPACE}/99`);
+      // wid changed: JupyterPanelService.init() sends the notebook + opens the panel, not us,
+      // so the "sent to Jupyter" toast fires only once.
+      expect(notebookMigrationService.sendNotebookToJupyter).not.toHaveBeenCalled();
+      expect(jupyterPanelService.openPanel).not.toHaveBeenCalled();
     });
 
     it("on LLM error: surfaces an error notification and clears the loading flag", async () => {
