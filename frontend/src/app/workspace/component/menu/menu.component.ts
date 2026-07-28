@@ -729,7 +729,7 @@ export class MenuComponent implements OnInit, OnDestroy {
               const { workflowContent, mappingContent } = result;
 
               const fileExtensionIndex = file.name.lastIndexOf(".");
-              var workflowName: string;
+              let workflowName: string;
               if (fileExtensionIndex === -1) {
                 workflowName = file.name;
               } else {
