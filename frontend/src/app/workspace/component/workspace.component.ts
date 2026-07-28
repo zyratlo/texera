@@ -136,8 +136,7 @@ export class WorkspaceComponent implements AfterViewInit, OnInit, OnDestroy {
     private changeDetectorRef: ChangeDetectorRef,
     private computingUnitStatusService: ComputingUnitStatusService,
     private executeWorkflowService: ExecuteWorkflowService,
-    private workflowResultService: WorkflowResultService,
-    private cdRef: ChangeDetectorRef
+    private workflowResultService: WorkflowResultService
   ) {}
 
   ngOnInit() {
@@ -389,7 +388,7 @@ export class WorkspaceComponent implements AfterViewInit, OnInit, OnDestroy {
   }
 
   updateElapsedTime() {
-    this.cdRef.detectChanges();
+    this.changeDetectorRef.detectChanges();
   }
 
   get formattedElapsedTime(): string {
