@@ -777,6 +777,7 @@ export class MenuComponent implements OnInit, OnDestroy {
                   error: (err: unknown) => {
                     this.notificationService.error("Failed to import notebook, check console for detailed error");
                     console.error("Import notebook failed:", err);
+                    this.setWaitingForLLM.emit(false);
                   },
                   complete: () => {
                     this.setWaitingForLLM.emit(false);
@@ -784,14 +785,13 @@ export class MenuComponent implements OnInit, OnDestroy {
                 });
             } else {
               console.error("Result is undefined");
+              this.setWaitingForLLM.emit(false);
             }
           })
           .catch(error => {
             this.notificationService.error("Error while communicating with LLM, check console for details");
             console.error("Error while fetching data from LLM: ", error);
-          })
-          .finally(() => {
-            this.setWaitingForLLM.emit(false); // stop loading
+            this.setWaitingForLLM.emit(false);
           });
       } catch (error) {
         this.notificationService.error("Failed to import the notebook.");
