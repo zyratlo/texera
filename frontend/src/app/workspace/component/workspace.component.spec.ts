@@ -479,4 +479,68 @@ describe("WorkspaceComponent", () => {
       expect(typeof codeEditorService.vc.createEmbeddedView).toBe("function");
     });
   });
+
+  // The LLM waiting spinner is driven by an elapsed-time timer started/stopped
+  // from the menu's setWaitingForLLM output. These tests pin the 1s cadence, the
+  // single-digit minute format, the stop-on-idle behavior, and, crucially, that
+  // the interval is cleared on destroy so it cannot keep firing detectChanges on
+  // a torn-down view.
+  describe("LLM waiting timer", () => {
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it("formattedElapsedTime is 0:00 before the timer starts", async () => {
+      await createFixture();
+      fixture.detectChanges();
+      expect(component.formattedElapsedTime).toBe("0:00");
+    });
+
+    it("onWaitingForLLMChanged(true) starts the timer and advances elapsed time each second", async () => {
+      vi.useFakeTimers();
+      await createFixture();
+      fixture.detectChanges();
+
+      component.onWaitingForLLMChanged(true);
+      expect(component.isWaitingForLLM).toBe(true);
+      expect(component.formattedElapsedTime).toBe("0:00");
+
+      vi.advanceTimersByTime(1000);
+      expect(component.formattedElapsedTime).toBe("0:01");
+
+      // 1 minute 2 seconds later; minutes are not zero-padded.
+      vi.advanceTimersByTime(61000);
+      expect(component.formattedElapsedTime).toBe("1:02");
+    });
+
+    it("onWaitingForLLMChanged(false) stops the timer so elapsed time no longer advances", async () => {
+      vi.useFakeTimers();
+      await createFixture();
+      fixture.detectChanges();
+
+      component.onWaitingForLLMChanged(true);
+      vi.advanceTimersByTime(1000);
+      expect(component.formattedElapsedTime).toBe("0:01");
+
+      component.onWaitingForLLMChanged(false);
+      expect(component.isWaitingForLLM).toBe(false);
+      // startTime is reset and the interval cleared, so further ticks do nothing.
+      vi.advanceTimersByTime(5000);
+      expect(component.formattedElapsedTime).toBe("0:00");
+    });
+
+    it("clears the interval on destroy so the timer stops firing after teardown", async () => {
+      vi.useFakeTimers();
+      await createFixture();
+      fixture.detectChanges();
+
+      component.onWaitingForLLMChanged(true);
+      vi.advanceTimersByTime(1000);
+
+      const clearSpy = vi.spyOn(globalThis, "clearInterval");
+      component.ngOnDestroy();
+
+      expect(clearSpy).toHaveBeenCalled();
+    });
+  });
 });

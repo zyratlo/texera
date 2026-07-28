@@ -154,7 +154,7 @@
           nz-button
           [disabled]="!isWorkflowModifiable"
           (click)="openImportNotebookModal()"
-          title="AI Generate Workflow">
+          title="AI generate workflow">
           <i
             nz-icon
             nzType="robot"></i>
@@ -163,7 +163,7 @@
           *ngIf="pythonNotebookMigrationEnabled && (jupyterNotebookExists$ | async)"
           nz-button
           (click)="onClickExpandJupyterNotebookPanel()"
-          title="Expand Jupyter Notebook">
+          title="expand Jupyter notebook">
           <img
             class="jupyter-notebook-icon"
             src="assets/notebook_migration_tool/jupyter-logo.svg"
@@ -483,38 +483,29 @@
   <form
     [formGroup]="importForm"
     nz-form>
-    <div style="text-align: center; margin-bottom: 12px">
+    <div class="import-modal-diagram">
       <img
         ngSrc="assets/notebook_migration_tool/tool_popup_diagram.png"
         alt="Notebook to Workflow"
         width="1646"
-        height="479"
-        style="max-width: 100%; height: auto; border-radius: 8px" />
+        height="479" />
     </div>
 
     <nz-form-item>
-      <p style="margin: 0; font-size: 16px; font-weight: 500; user-select: text">
+      <p class="import-modal-text">
         This tool converts a Python Jupyter Notebook into a Texera workflow using LLM capabilities. After you submit a
         notebook, the LLM service will generate a corresponding Texera workflow. The conversion time depends on the
         notebook’s complexity and can take 1–5 minutes. Once the process is complete, the workflow workspace will reload
         with:
       </p>
-      <ol
-        style="
-          margin-top: 4px;
-          margin-bottom: 0;
-          padding-left: 20px;
-          font-size: 16px;
-          font-weight: 500;
-          user-select: text;
-        ">
+      <ol class="import-modal-list">
         <li>
           The generated workflow ready to use (Note: you will still need to upload the dataset and connect it to the
           workflow).
         </li>
         <li>A floating Jupyter window containing the uploaded notebook for reference.</li>
       </ol>
-      <p style="margin: 0; font-size: 16px; font-weight: 500; user-select: text">
+      <p class="import-modal-text">
         Feel free to navigate away from this tab while you wait for the workflow to generate. Please do not close the
         window.
       </p>
@@ -522,16 +513,14 @@
 
     <nz-form-item>
       <nz-form-label [nzNoColon]="true">
-        <span style="font-weight: 1000; font-size: 16px"> Upload Python Jupyter Notebook </span>
+        <span class="import-modal-label"> Upload Python Jupyter Notebook </span>
       </nz-form-label>
       <nz-form-control>
-        <div style="display: inline-flex; align-items: center; gap: 8px">
+        <div class="import-modal-upload-row">
           <nz-upload
             [nzBeforeUpload]="beforeUpload"
             [nzShowUploadList]="false">
-            <button
-              nz-button
-              style="white-space: normal">
+            <button nz-button>
               <i
                 nz-icon
                 nzType="upload"></i>
@@ -547,28 +536,35 @@
 
     <nz-form-item>
       <nz-form-label [nzNoColon]="true">
-        <span style="font-weight: 1000; font-size: 16px"> Select Model Type </span>
+        <span class="import-modal-label"> Select Model Type </span>
       </nz-form-label>
 
       <nz-form-control>
         <ng-container *ngIf="data.models$ | async as models; else loadingTpl">
           <nz-select
+            *ngIf="$any(models).length > 0; else noModelsTpl"
+            class="import-modal-select"
             formControlName="model"
-            nzPlaceHolder="Select a model"
-            style="width: 50%">
+            nzPlaceHolder="Select a model">
             <nz-option
               *ngFor="let model of $any(models)"
               [nzValue]="model.name"
               [nzLabel]="model.name"></nz-option>
           </nz-select>
+          <ng-template #noModelsTpl>
+            <nz-select
+              class="import-modal-select"
+              nzPlaceHolder="No models available"
+              [nzDisabled]="true"></nz-select>
+          </ng-template>
         </ng-container>
 
         <ng-template #loadingTpl>
           <nz-select
+            class="import-modal-select"
             nzPlaceHolder="Loading models..."
             [nzLoading]="true"
-            [nzDisabled]="true"
-            style="width: 50%"></nz-select>
+            [nzDisabled]="true"></nz-select>
         </ng-template>
       </nz-form-control>
     </nz-form-item>

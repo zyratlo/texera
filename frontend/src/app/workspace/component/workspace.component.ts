@@ -95,7 +95,7 @@ export class WorkspaceComponent implements AfterViewInit, OnInit, OnDestroy {
   public isLoading: boolean = false;
   // variable to track whether we are waiting for AI to finish generating (whether a loading icon should show)
   public isWaitingForLLM = false;
-  private timerInterval: any;
+  private timerInterval: ReturnType<typeof setInterval> | null = null;
   private startTime: number | null = null;
   @ViewChild("codeEditor", { read: ViewContainerRef }) codeEditorViewRef!: ViewContainerRef;
 
@@ -136,8 +136,7 @@ export class WorkspaceComponent implements AfterViewInit, OnInit, OnDestroy {
     private changeDetectorRef: ChangeDetectorRef,
     private computingUnitStatusService: ComputingUnitStatusService,
     private executeWorkflowService: ExecuteWorkflowService,
-    private workflowResultService: WorkflowResultService,
-    private cdRef: ChangeDetectorRef
+    private workflowResultService: WorkflowResultService
   ) {}
 
   ngOnInit() {
@@ -205,6 +204,7 @@ export class WorkspaceComponent implements AfterViewInit, OnInit, OnDestroy {
     // re-entered workflow starts clean instead of reusing the previous one.
     this.computingUnitStatusService.disconnect();
     this.resetWorkflowSessionState();
+    this.stopTimer();
   }
 
   /**
@@ -382,17 +382,19 @@ export class WorkspaceComponent implements AfterViewInit, OnInit, OnDestroy {
   }
 
   stopTimer() {
-    clearInterval(this.timerInterval);
+    if (this.timerInterval !== null) {
+      clearInterval(this.timerInterval);
+    }
     this.timerInterval = null;
     this.startTime = null;
   }
 
   updateElapsedTime() {
-    this.cdRef.detectChanges();
+    this.changeDetectorRef.detectChanges();
   }
 
   get formattedElapsedTime(): string {
-    if (!this.startTime) return "00:00";
+    if (!this.startTime) return "0:00";
     const diff = Date.now() - this.startTime;
     const minutes = Math.floor(diff / 60000);
     const seconds = Math.floor((diff % 60000) / 1000);

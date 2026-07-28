@@ -250,9 +250,8 @@ export class MenuComponent implements OnInit, OnDestroy {
     this.subscribeToComputingUnitStatus();
 
     this.importForm = this.fb.group({
-      description: [""],
       file: [null, Validators.required],
-      model: [""],
+      model: ["", Validators.required],
     });
   }
 
@@ -642,11 +641,7 @@ export class MenuComponent implements OnInit, OnDestroy {
   }
 
   openImportNotebookModal(): void {
-    const models$ = this.notebookMigrationService.getAvailableModels().pipe(
-      tap({
-        error: () => this.notificationService.error("Failed to fetch models"),
-      })
-    );
+    const models$ = this.notebookMigrationService.getAvailableModels();
 
     const modalRef = this.modal.create({
       nzTitle: "AI Generate Workflow from Python Notebook",
@@ -733,7 +728,7 @@ export class MenuComponent implements OnInit, OnDestroy {
               const { workflowContent, mappingContent } = result;
 
               const fileExtensionIndex = file.name.lastIndexOf(".");
-              var workflowName: string;
+              let workflowName: string;
               if (fileExtensionIndex === -1) {
                 workflowName = file.name;
               } else {
@@ -771,32 +766,44 @@ export class MenuComponent implements OnInit, OnDestroy {
                 .subscribe({
                   next: updatedWorkflow => {
                     this.workflowActionService.reloadWorkflow(updatedWorkflow, true);
+                    // Use openPanel, not openJupyterNotebookPanel, here on purpose: reloadWorkflow
+                    // above changes the wid, and JupyterPanelService.init()'s synchronous
+                    // wid-change handler runs closeJupyterNotebookPanel(), which deletes the
+                    // mapping we just stored. openJupyterNotebookPanel() gates on hasMapping and
+                    // would therefore fail with a spurious warning; openPanel opens unconditionally.
                     this.jupyterPanelService.openPanel("JupyterNotebookPanel");
                     this.notificationService.success("Successfully generated workflow and mapping from notebook.");
                   },
                   error: (err: unknown) => {
                     this.notificationService.error("Failed to import notebook, check console for detailed error");
                     console.error("Import notebook failed:", err);
+                    this.setWaitingForLLM.emit(false);
                   },
                   complete: () => {
                     this.setWaitingForLLM.emit(false);
                   },
                 });
             } else {
+              this.notificationService.error("No workflow was generated from the notebook.");
               console.error("Result is undefined");
+              this.setWaitingForLLM.emit(false);
             }
           })
           .catch(error => {
             this.notificationService.error("Error while communicating with LLM, check console for details");
             console.error("Error while fetching data from LLM: ", error);
-          })
-          .finally(() => {
-            this.setWaitingForLLM.emit(false); // stop loading
+            this.setWaitingForLLM.emit(false);
           });
       } catch (error) {
         this.notificationService.error("Failed to import the notebook.");
         console.error(error);
+        this.setWaitingForLLM.emit(false);
       }
+    };
+
+    reader.onerror = () => {
+      this.notificationService.error("Failed to read the notebook file.");
+      this.setWaitingForLLM.emit(false);
     };
 
     return false; // Prevent automatic upload handling
