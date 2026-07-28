@@ -553,6 +553,7 @@
       <nz-form-control>
         <ng-container *ngIf="data.models$ | async as models; else loadingTpl">
           <nz-select
+            *ngIf="$any(models).length > 0; else noModelsTpl"
             formControlName="model"
             nzPlaceHolder="Select a model"
             style="width: 50%">
@@ -561,6 +562,12 @@
               [nzValue]="model.name"
               [nzLabel]="model.name"></nz-option>
           </nz-select>
+          <ng-template #noModelsTpl>
+            <nz-select
+              nzPlaceHolder="No models available"
+              [nzDisabled]="true"
+              style="width: 50%"></nz-select>
+          </ng-template>
         </ng-container>
 
         <ng-template #loadingTpl>

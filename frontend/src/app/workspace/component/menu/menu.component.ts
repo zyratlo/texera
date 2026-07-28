@@ -642,11 +642,7 @@ export class MenuComponent implements OnInit, OnDestroy {
   }
 
   openImportNotebookModal(): void {
-    const models$ = this.notebookMigrationService.getAvailableModels().pipe(
-      tap({
-        error: () => this.notificationService.error("Failed to fetch models"),
-      })
-    );
+    const models$ = this.notebookMigrationService.getAvailableModels();
 
     const modalRef = this.modal.create({
       nzTitle: "AI Generate Workflow from Python Notebook",
