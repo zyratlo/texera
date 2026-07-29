@@ -198,7 +198,6 @@ import { UserComputingUnitComponent } from "./dashboard/component/user/user-comp
 import { UserComputingUnitListItemComponent } from "./dashboard/component/user/user-computing-unit/user-computing-unit-list-item/user-computing-unit-list-item.component";
 import { UserVenvComponent } from "./dashboard/component/user/user-venv/user-venv.component";
 import { JupyterPanelService } from "./workspace/service/jupyter-panel/jupyter-panel.service";
-import { JupyterNotebookPanelComponent } from "./workspace/component/jupyter-notebook-panel/jupyter-notebook-panel.component";
 
 registerLocaleData(en);
 
@@ -372,7 +371,6 @@ registerLocaleData(en);
     UserComputingUnitComponent,
     UserComputingUnitListItemComponent,
     UserVenvComponent,
-    JupyterNotebookPanelComponent,
   ],
   providers: [
     { provide: ErrorHandler, useClass: GlobalErrorHandler },

@@ -20,7 +20,7 @@
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild, AfterViewInit } from "@angular/core";
 import { JupyterPanelService } from "../../service/jupyter-panel/jupyter-panel.service";
 import { from, of, Subject } from "rxjs";
-import { switchMap, takeUntil } from "rxjs/operators";
+import { catchError, switchMap, takeUntil } from "rxjs/operators";
 import { DomSanitizer, SafeResourceUrl } from "@angular/platform-browser";
 import { NotebookMigrationService } from "../../service/notebook-migration/notebook-migration.service";
 import { CommonModule } from "@angular/common";
@@ -39,7 +39,7 @@ export class JupyterNotebookPanelComponent implements OnInit, AfterViewInit, OnD
   @ViewChild("iframeRef", { static: false }) iframeRef!: ElementRef<HTMLIFrameElement>; // Use static: false
 
   isVisible: boolean = false; // Initialize to false, meaning the panel is hidden by default
-  jupyterUrl: SafeResourceUrl = ""; // Store the notebook URL dynamically
+  jupyterUrl: SafeResourceUrl | null = null; // Store the notebook URL dynamically; null when no URL is loaded
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -58,13 +58,20 @@ export class JupyterNotebookPanelComponent implements OnInit, AfterViewInit, OnD
             return of(null);
           }
 
-          return from(this.notebookMigrationService.getJupyterIframeURL());
+          return from(this.notebookMigrationService.getJupyterIframeURL()).pipe(
+            catchError(() => {
+              console.error("Failed to fetch Jupyter iframe URL.");
+              return of(null);
+            })
+          );
         }),
         takeUntil(this.destroy$)
       )
       .subscribe(url => {
+        // Always reflect the latest fetch result. A null url (panel hidden, or a
+        // failed/empty fetch) clears jupyterUrl so a stale URL is never rendered.
+        this.jupyterUrl = url ? this.sanitizer.bypassSecurityTrustResourceUrl(url) : null;
         if (url) {
-          this.jupyterUrl = this.sanitizer.bypassSecurityTrustResourceUrl(url);
           this.checkIframeRef();
         }
       });
@@ -77,7 +84,11 @@ export class JupyterNotebookPanelComponent implements OnInit, AfterViewInit, OnD
 
   checkIframeRef(): void {
     setTimeout(() => {
-      if (this.isVisible && this.iframeRef?.nativeElement) {
+      if (!this.isVisible) {
+        // Panel hidden; no iframe to register.
+        return;
+      }
+      if (this.iframeRef?.nativeElement) {
         this.jupyterPanelService.setIframeRef(this.iframeRef.nativeElement);
       } else {
         console.error("Jupyter Iframe reference not found.");
@@ -95,9 +106,9 @@ export class JupyterNotebookPanelComponent implements OnInit, AfterViewInit, OnD
     this.jupyterPanelService.closeJupyterNotebookPanel();
   }
 
-  // Minimize the jupyter notebook by invoking the service method
+  // Minimize the jupyter notebook by invoking the service method. Visibility is
+  // driven by jupyterNotebookPanelVisible$, so no local isVisible mutation here.
   minimizePanel(): void {
-    this.isVisible = false;
     this.jupyterPanelService.minimizeJupyterNotebookPanel();
   }
 }

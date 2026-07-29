@@ -21,8 +21,7 @@
   class="draggable-panel"
   *ngIf="isVisible"
   cdkDrag
-  cdkDragBoundary="texera-workspace"
-  cdkDragHandle=".panel-header">
+  cdkDragBoundary="texera-workspace">
   <div
     class="panel-header"
     cdkDragHandle>
@@ -53,6 +52,7 @@
 
   <div class="iframe-container">
     <iframe
+      *ngIf="jupyterUrl"
       #iframeRef
       [src]="jupyterUrl"
       title="Jupyter Notebook"
