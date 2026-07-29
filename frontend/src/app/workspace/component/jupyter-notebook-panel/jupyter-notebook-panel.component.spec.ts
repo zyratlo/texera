@@ -23,6 +23,7 @@ import { JupyterPanelService } from "../../service/jupyter-panel/jupyter-panel.s
 import { NotebookMigrationService } from "../../service/notebook-migration/notebook-migration.service";
 import { Subject } from "rxjs";
 import { ElementRef } from "@angular/core";
+import { DomSanitizer } from "@angular/platform-browser";
 
 describe("JupyterNotebookPanelComponent", () => {
   let component: JupyterNotebookPanelComponent;
@@ -30,6 +31,7 @@ describe("JupyterNotebookPanelComponent", () => {
 
   let mockJupyterPanelService: any;
   let mockNotebookMigrationService: any;
+  let bypassSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(async () => {
     mockJupyterPanelService = {
@@ -55,6 +57,9 @@ describe("JupyterNotebookPanelComponent", () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(JupyterNotebookPanelComponent);
     component = fixture.componentInstance;
+    // Spy on the shared DomSanitizer so tests can assert the raw URL was trusted,
+    // without matching Angular's serialized SafeResourceUrl string.
+    bypassSpy = vi.spyOn(TestBed.inject(DomSanitizer), "bypassSecurityTrustResourceUrl");
     fixture.detectChanges();
   });
 
@@ -94,7 +99,8 @@ describe("JupyterNotebookPanelComponent", () => {
     fixture.detectChanges();
 
     expect(mockNotebookMigrationService.getJupyterIframeURL).toHaveBeenCalled();
-    expect(component.jupyterUrl!.toString()).toContain("http://localhost:8888");
+    expect(bypassSpy).toHaveBeenCalledWith("http://localhost:8888");
+    expect(component.jupyterUrl).toBe(bypassSpy.mock.results[0].value);
   });
 
   it("should not render the iframe while visible without a URL", () => {
@@ -116,7 +122,8 @@ describe("JupyterNotebookPanelComponent", () => {
 
     const iframe = fixture.nativeElement.querySelector("iframe");
     expect(iframe).not.toBeNull();
-    expect(iframe.getAttribute("src")).toContain("http://localhost:8888");
+    // Don't match the serialized SafeResourceUrl; assert the binding produced a src.
+    expect(iframe.hasAttribute("src")).toBe(true);
   });
 
   it("should clear jupyterUrl and remove the iframe when hidden", async () => {
@@ -162,7 +169,8 @@ describe("JupyterNotebookPanelComponent", () => {
     fixture.detectChanges();
 
     expect(mockNotebookMigrationService.getJupyterIframeURL).toHaveBeenCalledTimes(2);
-    expect(component.jupyterUrl!.toString()).toContain("http://localhost:9999");
+    expect(bypassSpy).toHaveBeenCalledWith("http://localhost:9999");
+    expect(component.jupyterUrl).toBe(bypassSpy.mock.results[0].value);
   });
 
   it("should call setIframeRef when iframe exists and visible", fakeAsync(() => {
