@@ -94,7 +94,7 @@ describe("JupyterNotebookPanelComponent", () => {
     fixture.detectChanges();
 
     expect(mockNotebookMigrationService.getJupyterIframeURL).toHaveBeenCalled();
-    expect(component.jupyterUrl.toString()).toContain("http://localhost:8888");
+    expect(component.jupyterUrl!.toString()).toContain("http://localhost:8888");
   });
 
   it("should not render the iframe while visible without a URL", () => {
@@ -119,6 +119,21 @@ describe("JupyterNotebookPanelComponent", () => {
     expect(iframe.getAttribute("src")).toContain("http://localhost:8888");
   });
 
+  it("should clear jupyterUrl and remove the iframe when hidden", async () => {
+    vi.spyOn(component, "checkIframeRef").mockImplementation(() => {});
+    mockJupyterPanelService.jupyterNotebookPanelVisible$.next(true);
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(component.jupyterUrl).not.toBeNull();
+    expect(fixture.nativeElement.querySelector("iframe")).not.toBeNull();
+
+    mockJupyterPanelService.jupyterNotebookPanelVisible$.next(false);
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(component.jupyterUrl).toBeNull();
+    expect(fixture.nativeElement.querySelector("iframe")).toBeNull();
+  });
+
   it("should not update jupyterUrl when the iframe URL fetch rejects", async () => {
     vi.spyOn(component, "checkIframeRef").mockImplementation(() => {});
     vi.spyOn(console, "error").mockImplementation(() => {});
@@ -129,7 +144,7 @@ describe("JupyterNotebookPanelComponent", () => {
     await fixture.whenStable();
 
     expect(mockNotebookMigrationService.getJupyterIframeURL).toHaveBeenCalled();
-    expect(component.jupyterUrl.toString()).toBe("");
+    expect(component.jupyterUrl).toBeNull();
   });
 
   it("should keep handling visibility emissions after a failed fetch", async () => {
@@ -147,7 +162,7 @@ describe("JupyterNotebookPanelComponent", () => {
     fixture.detectChanges();
 
     expect(mockNotebookMigrationService.getJupyterIframeURL).toHaveBeenCalledTimes(2);
-    expect(component.jupyterUrl.toString()).toContain("http://localhost:9999");
+    expect(component.jupyterUrl!.toString()).toContain("http://localhost:9999");
   });
 
   it("should call setIframeRef when iframe exists and visible", fakeAsync(() => {

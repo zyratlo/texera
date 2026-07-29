@@ -39,7 +39,7 @@ export class JupyterNotebookPanelComponent implements OnInit, AfterViewInit, OnD
   @ViewChild("iframeRef", { static: false }) iframeRef!: ElementRef<HTMLIFrameElement>; // Use static: false
 
   isVisible: boolean = false; // Initialize to false, meaning the panel is hidden by default
-  jupyterUrl: SafeResourceUrl = ""; // Store the notebook URL dynamically
+  jupyterUrl: SafeResourceUrl | null = null; // Store the notebook URL dynamically; null when no URL is loaded
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -68,8 +68,10 @@ export class JupyterNotebookPanelComponent implements OnInit, AfterViewInit, OnD
         takeUntil(this.destroy$)
       )
       .subscribe(url => {
+        // Always reflect the latest fetch result. A null url (panel hidden, or a
+        // failed/empty fetch) clears jupyterUrl so a stale URL is never rendered.
+        this.jupyterUrl = url ? this.sanitizer.bypassSecurityTrustResourceUrl(url) : null;
         if (url) {
-          this.jupyterUrl = this.sanitizer.bypassSecurityTrustResourceUrl(url);
           this.checkIframeRef();
         }
       });
