@@ -220,6 +220,11 @@ describe("JupyterNotebookPanelComponent", () => {
 
   it("should minimize panel and update visibility", () => {
     vi.spyOn(component, "checkIframeRef").mockImplementation(() => {});
+    // The real service emits false on minimize; visibility is observable-driven,
+    // so the mock must emit for isVisible to update.
+    mockJupyterPanelService.minimizeJupyterNotebookPanel = vi.fn(() =>
+      mockJupyterPanelService.jupyterNotebookPanelVisible$.next(false)
+    );
     component.isVisible = true;
 
     component.minimizePanel();
