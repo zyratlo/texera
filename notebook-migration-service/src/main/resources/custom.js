@@ -56,10 +56,11 @@ require(["base/js/events"], function (events) {
     if (!window.Jupyter || !Jupyter.notebook) {
       return;
     }
-    // "nocursor" also blocks focus, so a click can't put a cell into edit mode.
+    // readOnly "true" blocks editing while still letting the
+    // editor take focus, so a viewer can select and copy the generated code.
     Jupyter.notebook.get_cells().forEach(function (cell) {
       if (cell.code_mirror) {
-        cell.code_mirror.setOption("readOnly", "nocursor");
+        cell.code_mirror.setOption("readOnly", true);
       }
     });
     if (Jupyter.keyboard_manager) {
