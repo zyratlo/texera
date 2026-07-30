@@ -370,6 +370,40 @@ class NotebookMigrationResourceSpec
       .getStatus shouldBe 500
   }
 
+  // -- wid validation ---------------------------------------------------------
+
+  "store/fetch/delete" should "return 400 Bad Request when 'wid' is missing from the body" in {
+    // A missing wid must be a client error, not a 500 from the null.asInt() NPE.
+    val noWid = s"""{"vid": $seededVid}"""
+    NotebookMigrationResource
+      .storeNotebookAndMapping(noWid, writerUid)
+      .getStatus shouldBe Response.Status.BAD_REQUEST.getStatusCode
+    NotebookMigrationResource
+      .fetchNotebookAndMapping(noWid, writerUid)
+      .getStatus shouldBe Response.Status.BAD_REQUEST.getStatusCode
+    NotebookMigrationResource
+      .deleteNotebookAndMapping("""{}""", writerUid)
+      .getStatus shouldBe Response.Status.BAD_REQUEST.getStatusCode
+
+    getDSLContext.fetchCount(NOTEBOOK) shouldBe 0
+  }
+
+  it should "return 400 Bad Request when 'wid' is not an integer" in {
+    // A non-integer wid must be rejected rather than silently coerced to 0 by asInt().
+    val badWid = s"""{"wid": "not-an-int", "vid": $seededVid}"""
+    NotebookMigrationResource
+      .storeNotebookAndMapping(badWid, writerUid)
+      .getStatus shouldBe Response.Status.BAD_REQUEST.getStatusCode
+    NotebookMigrationResource
+      .fetchNotebookAndMapping(badWid, writerUid)
+      .getStatus shouldBe Response.Status.BAD_REQUEST.getStatusCode
+    NotebookMigrationResource
+      .deleteNotebookAndMapping(badWid, writerUid)
+      .getStatus shouldBe Response.Status.BAD_REQUEST.getStatusCode
+
+    getDSLContext.fetchCount(NOTEBOOK) shouldBe 0
+  }
+
   // -- workflow write-access enforcement --------------------------------------
 
   "store/fetch" should "return 403 Forbidden when the user lacks write access to the workflow" in {

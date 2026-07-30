@@ -17,7 +17,7 @@
 
 package org.apache.texera.service.resource
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import com.typesafe.scalalogging.LazyLogging
 import io.dropwizard.auth.Auth
@@ -55,6 +55,23 @@ object NotebookMigrationResource extends LazyLogging {
     mapper.writeValueAsString(
       mapper.createObjectNode().put("success", true).put("deleted", deleted)
     )
+
+  // Read the required integer `wid` from a request body. Returns Left(400) when the field is
+  // missing or not an integer so the caller can short-circuit. Without this a missing wid NPEs
+  // into a 500 and a non-integer wid silently coerces to 0 via asInt().
+  private def readWid(json: JsonNode): Either[Response, java.lang.Integer] = {
+    val widNode = json.get("wid")
+    if (widNode == null || !widNode.isInt) {
+      Left(
+        Response
+          .status(Response.Status.BAD_REQUEST)
+          .entity(errorJson("Missing or invalid 'wid'"))
+          .build()
+      )
+    } else {
+      Right(widNode.asInt())
+    }
+  }
 
   private val jupyterUrl = StorageConfig.jupyterURL
   private val jupyterToken = StorageConfig.jupyterToken
@@ -230,7 +247,10 @@ object NotebookMigrationResource extends LazyLogging {
     try {
       val json = mapper.readTree(body)
 
-      val wid: java.lang.Integer = json.get("wid").asInt()
+      val wid: java.lang.Integer = readWid(json) match {
+        case Left(badRequest) => return badRequest
+        case Right(w)         => w
+      }
       val vid: java.lang.Integer = json.get("vid").asInt()
       val mappingNode = json.get("mapping")
       val notebookNode = json.get("notebook")
@@ -318,7 +338,10 @@ object NotebookMigrationResource extends LazyLogging {
     try {
       val json = mapper.readTree(body)
 
-      val wid: java.lang.Integer = json.get("wid").asInt()
+      val wid: java.lang.Integer = readWid(json) match {
+        case Left(badRequest) => return badRequest
+        case Right(w)         => w
+      }
       val vid: java.lang.Integer = json.get("vid").asInt()
 
       // Only a user with write access to the workflow may fetch its notebook.
@@ -389,7 +412,10 @@ object NotebookMigrationResource extends LazyLogging {
     try {
       val json = mapper.readTree(body)
 
-      val wid: java.lang.Integer = json.get("wid").asInt()
+      val wid: java.lang.Integer = readWid(json) match {
+        case Left(badRequest) => return badRequest
+        case Right(w)         => w
+      }
 
       // Only a user with write access to the workflow may delete its notebook.
       if (!WorkflowAccessResource.hasWriteAccess(wid, uid)) {
