@@ -793,8 +793,11 @@ export class MenuComponent implements OnInit, OnDestroy {
                   next: updatedWorkflow => {
                     this.notificationService.success("Successfully generated workflow and mapping from notebook.");
                     // Reload the generated workflow onto the current (already live) canvas so it
-                    // renders immediately; we never remount the workspace.
-                    this.workflowActionService.reloadWorkflow(updatedWorkflow, true);
+                    // renders immediately; we never remount the workspace. Render synchronously
+                    // (asyncRendering = false) so the operators exist before auto-layout runs.
+                    this.workflowActionService.reloadWorkflow(updatedWorkflow, false);
+                    // Tidy the LLM-generated layout; the position changes get auto-persisted.
+                    this.onClickAutoLayout();
                     if (reuseWid === updatedWorkflow.wid) {
                       // Overwrote the current workflow in place: the wid did not change, so
                       // JupyterPanelService.init() does not react. Send the notebook to Jupyter

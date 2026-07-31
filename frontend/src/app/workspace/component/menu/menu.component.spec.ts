@@ -1010,15 +1010,18 @@ describe("MenuComponent", () => {
       // Saved current workflow (wid 7); persist keeps the same wid, so the wid does not change.
       vi.spyOn(workflowActionService, "getWorkflow").mockReturnValue({ wid: 7 } as any);
       const persistSpy = vi.spyOn(workflowPersistService, "persistWorkflow").mockReturnValue(of({ wid: 7 } as any));
+      const autoLayoutSpy = vi.spyOn(component, "onClickAutoLayout").mockImplementation(() => {});
       const emitSpy = vi.spyOn(component.setWaitingForLLM, "emit");
 
       component.onClickImportNotebook(ipynbFile(validNotebook), "gpt-4");
       await vi.waitFor(() => expect(emitSpy).toHaveBeenCalledWith(false));
 
       expect(emitSpy).toHaveBeenCalledWith(true);
-      // Reuses the current wid so the row is overwritten in place, and reloads on the live canvas.
+      // Reuses the current wid so the row is overwritten in place; reloads synchronously on the
+      // live canvas and tidies the layout.
       expect(persistSpy.mock.calls[0][0].wid).toBe(7);
-      expect(workflowActionService.reloadWorkflow).toHaveBeenCalledWith({ wid: 7 }, true);
+      expect(workflowActionService.reloadWorkflow).toHaveBeenCalledWith({ wid: 7 }, false);
+      expect(autoLayoutSpy).toHaveBeenCalled();
       // wid unchanged: we send the notebook + open the panel ourselves (init() does not react).
       expect(notebookMigrationService.sendNotebookToJupyter).toHaveBeenCalled();
       expect(jupyterPanelService.openPanel).toHaveBeenCalledWith("JupyterNotebookPanel");
@@ -1038,7 +1041,7 @@ describe("MenuComponent", () => {
 
       // No current wid -> the backend inserts a new row.
       expect(persistSpy.mock.calls[0][0].wid).toBeUndefined();
-      expect(workflowActionService.reloadWorkflow).toHaveBeenCalledWith({ wid: 99 }, true);
+      expect(workflowActionService.reloadWorkflow).toHaveBeenCalledWith({ wid: 99 }, false);
       expect(location.go).toHaveBeenCalledWith(`${USER_WORKSPACE}/99`);
       // wid changed: JupyterPanelService.init() sends the notebook + opens the panel, not us,
       // so the "sent to Jupyter" toast fires only once.
