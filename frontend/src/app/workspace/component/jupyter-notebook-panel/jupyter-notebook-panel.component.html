@@ -40,8 +40,8 @@
       <button
         class="delete-button"
         nz-popconfirm
-        nzPopconfirmTitle="Confirm to delete Jupyter notebook"
-        (nzOnConfirm)="closePanel()">
+        nzPopconfirmTitle="Delete this workflow's Jupyter notebook? This cannot be undone."
+        (nzOnConfirm)="deletePanel()">
         <i
           nz-icon
           nzType="delete"

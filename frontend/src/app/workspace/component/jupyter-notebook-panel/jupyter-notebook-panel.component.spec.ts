@@ -37,7 +37,7 @@ describe("JupyterNotebookPanelComponent", () => {
     mockJupyterPanelService = {
       jupyterNotebookPanelVisible$: new Subject<boolean>(),
       setIframeRef: vi.fn(),
-      closeJupyterNotebookPanel: vi.fn(),
+      deleteJupyterNotebook: vi.fn(),
       minimizeJupyterNotebookPanel: vi.fn(),
     };
 
@@ -220,10 +220,10 @@ describe("JupyterNotebookPanelComponent", () => {
     expect(mockJupyterPanelService.setIframeRef).not.toHaveBeenCalled();
   }));
 
-  it("should close panel via service", () => {
+  it("should delete notebook via service", () => {
     vi.spyOn(component, "checkIframeRef").mockImplementation(() => {});
-    component.closePanel();
-    expect(mockJupyterPanelService.closeJupyterNotebookPanel).toHaveBeenCalled();
+    component.deletePanel();
+    expect(mockJupyterPanelService.deleteJupyterNotebook).toHaveBeenCalled();
   });
 
   it("should minimize panel and update visibility", () => {

@@ -101,9 +101,9 @@ export class JupyterNotebookPanelComponent implements OnInit, AfterViewInit, OnD
     this.destroy$.complete(); // Cleanup subscriptions to avoid memory leaks
   }
 
-  // Close the panel by invoking the service method
-  closePanel(): void {
-    this.jupyterPanelService.closeJupyterNotebookPanel();
+  // Delete the workflow's Jupyter notebook by invoking the service method
+  deletePanel(): void {
+    this.jupyterPanelService.deleteJupyterNotebook();
   }
 
   // Minimize the jupyter notebook by invoking the service method. Visibility is
