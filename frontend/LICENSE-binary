@@ -358,6 +358,11 @@ Angular / npm packages:
   - parchment@3.0.0
   - quill@2.0.3
 
+Third-party assets:
+  - Project Jupyter logo
+    frontend/src/assets/notebook_migration_tool/jupyter-logo.svg
+    https://github.com/jupyter/design
+
 --------------------------------------------------------------------------------
 Dependencies under the ISC License
 --------------------------------------------------------------------------------
