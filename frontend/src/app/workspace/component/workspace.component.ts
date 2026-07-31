@@ -86,6 +86,7 @@ export const SAVE_DEBOUNCE_TIME_IN_MS = 5000;
     NgIf,
     AgentPanelComponent,
     PropertyEditorComponent,
+    JupyterNotebookPanelComponent,
   ],
 })
 export class WorkspaceComponent implements AfterViewInit, OnInit, OnDestroy {
