@@ -225,8 +225,9 @@ export class JupyterPanelService {
   public deleteJupyterNotebook(): void {
     if (!this.enabled) return;
     const wid = this.workflowActionService.getWorkflow().wid;
-    if (wid === undefined) {
-      // Unsaved workflow: nothing persisted, so just reset local state.
+    // Unsaved workflow (wid undefined or the default wid 0): nothing is persisted,
+    // and a delete POST with such a wid would 500, so just reset local state.
+    if (!wid) {
       this.hideAndClearLocalState();
       this.jupyterNotebookExists.next(false);
       this.clearHighlights();

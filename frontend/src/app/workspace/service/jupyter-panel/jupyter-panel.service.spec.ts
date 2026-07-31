@@ -142,6 +142,23 @@ describe("JupyterPanelService", () => {
     expect(mockNotebook.deleteMapping).not.toHaveBeenCalled();
   });
 
+  it("deleteJupyterNotebook only resets local state for the default wid 0 (no backend call)", () => {
+    mockWorkflow.getWorkflow.mockReturnValue({ wid: 0 });
+    let visible: boolean | null = null;
+    let exists: boolean | null = null;
+    service.jupyterNotebookPanelVisible$.subscribe(v => (visible = v));
+    service.jupyterNotebookExists$.subscribe(v => (exists = v));
+    (service as any).jupyterNotebookPanelVisible.next(true);
+    (service as any).jupyterNotebookExists.next(true);
+
+    service.deleteJupyterNotebook();
+
+    // wid 0 is the unsaved default workflow, so no backend delete should fire.
+    expect(mockNotebook.deleteNotebookAndMapping).not.toHaveBeenCalled();
+    expect(visible).toBe(false);
+    expect(exists).toBe(false);
+  });
+
   it("should minimize panel", () => {
     let state: boolean | null = true;
 
