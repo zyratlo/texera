@@ -30,6 +30,8 @@
       <!-- Minimize button -->
       <button
         class="minimize-button"
+        nz-tooltip
+        nzTooltipTitle="Minimize"
         (click)="minimizePanel()">
         <i
           nz-icon
@@ -39,6 +41,8 @@
       <!-- Delete button -->
       <button
         class="delete-button"
+        nz-tooltip
+        nzTooltipTitle="Delete notebook"
         nz-popconfirm
         nzPopconfirmTitle="Delete this workflow's Jupyter notebook? This cannot be undone."
         (nzOnConfirm)="deletePanel()">

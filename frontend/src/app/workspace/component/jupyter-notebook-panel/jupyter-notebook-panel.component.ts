@@ -33,7 +33,7 @@ import { NzPopconfirmModule } from "ng-zorro-antd/popconfirm";
   selector: "texera-jupyter-notebook-panel",
   templateUrl: "./jupyter-notebook-panel.component.html",
   styleUrls: ["./jupyter-notebook-panel.component.scss"],
-  imports: [CommonModule, DragDropModule, NzButtonModule, NzIconModule, NzPopconfirmModule],
+  imports: [CommonModule, DragDropModule, NzButtonModule, NzIconModule, NzPopconfirmModule, NzTooltipModule],
 })
 export class JupyterNotebookPanelComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild("iframeRef", { static: false }) iframeRef!: ElementRef<HTMLIFrameElement>; // Use static: false
