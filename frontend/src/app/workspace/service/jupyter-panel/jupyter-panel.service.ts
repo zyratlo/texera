@@ -210,6 +210,11 @@ export class JupyterPanelService {
     if (!this.enabled) return;
     if (panelName === "JupyterNotebookPanel") {
       this.jupyterNotebookPanelVisible.next(true);
+      // Opening the panel means the current workflow has an associated notebook, so
+      // surface the toolbar "expand" button (jupyterNotebookExists$) right away. Needed
+      // after an in-place import where the wid does not change and init() does not re-run
+      // to detect the notebook.
+      this.jupyterNotebookExists.next(true);
     }
   }
 

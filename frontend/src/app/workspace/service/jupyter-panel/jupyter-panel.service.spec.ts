@@ -186,6 +186,20 @@ describe("JupyterPanelService", () => {
     expect(state).toBe(true);
   });
 
+  it("openPanel flags jupyterNotebookExists$ so the toolbar expand button appears after an in-place import", () => {
+    const states: boolean[] = [];
+    service.jupyterNotebookExists$.subscribe(v => states.push(v));
+    expect(states.at(-1)).toBe(false);
+
+    // Wrong panel name does not flip the flag.
+    service.openPanel("WrongPanel");
+    expect(states.at(-1)).toBe(false);
+
+    // Opening the jupyter panel records that the workflow now has a notebook.
+    service.openPanel("JupyterNotebookPanel");
+    expect(states.at(-1)).toBe(true);
+  });
+
   // HTTP fetchNotebookAndMapping
   it("should return 0 when exists=false", async () => {
     const resultPromise = firstValueFrom((service as any).fetchNotebookAndMapping(1, 1));
