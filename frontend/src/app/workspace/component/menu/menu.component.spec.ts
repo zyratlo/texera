@@ -1033,6 +1033,35 @@ describe("MenuComponent", () => {
       expect(location.go).not.toHaveBeenCalled();
     });
 
+    it("marks isWaitingForLLM true at the start of import and false once the flow settles", async () => {
+      stubGenerationServices();
+      vi.spyOn(workflowActionService, "getWorkflow").mockReturnValue({ wid: 7 } as any);
+      vi.spyOn(workflowPersistService, "persistWorkflow").mockReturnValue(of({ wid: 7 } as any));
+      vi.spyOn(component, "onClickAutoLayout").mockImplementation(() => {});
+
+      component.onClickImportNotebook(ipynbFile(validNotebook), "gpt-4");
+      // emit(true) fires synchronously at the start of the import.
+      expect(component.isWaitingForLLM).toBe(true);
+
+      await vi.waitFor(() => expect(component.isWaitingForLLM).toBe(false));
+    });
+
+    it("disables the AI-generate button while a conversion is in flight", () => {
+      const button = () =>
+        fixture.nativeElement.querySelector('button[title="AI generate workflow"]') as HTMLButtonElement;
+      (TestBed.inject(GuiConfigService) as unknown as MockGuiConfigService).setConfig({
+        pythonNotebookMigrationEnabled: true,
+      });
+      // Isolate the waiting flag's effect from the modifiable gate.
+      component.isWorkflowModifiable = true;
+      fixture.detectChanges();
+      expect(button().disabled).toBe(false);
+
+      component.isWaitingForLLM = true;
+      fixture.detectChanges();
+      expect(button().disabled).toBe(true);
+    });
+
     it("does not open the panel when the notebook fails to reach Jupyter", async () => {
       stubGenerationServices();
       // sendNotebookToJupyter resolves 0 on failure (it toasts the error itself).

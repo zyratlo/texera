@@ -175,6 +175,7 @@ export class MenuComponent implements OnInit, OnDestroy {
   @ViewChild("workflowNameInput") workflowNameInput: ElementRef<HTMLInputElement> | undefined;
   // Emit an event to parent component (workspace) when AI generation starts or stops
   @Output() public setWaitingForLLM = new EventEmitter<boolean>();
+  public isWaitingForLLM = false;
 
   // variable bound with HTML to decide if the running spinner should show
   public runButtonText = "Run";
@@ -711,7 +712,7 @@ export class MenuComponent implements OnInit, OnDestroy {
       return false;
     }
 
-    this.setWaitingForLLM.emit(true); // start loading
+    this.emitWaitingForLLM(true); // start loading
 
     // Read the notebook file as text
     reader.readAsText(file as any);
@@ -824,37 +825,44 @@ export class MenuComponent implements OnInit, OnDestroy {
                   error: (err: unknown) => {
                     this.notificationService.error("Failed to import notebook, check console for detailed error");
                     console.error("Import notebook failed:", err);
-                    this.setWaitingForLLM.emit(false);
+                    this.emitWaitingForLLM(false);
                   },
                   complete: () => {
-                    this.setWaitingForLLM.emit(false);
+                    this.emitWaitingForLLM(false);
                   },
                 });
             } else {
               this.notificationService.error("No workflow was generated from the notebook.");
               console.error("Result is undefined");
-              this.setWaitingForLLM.emit(false);
+              this.emitWaitingForLLM(false);
             }
           })
           .catch(error => {
             this.notificationService.error("Error while communicating with LLM, check console for details");
             console.error("Error while fetching data from LLM: ", error);
-            this.setWaitingForLLM.emit(false);
+            this.emitWaitingForLLM(false);
           });
       } catch (error) {
         this.notificationService.error("Failed to import the notebook.");
         console.error(error);
-        this.setWaitingForLLM.emit(false);
+        this.emitWaitingForLLM(false);
       }
     };
 
     reader.onerror = () => {
       this.notificationService.error("Failed to read the notebook file.");
-      this.setWaitingForLLM.emit(false);
+      this.emitWaitingForLLM(false);
     };
 
     return false; // Prevent automatic upload handling
   };
+
+  // Keeps the local waiting flag and the parent-facing output in lockstep so the
+  // AI-generate button can be disabled while a conversion is in flight.
+  private emitWaitingForLLM(waiting: boolean): void {
+    this.isWaitingForLLM = waiting;
+    this.setWaitingForLLM.emit(waiting);
+  }
 
   public onClickImportWorkflow = (file: NzUploadFile): boolean => {
     const reader = new FileReader();

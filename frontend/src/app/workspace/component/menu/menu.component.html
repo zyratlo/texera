@@ -152,7 +152,7 @@
         <button
           *ngIf="pythonNotebookMigrationEnabled"
           nz-button
-          [disabled]="!isWorkflowModifiable"
+          [disabled]="!isWorkflowModifiable || isWaitingForLLM"
           (click)="openImportNotebookModal()"
           title="AI generate workflow">
           <i
