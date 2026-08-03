@@ -38,7 +38,10 @@ import { WorkflowActionService } from "../../service/workflow-graph/model/workfl
 import { ValidationWorkflowService, ValidationOutput } from "../../service/validation/validation-workflow.service";
 import { PanelService } from "../../service/panel/panel.service";
 import { WorkflowVersionService } from "../../../dashboard/service/user/workflow-version/workflow-version.service";
-import { WorkflowPersistService } from "../../../common/service/workflow-persist/workflow-persist.service";
+import {
+  WorkflowPersistService,
+  DEFAULT_WORKFLOW_NAME,
+} from "../../../common/service/workflow-persist/workflow-persist.service";
 import { NotificationService } from "../../../common/service/notification/notification.service";
 import { ExecutionState } from "../../types/execute-workflow.interface";
 import { ComputingUnitState } from "../../../common/type/computing-unit-connection.interface";
@@ -1077,6 +1080,227 @@ describe("MenuComponent", () => {
 
       expect(errorSpy).toHaveBeenCalledWith("Failed to import the notebook.");
       expect(jupyterSpy).not.toHaveBeenCalled();
+    });
+
+    it("falls back to the default workflow name when the file has no base name", async () => {
+      stubGenerationServices();
+      vi.spyOn(workflowActionService, "getWorkflow").mockReturnValue({ wid: 7 } as any);
+      const persistSpy = vi.spyOn(workflowPersistService, "persistWorkflow").mockReturnValue(of({ wid: 7 } as any));
+      const emitSpy = vi.spyOn(component.setWaitingForLLM, "emit");
+
+      // A file named ".ipynb" has an empty base name, so the default name is used.
+      component.onClickImportNotebook(ipynbFile(validNotebook, ".ipynb"), "gpt-4");
+      await vi.waitFor(() => expect(emitSpy).toHaveBeenCalledWith(false));
+
+      expect(persistSpy.mock.calls[0][0].name).toBe(`${DEFAULT_WORKFLOW_NAME}_GENERATED_BY_LLM`);
+    });
+
+    it("uses the whole file name when it has no dot", async () => {
+      stubGenerationServices();
+      vi.spyOn(workflowActionService, "getWorkflow").mockReturnValue({ wid: 7 } as any);
+      const persistSpy = vi.spyOn(workflowPersistService, "persistWorkflow").mockReturnValue(of({ wid: 7 } as any));
+      const emitSpy = vi.spyOn(component.setWaitingForLLM, "emit");
+
+      // A file named "ipynb" (no dot) passes the extension check and has no extension to strip,
+      // so the whole name becomes the base name.
+      component.onClickImportNotebook(ipynbFile(validNotebook, "ipynb"), "gpt-4");
+      await vi.waitFor(() => expect(emitSpy).toHaveBeenCalledWith(false));
+
+      expect(persistSpy.mock.calls[0][0].name).toBe("ipynb_GENERATED_BY_LLM");
+    });
+
+    it("tags code cells that arrive without a metadata object", async () => {
+      stubGenerationServices();
+      const persistSpy = vi.spyOn(workflowPersistService, "persistWorkflow").mockReturnValue(of({ wid: 5 } as any));
+      const emitSpy = vi.spyOn(component.setWaitingForLLM, "emit");
+
+      const notebookWithoutCellMetadata = {
+        cells: [{ cell_type: "code", source: "x = 1" }],
+        metadata: {},
+        nbformat: 4,
+      };
+      component.onClickImportNotebook(ipynbFile(notebookWithoutCellMetadata), "gpt-4");
+      await vi.waitFor(() => expect(emitSpy).toHaveBeenCalledWith(false));
+
+      expect(persistSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it("on persist failure: surfaces an error notification and clears the loading flag", async () => {
+      vi.spyOn(console, "error").mockImplementation(() => {});
+      vi.spyOn(notebookMigrationService, "sendToAIGenerateWorkflow").mockResolvedValue({
+        workflowContent: { operators: [], links: [], commentBoxes: [], settings: {} } as unknown as WorkflowContent,
+        mappingContent: {} as any,
+      });
+      vi.spyOn(workflowPersistService, "persistWorkflow").mockReturnValue(throwError(() => new Error("db down")));
+      const errorSpy = vi.spyOn(notificationService, "error").mockImplementation(() => {});
+      const emitSpy = vi.spyOn(component.setWaitingForLLM, "emit");
+
+      component.onClickImportNotebook(ipynbFile(validNotebook), "gpt-4");
+      await vi.waitFor(() => expect(emitSpy).toHaveBeenCalledWith(false));
+
+      expect(errorSpy).toHaveBeenCalledWith("Failed to import notebook, check console for detailed error");
+    });
+
+    it("on file read error: surfaces an error and clears the loading flag", async () => {
+      const errorSpy = vi.spyOn(notificationService, "error").mockImplementation(() => {});
+      const emitSpy = vi.spyOn(component.setWaitingForLLM, "emit");
+      // Swap in a FileReader that errors instead of loading, so reader.onerror runs.
+      const RealFileReader = globalThis.FileReader;
+      class FakeFileReader {
+        onerror: ((e: unknown) => void) | null = null;
+        onload: (() => void) | null = null;
+        readAsText(): void {
+          setTimeout(() => this.onerror?.(new Error("read fail")), 0);
+        }
+      }
+      (globalThis as any).FileReader = FakeFileReader;
+      try {
+        component.onClickImportNotebook(ipynbFile(validNotebook), "gpt-4");
+        await vi.waitFor(() => expect(errorSpy).toHaveBeenCalledWith("Failed to read the notebook file."));
+        expect(emitSpy).toHaveBeenCalledWith(false);
+      } finally {
+        (globalThis as any).FileReader = RealFileReader;
+      }
+    });
+
+    it("Cancel closes the modal", () => {
+      vi.spyOn(notebookMigrationService, "getAvailableModels").mockReturnValue(of([]));
+      const modalRef = { close: vi.fn() } as unknown as NzModalRef;
+      const createSpy = vi.spyOn(modalService, "create").mockReturnValue(modalRef);
+
+      component.openImportNotebookModal();
+      const config = createSpy.mock.calls[0][0] as ModalOptions;
+      const cancel = (config.nzFooter as { label: string; onClick: () => void }[]).find(b => b.label === "Cancel")!;
+      cancel.onClick();
+
+      expect(modalRef.close).toHaveBeenCalled();
+    });
+
+    it("Submit is disabled until the form has both a file and a model", () => {
+      vi.spyOn(notebookMigrationService, "getAvailableModels").mockReturnValue(of([]));
+      const modalRef = { close: vi.fn() } as unknown as NzModalRef;
+      const createSpy = vi.spyOn(modalService, "create").mockReturnValue(modalRef);
+
+      component.openImportNotebookModal();
+      const config = createSpy.mock.calls[0][0] as ModalOptions;
+      const submit = (config.nzFooter as { label: string; disabled: () => boolean }[]).find(b => b.label === "Submit")!;
+
+      // Empty form -> disabled.
+      component.importForm.reset({ file: null, model: "" });
+      expect(submit.disabled()).toBe(true);
+
+      // Both required controls filled -> enabled.
+      component.importForm.setValue({ file: { name: "x.ipynb" } as NzUploadFile, model: "gpt-4" });
+      expect(submit.disabled()).toBe(false);
+    });
+
+    it("on non-string file content: surfaces an error and clears the loading flag", async () => {
+      vi.spyOn(console, "error").mockImplementation(() => {});
+      const errorSpy = vi.spyOn(notificationService, "error").mockImplementation(() => {});
+      const emitSpy = vi.spyOn(component.setWaitingForLLM, "emit");
+      // Swap in a FileReader that loads a non-string result, so the string guard throws.
+      const RealFileReader = globalThis.FileReader;
+      class FakeFileReader {
+        result: unknown = null;
+        onerror: (() => void) | null = null;
+        onload: (() => void) | null = null;
+        readAsText(): void {
+          setTimeout(() => this.onload?.(), 0);
+        }
+      }
+      (globalThis as any).FileReader = FakeFileReader;
+      try {
+        component.onClickImportNotebook(ipynbFile(validNotebook), "gpt-4");
+        await vi.waitFor(() => expect(emitSpy).toHaveBeenCalledWith(false));
+        expect(errorSpy).toHaveBeenCalledWith("Failed to import the notebook.");
+      } finally {
+        (globalThis as any).FileReader = RealFileReader;
+      }
+    });
+
+    it("when the LLM returns no result: surfaces an error, clears the loading flag, and never persists", async () => {
+      vi.spyOn(console, "error").mockImplementation(() => {});
+      vi.spyOn(notebookMigrationService, "sendToAIGenerateWorkflow").mockResolvedValue(undefined as any);
+      const persistSpy = vi.spyOn(workflowPersistService, "persistWorkflow");
+      const errorSpy = vi.spyOn(notificationService, "error").mockImplementation(() => {});
+      const emitSpy = vi.spyOn(component.setWaitingForLLM, "emit");
+
+      component.onClickImportNotebook(ipynbFile(validNotebook), "gpt-4");
+      await vi.waitFor(() => expect(emitSpy).toHaveBeenCalledWith(false));
+
+      expect(errorSpy).toHaveBeenCalledWith("No workflow was generated from the notebook.");
+      expect(persistSpy).not.toHaveBeenCalled();
+    });
+  });
+
+  // The import modal body is an <ng-template> passed to NzModal as nzContent, so it is
+  // never rendered by the component's own change detection. Render it directly through the
+  // component's ViewContainerRef (the same context NzModal supplies: nzData as $implicit)
+  // to exercise the form markup and the three model-select states.
+  describe("import modal template", () => {
+    // Renders #importNotebookModal with the given models$ observable and returns the view.
+    function renderModal(models$: unknown) {
+      const vcr = (component as any).viewContainerRef;
+      const viewRef = vcr.createEmbeddedView(component.importModalTpl, { $implicit: { models$ } });
+      viewRef.detectChanges();
+      return viewRef;
+    }
+
+    // Finds the first element matching selector across the view's root nodes and their subtrees.
+    function query(viewRef: any, selector: string): Element | null {
+      for (const node of viewRef.rootNodes as Node[]) {
+        if (node.nodeType !== Node.ELEMENT_NODE) continue;
+        const el = node as Element;
+        if (el.matches(selector)) return el;
+        const found = el.querySelector(selector);
+        if (found) return found;
+      }
+      return null;
+    }
+
+    function text(viewRef: any): string {
+      return (viewRef.rootNodes as Node[]).map(n => n.textContent ?? "").join("");
+    }
+
+    it("renders the warning, diagram, and a usable model select once models load", () => {
+      const viewRef = renderModal(of([{ name: "gpt-4" }]));
+      try {
+        expect(query(viewRef, ".import-modal-warning")).not.toBeNull();
+        expect(query(viewRef, "img[alt='Notebook to Workflow']")).not.toBeNull();
+        expect(query(viewRef, "nz-select")).not.toBeNull();
+        expect(text(viewRef)).toContain("Select a model");
+      } finally {
+        viewRef.destroy();
+      }
+    });
+
+    it("shows the disabled 'no models available' select when the list is empty", () => {
+      const viewRef = renderModal(of([]));
+      try {
+        expect(text(viewRef)).toContain("No models available");
+      } finally {
+        viewRef.destroy();
+      }
+    });
+
+    it("shows the loading select while models have not resolved yet", () => {
+      // A subject that never emits keeps the async pipe pending, so the loading branch renders.
+      const viewRef = renderModal(new Subject());
+      try {
+        expect(text(viewRef)).toContain("Loading models...");
+      } finally {
+        viewRef.destroy();
+      }
+    });
+
+    it("shows the selected file name once a file is on the form", () => {
+      component.importForm.patchValue({ file: { name: "demo.ipynb" } });
+      const viewRef = renderModal(of([{ name: "gpt-4" }]));
+      try {
+        expect(text(viewRef)).toContain("Selected file: demo.ipynb");
+      } finally {
+        viewRef.destroy();
+      }
     });
   });
 });
