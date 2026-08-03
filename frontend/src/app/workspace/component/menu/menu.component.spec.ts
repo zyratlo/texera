@@ -994,7 +994,8 @@ describe("MenuComponent", () => {
     // saved (no wid) a new row is created and the wid changes, which routes the notebook
     // send + panel open through JupyterPanelService.init() instead of doing it here.
     function stubGenerationServices() {
-      vi.spyOn(notebookMigrationService, "sendNotebookToJupyter").mockResolvedValue(undefined as any);
+      // 1 == the notebook reached Jupyter; the in-place path opens the panel only on 1.
+      vi.spyOn(notebookMigrationService, "sendNotebookToJupyter").mockResolvedValue(1 as any);
       vi.spyOn(notebookMigrationService, "sendToAIGenerateWorkflow").mockResolvedValue({
         workflowContent: { operators: [], links: [], commentBoxes: [], settings: {} } as unknown as WorkflowContent,
         mappingContent: {} as any,
@@ -1030,6 +1031,26 @@ describe("MenuComponent", () => {
       expect(jupyterPanelService.openPanel).toHaveBeenCalledWith("JupyterNotebookPanel");
       // Stayed on the same workflow, so the URL is not changed.
       expect(location.go).not.toHaveBeenCalled();
+    });
+
+    it("does not open the panel when the notebook fails to reach Jupyter", async () => {
+      stubGenerationServices();
+      // sendNotebookToJupyter resolves 0 on failure (it toasts the error itself).
+      vi.spyOn(notebookMigrationService, "sendNotebookToJupyter").mockResolvedValue(0 as any);
+      vi.spyOn(workflowActionService, "getWorkflow").mockReturnValue({ wid: 7 } as any);
+      vi.spyOn(workflowPersistService, "persistWorkflow").mockReturnValue(of({ wid: 7 } as any));
+      vi.spyOn(component, "onClickAutoLayout").mockImplementation(() => {});
+      const emitSpy = vi.spyOn(component.setWaitingForLLM, "emit");
+
+      component.onClickImportNotebook(ipynbFile(validNotebook), "gpt-4");
+      await vi.waitFor(() => expect(emitSpy).toHaveBeenCalledWith(false));
+      // Let the sendNotebookToJupyter().then(...) microtask settle before asserting.
+      await Promise.resolve();
+
+      // The reload still happened, but the panel stays closed since the send failed.
+      expect(notebookMigrationService.sendNotebookToJupyter).toHaveBeenCalled();
+      expect(workflowActionService.reloadWorkflow).toHaveBeenCalledWith({ wid: 7 }, false);
+      expect(jupyterPanelService.openPanel).not.toHaveBeenCalled();
     });
 
     it("creates a new row and points the URL at it when the current workflow was never saved", async () => {

@@ -803,9 +803,15 @@ export class MenuComponent implements OnInit, OnDestroy {
                       // and open the panel ourselves. Use openPanel, not openJupyterNotebookPanel:
                       // init()'s wid-change handler is not involved and openPanel opens
                       // unconditionally without the hasMapping gate.
-                      this.notebookMigrationService
-                        .sendNotebookToJupyter(notebookContent)
-                        .then(() => this.jupyterPanelService.openPanel("JupyterNotebookPanel"));
+                      // sendNotebookToJupyter never rejects: it resolves 1 on success and 0 on
+                      // failure (it toasts the error itself). Open the panel only on success so we
+                      // do not float it over a blank iframe, matching the init()-driven path which
+                      // opens only when fetchNotebookAndMapping reports the send succeeded.
+                      this.notebookMigrationService.sendNotebookToJupyter(notebookContent).then(result => {
+                        if (result == 1) {
+                          this.jupyterPanelService.openPanel("JupyterNotebookPanel");
+                        }
+                      });
                     } else {
                       // The current workflow had never been saved, so a new row was created and the
                       // wid changed. reloadWorkflow's synchronous wid change drives init() to fetch
