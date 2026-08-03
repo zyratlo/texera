@@ -28,12 +28,13 @@ import { DragDropModule } from "@angular/cdk/drag-drop";
 import { NzButtonModule } from "ng-zorro-antd/button";
 import { NzIconModule } from "ng-zorro-antd/icon";
 import { NzPopconfirmModule } from "ng-zorro-antd/popconfirm";
+import { NzTooltipModule } from "ng-zorro-antd/tooltip";
 
 @Component({
   selector: "texera-jupyter-notebook-panel",
   templateUrl: "./jupyter-notebook-panel.component.html",
   styleUrls: ["./jupyter-notebook-panel.component.scss"],
-  imports: [CommonModule, DragDropModule, NzButtonModule, NzIconModule, NzPopconfirmModule],
+  imports: [CommonModule, DragDropModule, NzButtonModule, NzIconModule, NzPopconfirmModule, NzTooltipModule],
 })
 export class JupyterNotebookPanelComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild("iframeRef", { static: false }) iframeRef!: ElementRef<HTMLIFrameElement>; // Use static: false
@@ -101,9 +102,9 @@ export class JupyterNotebookPanelComponent implements OnInit, AfterViewInit, OnD
     this.destroy$.complete(); // Cleanup subscriptions to avoid memory leaks
   }
 
-  // Close the panel by invoking the service method
-  closePanel(): void {
-    this.jupyterPanelService.closeJupyterNotebookPanel();
+  // Delete the workflow's Jupyter notebook by invoking the service method
+  deletePanel(): void {
+    this.jupyterPanelService.deleteJupyterNotebook();
   }
 
   // Minimize the jupyter notebook by invoking the service method. Visibility is

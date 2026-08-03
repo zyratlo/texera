@@ -60,12 +60,9 @@
   cursor: pointer;
 }
 
-.minimize-button:hover {
-  color: royalblue;
-}
-
+.minimize-button:hover,
 .delete-button:hover {
-  color: royalblue;
+  color: #bfbfbf;
 }
 
 .iframe-container {

@@ -23,7 +23,7 @@ import { JupyterPanelService } from "../../service/jupyter-panel/jupyter-panel.s
 import { NotebookMigrationService } from "../../service/notebook-migration/notebook-migration.service";
 import { Subject } from "rxjs";
 import { ElementRef } from "@angular/core";
-import { DomSanitizer } from "@angular/platform-browser";
+import { By, DomSanitizer } from "@angular/platform-browser";
 
 describe("JupyterNotebookPanelComponent", () => {
   let component: JupyterNotebookPanelComponent;
@@ -37,7 +37,7 @@ describe("JupyterNotebookPanelComponent", () => {
     mockJupyterPanelService = {
       jupyterNotebookPanelVisible$: new Subject<boolean>(),
       setIframeRef: vi.fn(),
-      closeJupyterNotebookPanel: vi.fn(),
+      deleteJupyterNotebook: vi.fn(),
       minimizeJupyterNotebookPanel: vi.fn(),
     };
 
@@ -220,10 +220,10 @@ describe("JupyterNotebookPanelComponent", () => {
     expect(mockJupyterPanelService.setIframeRef).not.toHaveBeenCalled();
   }));
 
-  it("should close panel via service", () => {
+  it("should delete notebook via service", () => {
     vi.spyOn(component, "checkIframeRef").mockImplementation(() => {});
-    component.closePanel();
-    expect(mockJupyterPanelService.closeJupyterNotebookPanel).toHaveBeenCalled();
+    component.deletePanel();
+    expect(mockJupyterPanelService.deleteJupyterNotebook).toHaveBeenCalled();
   });
 
   it("should minimize panel and update visibility", () => {
@@ -239,6 +239,31 @@ describe("JupyterNotebookPanelComponent", () => {
 
     expect(component.isVisible).toBe(false);
     expect(mockJupyterPanelService.minimizeJupyterNotebookPanel).toHaveBeenCalled();
+  });
+
+  it("should minimize via the header minimize button click", () => {
+    vi.spyOn(component, "checkIframeRef").mockImplementation(() => {});
+    component.isVisible = true;
+    fixture.detectChanges();
+
+    const minimizeButton = fixture.debugElement.query(By.css(".minimize-button"));
+    expect(minimizeButton).not.toBeNull();
+    minimizeButton.triggerEventHandler("click", new MouseEvent("click"));
+
+    expect(mockJupyterPanelService.minimizeJupyterNotebookPanel).toHaveBeenCalled();
+  });
+
+  it("should delete via the header delete button popconfirm", () => {
+    vi.spyOn(component, "checkIframeRef").mockImplementation(() => {});
+    component.isVisible = true;
+    fixture.detectChanges();
+
+    const deleteButton = fixture.debugElement.query(By.css(".delete-button"));
+    expect(deleteButton).not.toBeNull();
+    // Fire the popconfirm's confirm output, which runs the (nzOnConfirm) binding.
+    deleteButton.triggerEventHandler("nzOnConfirm", undefined);
+
+    expect(mockJupyterPanelService.deleteJupyterNotebook).toHaveBeenCalled();
   });
 
   it("should clean up on destroy", () => {

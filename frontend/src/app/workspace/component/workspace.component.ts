@@ -63,7 +63,7 @@ import { MiniMapComponent } from "./workflow-editor/mini-map/mini-map.component"
 import { LeftPanelComponent } from "./left-panel/left-panel.component";
 import { AgentPanelComponent } from "./agent/agent-panel/agent-panel.component";
 import { PropertyEditorComponent } from "./property-editor/property-editor.component";
-import { JupyterNotebookPanelComponent } from "../component/jupyter-notebook-panel/jupyter-notebook-panel.component";
+import { JupyterNotebookPanelComponent } from "./jupyter-notebook-panel/jupyter-notebook-panel.component";
 
 export const SAVE_DEBOUNCE_TIME_IN_MS = 5000;
 
