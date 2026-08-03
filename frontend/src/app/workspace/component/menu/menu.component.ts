@@ -220,7 +220,6 @@ export class MenuComponent implements OnInit, OnDestroy {
     protected config: GuiConfigService,
     private router: Router,
     private fb: FormBuilder,
-    private modal: NzModalService,
     private viewContainerRef: ViewContainerRef,
     private jupyterPanelService: JupyterPanelService,
     private notebookMigrationService: NotebookMigrationService
@@ -645,7 +644,7 @@ export class MenuComponent implements OnInit, OnDestroy {
   openImportNotebookModal(): void {
     const models$ = this.notebookMigrationService.getAvailableModels();
 
-    const modalRef = this.modal.create({
+    const modalRef = this.modalService.create({
       nzTitle: "AI Generate Workflow from Python Notebook",
       nzContent: this.importModalTpl,
       nzViewContainerRef: this.viewContainerRef,
@@ -677,7 +676,7 @@ export class MenuComponent implements OnInit, OnDestroy {
             const currentWorkflowHasContent =
               graph.getAllOperators().length > 0 || graph.getAllCommentBoxes().length > 0;
             if (currentWorkflowHasContent) {
-              this.modal.confirm({
+              this.modalService.confirm({
                 nzTitle: "Overwrite current workflow?",
                 nzContent:
                   "Generating will replace the contents of the workflow you have open. " +
