@@ -121,13 +121,16 @@
 <div class="import-modal-footer">
   <button
     nz-button
+    type="button"
+    [disabled]="isSubmitting"
     (click)="onCancel()">
     Cancel
   </button>
   <button
     nz-button
+    type="button"
     nzType="primary"
-    [disabled]="!importForm.valid"
+    [disabled]="!importForm.valid || isSubmitting"
     (click)="onSubmit()">
     Submit
   </button>

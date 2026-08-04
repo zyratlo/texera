@@ -90,14 +90,24 @@ export class NotebookImportModalComponent {
     this.modalRef.close();
   }
 
+  // Guards against a second submit while the opener callback (which may show an
+  // overwrite confirmation) is still pending, so a double-click cannot start two imports.
+  public isSubmitting = false;
+
   public async onSubmit(): Promise<void> {
-    if (!this.importForm.valid) return;
+    if (this.isSubmitting || !this.importForm.valid) return;
     const file: NzUploadFile = this.importForm.get("file")?.value;
     const model: string = this.importForm.get("model")?.value;
-    // Ask the opener whether to proceed; close only if it does, so cancelling the
-    // overwrite-confirm leaves this modal open with the selection preserved.
-    if (await this.data.requestImport(file, model)) {
-      this.modalRef.close();
+    this.isSubmitting = true;
+    try {
+      // Ask the opener whether to proceed; close only if it does, so cancelling the
+      // overwrite-confirm leaves this modal open with the selection preserved.
+      if (await this.data.requestImport(file, model)) {
+        this.modalRef.close();
+      }
+    } finally {
+      // Re-enable submit if the modal is still open (import declined or it threw).
+      this.isSubmitting = false;
     }
   }
 }

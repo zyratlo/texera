@@ -136,6 +136,36 @@ describe("NotebookImportModalComponent", () => {
     expect(modalRef.close).not.toHaveBeenCalled();
   });
 
+  it("ignores a second submit while the first is still pending", async () => {
+    // A pending requestImport models the opener still showing its overwrite confirmation.
+    let resolveRequest!: (proceed: boolean) => void;
+    requestImport.mockReturnValue(new Promise<boolean>(resolve => (resolveRequest = resolve)));
+    await createWith(of([{ name: "gpt-4" }]));
+    component.importForm.setValue({ file: { name: "x.ipynb" } as NzUploadFile, model: "gpt-4" });
+
+    const first = component.onSubmit();
+    const second = component.onSubmit(); // double-click while the first is in flight
+
+    expect(requestImport).toHaveBeenCalledTimes(1);
+    expect(component.isSubmitting).toBe(true);
+
+    resolveRequest(true);
+    await Promise.all([first, second]);
+  });
+
+  it("re-enables submit after the opener declines, allowing another attempt", async () => {
+    requestImport.mockResolvedValue(false);
+    await createWith(of([{ name: "gpt-4" }]));
+    component.importForm.setValue({ file: { name: "x.ipynb" } as NzUploadFile, model: "gpt-4" });
+
+    await component.onSubmit();
+    expect(component.isSubmitting).toBe(false);
+
+    // The guard has cleared, so a second attempt is allowed and calls the opener again.
+    await component.onSubmit();
+    expect(requestImport).toHaveBeenCalledTimes(2);
+  });
+
   it("onSubmit does nothing while the form is invalid", async () => {
     await createWith(of([{ name: "gpt-4" }]));
     component.importForm.setValue({ file: null, model: "" });
