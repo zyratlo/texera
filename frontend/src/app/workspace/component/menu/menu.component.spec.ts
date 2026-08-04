@@ -882,6 +882,24 @@ describe("MenuComponent", () => {
       // Flag on and a notebook exists -> shown.
       expect(button()).not.toBeNull();
     });
+
+    it("clicking the expand-jupyter button opens the panel", () => {
+      const openSpy = vi
+        .spyOn(TestBed.inject(JupyterPanelService), "openJupyterNotebookPanel")
+        .mockImplementation(() => {});
+      (TestBed.inject(GuiConfigService) as unknown as MockGuiConfigService).setConfig({
+        pythonNotebookMigrationEnabled: true,
+      });
+      (TestBed.inject(JupyterPanelService) as any).jupyterNotebookExists$ = of(true);
+      fixture.detectChanges();
+
+      const button = fixture.nativeElement.querySelector(
+        'button[title="expand Jupyter notebook"]'
+      ) as HTMLButtonElement;
+      button.click();
+
+      expect(openSpy).toHaveBeenCalled();
+    });
   });
 
   // Coverage for the notebook -> workflow import flow: the modal wiring, the
@@ -1058,6 +1076,20 @@ describe("MenuComponent", () => {
       component.isWaitingForLLM = true;
       fixture.detectChanges();
       expect(button().disabled).toBe(true);
+    });
+
+    it("clicking the AI-generate button opens the import modal", () => {
+      const openSpy = vi.spyOn(component, "openImportNotebookModal").mockImplementation(() => {});
+      (TestBed.inject(GuiConfigService) as unknown as MockGuiConfigService).setConfig({
+        pythonNotebookMigrationEnabled: true,
+      });
+      component.isWorkflowModifiable = true; // enable the button so the click lands
+      fixture.detectChanges();
+
+      const button = fixture.nativeElement.querySelector('button[title="AI generate workflow"]') as HTMLButtonElement;
+      button.click();
+
+      expect(openSpy).toHaveBeenCalled();
     });
 
     it("does not open the panel when the notebook fails to reach Jupyter", async () => {
