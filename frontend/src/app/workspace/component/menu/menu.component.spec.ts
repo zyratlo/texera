@@ -55,6 +55,7 @@ import { ReportGenerationService } from "../../service/report-generation/report-
 import { USER_WORKFLOW, USER_WORKSPACE } from "../../../app-routing.constant";
 import { JupyterPanelService } from "../../service/jupyter-panel/jupyter-panel.service";
 import { NotebookMigrationService } from "../../service/notebook-migration/notebook-migration.service";
+import { NotebookImportModalComponent } from "../notebook-import-modal/notebook-import-modal.component";
 import { NzUploadFile } from "ng-zorro-antd/upload";
 import { GuiConfigService } from "../../../common/service/gui-config.service";
 import { MockGuiConfigService } from "../../../common/service/gui-config.service.mock";
@@ -909,73 +910,70 @@ describe("MenuComponent", () => {
       jupyterPanelService = TestBed.inject(JupyterPanelService);
     });
 
-    it("openImportNotebookModal creates the modal seeded with the available models and Cancel/Submit buttons", () => {
-      vi.spyOn(notebookMigrationService, "getAvailableModels").mockReturnValue(of([{ name: "gpt-4" }]));
-      const fakeModalRef = { close: vi.fn() } as unknown as NzModalRef;
-      const createSpy = vi.spyOn(modalService, "create").mockReturnValue(fakeModalRef);
+    it("openImportNotebookModal opens the NotebookImportModalComponent with a requestImport callback and no menu footer", () => {
+      const createSpy = vi.spyOn(modalService, "create").mockReturnValue({} as unknown as NzModalRef);
 
       component.openImportNotebookModal();
 
       expect(createSpy).toHaveBeenCalledTimes(1);
       const config = createSpy.mock.calls[0][0] as ModalOptions;
       expect(config.nzTitle).toBe("AI Generate Workflow from Python Notebook");
-      expect((config.nzData as { models$: unknown }).models$).toBeDefined();
-      const footer = config.nzFooter as { label: string }[];
-      expect(footer.map(b => b.label)).toEqual(["Cancel", "Submit"]);
-      expect(notebookMigrationService.getAvailableModels).toHaveBeenCalledTimes(1);
+      expect(config.nzContent).toBe(NotebookImportModalComponent);
+      expect(config.nzFooter).toBeNull();
+      expect(typeof (config.nzData as { requestImport: unknown }).requestImport).toBe("function");
     });
 
-    // Opens the modal, returns its Submit button's onClick and the modal ref so tests can
-    // drive the submit path (which is where the overwrite confirmation lives).
-    function openModalAndGetSubmit(): { submit: () => void; modalRef: NzModalRef } {
-      vi.spyOn(notebookMigrationService, "getAvailableModels").mockReturnValue(of([]));
-      const modalRef = { close: vi.fn() } as unknown as NzModalRef;
-      const createSpy = vi.spyOn(modalService, "create").mockReturnValue(modalRef);
+    // Opens the modal and returns the requestImport callback the menu handed to it; calling
+    // it drives the overwrite-confirm + import decision (true => close modal, false => keep open).
+    function getRequestImport(): (file: NzUploadFile, model: string) => Promise<boolean> {
+      const createSpy = vi.spyOn(modalService, "create").mockReturnValue({} as unknown as NzModalRef);
       component.openImportNotebookModal();
       const config = createSpy.mock.calls[0][0] as ModalOptions;
-      const submit = (config.nzFooter as { label: string; onClick: () => void }[]).find(b => b.label === "Submit")!;
-      return { submit: submit.onClick, modalRef };
+      return (config.nzData as { requestImport: (file: NzUploadFile, model: string) => Promise<boolean> })
+        .requestImport;
     }
 
-    it("Submit imports directly (no confirmation) when the current workflow is empty", () => {
+    it("imports directly and resolves true when the current workflow is empty", async () => {
       const importSpy = vi.spyOn(component, "onClickImportNotebook").mockReturnValue(false);
       const confirmSpy = vi.spyOn(modalService, "confirm").mockImplementation(() => ({}) as NzModalRef);
 
-      const { submit, modalRef } = openModalAndGetSubmit();
-      submit();
+      const proceed = await getRequestImport()({ name: "x.ipynb" } as NzUploadFile, "gpt-4");
 
       expect(confirmSpy).not.toHaveBeenCalled();
-      expect(importSpy).toHaveBeenCalledTimes(1);
-      expect(modalRef.close).toHaveBeenCalled();
+      expect(importSpy).toHaveBeenCalledWith({ name: "x.ipynb" }, "gpt-4");
+      expect(proceed).toBe(true);
     });
 
-    it("Submit confirms before overwriting a non-empty workflow, and imports only on confirm", () => {
+    it("confirms before overwriting a non-empty workflow, imports and resolves true on confirm", async () => {
       workflowActionService.addOperator(mockScanPredicate, mockPoint);
       const importSpy = vi.spyOn(component, "onClickImportNotebook").mockReturnValue(false);
       const confirmSpy = vi.spyOn(modalService, "confirm").mockImplementation(() => ({}) as NzModalRef);
 
-      const { submit, modalRef } = openModalAndGetSubmit();
-      submit();
+      const proceedPromise = getRequestImport()({ name: "x.ipynb" } as NzUploadFile, "gpt-4");
 
-      // Confirmation is shown; the import has not started and the modal is still open.
+      // Confirmation is shown; the import has not started.
       expect(confirmSpy).toHaveBeenCalledTimes(1);
       expect(importSpy).not.toHaveBeenCalled();
-      expect(modalRef.close).not.toHaveBeenCalled();
 
-      // Confirming ("Overwrite") starts the import and closes the modal.
+      // Confirming ("Overwrite") starts the import and lets the modal close.
       const confirmConfig = confirmSpy.mock.calls[0][0] as { nzOnOk: () => void };
       confirmConfig.nzOnOk();
-      expect(importSpy).toHaveBeenCalledTimes(1);
-      expect(modalRef.close).toHaveBeenCalled();
+      await expect(proceedPromise).resolves.toBe(true);
+      expect(importSpy).toHaveBeenCalledWith({ name: "x.ipynb" }, "gpt-4");
     });
 
-    it("beforeUpload stores the file on the form and prevents auto-upload", () => {
-      const file = { name: "x.ipynb" } as NzUploadFile;
+    it("resolves false without importing when the overwrite confirmation is cancelled", async () => {
+      workflowActionService.addOperator(mockScanPredicate, mockPoint);
+      const importSpy = vi.spyOn(component, "onClickImportNotebook").mockReturnValue(false);
+      const confirmSpy = vi.spyOn(modalService, "confirm").mockImplementation(() => ({}) as NzModalRef);
 
-      const result = component.beforeUpload(file);
+      const proceedPromise = getRequestImport()({ name: "x.ipynb" } as NzUploadFile, "gpt-4");
 
-      expect(result).toBe(false);
-      expect(component.importForm.get("file")?.value).toBe(file);
+      // Backing out keeps the modal open (resolve false) and starts no import.
+      const confirmConfig = confirmSpy.mock.calls[0][0] as { nzOnCancel: () => void };
+      confirmConfig.nzOnCancel();
+      await expect(proceedPromise).resolves.toBe(false);
+      expect(importSpy).not.toHaveBeenCalled();
     });
 
     it("rejects a non-ipynb file without entering the loading state", () => {
@@ -1213,37 +1211,6 @@ describe("MenuComponent", () => {
       }
     });
 
-    it("Cancel closes the modal", () => {
-      vi.spyOn(notebookMigrationService, "getAvailableModels").mockReturnValue(of([]));
-      const modalRef = { close: vi.fn() } as unknown as NzModalRef;
-      const createSpy = vi.spyOn(modalService, "create").mockReturnValue(modalRef);
-
-      component.openImportNotebookModal();
-      const config = createSpy.mock.calls[0][0] as ModalOptions;
-      const cancel = (config.nzFooter as { label: string; onClick: () => void }[]).find(b => b.label === "Cancel")!;
-      cancel.onClick();
-
-      expect(modalRef.close).toHaveBeenCalled();
-    });
-
-    it("Submit is disabled until the form has both a file and a model", () => {
-      vi.spyOn(notebookMigrationService, "getAvailableModels").mockReturnValue(of([]));
-      const modalRef = { close: vi.fn() } as unknown as NzModalRef;
-      const createSpy = vi.spyOn(modalService, "create").mockReturnValue(modalRef);
-
-      component.openImportNotebookModal();
-      const config = createSpy.mock.calls[0][0] as ModalOptions;
-      const submit = (config.nzFooter as { label: string; disabled: () => boolean }[]).find(b => b.label === "Submit")!;
-
-      // Empty form -> disabled.
-      component.importForm.reset({ file: null, model: "" });
-      expect(submit.disabled()).toBe(true);
-
-      // Both required controls filled -> enabled.
-      component.importForm.setValue({ file: { name: "x.ipynb" } as NzUploadFile, model: "gpt-4" });
-      expect(submit.disabled()).toBe(false);
-    });
-
     it("on non-string file content: surfaces an error and clears the loading flag", async () => {
       vi.spyOn(console, "error").mockImplementation(() => {});
       const errorSpy = vi.spyOn(notificationService, "error").mockImplementation(() => {});
@@ -1280,77 +1247,6 @@ describe("MenuComponent", () => {
 
       expect(errorSpy).toHaveBeenCalledWith("No workflow was generated from the notebook.");
       expect(persistSpy).not.toHaveBeenCalled();
-    });
-  });
-
-  // The import modal body is an <ng-template> passed to NzModal as nzContent, so it is
-  // never rendered by the component's own change detection. Render it directly through the
-  // component's ViewContainerRef (the same context NzModal supplies: nzData as $implicit)
-  // to exercise the form markup and the three model-select states.
-  describe("import modal template", () => {
-    // Renders #importNotebookModal with the given models$ observable and returns the view.
-    function renderModal(models$: unknown) {
-      const vcr = (component as any).viewContainerRef;
-      const viewRef = vcr.createEmbeddedView(component.importModalTpl, { $implicit: { models$ } });
-      viewRef.detectChanges();
-      return viewRef;
-    }
-
-    // Finds the first element matching selector across the view's root nodes and their subtrees.
-    function query(viewRef: any, selector: string): Element | null {
-      for (const node of viewRef.rootNodes as Node[]) {
-        if (node.nodeType !== Node.ELEMENT_NODE) continue;
-        const el = node as Element;
-        if (el.matches(selector)) return el;
-        const found = el.querySelector(selector);
-        if (found) return found;
-      }
-      return null;
-    }
-
-    function text(viewRef: any): string {
-      return (viewRef.rootNodes as Node[]).map(n => n.textContent ?? "").join("");
-    }
-
-    it("renders the warning, diagram, and a usable model select once models load", () => {
-      const viewRef = renderModal(of([{ name: "gpt-4" }]));
-      try {
-        expect(query(viewRef, ".import-modal-warning")).not.toBeNull();
-        expect(query(viewRef, "img[alt='Notebook to Workflow']")).not.toBeNull();
-        expect(query(viewRef, "nz-select")).not.toBeNull();
-        expect(text(viewRef)).toContain("Select a model");
-      } finally {
-        viewRef.destroy();
-      }
-    });
-
-    it("shows the disabled 'no models available' select when the list is empty", () => {
-      const viewRef = renderModal(of([]));
-      try {
-        expect(text(viewRef)).toContain("No models available");
-      } finally {
-        viewRef.destroy();
-      }
-    });
-
-    it("shows the loading select while models have not resolved yet", () => {
-      // A subject that never emits keeps the async pipe pending, so the loading branch renders.
-      const viewRef = renderModal(new Subject());
-      try {
-        expect(text(viewRef)).toContain("Loading models...");
-      } finally {
-        viewRef.destroy();
-      }
-    });
-
-    it("shows the selected file name once a file is on the form", () => {
-      component.importForm.patchValue({ file: { name: "demo.ipynb" } });
-      const viewRef = renderModal(of([{ name: "gpt-4" }]));
-      try {
-        expect(text(viewRef)).toContain("Selected file: demo.ipynb");
-      } finally {
-        viewRef.destroy();
-      }
     });
   });
 });
