@@ -38,7 +38,6 @@ import { UntilDestroy, untilDestroyed } from "@ngneat/until-destroy";
 import { WorkflowUtilService } from "../../service/workflow-graph/util/workflow-util.service";
 import { WorkflowVersionService } from "../../../dashboard/service/user/workflow-version/workflow-version.service";
 import { UserProjectService } from "../../../dashboard/service/user/project/user-project.service";
-import { NzUploadFile, NzUploadComponent } from "ng-zorro-antd/upload";
 import { saveAs } from "file-saver";
 import { NotificationService } from "src/app/common/service/notification/notification.service";
 import { OperatorMenuService } from "../../service/operator-menu/operator-menu.service";
@@ -82,6 +81,7 @@ import {
   NotebookImportModalComponent,
   NotebookImportModalData,
 } from "../notebook-import-modal/notebook-import-modal.component";
+import { NzUploadFile } from "ng-zorro-antd/upload";
 
 /**
  * MenuComponent is the top level menu bar that shows
@@ -116,7 +116,6 @@ import {
     CoeditorUserIconComponent,
     UserIconComponent,
     RouterLink,
-    NzUploadComponent,
     NzDropdownDirective,
     NzDropdownMenuComponent,
     NzMenuDirective,
@@ -827,57 +826,6 @@ export class MenuComponent implements OnInit, OnDestroy {
     this.isWaitingForLLM = waiting;
     this.setWaitingForLLM.emit(waiting);
   }
-
-  public onClickImportWorkflow = (file: NzUploadFile): boolean => {
-    const reader = new FileReader();
-    reader.readAsText(file as any);
-    reader.onload = () => {
-      try {
-        const result = reader.result;
-        if (typeof result !== "string") {
-          throw new Error("incorrect format: file is not a string");
-        }
-
-        const workflowContent = JSON.parse(result) as WorkflowContent;
-
-        // set the workflow name using the file name without the extension
-        const fileExtensionIndex = file.name.lastIndexOf(".");
-        var workflowName: string;
-        if (fileExtensionIndex === -1) {
-          workflowName = file.name;
-        } else {
-          workflowName = file.name.substring(0, fileExtensionIndex);
-        }
-        if (workflowName.trim() === "") {
-          workflowName = DEFAULT_WORKFLOW_NAME;
-        }
-
-        const workflow: Workflow = {
-          content: workflowContent,
-          name: workflowName,
-          description: undefined,
-          wid: undefined,
-          creationTime: undefined,
-          lastModifiedTime: undefined,
-          readonly: false,
-          isPublished: 0,
-        };
-
-        this.workflowActionService.enableWorkflowModification();
-        // load the fetched workflow
-        this.workflowActionService.reloadWorkflow(workflow, true);
-        // clear stack
-        this.undoRedoService.clearUndoStack();
-        this.undoRedoService.clearRedoStack();
-      } catch (error) {
-        this.notificationService.error(
-          "An error occurred when importing the workflow. Please import a workflow json file."
-        );
-        console.error(error);
-      }
-    };
-    return false;
-  };
 
   public onClickExportWorkflow(): void {
     const workflowContent: WorkflowContent = this.workflowActionService.getWorkflowContent();
