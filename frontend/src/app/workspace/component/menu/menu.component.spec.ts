@@ -979,6 +979,20 @@ describe("MenuComponent", () => {
       expect(proceed).toBe(true);
     });
 
+    it("rejects a non-ipynb file: resolves false, errors, and neither confirms nor imports", async () => {
+      const importSpy = vi.spyOn(component, "onClickImportNotebook").mockReturnValue(false);
+      const confirmSpy = vi.spyOn(modalService, "confirm").mockImplementation(() => ({}) as NzModalRef);
+      const errorSpy = vi.spyOn(notificationService, "error").mockImplementation(() => {});
+
+      const proceed = await getRequestImport()({ name: "data.txt" } as NzUploadFile, "gpt-4");
+
+      // Resolving false keeps the modal open with the selection preserved; nothing started.
+      expect(proceed).toBe(false);
+      expect(errorSpy).toHaveBeenCalledWith("Please upload a valid Jupyter Notebook (.ipynb) file.");
+      expect(confirmSpy).not.toHaveBeenCalled();
+      expect(importSpy).not.toHaveBeenCalled();
+    });
+
     it("confirms before overwriting a non-empty workflow, imports and resolves true on confirm", async () => {
       workflowActionService.addOperator(mockScanPredicate, mockPoint);
       const importSpy = vi.spyOn(component, "onClickImportNotebook").mockReturnValue(false);

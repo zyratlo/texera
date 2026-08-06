@@ -635,6 +635,13 @@ export class MenuComponent implements OnInit, OnDestroy {
   // has started (the modal should close), false when the user backs out of the overwrite
   // confirmation (the modal should stay open with the selection intact).
   private confirmAndImport(file: NzUploadFile, model: string): Promise<boolean> {
+    // Reject a non-notebook file here, before starting anything, so the modal stays open
+    // with the selection intact (resolving false) instead of closing on a no-op import.
+    const fileExtension = file.name.split(".").pop()?.toLowerCase();
+    if (fileExtension !== "ipynb") {
+      this.notificationService.error("Please upload a valid Jupyter Notebook (.ipynb) file.");
+      return Promise.resolve(false);
+    }
     const startImport = () => this.onClickImportNotebook(file, model);
     // Generating overwrites the currently open workflow. Confirm first only when there is
     // actual content to replace; a fresh empty workflow needs no prompt.
