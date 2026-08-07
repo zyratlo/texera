@@ -374,6 +374,7 @@ export class WorkspaceComponent implements AfterViewInit, OnInit, OnDestroy {
   }
 
   startTimer() {
+    this.stopTimer(); // clear any interval already running so repeated starts don't stack
     this.startTime = Date.now();
     this.updateElapsedTime();
     this.timerInterval = setInterval(() => {

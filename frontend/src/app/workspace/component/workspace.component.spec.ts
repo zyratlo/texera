@@ -542,5 +542,23 @@ describe("WorkspaceComponent", () => {
 
       expect(clearSpy).toHaveBeenCalled();
     });
+
+    it("clears the previous interval when the timer is started again without stopping", async () => {
+      vi.useFakeTimers();
+      await createFixture();
+      fixture.detectChanges();
+
+      const clearSpy = vi.spyOn(globalThis, "clearInterval");
+
+      component.onWaitingForLLMChanged(true);
+      const firstInterval = (component as any).timerInterval;
+
+      // A second start (e.g. a double click) must not leave the first interval running.
+      component.onWaitingForLLMChanged(true);
+      const secondInterval = (component as any).timerInterval;
+
+      expect(secondInterval).not.toBe(firstInterval);
+      expect(clearSpy).toHaveBeenCalledWith(firstInterval);
+    });
   });
 });

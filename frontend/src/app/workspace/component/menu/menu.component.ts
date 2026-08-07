@@ -17,21 +17,9 @@
  * under the License.
  */
 
-import { DatePipe, Location, NgIf, NgFor, NgTemplateOutlet, AsyncPipe, NgOptimizedImage } from "@angular/common";
-import {
-  Component,
-  ElementRef,
-  Input,
-  OnDestroy,
-  OnInit,
-  ViewChild,
-  Output,
-  EventEmitter,
-  TemplateRef,
-  ViewContainerRef,
-} from "@angular/core";
+import { DatePipe, Location, NgIf, NgFor, NgTemplateOutlet, AsyncPipe } from "@angular/common";
+import { Component, ElementRef, Input, OnDestroy, OnInit, ViewChild, Output, EventEmitter } from "@angular/core";
 import { Router, RouterLink } from "@angular/router";
-import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { UserService } from "../../../common/service/user/user.service";
 import {
   DEFAULT_WORKFLOW_NAME,
@@ -50,12 +38,11 @@ import { UntilDestroy, untilDestroyed } from "@ngneat/until-destroy";
 import { WorkflowUtilService } from "../../service/workflow-graph/util/workflow-util.service";
 import { WorkflowVersionService } from "../../../dashboard/service/user/workflow-version/workflow-version.service";
 import { UserProjectService } from "../../../dashboard/service/user/project/user-project.service";
-import { NzUploadFile, NzUploadComponent } from "ng-zorro-antd/upload";
 import { saveAs } from "file-saver";
 import { NotificationService } from "src/app/common/service/notification/notification.service";
 import { OperatorMenuService } from "../../service/operator-menu/operator-menu.service";
 import { CoeditorPresenceService } from "../../service/workflow-graph/model/coeditor-presence.service";
-import { EMPTY, firstValueFrom, of, timer, map, Subscription } from "rxjs";
+import { EMPTY, firstValueFrom, of, timer, map } from "rxjs";
 import { isDefined } from "../../../common/util/predicate";
 import { NzModalService } from "ng-zorro-antd/modal";
 import { ResultExportationComponent } from "../result-exportation/result-exportation.component";
@@ -90,10 +77,11 @@ import { JupyterPanelService } from "../../service/jupyter-panel/jupyter-panel.s
 import { v4 as uuidv4 } from "uuid";
 import { Notebook } from "../../service/notebook-migration/migration-llm";
 import { NotebookMigrationService } from "../../service/notebook-migration/notebook-migration.service";
-import { NzFormModule } from "ng-zorro-antd/form";
-import { NzSelectModule } from "ng-zorro-antd/select";
-import { NzAlertModule } from "ng-zorro-antd/alert";
-import { ReactiveFormsModule } from "@angular/forms";
+import {
+  NotebookImportModalComponent,
+  NotebookImportModalData,
+} from "../notebook-import-modal/notebook-import-modal.component";
+import { NzUploadFile } from "ng-zorro-antd/upload";
 
 /**
  * MenuComponent is the top level menu bar that shows
@@ -128,7 +116,6 @@ import { ReactiveFormsModule } from "@angular/forms";
     CoeditorUserIconComponent,
     UserIconComponent,
     RouterLink,
-    NzUploadComponent,
     NzDropdownDirective,
     NzDropdownMenuComponent,
     NzMenuDirective,
@@ -142,12 +129,7 @@ import { ReactiveFormsModule } from "@angular/forms";
     NzTooltipDirective,
     DatePipe,
     NzSpaceCompactComponent,
-    NzFormModule,
     AsyncPipe,
-    NzSelectModule,
-    NzAlertModule,
-    ReactiveFormsModule,
-    NgOptimizedImage,
   ],
 })
 export class MenuComponent implements OnInit, OnDestroy {
@@ -175,6 +157,7 @@ export class MenuComponent implements OnInit, OnDestroy {
   @ViewChild("workflowNameInput") workflowNameInput: ElementRef<HTMLInputElement> | undefined;
   // Emit an event to parent component (workspace) when AI generation starts or stops
   @Output() public setWaitingForLLM = new EventEmitter<boolean>();
+  public isWaitingForLLM = false;
 
   // variable bound with HTML to decide if the running spinner should show
   public runButtonText = "Run";
@@ -192,9 +175,6 @@ export class MenuComponent implements OnInit, OnDestroy {
   public computingUnitStatus: ComputingUnitState = ComputingUnitState.NoComputingUnit;
 
   @ViewChild(ComputingUnitSelectionComponent) computingUnitSelectionComponent!: ComputingUnitSelectionComponent;
-
-  public importForm: FormGroup;
-  @ViewChild("importNotebookModal", { static: true }) importModalTpl!: TemplateRef<any>;
 
   constructor(
     public executeWorkflowService: ExecuteWorkflowService,
@@ -219,9 +199,6 @@ export class MenuComponent implements OnInit, OnDestroy {
     private computingUnitStatusService: ComputingUnitStatusService,
     protected config: GuiConfigService,
     private router: Router,
-    private fb: FormBuilder,
-    private modal: NzModalService,
-    private viewContainerRef: ViewContainerRef,
     private jupyterPanelService: JupyterPanelService,
     private notebookMigrationService: NotebookMigrationService
   ) {
@@ -250,11 +227,6 @@ export class MenuComponent implements OnInit, OnDestroy {
     // Subscribe to computing unit
     this.subscribeToComputingUnitSelection();
     this.subscribeToComputingUnitStatus();
-
-    this.importForm = this.fb.group({
-      file: [null, Validators.required],
-      model: ["", Validators.required],
-    });
   }
 
   public ngOnInit(): void {
@@ -642,65 +614,63 @@ export class MenuComponent implements OnInit, OnDestroy {
     this.jupyterPanelService.openJupyterNotebookPanel();
   }
 
-  openImportNotebookModal(): void {
-    const models$ = this.notebookMigrationService.getAvailableModels();
-
-    const modalRef = this.modal.create({
+  public openImportNotebookModal(): void {
+    // The modal owns the upload form and the model dropdown. It delegates the decision to
+    // proceed back here via requestImport so we keep the overwrite-confirm and the
+    // generation pipeline (and the workflow/persist/jupyter state they touch) in the menu.
+    this.modalService.create<NotebookImportModalComponent, NotebookImportModalData>({
       nzTitle: "AI Generate Workflow from Python Notebook",
-      nzContent: this.importModalTpl,
-      nzViewContainerRef: this.viewContainerRef,
+      nzContent: NotebookImportModalComponent,
       nzWidth: 700,
+      nzFooter: null,
+      // Center in the viewport so the overwrite confirm (also centered) overlays this modal's center.
+      nzCentered: true,
       nzData: {
-        models$: models$,
+        requestImport: (file, model) => this.confirmAndImport(file, model),
       },
-      nzFooter: [
-        {
-          label: "Cancel",
-          onClick: () => {
-            modalRef.close();
-          },
-        },
-        {
-          label: "Submit",
-          type: "primary",
-          disabled: () => !this.importForm.valid,
-          onClick: () => {
-            const file: NzUploadFile = this.importForm.get("file")?.value;
-            const model: string = this.importForm.get("model")?.value;
-            const startImport = () => {
-              this.onClickImportNotebook(file, model);
-              modalRef.close();
-            };
-            // Generating overwrites the currently open workflow. Confirm first only when
-            // there is actual content to replace; a fresh empty workflow needs no prompt.
-            const graph = this.workflowActionService.getTexeraGraph();
-            const currentWorkflowHasContent =
-              graph.getAllOperators().length > 0 || graph.getAllCommentBoxes().length > 0;
-            if (currentWorkflowHasContent) {
-              this.modal.confirm({
-                nzTitle: "Overwrite current workflow?",
-                nzContent:
-                  "Generating will replace the contents of the workflow you have open. " +
-                  "The previous version is kept in this workflow's version history.",
-                nzOkText: "Overwrite",
-                nzOkDanger: true,
-                nzOnOk: startImport,
-              });
-            } else {
-              startImport();
-            }
-          },
-        },
-      ],
     });
   }
 
-  public beforeUpload = (file: NzUploadFile) => {
-    this.importForm.patchValue({ file });
-    this.importForm.get("file")?.markAsDirty();
-    this.importForm.get("file")?.updateValueAndValidity();
-    return false; // prevent auto upload
-  };
+  // Decides whether an import may proceed, then kicks it off. Resolves true when the import
+  // has started (the modal should close), false when the user backs out of the overwrite
+  // confirmation (the modal should stay open with the selection intact).
+  private confirmAndImport(file: NzUploadFile, model: string): Promise<boolean> {
+    // Reject a non-notebook file here, before starting anything, so the modal stays open
+    // with the selection intact (resolving false) instead of closing on a no-op import.
+    const fileExtension = file.name.split(".").pop()?.toLowerCase();
+    if (fileExtension !== "ipynb") {
+      this.notificationService.error("Please upload a valid Jupyter Notebook (.ipynb) file.");
+      return Promise.resolve(false);
+    }
+    const startImport = () => this.onClickImportNotebook(file, model);
+    // Generating overwrites the currently open workflow. Confirm first only when there is
+    // actual content to replace; a fresh empty workflow needs no prompt.
+    const graph = this.workflowActionService.getTexeraGraph();
+    const currentWorkflowHasContent = graph.getAllOperators().length > 0 || graph.getAllCommentBoxes().length > 0;
+    if (!currentWorkflowHasContent) {
+      startImport();
+      return Promise.resolve(true);
+    }
+    return new Promise<boolean>(resolve => {
+      this.modalService.confirm({
+        nzTitle: "Overwrite current workflow?",
+        nzContent:
+          "Generating will replace the contents of the workflow you have open. " +
+          "The previous version is kept in this workflow's version history.",
+        nzOkText: "Overwrite",
+        nzOkDanger: true,
+        // Center over the import modal, and leave only Cancel/Overwrite (no X, no click-outside).
+        nzCentered: true,
+        nzClosable: false,
+        nzMaskClosable: false,
+        nzOnOk: () => {
+          startImport();
+          resolve(true);
+        },
+        nzOnCancel: () => resolve(false),
+      });
+    });
+  }
 
   public onClickImportNotebook = (file: NzUploadFile, model: string): boolean => {
     const reader = new FileReader();
@@ -712,7 +682,7 @@ export class MenuComponent implements OnInit, OnDestroy {
       return false;
     }
 
-    this.setWaitingForLLM.emit(true); // start loading
+    this.emitWaitingForLLM(true); // start loading
 
     // Read the notebook file as text
     reader.readAsText(file as any);
@@ -793,17 +763,26 @@ export class MenuComponent implements OnInit, OnDestroy {
                   next: updatedWorkflow => {
                     this.notificationService.success("Successfully generated workflow and mapping from notebook.");
                     // Reload the generated workflow onto the current (already live) canvas so it
-                    // renders immediately; we never remount the workspace.
-                    this.workflowActionService.reloadWorkflow(updatedWorkflow, true);
+                    // renders immediately; we never remount the workspace. Render synchronously
+                    // (asyncRendering = false) so the operators exist before auto-layout runs.
+                    this.workflowActionService.reloadWorkflow(updatedWorkflow, false);
+                    // Tidy the LLM-generated layout; the position changes get auto-persisted.
+                    this.onClickAutoLayout();
                     if (reuseWid === updatedWorkflow.wid) {
                       // Overwrote the current workflow in place: the wid did not change, so
                       // JupyterPanelService.init() does not react. Send the notebook to Jupyter
                       // and open the panel ourselves. Use openPanel, not openJupyterNotebookPanel:
                       // init()'s wid-change handler is not involved and openPanel opens
                       // unconditionally without the hasMapping gate.
-                      this.notebookMigrationService
-                        .sendNotebookToJupyter(notebookContent)
-                        .then(() => this.jupyterPanelService.openPanel("JupyterNotebookPanel"));
+                      // sendNotebookToJupyter never rejects: it resolves 1 on success and 0 on
+                      // failure (it toasts the error itself). Open the panel only on success so we
+                      // do not float it over a blank iframe, matching the init()-driven path which
+                      // opens only when fetchNotebookAndMapping reports the send succeeded.
+                      this.notebookMigrationService.sendNotebookToJupyter(notebookContent).then(result => {
+                        if (result == 1) {
+                          this.jupyterPanelService.openPanel("JupyterNotebookPanel");
+                        }
+                      });
                     } else {
                       // The current workflow had never been saved, so a new row was created and the
                       // wid changed. reloadWorkflow's synchronous wid change drives init() to fetch
@@ -816,88 +795,44 @@ export class MenuComponent implements OnInit, OnDestroy {
                   error: (err: unknown) => {
                     this.notificationService.error("Failed to import notebook, check console for detailed error");
                     console.error("Import notebook failed:", err);
-                    this.setWaitingForLLM.emit(false);
+                    this.emitWaitingForLLM(false);
                   },
                   complete: () => {
-                    this.setWaitingForLLM.emit(false);
+                    this.emitWaitingForLLM(false);
                   },
                 });
             } else {
               this.notificationService.error("No workflow was generated from the notebook.");
               console.error("Result is undefined");
-              this.setWaitingForLLM.emit(false);
+              this.emitWaitingForLLM(false);
             }
           })
           .catch(error => {
             this.notificationService.error("Error while communicating with LLM, check console for details");
             console.error("Error while fetching data from LLM: ", error);
-            this.setWaitingForLLM.emit(false);
+            this.emitWaitingForLLM(false);
           });
       } catch (error) {
         this.notificationService.error("Failed to import the notebook.");
         console.error(error);
-        this.setWaitingForLLM.emit(false);
+        this.emitWaitingForLLM(false);
       }
     };
 
     reader.onerror = () => {
       this.notificationService.error("Failed to read the notebook file.");
-      this.setWaitingForLLM.emit(false);
+      this.emitWaitingForLLM(false);
     };
 
     return false; // Prevent automatic upload handling
   };
 
-  public onClickImportWorkflow = (file: NzUploadFile): boolean => {
-    const reader = new FileReader();
-    reader.readAsText(file as any);
-    reader.onload = () => {
-      try {
-        const result = reader.result;
-        if (typeof result !== "string") {
-          throw new Error("incorrect format: file is not a string");
-        }
-
-        const workflowContent = JSON.parse(result) as WorkflowContent;
-
-        // set the workflow name using the file name without the extension
-        const fileExtensionIndex = file.name.lastIndexOf(".");
-        var workflowName: string;
-        if (fileExtensionIndex === -1) {
-          workflowName = file.name;
-        } else {
-          workflowName = file.name.substring(0, fileExtensionIndex);
-        }
-        if (workflowName.trim() === "") {
-          workflowName = DEFAULT_WORKFLOW_NAME;
-        }
-
-        const workflow: Workflow = {
-          content: workflowContent,
-          name: workflowName,
-          description: undefined,
-          wid: undefined,
-          creationTime: undefined,
-          lastModifiedTime: undefined,
-          readonly: false,
-          isPublished: 0,
-        };
-
-        this.workflowActionService.enableWorkflowModification();
-        // load the fetched workflow
-        this.workflowActionService.reloadWorkflow(workflow, true);
-        // clear stack
-        this.undoRedoService.clearUndoStack();
-        this.undoRedoService.clearRedoStack();
-      } catch (error) {
-        this.notificationService.error(
-          "An error occurred when importing the workflow. Please import a workflow json file."
-        );
-        console.error(error);
-      }
-    };
-    return false;
-  };
+  // Keeps the local waiting flag and the parent-facing output in lockstep so the
+  // AI-generate button can be disabled while a conversion is in flight.
+  private emitWaitingForLLM(waiting: boolean): void {
+    this.isWaitingForLLM = waiting;
+    this.setWaitingForLLM.emit(waiting);
+  }
 
   public onClickExportWorkflow(): void {
     const workflowContent: WorkflowContent = this.workflowActionService.getWorkflowContent();
