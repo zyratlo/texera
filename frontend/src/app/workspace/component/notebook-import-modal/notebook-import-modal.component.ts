@@ -36,6 +36,11 @@ import { NotebookMigrationService } from "../../service/notebook-migration/noteb
 // import has started), false to keep it open with the user's selection intact.
 export interface NotebookImportModalData {
   requestImport: (file: NzUploadFile, model: string) => Promise<boolean>;
+  // Whether to show the "generating overwrites your current workflow" warning. Relevant only
+  // when the modal is opened over an existing workflow (the canvas menu). The dashboard entry
+  // point always creates a new workflow, so it sets this false to hide the warning. Defaults to
+  // showing it when unset, keeping the canvas behavior unchanged.
+  showOverwriteWarning?: boolean;
 }
 
 /**
@@ -69,6 +74,11 @@ export class NotebookImportModalComponent {
   private readonly modalRef = inject(NzModalRef);
   private readonly notebookMigrationService = inject(NotebookMigrationService);
   private readonly data: NotebookImportModalData = inject(NZ_MODAL_DATA);
+
+  // Show the overwrite warning unless the opener explicitly turns it off (the dashboard does).
+  public get showOverwriteWarning(): boolean {
+    return this.data.showOverwriteWarning !== false;
+  }
 
   public readonly importForm: FormGroup = this.fb.group({
     file: [null, Validators.required],

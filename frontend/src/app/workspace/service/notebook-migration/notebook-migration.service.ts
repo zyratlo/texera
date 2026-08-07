@@ -25,6 +25,7 @@ import { NotificationService } from "src/app/common/service/notification/notific
 import { GuiConfigService } from "../../../common/service/gui-config.service";
 import { WorkflowUtilService } from "../workflow-graph/util/workflow-util.service";
 import { catchError, firstValueFrom, map, Observable, of } from "rxjs";
+import { NzUploadFile } from "ng-zorro-antd/upload";
 
 interface LiteLLMModel {
   id: string;
@@ -59,6 +60,13 @@ interface DeleteNotebookResponse {
 })
 export class NotebookMigrationService {
   private mapping: { [key: string]: MappingContent } = {};
+
+  // Handoff slot for starting an AI-generate flow from the workflow dashboard, where there is no
+  // open canvas to run the generation on. The dashboard creates the new workflow, records the
+  // selected notebook file and model here keyed by that workflow's wid, and navigates to it. The
+  // workspace menu consumes the slot once the matching workflow is loaded and runs the same
+  // generation pipeline the canvas button uses.
+  private pendingGeneration: { file: NzUploadFile; model: string; wid: number } | null = null;
 
   constructor(
     private http: HttpClient,
@@ -245,5 +253,22 @@ export class NotebookMigrationService {
 
   public deleteMapping(id: string): void {
     delete this.mapping[id];
+  }
+
+  // Records a notebook file and model to be generated into the given (already created) workflow
+  // once its workspace loads. Used by the dashboard AI-generate entry point.
+  public setPendingGeneration(file: NzUploadFile, model: string, wid: number): void {
+    this.pendingGeneration = { file, model, wid };
+  }
+
+  // Returns and clears the pending generation only when it targets the given workflow, so a stale
+  // slot can never fire on a different workflow. Returns null when nothing is pending for this wid.
+  public consumePendingGeneration(wid: number): { file: NzUploadFile; model: string } | null {
+    if (!this.pendingGeneration || this.pendingGeneration.wid !== wid) {
+      return null;
+    }
+    const { file, model } = this.pendingGeneration;
+    this.pendingGeneration = null;
+    return { file, model };
   }
 }

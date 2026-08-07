@@ -999,7 +999,22 @@ export class MenuComponent implements OnInit, OnDestroy {
     this.workflowActionService
       .getWorkflowModificationEnabledStream()
       .pipe(untilDestroyed(this))
-      .subscribe(modifiable => (this.isWorkflowModifiable = modifiable));
+      .subscribe(modifiable => {
+        this.isWorkflowModifiable = modifiable;
+        // A generation started from the workflow dashboard has no canvas to run on, so the
+        // dashboard defers it here: once this freshly created workflow is loaded and editable,
+        // pick up the handoff and run the same pipeline the toolbar button uses. consumePending-
+        // Generation guards by wid and clears on consume, so this fires once for its workflow.
+        if (modifiable && this.pythonNotebookMigrationEnabled) {
+          const wid = this.workflowActionService.getWorkflow().wid;
+          if (wid !== undefined) {
+            const pending = this.notebookMigrationService.consumePendingGeneration(wid);
+            if (pending) {
+              this.onClickImportNotebook(pending.file, pending.model);
+            }
+          }
+        }
+      });
   }
 
   private registerWorkflowIdUpdateHandler(): void {

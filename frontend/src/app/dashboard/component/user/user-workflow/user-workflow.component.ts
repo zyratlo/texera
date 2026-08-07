@@ -46,6 +46,11 @@ import { DashboardWorkflow } from "../../../type/dashboard-workflow.interface";
 import { DownloadService } from "../../../service/user/download/download.service";
 import { USER_WORKSPACE } from "../../../../app-routing.constant";
 import { GuiConfigService } from "../../../../common/service/gui-config.service";
+import { NotebookMigrationService } from "../../../../workspace/service/notebook-migration/notebook-migration.service";
+import {
+  NotebookImportModalComponent,
+  NotebookImportModalData,
+} from "../../../../workspace/component/notebook-import-modal/notebook-import-modal.component";
 import { NzCardComponent } from "ng-zorro-antd/card";
 import { NzSpaceCompactItemDirective, NzSpaceCompactComponent } from "ng-zorro-antd/space";
 import { NzButtonComponent } from "ng-zorro-antd/button";
@@ -157,7 +162,8 @@ export class UserWorkflowComponent implements AfterViewInit {
     private router: Router,
     private downloadService: DownloadService,
     private searchService: SearchService,
-    private config: GuiConfigService
+    private config: GuiConfigService,
+    private notebookMigrationService: NotebookMigrationService
   ) {
     this.userService
       .userChanged()
@@ -309,6 +315,85 @@ export class UserWorkflowComponent implements AfterViewInit {
           this.router.navigate([USER_WORKSPACE, wid]).then(null);
         },
         error: (err: unknown) => this.notificationService.error("Workflow creation failed"),
+      });
+  }
+
+  public get pythonNotebookMigrationEnabled(): boolean {
+    return this.config.env.pythonNotebookMigrationEnabled;
+  }
+
+  /**
+   * Open the AI-generate import modal from the dashboard. This is the same modal the canvas
+   * toolbar uses (notebook upload and model selection); it hands the selection back through the
+   * requestImport callback. Unlike the canvas entry point there is no open workflow to overwrite,
+   * so the callback always creates and opens a new workflow.
+   */
+  public openAiGenerateModal(): void {
+    this.modalService.create<NotebookImportModalComponent, NotebookImportModalData>({
+      nzTitle: "AI Generate Workflow from Python Notebook",
+      nzContent: NotebookImportModalComponent,
+      nzWidth: 700,
+      nzFooter: null,
+      nzCentered: true,
+      nzData: {
+        requestImport: (file, model) => this.startAiGeneratedWorkflow(file, model),
+        // The dashboard always creates a new workflow, so there is nothing to overwrite.
+        showOverwriteWarning: false,
+      },
+    });
+  }
+
+  /**
+   * Create the new workflow the generation will fill, record the notebook file and model for the
+   * workspace to pick up, and navigate to the new workflow. The workspace menu consumes the
+   * handoff once the workflow loads and runs the shared generation pipeline (generate, auto
+   * layout, open the Jupyter panel). Resolves true so the modal closes, or false (leaving the
+   * modal open with the selection intact) when the file is not a notebook or creation fails.
+   */
+  private startAiGeneratedWorkflow(file: NzUploadFile, model: string): Promise<boolean> {
+    // Reject a non-notebook file before creating anything, so we never leave an empty workflow
+    // behind on a no-op import. The workspace pipeline validates the extension again downstream.
+    const fileExtension = file.name.split(".").pop()?.toLowerCase();
+    if (fileExtension !== "ipynb") {
+      this.notificationService.error("Please upload a valid Jupyter Notebook (.ipynb) file.");
+      return Promise.resolve(false);
+    }
+    const emptyWorkflowContent: WorkflowContent = {
+      operators: [],
+      commentBoxes: [],
+      links: [],
+      operatorPositions: {},
+      settings: {
+        dataTransferBatchSize: this.config.env.defaultDataTransferBatchSize,
+        executionMode: this.config.env.defaultExecutionMode,
+      },
+    };
+    const localPid = this.pid;
+    return firstValueFrom(
+      this.workflowPersistService.createWorkflow(emptyWorkflowContent, DEFAULT_WORKFLOW_NAME).pipe(
+        tap(createdWorkflow => {
+          if (!createdWorkflow.workflow.wid) {
+            throw new Error("Workflow creation failed.");
+          }
+        }),
+        mergeMap(createdWorkflow => {
+          const wid = createdWorkflow.workflow.wid!;
+          // Mirror the create-workflow path: add to the current project when inside one.
+          if (localPid) {
+            return this.userProjectService.addWorkflowToProject(localPid, wid).pipe(map(() => wid));
+          }
+          return of(wid);
+        }),
+        untilDestroyed(this)
+      )
+    )
+      .then(wid => {
+        this.notebookMigrationService.setPendingGeneration(file, model, wid);
+        return this.router.navigate([USER_WORKSPACE, wid]).then(() => true);
+      })
+      .catch(() => {
+        this.notificationService.error("Workflow creation failed");
+        return false;
       });
   }
 
