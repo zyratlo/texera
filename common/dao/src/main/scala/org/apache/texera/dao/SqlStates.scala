@@ -17,21 +17,18 @@
  * under the License.
  */
 
-package org.apache.texera.auth
+package org.apache.texera.dao
 
-import org.apache.texera.dao.jooq.generated.enums.UserRoleEnum
-import org.apache.texera.dao.jooq.generated.tables.pojos.User
+/**
+  * SQLSTATE codes callers match on when turning a `DataAccessException` into an HTTP response.
+  *
+  * These live beside [[SqlServer]] rather than in whichever resource happens to need one first:
+  * the code is a property of the database, not of any one endpoint, and the callers that catch it
+  * sit in unrelated packages. A constant owned by one of those packages is unreachable from the
+  * rest, so each would keep its own literal.
+  */
+object SqlStates {
 
-import java.security.Principal
-
-class SessionUser(val user: User) extends Principal {
-  def getUser: User = user
-
-  override def getName: String = user.getName
-
-  def getUid: Integer = user.getUid
-
-  def getEmail: String = user.getEmail
-
-  def isRoleOf(role: UserRoleEnum): Boolean = user.getRole == role
+  /** Postgres unique-violation: a unique constraint or primary key was already satisfied. */
+  val UNIQUE_VIOLATION = "23505"
 }
