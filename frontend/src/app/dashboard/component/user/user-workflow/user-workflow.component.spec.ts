@@ -438,6 +438,19 @@ describe("SavedWorkflowSectionComponent", () => {
       expect(fixture.nativeElement.querySelector(AI_BUTTON_SELECTOR)).not.toBeNull();
     });
 
+    it("clicking the toolbar button opens the AI generate modal", () => {
+      (TestBed.inject(GuiConfigService) as unknown as MockGuiConfigService).setConfig({
+        pythonNotebookMigrationEnabled: true,
+      });
+      fixture.detectChanges();
+      const openSpy = vi.spyOn(component, "openAiGenerateModal").mockImplementation(() => {});
+
+      const button = fixture.nativeElement.querySelector(AI_BUTTON_SELECTOR) as HTMLButtonElement;
+      button.click();
+
+      expect(openSpy).toHaveBeenCalled();
+    });
+
     it("adds the new workflow to the current project when opened inside one, then navigates", async () => {
       const router = TestBed.inject(Router);
       const navigateSpy = vi.spyOn(router, "navigate").mockResolvedValue(true);
