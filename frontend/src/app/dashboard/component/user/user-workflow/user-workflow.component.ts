@@ -389,7 +389,14 @@ export class UserWorkflowComponent implements AfterViewInit {
     )
       .then(wid => {
         this.notebookMigrationService.setPendingGeneration(file, model, wid);
-        return this.router.navigate([USER_WORKSPACE, wid]).then(() => true);
+        return this.router.navigate([USER_WORKSPACE, wid]).then(navigated => {
+          if (!navigated) {
+            // Navigation was blocked or cancelled: clear the stranded handoff and surface an error
+            this.notebookMigrationService.consumePendingGeneration(wid);
+            this.notificationService.error("Could not open a new workflow.");
+          }
+          return navigated;
+        });
       })
       .catch(() => {
         this.notificationService.error("Workflow creation failed");

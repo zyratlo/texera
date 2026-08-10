@@ -390,6 +390,27 @@ describe("SavedWorkflowSectionComponent", () => {
       expect(proceed).toBe(true);
     });
 
+    it("resolves false, clears the handoff, and errors when navigation is blocked", async () => {
+      const router = TestBed.inject(Router);
+      const navigateSpy = vi.spyOn(router, "navigate").mockResolvedValue(false);
+      const persist = TestBed.inject(WorkflowPersistService) as any;
+      persist.createWorkflow = vi.fn().mockReturnValue(of({ workflow: { wid: 99 } }));
+      const migration = TestBed.inject(NotebookMigrationService);
+      const setPendingSpy = vi.spyOn(migration, "setPendingGeneration");
+      const consumeSpy = vi.spyOn(migration, "consumePendingGeneration");
+      const errorSpy = vi.spyOn(TestBed.inject(NotificationService), "error").mockImplementation(() => {});
+      component.pid = undefined;
+
+      const proceed = await getRequestImport()(ipynbFile, "gpt-4");
+
+      expect(setPendingSpy).toHaveBeenCalledWith(ipynbFile, "gpt-4", 99);
+      expect(navigateSpy).toHaveBeenCalledWith([USER_WORKSPACE, 99]);
+      // The stranded handoff is cleared and the failure is surfaced; the modal stays open (false).
+      expect(consumeSpy).toHaveBeenCalledWith(99);
+      expect(errorSpy).toHaveBeenCalledWith("Could not open a new workflow.");
+      expect(proceed).toBe(false);
+    });
+
     it("rejects a non-ipynb file: errors, resolves false, and creates nothing", async () => {
       const persist = TestBed.inject(WorkflowPersistService) as any;
       persist.createWorkflow = vi.fn();
