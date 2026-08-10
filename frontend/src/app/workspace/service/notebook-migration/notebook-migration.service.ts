@@ -261,14 +261,16 @@ export class NotebookMigrationService {
     this.pendingGeneration = { file, model, wid };
   }
 
-  // Returns and clears the pending generation only when it targets the given workflow, so a stale
-  // slot can never fire on a different workflow. Returns null when nothing is pending for this wid.
+  // Returns the pending generation when it targets the given workflow. Clears the slot on any
+  // call, including a wid mismatch: reaching a different workflow's load proves the user opened
+  // something other than the handoff target, so a handoff that missed its window cannot survive
+  // the session and fire on a later reopen (which would overwrite with no confirm).
   public consumePendingGeneration(wid: number): { file: NzUploadFile; model: string } | null {
-    if (!this.pendingGeneration || this.pendingGeneration.wid !== wid) {
+    const pending = this.pendingGeneration;
+    this.pendingGeneration = null;
+    if (!pending || pending.wid !== wid) {
       return null;
     }
-    const { file, model } = this.pendingGeneration;
-    this.pendingGeneration = null;
-    return { file, model };
+    return { file: pending.file, model: pending.model };
   }
 }

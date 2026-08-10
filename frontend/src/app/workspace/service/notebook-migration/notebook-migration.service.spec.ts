@@ -355,11 +355,12 @@ describe("NotebookMigrationService", () => {
       expect(service.consumePendingGeneration(42)).toBeNull();
     });
 
-    it("consumePendingGeneration returns null for a different wid and leaves the slot intact", () => {
+    it("consumePendingGeneration returns null for a different wid and clears the slot so a stale handoff can't fire later", () => {
       service.setPendingGeneration(file, "gpt-4", 42);
       expect(service.consumePendingGeneration(7)).toBeNull();
-      // The mismatched consume did not clear the slot; the target wid still fires.
-      expect(service.consumePendingGeneration(42)).toEqual({ file, model: "gpt-4" });
+      // The mismatched consume cleared the slot: opening a different workflow drops the stale
+      // handoff, so the original target no longer fires on a later reopen.
+      expect(service.consumePendingGeneration(42)).toBeNull();
     });
 
     it("consumePendingGeneration returns null when nothing is pending", () => {
