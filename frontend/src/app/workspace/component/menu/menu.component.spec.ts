@@ -1329,7 +1329,7 @@ describe("MenuComponent", () => {
     it("runs onClickImportNotebook when a pending generation matches the loaded workflow's wid", () => {
       const file = { name: "x.ipynb" } as NzUploadFile;
       vi.spyOn(workflowActionService, "getWorkflowModificationEnabledStream").mockReturnValue(of(true));
-      vi.spyOn(workflowActionService, "getWorkflow").mockReturnValue({ wid: 7 } as any);
+      vi.spyOn(workflowActionService, "getWorkflowMetadata").mockReturnValue({ wid: 7 } as any);
       const consumeSpy = vi
         .spyOn(notebookMigrationService, "consumePendingGeneration")
         .mockReturnValue({ file, model: "gpt-4" });
@@ -1343,7 +1343,7 @@ describe("MenuComponent", () => {
 
     it("does nothing when there is no pending generation for the loaded workflow", () => {
       vi.spyOn(workflowActionService, "getWorkflowModificationEnabledStream").mockReturnValue(of(true));
-      vi.spyOn(workflowActionService, "getWorkflow").mockReturnValue({ wid: 7 } as any);
+      vi.spyOn(workflowActionService, "getWorkflowMetadata").mockReturnValue({ wid: 7 } as any);
       vi.spyOn(notebookMigrationService, "consumePendingGeneration").mockReturnValue(null);
       const importSpy = vi.spyOn(component, "onClickImportNotebook").mockReturnValue(false);
 
@@ -1354,7 +1354,7 @@ describe("MenuComponent", () => {
 
     it("does not consume the handoff when the loaded workflow has no wid", () => {
       vi.spyOn(workflowActionService, "getWorkflowModificationEnabledStream").mockReturnValue(of(true));
-      vi.spyOn(workflowActionService, "getWorkflow").mockReturnValue({ wid: undefined } as any);
+      vi.spyOn(workflowActionService, "getWorkflowMetadata").mockReturnValue({ wid: undefined } as any);
       const consumeSpy = vi.spyOn(notebookMigrationService, "consumePendingGeneration");
       const importSpy = vi.spyOn(component, "onClickImportNotebook").mockReturnValue(false);
 

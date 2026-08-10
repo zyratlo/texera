@@ -1006,7 +1006,7 @@ export class MenuComponent implements OnInit, OnDestroy {
         // pick up the handoff and run the same pipeline the toolbar button uses. consumePending-
         // Generation guards by wid and clears on consume, so this fires once for its workflow.
         if (modifiable && this.pythonNotebookMigrationEnabled) {
-          const wid = this.workflowActionService.getWorkflow().wid;
+          const wid = this.workflowActionService.getWorkflowMetadata().wid;
           if (wid !== undefined) {
             const pending = this.notebookMigrationService.consumePendingGeneration(wid);
             if (pending) {
