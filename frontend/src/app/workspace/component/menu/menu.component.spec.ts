@@ -52,6 +52,7 @@ import { ReportGenerationService } from "../../service/report-generation/report-
 import { USER_WORKFLOW } from "../../../app-routing.constant";
 import { GuiConfigService } from "../../../common/service/gui-config.service";
 import { MockGuiConfigService } from "../../../common/service/gui-config.service.mock";
+import { JupyterPanelService } from "../../service/jupyter-panel/jupyter-panel.service";
 import type { Mocked } from "vitest";
 
 vi.mock("file-saver", () => ({ saveAs: vi.fn() }));
@@ -861,6 +862,54 @@ describe("MenuComponent", () => {
       component.adjustWorkflowNameWidth();
 
       expect(input.style.width).toMatch(/^\d+px$/);
+    });
+  });
+
+  describe("expand jupyter notebook panel", () => {
+    it("onClickExpandJupyterNotebookPanel delegates to JupyterPanelService", () => {
+      const openSpy = vi
+        .spyOn(TestBed.inject(JupyterPanelService), "openJupyterNotebookPanel")
+        .mockImplementation(() => {});
+
+      component.onClickExpandJupyterNotebookPanel();
+
+      expect(openSpy).toHaveBeenCalled();
+    });
+
+    it("shows the expand-jupyter button only when the flag is on and a notebook exists", () => {
+      const button = () => fixture.nativeElement.querySelector('button[title="expand Jupyter notebook"]');
+      // commonTestProviders' MockGuiConfigService defaults the flag to false, and no notebook exists.
+      expect(button()).toBeNull();
+
+      (TestBed.inject(GuiConfigService) as unknown as MockGuiConfigService).setConfig({
+        pythonNotebookMigrationEnabled: true,
+      });
+      fixture.detectChanges();
+      // Flag on but the current workflow still has no notebook -> hidden.
+      expect(button()).toBeNull();
+
+      (TestBed.inject(JupyterPanelService) as any).jupyterNotebookExists$ = of(true);
+      fixture.detectChanges();
+      // Flag on and a notebook exists -> shown.
+      expect(button()).not.toBeNull();
+    });
+
+    it("clicking the expand-jupyter button opens the panel", () => {
+      const openSpy = vi
+        .spyOn(TestBed.inject(JupyterPanelService), "openJupyterNotebookPanel")
+        .mockImplementation(() => {});
+      (TestBed.inject(GuiConfigService) as unknown as MockGuiConfigService).setConfig({
+        pythonNotebookMigrationEnabled: true,
+      });
+      (TestBed.inject(JupyterPanelService) as any).jupyterNotebookExists$ = of(true);
+      fixture.detectChanges();
+
+      const button = fixture.nativeElement.querySelector(
+        'button[title="expand Jupyter notebook"]'
+      ) as HTMLButtonElement;
+      button.click();
+
+      expect(openSpy).toHaveBeenCalled();
     });
   });
 });
