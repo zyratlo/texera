@@ -968,4 +968,67 @@ describe("MenuComponent", () => {
       expect(reset).not.toHaveBeenCalled();
     });
   });
+
+  // The dashboard AI-generate entry point creates the workflow, stashes the notebook file and
+  // model in NotebookMigrationService, and navigates here. Once this workflow becomes modifiable
+  // (loaded), the menu consumes the handoff and runs the same import pipeline the toolbar uses.
+  describe("dashboard-deferred generation trigger", () => {
+    let notebookMigrationService: NotebookMigrationService;
+
+    beforeEach(() => {
+      notebookMigrationService = TestBed.inject(NotebookMigrationService);
+      (TestBed.inject(GuiConfigService) as unknown as MockGuiConfigService).setConfig({
+        pythonNotebookMigrationEnabled: true,
+      });
+    });
+
+    it("runs onClickImportNotebook when a pending generation matches the loaded workflow's wid", () => {
+      const file = { name: "x.ipynb" } as NzUploadFile;
+      vi.spyOn(workflowActionService, "getWorkflowModificationEnabledStream").mockReturnValue(of(true));
+      vi.spyOn(workflowActionService, "getWorkflowMetadata").mockReturnValue({ wid: 7 } as any);
+      const consumeSpy = vi
+        .spyOn(notebookMigrationService, "consumePendingGeneration")
+        .mockReturnValue({ file, model: "gpt-4" });
+      const importSpy = vi.spyOn(component, "onClickImportNotebook").mockReturnValue(false);
+
+      (component as any).registerWorkflowModifiableChangedHandler();
+
+      expect(consumeSpy).toHaveBeenCalledWith(7);
+      expect(importSpy).toHaveBeenCalledWith(file, "gpt-4");
+    });
+
+    it("does nothing when there is no pending generation for the loaded workflow", () => {
+      vi.spyOn(workflowActionService, "getWorkflowModificationEnabledStream").mockReturnValue(of(true));
+      vi.spyOn(workflowActionService, "getWorkflowMetadata").mockReturnValue({ wid: 7 } as any);
+      vi.spyOn(notebookMigrationService, "consumePendingGeneration").mockReturnValue(null);
+      const importSpy = vi.spyOn(component, "onClickImportNotebook").mockReturnValue(false);
+
+      (component as any).registerWorkflowModifiableChangedHandler();
+
+      expect(importSpy).not.toHaveBeenCalled();
+    });
+
+    it("does not consume the handoff when the loaded workflow has no wid", () => {
+      vi.spyOn(workflowActionService, "getWorkflowModificationEnabledStream").mockReturnValue(of(true));
+      vi.spyOn(workflowActionService, "getWorkflowMetadata").mockReturnValue({ wid: undefined } as any);
+      const consumeSpy = vi.spyOn(notebookMigrationService, "consumePendingGeneration");
+      const importSpy = vi.spyOn(component, "onClickImportNotebook").mockReturnValue(false);
+
+      (component as any).registerWorkflowModifiableChangedHandler();
+
+      expect(consumeSpy).not.toHaveBeenCalled();
+      expect(importSpy).not.toHaveBeenCalled();
+    });
+
+    it("does not consume the handoff while the workflow is not yet modifiable", () => {
+      vi.spyOn(workflowActionService, "getWorkflowModificationEnabledStream").mockReturnValue(of(false));
+      const consumeSpy = vi.spyOn(notebookMigrationService, "consumePendingGeneration");
+      const importSpy = vi.spyOn(component, "onClickImportNotebook").mockReturnValue(false);
+
+      (component as any).registerWorkflowModifiableChangedHandler();
+
+      expect(consumeSpy).not.toHaveBeenCalled();
+      expect(importSpy).not.toHaveBeenCalled();
+    });
+  });
 });

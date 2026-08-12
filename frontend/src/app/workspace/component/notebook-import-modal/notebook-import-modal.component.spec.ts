@@ -37,12 +37,13 @@ describe("NotebookImportModalComponent", () => {
   let requestImport: ReturnType<typeof vi.fn>;
 
   // Configures the modal with the given models$ stream, then creates and renders it.
-  async function createWith(models$: unknown): Promise<void> {
+  // extraData is merged into NZ_MODAL_DATA so tests can supply flags like showOverwriteWarning.
+  async function createWith(models$: unknown, extraData: Record<string, unknown> = {}): Promise<void> {
     await TestBed.configureTestingModule({
       imports: [NotebookImportModalComponent, HttpClientTestingModule, NoopAnimationsModule],
       providers: [
         { provide: NzModalRef, useValue: modalRef },
-        { provide: NZ_MODAL_DATA, useValue: { requestImport } },
+        { provide: NZ_MODAL_DATA, useValue: { requestImport, ...extraData } },
         ...commonTestProviders,
       ],
     }).compileComponents();
@@ -67,6 +68,11 @@ describe("NotebookImportModalComponent", () => {
     expect(root.querySelector("img[alt='Notebook to Workflow']")).not.toBeNull();
     expect(root.querySelector("nz-select")).not.toBeNull();
     expect(root.textContent).toContain("Select a model");
+  });
+
+  it("hides the overwrite warning when the opener sets showOverwriteWarning false (dashboard entry point)", async () => {
+    await createWith(of([{ name: "gpt-4" }]), { showOverwriteWarning: false });
+    expect((fixture.nativeElement as HTMLElement).querySelector(".import-modal-warning")).toBeNull();
   });
 
   it("shows the disabled 'no models available' select when the list is empty", async () => {

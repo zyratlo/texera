@@ -343,4 +343,28 @@ describe("NotebookMigrationService", () => {
       httpMock.expectNone(req => req.url.includes("/notebook-migration/delete-notebook-and-mapping"));
     });
   });
+
+  // pendingGeneration handoff (used by the dashboard AI-generate entry point)
+  describe("pendingGeneration", () => {
+    const file = { name: "analysis.ipynb" } as any;
+
+    it("consumePendingGeneration returns the file and model when the wid matches, then clears", () => {
+      service.setPendingGeneration(file, "gpt-4", 42);
+      expect(service.consumePendingGeneration(42)).toEqual({ file, model: "gpt-4" });
+      // A second consume for the same wid returns null: the slot was cleared.
+      expect(service.consumePendingGeneration(42)).toBeNull();
+    });
+
+    it("consumePendingGeneration returns null for a different wid and clears the slot so a stale handoff can't fire later", () => {
+      service.setPendingGeneration(file, "gpt-4", 42);
+      expect(service.consumePendingGeneration(7)).toBeNull();
+      // The mismatched consume cleared the slot: opening a different workflow drops the stale
+      // handoff, so the original target no longer fires on a later reopen.
+      expect(service.consumePendingGeneration(42)).toBeNull();
+    });
+
+    it("consumePendingGeneration returns null when nothing is pending", () => {
+      expect(service.consumePendingGeneration(1)).toBeNull();
+    });
+  });
 });

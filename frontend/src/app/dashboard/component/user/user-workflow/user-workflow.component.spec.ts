@@ -67,12 +67,17 @@ import { StubSearchService } from "../../../service/user/stub-search.service";
 import { SearchResultsComponent } from "../search-results/search-results.component";
 import { delay, firstValueFrom, of, throwError } from "rxjs";
 import JSZip from "jszip";
-import { NzModalService } from "ng-zorro-antd/modal";
+import { ModalOptions, NzModalRef, NzModalService } from "ng-zorro-antd/modal";
 import { NzButtonModule } from "ng-zorro-antd/button";
 import { DownloadService } from "../../../service/user/download/download.service";
 import { commonTestProviders } from "../../../../common/testing/test-utils";
 import { Router } from "@angular/router";
 import { USER_WORKSPACE } from "../../../../app-routing.constant";
+import { GuiConfigService } from "../../../../common/service/gui-config.service";
+import { MockGuiConfigService } from "../../../../common/service/gui-config.service.mock";
+import { NotebookMigrationService } from "../../../../workspace/service/notebook-migration/notebook-migration.service";
+import { NotebookImportModalComponent } from "../../../../workspace/component/notebook-import-modal/notebook-import-modal.component";
+import { NzUploadFile } from "ng-zorro-antd/upload";
 import type { Mocked } from "vitest";
 describe("SavedWorkflowSectionComponent", () => {
   let component: UserWorkflowComponent;
@@ -337,6 +342,157 @@ describe("SavedWorkflowSectionComponent", () => {
 
       expect(navigateSpy).toHaveBeenCalledWith([USER_WORKSPACE, 99]);
       expect(USER_WORKSPACE).toBe("/user/workflow");
+    });
+  });
+
+  describe("AI generate workflow (dashboard entry point)", () => {
+    const ipynbFile = { name: "analysis.ipynb" } as NzUploadFile;
+    const AI_BUTTON_SELECTOR = 'button[title="AI generate a workflow from a Python notebook"]';
+
+    // Opens the modal and returns the requestImport callback the component handed to it; calling
+    // it drives the create-new-workflow decision (true => close modal, false => keep it open).
+    function getRequestImport(): (file: NzUploadFile, model: string) => Promise<boolean> {
+      const modalService = TestBed.inject(NzModalService);
+      const createSpy = vi.spyOn(modalService, "create").mockReturnValue({} as unknown as NzModalRef);
+      component.openAiGenerateModal();
+      const config = createSpy.mock.calls[0][0] as ModalOptions;
+      return (config.nzData as { requestImport: (file: NzUploadFile, model: string) => Promise<boolean> })
+        .requestImport;
+    }
+
+    it("openAiGenerateModal opens the NotebookImportModalComponent with a requestImport callback and no footer", () => {
+      const modalService = TestBed.inject(NzModalService);
+      const createSpy = vi.spyOn(modalService, "create").mockReturnValue({} as unknown as NzModalRef);
+
+      component.openAiGenerateModal();
+
+      expect(createSpy).toHaveBeenCalledTimes(1);
+      const config = createSpy.mock.calls[0][0] as ModalOptions;
+      expect(config.nzContent).toBe(NotebookImportModalComponent);
+      expect(config.nzFooter).toBeNull();
+      expect(typeof (config.nzData as { requestImport: unknown }).requestImport).toBe("function");
+    });
+
+    it("creates a new workflow, stashes the notebook handoff for its wid, navigates, and resolves true", async () => {
+      const router = TestBed.inject(Router);
+      const navigateSpy = vi.spyOn(router, "navigate").mockResolvedValue(true);
+      const persist = TestBed.inject(WorkflowPersistService) as any;
+      persist.createWorkflow = vi.fn().mockReturnValue(of({ workflow: { wid: 99 } }));
+      const setPendingSpy = vi.spyOn(TestBed.inject(NotebookMigrationService), "setPendingGeneration");
+      component.pid = undefined;
+
+      const proceed = await getRequestImport()(ipynbFile, "gpt-4");
+
+      expect(persist.createWorkflow).toHaveBeenCalledTimes(1);
+      // The workspace picks up this handoff keyed by the newly created wid.
+      expect(setPendingSpy).toHaveBeenCalledWith(ipynbFile, "gpt-4", 99);
+      expect(navigateSpy).toHaveBeenCalledWith([USER_WORKSPACE, 99]);
+      expect(proceed).toBe(true);
+    });
+
+    it("resolves false, clears the handoff, and errors when navigation is blocked", async () => {
+      const router = TestBed.inject(Router);
+      const navigateSpy = vi.spyOn(router, "navigate").mockResolvedValue(false);
+      const persist = TestBed.inject(WorkflowPersistService) as any;
+      persist.createWorkflow = vi.fn().mockReturnValue(of({ workflow: { wid: 99 } }));
+      const migration = TestBed.inject(NotebookMigrationService);
+      const setPendingSpy = vi.spyOn(migration, "setPendingGeneration");
+      const consumeSpy = vi.spyOn(migration, "consumePendingGeneration");
+      const errorSpy = vi.spyOn(TestBed.inject(NotificationService), "error").mockImplementation(() => {});
+      component.pid = undefined;
+
+      const proceed = await getRequestImport()(ipynbFile, "gpt-4");
+
+      expect(setPendingSpy).toHaveBeenCalledWith(ipynbFile, "gpt-4", 99);
+      expect(navigateSpy).toHaveBeenCalledWith([USER_WORKSPACE, 99]);
+      // The stranded handoff is cleared and the failure is surfaced; the modal stays open (false).
+      expect(consumeSpy).toHaveBeenCalledWith(99);
+      expect(errorSpy).toHaveBeenCalledWith("Could not open a new workflow.");
+      expect(proceed).toBe(false);
+    });
+
+    it("rejects a non-ipynb file: errors, resolves false, and creates nothing", async () => {
+      const persist = TestBed.inject(WorkflowPersistService) as any;
+      persist.createWorkflow = vi.fn();
+      const setPendingSpy = vi.spyOn(TestBed.inject(NotebookMigrationService), "setPendingGeneration");
+      const errorSpy = vi.spyOn(TestBed.inject(NotificationService), "error").mockImplementation(() => {});
+
+      const proceed = await getRequestImport()({ name: "data.txt" } as NzUploadFile, "gpt-4");
+
+      // Resolving false keeps the modal open with the selection preserved; nothing was created.
+      expect(proceed).toBe(false);
+      expect(errorSpy).toHaveBeenCalledWith("Please upload a valid Jupyter Notebook (.ipynb) file.");
+      expect(persist.createWorkflow).not.toHaveBeenCalled();
+      expect(setPendingSpy).not.toHaveBeenCalled();
+    });
+
+    it("shows the button only when the migration flag is enabled", () => {
+      // The default mock config has the flag off, so the button is absent.
+      expect(fixture.nativeElement.querySelector(AI_BUTTON_SELECTOR)).toBeNull();
+
+      (TestBed.inject(GuiConfigService) as unknown as MockGuiConfigService).setConfig({
+        pythonNotebookMigrationEnabled: true,
+      });
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector(AI_BUTTON_SELECTOR)).not.toBeNull();
+    });
+
+    it("clicking the toolbar button opens the AI generate modal", () => {
+      (TestBed.inject(GuiConfigService) as unknown as MockGuiConfigService).setConfig({
+        pythonNotebookMigrationEnabled: true,
+      });
+      fixture.detectChanges();
+      const openSpy = vi.spyOn(component, "openAiGenerateModal").mockImplementation(() => {});
+
+      const button = fixture.nativeElement.querySelector(AI_BUTTON_SELECTOR) as HTMLButtonElement;
+      button.click();
+
+      expect(openSpy).toHaveBeenCalled();
+    });
+
+    it("adds the new workflow to the current project when opened inside one, then navigates", async () => {
+      const router = TestBed.inject(Router);
+      const navigateSpy = vi.spyOn(router, "navigate").mockResolvedValue(true);
+      const persist = TestBed.inject(WorkflowPersistService) as any;
+      persist.createWorkflow = vi.fn().mockReturnValue(of({ workflow: { wid: 99 } }));
+      const projectService = TestBed.inject(UserProjectService) as any;
+      const addSpy = vi.spyOn(projectService, "addWorkflowToProject").mockReturnValue(of(undefined));
+      vi.spyOn(TestBed.inject(NotebookMigrationService), "setPendingGeneration").mockImplementation(() => {});
+      component.pid = 5;
+
+      const proceed = await getRequestImport()(ipynbFile, "gpt-4");
+
+      expect(addSpy).toHaveBeenCalledWith(5, 99);
+      expect(navigateSpy).toHaveBeenCalledWith([USER_WORKSPACE, 99]);
+      expect(proceed).toBe(true);
+    });
+
+    it("errors and resolves false when creation returns no wid, stashing nothing", async () => {
+      const persist = TestBed.inject(WorkflowPersistService) as any;
+      // A created workflow with no wid trips the guard, which throws into the same failure path.
+      persist.createWorkflow = vi.fn().mockReturnValue(of({ workflow: {} }));
+      const setPendingSpy = vi.spyOn(TestBed.inject(NotebookMigrationService), "setPendingGeneration");
+      const errorSpy = vi.spyOn(TestBed.inject(NotificationService), "error").mockImplementation(() => {});
+
+      const proceed = await getRequestImport()(ipynbFile, "gpt-4");
+
+      expect(proceed).toBe(false);
+      expect(errorSpy).toHaveBeenCalledWith("Workflow creation failed");
+      expect(setPendingSpy).not.toHaveBeenCalled();
+    });
+
+    it("errors and resolves false when workflow creation fails, stashing nothing", async () => {
+      const persist = TestBed.inject(WorkflowPersistService) as any;
+      persist.createWorkflow = vi.fn().mockReturnValue(throwError(() => new Error("boom")));
+      const setPendingSpy = vi.spyOn(TestBed.inject(NotebookMigrationService), "setPendingGeneration");
+      const errorSpy = vi.spyOn(TestBed.inject(NotificationService), "error").mockImplementation(() => {});
+
+      const proceed = await getRequestImport()(ipynbFile, "gpt-4");
+
+      expect(proceed).toBe(false);
+      expect(errorSpy).toHaveBeenCalledWith("Workflow creation failed");
+      expect(setPendingSpy).not.toHaveBeenCalled();
     });
   });
 

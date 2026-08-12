@@ -25,6 +25,7 @@ import { NotificationService } from "src/app/common/service/notification/notific
 import { GuiConfigService } from "../../../common/service/gui-config.service";
 import { WorkflowUtilService } from "../workflow-graph/util/workflow-util.service";
 import { catchError, firstValueFrom, map, Observable, of } from "rxjs";
+import { NzUploadFile } from "ng-zorro-antd/upload";
 
 interface LiteLLMModel {
   id: string;
@@ -59,6 +60,13 @@ interface DeleteNotebookResponse {
 })
 export class NotebookMigrationService {
   private mapping: { [key: string]: MappingContent } = {};
+
+  // Handoff slot for starting an AI-generate flow from the workflow dashboard, where there is no
+  // open canvas to run the generation on. The dashboard creates the new workflow, records the
+  // selected notebook file and model here keyed by that workflow's wid, and navigates to it. The
+  // workspace menu consumes the slot once the matching workflow is loaded and runs the same
+  // generation pipeline the canvas button uses.
+  private pendingGeneration: { file: NzUploadFile; model: string; wid: number } | null = null;
 
   constructor(
     private http: HttpClient,
@@ -245,5 +253,24 @@ export class NotebookMigrationService {
 
   public deleteMapping(id: string): void {
     delete this.mapping[id];
+  }
+
+  // Records a notebook file and model to be generated into the given (already created) workflow
+  // once its workspace loads. Used by the dashboard AI-generate entry point.
+  public setPendingGeneration(file: NzUploadFile, model: string, wid: number): void {
+    this.pendingGeneration = { file, model, wid };
+  }
+
+  // Returns the pending generation when it targets the given workflow. Clears the slot on any
+  // call, including a wid mismatch: reaching a different workflow's load proves the user opened
+  // something other than the handoff target, so a handoff that missed its window cannot survive
+  // the session and fire on a later reopen (which would overwrite with no confirm).
+  public consumePendingGeneration(wid: number): { file: NzUploadFile; model: string } | null {
+    const pending = this.pendingGeneration;
+    this.pendingGeneration = null;
+    if (!pending || pending.wid !== wid) {
+      return null;
+    }
+    return { file: pending.file, model: pending.model };
   }
 }
