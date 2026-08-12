@@ -259,9 +259,17 @@ export class WorkspaceComponent implements AfterViewInit, OnInit, OnDestroy {
           this.workflowActionService.setNewSharedModel(wid, this.userService.getCurrentUser());
           // remember URL fragment
           const fragment = this.route.snapshot.fragment;
-          // load the fetched workflow
-          this.workflowActionService.reloadWorkflow(workflow);
+          // A freshly AI-generated workflow arrives with autolayout=1: there was no canvas on the
+          // dashboard to lay the operators out on, so render synchronously (asyncRendering = false)
+          // so the operators exist in the graph, then tidy the layout once.
+          const shouldAutoLayout = this.route.snapshot.queryParams.autolayout === "1";
+          // load the fetched workflow (asyncRendering = false for autolayout so the operators
+          // exist synchronously before the layout runs; undefined otherwise uses the config default)
+          this.workflowActionService.reloadWorkflow(workflow, shouldAutoLayout ? false : undefined);
           this.workflowActionService.enableWorkflowModification();
+          if (shouldAutoLayout) {
+            this.workflowActionService.autoLayoutWorkflow();
+          }
           // set the URL fragment to previous value
           // because reloadWorkflow will highlight/unhighlight all elements
           // which will change the URL fragment

@@ -46,6 +46,15 @@ import { DashboardWorkflow } from "../../../type/dashboard-workflow.interface";
 import { DownloadService } from "../../../service/user/download/download.service";
 import { USER_WORKSPACE } from "../../../../app-routing.constant";
 import { GuiConfigService } from "../../../../common/service/gui-config.service";
+import {
+  MappingContent,
+  NotebookMigrationService,
+} from "../../../../workspace/service/notebook-migration/notebook-migration.service";
+import { Notebook } from "../../../../workspace/service/notebook-migration/migration-llm";
+import {
+  NotebookImportModalComponent,
+  NotebookImportModalData,
+} from "../../../../workspace/component/notebook-import-modal/notebook-import-modal.component";
 import { NzCardComponent } from "ng-zorro-antd/card";
 import { NzSpaceCompactItemDirective, NzSpaceCompactComponent } from "ng-zorro-antd/space";
 import { NzButtonComponent } from "ng-zorro-antd/button";
@@ -157,7 +166,8 @@ export class UserWorkflowComponent implements AfterViewInit {
     private router: Router,
     private downloadService: DownloadService,
     private searchService: SearchService,
-    private config: GuiConfigService
+    private config: GuiConfigService,
+    private notebookMigrationService: NotebookMigrationService
   ) {
     this.userService
       .userChanged()
@@ -312,6 +322,117 @@ export class UserWorkflowComponent implements AfterViewInit {
       });
   }
 
+  public get pythonNotebookMigrationEnabled(): boolean {
+    return this.config.env.pythonNotebookMigrationEnabled;
+  }
+
+  /**
+   * Open the AI-generate import modal from the dashboard. The modal collects the notebook file and
+   * model and shows a loading state while generation runs (the requestImport callback below).
+   */
+  public openAiGenerateModal(): void {
+    this.modalService.create<NotebookImportModalComponent, NotebookImportModalData>({
+      nzTitle: "AI Generate Workflow from Python Notebook",
+      nzContent: NotebookImportModalComponent,
+      nzWidth: 700,
+      nzFooter: null,
+      nzCentered: true,
+      nzData: {
+        requestImport: (file, model) => this.generateWorkflowFromNotebook(file, model),
+      },
+    });
+  }
+
+  /**
+   * Generate a workflow from the uploaded notebook and open it. Runs entirely on the dashboard while
+   * the modal shows a loading state: parse the notebook, send it to the LLM, save the result as a new
+   * workflow, store the notebook and cell mapping, then navigate to the new workflow. The workspace
+   * lays the generated operators out (via the autolayout query param) and opens the notebook panel
+   * (driven by the workflow id). Resolves true so the modal closes on success, or false (leaving the
+   * modal open with the selection intact) when the file is not a notebook or generation fails.
+   */
+  private async generateWorkflowFromNotebook(file: NzUploadFile, model: string): Promise<boolean> {
+    const fileExtension = file.name.split(".").pop()?.toLowerCase();
+    if (fileExtension !== "ipynb") {
+      this.notificationService.error("Please upload a valid Jupyter Notebook (.ipynb) file.");
+      return false;
+    }
+    let notebook: Notebook;
+    try {
+      notebook = await this.notebookMigrationService.parseAndTagNotebook(file as unknown as File);
+    } catch (error) {
+      this.notificationService.error("Failed to read the notebook file. Please upload a valid .ipynb file.");
+      console.error("Notebook parse failed:", error);
+      return false;
+    }
+
+    let generated: { workflowContent: WorkflowContent; mappingContent: MappingContent };
+    try {
+      generated = await this.notebookMigrationService.sendToAIGenerateWorkflow(notebook, model);
+    } catch (error) {
+      this.notificationService.error("Error while communicating with the LLM, check console for details.");
+      console.error("LLM generation failed:", error);
+      return false;
+    }
+
+    // Create the workflow. This is the commit point: persisting captures the expensive LLM
+    // result. If it fails nothing was created, so returning false (letting the user retry) is safe.
+    let wid: number;
+    try {
+      const createdWorkflow = await firstValueFrom(
+        this.workflowPersistService.createWorkflow(
+          generated.workflowContent,
+          this.deriveWorkflowName(file.name) + "_GENERATED_BY_LLM"
+        )
+      );
+      if (!createdWorkflow.workflow.wid) {
+        throw new Error("Created workflow has no wid.");
+      }
+      wid = createdWorkflow.workflow.wid;
+    } catch (error) {
+      this.notificationService.error("Failed to save the generated workflow, check console for details.");
+      console.error("Saving the generated workflow failed:", error);
+      return false;
+    }
+
+    // Past the commit point the follow-up steps are best-effort: a transient failure must not
+    // discard the created workflow or the LLM result, so we log/warn and still open the workflow
+    // rather than force a full re-generation.
+    if (this.pid) {
+      try {
+        await firstValueFrom(this.userProjectService.addWorkflowToProject(this.pid, wid));
+      } catch (error) {
+        console.error("Adding the generated workflow to the project failed:", error);
+      }
+    }
+    try {
+      await firstValueFrom(
+        this.notebookMigrationService.storeNotebookAndMapping(wid, generated.mappingContent, notebook)
+      );
+    } catch (error) {
+      this.notificationService.warning(
+        "Workflow created, but the notebook could not be attached; the Jupyter panel may not open."
+      );
+      console.error("Storing the notebook and mapping failed:", error);
+    }
+
+    const navigated = await this.router
+      .navigate([USER_WORKSPACE, wid], { queryParams: { autolayout: 1 } })
+      .catch(() => false);
+    if (!navigated) {
+      this.notificationService.warning("Workflow created. You can open it from your dashboard.");
+    }
+    return true;
+  }
+
+  // Strips the extension from an uploaded file name, falling back to DEFAULT_WORKFLOW_NAME when the
+  // result is empty. Shared by the file-upload and AI-generate flows to name the created workflow.
+  private deriveWorkflowName(fileName: string): string {
+    const extensionIndex = fileName.lastIndexOf(".");
+    const baseName = extensionIndex === -1 ? fileName : fileName.substring(0, extensionIndex);
+    return baseName.trim() === "" ? DEFAULT_WORKFLOW_NAME : baseName;
+  }
+
   /**
    * duplicate the current workflow. A new record will appear in frontend
    * workflow list and backend database.
@@ -444,13 +565,8 @@ export class UserWorkflowComponent implements AfterViewInit {
             throw new Error("Incorrect format: file is not a string");
           }
           const workflowContent = JSON.parse(result) as WorkflowContent;
-          const fileExtensionIndex = name.lastIndexOf(".");
-          let workflowName = fileExtensionIndex === -1 ? name : name.substring(0, fileExtensionIndex);
-          if (workflowName.trim() === "") {
-            workflowName = DEFAULT_WORKFLOW_NAME;
-          }
           this.workflowPersistService
-            .createWorkflow(workflowContent, workflowName)
+            .createWorkflow(workflowContent, this.deriveWorkflowName(name))
             .pipe(untilDestroyed(this))
             .subscribe({
               next: uploadedWorkflow => {

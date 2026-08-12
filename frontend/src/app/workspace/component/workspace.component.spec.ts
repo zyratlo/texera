@@ -106,6 +106,7 @@ describe("WorkspaceComponent", () => {
       disableWorkflowModification: vi.fn(),
       enableWorkflowModification: vi.fn(),
       reloadWorkflow: vi.fn(),
+      autoLayoutWorkflow: vi.fn(),
       setNewSharedModel: vi.fn(),
       setWorkflowMetadata: vi.fn(),
       clearWorkflow: vi.fn(),
@@ -253,7 +254,7 @@ describe("WorkspaceComponent", () => {
       await createFixture(configureRoute({ id: "42" }));
       fixture.detectChanges();
       expect(workflowActionService.setNewSharedModel).toHaveBeenCalledWith(42, { uid: 7 });
-      expect(workflowActionService.reloadWorkflow).toHaveBeenCalledWith(stubWorkflow);
+      expect(workflowActionService.reloadWorkflow).toHaveBeenCalledWith(stubWorkflow, undefined);
       expect(undoRedoService.clearUndoStack).toHaveBeenCalled();
       expect(undoRedoService.clearRedoStack).toHaveBeenCalled();
       expect(component.isLoading).toBe(false);
@@ -283,7 +284,22 @@ describe("WorkspaceComponent", () => {
       fixture.detectChanges();
       expect(notificationService.error).toHaveBeenCalledWith(expect.stringContaining("broken"));
       // Workflow still flows through reload — the error is informational, not blocking.
-      expect(workflowActionService.reloadWorkflow).toHaveBeenCalledWith(brokenWorkflow);
+      expect(workflowActionService.reloadWorkflow).toHaveBeenCalledWith(brokenWorkflow, undefined);
+    });
+
+    it("with autolayout=1: renders synchronously and lays the workflow out once", async () => {
+      await createFixture(configureRoute({ id: "42" }, { autolayout: "1" }));
+      fixture.detectChanges();
+      // asyncRendering=false so the operators exist in the graph before layout runs.
+      expect(workflowActionService.reloadWorkflow).toHaveBeenCalledWith(stubWorkflow, false);
+      expect(workflowActionService.autoLayoutWorkflow).toHaveBeenCalledTimes(1);
+    });
+
+    it("without autolayout: uses the default rendering and does not lay out", async () => {
+      await createFixture(configureRoute({ id: "42" }));
+      fixture.detectChanges();
+      expect(workflowActionService.reloadWorkflow).toHaveBeenCalledWith(stubWorkflow, undefined);
+      expect(workflowActionService.autoLayoutWorkflow).not.toHaveBeenCalled();
     });
 
     it("when URL fragment matches an element in the graph, highlights it", async () => {

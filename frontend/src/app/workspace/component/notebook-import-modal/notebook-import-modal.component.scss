@@ -70,9 +70,46 @@
     width: 50%;
   }
 
-  &-warning {
-    display: block;
-    margin-bottom: 12px;
+  // Wraps the form and footer so the loading overlay can cover them without changing the
+  // modal's height (which would otherwise resize and re-center the centered modal on submit).
+  &-content {
+    position: relative;
+  }
+
+  &-loading {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    // Solid background so the form and footer underneath are fully hidden.
+    background-color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    padding: 16px 24px 28px;
+    text-align: center;
+  }
+
+  &-loading-title {
+    margin: 8px 0 0;
+    font-size: 20px;
+    font-weight: 700;
+  }
+
+  &-loading-elapsed {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+
+  &-loading-text {
+    margin: 0;
+    max-width: 480px;
+    font-size: 16px;
+    line-height: 1.5;
+    color: rgba(0, 0, 0, 0.65);
   }
 
   &-footer {
