@@ -414,6 +414,22 @@ describe("SavedWorkflowSectionComponent", () => {
       expect(createdName.endsWith("_GENERATED_BY_LLM")).toBe(true);
     });
 
+    it("saves but does not navigate when the component was destroyed mid-generation", async () => {
+      const { persist } = mockGenerationSuccess(99);
+      const navigateSpy = vi.spyOn(TestBed.inject(Router), "navigate").mockResolvedValue(true);
+      const infoSpy = vi.spyOn(TestBed.inject(NotificationService), "info").mockImplementation(() => {});
+      const requestImport = getRequestImport();
+      component.ngOnDestroy();
+
+      const proceed = await requestImport(ipynbFile, "gpt-4");
+
+      // The workflow is still created and saved, but the user is not yanked into the workspace.
+      expect(persist.createWorkflow).toHaveBeenCalledTimes(1);
+      expect(navigateSpy).not.toHaveBeenCalled();
+      expect(infoSpy).toHaveBeenCalledWith("Workflow generated and saved to your dashboard.");
+      expect(proceed).toBe(true);
+    });
+
     it("adds the new workflow to the current project when opened inside one", async () => {
       mockGenerationSuccess(99);
       vi.spyOn(TestBed.inject(Router), "navigate").mockResolvedValue(true);

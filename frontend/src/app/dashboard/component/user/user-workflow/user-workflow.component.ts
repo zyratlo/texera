@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { AfterViewInit, Component, Input, ViewChild } from "@angular/core";
+import { AfterViewInit, Component, Input, OnDestroy, ViewChild } from "@angular/core";
 import { Router } from "@angular/router";
 import { NzModalService } from "ng-zorro-antd/modal";
 import { firstValueFrom, from, lastValueFrom, Observable, of } from "rxjs";
@@ -121,8 +121,10 @@ import { FormsModule } from "@angular/forms";
     NzSpaceCompactComponent,
   ],
 })
-export class UserWorkflowComponent implements AfterViewInit {
+export class UserWorkflowComponent implements AfterViewInit, OnDestroy {
   private static readonly VIEW_MODE_STORAGE_KEY = "texera.userWorkflow.viewMode";
+  // Set on teardown so a generation that finishes after the user leaves does not navigate them back.
+  private destroyed = false;
   private _searchResultsComponent?: SearchResultsComponent;
   public isLogin = this.userService.isLogin();
   private includePublic = false;
@@ -207,6 +209,10 @@ export class UserWorkflowComponent implements AfterViewInit {
       .userChanged()
       .pipe(untilDestroyed(this))
       .subscribe(() => this.search());
+  }
+
+  ngOnDestroy(): void {
+    this.destroyed = true;
   }
 
   /**
@@ -405,6 +411,11 @@ export class UserWorkflowComponent implements AfterViewInit {
         "Workflow created, but the notebook could not be attached; the Jupyter panel may not open."
       );
       console.error("Storing the notebook and mapping failed:", error);
+    }
+
+    if (this.destroyed) {
+      this.notificationService.info("Workflow generated and saved to your dashboard.");
+      return true;
     }
 
     const navigated = await this.router
