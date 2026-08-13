@@ -186,11 +186,8 @@ export class NotebookMigrationLLM {
     }
   }
 
-  // Seam over the `ai` transport. Specs stub this by spying the method, instead of
-  // mocking the "ai" module — module mocks are unreliable in the Angular unit-test
-  // builder when "ai" is also loaded by a sibling spec (e.g. via
-  // NotebookMigrationService), which silently breaks the mock and hangs these
-  // tests on a real network call.
+  // Seam over the `ai` transport. Specs spy this method rather than mocking the "ai" module:
+  // a module mock leaks across specs that share the "ai" import and hangs on a real network call.
   protected callModel(
     messages: ModelMessage[],
     maxOutputTokens?: number,

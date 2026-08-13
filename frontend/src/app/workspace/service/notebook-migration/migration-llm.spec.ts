@@ -386,6 +386,35 @@ describe("NotebookMigrationLLM", () => {
     });
   });
 
+  describe("callModel transport", () => {
+    it("forwards messages and the abort signal to generateText and returns its text", async () => {
+      // Exercise the real callModel body (the ai-SDK seam every other test stubs) with a minimal
+      // LanguageModelV2 fake, so no network call and no "ai" module mock is involved.
+      callModelSpy.mockRestore();
+      const llm = makeLLM();
+      (llm as any).model = {
+        specificationVersion: "v2",
+        provider: "mock",
+        modelId: "mock",
+        supportedUrls: {},
+        doGenerate: async () => ({
+          content: [{ type: "text", text: "pong" }],
+          finishReason: "stop",
+          usage: { inputTokens: 1, outputTokens: 1, totalTokens: 2 },
+          warnings: [],
+        }),
+      };
+
+      const result = await (llm as any).callModel(
+        [{ role: "user", content: "ping" }],
+        10,
+        new AbortController().signal
+      );
+
+      expect(result.text).toBe("pong");
+    });
+  });
+
   describe("request timeout", () => {
     it("rejects a stalled model call once the timeout elapses so the caller can recover", async () => {
       vi.useFakeTimers();
