@@ -259,17 +259,13 @@ export class WorkspaceComponent implements AfterViewInit, OnInit, OnDestroy {
           this.workflowActionService.setNewSharedModel(wid, this.userService.getCurrentUser());
           // remember URL fragment
           const fragment = this.route.snapshot.fragment;
-          // A freshly AI-generated workflow arrives with autolayout=1: there was no canvas on the
-          // dashboard to lay the operators out on, so render synchronously (asyncRendering = false)
-          // so the operators exist in the graph, then tidy the layout once.
+          // An AI-generated workflow arrives with autolayout=1. Render synchronously
+          // (asyncRendering = false) so the operators exist before the one-shot layout runs.
           const shouldAutoLayout = this.route.snapshot.queryParams.autolayout === "1";
-          // load the fetched workflow (asyncRendering = false for autolayout so the operators
-          // exist synchronously before the layout runs; undefined otherwise uses the config default)
           this.workflowActionService.reloadWorkflow(workflow, shouldAutoLayout ? false : undefined);
           this.workflowActionService.enableWorkflowModification();
-          // Register auto-persistence before autoLayoutWorkflow() runs: workflowChanged() merges hot,
-          // non-replaying streams, so the layout's position-change events would be lost if we subscribed
-          // afterwards, and the tidied layout would never be saved (autolayout=1 is one-shot).
+          // Register before autoLayoutWorkflow(): workflowChanged() streams are hot, so subscribing
+          // afterward would drop the layout's position events and the tidied layout would never save.
           this.registerAutoPersistWorkflow();
           if (shouldAutoLayout) {
             this.workflowActionService.autoLayoutWorkflow();

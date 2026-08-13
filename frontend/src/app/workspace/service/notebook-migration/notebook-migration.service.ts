@@ -56,8 +56,7 @@ interface DeleteNotebookResponse {
   message?: string;
 }
 
-// Single source of truth for the in-memory mapping cache key. Both the dashboard generate flow
-// and JupyterPanelService key the cell <-> operator mapping by this, so it must not drift.
+// Single source of truth for the mapping cache key, shared with JupyterPanelService so it can't drift.
 export function notebookMappingKey(wid: number | undefined): string {
   return "mapping_wid_" + wid;
 }
@@ -258,10 +257,9 @@ export class NotebookMigrationService {
     delete this.mapping[id];
   }
 
-  // Reads an uploaded .ipynb file, parses it, validates its structure, and tags each cell with a
-  // uuid (the cell <-> operator mapping keys off these). Rejects on a read error, invalid JSON, or
-  // a notebook without a cells array. Uses FileReader rather than file.text() because jsdom (the
-  // test environment) does not implement Blob/File.text().
+  // Reads and parses an .ipynb file, then tags each cell with a uuid (the mapping keys off these).
+  // Rejects on a read error, invalid JSON, or a missing cells array. Uses FileReader rather than
+  // file.text() because jsdom (the test environment) does not implement Blob/File.text().
   public parseAndTagNotebook(file: File): Promise<Notebook> {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();

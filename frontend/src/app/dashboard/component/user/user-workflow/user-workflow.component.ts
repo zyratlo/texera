@@ -326,10 +326,7 @@ export class UserWorkflowComponent implements AfterViewInit {
     return this.config.env.pythonNotebookMigrationEnabled;
   }
 
-  /**
-   * Open the AI-generate import modal from the dashboard. The modal collects the notebook file and
-   * model and shows a loading state while generation runs (the requestImport callback below).
-   */
+  /** Open the AI-generate import modal, wiring its submit to generateWorkflowFromNotebook. */
   public openAiGenerateModal(): void {
     this.modalService.create<NotebookImportModalComponent, NotebookImportModalData>({
       nzTitle: "AI Generate Workflow from Python Notebook",
@@ -344,12 +341,8 @@ export class UserWorkflowComponent implements AfterViewInit {
   }
 
   /**
-   * Generate a workflow from the uploaded notebook and open it. Runs entirely on the dashboard while
-   * the modal shows a loading state: parse the notebook, send it to the LLM, save the result as a new
-   * workflow, store the notebook and cell mapping, then navigate to the new workflow. The workspace
-   * lays the generated operators out (via the autolayout query param) and opens the notebook panel
-   * (driven by the workflow id). Resolves true so the modal closes on success, or false (leaving the
-   * modal open with the selection intact) when the file is not a notebook or generation fails.
+   * Parse the notebook, generate a workflow via the LLM, save it, store the cell mapping, and open it.
+   * Resolves true on success (modal closes), false to keep the modal open on a bad file or a failure.
    */
   private async generateWorkflowFromNotebook(file: NzUploadFile, model: string): Promise<boolean> {
     const fileExtension = file.name.split(".").pop()?.toLowerCase();
@@ -375,8 +368,8 @@ export class UserWorkflowComponent implements AfterViewInit {
       return false;
     }
 
-    // Create the workflow. This is the commit point: persisting captures the expensive LLM
-    // result. If it fails nothing was created, so returning false (letting the user retry) is safe.
+    // Commit point: persisting captures the expensive LLM result. On failure nothing was created,
+    // so returning false to let the user retry is safe.
     let wid: number;
     try {
       const createdWorkflow = await firstValueFrom(
@@ -395,9 +388,7 @@ export class UserWorkflowComponent implements AfterViewInit {
       return false;
     }
 
-    // Past the commit point the follow-up steps are best-effort: a transient failure must not
-    // discard the created workflow or the LLM result, so we log/warn and still open the workflow
-    // rather than force a full re-generation.
+    // Best-effort follow-ups: never discard the created workflow, so log/warn and still open it.
     if (this.pid) {
       try {
         await firstValueFrom(this.userProjectService.addWorkflowToProject(this.pid, wid));
@@ -425,8 +416,7 @@ export class UserWorkflowComponent implements AfterViewInit {
     return true;
   }
 
-  // Strips the extension from an uploaded file name, falling back to DEFAULT_WORKFLOW_NAME when the
-  // result is empty. Shared by the file-upload and AI-generate flows to name the created workflow.
+  // Strips the extension from a file name, falling back to DEFAULT_WORKFLOW_NAME when empty.
   private deriveWorkflowName(fileName: string): string {
     const extensionIndex = fileName.lastIndexOf(".");
     const baseName = extensionIndex === -1 ? fileName : fileName.substring(0, extensionIndex);

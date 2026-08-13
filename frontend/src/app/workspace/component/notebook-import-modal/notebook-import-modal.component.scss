@@ -70,8 +70,7 @@
     width: 50%;
   }
 
-  // Wraps the form and footer so the loading overlay can cover them without changing the
-  // modal's height (which would otherwise resize and re-center the centered modal on submit).
+  // Positioning context for the loading overlay, so covering the form does not resize the modal.
   &-content {
     position: relative;
   }
@@ -80,7 +79,7 @@
     position: absolute;
     inset: 0;
     z-index: 1;
-    // Solid background so the form and footer underneath are fully hidden.
+    // Solid background so the form underneath is fully hidden.
     background-color: #fff;
     display: flex;
     flex-direction: column;

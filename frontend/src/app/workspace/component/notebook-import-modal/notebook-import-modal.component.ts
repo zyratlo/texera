@@ -30,20 +30,15 @@ import { NzButtonComponent } from "ng-zorro-antd/button";
 import { NzIconDirective } from "ng-zorro-antd/icon";
 import { NotebookMigrationService } from "../../service/notebook-migration/notebook-migration.service";
 
-// Passed in via nzData. The modal hands the selected file and model to the opener, which runs the
-// generation and persistence. The modal shows a loading state while this promise is pending.
-// Resolve true to close the modal (generation succeeded and the opener navigated away), false to
-// keep it open with the user's selection intact (bad file or a failure the user can retry).
+// Passed in via nzData. requestImport resolves true to close the modal, false to keep it open
+// with the user's selection intact (bad file or a retryable failure).
 export interface NotebookImportModalData {
   requestImport: (file: NzUploadFile, model: string) => Promise<boolean>;
 }
 
 /**
- * The "AI Generate Workflow from Python Notebook" modal body. It owns the upload form and
- * the three model-dropdown states (loading / has models / none). On Submit it hands the file
- * and model to its opener via the requestImport callback (passed in through nzData) and shows a
- * loading state while generation runs, closing itself only when that resolves true. Mirrors the
- * component-as-nzContent pattern used by the other modals opened from the menu.
+ * The "AI Generate Workflow from Python Notebook" modal body: the upload form and model dropdown.
+ * On Submit it hands the file and model to requestImport and shows a loading state until it resolves.
  */
 @Component({
   selector: "texera-notebook-import-modal",
@@ -89,8 +84,7 @@ export class NotebookImportModalComponent implements OnDestroy {
     this.modalRef.close();
   }
 
-  // True while generation is running. Guards against a second submit and drives the loading
-  // spinner shown over the form.
+  // True while generation runs: guards against a second submit and drives the loading overlay.
   public isSubmitting = false;
   private startTime: number | null = null;
   private timerHandle: ReturnType<typeof setInterval> | null = null;
@@ -107,17 +101,15 @@ export class NotebookImportModalComponent implements OnDestroy {
     return `${minutes}:${seconds.toString().padStart(2, "0")}`;
   }
 
-  // Empty on purpose: with default change detection, the visibilitychange event firing in the
-  // Angular zone is itself what triggers a repaint, so the stopwatch catches up immediately when
-  // the user returns to a backgrounded tab. The handler body is irrelevant.
+  // Empty body on purpose: the zone-patched event firing is itself what repaints the stopwatch,
+  // so it catches up when the user returns to a backgrounded tab. Same reason as the timer below.
   @HostListener("document:visibilitychange")
   public onVisibilityChange(): void {}
 
   private startTimer(): void {
     this.stopTimer();
     this.startTime = Date.now();
-    // The interval body is intentionally empty: the elapsed value is computed from startTime, and
-    // with default change detection the zone-patched timer firing is what repaints it each second.
+    // Empty body: elapsed is computed from startTime; the zone-patched tick just triggers a repaint.
     this.timerHandle = setInterval(() => {}, 1000);
   }
 
@@ -136,8 +128,7 @@ export class NotebookImportModalComponent implements OnDestroy {
     this.startTimer();
     this.modalRef.updateConfig({ nzClosable: false, nzMaskClosable: false, nzKeyboard: false });
     try {
-      // Run generation via the opener; close only if it succeeds, so a failure leaves this modal
-      // open with the selection preserved.
+      // Close only on success, so a failure leaves the modal open with the selection preserved.
       if (await this.data.requestImport(file, model)) {
         this.modalRef.close();
         return;
