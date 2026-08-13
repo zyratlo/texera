@@ -79,6 +79,8 @@ interface CombinedMapping {
  * Terminal UDFs (no outgoing edge) declare their outputs as `string` so the result panel
  * renders viewable values rather than opaque binary blobs.
  */
+export const LLM_REQUEST_TIMEOUT_MS = 10 * 60 * 1000;
+
 @Injectable()
 export class NotebookMigrationLLM {
   private model: any;
@@ -175,7 +177,7 @@ export class NotebookMigrationLLM {
     }
 
     try {
-      await this.callModel([{ role: "user", content: "ping" }], 10);
+      await this.callModelWithTimeout([{ role: "user", content: "ping" }], 10);
 
       return true;
     } catch (err) {
@@ -189,8 +191,29 @@ export class NotebookMigrationLLM {
   // builder when "ai" is also loaded by a sibling spec (e.g. via
   // NotebookMigrationService), which silently breaks the mock and hangs these
   // tests on a real network call.
-  protected callModel(messages: ModelMessage[], maxOutputTokens?: number): Promise<{ text: string }> {
-    return generateText({ model: this.model, messages, maxOutputTokens });
+  protected callModel(
+    messages: ModelMessage[],
+    maxOutputTokens?: number,
+    abortSignal?: AbortSignal
+  ): Promise<{ text: string }> {
+    return generateText({ model: this.model, messages, maxOutputTokens, abortSignal });
+  }
+
+  // Wraps callModel with a hard timeout so a stalled request cannot hang forever. The abort
+  // cancels the underlying request when the transport honors it; the race guarantees rejection
+  // even if it does not, so the caller's error path always runs.
+  private callModelWithTimeout(messages: ModelMessage[], maxOutputTokens?: number): Promise<{ text: string }> {
+    const controller = new AbortController();
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const timeout = new Promise<never>((_resolve, reject) => {
+      timer = setTimeout(() => {
+        controller.abort();
+        reject(new Error(`LLM request timed out after ${LLM_REQUEST_TIMEOUT_MS} ms`));
+      }, LLM_REQUEST_TIMEOUT_MS);
+    });
+    return Promise.race([this.callModel(messages, maxOutputTokens, controller.signal), timeout]).finally(() =>
+      clearTimeout(timer)
+    );
   }
 
   /**
@@ -207,7 +230,7 @@ export class NotebookMigrationLLM {
       content: prompt,
     });
 
-    const result = await this.callModel(this.messages);
+    const result = await this.callModelWithTimeout(this.messages);
 
     this.messages.push({
       role: "assistant",

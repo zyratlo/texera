@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { NotebookMigrationLLM, Notebook } from "./migration-llm";
+import { NotebookMigrationLLM, Notebook, LLM_REQUEST_TIMEOUT_MS } from "./migration-llm";
 import { GuiConfigService } from "../../../common/service/gui-config.service";
 import { WorkflowUtilService } from "../workflow-graph/util/workflow-util.service";
 import { AuthService } from "../../../common/service/user/auth.service";
@@ -371,7 +371,8 @@ describe("NotebookMigrationLLM", () => {
     it("returns true and pings the model with a capped token budget on success", async () => {
       const ok = await makeLLM().verifyConnection();
       expect(ok).toBe(true);
-      expect(callModelSpy).toHaveBeenCalledWith([{ role: "user", content: "ping" }], 10);
+      // The ping goes through the timeout wrapper, so it also carries an abort signal.
+      expect(callModelSpy).toHaveBeenCalledWith([{ role: "user", content: "ping" }], 10, expect.any(AbortSignal));
     });
 
     it("returns false and logs the error when the ping fails", async () => {
@@ -382,6 +383,37 @@ describe("NotebookMigrationLLM", () => {
       await expect(llm.verifyConnection()).resolves.toBe(false);
       expect(error).toHaveBeenCalledWith("API key verification failed:", expect.any(Error));
       error.mockRestore();
+    });
+  });
+
+  describe("request timeout", () => {
+    it("rejects a stalled model call once the timeout elapses so the caller can recover", async () => {
+      vi.useFakeTimers();
+      try {
+        // A request that never settles: only the timeout can end it.
+        callModelSpy.mockReturnValue(new Promise<{ text: string }>(() => {}));
+        const pending = makeLLM().convertNotebookToWorkflow({ cells: [codeCell("AAA", "a = 1")] });
+        // Surface the rejection instead of letting it float as unhandled while timers advance.
+        const assertion = expect(pending).rejects.toThrow(/timed out/);
+        await vi.advanceTimersByTimeAsync(LLM_REQUEST_TIMEOUT_MS);
+        await assertion;
+      } finally {
+        vi.useRealTimers();
+      }
+    });
+
+    it("does not reject a call that resolves before the timeout", async () => {
+      vi.useFakeTimers();
+      try {
+        mockResponses(
+          JSON.stringify({ code: { UDF1: "code1" }, edges: [], outputs: { UDF1: ["a"] } }),
+          JSON.stringify({ UDF1: ["AAA"] })
+        );
+        const result = await makeLLM().convertNotebookToWorkflow({ cells: [codeCell("AAA", "a = 1")] });
+        expect(JSON.parse(result).workflowJSON.operators).toHaveLength(1);
+      } finally {
+        vi.useRealTimers();
+      }
     });
   });
 
