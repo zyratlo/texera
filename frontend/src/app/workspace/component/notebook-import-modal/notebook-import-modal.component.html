@@ -29,6 +29,7 @@
   <form
     class="import-modal-form"
     [formGroup]="importForm"
+    [attr.inert]="isSubmitting ? '' : null"
     nz-form>
     <nz-form-item>
       <p class="import-modal-text">
@@ -113,7 +114,9 @@
     </nz-form-item>
   </form>
 
-  <div class="import-modal-footer">
+  <div
+    class="import-modal-footer"
+    [attr.inert]="isSubmitting ? '' : null">
     <button
       nz-button
       type="button"
@@ -133,7 +136,9 @@
 
   <div
     *ngIf="isSubmitting"
-    class="import-modal-loading">
+    class="import-modal-loading"
+    role="status"
+    aria-live="polite">
     <nz-spin
       nzSimple
       [nzSize]="'large'"></nz-spin>

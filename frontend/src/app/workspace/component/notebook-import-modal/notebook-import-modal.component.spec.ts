@@ -78,6 +78,25 @@ describe("NotebookImportModalComponent", () => {
     expect(spinning()).toBe(true);
   });
 
+  it("makes the form and footer inert and announces the overlay while submitting", async () => {
+    await createWith(of([{ name: "gpt-4" }]));
+    const root = fixture.nativeElement as HTMLElement;
+    const form = () => root.querySelector(".import-modal-form");
+    const footer = () => root.querySelector(".import-modal-footer");
+
+    expect(form()?.hasAttribute("inert")).toBe(false);
+    expect(footer()?.hasAttribute("inert")).toBe(false);
+
+    component.isSubmitting = true;
+    fixture.detectChanges();
+
+    // While generating, the covered form and footer are pulled out of the focus/a11y tree,
+    // and the overlay is a live region so its status is announced.
+    expect(form()?.hasAttribute("inert")).toBe(true);
+    expect(footer()?.hasAttribute("inert")).toBe(true);
+    expect(root.querySelector(".import-modal-loading")?.getAttribute("role")).toBe("status");
+  });
+
   it("shows the disabled 'no models available' select when the list is empty", async () => {
     await createWith(of([]));
     expect((fixture.nativeElement as HTMLElement).textContent).toContain("No models available");
