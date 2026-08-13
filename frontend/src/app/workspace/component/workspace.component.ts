@@ -267,6 +267,10 @@ export class WorkspaceComponent implements AfterViewInit, OnInit, OnDestroy {
           // exist synchronously before the layout runs; undefined otherwise uses the config default)
           this.workflowActionService.reloadWorkflow(workflow, shouldAutoLayout ? false : undefined);
           this.workflowActionService.enableWorkflowModification();
+          // Register auto-persistence before autoLayoutWorkflow() runs: workflowChanged() merges hot,
+          // non-replaying streams, so the layout's position-change events would be lost if we subscribed
+          // afterwards, and the tidied layout would never be saved (autolayout=1 is one-shot).
+          this.registerAutoPersistWorkflow();
           if (shouldAutoLayout) {
             this.workflowActionService.autoLayoutWorkflow();
           }
@@ -292,7 +296,6 @@ export class WorkspaceComponent implements AfterViewInit, OnInit, OnDestroy {
           this.undoRedoService.clearUndoStack();
           this.undoRedoService.clearRedoStack();
           this.setLoadingState(false);
-          this.registerAutoPersistWorkflow();
           this.triggerCenter();
         },
         () => {

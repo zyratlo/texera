@@ -289,10 +289,16 @@ describe("WorkspaceComponent", () => {
 
     it("with autolayout=1: renders synchronously and lays the workflow out once", async () => {
       await createFixture(configureRoute({ id: "42" }, { autolayout: "1" }));
+      const registerSpy = vi.spyOn(component, "registerAutoPersistWorkflow");
       fixture.detectChanges();
       // asyncRendering=false so the operators exist in the graph before layout runs.
       expect(workflowActionService.reloadWorkflow).toHaveBeenCalledWith(stubWorkflow, false);
       expect(workflowActionService.autoLayoutWorkflow).toHaveBeenCalledTimes(1);
+      // Auto-persistence must be registered before the layout runs, otherwise the layout's
+      // position-change events fire into no subscriber and the tidied layout is never saved.
+      expect(registerSpy.mock.invocationCallOrder[0]).toBeLessThan(
+        workflowActionService.autoLayoutWorkflow.mock.invocationCallOrder[0]
+      );
     });
 
     it("without autolayout: uses the default rendering and does not lay out", async () => {
