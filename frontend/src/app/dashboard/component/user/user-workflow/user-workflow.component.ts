@@ -372,11 +372,11 @@ export class UserWorkflowComponent implements AfterViewInit {
     // so returning false to let the user retry is safe.
     let wid: number;
     try {
+      // workflow.name is VARCHAR(128); cap the base so base + suffix fits the column.
+      const generatedSuffix = "_GENERATED_BY_LLM";
+      const generatedName = this.deriveWorkflowName(file.name).slice(0, 128 - generatedSuffix.length);
       const createdWorkflow = await firstValueFrom(
-        this.workflowPersistService.createWorkflow(
-          generated.workflowContent,
-          this.deriveWorkflowName(file.name) + "_GENERATED_BY_LLM"
-        )
+        this.workflowPersistService.createWorkflow(generated.workflowContent, generatedName + generatedSuffix)
       );
       if (!createdWorkflow.workflow.wid) {
         throw new Error("Created workflow has no wid.");

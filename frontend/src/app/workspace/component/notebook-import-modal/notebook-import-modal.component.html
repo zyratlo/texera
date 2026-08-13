@@ -71,8 +71,11 @@
             </button>
           </nz-upload>
 
-          <span *ngIf="importForm.get('file')?.value?.name">
-            Selected file: {{ importForm.get('file')?.value?.name }}
+          <span
+            *ngIf="importForm.get('file')?.value?.name as fileName"
+            class="import-modal-selected-file"
+            [title]="fileName">
+            Selected file: {{ fileName }}
           </span>
         </div>
       </nz-form-control>

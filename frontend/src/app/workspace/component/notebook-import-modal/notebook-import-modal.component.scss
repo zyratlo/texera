@@ -57,13 +57,22 @@
   }
 
   &-upload-row {
-    display: inline-flex;
+    display: flex;
     align-items: center;
     gap: 8px;
 
     button {
       white-space: normal;
+      flex: none;
     }
+  }
+
+  &-selected-file {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   &-select {

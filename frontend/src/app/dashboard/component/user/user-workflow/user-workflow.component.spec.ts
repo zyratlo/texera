@@ -403,6 +403,17 @@ describe("SavedWorkflowSectionComponent", () => {
       expect(proceed).toBe(true);
     });
 
+    it("truncates a long notebook basename so the generated name fits the 128-char column", async () => {
+      const { persist } = mockGenerationSuccess(99);
+      vi.spyOn(TestBed.inject(Router), "navigate").mockResolvedValue(true);
+
+      await getRequestImport()({ name: "a".repeat(200) + ".ipynb" } as NzUploadFile, "gpt-4");
+
+      const createdName = persist.createWorkflow.mock.calls[0][1] as string;
+      expect(createdName.length).toBe(128);
+      expect(createdName.endsWith("_GENERATED_BY_LLM")).toBe(true);
+    });
+
     it("adds the new workflow to the current project when opened inside one", async () => {
       mockGenerationSuccess(99);
       vi.spyOn(TestBed.inject(Router), "navigate").mockResolvedValue(true);
