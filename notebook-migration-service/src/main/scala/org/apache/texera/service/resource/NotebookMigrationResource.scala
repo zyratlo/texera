@@ -102,7 +102,7 @@ object NotebookMigrationResource extends LazyLogging {
   }
 
   // Returns the Jupyter iframe reference URL for the given notebook.
-  def getJupyterIframeURL(notebookName: String = defaultNotebookName): Response = {
+  def getJupyterIframeURL(notebookName: String): Response = {
     // notebookName flows into the returned URL, so validate it the same way setNotebook does:
     // block path traversal and keep it to a plain .ipynb filename.
     if (!notebookName.matches("[A-Za-z0-9._-]+\\.ipynb")) {
