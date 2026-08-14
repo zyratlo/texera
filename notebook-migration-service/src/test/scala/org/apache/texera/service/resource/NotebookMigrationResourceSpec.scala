@@ -489,7 +489,7 @@ class NotebookMigrationResourceSpec
 
   it should "build the iframe URL from an explicit notebook name" in {
     withFakeJupyter(contentsStatus = 201) {
-      val resp = NotebookMigrationResource.getJupyterIframeURL("other.ipynb")
+      val resp = resource.getJupyterIframeURL("other.ipynb", sessionUser(writerUid))
       resp.getStatus shouldBe Response.Status.OK.getStatusCode
       resp.getEntity.toString should include("/notebooks/work/other.ipynb")
     }
