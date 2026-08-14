@@ -73,6 +73,10 @@ object NotebookMigrationResource extends LazyLogging {
     }
   }
 
+  // jupyterUrl and jupyterToken are single process-wide values, so this service still
+  // targets one Jupyter per process (the per-user-pod model) and must not be deployed as a
+  // shared global instance yet: every user would get the same Jupyter and the same token.
+  // Resolving these per user is a later stage of the migration (#7665).
   private val jupyterUrl = StorageConfig.jupyterURL
   private val jupyterToken = StorageConfig.jupyterToken
 
