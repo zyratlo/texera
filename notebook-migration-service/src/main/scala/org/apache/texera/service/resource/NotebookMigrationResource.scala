@@ -161,8 +161,7 @@ object NotebookMigrationResource extends LazyLogging {
 
       // Allow only a plain ".ipynb" filename. Validated before any network call so a
       // bad name is rejected with a 400 up front. This blocks path traversal in the
-      // Jupyter contents URL (e.g. "../../etc/x.ipynb") and keeps notebookName out of
-      // the raw-interpolated jupyterIframeURL JSON (no quotes/control chars).
+      // Jupyter contents URL (e.g. "../../etc/x.ipynb").
       if (!notebookName.matches("[A-Za-z0-9._-]+\\.ipynb")) {
         return Response
           .status(Response.Status.BAD_REQUEST)
