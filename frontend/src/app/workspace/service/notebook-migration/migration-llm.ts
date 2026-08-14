@@ -81,6 +81,17 @@ interface CombinedMapping {
  */
 export const DEFAULT_LLM_REQUEST_TIMEOUT_MINUTES = 10;
 
+// Thrown when a model request exceeds the configured timeout, so callers can tell a slow-but-timed-out
+// request apart from a genuine transport error and message the user accordingly.
+export class LlmRequestTimeoutError extends Error {
+  constructor(public readonly minutes: number) {
+    super(`LLM request timed out after ${minutes} minutes`);
+    this.name = "LlmRequestTimeoutError";
+    // Keep instanceof correct regardless of the compile target.
+    Object.setPrototypeOf(this, LlmRequestTimeoutError.prototype);
+  }
+}
+
 @Injectable()
 export class NotebookMigrationLLM {
   private model: any;
@@ -213,7 +224,7 @@ export class NotebookMigrationLLM {
       timer = setTimeout(
         () => {
           controller.abort();
-          reject(new Error(`LLM request timed out after ${minutes} minutes`));
+          reject(new LlmRequestTimeoutError(minutes));
         },
         minutes * 60 * 1000
       );

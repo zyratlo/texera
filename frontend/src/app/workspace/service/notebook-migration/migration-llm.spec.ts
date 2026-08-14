@@ -17,7 +17,12 @@
  * under the License.
  */
 
-import { NotebookMigrationLLM, Notebook, DEFAULT_LLM_REQUEST_TIMEOUT_MINUTES } from "./migration-llm";
+import {
+  NotebookMigrationLLM,
+  Notebook,
+  DEFAULT_LLM_REQUEST_TIMEOUT_MINUTES,
+  LlmRequestTimeoutError,
+} from "./migration-llm";
 import { GuiConfigService } from "../../../common/service/gui-config.service";
 import { WorkflowUtilService } from "../workflow-graph/util/workflow-util.service";
 import { AuthService } from "../../../common/service/user/auth.service";
@@ -423,11 +428,13 @@ describe("NotebookMigrationLLM", () => {
         // A request that never settles: only the timeout can end it.
         callModelSpy.mockReturnValue(new Promise<{ text: string }>(() => {}));
         const pending = makeLLM().convertNotebookToWorkflow({ cells: [codeCell("AAA", "a = 1")] });
-        // Surface the rejection instead of letting it float as unhandled while timers advance.
-        const assertion = expect(pending).rejects.toThrow(/timed out/);
+        // Reject with a typed error carrying the configured minutes, so callers can message precisely.
+        const captured = pending.catch(error => error);
         // stubConfig sets pythonNotebookMigrationTimeoutMinutes to 10.
         await vi.advanceTimersByTimeAsync(10 * 60 * 1000);
-        await assertion;
+        const error = await captured;
+        expect(error).toBeInstanceOf(LlmRequestTimeoutError);
+        expect(error.minutes).toBe(10);
       } finally {
         vi.useRealTimers();
       }

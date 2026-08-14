@@ -76,6 +76,7 @@ import { USER_WORKSPACE } from "../../../../app-routing.constant";
 import { GuiConfigService } from "../../../../common/service/gui-config.service";
 import { MockGuiConfigService } from "../../../../common/service/gui-config.service.mock";
 import { NotebookMigrationService } from "../../../../workspace/service/notebook-migration/notebook-migration.service";
+import { LlmRequestTimeoutError } from "../../../../workspace/service/notebook-migration/migration-llm";
 import { NotebookImportModalComponent } from "../../../../workspace/component/notebook-import-modal/notebook-import-modal.component";
 import { NzUploadFile } from "ng-zorro-antd/upload";
 import type { Mocked } from "vitest";
@@ -479,6 +480,23 @@ describe("SavedWorkflowSectionComponent", () => {
 
       expect(proceed).toBe(false);
       expect(errorSpy).toHaveBeenCalledWith("Error while communicating with the LLM, check console for details.");
+      expect(persist.createWorkflow).not.toHaveBeenCalled();
+    });
+
+    it("reports a distinct timeout message when generation times out", async () => {
+      const migration = TestBed.inject(NotebookMigrationService);
+      vi.spyOn(migration, "parseAndTagNotebook").mockResolvedValue({ cells: [] } as any);
+      vi.spyOn(migration, "sendToAIGenerateWorkflow").mockRejectedValue(new LlmRequestTimeoutError(10));
+      const persist = TestBed.inject(WorkflowPersistService) as any;
+      persist.createWorkflow = vi.fn();
+      const errorSpy = vi.spyOn(TestBed.inject(NotificationService), "error").mockImplementation(() => {});
+
+      const proceed = await getRequestImport()(ipynbFile, "gpt-4");
+
+      expect(proceed).toBe(false);
+      expect(errorSpy).toHaveBeenCalledWith(
+        "Generation timed out after 10 minutes. Try again, choose a faster model, or simplify the notebook."
+      );
       expect(persist.createWorkflow).not.toHaveBeenCalled();
     });
 

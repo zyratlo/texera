@@ -50,7 +50,7 @@ import {
   MappingContent,
   NotebookMigrationService,
 } from "../../../../workspace/service/notebook-migration/notebook-migration.service";
-import { Notebook } from "../../../../workspace/service/notebook-migration/migration-llm";
+import { LlmRequestTimeoutError, Notebook } from "../../../../workspace/service/notebook-migration/migration-llm";
 import {
   NotebookImportModalComponent,
   NotebookImportModalData,
@@ -369,7 +369,13 @@ export class UserWorkflowComponent implements AfterViewInit, OnDestroy {
     try {
       generated = await this.notebookMigrationService.sendToAIGenerateWorkflow(notebook, model);
     } catch (error) {
-      this.notificationService.error("Error while communicating with the LLM, check console for details.");
+      if (error instanceof LlmRequestTimeoutError) {
+        this.notificationService.error(
+          `Generation timed out after ${error.minutes} minutes. Try again, choose a faster model, or simplify the notebook.`
+        );
+      } else {
+        this.notificationService.error("Error while communicating with the LLM, check console for details.");
+      }
       console.error("LLM generation failed:", error);
       return false;
     }
