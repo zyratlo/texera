@@ -79,7 +79,7 @@ interface CombinedMapping {
  * Terminal UDFs (no outgoing edge) declare their outputs as `string` so the result panel
  * renders viewable values rather than opaque binary blobs.
  */
-export const LLM_REQUEST_TIMEOUT_MS = 10 * 60 * 1000;
+export const DEFAULT_LLM_REQUEST_TIMEOUT_MINUTES = 10;
 
 @Injectable()
 export class NotebookMigrationLLM {
@@ -196,17 +196,27 @@ export class NotebookMigrationLLM {
     return generateText({ model: this.model, messages, maxOutputTokens, abortSignal });
   }
 
+  // Deployment-configurable bound (in minutes), falling back to the default when unset or non-positive.
+  private get timeoutMinutes(): number {
+    const configured = this.config.env.pythonNotebookMigrationTimeoutMinutes;
+    return configured > 0 ? configured : DEFAULT_LLM_REQUEST_TIMEOUT_MINUTES;
+  }
+
   // Wraps callModel with a hard timeout so a stalled request cannot hang forever. The abort
   // cancels the underlying request when the transport honors it; the race guarantees rejection
   // even if it does not, so the caller's error path always runs.
   private callModelWithTimeout(messages: ModelMessage[], maxOutputTokens?: number): Promise<{ text: string }> {
+    const minutes = this.timeoutMinutes;
     const controller = new AbortController();
     let timer: ReturnType<typeof setTimeout> | undefined;
     const timeout = new Promise<never>((_resolve, reject) => {
-      timer = setTimeout(() => {
-        controller.abort();
-        reject(new Error(`LLM request timed out after ${LLM_REQUEST_TIMEOUT_MS} ms`));
-      }, LLM_REQUEST_TIMEOUT_MS);
+      timer = setTimeout(
+        () => {
+          controller.abort();
+          reject(new Error(`LLM request timed out after ${minutes} minutes`));
+        },
+        minutes * 60 * 1000
+      );
     });
     return Promise.race([this.callModel(messages, maxOutputTokens, controller.signal), timeout]).finally(() =>
       clearTimeout(timer)

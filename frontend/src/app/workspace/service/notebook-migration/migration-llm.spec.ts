@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { NotebookMigrationLLM, Notebook, LLM_REQUEST_TIMEOUT_MS } from "./migration-llm";
+import { NotebookMigrationLLM, Notebook, DEFAULT_LLM_REQUEST_TIMEOUT_MINUTES } from "./migration-llm";
 import { GuiConfigService } from "../../../common/service/gui-config.service";
 import { WorkflowUtilService } from "../workflow-graph/util/workflow-util.service";
 import { AuthService } from "../../../common/service/user/auth.service";
@@ -37,6 +37,7 @@ describe("NotebookMigrationLLM", () => {
     const stubConfig = {
       env: {
         pythonNotebookMigrationEnabled: true,
+        pythonNotebookMigrationTimeoutMinutes: 10,
         defaultDataTransferBatchSize: 400,
         defaultExecutionMode: "PIPELINED",
       },
@@ -424,7 +425,8 @@ describe("NotebookMigrationLLM", () => {
         const pending = makeLLM().convertNotebookToWorkflow({ cells: [codeCell("AAA", "a = 1")] });
         // Surface the rejection instead of letting it float as unhandled while timers advance.
         const assertion = expect(pending).rejects.toThrow(/timed out/);
-        await vi.advanceTimersByTimeAsync(LLM_REQUEST_TIMEOUT_MS);
+        // stubConfig sets pythonNotebookMigrationTimeoutMinutes to 10.
+        await vi.advanceTimersByTimeAsync(10 * 60 * 1000);
         await assertion;
       } finally {
         vi.useRealTimers();
@@ -440,6 +442,31 @@ describe("NotebookMigrationLLM", () => {
         );
         const result = await makeLLM().convertNotebookToWorkflow({ cells: [codeCell("AAA", "a = 1")] });
         expect(JSON.parse(result).workflowJSON.operators).toHaveLength(1);
+      } finally {
+        vi.useRealTimers();
+      }
+    });
+
+    it("falls back to the default timeout when the configured value is non-positive", async () => {
+      vi.useFakeTimers();
+      try {
+        const stubConfig = {
+          env: {
+            pythonNotebookMigrationEnabled: true,
+            pythonNotebookMigrationTimeoutMinutes: 0,
+            defaultDataTransferBatchSize: 400,
+            defaultExecutionMode: "PIPELINED",
+          },
+        } as unknown as GuiConfigService;
+        const util = { getNewOperatorPredicate: vi.fn() } as unknown as WorkflowUtilService;
+        const llm = new NotebookMigrationLLM(stubConfig, util);
+        llm.initialize("gpt-5-mini", "test-token");
+
+        callModelSpy.mockReturnValue(new Promise<{ text: string }>(() => {}));
+        const pending = llm.convertNotebookToWorkflow({ cells: [codeCell("AAA", "a = 1")] });
+        const assertion = expect(pending).rejects.toThrow(/timed out/);
+        await vi.advanceTimersByTimeAsync(DEFAULT_LLM_REQUEST_TIMEOUT_MINUTES * 60 * 1000);
+        await assertion;
       } finally {
         vi.useRealTimers();
       }
