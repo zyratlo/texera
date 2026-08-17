@@ -145,7 +145,7 @@ export class JupyterPanelService {
 
           const sent = await this.notebookMigrationService.sendNotebookToJupyter(
             response.notebook,
-            this.currentNotebookFileName()
+            notebookFileName(workflowID)
           );
           if (sent == 1) {
             return 1;
@@ -213,8 +213,7 @@ export class JupyterPanelService {
     this.iframeRef = iframe;
   }
 
-  // Single source for the current workflow's notebook filename, used by both the upload
-  // and the iframe fetch so they can't derive different names.
+  // Notebook filename for the workflow currently shown, used by the iframe fetch.
   private currentNotebookFileName(): string {
     return notebookFileName(this.workflowActionService.getWorkflow().wid);
   }

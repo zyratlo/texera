@@ -285,6 +285,23 @@ describe("JupyterPanelService", () => {
     expect(mockNotebook.sendNotebookToJupyter).not.toHaveBeenCalled();
   });
 
+  it("uploads under the fetched workflow's filename even if the current workflow changed", async () => {
+    // Stale-fetch guard: a fetch for wid 2 that resolves after the user switched to wid 1
+    // must still upload as notebook_2.ipynb, not overwrite wid 1's file.
+    mockNotebook.sendNotebookToJupyter = vi.fn().mockResolvedValue(1);
+    mockWorkflow.getWorkflow.mockReturnValue({ wid: 1 });
+    const mapping = { cell_to_operator: {}, operator_to_cell: {} };
+    const notebook = { cells: [] };
+
+    const resultPromise = firstValueFrom((service as any).fetchNotebookAndMapping(2, 1));
+    httpMock
+      .expectOne(r => r.url.includes("/notebook-migration/fetch-notebook-and-mapping"))
+      .flush({ exists: true, mapping, notebook });
+
+    expect(await resultPromise).toBe(1);
+    expect(mockNotebook.sendNotebookToJupyter).toHaveBeenCalledWith(notebook, "notebook_2.ipynb");
+  });
+
   // Iframe URL must use the same wid-derived filename as the upload.
   it("getJupyterIframeURLForWorkflow requests the current workflow's per-workflow filename", async () => {
     mockNotebook.getJupyterIframeURL = vi.fn().mockResolvedValue("http://iframe");
