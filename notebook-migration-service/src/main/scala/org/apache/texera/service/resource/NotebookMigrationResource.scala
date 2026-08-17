@@ -56,6 +56,19 @@ object NotebookMigrationResource extends LazyLogging {
       mapper.createObjectNode().put("success", true).put("deleted", deleted)
     )
 
+  private def jupyterUnavailableResponse: Response =
+    Response
+      .status(500)
+      .entity(
+        mapper.writeValueAsString(
+          mapper
+            .createObjectNode()
+            .put("success", false)
+            .put("message", "Cannot connect to Jupyter server")
+        )
+      )
+      .build()
+
   // Read the required integer `wid` from a request body. Returns Left(400) when the field is
   // missing or not an integer so the caller can short-circuit. Without this a missing wid NPEs
   // into a 500 and a non-integer wid silently coerces to 0 via asInt().
@@ -117,17 +130,7 @@ object NotebookMigrationResource extends LazyLogging {
     }
 
     if (!isJupyterAvailable(jupyterUrl)) {
-      return Response
-        .status(500)
-        .entity(
-          """
-      {
-        "success": false,
-        "message": "Cannot connect to Jupyter server"
-      }
-      """
-        )
-        .build()
+      return jupyterUnavailableResponse
     }
 
     Response
@@ -138,17 +141,7 @@ object NotebookMigrationResource extends LazyLogging {
   // Returns the URL of Jupyter
   def getJupyterURL(): Response = {
     if (!isJupyterAvailable(jupyterUrl)) {
-      return Response
-        .status(500)
-        .entity(
-          """
-      {
-        "success": false,
-        "message": "Cannot connect to Jupyter server"
-      }
-      """
-        )
-        .build()
+      return jupyterUnavailableResponse
     }
 
     Response.ok(successUrlJson(jupyterUrl)).build()
@@ -174,17 +167,7 @@ object NotebookMigrationResource extends LazyLogging {
       }
 
       if (!isJupyterAvailable(jupyterUrl)) {
-        return Response
-          .status(500)
-          .entity(
-            """
-        {
-          "success": false,
-          "message": "Cannot connect to Jupyter server"
-        }
-        """
-          )
-          .build()
+        return jupyterUnavailableResponse
       }
 
       // Construct Jupyter API URL
@@ -242,6 +225,59 @@ object NotebookMigrationResource extends LazyLogging {
     } catch {
       case NonFatal(e) =>
         logger.error("Error sending notebook to Jupyter", e)
+        Response
+          .status(Response.Status.INTERNAL_SERVER_ERROR)
+          .entity(errorJson(e.getMessage))
+          .build()
+    } finally {
+      if (conn != null) conn.disconnect()
+    }
+  }
+
+  // Delete the notebook file from Jupyter's work/ directory:
+  def deleteNotebook(body: String): Response = {
+    var conn: HttpURLConnection = null
+    try {
+      val json = mapper.readTree(body)
+
+      // Read the name defensively
+      val notebookName =
+        Option(json.get("notebookName")).filter(_.isTextual).map(_.asText()).getOrElse("")
+
+      if (!notebookName.matches("[A-Za-z0-9._-]+\\.ipynb")) {
+        return Response
+          .status(Response.Status.BAD_REQUEST)
+          .entity(errorJson(s"Invalid notebook name: $notebookName"))
+          .build()
+      }
+
+      if (!isJupyterAvailable(jupyterUrl)) {
+        return jupyterUnavailableResponse
+      }
+
+      val url = new URL(s"$jupyterUrl/api/contents/work/$notebookName")
+      conn = url.openConnection().asInstanceOf[HttpURLConnection]
+
+      conn.setRequestMethod("DELETE")
+      conn.setRequestProperty("Authorization", s"token $jupyterToken")
+
+      val status = conn.getResponseCode
+
+      // Jupyter answers 204 on a successful delete. A 404 means the file is already gone,
+      // which is the requested end state, so report it as a no-op (deleted=0) rather than
+      // an error: a workflow whose notebook was never uploaded must still delete cleanly.
+      if (status != 204 && status != 200 && status != 404) {
+        return Response
+          .status(500)
+          .entity(errorJson(s"Failed to delete notebook from Jupyter (status $status)"))
+          .build()
+      }
+
+      Response.ok(successDeletedJson(if (status == 404) 0 else 1)).build()
+
+    } catch {
+      case NonFatal(e) =>
+        logger.error("Error deleting notebook from Jupyter", e)
         Response
           .status(Response.Status.INTERNAL_SERVER_ERROR)
           .entity(errorJson(e.getMessage))
@@ -489,6 +525,13 @@ class NotebookMigrationResource extends LazyLogging {
   def setNotebook(body: String, @Auth user: SessionUser): Response = {
     logger.info("Setting notebook")
     NotebookMigrationResource.setNotebook(body)
+  }
+
+  @POST
+  @Path("/delete-notebook")
+  def deleteNotebook(body: String, @Auth user: SessionUser): Response = {
+    logger.info("Deleting notebook from Jupyter")
+    NotebookMigrationResource.deleteNotebook(body)
   }
 
   @POST

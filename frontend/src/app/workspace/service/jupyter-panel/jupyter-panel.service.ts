@@ -237,26 +237,27 @@ export class JupyterPanelService {
     }
   }
 
-  // Delete the current workflow's stored notebook from the backend, then hide the
-  // panel and clear all local notebook state. This is the user-initiated action
-  // behind the panel's delete button, and is distinct from the workflow-switch
-  // cleanup (hideAndClearLocalState), which must never touch the backend.
+  // Delete the current workflow's stored notebook from the migration database and its file
+  // from the Jupyter pod, then hide the panel and clear all local notebook state.
   public deleteJupyterNotebook(): void {
     if (!this.enabled) return;
     const wid = this.workflowActionService.getWorkflow().wid;
-    // Unsaved workflow (wid undefined or the default wid 0): nothing is persisted,
-    // and a delete POST with such a wid would 500, so just reset local state.
+    // Unsaved workflow (wid undefined or the default wid 0): nothing is persisted and no
+    // notebook file was uploaded for it (the upload path needs a wid)
     if (!wid) {
       this.hideAndClearLocalState();
       this.jupyterNotebookExists.next(false);
       this.clearHighlights();
       return;
     }
+    // Resolve the filename up front
+    const notebookName = notebookFileName(wid);
     this.notebookMigrationService.deleteNotebookAndMapping(wid).subscribe({
       next: () => {
         this.hideAndClearLocalState();
         this.jupyterNotebookExists.next(false);
         this.clearHighlights();
+        void this.notebookMigrationService.deleteNotebookFromJupyter(notebookName);
       },
       error: (err: unknown) => {
         // Keep the panel open on failure so the user sees the notebook wasn't removed.

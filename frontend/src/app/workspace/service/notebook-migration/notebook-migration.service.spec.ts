@@ -142,6 +142,32 @@ describe("NotebookMigrationService", () => {
     expect(mockNotificationService.error).toHaveBeenCalledWith(expect.stringContaining("network down"));
   });
 
+  // deleteNotebookFromJupyter
+  it("posts the notebook name to delete-notebook and returns 1", async () => {
+    const promise = service.deleteNotebookFromJupyter("notebook_1.ipynb");
+
+    const req = httpMock.expectOne(req => req.url.endsWith("/notebook-migration/delete-notebook"));
+
+    expect(req.request.method).toBe("POST");
+    expect(req.request.body).toEqual({ notebookName: "notebook_1.ipynb" });
+
+    req.flush({ success: true, deleted: 1 });
+
+    expect(await promise).toBe(1);
+  });
+
+  it("returns 0 and shows no notification when the notebook file delete fails", async () => {
+    // Pod cleanup is best effort, so a failure is logged rather than surfaced: the
+    // database delete it follows has already succeeded.
+    const promise = service.deleteNotebookFromJupyter("notebook_1.ipynb");
+
+    const req = httpMock.expectOne(req => req.url.endsWith("/notebook-migration/delete-notebook"));
+    req.error(new ErrorEvent("Server error"));
+
+    expect(await promise).toBe(0);
+    expect(mockNotificationService.error).not.toHaveBeenCalled();
+  });
+
   // jupyter URL methods (HttpClient so the JwtModule interceptor attaches the auth token)
   it("should return Jupyter URL when the request succeeds", async () => {
     const promise = service.getJupyterURL();
@@ -341,6 +367,12 @@ describe("NotebookMigrationService", () => {
       expect(mockNotificationService.success).not.toHaveBeenCalled();
       expect(mockNotificationService.error).not.toHaveBeenCalled();
       httpMock.expectNone(req => req.url.includes("/notebook-migration/set-notebook"));
+    });
+
+    it("deleteNotebookFromJupyter returns 0 with no HTTP call", async () => {
+      const result = await service.deleteNotebookFromJupyter("notebook_1.ipynb");
+      expect(result).toBe(0);
+      httpMock.expectNone(req => req.url.endsWith("/notebook-migration/delete-notebook"));
     });
 
     it("getJupyterURL returns null without making an HTTP call", async () => {
