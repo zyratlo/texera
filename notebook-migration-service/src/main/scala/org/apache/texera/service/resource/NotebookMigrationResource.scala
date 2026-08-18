@@ -259,16 +259,19 @@ object NotebookMigrationResource extends LazyLogging {
       conn = url.openConnection().asInstanceOf[HttpURLConnection]
 
       conn.setRequestMethod("DELETE")
+      conn.setConnectTimeout(2000)
+      conn.setReadTimeout(2000)
       conn.setRequestProperty("Authorization", s"token $jupyterToken")
 
       val status = conn.getResponseCode
 
-      // Jupyter answers 204 on a successful delete. A 404 means the file is already gone,
-      // which is the requested end state, so report it as a no-op (deleted=0) rather than
-      // an error: a workflow whose notebook was never uploaded must still delete cleanly.
+      // Jupyter answers 204 on a successful delete, or 200 when it echoes the deleted entry.
+      // A 404 means the file is already gone, which is the requested end state, so report it
+      // as a no-op (deleted=0) rather than an error: a workflow whose notebook was never
+      // uploaded must still delete cleanly.
       if (status != 204 && status != 200 && status != 404) {
         return Response
-          .status(500)
+          .status(Response.Status.INTERNAL_SERVER_ERROR)
           .entity(errorJson(s"Failed to delete notebook from Jupyter (status $status)"))
           .build()
       }
