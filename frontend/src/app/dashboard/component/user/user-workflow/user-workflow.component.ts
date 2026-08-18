@@ -49,7 +49,6 @@ import { GuiConfigService } from "../../../../common/service/gui-config.service"
 import {
   MappingContent,
   NotebookMigrationService,
-  notebookFileName,
 } from "../../../../workspace/service/notebook-migration/notebook-migration.service";
 import { LlmRequestTimeoutError, Notebook } from "../../../../workspace/service/notebook-migration/migration-llm";
 import {
@@ -527,7 +526,7 @@ export class UserWorkflowComponent implements AfterViewInit, OnDestroy {
   // must not affect a delete that already succeeded.
   private cleanupNotebookFiles(wids: number[]): void {
     for (const wid of wids) {
-      void this.notebookMigrationService.deleteNotebookFromJupyter(notebookFileName(wid));
+      void this.notebookMigrationService.deleteNotebookForWorkflow(wid);
     }
   }
 

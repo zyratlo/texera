@@ -163,21 +163,19 @@ export class NotebookMigrationService {
     }
   }
 
-  // Remove a notebook file from the Jupyter pod, the counterpart to sendNotebookToJupyter.
-  // Best effort by design: the database rows are the source of truth for whether a workflow
-  // has a notebook, so a failure here is logged and not surfaced to the user. Returns 1 when
-  // Jupyter reported the delete (including a file that was already gone), 0 otherwise.
-  public async deleteNotebookFromJupyter(notebookName: string): Promise<number> {
-    if (!this.enabled) return 0;
+  // Remove a workflow's notebook file from the Jupyter pod.
+  // Best effort by design: the database rows are the source of truth for
+  // whether a workflow has a notebook, so a failure here is logged, not surfaced, and
+  // nothing acts on the outcome.
+  public async deleteNotebookForWorkflow(wid: number | undefined): Promise<void> {
+    if (!this.enabled) return;
     const jupyterAPIUrl = `${AppSettings.getApiEndpoint()}/notebook-migration/delete-notebook`;
     const headers = new HttpHeaders({ "Content-Type": "application/json" });
 
     try {
-      await firstValueFrom(this.http.post(jupyterAPIUrl, { notebookName }, { headers }));
-      return 1;
+      await firstValueFrom(this.http.post(jupyterAPIUrl, { notebookName: notebookFileName(wid) }, { headers }));
     } catch (error) {
       console.error("Error deleting notebook from pod: ", error);
-      return 0;
     }
   }
 

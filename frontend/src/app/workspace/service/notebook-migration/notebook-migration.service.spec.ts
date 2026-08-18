@@ -142,9 +142,9 @@ describe("NotebookMigrationService", () => {
     expect(mockNotificationService.error).toHaveBeenCalledWith(expect.stringContaining("network down"));
   });
 
-  // deleteNotebookFromJupyter
-  it("posts the notebook name to delete-notebook and returns 1", async () => {
-    const promise = service.deleteNotebookFromJupyter("notebook_1.ipynb");
+  // deleteNotebookForWorkflow
+  it("posts the wid-derived notebook name to delete-notebook", async () => {
+    const promise = service.deleteNotebookForWorkflow(1);
 
     const req = httpMock.expectOne(req => req.url.endsWith("/notebook-migration/delete-notebook"));
 
@@ -153,18 +153,18 @@ describe("NotebookMigrationService", () => {
 
     req.flush({ success: true, deleted: 1 });
 
-    expect(await promise).toBe(1);
+    await promise;
   });
 
-  it("returns 0 and shows no notification when the notebook file delete fails", async () => {
+  it("swallows the failure and shows no notification when the notebook file delete fails", async () => {
     // Pod cleanup is best effort, so a failure is logged rather than surfaced: the
     // database delete it follows has already succeeded.
-    const promise = service.deleteNotebookFromJupyter("notebook_1.ipynb");
+    const promise = service.deleteNotebookForWorkflow(1);
 
     const req = httpMock.expectOne(req => req.url.endsWith("/notebook-migration/delete-notebook"));
     req.error(new ErrorEvent("Server error"));
 
-    expect(await promise).toBe(0);
+    await promise;
     expect(mockNotificationService.error).not.toHaveBeenCalled();
   });
 
@@ -369,9 +369,8 @@ describe("NotebookMigrationService", () => {
       httpMock.expectNone(req => req.url.includes("/notebook-migration/set-notebook"));
     });
 
-    it("deleteNotebookFromJupyter returns 0 with no HTTP call", async () => {
-      const result = await service.deleteNotebookFromJupyter("notebook_1.ipynb");
-      expect(result).toBe(0);
+    it("deleteNotebookForWorkflow makes no HTTP call", async () => {
+      await service.deleteNotebookForWorkflow(1);
       httpMock.expectNone(req => req.url.endsWith("/notebook-migration/delete-notebook"));
     });
 

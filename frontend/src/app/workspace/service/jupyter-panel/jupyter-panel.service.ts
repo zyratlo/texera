@@ -250,14 +250,13 @@ export class JupyterPanelService {
       this.clearHighlights();
       return;
     }
-    // Resolve the filename up front
-    const notebookName = notebookFileName(wid);
     this.notebookMigrationService.deleteNotebookAndMapping(wid).subscribe({
       next: () => {
         this.hideAndClearLocalState();
         this.jupyterNotebookExists.next(false);
         this.clearHighlights();
-        void this.notebookMigrationService.deleteNotebookFromJupyter(notebookName);
+        // wid is captured above, so a mid-flight workflow switch can't retarget this.
+        void this.notebookMigrationService.deleteNotebookForWorkflow(wid);
       },
       error: (err: unknown) => {
         // Keep the panel open on failure so the user sees the notebook wasn't removed.
