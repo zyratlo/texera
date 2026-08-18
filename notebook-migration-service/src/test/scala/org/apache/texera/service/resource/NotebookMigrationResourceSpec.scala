@@ -574,6 +574,15 @@ class NotebookMigrationResourceSpec
     }
   }
 
+  it should "treat a 200 from Jupyter as a successful delete, reporting deleted=1" in {
+    // Some Jupyter versions answer 200 instead of 204 on a delete; both mean success.
+    withFakeJupyter(contentsStatus = 200) {
+      val resp = resource.deleteNotebook(deleteNotebookPayload(), sessionUser(writerUid))
+      resp.getStatus shouldBe Response.Status.OK.getStatusCode
+      resp.getEntity.toString should include("\"deleted\":1")
+    }
+  }
+
   it should "treat a 404 from Jupyter as a no-op, reporting deleted=0" in {
     // A workflow whose notebook was never uploaded must still delete cleanly.
     withFakeJupyter(contentsStatus = 404) {
