@@ -236,9 +236,12 @@ describe("JupyterPanelService", () => {
 
   // HTTP fetchNotebookAndMapping
   it("should return 0 when exists=false", async () => {
-    const resultPromise = firstValueFrom((service as any).fetchNotebookAndMapping(1, 1));
+    const resultPromise = firstValueFrom((service as any).fetchNotebookAndMapping(1));
 
     const req = httpMock.expectOne(r => r.url.includes("/notebook-migration/fetch-notebook-and-mapping"));
+    // The fetch keys on wid only; no vid is sent (the backend ignores version).
+    expect(req.request.body.wid).toBe(1);
+    expect(req.request.body.vid).toBeUndefined();
     req.flush({ exists: false });
 
     expect(await resultPromise).toBe(0);
@@ -257,7 +260,7 @@ describe("JupyterPanelService", () => {
     const mapping = { cell_to_operator: { cell1: ["A"] }, operator_to_cell: {} };
     const notebook = { cells: [] };
 
-    const resultPromise = firstValueFrom((service as any).fetchNotebookAndMapping(1, 1));
+    const resultPromise = firstValueFrom((service as any).fetchNotebookAndMapping(1));
     httpMock
       .expectOne(r => r.url.includes("/notebook-migration/fetch-notebook-and-mapping"))
       .flush({ exists: true, mapping, notebook });
@@ -275,7 +278,7 @@ describe("JupyterPanelService", () => {
     mockNotebook.sendNotebookToJupyter = vi.fn().mockResolvedValue(1);
     const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
 
-    const resultPromise = firstValueFrom((service as any).fetchNotebookAndMapping(1, 1));
+    const resultPromise = firstValueFrom((service as any).fetchNotebookAndMapping(1));
     httpMock
       .expectOne(r => r.url.includes("/notebook-migration/fetch-notebook-and-mapping"))
       .flush("migration service down", { status: 500, statusText: "Server Error" });
@@ -293,7 +296,7 @@ describe("JupyterPanelService", () => {
     const mapping = { cell_to_operator: {}, operator_to_cell: {} };
     const notebook = { cells: [] };
 
-    const resultPromise = firstValueFrom((service as any).fetchNotebookAndMapping(2, 1));
+    const resultPromise = firstValueFrom((service as any).fetchNotebookAndMapping(2));
     httpMock
       .expectOne(r => r.url.includes("/notebook-migration/fetch-notebook-and-mapping"))
       .flush({ exists: true, mapping, notebook });

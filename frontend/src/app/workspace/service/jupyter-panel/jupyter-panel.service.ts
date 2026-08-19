@@ -125,16 +125,12 @@ export class JupyterPanelService {
       });
   }
 
-  private fetchNotebookAndMapping(
-    workflowID: number | undefined = this.workflowActionService.getWorkflow().wid,
-    vId: number = 1
-  ) {
-    // Fetch mapping and notebook from migration database if exists for wid
+  private fetchNotebookAndMapping(workflowID: number | undefined = this.workflowActionService.getWorkflow().wid) {
+    // Fetch mapping and notebook from migration database if exists for wid.
     const dbAPIUrl = `${AppSettings.getApiEndpoint()}/notebook-migration/fetch-notebook-and-mapping`;
     const headers = new HttpHeaders({ "Content-Type": "application/json" });
     const payload = {
       wid: workflowID,
-      vid: vId, // Future work: add dynamic fetching of current workflow vId
     };
 
     return this.http.post(dbAPIUrl, payload, { headers }).pipe(

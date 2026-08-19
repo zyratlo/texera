@@ -233,14 +233,14 @@ describe("NotebookMigrationService", () => {
   });
 
   // storeNotebookAndMapping
-  it("should call storeNotebookAndMapping API with the default vid", () => {
+  it("should call storeNotebookAndMapping API without a vid (resolved server-side)", () => {
     service.storeNotebookAndMapping(1, {}, {}).subscribe();
 
     const req = httpMock.expectOne(req => req.url.includes("/notebook-migration/store-notebook-and-mapping"));
 
     expect(req.request.method).toBe("POST");
     expect(req.request.body.wid).toBe(1);
-    expect(req.request.body.vid).toBe(1);
+    expect(req.request.body.vid).toBeUndefined();
     req.flush({ success: true, message: "stored" });
   });
 

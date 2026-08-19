@@ -210,8 +210,7 @@ export class NotebookMigrationService {
   public storeNotebookAndMapping(
     wid: number | undefined,
     mappingContent: any,
-    notebookContent: any,
-    vid: number = 1
+    notebookContent: any
   ): Observable<StoreNotebookResponse> {
     if (!this.enabled) {
       return of({ success: false, message: "Notebook migration feature is disabled" });
@@ -219,9 +218,10 @@ export class NotebookMigrationService {
     const dbAPIUrl = `${AppSettings.getApiEndpoint()}/notebook-migration/store-notebook-and-mapping`;
     const headers = new HttpHeaders({ "Content-Type": "application/json" });
 
+    // The mapping's version id (vid) is resolved server-side from the workflow's
+    // latest version to anchor its FK, so no vid is sent from here.
     const payload = {
       wid,
-      vid,
       mapping: mappingContent,
       notebook: notebookContent,
     };

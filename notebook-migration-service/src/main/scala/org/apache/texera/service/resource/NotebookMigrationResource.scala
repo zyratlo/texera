@@ -28,8 +28,10 @@ import org.apache.texera.auth.SessionUser
 import org.apache.texera.dao.SqlServer
 import org.jooq.JSONB
 import org.jooq.exception.DataAccessException
+import org.jooq.impl.DSL
 import org.apache.texera.dao.jooq.generated.tables.Notebook
 import org.apache.texera.dao.jooq.generated.tables.WorkflowNotebookMapping
+import org.apache.texera.dao.jooq.generated.tables.WorkflowVersion
 import java.net.{HttpURLConnection, URL}
 import java.nio.charset.StandardCharsets
 import scala.util.control.NonFatal
@@ -260,7 +262,6 @@ object NotebookMigrationResource extends LazyLogging {
         case Left(badRequest) => return badRequest
         case Right(w)         => w
       }
-      val vid: java.lang.Integer = json.get("vid").asInt()
       val mappingNode = json.get("mapping")
       val notebookNode = json.get("notebook")
 
@@ -273,6 +274,21 @@ object NotebookMigrationResource extends LazyLogging {
       }
 
       val dsl = SqlServer.getInstance().createDSLContext()
+
+      // The mapping's vid FK must reference a real workflow_version row. Anchor it to the
+      // workflow's own latest version (created alongside the workflow) rather than a
+      // hardcoded id, so an unrelated workflow's version can never own or cascade it.
+      val vid: java.lang.Integer = dsl
+        .select(DSL.max(WorkflowVersion.WORKFLOW_VERSION.VID))
+        .from(WorkflowVersion.WORKFLOW_VERSION)
+        .where(WorkflowVersion.WORKFLOW_VERSION.WID.eq(wid))
+        .fetchOne(0, classOf[java.lang.Integer])
+      if (vid == null) {
+        return Response
+          .status(Response.Status.BAD_REQUEST)
+          .entity(errorJson(s"No workflow version exists for workflow $wid"))
+          .build()
+      }
 
       // notebook.wid is UNIQUE: a workflow has at most one notebook. If one already
       // exists, reject the re-store with a 409 rather than letting the INSERT trip the
@@ -351,8 +367,6 @@ object NotebookMigrationResource extends LazyLogging {
         case Left(badRequest) => return badRequest
         case Right(w)         => w
       }
-      val vid: java.lang.Integer = json.get("vid").asInt()
-
       // Only a user with write access to the workflow may fetch its notebook.
       if (!WorkflowAccessResource.hasWriteAccess(wid, uid)) {
         return Response
@@ -363,7 +377,10 @@ object NotebookMigrationResource extends LazyLogging {
 
       val dsl = SqlServer.getInstance().createDSLContext()
 
-      // Fetch the most recent notebook (highest nid) for this workflow version
+      // Fetch the notebook for this workflow, regardless of its version.
+      //
+      // Future work: to support one notebook per workflow version, drop the notebook.wid
+      // UNIQUE constraint and add a vid filter here.
       val result = dsl
         .select(
           Notebook.NOTEBOOK.NID,
@@ -375,7 +392,6 @@ object NotebookMigrationResource extends LazyLogging {
         .on(Notebook.NOTEBOOK.WID.eq(WorkflowNotebookMapping.WORKFLOW_NOTEBOOK_MAPPING.WID))
         .and(Notebook.NOTEBOOK.NID.eq(WorkflowNotebookMapping.WORKFLOW_NOTEBOOK_MAPPING.NID))
         .where(Notebook.NOTEBOOK.WID.eq(wid))
-        .and(WorkflowNotebookMapping.WORKFLOW_NOTEBOOK_MAPPING.VID.eq(vid))
         .orderBy(Notebook.NOTEBOOK.NID.desc()) // most recent nid first
         .limit(1) // only take the latest
         .fetchOne()
