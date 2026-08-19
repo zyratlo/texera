@@ -170,6 +170,7 @@ export class NotebookMigrationService {
   // surfaced, and nothing acts on the outcome.
   public async deleteNotebookForWorkflow(wid: number): Promise<void> {
     if (!this.enabled) return;
+    if (!Number.isInteger(wid) || wid <= 0) return;
     const jupyterAPIUrl = `${AppSettings.getApiEndpoint()}/notebook-migration/delete-notebook`;
     const headers = new HttpHeaders({ "Content-Type": "application/json" });
 

@@ -156,6 +156,11 @@ describe("NotebookMigrationService", () => {
     await promise;
   });
 
+  it("makes no HTTP call for wid 0, which would map to the shared default filename", async () => {
+    await service.deleteNotebookForWorkflow(0);
+    httpMock.expectNone(req => req.url.endsWith("/notebook-migration/delete-notebook"));
+  });
+
   it("swallows the failure and shows no notification when the notebook file delete fails", async () => {
     // Pod cleanup is best effort, so a failure is logged rather than surfaced: the
     // database delete it follows has already succeeded.
