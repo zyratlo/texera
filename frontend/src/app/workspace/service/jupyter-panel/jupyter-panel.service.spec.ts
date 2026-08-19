@@ -120,7 +120,7 @@ describe("JupyterPanelService", () => {
 
     service.jupyterNotebookPanelVisible$.subscribe(v => (state = v));
 
-    service.openPanel("JupyterNotebookPanel");
+    (service as any).jupyterNotebookPanelVisible.next(true);
     expect(state).toBe(true);
 
     service.deleteJupyterNotebook();
@@ -205,33 +205,6 @@ describe("JupyterPanelService", () => {
     service.openJupyterNotebookPanel();
 
     expect(state).toBe(true);
-  });
-
-  // openPanel
-  it("should open panel only for correct name", () => {
-    let state: boolean | null = false;
-
-    service.jupyterNotebookPanelVisible$.subscribe(v => (state = v));
-
-    service.openPanel("WrongPanel");
-    expect(state).toBe(false);
-
-    service.openPanel("JupyterNotebookPanel");
-    expect(state).toBe(true);
-  });
-
-  it("openPanel flags jupyterNotebookExists$ so the toolbar expand button appears after an in-place import", () => {
-    const states: boolean[] = [];
-    service.jupyterNotebookExists$.subscribe(v => states.push(v));
-    expect(states.at(-1)).toBe(false);
-
-    // Wrong panel name does not flip the flag.
-    service.openPanel("WrongPanel");
-    expect(states.at(-1)).toBe(false);
-
-    // Opening the jupyter panel records that the workflow now has a notebook.
-    service.openPanel("JupyterNotebookPanel");
-    expect(states.at(-1)).toBe(true);
   });
 
   // HTTP fetchNotebookAndMapping
@@ -703,13 +676,6 @@ describe("JupyterPanelService", () => {
     it("init does not subscribe to workflowMetaDataChanged", () => {
       service.init();
       expect(mockWorkflow.workflowMetaDataChanged).not.toHaveBeenCalled();
-    });
-
-    it("openPanel does not flip the visibility stream", () => {
-      let state: boolean | null = false;
-      service.jupyterNotebookPanelVisible$.subscribe(v => (state = v));
-      service.openPanel("JupyterNotebookPanel");
-      expect(state).toBe(false);
     });
 
     it("deleteJupyterNotebook does not call the backend or delete the mapping when disabled", () => {

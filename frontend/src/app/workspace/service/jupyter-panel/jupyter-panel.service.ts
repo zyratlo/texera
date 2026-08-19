@@ -220,19 +220,6 @@ export class JupyterPanelService {
     return this.notebookMigrationService.getJupyterIframeURL(this.currentNotebookFileName());
   }
 
-  // Open the Jupyter Notebook panel
-  public openPanel(panelName: string): void {
-    if (!this.enabled) return;
-    if (panelName === "JupyterNotebookPanel") {
-      this.jupyterNotebookPanelVisible.next(true);
-      // Opening the panel means the current workflow has an associated notebook, so
-      // surface the toolbar "expand" button (jupyterNotebookExists$) right away. Needed
-      // after an in-place import where the wid does not change and init() does not re-run
-      // to detect the notebook.
-      this.jupyterNotebookExists.next(true);
-    }
-  }
-
   // Delete the current workflow's stored notebook from the backend, then hide the
   // panel and clear all local notebook state. This is the user-initiated action
   // behind the panel's delete button, and is distinct from the workflow-switch
