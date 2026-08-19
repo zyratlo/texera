@@ -376,11 +376,11 @@ class NotebookMigrationResourceSpec
     getDSLContext.fetchCount(WORKFLOW_NOTEBOOK_MAPPING) shouldBe 1
   }
 
-  it should "return 500 when the request body is malformed JSON" in {
-    // Exercises the NonFatal catch path in deleteNotebookAndMapping.
+  it should "return 400 when the request body is malformed JSON" in {
+    // Malformed input is a client error, caught by parseBody before the generic 500 handler.
     resource
       .deleteNotebookAndMapping("not json", sessionUser(writerUid))
-      .getStatus shouldBe 500
+      .getStatus shouldBe Response.Status.BAD_REQUEST.getStatusCode
   }
 
   // -- wid validation ---------------------------------------------------------
@@ -467,11 +467,12 @@ class NotebookMigrationResourceSpec
     resource.deleteNotebook(deleteNotebookPayload(), user).getStatus shouldBe 500
   }
 
-  it should "return 500 when the request body is malformed JSON" in {
-    // Exercises the NonFatal catch paths in setNotebook and fetchNotebookAndMapping.
+  it should "return 400 when the request body is malformed JSON" in {
+    // Malformed input is a client error: parseBody rejects it before any downstream work.
     val user = sessionUser(writerUid)
-    resource.setNotebook("not json", user).getStatus shouldBe 500
-    resource.fetchNotebookAndMapping("not json", user).getStatus shouldBe 500
+    val badRequest = Response.Status.BAD_REQUEST.getStatusCode
+    resource.setNotebook("not json", user).getStatus shouldBe badRequest
+    resource.fetchNotebookAndMapping("not json", user).getStatus shouldBe badRequest
   }
 
   it should "upload the notebook and return success when Jupyter accepts it" in {
@@ -624,8 +625,10 @@ class NotebookMigrationResourceSpec
     }
   }
 
-  it should "return 500 when the request body is malformed JSON" in {
-    resource.deleteNotebook("not json", sessionUser(writerUid)).getStatus shouldBe 500
+  it should "return 400 when the request body is malformed JSON" in {
+    resource
+      .deleteNotebook("not json", sessionUser(writerUid))
+      .getStatus shouldBe Response.Status.BAD_REQUEST.getStatusCode
   }
 
   // -- setNotebook ------------------------------------------------------------

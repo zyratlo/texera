@@ -69,6 +69,24 @@ object NotebookMigrationResource extends LazyLogging {
       )
       .build()
 
+  // Parse a request body into a JSON object. Returns Left(400) on malformed JSON or a
+  // non-object root so a bad request is reported as a client error.
+  private def parseBody(body: String): Either[Response, JsonNode] = {
+    val json =
+      try mapper.readTree(body)
+      catch { case NonFatal(_) => null }
+    if (json == null || !json.isObject) {
+      Left(
+        Response
+          .status(Response.Status.BAD_REQUEST)
+          .entity(errorJson("Request body must be a JSON object"))
+          .build()
+      )
+    } else {
+      Right(json)
+    }
+  }
+
   // Read the required integer `wid` from a request body. Returns Left(400) when the field is
   // missing or not an integer so the caller can short-circuit. Without this a missing wid NPEs
   // into a 500 and a non-integer wid silently coerces to 0 via asInt().
@@ -151,7 +169,10 @@ object NotebookMigrationResource extends LazyLogging {
   def setNotebook(body: String): Response = {
     var conn: HttpURLConnection = null
     try {
-      val json = mapper.readTree(body)
+      val json = parseBody(body) match {
+        case Left(badRequest) => return badRequest
+        case Right(j)         => j
+      }
 
       val notebookName = json.get("notebookName").asText()
       val notebookData = json.get("notebookData")
@@ -238,7 +259,10 @@ object NotebookMigrationResource extends LazyLogging {
   def deleteNotebook(body: String): Response = {
     var conn: HttpURLConnection = null
     try {
-      val json = mapper.readTree(body)
+      val json = parseBody(body) match {
+        case Left(badRequest) => return badRequest
+        case Right(j)         => j
+      }
 
       // Read the name defensively
       val notebookName =
@@ -293,7 +317,10 @@ object NotebookMigrationResource extends LazyLogging {
   // Store notebook + mapping in database
   def storeNotebookAndMapping(body: String, uid: java.lang.Integer): Response = {
     try {
-      val json = mapper.readTree(body)
+      val json = parseBody(body) match {
+        case Left(badRequest) => return badRequest
+        case Right(j)         => j
+      }
 
       val wid: java.lang.Integer = readWid(json) match {
         case Left(badRequest) => return badRequest
@@ -384,7 +411,10 @@ object NotebookMigrationResource extends LazyLogging {
   // Fetch notebook + mapping
   def fetchNotebookAndMapping(body: String, uid: java.lang.Integer): Response = {
     try {
-      val json = mapper.readTree(body)
+      val json = parseBody(body) match {
+        case Left(badRequest) => return badRequest
+        case Right(j)         => j
+      }
 
       val wid: java.lang.Integer = readWid(json) match {
         case Left(badRequest) => return badRequest
@@ -458,7 +488,10 @@ object NotebookMigrationResource extends LazyLogging {
   // is UNIQUE (one notebook per workflow), so wid alone identifies the row and vid is not needed.
   def deleteNotebookAndMapping(body: String, uid: java.lang.Integer): Response = {
     try {
-      val json = mapper.readTree(body)
+      val json = parseBody(body) match {
+        case Left(badRequest) => return badRequest
+        case Right(j)         => j
+      }
 
       val wid: java.lang.Integer = readWid(json) match {
         case Left(badRequest) => return badRequest
