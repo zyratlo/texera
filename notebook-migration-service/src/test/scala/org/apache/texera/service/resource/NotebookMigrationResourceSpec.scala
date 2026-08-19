@@ -73,6 +73,10 @@ class NotebookMigrationResourceSpec
   private var writerUid: Integer = _ // holds WRITE access to testWid
   private var readerUid: Integer = _ // holds READ access to testWid
 
+  // Method and path of the last /api/contents request the fake Jupyter saw, so a test can pin
+  // the verb and URL a Jupyter call uses. A var is safe here because the spec runs sequentially.
+  private var lastContentsRequest: Option[(String, String)] = None
+
   private val sampleNotebook =
     """{"cells":[{"cell_type":"code","metadata":{},"source":"print(1)"}]}"""
   private val sampleMapping =
@@ -87,6 +91,7 @@ class NotebookMigrationResourceSpec
     workflowVersionDao = new WorkflowVersionDao(cfg)
     userDao = new UserDao(cfg)
     workflowUserAccessDao = new WorkflowUserAccessDao(cfg)
+    lastContentsRequest = None
     cleanup()
 
     val workflow = new Workflow
@@ -164,6 +169,9 @@ class NotebookMigrationResourceSpec
   private def deletePayload(): String =
     s"""{"wid": $testWid}"""
 
+  private def deleteNotebookPayload(name: String = "notebook.ipynb"): String =
+    s"""{"notebookName": "$name"}"""
+
   private val resource = new NotebookMigrationResource()
 
   private def sessionUser(uid: Integer): SessionUser = {
@@ -195,11 +203,17 @@ class NotebookMigrationResourceSpec
       "/api/contents",
       (exchange: com.sun.net.httpserver.HttpExchange) => {
         exchange.getRequestBody.readAllBytes()
-        val body = "{}".getBytes("UTF-8")
-        exchange.sendResponseHeaders(contentsStatus, body.length)
-        val os = exchange.getResponseBody
-        os.write(body)
-        os.close()
+        lastContentsRequest = Some((exchange.getRequestMethod, exchange.getRequestURI.getPath))
+        if (contentsStatus == 204) {
+          // 204 carries no body, so send the headers with a -1 length.
+          exchange.sendResponseHeaders(contentsStatus, -1)
+        } else {
+          val body = "{}".getBytes("UTF-8")
+          exchange.sendResponseHeaders(contentsStatus, body.length)
+          val os = exchange.getResponseBody
+          os.write(body)
+          os.close()
+        }
       }
     )
     server.start()
@@ -393,11 +407,11 @@ class NotebookMigrationResourceSpec
     getDSLContext.fetchCount(WORKFLOW_NOTEBOOK_MAPPING) shouldBe 1
   }
 
-  it should "return 500 when the request body is malformed JSON" in {
-    // Exercises the NonFatal catch path in deleteNotebookAndMapping.
+  it should "return 400 when the request body is malformed JSON" in {
+    // Malformed input is a client error, caught by parseBody before the generic 500 handler.
     resource
       .deleteNotebookAndMapping("not json", sessionUser(writerUid))
-      .getStatus shouldBe 500
+      .getStatus shouldBe Response.Status.BAD_REQUEST.getStatusCode
   }
 
   // -- wid validation ---------------------------------------------------------
@@ -481,15 +495,16 @@ class NotebookMigrationResourceSpec
     resource.setNotebook(validNotebook, user).getStatus shouldBe 500
     resource.getJupyterURL(user).getStatus shouldBe 500
     resource.getJupyterIframeURL(null, user).getStatus shouldBe 500
+    resource.deleteNotebook(deleteNotebookPayload(), user).getStatus shouldBe 500
   }
 
-  it should "return 500 when the request body is malformed JSON" in {
-    // Exercises the NonFatal catch paths in setNotebook, storeNotebookAndMapping and
-    // fetchNotebookAndMapping.
+  it should "return 400 when the request body is malformed JSON" in {
+    // Malformed input is a client error: parseBody rejects it before any downstream work.
     val user = sessionUser(writerUid)
-    resource.setNotebook("not json", user).getStatus shouldBe 500
-    resource.storeNotebookAndMapping("not json", user).getStatus shouldBe 500
-    resource.fetchNotebookAndMapping("not json", user).getStatus shouldBe 500
+    val badRequest = Response.Status.BAD_REQUEST.getStatusCode
+    resource.setNotebook("not json", user).getStatus shouldBe badRequest
+    resource.storeNotebookAndMapping("not json", user).getStatus shouldBe badRequest
+    resource.fetchNotebookAndMapping("not json", user).getStatus shouldBe badRequest
   }
 
   it should "upload the notebook and return success when Jupyter accepts it" in {
@@ -576,6 +591,76 @@ class NotebookMigrationResourceSpec
         .setNotebook(body, sessionUser(writerUid))
         .getStatus shouldBe Response.Status.OK.getStatusCode
     }
+  }
+
+  // -- deleteNotebook (Jupyter file) ------------------------------------------
+
+  "deleteNotebook" should "DELETE the notebook's contents path and report deleted=1" in {
+    withFakeJupyter(contentsStatus = 204) {
+      val name = s"notebook_$testWid.ipynb"
+      val resp = resource.deleteNotebook(deleteNotebookPayload(name), sessionUser(writerUid))
+      resp.getStatus shouldBe Response.Status.OK.getStatusCode
+      resp.getEntity.toString should include("\"deleted\":1")
+      // Pins the verb and the work/ path, the two things that make this the counterpart
+      // of setNotebook's PUT rather than a delete of some other file.
+      lastContentsRequest shouldBe Some(("DELETE", s"/api/contents/work/$name"))
+    }
+  }
+
+  it should "treat a 200 from Jupyter as a successful delete, reporting deleted=1" in {
+    // Some Jupyter versions answer 200 instead of 204 on a delete; both mean success.
+    withFakeJupyter(contentsStatus = 200) {
+      val resp = resource.deleteNotebook(deleteNotebookPayload(), sessionUser(writerUid))
+      resp.getStatus shouldBe Response.Status.OK.getStatusCode
+      resp.getEntity.toString should include("\"deleted\":1")
+    }
+  }
+
+  it should "treat a 404 from Jupyter as a no-op, reporting deleted=0" in {
+    // A workflow whose notebook was never uploaded must still delete cleanly.
+    withFakeJupyter(contentsStatus = 404) {
+      val resp = resource.deleteNotebook(deleteNotebookPayload(), sessionUser(writerUid))
+      resp.getStatus shouldBe Response.Status.OK.getStatusCode
+      resp.getEntity.toString should include("\"deleted\":0")
+    }
+  }
+
+  it should "return 500 when Jupyter rejects the delete" in {
+    withFakeJupyter(contentsStatus = 500) {
+      resource
+        .deleteNotebook(deleteNotebookPayload(), sessionUser(writerUid))
+        .getStatus shouldBe 500
+    }
+  }
+
+  it should "reject a notebook name that is not a plain .ipynb filename with 400" in {
+    // Validated before any Jupyter call, so no server is needed. Covers path traversal,
+    // a wrong extension, and an embedded subpath.
+    Seq("../../etc/evil.ipynb", "notebook.txt", "work/notebook.ipynb").foreach { name =>
+      withClue(s"name=$name: ") {
+        NotebookMigrationResource
+          .deleteNotebook(deleteNotebookPayload(name))
+          .getStatus shouldBe Response.Status.BAD_REQUEST.getStatusCode
+      }
+      lastContentsRequest shouldBe None
+    }
+  }
+
+  it should "return 400 when 'notebookName' is missing or not a string" in {
+    // A missing name must be a client error, not a 500 from null.asText().
+    Seq("""{}""", """{"notebookName": 7}""").foreach { body =>
+      withClue(s"body=$body: ") {
+        NotebookMigrationResource
+          .deleteNotebook(body)
+          .getStatus shouldBe Response.Status.BAD_REQUEST.getStatusCode
+      }
+    }
+  }
+
+  it should "return 400 when the request body is malformed JSON" in {
+    resource
+      .deleteNotebook("not json", sessionUser(writerUid))
+      .getStatus shouldBe Response.Status.BAD_REQUEST.getStatusCode
   }
 
   // -- setNotebook ------------------------------------------------------------

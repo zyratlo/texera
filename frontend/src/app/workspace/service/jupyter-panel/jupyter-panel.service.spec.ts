@@ -88,6 +88,9 @@ describe("JupyterPanelService", () => {
       setMapping: vi.fn(),
       getJupyterURL: vi.fn().mockResolvedValue("http://jupyter"),
       deleteNotebookAndMapping: vi.fn().mockReturnValue(of({ success: true, deleted: 1 })),
+      // In the base mock because every successful delete fires it; a missing stub would
+      // throw inside the delete subscription rather than failing a targeted assertion.
+      deleteNotebookForWorkflow: vi.fn().mockResolvedValue(undefined),
     };
 
     mockGuiConfig = { env: { pythonNotebookMigrationEnabled: true } };
@@ -146,6 +149,13 @@ describe("JupyterPanelService", () => {
     expect(mockWorkflow.unhighlightLinks).toHaveBeenCalled();
   });
 
+  it("deleteJupyterNotebook removes the pod's copy for the current workflow", () => {
+    service.deleteJupyterNotebook();
+
+    // The service derives the filename from the wid, so the panel just passes the wid.
+    expect(mockNotebook.deleteNotebookForWorkflow).toHaveBeenCalledWith(1);
+  });
+
   it("deleteJupyterNotebook keeps the panel open and notifies on failure", () => {
     mockNotebook.deleteNotebookAndMapping.mockReturnValueOnce(throwError(() => new Error("boom")));
     let visible: boolean | null = null;
@@ -157,6 +167,8 @@ describe("JupyterPanelService", () => {
     expect(mockNotification.error).toHaveBeenCalled();
     expect(visible).toBe(true);
     expect(mockNotebook.deleteMapping).not.toHaveBeenCalled();
+    // The notebook is still stored, so its file must stay in the pod.
+    expect(mockNotebook.deleteNotebookForWorkflow).not.toHaveBeenCalled();
   });
 
   it("deleteJupyterNotebook only resets local state for the default wid 0 (no backend call)", () => {
@@ -170,8 +182,10 @@ describe("JupyterPanelService", () => {
 
     service.deleteJupyterNotebook();
 
-    // wid 0 is the unsaved default workflow, so no backend delete should fire.
+    // wid 0 is the unsaved default workflow, so neither backend delete should fire:
+    // nothing is stored and no notebook file was ever uploaded for it.
     expect(mockNotebook.deleteNotebookAndMapping).not.toHaveBeenCalled();
+    expect(mockNotebook.deleteNotebookForWorkflow).not.toHaveBeenCalled();
     expect(visible).toBe(false);
     expect(exists).toBe(false);
   });
@@ -684,6 +698,7 @@ describe("JupyterPanelService", () => {
       service.deleteJupyterNotebook();
       expect(mockNotebook.deleteNotebookAndMapping).not.toHaveBeenCalled();
       expect(mockNotebook.deleteMapping).not.toHaveBeenCalled();
+      expect(mockNotebook.deleteNotebookForWorkflow).not.toHaveBeenCalled();
     });
 
     it("minimizeJupyterNotebookPanel does not flip visibility", () => {
