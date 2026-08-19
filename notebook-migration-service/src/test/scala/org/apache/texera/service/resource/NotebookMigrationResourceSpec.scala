@@ -484,9 +484,11 @@ class NotebookMigrationResourceSpec
   }
 
   it should "return 500 when the request body is malformed JSON" in {
-    // Exercises the NonFatal catch paths in setNotebook and fetchNotebookAndMapping.
+    // Exercises the NonFatal catch paths in setNotebook, storeNotebookAndMapping and
+    // fetchNotebookAndMapping.
     val user = sessionUser(writerUid)
     resource.setNotebook("not json", user).getStatus shouldBe 500
+    resource.storeNotebookAndMapping("not json", user).getStatus shouldBe 500
     resource.fetchNotebookAndMapping("not json", user).getStatus shouldBe 500
   }
 
