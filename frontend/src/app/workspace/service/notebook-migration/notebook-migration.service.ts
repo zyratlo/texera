@@ -163,6 +163,24 @@ export class NotebookMigrationService {
     }
   }
 
+  // Remove a workflow's notebook file from the Jupyter pod. Takes a concrete wid so it can
+  // never fall back to the shared default filename and delete the wrong file; callers guard
+  // out unsaved workflows before calling. Best effort by design: the database rows are the
+  // source of truth for whether a workflow has a notebook, so a failure here is logged, not
+  // surfaced, and nothing acts on the outcome.
+  public async deleteNotebookForWorkflow(wid: number): Promise<void> {
+    if (!this.enabled) return;
+    if (!Number.isInteger(wid) || wid <= 0) return;
+    const jupyterAPIUrl = `${AppSettings.getApiEndpoint()}/notebook-migration/delete-notebook`;
+    const headers = new HttpHeaders({ "Content-Type": "application/json" });
+
+    try {
+      await firstValueFrom(this.http.post(jupyterAPIUrl, { notebookName: notebookFileName(wid) }, { headers }));
+    } catch (error) {
+      console.error("Error deleting notebook from pod: ", error);
+    }
+  }
+
   public async getJupyterURL(): Promise<string | null> {
     if (!this.enabled) return null;
     try {
