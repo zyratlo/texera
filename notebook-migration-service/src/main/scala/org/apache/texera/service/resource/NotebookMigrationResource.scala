@@ -275,6 +275,20 @@ object NotebookMigrationResource extends LazyLogging {
 
       val dsl = SqlServer.getInstance().createDSLContext()
 
+      // notebook.wid is UNIQUE: a workflow has at most one notebook. If one already
+      // exists, reject the re-store with a 409 rather than letting the INSERT trip the
+      // constraint and surface as a 500. Checked before the version lookup so a re-store
+      // skips that query.
+      val alreadyStored = dsl.fetchExists(
+        dsl.selectFrom(Notebook.NOTEBOOK).where(Notebook.NOTEBOOK.WID.eq(wid))
+      )
+      if (alreadyStored) {
+        return Response
+          .status(Response.Status.CONFLICT)
+          .entity(errorJson(s"A notebook is already stored for workflow $wid"))
+          .build()
+      }
+
       // The mapping's vid FK must reference a real workflow_version row. Anchor it to the
       // workflow's own latest version (created alongside the workflow) rather than a
       // hardcoded id, so an unrelated workflow's version can never own or cascade it.
@@ -287,19 +301,6 @@ object NotebookMigrationResource extends LazyLogging {
         return Response
           .status(Response.Status.BAD_REQUEST)
           .entity(errorJson(s"No workflow version exists for workflow $wid"))
-          .build()
-      }
-
-      // notebook.wid is UNIQUE: a workflow has at most one notebook. If one already
-      // exists, reject the re-store with a 409 rather than letting the INSERT trip the
-      // constraint and surface as a 500.
-      val alreadyStored = dsl.fetchExists(
-        dsl.selectFrom(Notebook.NOTEBOOK).where(Notebook.NOTEBOOK.WID.eq(wid))
-      )
-      if (alreadyStored) {
-        return Response
-          .status(Response.Status.CONFLICT)
-          .entity(errorJson(s"A notebook is already stored for workflow $wid"))
           .build()
       }
 
