@@ -125,16 +125,12 @@ export class JupyterPanelService {
       });
   }
 
-  private fetchNotebookAndMapping(
-    workflowID: number | undefined = this.workflowActionService.getWorkflow().wid,
-    vId: number = 1
-  ) {
-    // Fetch mapping and notebook from migration database if exists for wid
+  private fetchNotebookAndMapping(workflowID: number | undefined = this.workflowActionService.getWorkflow().wid) {
+    // Fetch mapping and notebook from migration database if exists for wid.
     const dbAPIUrl = `${AppSettings.getApiEndpoint()}/notebook-migration/fetch-notebook-and-mapping`;
     const headers = new HttpHeaders({ "Content-Type": "application/json" });
     const payload = {
       wid: workflowID,
-      vid: vId, // Future work: add dynamic fetching of current workflow vId
     };
 
     return this.http.post(dbAPIUrl, payload, { headers }).pipe(
@@ -222,19 +218,6 @@ export class JupyterPanelService {
   public getJupyterIframeURLForWorkflow(): Promise<string | null> {
     if (!this.enabled) return Promise.resolve(null);
     return this.notebookMigrationService.getJupyterIframeURL(this.currentNotebookFileName());
-  }
-
-  // Open the Jupyter Notebook panel
-  public openPanel(panelName: string): void {
-    if (!this.enabled) return;
-    if (panelName === "JupyterNotebookPanel") {
-      this.jupyterNotebookPanelVisible.next(true);
-      // Opening the panel means the current workflow has an associated notebook, so
-      // surface the toolbar "expand" button (jupyterNotebookExists$) right away. Needed
-      // after an in-place import where the wid does not change and init() does not re-run
-      // to detect the notebook.
-      this.jupyterNotebookExists.next(true);
-    }
   }
 
   // Delete the current workflow's stored notebook from the migration database and its file
