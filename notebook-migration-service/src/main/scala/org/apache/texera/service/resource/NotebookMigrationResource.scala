@@ -106,11 +106,12 @@ object NotebookMigrationResource extends LazyLogging {
     }
   }
 
-  // jupyterUrl and jupyterToken are single process-wide values, so this service still
-  // targets one Jupyter per process (the per-user-pod model) and must not be deployed as a
-  // shared global instance yet: every user would get the same Jupyter and the same token.
-  // Resolving these per user is a later stage of the migration (#7665).
-  private val jupyterUrl = StorageConfig.jupyterURL
+  // Process-wide values, so this service targets one Jupyter per process (the per-user-pod
+  // model) and must not be deployed as a shared global instance yet: every user would get
+  // the same Jupyter and token. Per-user resolution is #7665.
+  // internalJupyterUrl is what this service calls, publicJupyterUrl is what the browser loads.
+  private val internalJupyterUrl = StorageConfig.jupyterInternalURL
+  private val publicJupyterUrl = StorageConfig.jupyterPublicURL
   private val jupyterToken = StorageConfig.jupyterToken
 
   // Default notebook name used when a request does not specify one, so a param-less
@@ -149,22 +150,22 @@ object NotebookMigrationResource extends LazyLogging {
         .build()
     }
 
-    if (!isJupyterAvailable(jupyterUrl)) {
+    if (!isJupyterAvailable(internalJupyterUrl)) {
       return jupyterUnavailableResponse
     }
 
     Response
-      .ok(successUrlJson(s"$jupyterUrl/notebooks/work/$notebookName?token=$jupyterToken"))
+      .ok(successUrlJson(s"$publicJupyterUrl/notebooks/work/$notebookName?token=$jupyterToken"))
       .build()
   }
 
   // Returns the URL of Jupyter
   def getJupyterURL(): Response = {
-    if (!isJupyterAvailable(jupyterUrl)) {
+    if (!isJupyterAvailable(internalJupyterUrl)) {
       return jupyterUnavailableResponse
     }
 
-    Response.ok(successUrlJson(jupyterUrl)).build()
+    Response.ok(successUrlJson(publicJupyterUrl)).build()
   }
 
   // Set the notebook in Jupyter
@@ -189,12 +190,12 @@ object NotebookMigrationResource extends LazyLogging {
           .build()
       }
 
-      if (!isJupyterAvailable(jupyterUrl)) {
+      if (!isJupyterAvailable(internalJupyterUrl)) {
         return jupyterUnavailableResponse
       }
 
       // Construct Jupyter API URL
-      val apiUrl = s"$jupyterUrl/api/contents/work/$notebookName"
+      val apiUrl = s"$internalJupyterUrl/api/contents/work/$notebookName"
 
       val url = new URL(apiUrl)
       conn = url.openConnection().asInstanceOf[HttpURLConnection]
@@ -277,11 +278,11 @@ object NotebookMigrationResource extends LazyLogging {
           .build()
       }
 
-      if (!isJupyterAvailable(jupyterUrl)) {
+      if (!isJupyterAvailable(internalJupyterUrl)) {
         return jupyterUnavailableResponse
       }
 
-      val url = new URL(s"$jupyterUrl/api/contents/work/$notebookName")
+      val url = new URL(s"$internalJupyterUrl/api/contents/work/$notebookName")
       conn = url.openConnection().asInstanceOf[HttpURLConnection]
 
       conn.setRequestMethod("DELETE")
