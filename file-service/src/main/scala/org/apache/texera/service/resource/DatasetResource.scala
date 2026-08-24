@@ -49,7 +49,7 @@ import org.apache.texera.dao.jooq.generated.tables.pojos.{
   DatasetUserAccess,
   DatasetVersion
 }
-import org.apache.texera.service.`type`.DatasetFileNode
+import org.apache.texera.service.`type`.LakeFSFileNode
 import org.apache.texera.service.resource.DatasetAccessResource._
 import org.apache.texera.service.resource.ResourceTables.{Dataset => DATASET_RESOURCE}
 import org.apache.texera.service.resource.DatasetResource.{context, _}
@@ -269,7 +269,7 @@ object DatasetResource {
 
   case class DashboardDatasetVersion(
       datasetVersion: DatasetVersion,
-      fileNodes: List[DatasetFileNode]
+      fileNodes: List[LakeFSFileNode]
   )
 
   case class CreateDatasetRequest(
@@ -296,7 +296,7 @@ object DatasetResource {
   case class DatasetNameModification(did: Integer, name: String)
 
   case class DatasetVersionRootFileNodesResponse(
-      fileNodes: List[DatasetFileNode],
+      fileNodes: List[LakeFSFileNode],
       size: Long
   )
 
@@ -517,8 +517,9 @@ class DatasetResource extends LazyLogging {
 
       DashboardDatasetVersion(
         insertedVersion,
-        DatasetFileNode
+        LakeFSFileNode
           .fromLakeFSRepositoryCommittedObjects(
+            resourceType,
             Map((user.getEmail, datasetName, newVersionName) -> fileNodes)
           )
       )
@@ -1339,8 +1340,9 @@ class DatasetResource extends LazyLogging {
         throw new NotFoundException(ERR_DATASET_VERSION_NOT_FOUND_MESSAGE)
       )
 
-      val datasetsNode = DatasetFileNode
+      val datasetsNode = LakeFSFileNode
         .fromLakeFSRepositoryCommittedObjects(
+          resourceType,
           Map(
             (
               getOwner(ctx, did).getEmail,
@@ -1550,8 +1552,9 @@ class DatasetResource extends LazyLogging {
     val datasetName = dataset.dataset.getName
     val repositoryName = dataset.dataset.getRepositoryName
 
-    val datasetsNode = DatasetFileNode
+    val datasetsNode = LakeFSFileNode
       .fromLakeFSRepositoryCommittedObjects(
+        resourceType,
         Map(
           (dataset.ownerEmail, datasetName, datasetVersion.getName) -> LakeFSStorageClient
             .retrieveObjectsOfVersion(repositoryName, datasetVersion.getVersionHash)
@@ -1575,7 +1578,7 @@ class DatasetResource extends LazyLogging {
         .head
         .children
         .get,
-      DatasetFileNode.calculateTotalSize(List(datasetsNode))
+      LakeFSFileNode.calculateTotalSize(List(datasetsNode))
     )
   }
 
