@@ -145,7 +145,7 @@ To switch providers or add more LLMs, see [Add more LLMs or providers](#add-more
 
 The notebook migration tool converts a Jupyter notebook into a Texera workflow. It runs a JupyterLab server alongside Texera (published on port 9100) and embeds it in the workspace. The conversion itself is powered by an LLM, so it needs an API key exactly like [the Texera agent](#enable-the-texera-agent). Without one the tool still appears but the conversion fails with a provider auth error.
 
-The tool is enabled by default. To turn it off, set `GUI_WORKFLOW_WORKSPACE_PYTHON_NOTEBOOK_MIGRATION_ENABLED=false` in the `.env` file. 
+The tool is enabled by default. To turn it off, set `GUI_WORKFLOW_WORKSPACE_PYTHON_NOTEBOOK_MIGRATION_ENABLED=false` in the `.env` file.
 
 Once Texera is up, go to your workflow list and click the robot button ("AI generate a workflow from a Python notebook"). Upload a `.ipynb` file and pick a model; Texera generates the workflow and opens it. In the workspace, a Jupyter button then appears in the menu bar to expand the notebook alongside the generated workflow.
 
