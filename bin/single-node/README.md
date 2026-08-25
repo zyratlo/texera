@@ -141,7 +141,6 @@ Once Texera is up, create a new workflow and open the Texera agent panel at the 
 To switch providers or add more LLMs, see [Add more LLMs or providers](#add-more-llms-or-providers).
 
 
-
 ## Use the notebook migration tool
 
 The notebook migration tool converts a Jupyter notebook into a Texera workflow. It runs a JupyterLab
@@ -156,11 +155,6 @@ Once Texera is up, go to your workflow list and click the robot button ("AI gene
 Python notebook"). Upload a `.ipynb` file and pick a model; Texera generates the workflow and opens it.
 In the workspace, a Jupyter button then appears in the menu bar to expand the notebook alongside the
 generated workflow.
-
-> ⚠️ All users share one JupyterLab server and one access token. Anyone who can reach Texera sees the
-> same notebooks. This is acceptable for a single-node deployment on a machine you control, but do not
-> expose port 9100 to an untrusted network. Per-user notebook servers are tracked in
-> [apache/texera#7665](https://github.com/apache/texera/issues/7665).
 
 
 ## Advanced Settings
