@@ -106,13 +106,20 @@ object NotebookMigrationResource extends LazyLogging {
     }
   }
 
-  // Process-wide values, so this service targets one Jupyter per process (the per-user-pod
-  // model) and must not be deployed as a shared global instance yet: every user would get
-  // the same Jupyter and token. Per-user resolution is #7665.
-  // internalJupyterUrl is what this service calls, publicJupyterUrl is what the browser loads.
-  private val internalJupyterUrl = StorageConfig.jupyterInternalURL
-  private val publicJupyterUrl = StorageConfig.jupyterPublicURL
-  private val jupyterToken = StorageConfig.jupyterToken
+  // The Jupyter server a request targets. internalUrl is what this service calls, publicUrl
+  // is what the browser loads; they differ once Jupyter is containerized, since the
+  // in-network name does not resolve from the browser. Passed per call so the two can be
+  // made distinct, and so per-user resolution (#7665) can build one of these per uid.
+  final case class JupyterEndpoints(internalUrl: String, publicUrl: String, token: String)
+
+  // Configured default. Process-wide, so this service still targets one Jupyter per process
+  // (the per-user-pod model) and must not be deployed as a shared global instance yet: every
+  // user would get the same Jupyter and token. Per-user resolution is #7665.
+  private val configuredEndpoints = JupyterEndpoints(
+    StorageConfig.jupyterInternalURL,
+    StorageConfig.jupyterPublicURL,
+    StorageConfig.jupyterToken
+  )
 
   // Default notebook name used when a request does not specify one, so a param-less
   // getJupyterIframeURL call reproduces the URL from before this service became stateless.
@@ -140,7 +147,10 @@ object NotebookMigrationResource extends LazyLogging {
   }
 
   // Returns the Jupyter iframe reference URL for the given notebook.
-  def getJupyterIframeURL(notebookName: String): Response = {
+  def getJupyterIframeURL(
+      notebookName: String,
+      jupyter: JupyterEndpoints = configuredEndpoints
+  ): Response = {
     // notebookName flows into the returned URL, so validate it the same way setNotebook does:
     // block path traversal and keep it to a plain .ipynb filename.
     if (!notebookName.matches("[A-Za-z0-9._-]+\\.ipynb")) {
@@ -150,26 +160,28 @@ object NotebookMigrationResource extends LazyLogging {
         .build()
     }
 
-    if (!isJupyterAvailable(internalJupyterUrl)) {
+    if (!isJupyterAvailable(jupyter.internalUrl)) {
       return jupyterUnavailableResponse
     }
 
     Response
-      .ok(successUrlJson(s"$publicJupyterUrl/notebooks/work/$notebookName?token=$jupyterToken"))
+      .ok(
+        successUrlJson(s"${jupyter.publicUrl}/notebooks/work/$notebookName?token=${jupyter.token}")
+      )
       .build()
   }
 
   // Returns the URL of Jupyter
-  def getJupyterURL(): Response = {
-    if (!isJupyterAvailable(internalJupyterUrl)) {
+  def getJupyterURL(jupyter: JupyterEndpoints = configuredEndpoints): Response = {
+    if (!isJupyterAvailable(jupyter.internalUrl)) {
       return jupyterUnavailableResponse
     }
 
-    Response.ok(successUrlJson(publicJupyterUrl)).build()
+    Response.ok(successUrlJson(jupyter.publicUrl)).build()
   }
 
   // Set the notebook in Jupyter
-  def setNotebook(body: String): Response = {
+  def setNotebook(body: String, jupyter: JupyterEndpoints = configuredEndpoints): Response = {
     var conn: HttpURLConnection = null
     try {
       val json = parseBody(body) match {
@@ -190,12 +202,12 @@ object NotebookMigrationResource extends LazyLogging {
           .build()
       }
 
-      if (!isJupyterAvailable(internalJupyterUrl)) {
+      if (!isJupyterAvailable(jupyter.internalUrl)) {
         return jupyterUnavailableResponse
       }
 
       // Construct Jupyter API URL
-      val apiUrl = s"$internalJupyterUrl/api/contents/work/$notebookName"
+      val apiUrl = s"${jupyter.internalUrl}/api/contents/work/$notebookName"
 
       val url = new URL(apiUrl)
       conn = url.openConnection().asInstanceOf[HttpURLConnection]
@@ -204,7 +216,7 @@ object NotebookMigrationResource extends LazyLogging {
       conn.setDoOutput(true)
       conn.setRequestProperty("Content-Type", "application/json")
       // The Jupyter Contents API requires authentication; send the configured token.
-      conn.setRequestProperty("Authorization", s"token $jupyterToken")
+      conn.setRequestProperty("Authorization", s"token ${jupyter.token}")
 
       val requestBody =
         s"""
@@ -259,7 +271,7 @@ object NotebookMigrationResource extends LazyLogging {
   }
 
   // Delete the notebook file from Jupyter's work/ directory:
-  def deleteNotebook(body: String): Response = {
+  def deleteNotebook(body: String, jupyter: JupyterEndpoints = configuredEndpoints): Response = {
     var conn: HttpURLConnection = null
     try {
       val json = parseBody(body) match {
@@ -278,17 +290,17 @@ object NotebookMigrationResource extends LazyLogging {
           .build()
       }
 
-      if (!isJupyterAvailable(internalJupyterUrl)) {
+      if (!isJupyterAvailable(jupyter.internalUrl)) {
         return jupyterUnavailableResponse
       }
 
-      val url = new URL(s"$internalJupyterUrl/api/contents/work/$notebookName")
+      val url = new URL(s"${jupyter.internalUrl}/api/contents/work/$notebookName")
       conn = url.openConnection().asInstanceOf[HttpURLConnection]
 
       conn.setRequestMethod("DELETE")
       conn.setConnectTimeout(2000)
       conn.setReadTimeout(2000)
-      conn.setRequestProperty("Authorization", s"token $jupyterToken")
+      conn.setRequestProperty("Authorization", s"token ${jupyter.token}")
 
       val status = conn.getResponseCode
 
