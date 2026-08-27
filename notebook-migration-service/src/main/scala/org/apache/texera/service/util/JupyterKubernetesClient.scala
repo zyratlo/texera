@@ -84,6 +84,10 @@ class JupyterKubernetesClient(client: io.fabric8.kubernetes.client.KubernetesCli
         new EnvVarBuilder()
           .withName("TEXERA_ORIGIN")
           .withValue(KubernetesConfig.jupyterTexeraOrigin)
+          .build(),
+        new EnvVarBuilder()
+          .withName("JUPYTER_BASE_URL")
+          .withValue(KubernetesConfig.jupyterBaseUrl)
           .build()
       )
       .withResources(resources)

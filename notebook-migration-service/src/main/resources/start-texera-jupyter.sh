@@ -27,6 +27,11 @@ TEXERA_ORIGIN="${TEXERA_ORIGIN:-http://localhost:4200}"
 # published port. The Texera-side iframe URL must pass this through ?token=<value>.
 JUPYTER_TOKEN="${JUPYTER_TOKEN:-texera}"
 
+# Path Jupyter serves under. A deployment that puts every user's Jupyter on one hostname
+# routes by path, so the server has to know its own prefix. Defaults to "/", which is what
+# single-node and local dev use.
+JUPYTER_BASE_URL="${JUPYTER_BASE_URL:-/}"
+
 # Substitute the origin placeholder in custom.js before the server starts serving it.
 sed -i "s|__TEXERA_ORIGIN__|${TEXERA_ORIGIN}|g" /home/jovyan/.jupyter/custom/custom.js
 
@@ -35,4 +40,5 @@ exec start-notebook.sh \
   --NotebookApp.password='' \
   --NotebookApp.disable_check_xsrf=True \
   --NotebookApp.tornado_settings="{'headers': {'Content-Security-Policy': 'frame-ancestors ${TEXERA_ORIGIN}'}}" \
+  --NotebookApp.base_url="${JUPYTER_BASE_URL}" \
   --NotebookApp.default_url=/tree

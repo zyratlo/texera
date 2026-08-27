@@ -687,12 +687,14 @@ class NotebookMigrationResourceSpec
       kubernetes: JupyterKubernetesClient,
       accepts: (String, String) => Boolean,
       publicUrlTemplate: String = "",
+      basePath: String = "/",
       maxConcurrentProvisions: Int = 4
   ) =
     new JupyterProvisioner(
       kubernetes,
       accepts,
       publicUrlTemplate,
+      basePath,
       readinessTimeoutMillis = 50,
       readinessPollMillis = 10,
       maxConcurrentProvisions
@@ -763,6 +765,25 @@ class NotebookMigrationResourceSpec
     result shouldBe None
     kubernetes.deleted shouldBe List(writerUid.intValue())
     registeredUids() shouldBe empty
+  }
+
+  it should "record the base path in the internal address" in {
+    // Jupyter serves /api under its base path too, so an address without the prefix would
+    // make every later probe and contents call 404.
+    val kubernetes = new StubKubernetes
+    val result = provisionerFor(kubernetes, (_, _) => true, basePath = "/jupyter/")
+      .ensure(writerUid, jupyterEnabled = true, tokenSecret = specSecret)
+
+    result.map(_.internalUrl) shouldBe
+      Some(s"http://${kubernetes.generatePodURI(writerUid)}/jupyter")
+  }
+
+  it should "add nothing to the internal address for the default base path" in {
+    val kubernetes = new StubKubernetes
+    val result = provisionerFor(kubernetes, (_, _) => true, basePath = "/")
+      .ensure(writerUid, jupyterEnabled = true, tokenSecret = specSecret)
+
+    result.map(_.internalUrl) shouldBe Some(s"http://${kubernetes.generatePodURI(writerUid)}")
   }
 
   it should "build the public URL from the configured template" in {
@@ -856,7 +877,7 @@ class NotebookMigrationResourceSpec
     kubernetes.deleted shouldBe List(writerUid.intValue())
     kubernetes.created.map(_._1) shouldBe List(writerUid.intValue())
     result.map(_.internalUrl) shouldBe Some(
-      s"http://${kubernetes.generatePodURI(writerUid)}"
+      s"http://${kubernetes.generatePodURI(writerUid)}${kubernetes.basePathFor(writerUid)}"
     )
   }
 
@@ -908,7 +929,7 @@ class NotebookMigrationResourceSpec
       .ensure(writerUid, jupyterEnabled = true, tokenSecret = specSecret)
 
     result.map(_.internalUrl) shouldBe Some(
-      s"http://${kubernetes.generatePodURI(writerUid)}"
+      s"http://${kubernetes.generatePodURI(writerUid)}${kubernetes.basePathFor(writerUid)}"
     )
     kubernetes.deleted shouldBe empty
     registeredUids() shouldBe List(writerUid)

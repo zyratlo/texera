@@ -167,6 +167,14 @@ class JupyterKubernetesClientSpec extends AnyFlatSpec with Matchers {
       Some(KubernetesConfig.jupyterTexeraOrigin)
   }
 
+  it should "tell the pod which base path it serves under" in {
+    // The image passes this to --NotebookApp.base_url; without it a path-routed deployment
+    // serves every endpoint from the wrong prefix.
+    val env = createdPod(7, "tok").getSpec.getContainers.asScala.head.getEnv.asScala
+    env.find(_.getName == "JUPYTER_BASE_URL").map(_.getValue) shouldBe
+      Some(KubernetesConfig.jupyterBaseUrl)
+  }
+
   it should "carry the configured image, pull policy and port" in {
     val container = createdPod(7, "tok").getSpec.getContainers.asScala.head
     container.getImage shouldBe KubernetesConfig.jupyterImageName
