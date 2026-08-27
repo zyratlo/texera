@@ -25,6 +25,8 @@ import org.apache.texera.dao.MockTexeraDB
 import org.apache.texera.service.util.{
   JupyterEndpointResolver,
   JupyterEndpoints,
+  JupyterKubernetesClient,
+  JupyterProvisioner,
   JupyterTokenDeriver
 }
 import org.apache.texera.dao.jooq.generated.enums.{PrivilegeEnum, UserRoleEnum}
@@ -57,6 +59,8 @@ import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach}
 import com.sun.net.httpserver.HttpServer
 
 import java.net.InetSocketAddress
+
+import scala.jdk.CollectionConverters._
 import java.sql.Timestamp
 import java.util.UUID
 
@@ -630,6 +634,120 @@ class NotebookMigrationResourceSpec
       .resolve(readerUid, jupyterEnabled = true, tokenSecret = specSecret)
       .map(_.token)
     writerToken should not be readerToken
+  }
+
+  // -- provisioning -----------------------------------------------------------
+
+  // Records what would have been asked of Kubernetes, so the provisioning logic runs without
+  // a cluster. Subclassing rather than mocking keeps the real naming and addressing.
+  private class StubKubernetes extends JupyterKubernetesClient(null) {
+    var created: List[(Int, String)] = Nil
+    var deleted: List[Int] = Nil
+    var alreadyExists = false
+    override def podExists(uid: Int): Boolean = alreadyExists
+    override def createPod(uid: Int, token: String) = { created ::= ((uid, token)); null }
+    override def deletePod(uid: Int): Unit = deleted ::= uid
+  }
+
+  // Short windows so the "never ready" path does not sit in a real timeout.
+  private def provisionerFor(
+      kubernetes: JupyterKubernetesClient,
+      reachable: String => Boolean,
+      publicUrlTemplate: String = ""
+  ) =
+    new JupyterProvisioner(
+      kubernetes,
+      reachable,
+      publicUrlTemplate,
+      readinessTimeoutMillis = 50,
+      readinessPollMillis = 10
+    )
+
+  private def registeredUids(): List[Integer] =
+    getDSLContext
+      .select(USER_JUPYTER.UID)
+      .from(USER_JUPYTER)
+      .fetchInto(classOf[Integer])
+      .asScala
+      .toList
+
+  "JupyterProvisioner.ensure" should "return the configured Jupyter and start nothing while the feature is off" in {
+    val kubernetes = new StubKubernetes
+    val result = provisionerFor(kubernetes, _ => true).ensure(writerUid, jupyterEnabled = false)
+    result shouldBe Some(JupyterEndpoints.configured)
+    kubernetes.created shouldBe empty
+    registeredUids() shouldBe empty
+  }
+
+  it should "start and register a Jupyter for a user who has none" in {
+    val kubernetes = new StubKubernetes
+    val result = provisionerFor(kubernetes, _ => true)
+      .ensure(writerUid, jupyterEnabled = true, tokenSecret = specSecret)
+
+    kubernetes.created.map(_._1) shouldBe List(writerUid.intValue())
+    registeredUids() shouldBe List(writerUid)
+    result.map(_.internalUrl) shouldBe Some(s"http://${kubernetes.generatePodURI(writerUid)}")
+  }
+
+  it should "give the pod the user's own derived token" in {
+    // What makes one user's token useless against another's Jupyter.
+    val kubernetes = new StubKubernetes
+    provisionerFor(kubernetes, _ => true)
+      .ensure(writerUid, jupyterEnabled = true, tokenSecret = specSecret)
+    kubernetes.created.map(_._2) shouldBe List(JupyterTokenDeriver.derive(writerUid, specSecret))
+  }
+
+  it should "reuse a registered Jupyter that still answers" in {
+    registerJupyter(writerUid)
+    val kubernetes = new StubKubernetes
+    val result = provisionerFor(kubernetes, _ => true)
+      .ensure(writerUid, jupyterEnabled = true, tokenSecret = specSecret)
+
+    kubernetes.created shouldBe empty
+    result.map(_.internalUrl) shouldBe Some("http://localhost:9100")
+  }
+
+  it should "rebuild a registered Jupyter whose pod is gone" in {
+    // The row would otherwise outlive the pod and point every later request at nothing.
+    registerJupyter(writerUid, internalUrl = "http://stale:8888")
+    val kubernetes = new StubKubernetes
+    val result = provisionerFor(kubernetes, url => url != "http://stale:8888")
+      .ensure(writerUid, jupyterEnabled = true, tokenSecret = specSecret)
+
+    kubernetes.deleted shouldBe List(writerUid.intValue())
+    kubernetes.created.map(_._1) shouldBe List(writerUid.intValue())
+    result.map(_.internalUrl) shouldBe Some(s"http://${kubernetes.generatePodURI(writerUid)}")
+  }
+
+  it should "register nothing and clean up when the pod never becomes ready" in {
+    val kubernetes = new StubKubernetes
+    val result = provisionerFor(kubernetes, _ => false)
+      .ensure(writerUid, jupyterEnabled = true, tokenSecret = specSecret)
+
+    result shouldBe None
+    kubernetes.deleted shouldBe List(writerUid.intValue())
+    registeredUids() shouldBe empty
+  }
+
+  it should "build the public URL from the configured template" in {
+    val kubernetes = new StubKubernetes
+    val result = provisionerFor(kubernetes, _ => true, "https://texera.example.com/jupyter/{uid}")
+      .ensure(writerUid, jupyterEnabled = true, tokenSecret = specSecret)
+    result.map(_.publicUrl) shouldBe Some(s"https://texera.example.com/jupyter/$writerUid")
+  }
+
+  it should "keep the winning row when two requests provision at once" in {
+    // The readiness probe runs just before the insert, so registering there stands in for a
+    // concurrent request winning the race.
+    val kubernetes = new StubKubernetes
+    val racing = provisionerFor(
+      kubernetes,
+      _ => { if (registeredUids().isEmpty) registerJupyter(writerUid); true }
+    )
+    val result = racing.ensure(writerUid, jupyterEnabled = true, tokenSecret = specSecret)
+
+    result should not be empty
+    registeredUids() shouldBe List(writerUid)
   }
 
   "the internal/public URL split" should "dial the internal URL and return only the public one" in {

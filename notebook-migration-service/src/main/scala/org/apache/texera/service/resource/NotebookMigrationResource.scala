@@ -35,7 +35,12 @@ import org.apache.texera.dao.jooq.generated.tables.WorkflowVersion
 import java.net.{HttpURLConnection, URL}
 import java.nio.charset.StandardCharsets
 import scala.util.control.NonFatal
-import org.apache.texera.service.util.{JupyterEndpointResolver, JupyterEndpoints}
+import org.apache.texera.service.util.{
+  JupyterEndpointResolver,
+  JupyterEndpoints,
+  JupyterProbe,
+  JupyterProvisioner
+}
 
 object NotebookMigrationResource extends LazyLogging {
 
@@ -110,27 +115,6 @@ object NotebookMigrationResource extends LazyLogging {
   // getJupyterIframeURL call reproduces the URL from before this service became stateless.
   private val defaultNotebookName = "notebook.ipynb"
 
-  private def isJupyterAvailable(jupyterUrl: String): Boolean = {
-    var conn: java.net.HttpURLConnection = null
-    try {
-      conn = new java.net.URL(s"$jupyterUrl/api")
-        .openConnection()
-        .asInstanceOf[java.net.HttpURLConnection]
-
-      conn.setRequestMethod("GET")
-      conn.setConnectTimeout(2000)
-      conn.setReadTimeout(2000)
-
-      val status = conn.getResponseCode
-
-      status == 200 || status == 403
-    } catch {
-      case _: Exception => false
-    } finally {
-      if (conn != null) conn.disconnect()
-    }
-  }
-
   // Returns the Jupyter iframe reference URL for the given notebook.
   def getJupyterIframeURL(
       notebookName: String,
@@ -145,7 +129,7 @@ object NotebookMigrationResource extends LazyLogging {
         .build()
     }
 
-    if (!isJupyterAvailable(jupyter.internalUrl)) {
+    if (!JupyterProbe.isAvailable(jupyter.internalUrl)) {
       return jupyterUnavailableResponse
     }
 
@@ -158,7 +142,7 @@ object NotebookMigrationResource extends LazyLogging {
 
   // Returns the URL of Jupyter
   def getJupyterURL(jupyter: JupyterEndpoints = JupyterEndpoints.configured): Response = {
-    if (!isJupyterAvailable(jupyter.internalUrl)) {
+    if (!JupyterProbe.isAvailable(jupyter.internalUrl)) {
       return jupyterUnavailableResponse
     }
 
@@ -190,7 +174,7 @@ object NotebookMigrationResource extends LazyLogging {
           .build()
       }
 
-      if (!isJupyterAvailable(jupyter.internalUrl)) {
+      if (!JupyterProbe.isAvailable(jupyter.internalUrl)) {
         return jupyterUnavailableResponse
       }
 
@@ -281,7 +265,7 @@ object NotebookMigrationResource extends LazyLogging {
           .build()
       }
 
-      if (!isJupyterAvailable(jupyter.internalUrl)) {
+      if (!JupyterProbe.isAvailable(jupyter.internalUrl)) {
         return jupyterUnavailableResponse
       }
 
@@ -557,13 +541,23 @@ object NotebookMigrationResource extends LazyLogging {
 @Consumes(Array(MediaType.APPLICATION_JSON))
 class NotebookMigrationResource extends LazyLogging {
 
-  // Runs `call` against the caller's own Jupyter. The uid comes from the authenticated
-  // session, so a request cannot name another user's server. None means the user has no
-  // Jupyter provisioned, which is reported the same as an unreachable one.
+  // Runs `call` against the caller's own Jupyter, starting one if they have none. The uid
+  // comes from the authenticated session, so a request cannot name another user's server.
+  private def withNewJupyter(user: SessionUser)(call: JupyterEndpoints => Response): Response =
+    respondWith(JupyterProvisioner.ensure(user.getUid), call)
+
+  // As above, but never starts a pod: reading a URL or deleting a file should not bring a
+  // Jupyter into existence for a user who has none.
   private def withJupyter(user: SessionUser)(call: JupyterEndpoints => Response): Response =
-    JupyterEndpointResolver.resolve(user.getUid) match {
-      case Some(jupyter) => call(jupyter)
-      case None          => NotebookMigrationResource.jupyterUnavailableResponse
+    respondWith(JupyterEndpointResolver.resolve(user.getUid), call)
+
+  private def respondWith(
+      jupyter: Option[JupyterEndpoints],
+      call: JupyterEndpoints => Response
+  ): Response =
+    jupyter match {
+      case Some(endpoints) => call(endpoints)
+      case None            => NotebookMigrationResource.jupyterUnavailableResponse
     }
 
   @GET
@@ -576,7 +570,7 @@ class NotebookMigrationResource extends LazyLogging {
     val name = Option(notebookName)
       .filter(_.nonEmpty)
       .getOrElse(NotebookMigrationResource.defaultNotebookName)
-    withJupyter(user) { jupyter =>
+    withNewJupyter(user) { jupyter =>
       NotebookMigrationResource.getJupyterIframeURL(name, jupyter)
     }
   }
@@ -592,7 +586,7 @@ class NotebookMigrationResource extends LazyLogging {
   @Path("/set-notebook")
   def setNotebook(body: String, @Auth user: SessionUser): Response = {
     logger.info("Setting notebook")
-    withJupyter(user)(NotebookMigrationResource.setNotebook(body, _))
+    withNewJupyter(user)(NotebookMigrationResource.setNotebook(body, _))
   }
 
   @POST
