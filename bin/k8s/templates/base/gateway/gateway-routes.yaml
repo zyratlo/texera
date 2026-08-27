@@ -74,6 +74,15 @@ spec:
       backendRefs:
         - name: config-service-svc
           port: 9094
+    {{- if .Values.notebookMigrationService.enabled }}
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /api/notebook-migration
+      backendRefs:
+        - name: {{ .Values.notebookMigrationService.name }}-svc
+          port: {{ .Values.notebookMigrationService.service.port }}
+    {{- end }}
     - matches:
         - path:
             type: PathPrefix
@@ -135,11 +144,13 @@ spec:
         - path:
             type: PathPrefix
             value: /api/pve
+        {{- if .Values.notebookMigrationService.enabled }}
         # Per-user JupyterLab. ExtAuthz reads the uid from the path and rewrites Host to
         # that user's pod; the per-user Jupyter token is what authorizes the request.
         - path:
             type: PathPrefix
             value: /jupyter
+        {{- end }}
       backendRefs:
         - group: gateway.envoyproxy.io
           kind: Backend
