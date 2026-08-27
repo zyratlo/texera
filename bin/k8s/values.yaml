@@ -236,6 +236,11 @@ jupyterPool:
   resources:
     cpuLimit: "1"
     memoryLimit: 2Gi
+  networkPolicy:
+    # Denies pod-to-pod traffic inside the pool, so one user's JupyterLab cannot reach
+    # another's. Requires a cluster with a NetworkPolicy controller; without one the object
+    # is created but not enforced.
+    enabled: true
   # Ceiling for the pool as a whole.
   maxRequestedResources:
     cpu: 50
