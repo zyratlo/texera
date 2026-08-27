@@ -86,8 +86,8 @@ class KubernetesConfigSpec extends AnyFlatSpec with Matchers {
     )
     // Empty by default: only a real deployment knows its own origin.
     ifUnset("KUBERNETES_JUPYTER_TEXERA_ORIGIN")(KubernetesConfig.jupyterTexeraOrigin shouldBe "")
-    // "/" is the unprefixed default, so single-node and local dev are unaffected.
-    ifUnset("KUBERNETES_JUPYTER_BASE_URL")(KubernetesConfig.jupyterBaseUrl shouldBe "/")
+    // A prefix, not a full path: the provisioner appends the uid.
+    ifUnset("KUBERNETES_JUPYTER_BASE_URL")(KubernetesConfig.jupyterBaseUrl shouldBe "/jupyter")
     ifUnset("KUBERNETES_JUPYTER_CPU_LIMIT")(KubernetesConfig.jupyterCpuLimit shouldBe "1")
     ifUnset("KUBERNETES_JUPYTER_MEMORY_LIMIT")(
       KubernetesConfig.jupyterMemoryLimit shouldBe "2Gi"

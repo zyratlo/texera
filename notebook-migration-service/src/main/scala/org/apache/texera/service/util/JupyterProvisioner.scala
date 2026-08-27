@@ -38,7 +38,6 @@ class JupyterProvisioner(
     kubernetesClient: => JupyterKubernetesClient,
     accepts: (String, String) => Boolean,
     publicUrlTemplate: String,
-    basePath: String,
     readinessTimeoutMillis: Long,
     readinessPollMillis: Long,
     maxConcurrentProvisions: Int
@@ -104,12 +103,10 @@ class JupyterProvisioner(
       finally provisionPermits.release()
     }
 
-  // Jupyter serves every endpoint under its base path, /api included, so the recorded
-  // address has to carry it or each call lands on a 404. "/" contributes nothing.
-  private def basePathSuffix: String = basePath.stripSuffix("/")
-
   private def provision(uid: Int, token: String): Option[JupyterEndpoints] = {
-    val internalUrl = s"http://${kubernetes.generatePodURI(uid)}$basePathSuffix"
+    // Jupyter serves every endpoint under its base path, /api included, so the recorded
+    // address has to carry it or each later call lands on a 404.
+    val internalUrl = s"http://${kubernetes.generatePodURI(uid)}${kubernetes.basePathFor(uid)}"
     val endpoints = JupyterEndpoints(internalUrl, publicUrlFor(uid, internalUrl), token)
     try {
       createIfAbsent(uid, token)
@@ -206,7 +203,6 @@ object JupyterProvisioner
       JupyterKubernetesClient.inCluster,
       JupyterProbe.isAuthorized,
       KubernetesConfig.jupyterPublicUrlTemplate,
-      KubernetesConfig.jupyterBaseUrl,
       readinessTimeoutMillis = 60000,
       readinessPollMillis = 1000,
       // Far below Dropwizard's 1024 worker threads, so a provisioning burst cannot starve the

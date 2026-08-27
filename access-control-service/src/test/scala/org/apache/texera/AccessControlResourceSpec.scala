@@ -27,11 +27,13 @@ import org.apache.texera.dao.jooq.generated.enums.{
   WorkflowComputingUnitTypeEnum
 }
 import org.apache.texera.dao.jooq.generated.tables.daos.{
+  UserJupyterDao,
   ComputingUnitUserAccessDao,
   UserDao,
   WorkflowComputingUnitDao
 }
 import org.apache.texera.dao.jooq.generated.tables.pojos.{
+  UserJupyter,
   ComputingUnitUserAccess,
   User,
   WorkflowComputingUnit
@@ -72,6 +74,11 @@ class AccessControlResourceSpec
   // being unroutable.
   private val testNoAccessRecordedUri: String =
     "computing-unit-6.compute-unit-svc.default.svc.cluster.local:7777"
+
+  // What the provisioner records for a user's Jupyter: scheme, authority and the base path
+  // the pod serves under. Only the authority may reach Envoy as a Host header.
+  private val testJupyterInternalUrl: String =
+    "http://jupyter-1.jupyter-svc.texera-jupyter-pool.svc.cluster.local:8888/jupyter/1"
 
   private val testUser1: User = {
     val user = new User()
@@ -189,6 +196,14 @@ class AccessControlResourceSpec
     readOnlyAccess.setCuid(testCUReadOnly.getCuid)
     readOnlyAccess.setPrivilege(PrivilegeEnum.READ)
     computingUnitOfUserDao.insert(readOnlyAccess)
+
+    // Per-user Jupyter: user 1 has one registered, user 2 deliberately does not.
+    val jupyterDao = new UserJupyterDao(getDSLContext.configuration())
+    val jupyter = new UserJupyter()
+    jupyter.setUid(testUser1.getUid)
+    jupyter.setInternalUrl(testJupyterInternalUrl)
+    jupyter.setPublicUrl("https://texera.example.com/jupyter/1")
+    jupyterDao.insert(jupyter)
 
     token = JwtAuth.jwtToken(JwtAuth.jwtClaims(testUser1))
     token2 = JwtAuth.jwtToken(JwtAuth.jwtClaims(testUser2))
@@ -721,5 +736,57 @@ class AccessControlResourceSpec
 
     response.getStatus shouldBe Response.Status.OK.getStatusCode
     response.getHeaderString("Host") shouldBe testRecordedUri
+  }
+
+  // -- per-user JupyterLab routing --------------------------------------------
+
+  it should "route a Jupyter request to the pod recorded for the uid in the path" in {
+    val (uri, headers) = mockRequest("/jupyter/1/notebooks/work/notebook.ipynb", None)
+    val response = new AccessControlResource().authorizeGet(uri, headers)
+
+    response.getStatus shouldBe Response.Status.OK.getStatusCode
+    // The scheme and base path are stripped: Envoy routes on an authority alone.
+    response.getHeaderString("Host") shouldBe
+      "jupyter-1.jupyter-svc.texera-jupyter-pool.svc.cluster.local:8888"
+  }
+
+  it should "route Jupyter's own subrequests, which carry no token" in {
+    // The iframe's asset and API calls cannot present Texera credentials, so routing has to
+    // work without one. The per-user Jupyter token is what authorizes them.
+    val (uri, headers) =
+      mockRequest("/jupyter/1/api/contents", None, authorizationHeader = None)
+    val response = new AccessControlResource().authorizeGet(uri, headers)
+
+    response.getStatus shouldBe Response.Status.OK.getStatusCode
+    response.getHeaderString("Host") should startWith("jupyter-1.")
+  }
+
+  it should "refuse a Jupyter request for a user with none registered" in {
+    val (uri, headers) = mockRequest("/jupyter/2/tree", None)
+    new AccessControlResource()
+      .authorizeGet(uri, headers)
+      .getStatus shouldBe Response.Status.FORBIDDEN.getStatusCode
+  }
+
+  it should "refuse a Jupyter request for a uid that does not exist" in {
+    val (uri, headers) = mockRequest("/jupyter/999999/tree", None)
+    new AccessControlResource()
+      .authorizeGet(uri, headers)
+      .getStatus shouldBe Response.Status.FORBIDDEN.getStatusCode
+  }
+
+  it should "not treat a Jupyter path without a uid as routable" in {
+    // Falls through to the catch-all, which denies.
+    val (uri, headers) = mockRequest("/jupyter/tree", None)
+    new AccessControlResource()
+      .authorizeGet(uri, headers)
+      .getStatus shouldBe Response.Status.FORBIDDEN.getStatusCode
+  }
+
+  it should "route the gateway-relative form of a Jupyter path" in {
+    val (uri, headers) = mockRequest("auth/jupyter/1/tree", None)
+    new AccessControlResource()
+      .authorizeGet(uri, headers)
+      .getStatus shouldBe Response.Status.OK.getStatusCode
   }
 }

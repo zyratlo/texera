@@ -135,6 +135,11 @@ spec:
         - path:
             type: PathPrefix
             value: /api/pve
+        # Per-user JupyterLab. ExtAuthz reads the uid from the path and rewrites Host to
+        # that user's pod; the per-user Jupyter token is what authorizes the request.
+        - path:
+            type: PathPrefix
+            value: /jupyter
       backendRefs:
         - group: gateway.envoyproxy.io
           kind: Backend

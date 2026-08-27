@@ -43,6 +43,13 @@ class JupyterKubernetesClient(client: io.fabric8.kubernetes.client.KubernetesCli
   def generatePodURI(uid: Int): String =
     s"${generatePodName(uid)}.${KubernetesConfig.jupyterServiceName}.$namespace.svc.cluster.local:${KubernetesConfig.jupyterPortNumber}"
 
+  /**
+    * Path a user's Jupyter serves under. The uid is in the path because the browser cannot
+    * present Texera credentials on the requests Jupyter's own scripts make, so the gateway
+    * has to read the owner out of the URL instead.
+    */
+  def basePathFor(uid: Int): String = s"${KubernetesConfig.jupyterBaseUrl.stripSuffix("/")}/$uid"
+
   def podExists(uid: Int): Boolean = getPodByName(generatePodName(uid)).isDefined
 
   def getPodByName(podName: String): Option[Pod] =
@@ -87,7 +94,7 @@ class JupyterKubernetesClient(client: io.fabric8.kubernetes.client.KubernetesCli
           .build(),
         new EnvVarBuilder()
           .withName("JUPYTER_BASE_URL")
-          .withValue(KubernetesConfig.jupyterBaseUrl)
+          .withValue(s"${basePathFor(uid)}/")
           .build()
       )
       .withResources(resources)
