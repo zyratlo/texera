@@ -63,6 +63,8 @@ object NotebookMigrationResource extends LazyLogging {
       mapper.createObjectNode().put("success", true).put("deleted", deleted)
     )
 
+  // Also the answer when the user has no Jupyter provisioned: either way there is no
+  // server for them to reach.
   private def jupyterUnavailableResponse: Response =
     Response
       .status(500)
