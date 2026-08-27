@@ -221,6 +221,9 @@ jupyterPool:
   # deployments share a cluster.
   namespace: texera-jupyter-pool
   imageName: texera-jupyter
+  # Pull the image onto every node ahead of time, so a first-time pull cannot outlast the
+  # bounded wait for a new pod to answer. Costs one small pod per node.
+  prepullImage: true
   # Path prefix each user's JupyterLab is served under; the uid is appended, so user 7 is
   # served at /jupyter/7/. The gateway reads that uid to pick the pod.
   basePath: /jupyter
