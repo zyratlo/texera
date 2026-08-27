@@ -22,21 +22,29 @@ package org.apache.texera.service.resource
 import jakarta.ws.rs.core.Response
 import org.apache.texera.auth.SessionUser
 import org.apache.texera.dao.MockTexeraDB
+import org.apache.texera.service.util.{
+  JupyterEndpointResolver,
+  JupyterEndpoints,
+  JupyterTokenDeriver
+}
 import org.apache.texera.dao.jooq.generated.enums.{PrivilegeEnum, UserRoleEnum}
 import org.apache.texera.dao.jooq.generated.tables.Notebook.NOTEBOOK
 import org.apache.texera.dao.jooq.generated.tables.User.USER
+import org.apache.texera.dao.jooq.generated.tables.UserJupyter.USER_JUPYTER
 import org.apache.texera.dao.jooq.generated.tables.Workflow.WORKFLOW
 import org.apache.texera.dao.jooq.generated.tables.WorkflowNotebookMapping.WORKFLOW_NOTEBOOK_MAPPING
 import org.apache.texera.dao.jooq.generated.tables.WorkflowUserAccess.WORKFLOW_USER_ACCESS
 import org.apache.texera.dao.jooq.generated.tables.WorkflowVersion.WORKFLOW_VERSION
 import org.apache.texera.dao.jooq.generated.tables.daos.{
   UserDao,
+  UserJupyterDao,
   WorkflowDao,
   WorkflowUserAccessDao,
   WorkflowVersionDao
 }
 import org.apache.texera.dao.jooq.generated.tables.pojos.{
   User,
+  UserJupyter,
   Workflow,
   WorkflowUserAccess,
   WorkflowVersion
@@ -152,6 +160,7 @@ class NotebookMigrationResourceSpec
       .where(WORKFLOW_VERSION.WID.eq(testWid))
       .execute()
     getDSLContext.deleteFrom(WORKFLOW).where(WORKFLOW.WID.eq(testWid)).execute()
+    getDSLContext.deleteFrom(USER_JUPYTER).execute()
     getDSLContext.deleteFrom(USER).where(USER.EMAIL.in(writerEmail, readerEmail)).execute()
   }
 
@@ -543,11 +552,85 @@ class NotebookMigrationResourceSpec
   // gets. 192.0.2.0/24 is TEST-NET-1 (RFC 5737) and routes nowhere, so a call that wrongly
   // dials the public URL fails rather than silently passing. Numeric on purpose: a hostname
   // would go through the resolver, which setConnectTimeout does not bound.
-  private val splitEndpoints = NotebookMigrationResource.JupyterEndpoints(
+  private val splitEndpoints = JupyterEndpoints(
     internalUrl = "http://localhost:9100",
     publicUrl = "http://192.0.2.1:1234",
     token = "texera"
   )
+
+  // -- per-user resolution ----------------------------------------------------
+
+  // Registers a Jupyter for `uid`, standing in for a provisioned pod.
+  private def registerJupyter(
+      uid: Integer,
+      internalUrl: String = "http://localhost:9100",
+      publicUrl: String = "http://192.0.2.1:1234"
+  ): Unit = {
+    val row = new UserJupyter
+    row.setUid(uid)
+    row.setInternalUrl(internalUrl)
+    row.setPublicUrl(publicUrl)
+    new UserJupyterDao(getDSLContext.configuration()).insert(row)
+  }
+
+  private val specSecret = "resolver-spec-secret"
+
+  "JupyterEndpointResolver" should "resolve every user to the configured Jupyter while the feature is off" in {
+    // How single-node and local dev run: one shared JupyterLab, no registry rows.
+    JupyterEndpointResolver.resolve(writerUid, jupyterEnabled = false) shouldBe Some(
+      JupyterEndpoints.configured
+    )
+  }
+
+  it should "resolve a registered user to their own Jupyter" in {
+    registerJupyter(writerUid, internalUrl = "http://jupyter-1:8888")
+    val resolved =
+      JupyterEndpointResolver.resolve(writerUid, jupyterEnabled = true, tokenSecret = specSecret)
+    resolved.map(_.internalUrl) shouldBe Some("http://jupyter-1:8888")
+    resolved.map(_.publicUrl) shouldBe Some("http://192.0.2.1:1234")
+  }
+
+  it should "return None for an unregistered user rather than falling back to the shared Jupyter" in {
+    // The isolation property: falling back here would hand an unprovisioned user somebody
+    // else's notebooks, which is the whole point of resolving per user.
+    JupyterEndpointResolver.resolve(
+      writerUid,
+      jupyterEnabled = true,
+      tokenSecret = specSecret
+    ) shouldBe None
+  }
+
+  it should "never return one user's Jupyter to another" in {
+    registerJupyter(writerUid, internalUrl = "http://jupyter-writer:8888")
+    JupyterEndpointResolver
+      .resolve(writerUid, jupyterEnabled = true, tokenSecret = specSecret)
+      .map(_.internalUrl) shouldBe Some("http://jupyter-writer:8888")
+    JupyterEndpointResolver.resolve(
+      readerUid,
+      jupyterEnabled = true,
+      tokenSecret = specSecret
+    ) shouldBe None
+  }
+
+  it should "derive the registered user's token rather than reading one from the row" in {
+    // No token column exists, so the resolver has to rebuild it from the uid.
+    registerJupyter(writerUid)
+    JupyterEndpointResolver
+      .resolve(writerUid, jupyterEnabled = true, tokenSecret = specSecret)
+      .map(_.token) shouldBe Some(JupyterTokenDeriver.derive(writerUid, specSecret))
+  }
+
+  it should "give two registered users different tokens" in {
+    registerJupyter(writerUid)
+    registerJupyter(readerUid)
+    val writerToken = JupyterEndpointResolver
+      .resolve(writerUid, jupyterEnabled = true, tokenSecret = specSecret)
+      .map(_.token)
+    val readerToken = JupyterEndpointResolver
+      .resolve(readerUid, jupyterEnabled = true, tokenSecret = specSecret)
+      .map(_.token)
+    writerToken should not be readerToken
+  }
 
   "the internal/public URL split" should "dial the internal URL and return only the public one" in {
     withFakeJupyter(contentsStatus = 201) {
@@ -593,7 +676,7 @@ class NotebookMigrationResourceSpec
     // rescue an unreachable internal one.
     withFakeJupyter(contentsStatus = 201) {
       // Port 9 on loopback: refused immediately, so this fails fast and without DNS.
-      val swapped = NotebookMigrationResource.JupyterEndpoints(
+      val swapped = JupyterEndpoints(
         internalUrl = "http://127.0.0.1:9",
         publicUrl = "http://localhost:9100",
         token = "texera"

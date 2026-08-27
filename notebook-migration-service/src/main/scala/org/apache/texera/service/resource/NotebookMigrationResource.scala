@@ -35,7 +35,7 @@ import org.apache.texera.dao.jooq.generated.tables.WorkflowVersion
 import java.net.{HttpURLConnection, URL}
 import java.nio.charset.StandardCharsets
 import scala.util.control.NonFatal
-import org.apache.texera.common.config.StorageConfig
+import org.apache.texera.service.util.{JupyterEndpointResolver, JupyterEndpoints}
 
 object NotebookMigrationResource extends LazyLogging {
 
@@ -106,21 +106,6 @@ object NotebookMigrationResource extends LazyLogging {
     }
   }
 
-  // The Jupyter server a request targets. internalUrl is what this service calls, publicUrl
-  // is what the browser loads; they differ once Jupyter is containerized, since the
-  // in-network name does not resolve from the browser. Passed per call so the two can be
-  // made distinct, and so per-user resolution (#7665) can build one of these per uid.
-  final case class JupyterEndpoints(internalUrl: String, publicUrl: String, token: String)
-
-  // Configured default. Process-wide, so this service still targets one Jupyter per process
-  // (the per-user-pod model) and must not be deployed as a shared global instance yet: every
-  // user would get the same Jupyter and token. Per-user resolution is #7665.
-  private val configuredEndpoints = JupyterEndpoints(
-    StorageConfig.jupyterInternalURL,
-    StorageConfig.jupyterPublicURL,
-    StorageConfig.jupyterToken
-  )
-
   // Default notebook name used when a request does not specify one, so a param-less
   // getJupyterIframeURL call reproduces the URL from before this service became stateless.
   private val defaultNotebookName = "notebook.ipynb"
@@ -149,7 +134,7 @@ object NotebookMigrationResource extends LazyLogging {
   // Returns the Jupyter iframe reference URL for the given notebook.
   def getJupyterIframeURL(
       notebookName: String,
-      jupyter: JupyterEndpoints = configuredEndpoints
+      jupyter: JupyterEndpoints = JupyterEndpoints.configured
   ): Response = {
     // notebookName flows into the returned URL, so validate it the same way setNotebook does:
     // block path traversal and keep it to a plain .ipynb filename.
@@ -172,7 +157,7 @@ object NotebookMigrationResource extends LazyLogging {
   }
 
   // Returns the URL of Jupyter
-  def getJupyterURL(jupyter: JupyterEndpoints = configuredEndpoints): Response = {
+  def getJupyterURL(jupyter: JupyterEndpoints = JupyterEndpoints.configured): Response = {
     if (!isJupyterAvailable(jupyter.internalUrl)) {
       return jupyterUnavailableResponse
     }
@@ -181,7 +166,10 @@ object NotebookMigrationResource extends LazyLogging {
   }
 
   // Set the notebook in Jupyter
-  def setNotebook(body: String, jupyter: JupyterEndpoints = configuredEndpoints): Response = {
+  def setNotebook(
+      body: String,
+      jupyter: JupyterEndpoints = JupyterEndpoints.configured
+  ): Response = {
     var conn: HttpURLConnection = null
     try {
       val json = parseBody(body) match {
@@ -271,7 +259,10 @@ object NotebookMigrationResource extends LazyLogging {
   }
 
   // Delete the notebook file from Jupyter's work/ directory:
-  def deleteNotebook(body: String, jupyter: JupyterEndpoints = configuredEndpoints): Response = {
+  def deleteNotebook(
+      body: String,
+      jupyter: JupyterEndpoints = JupyterEndpoints.configured
+  ): Response = {
     var conn: HttpURLConnection = null
     try {
       val json = parseBody(body) match {
@@ -566,6 +557,15 @@ object NotebookMigrationResource extends LazyLogging {
 @Consumes(Array(MediaType.APPLICATION_JSON))
 class NotebookMigrationResource extends LazyLogging {
 
+  // Runs `call` against the caller's own Jupyter. The uid comes from the authenticated
+  // session, so a request cannot name another user's server. None means the user has no
+  // Jupyter provisioned, which is reported the same as an unreachable one.
+  private def withJupyter(user: SessionUser)(call: JupyterEndpoints => Response): Response =
+    JupyterEndpointResolver.resolve(user.getUid) match {
+      case Some(jupyter) => call(jupyter)
+      case None          => NotebookMigrationResource.jupyterUnavailableResponse
+    }
+
   @GET
   @Path("/get-jupyter-iframe-url")
   def getJupyterIframeURL(
@@ -576,28 +576,30 @@ class NotebookMigrationResource extends LazyLogging {
     val name = Option(notebookName)
       .filter(_.nonEmpty)
       .getOrElse(NotebookMigrationResource.defaultNotebookName)
-    NotebookMigrationResource.getJupyterIframeURL(name)
+    withJupyter(user) { jupyter =>
+      NotebookMigrationResource.getJupyterIframeURL(name, jupyter)
+    }
   }
 
   @GET
   @Path("/get-jupyter-url")
   def getJupyterURL(@Auth user: SessionUser): Response = {
     logger.info("Getting Jupyter API URL")
-    NotebookMigrationResource.getJupyterURL()
+    withJupyter(user)(NotebookMigrationResource.getJupyterURL)
   }
 
   @POST
   @Path("/set-notebook")
   def setNotebook(body: String, @Auth user: SessionUser): Response = {
     logger.info("Setting notebook")
-    NotebookMigrationResource.setNotebook(body)
+    withJupyter(user)(NotebookMigrationResource.setNotebook(body, _))
   }
 
   @POST
   @Path("/delete-notebook")
   def deleteNotebook(body: String, @Auth user: SessionUser): Response = {
     logger.info("Deleting notebook from Jupyter")
-    NotebookMigrationResource.deleteNotebook(body)
+    withJupyter(user)(NotebookMigrationResource.deleteNotebook(body, _))
   }
 
   @POST
