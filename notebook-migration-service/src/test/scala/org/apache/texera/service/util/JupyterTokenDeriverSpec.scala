@@ -49,6 +49,14 @@ class JupyterTokenDeriverSpec extends AnyFlatSpec with Matchers {
     an[IllegalArgumentException] should be thrownBy JupyterTokenDeriver.derive(7, "")
   }
 
+  it should "fall back to the configured secret when none is passed" in {
+    // Exercises the default argument. The configured secret is empty unless a deployment
+    // sets one, so there is nothing to derive from and the require fires.
+    if (sys.env.get("JUPYTER_TOKEN_SECRET").isEmpty) {
+      an[IllegalArgumentException] should be thrownBy JupyterTokenDeriver.derive(7)
+    }
+  }
+
   "JupyterTokenDeriver.validateConfiguration" should "reject an empty secret when per-user Jupyter is on" in {
     val thrown = the[IllegalStateException] thrownBy JupyterTokenDeriver.validateConfiguration(
       jupyterEnabled = true,

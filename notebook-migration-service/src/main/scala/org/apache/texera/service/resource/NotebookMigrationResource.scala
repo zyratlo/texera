@@ -553,7 +553,9 @@ class NotebookMigrationResource extends LazyLogging {
   private def withJupyter(user: SessionUser)(call: JupyterEndpoints => Response): Response =
     respondWith(JupyterEndpointResolver.resolve(user.getUid), call)
 
-  private def respondWith(
+  // Visible to the spec so the no-Jupyter branch can be driven directly: the two callers
+  // above resolve against live configuration, which a test cannot flip.
+  private[resource] def respondWith(
       jupyter: Option[JupyterEndpoints],
       call: JupyterEndpoints => Response
   ): Response =

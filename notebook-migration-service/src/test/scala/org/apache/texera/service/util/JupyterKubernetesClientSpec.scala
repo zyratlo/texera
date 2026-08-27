@@ -17,34 +17,172 @@
 
 package org.apache.texera.service.util
 
+import io.fabric8.kubernetes.api.model.{Pod, PodBuilder, PodList}
+import io.fabric8.kubernetes.client.dsl.{
+  MixedOperation,
+  NamespaceableResource,
+  NonNamespaceOperation,
+  PodResource,
+  Resource
+}
+import io.fabric8.kubernetes.client.{KubernetesClient => Fabric8Client}
 import org.apache.texera.common.config.KubernetesConfig
+import org.mockito.ArgumentCaptor
+import org.mockito.Mockito.{mock, verify, when}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
+import scala.jdk.CollectionConverters._
+
 /**
-  * Covers the pure naming and addressing, which is what the registry stores and the service
-  * dials. The fabric8-backed calls need a cluster and are left to deployment.
+  * Two layers: the pure naming and addressing, which is what the registry stores and the
+  * service dials, and the thin fabric8 wrappers driven through a Mockito-stubbed client so
+  * the pod spec can be asserted without a live cluster.
   */
 class JupyterKubernetesClientSpec extends AnyFlatSpec with Matchers {
 
-  private val client = new JupyterKubernetesClient(null)
+  private val namespace = KubernetesConfig.jupyterNamespace
+
+  private val bare = new JupyterKubernetesClient(null)
+
+  // fabric8's fluent API returns type variables, so RETURNS_DEEP_STUBS cannot be used and
+  // each step of the chain is mocked explicitly. Mirrors the computing unit's spec.
+  private def stubbedPods(existing: Pod): (Fabric8Client, PodResource) = {
+    val client = mock(classOf[Fabric8Client])
+    val mixed = mock(classOf[MixedOperation[_, _, _]])
+      .asInstanceOf[MixedOperation[Pod, PodList, PodResource]]
+    val inNamespace = mock(classOf[NonNamespaceOperation[_, _, _]])
+      .asInstanceOf[NonNamespaceOperation[Pod, PodList, PodResource]]
+    val podResource = mock(classOf[PodResource])
+    when(client.pods()).thenReturn(mixed)
+    when(mixed.inNamespace(namespace)).thenReturn(inNamespace)
+    when(inNamespace.withName(org.mockito.ArgumentMatchers.anyString())).thenReturn(podResource)
+    when(podResource.get()).thenReturn(existing)
+    (client, podResource)
+  }
+
+  // -- naming and addressing --------------------------------------------------
 
   "generatePodName" should "namespace the pod by uid" in {
-    client.generatePodName(7) shouldBe "jupyter-7"
+    bare.generatePodName(7) shouldBe "jupyter-7"
   }
 
   it should "give every user a distinct pod name" in {
-    (1 to 50).map(client.generatePodName).distinct.size shouldBe 50
+    (1 to 50).map(bare.generatePodName).distinct.size shouldBe 50
   }
 
   "generatePodURI" should "address the pod through the headless service" in {
     // Must match the pod's hostname.subdomain, or the name does not resolve in-cluster.
-    client.generatePodURI(7) shouldBe
-      s"jupyter-7.${KubernetesConfig.jupyterServiceName}.${KubernetesConfig.jupyterNamespace}" +
+    bare.generatePodURI(7) shouldBe
+      s"jupyter-7.${KubernetesConfig.jupyterServiceName}.$namespace" +
         s".svc.cluster.local:${KubernetesConfig.jupyterPortNumber}"
   }
 
   it should "carry the configured port" in {
-    client.generatePodURI(7) should endWith(s":${KubernetesConfig.jupyterPortNumber}")
+    bare.generatePodURI(7) should endWith(s":${KubernetesConfig.jupyterPortNumber}")
+  }
+
+  // -- lookups ---------------------------------------------------------------
+
+  "getPodByName" should "return the pod when one exists" in {
+    val pod = new PodBuilder().withNewMetadata().withName("jupyter-7").endMetadata().build()
+    val (client, _) = stubbedPods(pod)
+    new JupyterKubernetesClient(client).getPodByName("jupyter-7") shouldBe Some(pod)
+  }
+
+  it should "return None when the pod is absent" in {
+    val (client, _) = stubbedPods(null)
+    new JupyterKubernetesClient(client).getPodByName("jupyter-7") shouldBe None
+  }
+
+  "podExists" should "report true for a live pod and false for a missing one" in {
+    val pod = new PodBuilder().withNewMetadata().withName("jupyter-7").endMetadata().build()
+    new JupyterKubernetesClient(stubbedPods(pod)._1).podExists(7) shouldBe true
+    new JupyterKubernetesClient(stubbedPods(null)._1).podExists(7) shouldBe false
+  }
+
+  "deletePod" should "delete the user's own pod by name" in {
+    val (client, podResource) = stubbedPods(null)
+    new JupyterKubernetesClient(client).deletePod(7)
+    verify(client.pods().inNamespace(namespace)).withName("jupyter-7")
+    verify(podResource).delete()
+  }
+
+  // -- pod spec --------------------------------------------------------------
+
+  // Captures the pod handed to fabric8, so every field the deployment depends on is asserted.
+  private def createdPod(uid: Int, token: String): Pod = {
+    val client = mock(classOf[Fabric8Client])
+    val namespaceable = mock(classOf[NamespaceableResource[_]])
+      .asInstanceOf[NamespaceableResource[Pod]]
+    val resource = mock(classOf[Resource[_]]).asInstanceOf[Resource[Pod]]
+    val captor = ArgumentCaptor.forClass(classOf[Pod])
+    when(client.resource(captor.capture())).thenReturn(namespaceable)
+    when(namespaceable.inNamespace(namespace)).thenReturn(resource)
+    when(resource.create()).thenReturn(null)
+    new JupyterKubernetesClient(client).createPod(uid, token)
+    captor.getValue
+  }
+
+  "createPod" should "name and namespace the pod for its owner" in {
+    val pod = createdPod(7, "tok")
+    pod.getMetadata.getName shouldBe "jupyter-7"
+    pod.getMetadata.getNamespace shouldBe namespace
+  }
+
+  it should "label the pod so the headless service and the owner are identifiable" in {
+    val labels = createdPod(7, "tok").getMetadata.getLabels.asScala
+    labels("type") shouldBe "jupyter"
+    labels("uid") shouldBe "7"
+    labels("name") shouldBe "jupyter-7"
+  }
+
+  it should "pass the owner's token as JUPYTER_TOKEN" in {
+    // The image's start-texera-jupyter.sh reads this, so it is what isolates one user's
+    // Jupyter from another's.
+    val env = createdPod(7, "derived-token").getSpec.getContainers.asScala.head.getEnv.asScala
+    env.map(_.getName) should contain("JUPYTER_TOKEN")
+    env.find(_.getName == "JUPYTER_TOKEN").map(_.getValue) shouldBe Some("derived-token")
+  }
+
+  it should "carry the configured image, pull policy and port" in {
+    val container = createdPod(7, "tok").getSpec.getContainers.asScala.head
+    container.getImage shouldBe KubernetesConfig.jupyterImageName
+    container.getImagePullPolicy shouldBe KubernetesConfig.computingUnitImagePullPolicy
+    container.getPorts.asScala.map(_.getContainerPort.intValue()) should contain(
+      KubernetesConfig.jupyterPortNumber
+    )
+  }
+
+  it should "carry the configured cpu and memory limits" in {
+    val limits = createdPod(7, "tok").getSpec.getContainers.asScala.head.getResources.getLimits
+    limits.get("cpu").toString shouldBe KubernetesConfig.jupyterCpuLimit
+    limits.get("memory").toString shouldBe KubernetesConfig.jupyterMemoryLimit
+  }
+
+  it should "set hostname and subdomain so generatePodURI resolves" in {
+    // The pair is what makes <pod>.<service>.<namespace>.svc.cluster.local addressable.
+    val spec = createdPod(7, "tok").getSpec
+    spec.getHostname shouldBe "jupyter-7"
+    spec.getSubdomain shouldBe KubernetesConfig.jupyterServiceName
+  }
+
+  "inCluster" should "build a client lazily without requiring a reachable cluster" in {
+    // The companion is only touched when a provision happens, but building the client must
+    // not itself need a cluster: single-node and local dev have none.
+    val client = JupyterKubernetesClient.inCluster
+    client.generatePodName(7) shouldBe "jupyter-7"
+  }
+
+  it should "create the pod in the Jupyter namespace" in {
+    val client = mock(classOf[Fabric8Client])
+    val namespaceable = mock(classOf[NamespaceableResource[_]])
+      .asInstanceOf[NamespaceableResource[Pod]]
+    val resource = mock(classOf[Resource[_]]).asInstanceOf[Resource[Pod]]
+    when(client.resource(org.mockito.ArgumentMatchers.any(classOf[Pod]))).thenReturn(namespaceable)
+    when(namespaceable.inNamespace(namespace)).thenReturn(resource)
+    new JupyterKubernetesClient(client).createPod(7, "tok")
+    verify(namespaceable).inNamespace(namespace)
+    verify(resource).create()
   }
 }
