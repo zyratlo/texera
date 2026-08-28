@@ -206,6 +206,10 @@ notebookMigrationService:
   service:
     type: ClusterIP
     port: 9098
+  # Origin the browser reaches Texera on, used for the JupyterLab iframe URL and for the
+  # CSP that lets Texera embed it. Required wherever there is no DNS name, such as a
+  # port-forward or a NodePort. Falls back to the gateway hostname when left empty.
+  publicOrigin: ""
   # HMAC key each user's JupyterLab token is derived from. Nothing is stored, so this must
   # stay stable across restarts or previously issued tokens stop matching.
   # Development-only default. Production environments MUST override this with a different,

@@ -65,11 +65,15 @@ spec:
             # basePath, so they cannot drift apart.
             - name: KUBERNETES_JUPYTER_BASE_URL
               value: {{ .Values.jupyterPool.basePath }}
-            {{- if and .Values.gatewayConfig .Values.gatewayConfig.hostname }}
+            {{- $origin := .Values.notebookMigrationService.publicOrigin }}
+            {{- if and (not $origin) .Values.gatewayConfig .Values.gatewayConfig.hostname }}
+            {{- $origin = printf "https://%s" .Values.gatewayConfig.hostname }}
+            {{- end }}
+            {{- if $origin }}
             - name: KUBERNETES_JUPYTER_PUBLIC_URL_TEMPLATE
-              value: https://{{ .Values.gatewayConfig.hostname }}{{ .Values.jupyterPool.basePath }}/{uid}
+              value: {{ $origin }}{{ .Values.jupyterPool.basePath }}/{uid}
             - name: KUBERNETES_JUPYTER_TEXERA_ORIGIN
-              value: https://{{ .Values.gatewayConfig.hostname }}
+              value: {{ $origin }}
             {{- end }}
             - name: JUPYTER_TOKEN_SECRET
               valueFrom:

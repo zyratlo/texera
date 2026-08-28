@@ -298,6 +298,8 @@ workflowComputingUnitPool:
 # Notebook migration tool. The base chart ships it off; development turns it on.
 notebookMigrationService:
   enabled: true
+  # Reached through a port-forward, so there is no DNS name to derive an origin from.
+  publicOrigin: "http://localhost:30080"
 
 # Per-user JupyterLab pods, sized for a single-node development cluster. Only the values that
 # differ from the base chart are listed, since Helm merges the rest.
