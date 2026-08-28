@@ -119,6 +119,11 @@
         <sqlFile path="sql/updates/41.sql"/>
     </changeSet>
 
+    <!-- Prefix the dataset upload-limit site settings with `dataset_` -->
+    <changeSet id="42" author="tanishqgandhi1908">
+        <sqlFile path="sql/updates/42.sql"/>
+    </changeSet>
+
     <!-- Add the per-user JupyterLab registry table -->
     <changeSet id="43" author="zyratlo">
         <sqlFile path="sql/updates/43.sql"/>
