@@ -474,6 +474,13 @@ metrics-server:
 gatewayConfig:
   # Routes are available at bin/k8s/templates/gateway-routes.yaml
 
+  # Ceiling for LLM requests through /api/chat and /api/models. Completions routinely run
+  # for tens of seconds, and Envoy's default route timeout is 15s, which severs them while
+  # the upstream call is still in flight and then succeeds unseen. Keep this at or above
+  # GUI_WORKFLOW_WORKSPACE_PYTHON_NOTEBOOK_MIGRATION_TIMEOUT_MINUTES, which is what the
+  # frontend is prepared to wait.
+  llmRequestTimeout: 10m
+
   # The hostname for the Gateway listener (HTTP/HTTPS).
   # e.g., "texera.example.com"
   hostname: ""
