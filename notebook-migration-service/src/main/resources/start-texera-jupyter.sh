@@ -19,8 +19,11 @@
 set -euo pipefail
 
 # Texera app origin used by custom.js (postMessage targetOrigin + inbound origin
-# check) and by the iframe CSP frame-ancestors. Override TEXERA_ORIGIN for
-# deployments under a real hostname; defaults to the local dev origin.
+# check), by the iframe CSP frame-ancestors, and by Jupyter's own cross-origin check.
+# That last one matters wherever a proxy rewrites the Host header: Jupyter compares
+# Origin against Host and rejects cookie-authenticated API calls when they differ, which
+# leaves the notebook without a kernel. Override TEXERA_ORIGIN for deployments under a
+# real hostname; defaults to the local dev origin.
 TEXERA_ORIGIN="${TEXERA_ORIGIN:-http://localhost:4200}"
 
 # Weak default token so the server is not fully open to anyone reachable on the
@@ -39,6 +42,7 @@ exec start-notebook.sh \
   --NotebookApp.token="${JUPYTER_TOKEN}" \
   --NotebookApp.password='' \
   --NotebookApp.disable_check_xsrf=True \
+  --NotebookApp.allow_origin="${TEXERA_ORIGIN}" \
   --NotebookApp.tornado_settings="{'headers': {'Content-Security-Policy': 'frame-ancestors ${TEXERA_ORIGIN}'}}" \
   --NotebookApp.base_url="${JUPYTER_BASE_URL}" \
   --NotebookApp.default_url=/tree
