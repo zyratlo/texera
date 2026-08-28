@@ -120,8 +120,8 @@
     </changeSet>
 
     <!-- Add the per-user JupyterLab registry table -->
-    <changeSet id="42" author="zyratlo">
-        <sqlFile path="sql/updates/42.sql"/>
+    <changeSet id="43" author="zyratlo">
+        <sqlFile path="sql/updates/43.sql"/>
     </changeSet>
 
     <!-- example changeSet
