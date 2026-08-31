@@ -25,6 +25,30 @@ object JupyterProbe {
   private val timeoutMillis = 2000
 
   /**
+    * Whether Jupyter on `internalUrl` accepts `token`. Distinct from isAvailable: a pod
+    * started with a superseded token is still perfectly alive, so liveness alone cannot
+    * tell a healthy pod from one whose token no longer matches the derived value. Probes
+    * an endpoint that requires authentication, so 403 means the token is wrong.
+    */
+  def isAuthorized(internalUrl: String, token: String): Boolean = {
+    var conn: HttpURLConnection = null
+    try {
+      conn = new URL(s"$internalUrl/api/contents")
+        .openConnection()
+        .asInstanceOf[HttpURLConnection]
+      conn.setRequestMethod("GET")
+      conn.setRequestProperty("Authorization", s"token $token")
+      conn.setConnectTimeout(timeoutMillis)
+      conn.setReadTimeout(timeoutMillis)
+      conn.getResponseCode == 200
+    } catch {
+      case _: Exception => false
+    } finally {
+      if (conn != null) conn.disconnect()
+    }
+  }
+
+  /**
     * Whether Jupyter answers on `internalUrl`. /api returns the server version without a
     * token, so 403 counts as reachable: the server is up and merely refusing the request.
     */

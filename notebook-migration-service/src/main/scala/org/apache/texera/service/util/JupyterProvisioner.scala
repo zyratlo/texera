@@ -34,7 +34,7 @@ import scala.util.control.NonFatal
   */
 class JupyterProvisioner(
     kubernetesClient: => JupyterKubernetesClient,
-    isReachable: String => Boolean,
+    accepts: (String, String) => Boolean,
     publicUrlTemplate: String,
     readinessTimeoutMillis: Long,
     readinessPollMillis: Long
@@ -60,11 +60,13 @@ class JupyterProvisioner(
 
     val token = JupyterTokenDeriver.derive(uid, tokenSecret)
     JupyterEndpointResolver.resolve(uid, jupyterEnabled = true, tokenSecret = tokenSecret) match {
-      case Some(endpoints) if isReachable(endpoints.internalUrl) => Some(endpoints)
-      case Some(endpoints) =>
+      case Some(endpoints) if accepts(endpoints.internalUrl, token) => Some(endpoints)
+      case Some(endpoints)                                          =>
+        // Either the pod is gone, or it predates a token-secret rotation and no longer
+        // accepts the derived token. Both are unusable and both are fixed by rebuilding.
         logger.warn(
-          s"Jupyter for user $uid is registered at ${endpoints.internalUrl} but "
-            + "unreachable; rebuilding it"
+          s"Jupyter for user $uid is registered at ${endpoints.internalUrl} but does not "
+            + "accept its current token; rebuilding it"
         )
         discard(uid)
         provision(uid, token)
@@ -77,7 +79,7 @@ class JupyterProvisioner(
     val endpoints = JupyterEndpoints(internalUrl, publicUrlFor(uid, internalUrl), token)
     try {
       if (!kubernetes.podExists(uid)) kubernetes.createPod(uid, token)
-      if (!waitUntilReachable(internalUrl)) {
+      if (!waitUntilAccepting(internalUrl, token)) {
         logger.error(s"Jupyter for user $uid did not become ready; removing the pod")
         kubernetes.deletePod(uid)
         None
@@ -97,12 +99,14 @@ class JupyterProvisioner(
     if (publicUrlTemplate.isEmpty) internalUrl
     else publicUrlTemplate.replace("{uid}", uid.toString)
 
-  private def waitUntilReachable(internalUrl: String): Boolean = {
+  // Waits for the pod to accept its own token rather than merely to answer, so a pod that
+  // starts with the wrong token never gets registered.
+  private def waitUntilAccepting(internalUrl: String, token: String): Boolean = {
     val deadline = System.currentTimeMillis() + readinessTimeoutMillis
-    var ready = isReachable(internalUrl)
+    var ready = accepts(internalUrl, token)
     while (!ready && System.currentTimeMillis() < deadline) {
       Thread.sleep(readinessPollMillis)
-      ready = isReachable(internalUrl)
+      ready = accepts(internalUrl, token)
     }
     ready
   }
@@ -136,7 +140,7 @@ class JupyterProvisioner(
 object JupyterProvisioner
     extends JupyterProvisioner(
       JupyterKubernetesClient.inCluster,
-      JupyterProbe.isAvailable,
+      JupyterProbe.isAuthorized,
       KubernetesConfig.jupyterPublicUrlTemplate,
       readinessTimeoutMillis = 60000,
       readinessPollMillis = 1000

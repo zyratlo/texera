@@ -45,6 +45,40 @@ class JupyterProbeSpec extends AnyFlatSpec with Matchers {
     finally server.stop(0)
   }
 
+  // Serves /api/contents only to the expected token, mimicking Jupyter's own behaviour.
+  private def withTokenServer(expected: String)(test: String => Unit): Unit = {
+    val server = HttpServer.create(new InetSocketAddress("localhost", 0), 0)
+    server.createContext(
+      "/api/contents",
+      (exchange: HttpExchange) => {
+        exchange.getRequestBody.readAllBytes()
+        val auth = Option(exchange.getRequestHeaders.getFirst("Authorization")).getOrElse("")
+        val status = if (auth == s"token $expected") 200 else 403
+        val body = "{}".getBytes("UTF-8")
+        exchange.sendResponseHeaders(status, body.length)
+        val os = exchange.getResponseBody
+        os.write(body)
+        os.close()
+      }
+    )
+    server.start()
+    try test(s"http://localhost:${server.getAddress.getPort}")
+    finally server.stop(0)
+  }
+
+  "isAuthorized" should "accept a pod that takes the given token" in {
+    withTokenServer("good")(JupyterProbe.isAuthorized(_, "good") shouldBe true)
+  }
+
+  it should "reject a pod holding a superseded token" in {
+    // The rotation case: the pod is alive, so only an authenticated probe catches it.
+    withTokenServer("old")(JupyterProbe.isAuthorized(_, "new") shouldBe false)
+  }
+
+  it should "report unauthorized when nothing is listening" in {
+    JupyterProbe.isAuthorized("http://localhost:1", "any") shouldBe false
+  }
+
   "isAvailable" should "treat 200 as reachable" in {
     withServer(200)(JupyterProbe.isAvailable(_) shouldBe true)
   }

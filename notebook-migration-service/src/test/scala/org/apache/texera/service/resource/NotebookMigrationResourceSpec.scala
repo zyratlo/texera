@@ -675,12 +675,12 @@ class NotebookMigrationResourceSpec
   // Short windows so the "never ready" path does not sit in a real timeout.
   private def provisionerFor(
       kubernetes: JupyterKubernetesClient,
-      reachable: String => Boolean,
+      accepts: (String, String) => Boolean,
       publicUrlTemplate: String = ""
   ) =
     new JupyterProvisioner(
       kubernetes,
-      reachable,
+      accepts,
       publicUrlTemplate,
       readinessTimeoutMillis = 50,
       readinessPollMillis = 10
@@ -696,7 +696,8 @@ class NotebookMigrationResourceSpec
 
   "JupyterProvisioner.ensure" should "return the configured Jupyter and start nothing while the feature is off" in {
     val kubernetes = new StubKubernetes
-    val result = provisionerFor(kubernetes, _ => true).ensure(writerUid, jupyterEnabled = false)
+    val result =
+      provisionerFor(kubernetes, (_, _) => true).ensure(writerUid, jupyterEnabled = false)
     result shouldBe Some(JupyterEndpoints.configured)
     kubernetes.created shouldBe empty
     registeredUids() shouldBe empty
@@ -704,7 +705,7 @@ class NotebookMigrationResourceSpec
 
   it should "start and register a Jupyter for a user who has none" in {
     val kubernetes = new StubKubernetes
-    val result = provisionerFor(kubernetes, _ => true)
+    val result = provisionerFor(kubernetes, (_, _) => true)
       .ensure(writerUid, jupyterEnabled = true, tokenSecret = specSecret)
 
     kubernetes.created.map(_._1) shouldBe List(writerUid.intValue())
@@ -715,7 +716,7 @@ class NotebookMigrationResourceSpec
   it should "give the pod the user's own derived token" in {
     // What makes one user's token useless against another's Jupyter.
     val kubernetes = new StubKubernetes
-    provisionerFor(kubernetes, _ => true)
+    provisionerFor(kubernetes, (_, _) => true)
       .ensure(writerUid, jupyterEnabled = true, tokenSecret = specSecret)
     kubernetes.created.map(_._2) shouldBe List(JupyterTokenDeriver.derive(writerUid, specSecret))
   }
@@ -723,7 +724,7 @@ class NotebookMigrationResourceSpec
   it should "reuse a registered Jupyter that still answers" in {
     registerJupyter(writerUid)
     val kubernetes = new StubKubernetes
-    val result = provisionerFor(kubernetes, _ => true)
+    val result = provisionerFor(kubernetes, (_, _) => true)
       .ensure(writerUid, jupyterEnabled = true, tokenSecret = specSecret)
 
     kubernetes.created shouldBe empty
@@ -734,7 +735,7 @@ class NotebookMigrationResourceSpec
     // The row would otherwise outlive the pod and point every later request at nothing.
     registerJupyter(writerUid, internalUrl = "http://stale:8888")
     val kubernetes = new StubKubernetes
-    val result = provisionerFor(kubernetes, url => url != "http://stale:8888")
+    val result = provisionerFor(kubernetes, (url, _) => url != "http://stale:8888")
       .ensure(writerUid, jupyterEnabled = true, tokenSecret = specSecret)
 
     kubernetes.deleted shouldBe List(writerUid.intValue())
@@ -744,7 +745,7 @@ class NotebookMigrationResourceSpec
 
   it should "register nothing and clean up when the pod never becomes ready" in {
     val kubernetes = new StubKubernetes
-    val result = provisionerFor(kubernetes, _ => false)
+    val result = provisionerFor(kubernetes, (_, _) => false)
       .ensure(writerUid, jupyterEnabled = true, tokenSecret = specSecret)
 
     result shouldBe None
@@ -754,8 +755,9 @@ class NotebookMigrationResourceSpec
 
   it should "build the public URL from the configured template" in {
     val kubernetes = new StubKubernetes
-    val result = provisionerFor(kubernetes, _ => true, "https://texera.example.com/jupyter/{uid}")
-      .ensure(writerUid, jupyterEnabled = true, tokenSecret = specSecret)
+    val result =
+      provisionerFor(kubernetes, (_, _) => true, "https://texera.example.com/jupyter/{uid}")
+        .ensure(writerUid, jupyterEnabled = true, tokenSecret = specSecret)
     result.map(_.publicUrl) shouldBe Some(s"https://texera.example.com/jupyter/$writerUid")
   }
 
@@ -763,7 +765,7 @@ class NotebookMigrationResourceSpec
     // A pod can outlive its row, so provisioning must be idempotent on the Kubernetes side.
     val kubernetes = new StubKubernetes
     kubernetes.alreadyExists = true
-    val result = provisionerFor(kubernetes, _ => true)
+    val result = provisionerFor(kubernetes, (_, _) => true)
       .ensure(writerUid, jupyterEnabled = true, tokenSecret = specSecret)
 
     kubernetes.created shouldBe empty
@@ -774,7 +776,7 @@ class NotebookMigrationResourceSpec
   it should "reuse one Kubernetes client across calls" in {
     // The client is built lazily and held, so a second request must not construct another.
     val kubernetes = new StubKubernetes
-    val provisioner = provisionerFor(kubernetes, _ => true)
+    val provisioner = provisionerFor(kubernetes, (_, _) => true)
     provisioner.ensure(writerUid, jupyterEnabled = true, tokenSecret = specSecret)
     provisioner.ensure(writerUid, jupyterEnabled = true, tokenSecret = specSecret)
 
@@ -783,10 +785,35 @@ class NotebookMigrationResourceSpec
     registeredUids() shouldBe List(writerUid)
   }
 
+  it should "rebuild a registered pod that no longer accepts its token" in {
+    // After a token-secret rotation the pod is still alive but holds the superseded token,
+    // so liveness alone would keep handing out a token the pod rejects.
+    registerJupyter(writerUid, internalUrl = "http://rotated:8888")
+    val kubernetes = new StubKubernetes
+    val result = provisionerFor(kubernetes, (url, _) => url != "http://rotated:8888")
+      .ensure(writerUid, jupyterEnabled = true, tokenSecret = specSecret)
+
+    kubernetes.deleted shouldBe List(writerUid.intValue())
+    kubernetes.created.map(_._1) shouldBe List(writerUid.intValue())
+    result.map(_.internalUrl) shouldBe Some(
+      s"http://${kubernetes.generatePodURI(writerUid)}"
+    )
+  }
+
+  it should "pass the derived token to the readiness check, not just the address" in {
+    // Guards the rotation fix: a probe that ignored the token would accept any live pod.
+    val kubernetes = new StubKubernetes
+    var seen: List[String] = Nil
+    provisionerFor(kubernetes, (_, tok) => { seen ::= tok; true })
+      .ensure(writerUid, jupyterEnabled = true, tokenSecret = specSecret)
+
+    seen.distinct shouldBe List(JupyterTokenDeriver.derive(writerUid, specSecret))
+  }
+
   it should "report unavailable when the cluster refuses to create the pod" in {
     val kubernetes = new StubKubernetes
     kubernetes.failCreate = true
-    val result = provisionerFor(kubernetes, _ => true)
+    val result = provisionerFor(kubernetes, (_, _) => true)
       .ensure(writerUid, jupyterEnabled = true, tokenSecret = specSecret)
 
     result shouldBe None
@@ -798,7 +825,7 @@ class NotebookMigrationResourceSpec
     registerJupyter(writerUid, internalUrl = "http://stale:8888")
     val kubernetes = new StubKubernetes
     kubernetes.failDelete = true
-    val result = provisionerFor(kubernetes, url => url != "http://stale:8888")
+    val result = provisionerFor(kubernetes, (url, _) => url != "http://stale:8888")
       .ensure(writerUid, jupyterEnabled = true, tokenSecret = specSecret)
 
     kubernetes.created.map(_._1) shouldBe List(writerUid.intValue())
@@ -810,7 +837,7 @@ class NotebookMigrationResourceSpec
     // "another request won"; anything else has to surface rather than be swallowed.
     val orphanUid = 999999
     val kubernetes = new StubKubernetes
-    val result = provisionerFor(kubernetes, _ => true)
+    val result = provisionerFor(kubernetes, (_, _) => true)
       .ensure(orphanUid, jupyterEnabled = true, tokenSecret = specSecret)
 
     result shouldBe None
@@ -823,7 +850,7 @@ class NotebookMigrationResourceSpec
     val kubernetes = new StubKubernetes
     val racing = provisionerFor(
       kubernetes,
-      _ => { if (registeredUids().isEmpty) registerJupyter(writerUid); true }
+      (_, _) => { if (registeredUids().isEmpty) registerJupyter(writerUid); true }
     )
     val result = racing.ensure(writerUid, jupyterEnabled = true, tokenSecret = specSecret)
 
