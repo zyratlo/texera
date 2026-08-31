@@ -145,6 +145,14 @@ class JupyterKubernetesClientSpec extends AnyFlatSpec with Matchers {
     env.find(_.getName == "JUPYTER_TOKEN").map(_.getValue) shouldBe Some("derived-token")
   }
 
+  it should "tell the pod which Texera origin may frame it" in {
+    // Without this the pod keeps the image's local-development default, and its CSP
+    // frame-ancestors then blocks the real deployment from embedding it.
+    val env = createdPod(7, "tok").getSpec.getContainers.asScala.head.getEnv.asScala
+    env.find(_.getName == "TEXERA_ORIGIN").map(_.getValue) shouldBe
+      Some(KubernetesConfig.jupyterTexeraOrigin)
+  }
+
   it should "carry the configured image, pull policy and port" in {
     val container = createdPod(7, "tok").getSpec.getContainers.asScala.head
     container.getImage shouldBe KubernetesConfig.jupyterImageName

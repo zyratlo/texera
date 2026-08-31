@@ -73,6 +73,7 @@ object KubernetesConfig {
   val jupyterPortNumber: Int = conf.getInt("kubernetes.jupyter-port-num")
   val jupyterCpuLimit: String = conf.getString("kubernetes.jupyter-cpu-limit")
   val jupyterMemoryLimit: String = conf.getString("kubernetes.jupyter-memory-limit")
+  val jupyterTexeraOrigin: String = conf.getString("kubernetes.jupyter-texera-origin")
 
   // Browser-facing address with {uid} substituted; empty means use the in-network one.
   val jupyterPublicUrlTemplate: String =

@@ -84,6 +84,8 @@ class KubernetesConfigSpec extends AnyFlatSpec with Matchers {
     ifUnset("KUBERNETES_JUPYTER_IMAGE_NAME")(
       KubernetesConfig.jupyterImageName shouldBe "ghcr.io/apache/texera-jupyter:latest"
     )
+    // Empty by default: only a real deployment knows its own origin.
+    ifUnset("KUBERNETES_JUPYTER_TEXERA_ORIGIN")(KubernetesConfig.jupyterTexeraOrigin shouldBe "")
     ifUnset("KUBERNETES_JUPYTER_CPU_LIMIT")(KubernetesConfig.jupyterCpuLimit shouldBe "1")
     ifUnset("KUBERNETES_JUPYTER_MEMORY_LIMIT")(
       KubernetesConfig.jupyterMemoryLimit shouldBe "2Gi"

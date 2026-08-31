@@ -78,7 +78,13 @@ class JupyterKubernetesClient(client: io.fabric8.kubernetes.client.KubernetesCli
       .withContainerPort(KubernetesConfig.jupyterPortNumber)
       .endPort()
       .withEnv(
-        new EnvVarBuilder().withName("JUPYTER_TOKEN").withValue(token).build()
+        new EnvVarBuilder().withName("JUPYTER_TOKEN").withValue(token).build(),
+        // Drives the pod's iframe CSP frame-ancestors and its postMessage origin check.
+        // Empty is ignored by the image, which then keeps its local-development default.
+        new EnvVarBuilder()
+          .withName("TEXERA_ORIGIN")
+          .withValue(KubernetesConfig.jupyterTexeraOrigin)
+          .build()
       )
       .withResources(resources)
       .endContainer()
