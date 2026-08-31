@@ -18,6 +18,7 @@
 package org.apache.texera.service.util
 
 import com.typesafe.scalalogging.LazyLogging
+import io.fabric8.kubernetes.client.KubernetesClientException
 import org.apache.texera.common.config.{KubernetesConfig, StorageConfig}
 import org.apache.texera.dao.SqlServer
 import org.apache.texera.dao.jooq.generated.tables.daos.UserJupyterDao
@@ -78,7 +79,7 @@ class JupyterProvisioner(
     val internalUrl = s"http://${kubernetes.generatePodURI(uid)}"
     val endpoints = JupyterEndpoints(internalUrl, publicUrlFor(uid, internalUrl), token)
     try {
-      if (!kubernetes.podExists(uid)) kubernetes.createPod(uid, token)
+      createIfAbsent(uid, token)
       if (!waitUntilAccepting(internalUrl, token)) {
         logger.error(s"Jupyter for user $uid did not become ready; removing the pod")
         kubernetes.deletePod(uid)
@@ -91,6 +92,19 @@ class JupyterProvisioner(
       case NonFatal(e) =>
         logger.error(s"Failed to provision Jupyter for user $uid", e)
         None
+    }
+  }
+
+  // Two concurrent first requests can both find the pod absent and both create it. The
+  // loser's create returns 409, and the winner's pod is the one it wanted anyway, since both
+  // derive the same token from the same uid, so the conflict is a success. Mirrors
+  // register()'s handling of a duplicate row.
+  private def createIfAbsent(uid: Int, token: String): Unit = {
+    if (kubernetes.podExists(uid)) return
+    try kubernetes.createPod(uid, token)
+    catch {
+      case e: KubernetesClientException if e.getCode == 409 =>
+        logger.info(s"Jupyter pod for user $uid was created concurrently; using that one")
     }
   }
 

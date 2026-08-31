@@ -21,6 +21,7 @@ package org.apache.texera.service.resource
 
 import jakarta.ws.rs.core.Response
 import org.apache.texera.auth.SessionUser
+import io.fabric8.kubernetes.client.KubernetesClientException
 import org.apache.texera.dao.MockTexeraDB
 import org.apache.texera.service.util.{
   JupyterEndpointResolver,
@@ -660,8 +661,11 @@ class NotebookMigrationResourceSpec
     var alreadyExists = false
     var failCreate = false
     var failDelete = false
+    // Distinct from failCreate: 409 means another request won the race, which is success.
+    var createConflicts = false
     override def podExists(uid: Int): Boolean = alreadyExists
     override def createPod(uid: Int, token: String) = {
+      if (createConflicts) throw new KubernetesClientException("already exists", 409, null)
       if (failCreate) throw new RuntimeException("cluster refused the pod")
       created ::= ((uid, token))
       null
@@ -810,6 +814,21 @@ class NotebookMigrationResourceSpec
     seen.distinct shouldBe List(JupyterTokenDeriver.derive(writerUid, specSecret))
   }
 
+  it should "succeed when another request created the pod first" in {
+    // Check-then-act on a uid-keyed pod: two concurrent first requests both find it absent
+    // and both create. The loser's 409 is the winner's pod, which is the one it wanted.
+    val kubernetes = new StubKubernetes
+    kubernetes.createConflicts = true
+    val result = provisionerFor(kubernetes, (_, _) => true)
+      .ensure(writerUid, jupyterEnabled = true, tokenSecret = specSecret)
+
+    result.map(_.internalUrl) shouldBe Some(
+      s"http://${kubernetes.generatePodURI(writerUid)}"
+    )
+    kubernetes.deleted shouldBe empty
+    registeredUids() shouldBe List(writerUid)
+  }
+
   it should "report unavailable when the cluster refuses to create the pod" in {
     val kubernetes = new StubKubernetes
     kubernetes.failCreate = true
@@ -817,6 +836,17 @@ class NotebookMigrationResourceSpec
       .ensure(writerUid, jupyterEnabled = true, tokenSecret = specSecret)
 
     result shouldBe None
+    registeredUids() shouldBe empty
+  }
+
+  it should "still fail on a Kubernetes error that is not a conflict" in {
+    // Guards the narrowness of the 409 catch: only AlreadyExists means someone else won.
+    val kubernetes = new StubKubernetes {
+      override def createPod(uid: Int, token: String) =
+        throw new KubernetesClientException("quota exceeded", 403, null)
+    }
+    provisionerFor(kubernetes, (_, _) => true)
+      .ensure(writerUid, jupyterEnabled = true, tokenSecret = specSecret) shouldBe None
     registeredUids() shouldBe empty
   }
 
