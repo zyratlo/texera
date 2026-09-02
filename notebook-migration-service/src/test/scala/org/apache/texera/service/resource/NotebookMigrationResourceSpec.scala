@@ -663,7 +663,12 @@ class NotebookMigrationResourceSpec
     var failDelete = false
     // Distinct from failCreate: 409 means another request won the race, which is success.
     var createConflicts = false
-    override def podExists(uid: Int): Boolean = alreadyExists
+    // Polls the pod must survive after deletePod before it reports gone, so the spec can model
+    // the Terminating window a real cluster has. 0 deletes synchronously.
+    var terminatingPolls = 0
+    override def podExists(uid: Int): Boolean =
+      if (terminatingPolls > 0) { terminatingPolls -= 1; true }
+      else alreadyExists
     override def createPod(uid: Int, token: String) = {
       if (createConflicts) throw new KubernetesClientException("already exists", 409, null)
       if (failCreate) throw new RuntimeException("cluster refused the pod")
@@ -673,6 +678,7 @@ class NotebookMigrationResourceSpec
     override def deletePod(uid: Int): Unit = {
       deleted ::= uid
       if (failDelete) throw new RuntimeException("pod already gone")
+      alreadyExists = false
     }
   }
 
@@ -802,6 +808,35 @@ class NotebookMigrationResourceSpec
     result.map(_.internalUrl) shouldBe Some(
       s"http://${kubernetes.generatePodURI(writerUid)}"
     )
+  }
+
+  it should "wait out a discarded pod before creating its replacement" in {
+    // Deletion is asynchronous, and a Terminating pod still satisfies podExists. Returning
+    // from discard too early would skip the create and poll the dying pod to the deadline.
+    registerJupyter(writerUid, internalUrl = "http://rotated:8888")
+    val kubernetes = new StubKubernetes
+    kubernetes.terminatingPolls = 2
+    val result = provisionerFor(kubernetes, (url, _) => url != "http://rotated:8888")
+      .ensure(writerUid, jupyterEnabled = true, tokenSecret = specSecret)
+
+    kubernetes.created.map(_._1) shouldBe List(writerUid.intValue())
+    result.map(_.internalUrl) shouldBe Some(
+      s"http://${kubernetes.generatePodURI(writerUid)}"
+    )
+  }
+
+  it should "not rebuild when the discarded pod never terminates" in {
+    // A pod stuck Terminating keeps its name, so a create would be skipped. Reporting
+    // unavailable beats polling a pod that cannot accept the new token.
+    registerJupyter(writerUid, internalUrl = "http://rotated:8888")
+    val kubernetes = new StubKubernetes
+    kubernetes.terminatingPolls = Int.MaxValue
+    val result = provisionerFor(kubernetes, (url, _) => url != "http://rotated:8888")
+      .ensure(writerUid, jupyterEnabled = true, tokenSecret = specSecret)
+
+    kubernetes.deleted shouldBe List(writerUid.intValue())
+    kubernetes.created shouldBe empty
+    result shouldBe empty
   }
 
   it should "pass the derived token to the readiness check, not just the address" in {

@@ -69,8 +69,13 @@ class JupyterProvisioner(
           s"Jupyter for user $uid is registered at ${endpoints.internalUrl} but does not "
             + "accept its current token; rebuilding it"
         )
-        discard(uid)
-        provision(uid, token)
+        if (discard(uid)) provision(uid, token)
+        else {
+          // The name is still taken, so a create would be skipped and the rebuild would poll
+          // the dying pod to the readiness deadline. Fail now and say why.
+          logger.error(s"Stale Jupyter pod for user $uid did not terminate; not rebuilding")
+          None
+        }
       case None => provision(uid, token)
     }
   }
@@ -140,10 +145,27 @@ class JupyterProvisioner(
     }
   }
 
-  private def discard(uid: Int): Unit = {
+  /** Removes the pod and its row. False means the pod outlived the wait, so no rebuild. */
+  private def discard(uid: Int): Boolean = {
+    // A pod that is already gone throws here, which is the state the delete wanted; only the
+    // wait below decides whether the name is free.
     try kubernetes.deletePod(uid)
     catch { case NonFatal(e) => logger.warn(s"Could not delete stale Jupyter pod for $uid", e) }
+    val gone = waitUntilGone(uid)
     dao().deleteById(uid)
+    gone
+  }
+
+  // Deletion is asynchronous even at grace period 0, and podExists counts a Terminating pod as
+  // present, so returning early would make the rebuild skip its create.
+  private def waitUntilGone(uid: Int): Boolean = {
+    val deadline = System.currentTimeMillis() + readinessTimeoutMillis
+    var exists = kubernetes.podExists(uid)
+    while (exists && System.currentTimeMillis() < deadline) {
+      Thread.sleep(readinessPollMillis)
+      exists = kubernetes.podExists(uid)
+    }
+    !exists
   }
 
   private def dao() = new UserJupyterDao(SqlServer.getInstance().createDSLContext().configuration())

@@ -96,8 +96,10 @@ class JupyterKubernetesClient(client: io.fabric8.kubernetes.client.KubernetesCli
     client.resource(pod).inNamespace(namespace).create()
   }
 
+  // Grace period 0: a discarded pod holds nothing worth flushing, and a rebuild cannot claim
+  // the name until the old pod is really gone.
   def deletePod(uid: Int): Unit =
-    client.pods().inNamespace(namespace).withName(generatePodName(uid)).delete()
+    client.pods().inNamespace(namespace).withName(generatePodName(uid)).withGracePeriod(0).delete()
 }
 
 object JupyterKubernetesClient {

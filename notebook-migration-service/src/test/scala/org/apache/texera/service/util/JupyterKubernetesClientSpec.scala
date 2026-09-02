@@ -19,16 +19,20 @@ package org.apache.texera.service.util
 
 import io.fabric8.kubernetes.api.model.{Pod, PodBuilder, PodList}
 import io.fabric8.kubernetes.client.dsl.{
+  Deletable,
   MixedOperation,
   NamespaceableResource,
   NonNamespaceOperation,
   PodResource,
   Resource
 }
-import io.fabric8.kubernetes.client.{KubernetesClient => Fabric8Client}
+import io.fabric8.kubernetes.client.{
+  KubernetesClient => Fabric8Client,
+  PropagationPolicyConfigurable
+}
 import org.apache.texera.common.config.KubernetesConfig
 import org.mockito.ArgumentCaptor
-import org.mockito.Mockito.{mock, verify, when}
+import org.mockito.Mockito.{doReturn, mock, verify, when}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
@@ -47,7 +51,11 @@ class JupyterKubernetesClientSpec extends AnyFlatSpec with Matchers {
 
   // fabric8's fluent API returns type variables, so RETURNS_DEEP_STUBS cannot be used and
   // each step of the chain is mocked explicitly. Mirrors the computing unit's spec.
-  private def stubbedPods(existing: Pod): (Fabric8Client, PodResource) = {
+  // withGracePeriod hands back a further step in the chain, so delete() lands on that object
+  // rather than on the PodResource; it is returned so the spec can verify it.
+  private def stubbedPods(
+      existing: Pod
+  ): (Fabric8Client, PodResource, PropagationPolicyConfigurable[Deletable]) = {
     val client = mock(classOf[Fabric8Client])
     val mixed = mock(classOf[MixedOperation[_, _, _]])
       .asInstanceOf[MixedOperation[Pod, PodList, PodResource]]
@@ -57,8 +65,13 @@ class JupyterKubernetesClientSpec extends AnyFlatSpec with Matchers {
     when(client.pods()).thenReturn(mixed)
     when(mixed.inNamespace(namespace)).thenReturn(inNamespace)
     when(inNamespace.withName(org.mockito.ArgumentMatchers.anyString())).thenReturn(podResource)
+    val afterGracePeriod = mock(classOf[PropagationPolicyConfigurable[_]])
+      .asInstanceOf[PropagationPolicyConfigurable[Deletable]]
     when(podResource.get()).thenReturn(existing)
-    (client, podResource)
+    // doReturn, not when: withGracePeriod's return type is an existential that thenReturn
+    // cannot be given a name for.
+    doReturn(afterGracePeriod, Nil: _*).when(podResource).withGracePeriod(0L)
+    (client, podResource, afterGracePeriod)
   }
 
   // -- naming and addressing --------------------------------------------------
@@ -86,12 +99,12 @@ class JupyterKubernetesClientSpec extends AnyFlatSpec with Matchers {
 
   "getPodByName" should "return the pod when one exists" in {
     val pod = new PodBuilder().withNewMetadata().withName("jupyter-7").endMetadata().build()
-    val (client, _) = stubbedPods(pod)
+    val (client, _, _) = stubbedPods(pod)
     new JupyterKubernetesClient(client).getPodByName("jupyter-7") shouldBe Some(pod)
   }
 
   it should "return None when the pod is absent" in {
-    val (client, _) = stubbedPods(null)
+    val (client, _, _) = stubbedPods(null)
     new JupyterKubernetesClient(client).getPodByName("jupyter-7") shouldBe None
   }
 
@@ -102,10 +115,11 @@ class JupyterKubernetesClientSpec extends AnyFlatSpec with Matchers {
   }
 
   "deletePod" should "delete the user's own pod by name" in {
-    val (client, podResource) = stubbedPods(null)
+    val (client, podResource, afterGracePeriod) = stubbedPods(null)
     new JupyterKubernetesClient(client).deletePod(7)
     verify(client.pods().inNamespace(namespace)).withName("jupyter-7")
-    verify(podResource).delete()
+    verify(podResource).withGracePeriod(0L)
+    verify(afterGracePeriod).delete()
   }
 
   // -- pod spec --------------------------------------------------------------

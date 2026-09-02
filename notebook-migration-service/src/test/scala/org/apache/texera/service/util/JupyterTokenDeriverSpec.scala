@@ -45,6 +45,13 @@ class JupyterTokenDeriverSpec extends AnyFlatSpec with Matchers {
     JupyterTokenDeriver.derive(7, secret) should fullyMatch regex "[0-9a-f]{32}"
   }
 
+  it should "encode every digest byte as exactly two hex characters" in {
+    // Pinned against an independently computed HMAC-SHA256. This digest starts 0xa5, which is
+    // negative as a Byte, so a formatter that sign-extended would emit "ffffffa5" and shift
+    // the whole token. A length or charset check alone would not notice.
+    JupyterTokenDeriver.derive(7, "golden-secret") shouldBe "a5d36f59073ef59843384d5411d765e5"
+  }
+
   it should "reject an empty secret" in {
     an[IllegalArgumentException] should be thrownBy JupyterTokenDeriver.derive(7, "")
   }
