@@ -686,14 +686,16 @@ class NotebookMigrationResourceSpec
   private def provisionerFor(
       kubernetes: JupyterKubernetesClient,
       accepts: (String, String) => Boolean,
-      publicUrlTemplate: String = ""
+      publicUrlTemplate: String = "",
+      maxConcurrentProvisions: Int = 4
   ) =
     new JupyterProvisioner(
       kubernetes,
       accepts,
       publicUrlTemplate,
       readinessTimeoutMillis = 50,
-      readinessPollMillis = 10
+      readinessPollMillis = 10,
+      maxConcurrentProvisions
     )
 
   private def registeredUids(): List[Integer] =
@@ -793,6 +795,54 @@ class NotebookMigrationResourceSpec
     // Second call finds the row it just wrote, so it provisions once in total.
     kubernetes.created.map(_._1) shouldBe List(writerUid.intValue())
     registeredUids() shouldBe List(writerUid)
+  }
+
+  it should "refuse to provision once the concurrency cap is reached" in {
+    // Every provision parks its request thread on the readiness wait, so the cap is what keeps
+    // a burst of first-time users from draining the HTTP worker pool.
+    val kubernetes = new StubKubernetes
+    val result = provisionerFor(kubernetes, (_, _) => true, maxConcurrentProvisions = 0)
+      .ensure(writerUid, jupyterEnabled = true, tokenSecret = specSecret)
+
+    result shouldBe empty
+    kubernetes.created shouldBe empty
+    registeredUids() shouldBe empty
+  }
+
+  it should "release its permit after provisioning succeeds" in {
+    // A permit leak would wedge the service after maxConcurrentProvisions successful starts.
+    // A second user, so this provisions twice rather than taking the fast path.
+    val kubernetes = new StubKubernetes
+    val provisioner = provisionerFor(kubernetes, (_, _) => true, maxConcurrentProvisions = 1)
+    provisioner.ensure(writerUid, jupyterEnabled = true, tokenSecret = specSecret)
+    provisioner
+      .ensure(readerUid, jupyterEnabled = true, tokenSecret = specSecret) should not be empty
+
+    kubernetes.created.map(_._1) should contain allOf (writerUid.intValue(), readerUid.intValue())
+  }
+
+  it should "release its permit after provisioning fails" in {
+    // The failure path returns through the same permit, so a cluster refusing pods must not
+    // burn the cap down.
+    val kubernetes = new StubKubernetes
+    kubernetes.failCreate = true
+    val provisioner = provisionerFor(kubernetes, (_, _) => true, maxConcurrentProvisions = 1)
+    provisioner.ensure(writerUid, jupyterEnabled = true, tokenSecret = specSecret) shouldBe empty
+
+    kubernetes.failCreate = false
+    provisioner
+      .ensure(writerUid, jupyterEnabled = true, tokenSecret = specSecret) should not be empty
+  }
+
+  it should "not spend a permit on a user whose pod already works" in {
+    // The fast path never blocks, so the cap must not apply to it.
+    registerJupyter(writerUid, internalUrl = "http://live:8888")
+    val kubernetes = new StubKubernetes
+    val result = provisionerFor(kubernetes, (_, _) => true, maxConcurrentProvisions = 0)
+      .ensure(writerUid, jupyterEnabled = true, tokenSecret = specSecret)
+
+    result.map(_.internalUrl) shouldBe Some("http://live:8888")
+    kubernetes.created shouldBe empty
   }
 
   it should "rebuild a registered pod that no longer accepts its token" in {

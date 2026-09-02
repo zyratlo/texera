@@ -25,6 +25,7 @@ import org.apache.texera.dao.jooq.generated.tables.daos.UserJupyterDao
 import org.apache.texera.dao.jooq.generated.tables.pojos.UserJupyter
 import org.jooq.exception.DataAccessException
 
+import java.util.concurrent.Semaphore
 import scala.util.control.NonFatal
 
 /**
@@ -38,11 +39,17 @@ class JupyterProvisioner(
     accepts: (String, String) => Boolean,
     publicUrlTemplate: String,
     readinessTimeoutMillis: Long,
-    readinessPollMillis: Long
+    readinessPollMillis: Long,
+    maxConcurrentProvisions: Int
 ) extends LazyLogging {
 
   // By-name above, forced once here, so no client is built unless a provision happens.
   private lazy val kubernetes = kubernetesClient
+
+  // Provisioning parks the calling request thread for up to readinessTimeoutMillis, so a burst
+  // of first-time users could otherwise drain the HTTP worker pool. Requests past the cap are
+  // told to retry rather than queued behind a full readiness wait.
+  private val provisionPermits = new Semaphore(maxConcurrentProvisions)
 
   /**
     * The user's Jupyter, starting one if they have none. None means it could not be made
@@ -69,16 +76,32 @@ class JupyterProvisioner(
           s"Jupyter for user $uid is registered at ${endpoints.internalUrl} but does not "
             + "accept its current token; rebuilding it"
         )
-        if (discard(uid)) provision(uid, token)
-        else {
-          // The name is still taken, so a create would be skipped and the rebuild would poll
-          // the dying pod to the readiness deadline. Fail now and say why.
-          logger.error(s"Stale Jupyter pod for user $uid did not terminate; not rebuilding")
-          None
+        withPermit(uid) {
+          if (discard(uid)) provision(uid, token)
+          else {
+            // The name is still taken, so a create would be skipped and the rebuild would poll
+            // the dying pod to the readiness deadline. Fail now and say why.
+            logger.error(s"Stale Jupyter pod for user $uid did not terminate; not rebuilding")
+            None
+          }
         }
-      case None => provision(uid, token)
+      case None => withPermit(uid)(provision(uid, token))
     }
   }
+
+  // None means the cap is reached, which callers report the same as an unreachable server; the
+  // fast path never gets here, so a user with a working pod is unaffected by the limit.
+  private def withPermit(uid: Int)(work: => Option[JupyterEndpoints]): Option[JupyterEndpoints] =
+    if (!provisionPermits.tryAcquire()) {
+      logger.warn(
+        s"$maxConcurrentProvisions Jupyter provisions already in flight; "
+          + s"refusing user $uid for now"
+      )
+      None
+    } else {
+      try work
+      finally provisionPermits.release()
+    }
 
   private def provision(uid: Int, token: String): Option[JupyterEndpoints] = {
     val internalUrl = s"http://${kubernetes.generatePodURI(uid)}"
@@ -179,5 +202,8 @@ object JupyterProvisioner
       JupyterProbe.isAuthorized,
       KubernetesConfig.jupyterPublicUrlTemplate,
       readinessTimeoutMillis = 60000,
-      readinessPollMillis = 1000
+      readinessPollMillis = 1000,
+      // Far below Dropwizard's 1024 worker threads, so a provisioning burst cannot starve the
+      // rest of the service, while still admitting a classroom's worth of concurrent logins.
+      maxConcurrentProvisions = 16
     )
