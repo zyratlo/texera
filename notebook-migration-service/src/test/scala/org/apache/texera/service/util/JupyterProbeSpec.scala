@@ -79,6 +79,11 @@ class JupyterProbeSpec extends AnyFlatSpec with Matchers {
     JupyterProbe.isAuthorized("http://localhost:1", "any") shouldBe false
   }
 
+  it should "report unauthorized for a malformed URL without opening a connection" in {
+    // The URL itself throws, so the cleanup path runs with no connection to close.
+    JupyterProbe.isAuthorized("notaprotocol://host", "any") shouldBe false
+  }
+
   "isAvailable" should "treat 200 as reachable" in {
     withServer(200)(JupyterProbe.isAvailable(_) shouldBe true)
   }

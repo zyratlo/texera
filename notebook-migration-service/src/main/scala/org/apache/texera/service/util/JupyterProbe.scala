@@ -19,6 +19,8 @@ package org.apache.texera.service.util
 
 import java.net.{HttpURLConnection, URL}
 
+import scala.util.control.NonFatal
+
 /** Liveness check for a Jupyter server. */
 object JupyterProbe {
 
@@ -42,7 +44,7 @@ object JupyterProbe {
       conn.setReadTimeout(timeoutMillis)
       conn.getResponseCode == 200
     } catch {
-      case _: Exception => false
+      case NonFatal(_) => false
     } finally {
       if (conn != null) conn.disconnect()
     }
@@ -62,7 +64,7 @@ object JupyterProbe {
       val status = conn.getResponseCode
       status == 200 || status == 403
     } catch {
-      case _: Exception => false
+      case NonFatal(_) => false
     } finally {
       if (conn != null) conn.disconnect()
     }
