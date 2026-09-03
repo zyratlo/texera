@@ -2527,6 +2527,22 @@ describe("DatasetDetailComponent rendered template", () => {
       expect(datasetService.deleteDatasetFile).toHaveBeenCalledWith(5, "nested/b.csv");
     });
 
+    it("offers the tree's write controls only to a writer", () => {
+      // A fresh page per access level: the Settings tab is gated on write access, so flipping the
+      // level on a live component removes a tab and nz-tabs can tear down the pane being asserted on.
+      const treeFor = (level: "READ" | "WRITE"): DebugElement => {
+        render({ userDatasetAccessLevel: level });
+        openTab("Versions & Files");
+        return tree();
+      };
+
+      expect(treeFor("WRITE").componentInstance.isTreeNodeDeletable).toBe(true);
+      expect(treeFor("WRITE").componentInstance.isCoverSettable).toBe(true);
+
+      expect(treeFor("READ").componentInstance.isTreeNodeDeletable).toBe(false);
+      expect(treeFor("READ").componentInstance.isCoverSettable).toBe(false);
+    });
+
     it("adopts the cover image the tree offered, qualified by the selected version", () => {
       tree().triggerEventHandler("setCoverImage", "nested/b.png");
 
