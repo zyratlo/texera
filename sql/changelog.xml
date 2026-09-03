@@ -135,8 +135,8 @@
     </changeSet>
 
     <!-- Add the per-user JupyterLab registry table -->
-    <changeSet id="45" author="zyratlo">
-        <sqlFile path="sql/updates/45.sql"/>
+    <changeSet id="48" author="zyratlo">
+        <sqlFile path="sql/updates/48.sql"/>
     </changeSet>
 
     <!-- example changeSet
