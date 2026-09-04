@@ -789,4 +789,29 @@ class AccessControlResourceSpec
       .authorizeGet(uri, headers)
       .getStatus shouldBe Response.Status.OK.getStatusCode
   }
+
+  it should "refuse a Jupyter uid too large to be a user id" in {
+    // The path regex accepts any run of digits, so the conversion to Int has to be caught
+    // rather than allowed out as a 500.
+    val (uri, headers) = mockRequest("/jupyter/9999999999/tree", None)
+    new AccessControlResource()
+      .authorizeGet(uri, headers)
+      .getStatus shouldBe Response.Status.FORBIDDEN.getStatusCode
+  }
+
+  it should "refuse a Jupyter request whose recorded address has no authority" in {
+    // A malformed row must not become a Host header of "null", which Envoy would route on.
+    val jupyterDao = new UserJupyterDao(getDSLContext.configuration())
+    val malformed = new UserJupyter()
+    malformed.setUid(testUser2.getUid)
+    malformed.setInternalUrl("jupyter-2-with-no-scheme:8888")
+    malformed.setPublicUrl("jupyter-2-with-no-scheme:8888")
+    jupyterDao.insert(malformed)
+    try {
+      val (uri, headers) = mockRequest(s"/jupyter/${testUser2.getUid}/tree", None)
+      new AccessControlResource()
+        .authorizeGet(uri, headers)
+        .getStatus shouldBe Response.Status.FORBIDDEN.getStatusCode
+    } finally jupyterDao.deleteById(testUser2.getUid)
+  }
 }
