@@ -799,19 +799,38 @@ class AccessControlResourceSpec
       .getStatus shouldBe Response.Status.FORBIDDEN.getStatusCode
   }
 
-  it should "refuse a Jupyter request whose recorded address has no authority" in {
-    // A malformed row must not become a Host header of "null", which Envoy would route on.
+  // Registers an address for testUser2, who otherwise has none, for the rows that should be
+  // refused rather than routed.
+  private def withRecordedJupyter(internalUrl: String)(check: => Unit): Unit = {
     val jupyterDao = new UserJupyterDao(getDSLContext.configuration())
-    val malformed = new UserJupyter()
-    malformed.setUid(testUser2.getUid)
-    malformed.setInternalUrl("jupyter-2-with-no-scheme:8888")
-    malformed.setPublicUrl("jupyter-2-with-no-scheme:8888")
-    jupyterDao.insert(malformed)
-    try {
+    val row = new UserJupyter()
+    row.setUid(testUser2.getUid)
+    row.setInternalUrl(internalUrl)
+    row.setPublicUrl(internalUrl)
+    jupyterDao.insert(row)
+    try check
+    finally jupyterDao.deleteById(testUser2.getUid)
+  }
+
+  it should "refuse a Jupyter request whose recorded address has no authority" in {
+    // Parses cleanly but yields a null authority, which must not become a Host header of
+    // "null" for Envoy to route on.
+    withRecordedJupyter("jupyter-2-with-no-scheme:8888") {
       val (uri, headers) = mockRequest(s"/jupyter/${testUser2.getUid}/tree", None)
       new AccessControlResource()
         .authorizeGet(uri, headers)
         .getStatus shouldBe Response.Status.FORBIDDEN.getStatusCode
-    } finally jupyterDao.deleteById(testUser2.getUid)
+    }
+  }
+
+  it should "refuse a Jupyter request whose recorded address will not parse" in {
+    // A stray escape throws from the URI constructor. That parse sits inside the same guard
+    // as the lookup, so this is denied like any other unusable row instead of raising a 500.
+    withRecordedJupyter("http://jupyter-2:8888/%zz") {
+      val (uri, headers) = mockRequest(s"/jupyter/${testUser2.getUid}/tree", None)
+      new AccessControlResource()
+        .authorizeGet(uri, headers)
+        .getStatus shouldBe Response.Status.FORBIDDEN.getStatusCode
+    }
   }
 }

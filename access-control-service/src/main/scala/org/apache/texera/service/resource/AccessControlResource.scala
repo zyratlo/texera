@@ -93,24 +93,26 @@ object AccessControlResource extends LazyLogging {
     * Jupyter itself. Cross-pod traffic is blocked separately by a NetworkPolicy.
     */
   private def routeToJupyter(uid: String): Response = {
-    val recordedUrl =
+    // Envoy routes on an authority, so the scheme and base path are stripped off. The parse
+    // stays inside the guard so a malformed row is denied rather than raised as a 500.
+    val authority =
       try {
         val dao = new UserJupyterDao(SqlServer.getInstance().createDSLContext().configuration())
-        Option(dao.fetchOneByUid(uid.toInt)).map(_.getInternalUrl)
+        Option(dao.fetchOneByUid(uid.toInt))
+          .map(row => new URI(row.getInternalUrl).getAuthority)
+          .filter(a => a != null && a.nonEmpty)
       } catch {
         case e: Exception =>
-          logger.error(s"Failed to look up the Jupyter registered for user $uid", e)
+          logger.error(s"Failed to resolve the Jupyter registered for user $uid", e)
           return Response.status(Response.Status.FORBIDDEN).build()
       }
 
-    // Envoy routes on an authority, so the scheme and the base path are stripped back off the
-    // address the provisioner recorded.
-    recordedUrl.map(url => new URI(url).getAuthority).filter(a => a != null && a.nonEmpty) match {
-      case Some(authority) =>
-        logger.info(s"Routing Jupyter for user $uid to recorded host: $authority")
-        Response.ok().header("Host", authority).build()
+    authority match {
+      case Some(host) =>
+        logger.info(s"Routing Jupyter for user $uid to recorded host: $host")
+        Response.ok().header("Host", host).build()
       case None =>
-        logger.warn(s"Refusing Jupyter for user $uid: no Jupyter is registered")
+        logger.warn(s"Refusing Jupyter for user $uid: no usable Jupyter address is registered")
         Response.status(Response.Status.FORBIDDEN).build()
     }
   }
