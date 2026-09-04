@@ -67,7 +67,13 @@ spec:
               value: {{ .Values.jupyterPool.basePath }}
             {{- $origin := .Values.notebookMigrationService.publicOrigin }}
             {{- if and (not $origin) .Values.gatewayConfig .Values.gatewayConfig.hostname }}
+            {{- /* Both listeners always render, so only a configured certificate says
+                   which one actually serves. */}}
+            {{- if or .Values.gatewayConfig.issuer .Values.gatewayConfig.tlsSecretName }}
             {{- $origin = printf "https://%s" .Values.gatewayConfig.hostname }}
+            {{- else }}
+            {{- $origin = printf "http://%s" .Values.gatewayConfig.hostname }}
+            {{- end }}
             {{- end }}
             {{- if $origin }}
             - name: KUBERNETES_JUPYTER_PUBLIC_URL_TEMPLATE
