@@ -153,7 +153,7 @@ spec:
         # that user's pod; the per-user Jupyter token is what authorizes the request.
         - path:
             type: PathPrefix
-            value: /jupyter
+            value: {{ .Values.jupyterPool.basePath }}
         {{- end }}
       backendRefs:
         - group: gateway.envoyproxy.io

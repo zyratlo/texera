@@ -228,7 +228,8 @@ jupyterPool:
   # bounded wait for a new pod to answer. Costs one small pod per node.
   prepullImage: true
   # Path prefix each user's JupyterLab is served under; the uid is appended, so user 7 is
-  # served at /jupyter/7/. The gateway reads that uid to pick the pod.
+  # served at /jupyter/7/. Drives the pod's base_url, the gateway route and the uid regex
+  # access-control matches on, so all three move together.
   basePath: /jupyter
   # Must match kubernetes.jupyter-port-num, which the service reads from its own config
   # and no environment variable overrides.

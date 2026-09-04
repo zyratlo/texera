@@ -823,6 +823,25 @@ class AccessControlResourceSpec
     }
   }
 
+  it should "build the uid regex from the configured base path" in {
+    val custom = AccessControlResource.jupyterPathRegex("/lab/notebooks")
+    "/lab/notebooks/7/tree" should fullyMatch regex custom
+    "auth/lab/notebooks/7" should fullyMatch regex custom
+    "/jupyter/7/tree" should not(fullyMatch regex custom)
+  }
+
+  it should "tolerate a base path written with surrounding slashes" in {
+    val slashed = AccessControlResource.jupyterPathRegex("/jupyter/")
+    "/jupyter/7/tree" should fullyMatch regex slashed
+  }
+
+  it should "treat the base path as a path, not a pattern" in {
+    // Unquoted, the dot would match any character and route /axb to the /a.b pool.
+    val dotted = AccessControlResource.jupyterPathRegex("/a.b")
+    "/a.b/7" should fullyMatch regex dotted
+    "/axb/7" should not(fullyMatch regex dotted)
+  }
+
   it should "refuse a Jupyter request whose recorded address will not parse" in {
     // A stray escape throws from the URI constructor. That parse sits inside the same guard
     // as the lookup, so this is denied like any other unusable row instead of raising a 500.

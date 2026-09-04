@@ -27,7 +27,7 @@ import jakarta.ws.rs.{Consumes, DELETE, GET, POST, PUT, Path, Produces}
 import org.apache.texera.auth.JwtParser.parseToken
 import org.apache.texera.auth.SessionUser
 import org.apache.texera.auth.util.{ComputingUnitAccess, HeaderField}
-import org.apache.texera.common.config.{GuiConfig, LLMConfig}
+import org.apache.texera.common.config.{GuiConfig, KubernetesConfig, LLMConfig}
 import org.apache.texera.dao.SqlServer
 import org.apache.texera.dao.jooq.generated.enums.PrivilegeEnum
 import org.apache.texera.dao.jooq.generated.tables.daos.{UserJupyterDao, WorkflowComputingUnitDao}
@@ -54,7 +54,15 @@ object AccessControlResource extends LazyLogging {
   // Per-user JupyterLab. The uid is in the path because a browser cannot attach Texera
   // credentials to the requests Jupyter's own scripts make, so it is the only place the
   // owner can be read from.
-  private val jupyterPath: Regex = """^/?(?:auth/)?jupyter/([0-9]+)(?:/.*)?$""".r
+  private val jupyterPath: Regex = jupyterPathRegex(KubernetesConfig.jupyterBaseUrl)
+
+  // Built from the same setting the gateway route and the pods are rendered from, so the
+  // prefix cannot be honoured in one place and not another. Quoted: it is a path, not a
+  // pattern.
+  private[texera] def jupyterPathRegex(basePath: String): Regex = {
+    val prefix = basePath.stripPrefix("/").stripSuffix("/")
+    ("^/?(?:auth/)?" + Regex.quote(prefix) + "/([0-9]+)(?:/.*)?$").r
+  }
 
   /**
     * Authorize the request based on the path and headers.
