@@ -300,6 +300,9 @@ notebookMigrationService:
   enabled: true
   # Reached through a port-forward, so there is no DNS name to derive an origin from.
   publicOrigin: "http://localhost:30080"
+  # Development only, and public by virtue of living here. A real deployment must generate
+  # its own, since this one derives every user's JupyterLab token.
+  jupyterTokenSecret: "development-only-not-a-secret"
 
 # Per-user JupyterLab pods, sized for a single-node development cluster. Only the values that
 # differ from the base chart are listed, since Helm merges the rest.

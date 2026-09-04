@@ -210,11 +210,10 @@ notebookMigrationService:
   # CSP that lets Texera embed it. Required wherever there is no DNS name, such as a
   # port-forward or a NodePort. Falls back to the gateway hostname when left empty.
   publicOrigin: ""
-  # HMAC key each user's JupyterLab token is derived from. Nothing is stored, so this must
-  # stay stable across restarts or previously issued tokens stop matching.
-  # Development-only default. Production environments MUST override this with a different,
-  # securely generated secret.
-  jupyterTokenSecret: "c4e1f7a9b2d5c8e0f3a6b9d2e5f8a1c4b7d0e3f6a9c2b5d8e1f4a7c0b3d6e9f2"
+  # HMAC key each user's JupyterLab token is derived from. Must stay stable across restarts
+  # or issued tokens stop matching. Empty on purpose: a default here would be public, and
+  # the token is all that guards /jupyter/<uid>/. Generate with: openssl rand -hex 32
+  jupyterTokenSecret: ""
 
 # Per-user JupyterLab pods, the stateful half of the notebook migration tool. One pod per
 # user, addressed through the headless service below.
