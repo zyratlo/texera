@@ -283,11 +283,12 @@ export class UserWorkflowComponent implements AfterViewInit, OnDestroy {
   /** Open the AI-generate import modal, wiring its submit to generateWorkflowFromNotebook. */
   public openAiGenerateModal(): void {
     this.modalService.create<NotebookImportModalComponent, NotebookImportModalData>({
-      nzTitle: "AI Generate Workflow from Python Notebook",
+      nzTitle: "AI Generate Workflow from Source Code",
       nzContent: NotebookImportModalComponent,
       nzWidth: 700,
       nzFooter: null,
       nzCentered: true,
+      nzBodyStyle: { paddingTop: "4px" },
       nzData: {
         requestImport: (file, model) => this.generateWorkflowFromNotebook(file, model),
       },

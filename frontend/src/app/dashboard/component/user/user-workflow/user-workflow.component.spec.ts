@@ -353,7 +353,9 @@ describe("SavedWorkflowSectionComponent", () => {
       expect(createSpy).toHaveBeenCalledTimes(1);
       const config = createSpy.mock.calls[0][0] as ModalOptions;
       expect(config.nzContent).toBe(NotebookImportModalComponent);
+      expect(config.nzTitle).toBe("AI Generate Workflow from Source Code");
       expect(config.nzFooter).toBeNull();
+      expect(config.nzBodyStyle).toEqual({ paddingTop: "4px" });
       expect(typeof (config.nzData as { requestImport: unknown }).requestImport).toBe("function");
     });
 
