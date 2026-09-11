@@ -61,8 +61,14 @@ export interface ScriptSegmentation {
   udfToCellUuids: Record<string, string[]>;
 }
 
-// Splits into lines, tolerating CRLF and a trailing newline (which is a terminator, not a line).
-function splitLines(source: string): string[] {
+/**
+ * Splits into lines, tolerating CRLF and a trailing newline (which is a terminator, not a line).
+ *
+ * Exported because the caller numbers these same lines when it builds the prompt. The numbers the
+ * model reports back are only meaningful if both sides agree on what counts as a line, so they must
+ * share one definition rather than each keep their own.
+ */
+export function splitScriptLines(source: string): string[] {
   const lines = source.replace(/\r\n?/g, "\n").split("\n");
   if (lines.length > 0 && lines[lines.length - 1] === "") {
     lines.pop();
@@ -131,7 +137,7 @@ export function segmentScript(
   rawRanges: Record<string, unknown> | null | undefined,
   newUuid: () => string = uuidv4
 ): ScriptSegmentation {
-  const lines = splitLines(source);
+  const lines = splitScriptLines(source);
   if (lines.length === 0) {
     return { cells: [], udfToCellUuids: {} };
   }

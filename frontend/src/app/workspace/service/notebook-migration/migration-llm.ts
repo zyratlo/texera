@@ -38,20 +38,31 @@ import {
   EXAMPLE_OF_MULTIPLE_UDF_CONVERSION,
   WORKFLOW_PROMPT,
   MAPPING_PROMPT,
+  EXAMPLE_OF_MULTIPLE_UDF_CONVERSION_SCRIPT,
+  SCRIPT_WORKFLOW_PROMPT,
+  SCRIPT_MAPPING_PROMPT,
 } from "./migration-prompts";
+import { DerivedCell, segmentScript, splitScriptLines } from "./script-segmentation";
 
 interface Cell {
   cell_type: string;
   metadata: { [key: string]: any };
   // nbformat stores source as either a single string or an array of line strings.
   source: string | string[];
+  outputs?: unknown[];
+  execution_count?: number | null;
 }
 
 export interface Notebook {
   cells: Cell[];
+  // Present in any real .ipynb and required by Jupyter's contents API, so the notebook
+  // synthesized for a script declares them too.
+  metadata?: { [key: string]: any };
+  nbformat?: number;
+  nbformat_minor?: number;
 }
 
-interface WorkflowJSON {
+export interface WorkflowJSON {
   operators: OperatorPredicate[];
   operatorPositions: Record<string, { x: number; y: number }>;
   links: any[];
@@ -59,20 +70,64 @@ interface WorkflowJSON {
   settings: WorkflowSettings;
 }
 
-interface CombinedMapping {
+export interface CombinedMapping {
   operator_to_cell: Record<string, string[]>;
   cell_to_operator: Record<string, string[]>;
 }
 
 /**
- * Wraps a single LLM chat session that converts a Jupyter notebook into a Texera
- * workflow plus a cell<->operator mapping.
+ * A script conversion also yields the notebook it derived, because nothing upstream had one:
+ * the caller stores and displays it exactly as it would a user's own .ipynb.
+ */
+export interface ScriptConversion {
+  workflowJSON: WorkflowJSON;
+  workflowNotebookMapping: CombinedMapping;
+  notebook: Notebook;
+}
+
+// Prefix each line with its number so the model can report ranges without counting lines itself.
+// Uses the segmenter's own line splitting: the reported numbers only mean anything if the side
+// that numbers and the side that slices agree on what a line is.
+function numberScriptLines(source: string): string {
+  const lines = splitScriptLines(source);
+  const width = String(lines.length).length;
+  return lines.map((line, index) => `${String(index + 1).padStart(width, " ")}| ${line}`).join("\n");
+}
+
+// Wrap derived cells as a notebook. The nbformat fields are what make it openable in Jupyter,
+// and metadata.uuid is the join key the stored mapping is expressed in, same as for a real .ipynb.
+function toDerivedNotebook(cells: DerivedCell[]): Notebook {
+  return {
+    cells: cells.map(cell => ({
+      cell_type: "code",
+      metadata: { uuid: cell.uuid },
+      source: cell.source,
+      outputs: [],
+      execution_count: null,
+    })),
+    metadata: {
+      kernelspec: { display_name: "Python 3", language: "python", name: "python3" },
+      language_info: { name: "python" },
+    },
+    nbformat: 4,
+    nbformat_minor: 4,
+  };
+}
+
+/**
+ * Wraps a single LLM chat session that converts a Jupyter notebook or a Python script into
+ * a Texera workflow plus a cell<->operator mapping.
  *
  * Lifecycle: `initialize()` -> `verifyConnection()` (optional) ->
- * `convertNotebookToWorkflow()` -> `close()`. The session keeps a running `messages`
- * history shared by the prompts within one conversion. `convertNotebookToWorkflow()`
- * resets that history to the documentation prelude at its start, so the same instance
- * can convert multiple notebooks without leaking one conversion's context into the next.
+ * `convertNotebookToWorkflow()` or `convertScriptToWorkflow()` -> `close()`. The session keeps
+ * a running `messages` history shared by the prompts within one conversion. Each conversion
+ * resets that history to its documentation prelude at its start, so the same instance can run
+ * several conversions, in either mode, without leaking one conversion's context into the next.
+ *
+ * The two modes differ only in framing. A notebook arrives already split into cells and the
+ * model is asked to map UDFs onto those cell ids; a script has no cells, so it is sent with
+ * line numbers, the model reports the line ranges each UDF came from, and the cells are derived
+ * from that answer. Everything downstream of the model's reply is shared.
  *
  * Output column types: intermediate UDFs declare their output columns as `binary` so rich
  * Python objects (DataFrames, arrays, models) round-trip between operators via pickle.
@@ -109,6 +164,14 @@ export class NotebookMigrationLLM {
     EXAMPLE_OF_MULTIPLE_UDF_CONVERSION,
   ];
 
+  // The script prelude differs in exactly one entry. The notebook worked example is written in
+  // `# START CELL1` form, and a system-message example of that weight would push the model to
+  // answer in cell ids for an input that has no cells. The notebook array is left untouched so
+  // existing conversions see byte-identical context.
+  private static readonly SCRIPT_DOCUMENTATION: string[] = NotebookMigrationLLM.DOCUMENTATION.map(doc =>
+    doc === EXAMPLE_OF_MULTIPLE_UDF_CONVERSION ? EXAMPLE_OF_MULTIPLE_UDF_CONVERSION_SCRIPT : doc
+  );
+
   constructor(
     private config: GuiConfigService,
     private workflowUtilService: WorkflowUtilService
@@ -125,11 +188,12 @@ export class NotebookMigrationLLM {
   }
 
   /**
-   * Seed the conversation with the Texera documentation prelude, discarding any
-   * prior conversation. Used by initialize() and at the start of each conversion.
+   * Seed the conversation with a Texera documentation prelude, discarding any prior
+   * conversation. Used by initialize() and at the start of each conversion, which is where
+   * the input-specific variant is chosen.
    */
-  private seedDocumentation(): void {
-    this.messages = NotebookMigrationLLM.DOCUMENTATION.map(
+  private seedDocumentation(documentation: string[] = NotebookMigrationLLM.DOCUMENTATION): void {
+    this.messages = documentation.map(
       (doc): ModelMessage => ({
         role: "system",
         content: doc,
@@ -269,7 +333,7 @@ export class NotebookMigrationLLM {
 
     // Reset to the documentation prelude so a prior conversion's prompts/responses
     // don't leak into this one. The two sendPrompt calls below still share history.
-    this.seedDocumentation();
+    this.seedDocumentation(NotebookMigrationLLM.DOCUMENTATION);
 
     const codeCells = notebook.cells.filter(cell => cell.cell_type === "code");
 
@@ -301,6 +365,40 @@ export class NotebookMigrationLLM {
     const workflowNotebookMapping = this.buildCombinedMapping(parsedMapping, udfIdToOperatorId);
 
     return JSON.stringify({ workflowJSON, workflowNotebookMapping });
+  }
+
+  /**
+   * Send a Python script to be converted into a workflow, a mapping, and the notebook the
+   * mapping is expressed against.
+   *
+   * Differs from the notebook path in two places only. The script is sent with line numbers
+   * rather than cell markers, and the model is asked which line ranges became which UDF; the
+   * cells are then derived from that answer instead of arriving with the input.
+   */
+  public async convertScriptToWorkflow(source: string): Promise<ScriptConversion> {
+    this.assertEnabled();
+    if (!this.initialized) {
+      throw new Error("LLM session not initialized");
+    }
+
+    this.seedDocumentation(NotebookMigrationLLM.SCRIPT_DOCUMENTATION);
+
+    const workflow = await this.sendPrompt(`${SCRIPT_WORKFLOW_PROMPT}\n${numberScriptLines(source)}`);
+    const mapping = await this.sendPrompt(SCRIPT_MAPPING_PROMPT);
+
+    const udfLLMResponse = this.parseJsonResponse(workflow, "workflow");
+    const { workflowJSON, udfIdToOperatorId } = this.buildWorkflow(udfLLMResponse);
+
+    // segmentScript reconciles whatever the model reported, so a malformed range degrades the
+    // mapping rather than discarding a workflow that already cost a full conversion.
+    const reportedRanges = this.parseJsonResponse(mapping, "mapping");
+    const { cells, udfToCellUuids } = segmentScript(source, reportedRanges);
+
+    return {
+      workflowJSON,
+      workflowNotebookMapping: this.buildCombinedMapping(udfToCellUuids, udfIdToOperatorId),
+      notebook: toDerivedNotebook(cells),
+    };
   }
 
   /**
@@ -402,6 +500,13 @@ export class NotebookMigrationLLM {
       const operatorId = udfIdToOperatorId[udfId];
       if (!operatorId) {
         console.warn(`Skipping mapping entry with unknown UDF id: ${udfId}`);
+        return;
+      }
+      // The notebook path's cell ids come straight from an unvalidated model reply. Without this
+      // a non-array would throw from forEach below and discard a conversion that already cost two
+      // model calls; skipping degrades the mapping instead, as the script path already does.
+      if (!Array.isArray(cells)) {
+        console.warn(`Skipping mapping entry whose cell list is not an array, for UDF id: ${udfId}`);
         return;
       }
       operatorToCell[operatorId] = cells;
