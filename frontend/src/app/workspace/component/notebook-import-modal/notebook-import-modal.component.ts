@@ -43,8 +43,7 @@ export interface NotebookImportModalData {
  * control, over a shared model dropdown and footer.
  *
  * On Submit it hands the file and model to requestImport and shows a loading state until
- * it resolves. Only the notebook tab can submit; the script tab is upload-only until the
- * conversion path for scripts exists.
+ * it resolves; the opener dispatches on the uploaded file's extension.
  */
 @Component({
   selector: "texera-notebook-import-modal",
@@ -83,19 +82,12 @@ export class NotebookImportModalComponent implements OnDestroy {
   // and an empty list (no models available, e.g. the fetch failed or the feature is off).
   public readonly models$: Observable<{ name: string }[]> = this.notebookMigrationService.getAvailableModels();
 
-  // Tab order: 0 = Jupyter notebook, 1 = Python file.
-  private static readonly PYTHON_TAB_INDEX = 1;
-
   // The pane cross-fade reads as a flicker on a dense form, so only the ink bar animates.
   // Held as a field rather than an inline literal so the binding keeps a stable reference.
   public readonly tabAnimation = { inkBar: true, tabPane: false };
 
+  // Tab order: 0 = Jupyter notebook, 1 = Python file.
   public selectedTabIndex = 0;
-
-  // A Python file has no conversion path yet, so its tab is upload-only.
-  public get isPythonTab(): boolean {
-    return this.selectedTabIndex === NotebookImportModalComponent.PYTHON_TAB_INDEX;
-  }
 
   /**
    * Switching tabs drops the selected file: the two tabs accept different extensions, so
@@ -157,9 +149,7 @@ export class NotebookImportModalComponent implements OnDestroy {
   }
 
   public async onSubmit(): Promise<void> {
-    // The Submit button is already disabled on a non-submittable tab; re-checking here keeps
-    // a programmatic call from starting a conversion the backend cannot complete.
-    if (this.isSubmitting || !this.importForm.valid || this.isPythonTab) return;
+    if (this.isSubmitting || !this.importForm.valid) return;
     const file: NzUploadFile = this.importForm.get("file")?.value;
     const model: string = this.importForm.get("model")?.value;
     this.isSubmitting = true;

@@ -333,28 +333,33 @@ describe("NotebookImportModalComponent", () => {
     expect((fixture.nativeElement as HTMLElement).textContent).not.toContain("Selected file:");
   });
 
-  it("keeps Submit disabled on the Python tab and explains why, even with a complete form", async () => {
+  it("enables Submit on the Python tab once a file and model are chosen", async () => {
     await createWith(of([{ name: "gpt-4" }]));
     const root = fixture.nativeElement as HTMLElement;
     const submit = () => root.querySelector(".import-modal-footer button[nzType='primary']") as HTMLButtonElement;
 
     component.onTabChange(1);
+    fixture.detectChanges();
+    // Switching tabs clears the file, so the form is incomplete until one is staged.
+    expect(submit().disabled).toBe(true);
+
     component.importForm.setValue({ file: { name: "demo.py" }, model: "gpt-4" });
     fixture.detectChanges();
 
-    expect(submit().disabled).toBe(true);
-    expect(root.querySelector(".import-modal-footer-note")?.textContent).toContain("not available yet");
+    expect(submit().disabled).toBe(false);
   });
 
-  it("onSubmit does not reach the opener from the Python tab", async () => {
+  it("submits a Python file to the opener the same way it submits a notebook", async () => {
+    requestImport.mockResolvedValue(true);
     await createWith(of([{ name: "gpt-4" }]));
+    const file = { name: "demo.py" } as NzUploadFile;
     component.onTabChange(1);
-    component.importForm.setValue({ file: { name: "demo.py" }, model: "gpt-4" });
+    component.importForm.setValue({ file, model: "gpt-4" });
 
     await component.onSubmit();
 
-    expect(requestImport).not.toHaveBeenCalled();
-    expect(modalRef.close).not.toHaveBeenCalled();
+    expect(requestImport).toHaveBeenCalledWith(file, "gpt-4");
+    expect(modalRef.close).toHaveBeenCalledWith();
   });
 
   it("the footer Cancel button closes the modal", async () => {
@@ -402,7 +407,6 @@ describe("NotebookImportModalComponent", () => {
     fixture.detectChanges();
 
     expect(component.selectedTabIndex).toBe(1);
-    expect(component.isPythonTab).toBe(true);
     expect(
       (fixture.nativeElement as HTMLElement)
         .querySelector(".ant-tabs-tabpane-active input[type='file']")
@@ -410,7 +414,7 @@ describe("NotebookImportModalComponent", () => {
     ).toBe(".py");
   });
 
-  it("restores the notebook upload target and a submittable footer when switching back", async () => {
+  it("restores the notebook upload target when switching back", async () => {
     await createWith(of([{ name: "gpt-4" }]));
     const root = fixture.nativeElement as HTMLElement;
     const pane = () => root.querySelector(".ant-tabs-tabpane-active") as HTMLElement;
@@ -418,15 +422,13 @@ describe("NotebookImportModalComponent", () => {
 
     component.onTabChange(1);
     fixture.detectChanges();
-    expect(component.isPythonTab).toBe(true);
+    expect(pane().querySelector("input[type='file']")?.getAttribute("accept")).toBe(".py");
 
     component.onTabChange(0);
     component.importForm.setValue({ file: { name: "demo.ipynb" }, model: "gpt-4" });
     fixture.detectChanges();
 
-    expect(component.isPythonTab).toBe(false);
     expect(pane().querySelector("input[type='file']")?.getAttribute("accept")).toBe(".ipynb");
-    expect(root.querySelector(".import-modal-footer-note")).toBeNull();
     expect(submit().disabled).toBe(false);
   });
 });

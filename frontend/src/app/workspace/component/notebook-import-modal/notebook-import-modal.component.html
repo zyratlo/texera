@@ -181,11 +181,6 @@
   <div
     class="import-modal-footer"
     [attr.inert]="isSubmitting ? '' : null">
-    <span
-      *ngIf="isPythonTab"
-      class="import-modal-footer-note">
-      Converting a Python file is not available yet. Upload is shown here as a preview.
-    </span>
     <button
       nz-button
       type="button"
@@ -197,7 +192,7 @@
       nz-button
       type="button"
       nzType="primary"
-      [disabled]="!importForm.valid || isSubmitting || isPythonTab"
+      [disabled]="!importForm.valid || isSubmitting"
       (click)="onSubmit()">
       Submit
     </button>
