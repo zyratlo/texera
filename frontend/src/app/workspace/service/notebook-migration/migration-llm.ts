@@ -294,7 +294,27 @@ export class NotebookMigrationLLM {
 
     // Remove ```json blocks and parse
     const udfLLMResponse = this.parseJsonResponse(workflow, "workflow");
+    const { workflowJSON, udfIdToOperatorId } = this.buildWorkflow(udfLLMResponse);
 
+    // The notebook path keys its mapping on the cell uuids embedded in the prompt.
+    const parsedMapping: Record<string, string[]> = this.parseJsonResponse(mapping, "mapping");
+    const workflowNotebookMapping = this.buildCombinedMapping(parsedMapping, udfIdToOperatorId);
+
+    return JSON.stringify({ workflowJSON, workflowNotebookMapping });
+  }
+
+  /**
+   * Assemble the workflow from the model's `code`, `edges` and `outputs` response.
+   *
+   * Input-agnostic: the notebook and script paths differ in how they prompt and in what their
+   * mapping is keyed on, not in how the generated UDFs become operators.
+   *
+   * Returns the workflow together with the UDF id -> operatorID index the mapping is built from.
+   */
+  private buildWorkflow(udfLLMResponse: any): {
+    workflowJSON: WorkflowJSON;
+    udfIdToOperatorId: Record<string, string>;
+  } {
     const workflowJSON: WorkflowJSON = {
       operators: [],
       operatorPositions: {},
@@ -306,7 +326,7 @@ export class NotebookMigrationLLM {
       },
     };
 
-    const udfMappingToUUID: Record<string, string> = {};
+    const udfIdToOperatorId: Record<string, string> = {};
 
     // UDFs that are never the source of an edge are terminal (result-facing). Their outputs
     // default to "string" so the result panel renders typed values; intermediate UDFs keep
@@ -336,12 +356,12 @@ export class NotebookMigrationLLM {
         },
       };
 
-      udfMappingToUUID[udfId] = operator.operatorID;
+      udfIdToOperatorId[udfId] = operator.operatorID;
       workflowJSON.operators.push(operator);
       workflowJSON.operatorPositions[operator.operatorID] = { x: 140 * (i + 1), y: 0 };
     });
 
-    const knownUdfIds = new Set(Object.keys(udfMappingToUUID));
+    const knownUdfIds = new Set(Object.keys(udfIdToOperatorId));
 
     // Add links/edges. Skip (with a warning) any edge that references a UDF id the LLM
     // never defined in `code`, rather than emitting a link with an undefined endpoint.
@@ -353,44 +373,48 @@ export class NotebookMigrationLLM {
       workflowJSON.links.push({
         linkID: `link-${uuidv4()}`,
         source: {
-          operatorID: udfMappingToUUID[source],
+          operatorID: udfIdToOperatorId[source],
           portID: "output-0",
         },
         target: {
-          operatorID: udfMappingToUUID[target],
+          operatorID: udfIdToOperatorId[target],
           portID: "input-0",
         },
       });
     });
 
-    // Parse mapping
-    const parsedMapping: Record<string, string[]> = this.parseJsonResponse(mapping, "mapping");
+    return { workflowJSON, udfIdToOperatorId };
+  }
 
-    const udfToCell: Record<string, string[]> = {};
-    const cellToUdf: Record<string, string[]> = {};
+  /**
+   * Invert a UDF id -> cell ids mapping into the stored operator<->cell form, skipping (with a
+   * warning) any UDF the model never defined in `code`. Shared by both input paths: they differ
+   * only in where the cell ids came from.
+   */
+  private buildCombinedMapping(
+    udfToCells: Record<string, string[]>,
+    udfIdToOperatorId: Record<string, string>
+  ): CombinedMapping {
+    const operatorToCell: Record<string, string[]> = {};
+    const cellToOperator: Record<string, string[]> = {};
 
-    Object.entries(parsedMapping).forEach(([udf, cells]) => {
-      if (!knownUdfIds.has(udf)) {
-        console.warn(`Skipping mapping entry with unknown UDF id: ${udf}`);
+    Object.entries(udfToCells).forEach(([udfId, cells]) => {
+      const operatorId = udfIdToOperatorId[udfId];
+      if (!operatorId) {
+        console.warn(`Skipping mapping entry with unknown UDF id: ${udfId}`);
         return;
       }
-      const udfUUID = udfMappingToUUID[udf];
-      udfToCell[udfUUID] = cells;
+      operatorToCell[operatorId] = cells;
       cells.forEach(cell => {
-        if (!cellToUdf[cell]) {
-          cellToUdf[cell] = [udfUUID];
+        if (!cellToOperator[cell]) {
+          cellToOperator[cell] = [operatorId];
         } else {
-          cellToUdf[cell].push(udfUUID);
+          cellToOperator[cell].push(operatorId);
         }
       });
     });
 
-    const workflowNotebookMapping: CombinedMapping = {
-      operator_to_cell: udfToCell,
-      cell_to_operator: cellToUdf,
-    };
-
-    return JSON.stringify({ workflowJSON, workflowNotebookMapping });
+    return { operator_to_cell: operatorToCell, cell_to_operator: cellToOperator };
   }
 
   /**
