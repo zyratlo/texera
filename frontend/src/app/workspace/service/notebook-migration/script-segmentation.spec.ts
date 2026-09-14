@@ -195,6 +195,15 @@ describe("segmentScript", () => {
       expect(result.udfToCellUuids["UDF1"]).toEqual(["c1", "c2"]);
     });
 
+    it("drops a range whose numeric bound is not finite", () => {
+      expect(segment(script, { UDF1: [[1, Infinity]] }).udfToCellUuids).toEqual({});
+      expect(segment(script, { UDF1: [[NaN, 5]] }).udfToCellUuids).toEqual({});
+    });
+
+    it("drops a range whose string bound is not a number", () => {
+      expect(segment(script, { UDF1: [["one", "four"]] }).udfToCellUuids).toEqual({});
+    });
+
     it("does not throw on entirely unusable input", () => {
       expect(() => segment(script, { UDF1: "everything" })).not.toThrow();
       expect(() => segment(script, { UDF1: 42 })).not.toThrow();
@@ -215,6 +224,16 @@ describe("segmentScript", () => {
 
       expect(result.udfToCellUuids["UDF1"]).toEqual(["c1"]);
       expect(result.cells[0].endLine).toBe(4);
+    });
+
+    it("accepts a lone { start, end } object as a UDF's whole answer", () => {
+      const result = segment(script, { UDF1: { start: 1, end: 4 } });
+
+      expect(spans(result)).toEqual([
+        [1, 4],
+        [5, 10],
+      ]);
+      expect(result.udfToCellUuids["UDF1"]).toEqual(["c1"]);
     });
 
     it("accepts a bare [start, end] pair rather than a list of pairs", () => {
