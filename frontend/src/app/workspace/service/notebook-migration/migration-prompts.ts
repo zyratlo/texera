@@ -408,6 +408,9 @@ Here is an example of a mapping generated between the given example Python code 
 ],
 "UDF4": [
 "CELL8"
+],
+"UDF5": [
+"CELL9"
 ]
 }
 Now create a mapping for the UDFs and the original code. Link the code blocks marked by 'START <cell-uuid>' and 'END <cell-uuid>' with the UDF UUID's. The code between them should be equivalent. Multiple cells can be mapped to the same UDF when that UDF implements the logic of those cells. There could be any number of cells and UDFs, so only create the correct number in the mapping. Only give the mapping.
@@ -578,7 +581,8 @@ Here is an example of a mapping generated between the given example Python code 
 "UDF1": [[15, 24]],
 "UDF2": [[26, 31]],
 "UDF3": [[33, 42]],
-"UDF4": [[44, 49]]
+"UDF4": [[44, 49]],
+"UDF5": [[51, 56]]
 }
 Now create a mapping for the UDFs and the original code you were given. For each UDF, report the line ranges of the original script whose logic that UDF implements. The code in those lines should be equivalent to what the UDF does. Lines that no UDF implements, such as imports or the data loading that the workflow's source operator replaces, can be left out entirely. Give the first line before the last within each range, and do not shift the numbers: they must match the prefixes you were shown. There could be any number of ranges and UDFs, so only create the correct number in the mapping. Only give the mapping.
 `;
