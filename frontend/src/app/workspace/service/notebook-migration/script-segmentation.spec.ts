@@ -321,16 +321,16 @@ describe("segmentScript", () => {
       expect(result.cells[0].source).toBe("a\nb");
     });
 
-    it("reassembles to the original when the cells are joined back together", () => {
-      const result = segment(script, {
-        UDF1: [[1, 2]],
-        UDF2: [
-          [5, 6],
-          [9, 10],
-        ],
-      });
+    it("keeps every line with content, each in exactly one cell", () => {
+      // A blank-only span between two reported ranges is dropped on purpose, so the cells do
+      // not reassemble to the input byte for byte. The guarantee that protects the user from
+      // losing code is narrower: no line with content is dropped, duplicated, or reordered.
+      const withBlankGap = ["import os", "", "", "x = compute()", "", "print(x)"].join("\n");
+      const result = segment(withBlankGap, { UDF1: [[1, 1]], UDF2: [[4, 4]] });
 
-      expect(result.cells.map(cell => cell.source).join("\n")).toBe(script);
+      const contentLines = (text: string) => text.split("\n").filter(line => line.trim() !== "");
+
+      expect(result.cells.flatMap(cell => contentLines(cell.source))).toEqual(contentLines(withBlankGap));
     });
 
     it("gives every cell a distinct id from the supplied factory", () => {
