@@ -364,7 +364,7 @@ It is VERY important that all of the original code in the Jupyter notebook is re
 Make sure that nothing in the original is removed and that the semantic meaning of what the original code was doing is retained.
 The only exception is data-loading code (e.g. pd.read_csv); it is represented by the workflow's input/source operator rather than copied into a UDF.
 If there are user-defined Python classes, include the entire class definition in the appropriate UDF(s) that use that class.
-Always include the code that defines the class inside of every distinct UDF that uses that constructs an object of that class.
+Always include the full class definition inside every UDF that references that class, including every UDF that constructs an object of it.
 Python classes are allowed in Texera UDFs and follow the same semantics as standard Python.
 They can be defined outside of ProcessTableOperator, ProcessTupleOperator, and ProcessBatchOperator.
 
@@ -545,7 +545,7 @@ It is VERY important that all of the original code in the Python script is repre
 Make sure that nothing in the original is removed and that the semantic meaning of what the original code was doing is retained.
 The only exception is data-loading code (e.g. pd.read_csv); it is represented by the workflow's input/source operator rather than copied into a UDF.
 If there are user-defined Python classes, include the entire class definition in the appropriate UDF(s) that use that class.
-Always include the code that defines the class inside of every distinct UDF that uses that constructs an object of that class.
+Always include the full class definition inside every UDF that references that class, including every UDF that constructs an object of it.
 Python classes are allowed in Texera UDFs and follow the same semantics as standard Python.
 They can be defined outside of ProcessTableOperator, ProcessTupleOperator, and ProcessBatchOperator.
 
