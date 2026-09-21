@@ -41,8 +41,12 @@ import {
   EXAMPLE_OF_MULTIPLE_UDF_CONVERSION_SCRIPT,
   SCRIPT_WORKFLOW_PROMPT,
   SCRIPT_MAPPING_PROMPT,
+  EXAMPLE_OF_MULTIPLE_UDF_CONVERSION_FOLDER,
+  FOLDER_WORKFLOW_PROMPT,
+  FOLDER_MAPPING_PROMPT,
 } from "./migration-prompts";
 import { DerivedCell, segmentScript, splitScriptLines } from "./script-segmentation";
+import { FolderDocument } from "./folder-assembly";
 
 interface Cell {
   cell_type: string;
@@ -76,10 +80,11 @@ export interface CombinedMapping {
 }
 
 /**
- * A script conversion also yields the notebook it derived, because nothing upstream had one:
- * the caller stores and displays it exactly as it would a user's own .ipynb.
+ * The result of converting an input that arrived without cells. It also yields the notebook it
+ * derived, because nothing upstream had one: the caller stores and displays it exactly as it
+ * would a user's own .ipynb.
  */
-export interface ScriptConversion {
+export interface SourceConversion {
   workflowJSON: WorkflowJSON;
   workflowNotebookMapping: CombinedMapping;
   notebook: Notebook;
@@ -124,10 +129,12 @@ function toDerivedNotebook(cells: DerivedCell[]): Notebook {
  * resets that history to its documentation prelude at its start, so the same instance can run
  * several conversions, in either mode, without leaking one conversion's context into the next.
  *
- * The two modes differ only in framing. A notebook arrives already split into cells and the
- * model is asked to map UDFs onto those cell ids; a script has no cells, so it is sent with
- * line numbers, the model reports the line ranges each UDF came from, and the cells are derived
- * from that answer. Everything downstream of the model's reply is shared.
+ * The modes differ only in framing. A notebook arrives already split into cells and the model
+ * is asked to map UDFs onto those cell ids; a script and a folder have no cells, so they are
+ * sent with line numbers, the model reports the line ranges each UDF came from, and the cells
+ * are derived from that answer. A folder is a folder only in how it is assembled and prompted:
+ * by the time it reaches here it is one document, and everything downstream of the model's
+ * reply is shared by all three.
  *
  * Output column types: intermediate UDFs declare their output columns as `binary` so rich
  * Python objects (DataFrames, arrays, models) round-trip between operators via pickle.
@@ -170,6 +177,13 @@ export class NotebookMigrationLLM {
   // existing conversions see byte-identical context.
   private static readonly SCRIPT_DOCUMENTATION: string[] = NotebookMigrationLLM.DOCUMENTATION.map(doc =>
     doc === EXAMPLE_OF_MULTIPLE_UDF_CONVERSION ? EXAMPLE_OF_MULTIPLE_UDF_CONVERSION_SCRIPT : doc
+  );
+
+  // The folder prelude differs from the script prelude in the same single entry, for the same
+  // reason: its worked example shows files concatenated behind banner lines, and a cross-file
+  // import replaced by an edge, neither of which a single script can demonstrate.
+  private static readonly FOLDER_DOCUMENTATION: string[] = NotebookMigrationLLM.SCRIPT_DOCUMENTATION.map(doc =>
+    doc === EXAMPLE_OF_MULTIPLE_UDF_CONVERSION_SCRIPT ? EXAMPLE_OF_MULTIPLE_UDF_CONVERSION_FOLDER : doc
   );
 
   constructor(
@@ -375,16 +389,62 @@ export class NotebookMigrationLLM {
    * rather than cell markers, and the model is asked which line ranges became which UDF; the
    * cells are then derived from that answer instead of arriving with the input.
    */
-  public async convertScriptToWorkflow(source: string): Promise<ScriptConversion> {
+  public async convertScriptToWorkflow(source: string): Promise<SourceConversion> {
     this.assertEnabled();
     if (!this.initialized) {
       throw new Error("LLM session not initialized");
     }
 
-    this.seedDocumentation(NotebookMigrationLLM.SCRIPT_DOCUMENTATION);
+    return this.convertNumberedSource(
+      NotebookMigrationLLM.SCRIPT_DOCUMENTATION,
+      SCRIPT_WORKFLOW_PROMPT,
+      SCRIPT_MAPPING_PROMPT,
+      source
+    );
+  }
 
-    const workflow = await this.sendPrompt(`${SCRIPT_WORKFLOW_PROMPT}\n${numberScriptLines(source)}`);
-    const mapping = await this.sendPrompt(SCRIPT_MAPPING_PROMPT);
+  /**
+   * Send a folder of Python files, already assembled into one document, to be converted into a
+   * workflow, a mapping, and the notebook the mapping is expressed against.
+   *
+   * Differs from the script path only in its prompt variant and in the cut points it requires:
+   * each file's banner line is forced into the segmentation so no derived cell holds lines from
+   * two files. The mapping is still keyed on cell uuids, so storage, the Jupyter panel and
+   * highlighting never learn that the input was a folder.
+   */
+  public async convertFolderToWorkflow(document: FolderDocument): Promise<SourceConversion> {
+    this.assertEnabled();
+    if (!this.initialized) {
+      throw new Error("LLM session not initialized");
+    }
+
+    return this.convertNumberedSource(
+      NotebookMigrationLLM.FOLDER_DOCUMENTATION,
+      FOLDER_WORKFLOW_PROMPT,
+      FOLDER_MAPPING_PROMPT,
+      document.source,
+      document.forcedBoundaries
+    );
+  }
+
+  /**
+   * The body shared by every input that arrives without cells: seed the prelude, ask for the
+   * workflow, ask for the ranges, then derive the cells from the answer.
+   *
+   * A script and a folder differ only in which prompt variant they pass and in whether they
+   * require cut points of their own, so the sequence itself lives here once.
+   */
+  private async convertNumberedSource(
+    documentation: string[],
+    workflowPrompt: string,
+    mappingPrompt: string,
+    source: string,
+    forcedBoundaries: readonly number[] = []
+  ): Promise<SourceConversion> {
+    this.seedDocumentation(documentation);
+
+    const workflow = await this.sendPrompt(`${workflowPrompt}\n${numberScriptLines(source)}`);
+    const mapping = await this.sendPrompt(mappingPrompt);
 
     const udfLLMResponse = this.parseJsonResponse(workflow, "workflow");
     const { workflowJSON, udfIdToOperatorId } = this.buildWorkflow(udfLLMResponse);
@@ -392,7 +452,7 @@ export class NotebookMigrationLLM {
     // segmentScript reconciles whatever the model reported, so a malformed range degrades the
     // mapping rather than discarding a workflow that already cost a full conversion.
     const reportedRanges = this.parseJsonResponse(mapping, "mapping");
-    const { cells, udfToCellUuids } = segmentScript(source, reportedRanges);
+    const { cells, udfToCellUuids } = segmentScript(source, reportedRanges, { forcedBoundaries });
 
     return {
       workflowJSON,

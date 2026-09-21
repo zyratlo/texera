@@ -23,6 +23,7 @@ import {
   DEFAULT_LLM_REQUEST_TIMEOUT_MINUTES,
   LlmRequestTimeoutError,
 } from "./migration-llm";
+import { buildFolderDocument } from "./folder-assembly";
 import { GuiConfigService } from "../../../common/service/gui-config.service";
 import { WorkflowUtilService } from "../workflow-graph/util/workflow-util.service";
 import { AuthService } from "../../../common/service/user/auth.service";
@@ -694,6 +695,105 @@ describe("NotebookMigrationLLM", () => {
 
       await expect(llm.convertScriptToWorkflow(script)).rejects.toThrow("Notebook migration feature is disabled");
       expect(callModelSpy).not.toHaveBeenCalled();
+    });
+  });
+  describe("convertFolderToWorkflow", () => {
+    // Two files behind banner lines: a.py on document lines 1-3, b.py on lines 4-5.
+    const folder = buildFolderDocument([
+      { path: "a.py", source: "import os\nx = compute()" },
+      { path: "b.py", source: "print(x)" },
+    ]);
+
+    const workflowResponse = JSON.stringify({
+      code: { UDF1: "# UDF1", UDF2: "# UDF2" },
+      edges: [["UDF1", "UDF2"]],
+      outputs: { UDF1: ["value"], UDF2: ["result"] },
+    });
+
+    // Same reason as the script suite: sendPrompt mutates the array it handed to callModel, so
+    // index by the conversion's first call and read the whole exchange.
+    function contentsFor(role: string, firstCallIndex = 0): string[] {
+      return (callModelSpy.mock.calls[firstCallIndex][0] as { role: string; content: string }[])
+        .filter(message => message.role === role)
+        .map(message => message.content);
+    }
+
+    it("sends one document whose line numbers run across both files", async () => {
+      const llm = makeLLM();
+      mockResponses(workflowResponse, JSON.stringify({ UDF1: [[2, 3]] }));
+
+      await llm.convertFolderToWorkflow(folder);
+
+      const prompt = contentsFor("user").join("\n");
+      expect(prompt).toContain("1| # ===== FILE: a.py =====");
+      expect(prompt).toContain("2| import os");
+      // b.py restarts no numbering: its first line is 4, not 1.
+      expect(prompt).toContain("4| # ===== FILE: b.py =====");
+      expect(prompt).toContain("5| print(x)");
+    });
+
+    it("seeds the folder prelude, not the single-file script example", async () => {
+      const llm = makeLLM();
+      mockResponses(workflowResponse, JSON.stringify({ UDF1: [[2, 3]] }));
+
+      await llm.convertFolderToWorkflow(folder);
+
+      const prelude = contentsFor("system").join("\n");
+      expect(prelude).not.toContain("# START CELL1");
+      // The folder example opens on a banner; the script example opens on the import.
+      expect(prelude).toContain(" 1| # ===== FILE: data_prep.py =====");
+      expect(prelude).not.toContain(" 1| import pandas as pd");
+    });
+
+    it("cuts at every file banner, so no cell holds lines from two files", async () => {
+      const llm = makeLLM();
+      // One range deliberately straddles the seam between a.py and b.py.
+      mockResponses(workflowResponse, JSON.stringify({ UDF1: [[2, 5]] }));
+
+      const { notebook } = await llm.convertFolderToWorkflow(folder);
+
+      // Three cells, not two: the cut at b.py's banner splits the range the model reported
+      // across the seam, and each resulting cell sits wholly inside one file.
+      expect(notebook.cells.map(cell => cell.source)).toEqual([
+        "# ===== FILE: a.py =====",
+        "import os\nx = compute()",
+        "# ===== FILE: b.py =====\nprint(x)",
+      ]);
+    });
+
+    it("still maps a straddling range to the cells on both sides of the seam", async () => {
+      const llm = makeLLM();
+      mockResponses(workflowResponse, JSON.stringify({ UDF1: [[2, 5]] }));
+
+      const { workflowNotebookMapping, notebook } = await llm.convertFolderToWorkflow(folder);
+      const uuids = notebook.cells.map(cell => String(cell.metadata.uuid));
+
+      // Both cells the range covers map to the operator; a.py's banner cell, which it does
+      // not cover, stays unmapped.
+      expect(workflowNotebookMapping.operator_to_cell["PythonUDFV2-0"]).toEqual([uuids[1], uuids[2]]);
+      expect(workflowNotebookMapping.cell_to_operator[uuids[0]]).toBeUndefined();
+    });
+
+    it("builds the workflow the same way the other inputs do", async () => {
+      const llm = makeLLM();
+      mockResponses(workflowResponse, JSON.stringify({ UDF1: [[2, 3]], UDF2: [[5, 5]] }));
+
+      const { workflowJSON } = await llm.convertFolderToWorkflow(folder);
+
+      expect(workflowJSON.operators.map(operator => operator.operatorID)).toEqual(["PythonUDFV2-0", "PythonUDFV2-1"]);
+      expect(workflowJSON.links).toHaveLength(1);
+    });
+
+    it("rejects when the session was never initialized", async () => {
+      const llm = makeUninitializedLLM();
+
+      await expect(llm.convertFolderToWorkflow(folder)).rejects.toThrow("LLM session not initialized");
+    });
+
+    it("rejects when the feature is disabled", async () => {
+      const llm = makeUninitializedLLM(false);
+
+      await expect(llm.convertFolderToWorkflow(folder)).rejects.toThrow("Notebook migration feature is disabled");
     });
   });
 });

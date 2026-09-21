@@ -586,3 +586,189 @@ Here is an example of a mapping generated between the given example Python code 
 }
 Now create a mapping for the UDFs and the original code you were given. For each UDF, report the line ranges of the original script whose logic that UDF implements. The code in those lines should be equivalent to what the UDF does. Lines that no UDF implements, such as imports or the data loading that the workflow's source operator replaces, can be left out entirely. Give the first line before the last within each range, and do not shift the numbers: they must match the prefixes you were shown. There could be any number of ranges and UDFs, so only create the correct number in the mapping. Only give the mapping.
 `;
+
+export const EXAMPLE_OF_MULTIPLE_UDF_CONVERSION_FOLDER = `
+Here is an example of breaking up a folder of Python files into multiple Texera UDFs. Format your response structure exactly like the given example. The "code" key contains a dictionary of the UDF ID's with their respective code. The "edges" key contains a list of pairs that contains the connections between UDFs. The "outputs" key contains a dictionary of the UDF ID's with a list of the output column names of the DataFrame that the UDF yields. The UDFs can branch and merge, it does not have to be a linear chain depending on your implementation.
+
+The folder's files are shown as one document, concatenated in the order given. A line of the form '# ===== FILE: <path> =====' marks where a file begins, and each line is prefixed by its line number and a '|'. Line numbers run continuously across the whole document and do not restart at each file. Both the banners and the number prefixes are annotations so that line ranges can be referred to later. They are not part of the code and must never appear in the code you generate.
+
+Note that the original code imports one file of the folder from another, on line 33. That import appears in no generated UDF: the value it brought in travels along the edge from UDF1 to UDF3 instead.
+
+Original Code:
+\`\`\`python
+ 1| # ===== FILE: data_prep.py =====
+ 2| import pandas as pd
+ 3| import matplotlib.pyplot as plt
+ 4| 
+ 5| # Load the dataset
+ 6| file_path = 'diabetes.csv'
+ 7| data = pd.read_csv(file_path)
+ 8| 
+ 9| # Remove duplicate rows
+10| data = data.drop_duplicates()
+11| 
+12| # Remove rows with null values
+13| data = data.dropna()
+14| 
+15| # Print the minimum, maximum, and mean for all fields
+16| print("Minimum values:", data.min())
+17| print("Maximum values:", data.max())
+18| print("Mean values:", data.mean())
+19| 
+20| # Create a boxplot for the 'Pregnancies' field
+21| plt.figure(figsize=(8, 6))
+22| plt.boxplot(data['Pregnancies'], vert=False, patch_artist=True)
+23| plt.title('Boxplot of Pregnancies')
+24| plt.xlabel('Number of Pregnancies')
+25| plt.show()
+26| # ===== FILE: models.py =====
+27| from sklearn.model_selection import train_test_split
+28| from sklearn.ensemble import RandomForestClassifier
+29| from sklearn.svm import SVC
+30| from sklearn.metrics import accuracy_score
+31| from sklearn.preprocessing import StandardScaler
+32| 
+33| from data_prep import data
+34| 
+35| # Separate features and target variable
+36| X = data.drop('Outcome', axis=1)
+37| y = data['Outcome']
+38| 
+39| # Split data into training and testing sets (80% train, 20% test)
+40| X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+41| 
+42| scaler = StandardScaler()
+43| X_train = scaler.fit_transform(X_train)
+44| X_test = scaler.transform(X_test)
+45| 
+46| # Train Random Forest model
+47| rf_model = RandomForestClassifier(random_state=42)
+48| rf_model.fit(X_train, y_train)
+49| rf_pred = rf_model.predict(X_test)
+50| rf_accuracy = accuracy_score(y_test, rf_pred)
+51| print(f"Random Forest Accuracy: {rf_accuracy:.2%}")
+52| 
+53| # Train SVM model
+54| svm_model = SVC(random_state=42)
+55| svm_model.fit(X_train, y_train)
+56| svm_pred = svm_model.predict(X_test)
+57| svm_accuracy = accuracy_score(y_test, svm_pred)
+58| print(f"SVM Accuracy: {svm_accuracy:.2%}")
+\`\`\`
+
+Texera UDF conversion:
+\`\`\`json
+{
+    "code": {
+        "UDF1": "# UDF1\nfrom pytexera import *\nimport pandas as pd\nfrom typing import Iterator, Optional\n\nclass ProcessTableOperator(UDFTableOperator):\n\n    @overrides\n    def process_table(self, table: Table, port: int) -> Iterator[Optional[TableLike]]:\n        # Remove duplicate rows\n        data = table.drop_duplicates()\n\n        # Remove rows with null values\n        data = data.dropna()\n\n        # Calculate statistics\n        min_values = data.min()\n        max_values = data.max()\n        mean_values = data.mean()\n\n        # Create a DataFrame to yield\n        result_table = pd.DataFrame({\n            'min_values': [min_values],\n            'max_values': [max_values],\n            'mean_values': [mean_values],\n            'data': [data]\n        })\n\n        yield Table(result_table)",
+        "UDF2": "# UDF2\nfrom pytexera import *\nimport pandas as pd\nimport plotly.express as px\nimport plotly.io\nfrom typing import Iterator, Optional\n\nclass ProcessTableOperator(UDFTableOperator):\n    def render_error(self, error_msg):\n        return '''<h1>Boxplot is not available.</h1>\n                  <p>Reason is: {} </p>\n               '''.format(error_msg)\n\n    @overrides\n    def process_table(self, table: Table, port: int) -> Iterator[Optional[TableLike]]:\n        data = table['data'].iloc[0]\n\n        if data.empty:\n            yield {'html-content': self.render_error('input table is empty.')}\n            return\n\n        # Create a boxplot for the 'Pregnancies' field\n        fig = px.box(data, x='Pregnancies')\n        fig.update_layout(margin=dict(l=0, r=0, t=0, b=0))\n\n        # Convert fig to HTML content\n        html = plotly.io.to_html(fig, include_plotlyjs='cdn', auto_play=False)\n        yield {'html-content': html}",
+        "UDF3": "# UDF3\nfrom pytexera import *\nimport pandas as pd\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.preprocessing import StandardScaler\nfrom typing import Iterator, Optional\n\nclass ProcessTableOperator(UDFTableOperator):\n\n    @overrides\n    def process_table(self, table: Table, port: int) -> Iterator[Optional[TableLike]]:\n        data = table['data'].iloc[0]\n\n        # Separate features and target variable\n        X = data.drop('Outcome', axis=1)\n        y = data['Outcome']\n\n        # Split data into training and testing sets (80% train, 20% test)\n        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)\n\n        scaler = StandardScaler()\n        X_train = scaler.fit_transform(X_train)\n        X_test = scaler.transform(X_test)\n\n        # Create a DataFrame to yield\n        result_table = pd.DataFrame({\n            'X_train': [X_train], 'X_test': [X_test],\n            'y_train': [y_train], 'y_test': [y_test]\n        })\n\n        yield Table(result_table)",
+        "UDF4": "# UDF4\nfrom pytexera import *\nimport pandas as pd\nfrom sklearn.ensemble import RandomForestClassifier\nfrom sklearn.metrics import accuracy_score\nfrom typing import Iterator, Optional\n\nclass ProcessTableOperator(UDFTableOperator):\n\n    @overrides\n    def process_table(self, table: Table, port: int) -> Iterator[Optional[TableLike]]:\n        X_train = table['X_train'].iloc[0]\n        y_train = table['y_train'].iloc[0]\n        X_test = table['X_test'].iloc[0]\n        y_test = table['y_test'].iloc[0]\n\n        # Train Random Forest model\n        rf_model = RandomForestClassifier(random_state=42)\n        rf_model.fit(X_train, y_train)\n        rf_pred = rf_model.predict(X_test)\n        rf_accuracy = accuracy_score(y_test, rf_pred)\n\n        # Create a DataFrame to yield\n        result_table = pd.DataFrame({\n            'rf_model': [rf_model],\n            'rf_accuracy': [rf_accuracy],\n            'X_test': [X_test],\n            'y_test': [y_test]\n        })\n\n        yield Table(result_table)",
+        "UDF5": "# UDF5\nfrom pytexera import *\nimport pandas as pd\nfrom sklearn.svm import SVC\nfrom sklearn.metrics import accuracy_score\nfrom typing import Iterator, Optional\n\nclass ProcessTableOperator(UDFTableOperator):\n\n    @overrides\n    def process_table(self, table: Table, port: int) -> Iterator[Optional[TableLike]]:\n        X_train = table['X_train'].iloc[0]\n        y_train = table['y_train'].iloc[0]\n        X_test = table['X_test'].iloc[0]\n        y_test = table['y_test'].iloc[0]\n\n        # Train SVM model\n        svm_model = SVC(random_state=42)\n        svm_model.fit(X_train, y_train)\n        svm_pred = svm_model.predict(X_test)\n        svm_accuracy = accuracy_score(y_test, svm_pred)\n\n        # Create a DataFrame to yield\n        result_table = pd.DataFrame({\n            'svm_model': [svm_model],\n            'svm_accuracy': [svm_accuracy],\n            'X_test': [X_test],\n            'y_test': [y_test]\n        })\n\n        yield Table(result_table)"
+    },
+    "edges": [
+        ["UDF1", "UDF2"],
+        ["UDF1", "UDF3"],
+        ["UDF3", "UDF4"],
+        ["UDF3", "UDF5"]
+    ],
+    "outputs": {
+        "UDF1": ["min_values", "max_values", "mean_values", "data"],
+        "UDF2": ["html-content"],
+        "UDF3": ["X_train", "X_test", "y_train", "y_test"],
+        "UDF4": ["rf_model", "rf_accuracy", "X_test", "y_test"],
+        "UDF5": ["svm_model", "svm_accuracy", "X_test", "y_test"]
+    }
+}
+\`\`\``;
+
+export const FOLDER_WORKFLOW_PROMPT = `You are an expert in Python coding and workflow systems.
+Many users of Texera system are non-technical, but the Python projects they provide are written by technical people.
+They want to convert a folder of Python files into a single Texera workflow.
+Your goal is to help convert these folders into a Texera workflow that non-technical users can use directly.
+So do not remove or modify any classes or functions, preserve their names and structure as they are.
+Ensure that all essential logic remains intact.
+Create multiple Texera UDF codes using the provided Python code.
+Number each UDF, starting at 1 and incrementing, by starting with a comment that states that UDF number.
+
+Use the class and function names as shown in ProcessTupleOperator, ProcessTableOperator, and ProcessBatchOperator.
+Do not change the class names, function names, or input parameters.
+Use the ones that make sense and split the code meaningfully as instructed.
+
+Use the starter code provided for Python UDFs.
+
+Use the documentation of Table, Tuple, or Batch to work with parameters within Texera UDF.
+Do not import other libraries to define these types.
+
+There is no need for an __init__ function. Assume all inputs are valid pandas DataFrames,
+so do not use .to_pandas(), .to_dataframe(), etc. Do not load data from a file in the first UDF;
+the workflow's source operator supplies the initial data, so assume it is already given to you in the
+table parameter. Replacing file-loading code with this input is the one exception to preserving all
+original code (see below).
+Ensure proper data flow between functions. Separate operators as if they will run in different files.
+
+Current UDF operators can only have one output. Build a dataframe to yield all necessary variables
+and data. Ensure proper data flow for each UDF and all information is yielded (including training
+and testing data) if subsequent UDFs need them.
+
+Ensure all necessary imports are included in each UDF code block.
+
+Each UDF operator should be in its own Python code block. Do not combine them into a single block.
+Ensure import statements cover all used functions and separate them as necessary.
+
+It is VERY important that all of the original code in the folder's Python files is represented in the generated workflow.
+Make sure that nothing in the original is removed and that the semantic meaning of what the original code was doing is retained.
+The only exception is data-loading code (e.g. pd.read_csv); it is represented by the workflow's input/source operator rather than copied into a UDF.
+If there are user-defined Python classes, include the entire class definition in the appropriate UDF(s) that use that class.
+Always include the full class definition inside every UDF that references that class, including every UDF that constructs an object of it.
+Python classes are allowed in Texera UDFs and follow the same semantics as standard Python.
+They can be defined outside of ProcessTableOperator, ProcessTupleOperator, and ProcessBatchOperator.
+
+Return only the JSON formatted response, do not give any explanation.
+Do not wrap the JSON in markdown code fences. Output raw JSON only.
+Make sure the response is a valid JSON structure, including closing all braces and not including commas after the last element.
+Follow this JSON format (don't reuse the values, this is just the format). 'code', 'edges', and 'outputs' are all their own key's, do not nest any of these in another one and make sure to close their braces:
+{
+"code": {
+"UDF1": "code for UDF1 goes here",
+"UDF2": "code for UDF2 goes here"
+},
+"edges": [
+["UDF1", "UDF2"]
+],
+"outputs": {
+"UDF1": ["min_values", "max_values", "mean_values", "data"],
+"UDF2": ["html-content"]
+}
+}
+Make sure only the keys in the code section appear in the edges and outputs sections. Do not include any extraneous fields.
+Do not include any extraneous UDF's in the code field that include empty strings.
+Give ALL of the code, do not omit anything or use placeholders for code. Make sure ALL code in the original is translated over.
+The value of each UDF must be a valid JSON string: escape newlines, quotes, and backslashes correctly so that the decoded string is runnable Python. Use whichever quotes the Python code requires.
+The folder's files are given below as one document, concatenated in the order shown. A line of the form
+'# ===== FILE: <path> =====' marks where a file begins, and every line is prefixed with its line number
+followed by '| '. Line numbers run continuously across the whole document and do not restart at each file.
+Both the banners and the number prefixes are annotations so that line ranges can be referred to later;
+never reproduce either in any generated UDF code.
+
+A Texera UDF runs on its own and cannot import another file of this folder. Wherever a UDF uses a function,
+class or constant that another file of the folder defines, copy that definition into the UDF and leave the
+import out. Imports of third-party libraries such as pandas, numpy and sklearn are kept as normal.
+Where one file uses a value that another file produced, represent that with an edge between the two UDFs
+rather than with an import, the way the example drops 'from data_prep import data' in favor of an edge.
+A file that only defines helpers and runs nothing of its own does not need a UDF of its own; its definitions
+belong inside the UDFs that use them.
+Convert following the instructions and examples given. Here is the code:
+`;
+
+export const FOLDER_MAPPING_PROMPT = `
+Here is an example of a mapping generated between the given example folder and the Texera UDFs, using line ranges of the concatenated document and the UDF IDs. A range is a pair [firstLine, lastLine]; both bounds are 1-indexed and inclusive, and they refer to the line numbers shown in the prefix of the original code. A UDF may list several ranges when its logic came from separate parts of the folder, including parts in different files. The format should be kept the same.
+{
+"UDF1": [[9, 18]],
+"UDF2": [[20, 25]],
+"UDF3": [[35, 44]],
+"UDF4": [[46, 51]],
+"UDF5": [[53, 58]]
+}
+Now create a mapping for the UDFs and the original code you were given. For each UDF, report the line ranges of the document whose logic that UDF implements. The code in those lines should be equivalent to what the UDF does. Lines that no UDF implements, such as the file banners, the imports, and the data loading that the workflow's source operator replaces, can be left out entirely. When a UDF inlines a definition that another file of the folder provided, include that definition's lines in that UDF's ranges too, so more than one UDF may report the same lines. Keep each range inside a single file rather than running it across a banner line. Give the first line before the last within each range, and do not shift the numbers: they must match the prefixes you were shown. There could be any number of ranges and UDFs, so only create the correct number in the mapping. Only give the mapping.
+`;
