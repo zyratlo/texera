@@ -19,7 +19,14 @@
 
 import { Injectable } from "@angular/core";
 import { AppSettings } from "../../../common/app-setting";
-import { Notebook, NotebookMigrationLLM } from "./migration-llm";
+import { Notebook, NotebookMigrationLLM, SourceConversion } from "./migration-llm";
+import {
+  buildFolderDocument,
+  checkFolderLimits,
+  FolderDocument,
+  isMigratablePythonPath,
+  MAX_FOLDER_CHARACTERS,
+} from "./folder-assembly";
 import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { NotificationService } from "src/app/common/service/notification/notification.service";
 import { GuiConfigService } from "../../../common/service/gui-config.service";
@@ -45,6 +52,30 @@ export interface MappingContent {
   operator_to_cell: Record<string, string[]>;
 }
 
+/**
+ * What a conversion hands back to the caller. The notebook rides along because an input without
+ * cells has none of its own: the caller stores and displays it as it would a user's .ipynb.
+ */
+export interface GeneratedWorkflowContent {
+  workflowContent: WorkflowContent;
+  mappingContent: MappingContent;
+  notebook: Notebook;
+}
+
+/**
+ * The path of a picked file relative to the folder the user selected.
+ *
+ * webkitRelativePath is "<selected folder>/<path within it>". Dropping the first segment keeps
+ * the banners and the model's view relative to the selection, and stops a selected folder whose
+ * own name begins with a dot from excluding everything inside it.
+ */
+function folderRelativePath(file: File): string {
+  const full = file.webkitRelativePath;
+  if (!full) return file.name;
+  const separator = full.indexOf("/");
+  return separator === -1 ? full : full.slice(separator + 1);
+}
+
 interface StoreNotebookResponse {
   success: boolean;
   message: string;
@@ -55,6 +86,14 @@ interface DeleteNotebookResponse {
   deleted?: number;
   message?: string;
 }
+
+/**
+ * Byte bound applied before anything is read. UTF-8 never uses fewer bytes than characters, so a
+ * selection this far past the character cap cannot come in under it. Checked separately because
+ * the character cap can only run after the files are read, and reading one huge generated file
+ * into memory would hang the tab before that cap could refuse it.
+ */
+const MAX_FOLDER_BYTES = MAX_FOLDER_CHARACTERS * 4;
 
 // Single source of truth for the mapping cache key, shared with JupyterPanelService so it can't drift.
 export function notebookMappingKey(wid: number | undefined): string {
@@ -128,17 +167,45 @@ export class NotebookMigrationService {
   public async sendScriptToAIGenerateWorkflow(
     scriptSource: string,
     modelType: string
-  ): Promise<{ workflowContent: WorkflowContent; mappingContent: MappingContent; notebook: Notebook }> {
+  ): Promise<GeneratedWorkflowContent> {
+    return this.generateFromSource(modelType, "script", migrationLLM =>
+      migrationLLM.convertScriptToWorkflow(scriptSource)
+    );
+  }
+
+  /**
+   * Convert a folder of Python files, already assembled by parseFolder, into a workflow.
+   *
+   * Identical to the script path from the caller's side: the folder is one document by the time
+   * it gets here, so the derived notebook and the mapping have the same shape and are stored the
+   * same way.
+   */
+  public async sendFolderToAIGenerateWorkflow(
+    folder: FolderDocument,
+    modelType: string
+  ): Promise<GeneratedWorkflowContent> {
+    return this.generateFromSource(modelType, "folder", migrationLLM => migrationLLM.convertFolderToWorkflow(folder));
+  }
+
+  /**
+   * Run one conversion of an input that arrives without cells, then unpack it into the shape
+   * callers store. The script and folder paths differ only in which conversion they ask for.
+   */
+  private async generateFromSource(
+    modelType: string,
+    input: string,
+    convert: (migrationLLM: NotebookMigrationLLM) => Promise<SourceConversion>
+  ): Promise<GeneratedWorkflowContent> {
     return this.withMigrationLLM(modelType, async migrationLLM => {
       try {
-        const conversion = await migrationLLM.convertScriptToWorkflow(scriptSource);
+        const conversion = await convert(migrationLLM);
         return {
           workflowContent: conversion.workflowJSON,
           mappingContent: conversion.workflowNotebookMapping,
           notebook: conversion.notebook,
         };
       } catch (error) {
-        console.error("Error converting Python script:", error);
+        console.error(`Error converting Python ${input}:`, error);
         throw error;
       }
     });
@@ -318,26 +385,77 @@ export class NotebookMigrationService {
     delete this.mapping[id];
   }
 
-  // Reads a .py file as text. Rejects on a read error or a file with nothing in it: an empty
-  // script would otherwise cost a full LLM round trip to produce an empty workflow. Uses
-  // FileReader for the same reason parseAndTagNotebook does.
-  public parseScriptFile(file: File): Promise<string> {
+  // Reads a file as text. Uses FileReader for the same reason parseAndTagNotebook does: jsdom
+  // (the test environment) does not implement Blob/File.text(). `description` names the input in
+  // the read-failure message, since the caller knows what the user picked and this does not.
+  private readFileAsText(file: File, description: string): Promise<string> {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
-      reader.onerror = () => reject(new Error("Failed to read the Python file."));
+      reader.onerror = () => reject(new Error(`Failed to read the ${description}.`));
       reader.onload = () => {
         if (typeof reader.result !== "string") {
           reject(new Error("File content is not a valid string."));
-          return;
-        }
-        if (reader.result.trim() === "") {
-          reject(new Error("The Python file is empty."));
           return;
         }
         resolve(reader.result);
       };
       reader.readAsText(file);
     });
+  }
+
+  // Reads a .py file as text. Rejects on a file with nothing in it: an empty script would
+  // otherwise cost a full LLM round trip to produce an empty workflow.
+  public async parseScriptFile(file: File): Promise<string> {
+    const source = await this.readFileAsText(file, "Python file");
+    if (source.trim() === "") {
+      throw new Error("The Python file is empty.");
+    }
+    return source;
+  }
+
+  /**
+   * Read a directory selection into the one document a folder conversion is run against.
+   *
+   * Keeps only project Python source, reads it, and assembles it in a fixed order. Rejects when
+   * the selection holds no Python source or exceeds the conversion caps. The file-count and total
+   * byte checks run before anything is read, so an over-broad or oversized selection fails at
+   * once rather than after thousands of reads or one enormous one.
+   */
+  public async parseFolder(files: readonly File[]): Promise<FolderDocument> {
+    const selected = files.filter(file => isMigratablePythonPath(folderRelativePath(file)));
+    const tooMany = checkFolderLimits(selected.length, 0);
+    if (tooMany) {
+      throw new Error(tooMany);
+    }
+
+    const totalBytes = selected.reduce((sum, file) => sum + file.size, 0);
+    if (totalBytes > MAX_FOLDER_BYTES) {
+      throw new Error(
+        `The selected folder's Python files total ${totalBytes.toLocaleString()} bytes, far more than this tool converts at once. Select a smaller folder.`
+      );
+    }
+
+    const sources = await Promise.all(
+      selected.map(async file => ({
+        // Named so a read failure says which file failed; the caller shows this message as-is.
+        path: folderRelativePath(file),
+        source: await this.readFileAsText(file, `file ${folderRelativePath(file)}`),
+      }))
+    );
+    const folder = buildFolderDocument(sources);
+
+    // Distinct from finding no Python at all: these were found, and every one held no code.
+    if (folder.files.length === 0) {
+      throw new Error("The Python files in the selected folder are all empty.");
+    }
+
+    // Re-checked against what the document actually holds, since the character cap needs the
+    // assembled size.
+    const overflow = checkFolderLimits(folder.files.length, folder.source.length);
+    if (overflow) {
+      throw new Error(overflow);
+    }
+    return folder;
   }
 
   // Reads and parses an .ipynb file, then tags each cell with a uuid (the mapping keys off these).
