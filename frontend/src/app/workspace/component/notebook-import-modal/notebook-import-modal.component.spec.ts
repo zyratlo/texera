@@ -119,7 +119,7 @@ describe("NotebookImportModalComponent", () => {
     await createWith(of([{ name: "gpt-4" }]));
     const file = { name: "x.ipynb" } as NzUploadFile;
 
-    const result = component.beforeUpload(file);
+    const result = component.beforeUpload(file, [file]);
 
     expect(result).toBe(false);
     expect(component.importForm.get("file")?.value).toBe(file);
@@ -397,7 +397,7 @@ describe("NotebookImportModalComponent", () => {
   it("selects the Python tab from a click on its header, not just a direct call", async () => {
     await createWith(of([{ name: "gpt-4" }]));
     const headers = (fixture.nativeElement as HTMLElement).querySelectorAll(".ant-tabs-tab");
-    expect(headers.length).toBe(2);
+    expect(headers.length).toBe(3);
 
     (headers[1] as HTMLElement).click();
     // nz-tabs emits nzSelectedIndexChange from a microtask inside ngAfterContentChecked,
@@ -430,5 +430,94 @@ describe("NotebookImportModalComponent", () => {
 
     expect(pane().querySelector("input[type='file']")?.getAttribute("accept")).toBe(".ipynb");
     expect(submit().disabled).toBe(false);
+  });
+  describe("Python folder tab", () => {
+    // NzUploadFile carries the real File on originFileObj, and only that File knows the path the
+    // directory picker reported; tests build the pair the same way.
+    function pickedFile(relativePath: string): NzUploadFile {
+      const file = new File([""], relativePath.split("/").pop() ?? relativePath);
+      Object.defineProperty(file, "webkitRelativePath", { value: relativePath });
+      return { uid: relativePath, name: file.name, originFileObj: file } as NzUploadFile;
+    }
+
+    it("renders its own diagram and a directory-picking input", async () => {
+      await createWith(of([{ name: "gpt-4" }]));
+      const root = fixture.nativeElement as HTMLElement;
+
+      component.onTabChange(2);
+      fixture.detectChanges();
+
+      const pane = root.querySelector(".ant-tabs-tabpane-active") as HTMLElement;
+      expect(pane.querySelector("img[alt='Python Folder to Workflow']")).not.toBeNull();
+      // webkitdirectory is what makes the picker select a folder rather than a file.
+      expect(pane.querySelector("input[type='file']")?.hasAttribute("webkitdirectory")).toBe(true);
+      // No accept filter, so a folder with no .py still reaches the service, which explains why.
+      expect(pane.querySelector("input[type='file']")?.getAttribute("accept")).toBeFalsy();
+    });
+
+    it("stores the whole picked list, not the single file it was called with", async () => {
+      await createWith(of([{ name: "gpt-4" }]));
+      component.onTabChange(2);
+      const files = [pickedFile("proj/main.py"), pickedFile("proj/pkg/train.py")];
+
+      const result = component.beforeUpload(files[0], files);
+
+      expect(result).toBe(false);
+      expect(component.importForm.get("file")?.value).toBe(files);
+    });
+
+    it("patches the form once for a whole directory pick", async () => {
+      await createWith(of([{ name: "gpt-4" }]));
+      component.onTabChange(2);
+      const files = [pickedFile("proj/a.py"), pickedFile("proj/b.py"), pickedFile("proj/c.py")];
+      const patch = vi.spyOn(component.importForm, "patchValue");
+
+      // The picker calls beforeUpload once per file, handing the same list every time.
+      files.forEach(file => component.beforeUpload(file, files));
+
+      expect(patch).toHaveBeenCalledTimes(1);
+    });
+
+    it("names the selected folder rather than listing its files", async () => {
+      await createWith(of([{ name: "gpt-4" }]));
+      component.onTabChange(2);
+      component.importForm.patchValue({ file: [pickedFile("proj/main.py"), pickedFile("proj/pkg/train.py")] });
+      fixture.detectChanges();
+
+      expect((fixture.nativeElement as HTMLElement).textContent).toContain("Selected folder: proj");
+    });
+
+    it("falls back to a count when the picker reported no path", async () => {
+      await createWith(of([{ name: "gpt-4" }]));
+      component.onTabChange(2);
+      component.importForm.patchValue({ file: [{ uid: "1", name: "a.py" } as NzUploadFile] });
+      fixture.detectChanges();
+
+      expect((fixture.nativeElement as HTMLElement).textContent).toContain("Selected folder: 1 files");
+    });
+
+    it("hands the whole list to requestImport on submit", async () => {
+      await createWith(of([{ name: "gpt-4" }]));
+      component.onTabChange(2);
+      const files = [pickedFile("proj/main.py")];
+      component.importForm.setValue({ file: files, model: "gpt-4" });
+
+      await component.onSubmit();
+
+      expect(requestImport).toHaveBeenCalledWith(files, "gpt-4");
+      expect(modalRef.close).toHaveBeenCalledWith();
+    });
+
+    it("drops a folder selection when switching away", async () => {
+      await createWith(of([{ name: "gpt-4" }]));
+      component.onTabChange(2);
+      component.importForm.patchValue({ file: [pickedFile("proj/main.py")] });
+
+      component.onTabChange(1);
+      fixture.detectChanges();
+
+      expect(component.importForm.get("file")?.value).toBeNull();
+      expect((fixture.nativeElement as HTMLElement).textContent).not.toContain("Selected folder");
+    });
   });
 });

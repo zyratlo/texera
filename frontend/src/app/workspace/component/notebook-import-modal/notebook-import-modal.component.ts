@@ -32,18 +32,27 @@ import { NzTabsComponent, NzTabComponent, NzTabDirective } from "ng-zorro-antd/t
 import { NotebookMigrationService } from "../../service/notebook-migration/notebook-migration.service";
 
 // Passed in via nzData. requestImport resolves true to close the modal, false to keep it open
-// with the user's selection intact (bad file or a retryable failure).
+// with the user's selection intact (bad file or a retryable failure). A folder is handed over as
+// the whole picked list, which is also how the opener tells a folder from a single file.
 export interface NotebookImportModalData {
-  requestImport: (file: NzUploadFile, model: string) => Promise<boolean>;
+  requestImport: (selection: NzUploadFile | NzUploadFile[], model: string) => Promise<boolean>;
+}
+
+// The directory picker reports each file's path with the selected folder as its first segment.
+// Falls back to a count when no path is reported, so the row always says something was picked.
+function describeFolderSelection(files: readonly NzUploadFile[]): string {
+  const path = files[0]?.originFileObj?.webkitRelativePath ?? "";
+  const separator = path.indexOf("/");
+  return separator === -1 ? `${files.length} files` : path.slice(0, separator);
 }
 
 /**
  * The "AI Generate Workflow from Source Code" modal body: a tab per accepted input kind
- * (Jupyter notebook, Python script), each with its own diagram, description and upload
- * control, over a shared model dropdown and footer.
+ * (Jupyter notebook, Python script, Python folder), each with its own diagram, description and
+ * upload control, over a shared model dropdown and footer.
  *
- * On Submit it hands the file and model to requestImport and shows a loading state until
- * it resolves; the opener dispatches on the uploaded file's extension.
+ * On Submit it hands the selection and model to requestImport and shows a loading state until
+ * it resolves; the opener dispatches on a folder's list shape, or on a single file's extension.
  */
 @Component({
   selector: "texera-notebook-import-modal",
@@ -86,13 +95,26 @@ export class NotebookImportModalComponent implements OnDestroy {
   // Held as a field rather than an inline literal so the binding keeps a stable reference.
   public readonly tabAnimation = { inkBar: true, tabPane: false };
 
-  // Tab order: 0 = Jupyter notebook, 1 = Python file.
+  // Tab order: 0 = Jupyter notebook, 1 = Python file, 2 = Python folder.
   public selectedTabIndex = 0;
 
+  public get isFolderTab(): boolean {
+    return this.selectedTabIndex === 2;
+  }
+
+  /** What the upload row shows once something is picked, or null while nothing is. */
+  public get selectionSummary(): string | null {
+    const value = this.importForm.get("file")?.value;
+    if (Array.isArray(value)) {
+      return value.length === 0 ? null : `Selected folder: ${describeFolderSelection(value)}`;
+    }
+    return value?.name ? `Selected file: ${value.name}` : null;
+  }
+
   /**
-   * Switching tabs drops the selected file: the two tabs accept different extensions, so
-   * carrying a selection across would leave, say, an .ipynb staged under the Python tab.
-   * The model stays selected because it applies to either input.
+   * Switching tabs drops the selected file: the tabs accept different inputs, so carrying a
+   * selection across would leave, say, an .ipynb staged under the Python folder tab.
+   * The model stays selected because it applies to any of them.
    */
   public onTabChange(index: number): void {
     this.selectedTabIndex = index;
@@ -101,10 +123,17 @@ export class NotebookImportModalComponent implements OnDestroy {
     fileControl?.updateValueAndValidity();
   }
 
-  public beforeUpload = (file: NzUploadFile) => {
-    this.importForm.patchValue({ file });
-    this.importForm.get("file")?.markAsDirty();
-    this.importForm.get("file")?.updateValueAndValidity();
+  public beforeUpload = (file: NzUploadFile, fileList: NzUploadFile[]) => {
+    // A directory pick calls this once per file, handing the same list every time, so the folder
+    // tab takes the list and the guard below keeps a large folder from re-validating thousands
+    // of times. The other tabs take the single file.
+    const selection = this.isFolderTab ? fileList : file;
+    const control = this.importForm.get("file");
+    if (control?.value !== selection) {
+      this.importForm.patchValue({ file: selection });
+      control?.markAsDirty();
+      control?.updateValueAndValidity();
+    }
     return false; // prevent auto upload
   };
 
@@ -150,14 +179,14 @@ export class NotebookImportModalComponent implements OnDestroy {
 
   public async onSubmit(): Promise<void> {
     if (this.isSubmitting || !this.importForm.valid) return;
-    const file: NzUploadFile = this.importForm.get("file")?.value;
+    const selection: NzUploadFile | NzUploadFile[] = this.importForm.get("file")?.value;
     const model: string = this.importForm.get("model")?.value;
     this.isSubmitting = true;
     this.startTimer();
     this.modalRef.updateConfig({ nzClosable: false, nzMaskClosable: false, nzKeyboard: false });
     try {
       // Close only on success, so a failure leaves the modal open with the selection preserved.
-      if (await this.data.requestImport(file, model)) {
+      if (await this.data.requestImport(selection, model)) {
         this.modalRef.close();
         return;
       }

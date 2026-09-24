@@ -53,8 +53,9 @@ export interface MappingContent {
 }
 
 /**
- * What a conversion hands back to the caller. The notebook rides along because an input without
- * cells has none of its own: the caller stores and displays it as it would a user's .ipynb.
+ * What a conversion yields, whichever input produced it. `notebook` is the uploaded one for an
+ * .ipynb, and the one the LLM's line ranges derived for a .py or a folder. Either way it is what
+ * gets stored and shown in the Jupyter panel.
  */
 export interface GeneratedWorkflowContent {
   workflowContent: WorkflowContent;
