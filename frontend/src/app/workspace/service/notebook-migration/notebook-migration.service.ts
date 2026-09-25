@@ -24,6 +24,8 @@ import {
   buildFolderDocument,
   checkFolderLimits,
   FolderDocument,
+  folderRootName,
+  isExcludedPath,
   isMigratablePythonPath,
   MAX_FOLDER_CHARACTERS,
 } from "./folder-assembly";
@@ -423,13 +425,14 @@ export class NotebookMigrationService {
    * once rather than after thousands of reads or one enormous one.
    */
   public async parseFolder(files: readonly File[]): Promise<FolderDocument> {
-    const selected = files.filter(file => isMigratablePythonPath(folderRelativePath(file)));
+    const picked = files.map(file => ({ file, path: folderRelativePath(file) }));
+    const selected = picked.filter(entry => isMigratablePythonPath(entry.path));
     const tooMany = checkFolderLimits(selected.length, 0);
     if (tooMany) {
       throw new Error(tooMany);
     }
 
-    const totalBytes = selected.reduce((sum, file) => sum + file.size, 0);
+    const totalBytes = selected.reduce((sum, entry) => sum + entry.file.size, 0);
     if (totalBytes > MAX_FOLDER_BYTES) {
       throw new Error(
         `The selected folder's Python files total ${totalBytes.toLocaleString()} bytes, far more than this tool converts at once. Select a smaller folder.`
@@ -437,13 +440,20 @@ export class NotebookMigrationService {
     }
 
     const sources = await Promise.all(
-      selected.map(async file => ({
+      selected.map(async entry => ({
         // Named so a read failure says which file failed; the caller shows this message as-is.
-        path: folderRelativePath(file),
-        source: await this.readFileAsText(file, `file ${folderRelativePath(file)}`),
+        path: entry.path,
+        source: await this.readFileAsText(entry.file, `file ${entry.path}`),
       }))
     );
-    const folder = buildFolderDocument(sources);
+    const folder = buildFolderDocument(sources, {
+      rootName: folderRootName(files[0]?.webkitRelativePath ?? "") ?? "project",
+      // Named in the layout but never read, so the model knows a dataset or a requirements list
+      // exists. Caches and hidden directories stay out entirely: they are noise, not structure.
+      otherPaths: picked
+        .filter(entry => !isMigratablePythonPath(entry.path) && !isExcludedPath(entry.path))
+        .map(entry => entry.path),
+    });
 
     // Distinct from finding no Python at all: these were found, and every one held no code.
     if (folder.files.length === 0) {

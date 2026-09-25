@@ -47,7 +47,11 @@ import {
   NotebookMigrationService,
 } from "../../../../workspace/service/notebook-migration/notebook-migration.service";
 import { LlmRequestTimeoutError, Notebook } from "../../../../workspace/service/notebook-migration/migration-llm";
-import { FolderDocument } from "../../../../workspace/service/notebook-migration/folder-assembly";
+import {
+  FolderDocument,
+  folderRootName,
+  pickedFilePath,
+} from "../../../../workspace/service/notebook-migration/folder-assembly";
 import {
   NotebookImportModalComponent,
   NotebookImportModalData,
@@ -465,12 +469,10 @@ export class UserWorkflowComponent implements AfterViewInit, OnDestroy {
     return true;
   }
 
-  // The picker reports each file's path with the selected folder as its first segment, so the
-  // workflow is named after that folder. Nothing to strip: a folder name has no extension.
+  // The workflow is named after the selected folder. Nothing to strip: a folder name has no
+  // extension, which is why this does not go through deriveWorkflowName.
   private deriveFolderName(files: NzUploadFile[]): string {
-    const path = files[0]?.originFileObj?.webkitRelativePath ?? "";
-    const separator = path.indexOf("/");
-    const folderName = separator === -1 ? "" : path.slice(0, separator);
+    const folderName = folderRootName(pickedFilePath(files[0])) ?? "";
     return folderName.trim() === "" ? DEFAULT_WORKFLOW_NAME : folderName;
   }
 

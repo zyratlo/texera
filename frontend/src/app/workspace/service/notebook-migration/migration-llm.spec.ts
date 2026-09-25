@@ -699,10 +699,13 @@ describe("NotebookMigrationLLM", () => {
   });
   describe("convertFolderToWorkflow", () => {
     // Two files behind banner lines: a.py on document lines 1-3, b.py on lines 4-5.
-    const folder = buildFolderDocument([
-      { path: "a.py", source: "import os\nx = compute()" },
-      { path: "b.py", source: "print(x)" },
-    ]);
+    const folder = buildFolderDocument(
+      [
+        { path: "a.py", source: "import os\nx = compute()" },
+        { path: "b.py", source: "print(x)" },
+      ],
+      { rootName: "proj", otherPaths: ["requirements.txt"] }
+    );
 
     const workflowResponse = JSON.stringify({
       code: { UDF1: "# UDF1", UDF2: "# UDF2" },
@@ -730,6 +733,33 @@ describe("NotebookMigrationLLM", () => {
       // b.py restarts no numbering: its first line is 4, not 1.
       expect(prompt).toContain("4| # ===== FILE: b.py =====");
       expect(prompt).toContain("5| print(x)");
+    });
+
+    it("sends the layout ahead of the code, and never numbers it", async () => {
+      const llm = makeLLM();
+      mockResponses(workflowResponse, JSON.stringify({ UDF1: [[2, 3]] }));
+
+      await llm.convertFolderToWorkflow(folder);
+
+      const prompt = contentsFor("user").join("\n");
+      expect(prompt).toContain("proj/\n  a.py\n  b.py\n  requirements.txt");
+      expect(prompt).toContain("Here is the code:");
+      // The layout sits outside the numbered document: numbering it would shift every line the
+      // model reports back, and the segmenter would emit it as a cell of directory listing.
+      expect(prompt).not.toContain("| proj/");
+      expect(prompt).not.toContain("| requirements.txt");
+      // Numbering still starts at the document's own first line.
+      expect(prompt).toContain("1| # ===== FILE: a.py =====");
+    });
+
+    it("names a non-Python file in the layout without sending its contents", async () => {
+      const llm = makeLLM();
+      mockResponses(workflowResponse, JSON.stringify({ UDF1: [[2, 3]] }));
+
+      const { notebook } = await llm.convertFolderToWorkflow(folder);
+
+      // requirements.txt is orientation only; it is never read, so no cell can come from it.
+      expect(notebook.cells.some(cell => String(cell.source).includes("requirements.txt"))).toBe(false);
     });
 
     it("seeds the folder prelude, not the single-file script example", async () => {

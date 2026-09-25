@@ -35,7 +35,17 @@ import { splitScriptLines } from "./script-segmentation";
 // Path segments that never hold code a user means to migrate. Matched per segment, so a cache or
 // a vendored dependency is excluded wherever in the tree it sits. Hidden segments are handled
 // separately by the leading-dot rule, which already covers .venv, .git and friends.
-const EXCLUDED_SEGMENTS = new Set(["__pycache__", "venv", "site-packages", "node_modules", "build", "dist"]);
+const EXCLUDED_SEGMENTS = new Set(["__pycache__", "venv", "site-packages", "node_modules"]);
+
+// Excluded at the root only. These are conventional build output there, but ordinary package
+// names deeper in a tree: a src/build/ can be a module that builds features or models. Dropping
+// real code with no notice is worse than letting a genuine build tree run into the caps.
+const EXCLUDED_ROOT_DIRECTORIES = new Set(["build", "dist"]);
+
+// Non-Python files are listed in the layout by name only, so the model knows a dataset or a
+// requirements list exists without any of it being read. Capped because a folder can hold
+// thousands of data files and the layout is orientation, not an inventory.
+export const MAX_LISTED_OTHER_FILES = 20;
 
 /**
  * Caps on one conversion, enforced before any request is sent.
@@ -79,16 +89,104 @@ export interface FolderDocument {
   forcedBoundaries: number[];
   // The files that made it into the document, in the order they appear in it.
   files: FolderFileSpan[];
+  /**
+   * An indented listing of the folder, sent ahead of the document as prompt text.
+   *
+   * Deliberately NOT part of `source`. Line numbers have to map one-to-one onto file content, or
+   * the ranges the model reports stop meaning what the segmenter reads them as, and the segmenter
+   * would emit these lines as a cell of directory listing in the derived notebook.
+   *
+   * It puts the layout in front of the model before it reads any code, which is what resolving an
+   * import of a sibling file needs, and it is the only place the folder's non-Python files are
+   * named at all, since the document itself holds Python source only.
+   */
+  tree: string;
 }
 
-/** True for a path that holds project Python source, as opposed to a cache, a vendored dependency
- * or a hidden file. Tests are kept: a test file is real logic the user may want represented, and
- * dropping it silently is the failure the mapping exists to prevent. */
+export interface FolderDocumentOptions {
+  // The selected folder's own name, used as the layout's root label.
+  rootName?: string;
+  // Paths in the selection that hold no Python source. Listed in the layout, never read.
+  otherPaths?: readonly string[];
+}
+
+/**
+ * Either shape an upload control hands a picked file over in: the browser File itself, or a
+ * wrapper holding it.
+ */
+export interface PickedFile {
+  webkitRelativePath?: string;
+  originFileObj?: { webkitRelativePath?: string };
+}
+
+/**
+ * The path a directory picker reported for a picked file.
+ *
+ * Both shapes have to be read. ng-zorro's beforeUpload receives the browser File itself with a uid
+ * attached, and only wraps it in `originFileObj` later, when it builds the display list. Checking
+ * one shape alone silently yields no path, which reads downstream as "the user picked nothing".
+ */
+export function pickedFilePath(file: PickedFile | undefined): string {
+  return file?.originFileObj?.webkitRelativePath ?? file?.webkitRelativePath ?? "";
+}
+
+/**
+ * The selected folder's own name, taken from the path a directory picker reported for any file in
+ * it, which is "<selected folder>/<path within it>". Null when no path was reported.
+ */
+export function folderRootName(webkitRelativePath: string): string | null {
+  const separator = webkitRelativePath.indexOf("/");
+  return separator === -1 ? null : webkitRelativePath.slice(0, separator);
+}
+
+function pathSegments(path: string): string[] {
+  return path.split("/").filter(segment => segment !== "" && segment !== ".");
+}
+
+/**
+ * True for a path inside a cache, a vendored dependency, or anything hidden. Such files are left
+ * out of the layout as well as the document: they are noise, not the project's structure.
+ */
+export function isExcludedPath(path: string): boolean {
+  const segments = pathSegments(path);
+  if (segments.length === 0) {
+    return true;
+  }
+  if (segments.length > 1 && EXCLUDED_ROOT_DIRECTORIES.has(segments[0])) {
+    return true;
+  }
+  return segments.some(segment => segment.startsWith(".") || EXCLUDED_SEGMENTS.has(segment));
+}
+
+/** True for a path that holds project Python source. Tests are kept: a test file is real logic the
+ * user may want represented, and dropping it silently is the failure the mapping exists to prevent. */
 export function isMigratablePythonPath(path: string): boolean {
-  const segments = path.split("/").filter(segment => segment !== "" && segment !== ".");
+  const segments = pathSegments(path);
   if (segments.length === 0) return false;
-  if (!segments[segments.length - 1].toLowerCase().endsWith(".py")) return false;
-  return !segments.some(segment => segment.startsWith(".") || EXCLUDED_SEGMENTS.has(segment));
+  return segments[segments.length - 1].toLowerCase().endsWith(".py") && !isExcludedPath(path);
+}
+
+/**
+ * Renders the folder as an indented listing. Files in a directory come before its subdirectories,
+ * which is what ordering by directory then name already produces.
+ */
+export function renderFolderTree(rootName: string, paths: readonly string[]): string {
+  const lines = [`${rootName}/`];
+  const seenDirectories = new Set<string>();
+
+  for (const path of [...paths].sort(compareFolderPaths)) {
+    const segments = path.split("/");
+    segments.slice(0, -1).forEach((directory, index) => {
+      const prefix = segments.slice(0, index + 1).join("/");
+      if (!seenDirectories.has(prefix)) {
+        seenDirectories.add(prefix);
+        lines.push(`${"  ".repeat(index + 1)}${directory}/`);
+      }
+    });
+    lines.push(`${"  ".repeat(segments.length)}${segments[segments.length - 1]}`);
+  }
+
+  return lines.join("\n");
 }
 
 function pathParts(path: string): { dir: string; name: string } {
@@ -137,7 +235,8 @@ export function compareFolderPaths(a: string, b: string): number {
  * which renders as a cell containing only a heading. `files` reports what was actually included,
  * so a caller counting files counts the same set the model saw.
  */
-export function buildFolderDocument(files: readonly FolderFile[]): FolderDocument {
+export function buildFolderDocument(files: readonly FolderFile[], options: FolderDocumentOptions = {}): FolderDocument {
+  const { rootName = "project", otherPaths = [] } = options;
   const ordered = [...files].sort((a, b) => compareFolderPaths(a.path, b.path));
   const documentLines: string[] = [];
   const spans: FolderFileSpan[] = [];
@@ -150,10 +249,17 @@ export function buildFolderDocument(files: readonly FolderFile[]): FolderDocumen
     spans.push({ path: file.path, startLine, endLine: documentLines.length });
   }
 
+  // Sorted before slicing: which files get named must not depend on the order the browser
+  // happened to hand the directory over in.
+  const listedOthers = [...otherPaths].sort(compareFolderPaths).slice(0, MAX_LISTED_OTHER_FILES);
+  const tree = renderFolderTree(rootName, [...spans.map(span => span.path), ...listedOthers]);
+  const hidden = otherPaths.length - listedOthers.length;
+
   return {
     source: documentLines.join("\n"),
     forcedBoundaries: spans.map(span => span.startLine),
     files: spans,
+    tree: hidden > 0 ? `${tree}\n  ... and ${hidden} more non-Python files` : tree,
   };
 }
 

@@ -592,7 +592,13 @@ Here is an example of breaking up a folder of Python files into multiple Texera 
 
 The folder's files are shown as one document, concatenated in the order given. A line of the form '# ===== FILE: <path> =====' marks where a file begins, and each line is prefixed by its line number and a '|'. Line numbers run continuously across the whole document and do not restart at each file. Both the banners and the number prefixes are annotations so that line ranges can be referred to later. They are not part of the code and must never appear in the code you generate.
 
-Note that the original code imports one file of the folder from another, on line 33. That import appears in no generated UDF: the value it brought in travels along the edge from UDF1 to UDF3 instead.
+Note that the original code imports one file of the folder from another, on line 33. That import appears in no generated UDF: the value it brought in travels along the edge from UDF1 to UDF3 instead. Note also that the layout names requirements.txt, which is not Python source and so does not appear in the document.
+
+Folder layout:
+diabetes_analysis/
+  data_prep.py
+  models.py
+  requirements.txt
 
 Original Code:
 \`\`\`python
@@ -745,11 +751,15 @@ Make sure only the keys in the code section appear in the edges and outputs sect
 Do not include any extraneous UDF's in the code field that include empty strings.
 Give ALL of the code, do not omit anything or use placeholders for code. Make sure ALL code in the original is translated over.
 The value of each UDF must be a valid JSON string: escape newlines, quotes, and backslashes correctly so that the decoded string is runnable Python. Use whichever quotes the Python code requires.
-The folder's files are given below as one document, concatenated in the order shown. A line of the form
-'# ===== FILE: <path> =====' marks where a file begins, and every line is prefixed with its line number
-followed by '| '. Line numbers run continuously across the whole document and do not restart at each file.
-Both the banners and the number prefixes are annotations so that line ranges can be referred to later;
-never reproduce either in any generated UDF code.
+You are given the folder's layout first, then its Python files as one document. The layout is there so you
+know what exists before you read any of it; use it to tell which file an import refers to. Files in the
+layout that are not Python source are named but not included in the document, so you know they exist
+without their contents. The layout itself is not code and its lines are not numbered.
+
+In the document that follows the layout, a line of the form '# ===== FILE: <path> =====' marks where a file
+begins, and every line is prefixed with its line number followed by '| '. Line numbers run continuously
+across the whole document and do not restart at each file. Both the banners and the number prefixes are
+annotations so that line ranges can be referred to later; never reproduce either in any generated UDF code.
 
 A Texera UDF runs on its own and cannot import another file of this folder. Wherever a UDF uses a function,
 class or constant that another file of the folder defines, copy that definition into the UDF and leave the
@@ -758,8 +768,12 @@ Where one file uses a value that another file produced, represent that with an e
 rather than with an import, the way the example drops 'from data_prep import data' in favor of an edge.
 A file that only defines helpers and runs nothing of its own does not need a UDF of its own; its definitions
 belong inside the UDFs that use them.
-Convert following the instructions and examples given. Here is the code:
+Convert following the instructions and examples given. Here is the folder layout:
 `;
+
+// Separates the layout from the numbered document. Its own constant so every word the folder path
+// sends the model lives in this file rather than being spliced together in the caller.
+export const FOLDER_CODE_PROMPT = "Here is the code:";
 
 export const FOLDER_MAPPING_PROMPT = `
 Here is an example of a mapping generated between the given example folder and the Texera UDFs, using line ranges of the concatenated document and the UDF IDs. A range is a pair [firstLine, lastLine]; both bounds are 1-indexed and inclusive, and they refer to the line numbers shown in the prefix of the original code. A UDF may list several ranges when its logic came from separate parts of the folder, including parts in different files. The format should be kept the same.

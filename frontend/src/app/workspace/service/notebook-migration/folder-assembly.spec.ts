@@ -22,9 +22,14 @@ import {
   checkFolderLimits,
   compareFolderPaths,
   fileBanner,
+  folderRootName,
+  isExcludedPath,
   isMigratablePythonPath,
   MAX_FOLDER_CHARACTERS,
   MAX_FOLDER_FILES,
+  MAX_LISTED_OTHER_FILES,
+  pickedFilePath,
+  renderFolderTree,
 } from "./folder-assembly";
 import { segmentScript } from "./script-segmentation";
 
@@ -55,6 +60,13 @@ describe("isMigratablePythonPath", () => {
     expect(isMigratablePythonPath("a/node_modules/b/x.py")).toBe(false);
     expect(isMigratablePythonPath("build/lib/train.py")).toBe(false);
     expect(isMigratablePythonPath("dist/train.py")).toBe(false);
+  });
+
+  it("keeps a build or dist package that is not at the root", () => {
+    // Only conventional build output at the root. Deeper in a tree these are ordinary package
+    // names, and silently dropping real code is the failure the mapping exists to catch.
+    expect(isMigratablePythonPath("src/build/features.py")).toBe(true);
+    expect(isMigratablePythonPath("pkg/dist/writer.py")).toBe(true);
   });
 
   it("keeps test files, which are logic the user may want represented", () => {
@@ -144,7 +156,7 @@ describe("buildFolderDocument", () => {
   });
 
   it("returns an empty document for an empty selection", () => {
-    expect(buildFolderDocument([])).toEqual({ source: "", forcedBoundaries: [], files: [] });
+    expect(buildFolderDocument([])).toEqual({ source: "", forcedBoundaries: [], files: [], tree: "project/" });
   });
 
   it("leaves the caller's array untouched", () => {
@@ -213,5 +225,150 @@ describe("checkFolderLimits", () => {
   it("reports the counts that exceeded each cap", () => {
     expect(checkFolderLimits(MAX_FOLDER_FILES + 1, 10)).toContain((MAX_FOLDER_FILES + 1).toLocaleString());
     expect(checkFolderLimits(1, MAX_FOLDER_CHARACTERS + 1)).toContain((MAX_FOLDER_CHARACTERS + 1).toLocaleString());
+  });
+});
+
+describe("folderRootName", () => {
+  it("returns the first segment of a reported path", () => {
+    expect(folderRootName("proj/pkg/train.py")).toBe("proj");
+    expect(folderRootName("proj/main.py")).toBe("proj");
+  });
+
+  it("returns null when no path was reported", () => {
+    expect(folderRootName("main.py")).toBeNull();
+    expect(folderRootName("")).toBeNull();
+  });
+});
+
+describe("isExcludedPath", () => {
+  it("excludes hidden segments, caches and vendored dependencies", () => {
+    expect(isExcludedPath(".venv/stub.py")).toBe(true);
+    expect(isExcludedPath("pkg/__pycache__/a.py")).toBe(true);
+    expect(isExcludedPath("node_modules/b/x.py")).toBe(true);
+  });
+
+  it("excludes build output at the root but not a nested package of the same name", () => {
+    expect(isExcludedPath("build/lib/x.py")).toBe(true);
+    expect(isExcludedPath("dist/x.py")).toBe(true);
+    expect(isExcludedPath("src/build/x.py")).toBe(false);
+    // A file, not a directory, so the root rule must not fire.
+    expect(isExcludedPath("dist.py")).toBe(false);
+  });
+
+  it("allows ordinary project paths, Python or not", () => {
+    expect(isExcludedPath("pkg/train.py")).toBe(false);
+    expect(isExcludedPath("data/churn.csv")).toBe(false);
+    expect(isExcludedPath("")).toBe(true);
+  });
+});
+
+describe("renderFolderTree", () => {
+  it("indents subdirectories and lists a directory's files before its subdirectories", () => {
+    const tree = renderFolderTree("proj", ["utils/metrics.py", "main.py", "utils/__init__.py", "data/churn.csv"]);
+
+    expect(tree).toBe(
+      ["proj/", "  main.py", "  data/", "    churn.csv", "  utils/", "    __init__.py", "    metrics.py"].join("\n")
+    );
+  });
+
+  it("names each directory once however many files it holds", () => {
+    const tree = renderFolderTree("proj", ["a/one.py", "a/two.py", "a/three.py"]);
+
+    expect(tree.split("\n").filter(line => line.trim() === "a/")).toHaveLength(1);
+  });
+
+  it("renders a root with no files as the root alone", () => {
+    expect(renderFolderTree("proj", [])).toBe("proj/");
+  });
+
+  it("nests a subdirectory under its real parent, not a sibling that sorts between", () => {
+    const tree = renderFolderTree("proj", ["src/a.py", "src-old/b.py", "src/utils/c.py"]);
+
+    expect(tree).toBe(["proj/", "  src/", "    a.py", "    utils/", "      c.py", "  src-old/", "    b.py"].join("\n"));
+  });
+});
+
+describe("buildFolderDocument layout", () => {
+  const files = [
+    { path: "utils/metrics.py", source: "score()" },
+    { path: "main.py", source: "main()" },
+  ];
+
+  it("lists the Python files it assembled, under the given root", () => {
+    const document = buildFolderDocument(files, { rootName: "churn_pipeline" });
+
+    expect(document.tree).toBe(["churn_pipeline/", "  main.py", "  utils/", "    metrics.py"].join("\n"));
+  });
+
+  it("names non-Python files without reading them", () => {
+    const document = buildFolderDocument(files, {
+      rootName: "proj",
+      otherPaths: ["requirements.txt", "data/churn.csv"],
+    });
+
+    expect(document.tree).toContain("  requirements.txt");
+    expect(document.tree).toContain("    churn.csv");
+    // Named only: none of their content reaches the document the model reads.
+    expect(document.source).not.toContain("churn.csv");
+  });
+
+  it("keeps the layout out of the numbered document entirely", () => {
+    const document = buildFolderDocument(files, { rootName: "proj", otherPaths: ["requirements.txt"] });
+
+    // Numbering and segmentation both run on `source`, so a layout line inside it would shift
+    // every reported line number and surface as a cell of directory listing in the notebook.
+    expect(document.source).not.toContain("proj/");
+    expect(document.source).not.toContain("requirements.txt");
+  });
+
+  it("names the same non-Python files whatever order the browser reported them in", () => {
+    const others = Array.from(
+      { length: MAX_LISTED_OTHER_FILES + 3 },
+      (_unused, index) => `data/file${String(index).padStart(2, "0")}.csv`
+    );
+
+    const forward = buildFolderDocument(files, { rootName: "proj", otherPaths: others });
+    const reversed = buildFolderDocument(files, { rootName: "proj", otherPaths: [...others].reverse() });
+
+    expect(reversed.tree).toBe(forward.tree);
+    expect(forward.tree).toContain("file00.csv");
+    expect(forward.tree).not.toContain(`file${MAX_LISTED_OTHER_FILES}.csv`);
+  });
+
+  it("caps the non-Python files it names and says how many it left out", () => {
+    const others = Array.from({ length: MAX_LISTED_OTHER_FILES + 3 }, (_unused, index) => `data/file${index}.csv`);
+    const document = buildFolderDocument(files, { rootName: "proj", otherPaths: others });
+
+    expect(document.tree).toContain("... and 3 more non-Python files");
+    expect(document.tree.split("\n").filter(line => line.endsWith(".csv"))).toHaveLength(MAX_LISTED_OTHER_FILES);
+  });
+
+  it("defaults the root label when none is given", () => {
+    expect(buildFolderDocument(files).tree.split("\n")[0]).toBe("project/");
+  });
+});
+
+describe("pickedFilePath", () => {
+  // ng-zorro's beforeUpload hands over the browser File with a uid attached; it only wraps the
+  // File in originFileObj later, when it builds the display list. Both shapes have to be read, or
+  // a real directory pick reports no path and looks like an empty selection.
+  it("reads the path off the File itself", () => {
+    expect(pickedFilePath({ webkitRelativePath: "proj/main.py" })).toBe("proj/main.py");
+  });
+
+  it("reads the path off a wrapper holding the File", () => {
+    expect(pickedFilePath({ originFileObj: { webkitRelativePath: "proj/main.py" } })).toBe("proj/main.py");
+  });
+
+  it("prefers the wrapped File when both are present", () => {
+    expect(
+      pickedFilePath({ webkitRelativePath: "outer/a.py", originFileObj: { webkitRelativePath: "inner/a.py" } })
+    ).toBe("inner/a.py");
+  });
+
+  it("returns an empty string when neither shape reports a path", () => {
+    expect(pickedFilePath({})).toBe("");
+    expect(pickedFilePath(undefined)).toBe("");
+    expect(pickedFilePath({ originFileObj: {} })).toBe("");
   });
 });

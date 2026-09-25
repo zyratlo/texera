@@ -452,7 +452,7 @@ describe("NotebookMigrationService", () => {
     });
 
     it("sendFolderToAIGenerateWorkflow rejects with a disabled-feature error", async () => {
-      const folder = { source: "x = 1", forcedBoundaries: [1], files: [] };
+      const folder = { source: "x = 1", forcedBoundaries: [1], files: [], tree: "project/" };
       await expect(service.sendFolderToAIGenerateWorkflow(folder, "gpt-4")).rejects.toThrow(/disabled/i);
     });
 
@@ -583,7 +583,12 @@ describe("NotebookMigrationService", () => {
       close: ReturnType<typeof vi.fn>;
     };
 
-    const folder = { source: "# ===== FILE: a.py =====\nx = 1", forcedBoundaries: [1], files: [] };
+    const folder = {
+      source: "# ===== FILE: a.py =====\nx = 1",
+      forcedBoundaries: [1],
+      files: [],
+      tree: "proj/\n  a.py",
+    };
     const conversion = {
       workflowJSON: { ops: 1 },
       workflowNotebookMapping: { m: 2 },
@@ -652,6 +657,38 @@ describe("NotebookMigrationService", () => {
       expect(folder.files.map(file => file.path)).toEqual(["main.py", "pkg/train.py"]);
       expect(folder.source).toContain("# ===== FILE: main.py =====");
       expect(folder.source).not.toContain("proj/main.py");
+    });
+
+    it("builds a layout naming the selected folder, its Python files and its other files", async () => {
+      const folder = await service.parseFolder([
+        pickedFile("proj/pkg/train.py", "train()"),
+        pickedFile("proj/main.py", "main()"),
+        pickedFile("proj/requirements.txt", "pandas"),
+        pickedFile("proj/data/churn.csv", "a,b\n1,2"),
+      ]);
+
+      expect(folder.tree).toBe(
+        ["proj/", "  main.py", "  requirements.txt", "  data/", "    churn.csv", "  pkg/", "    train.py"].join("\n")
+      );
+      // Named, never read: only the Python files reach the document the model converts.
+      expect(folder.source).not.toContain("pandas");
+      expect(folder.source).not.toContain("1,2");
+    });
+
+    it("leaves caches and hidden directories out of the layout as well as the document", async () => {
+      const folder = await service.parseFolder([
+        pickedFile("proj/main.py", "main()"),
+        pickedFile("proj/__pycache__/main.py", "cached"),
+        pickedFile("proj/.venv/stub.py", "stub"),
+      ]);
+
+      expect(folder.tree).toBe(["proj/", "  main.py"].join("\n"));
+    });
+
+    it("falls back to a default root label when the picker reported no path", async () => {
+      const folder = await service.parseFolder([new File(["main()"], "main.py")]);
+
+      expect(folder.tree.split("\n")[0]).toBe("project/");
     });
 
     it("reads a folder whose own name begins with a dot", async () => {

@@ -30,6 +30,8 @@ import { NzButtonComponent } from "ng-zorro-antd/button";
 import { NzIconDirective } from "ng-zorro-antd/icon";
 import { NzTabsComponent, NzTabComponent, NzTabDirective } from "ng-zorro-antd/tabs";
 import { NotebookMigrationService } from "../../service/notebook-migration/notebook-migration.service";
+import { folderRootName, pickedFilePath } from "../../service/notebook-migration/folder-assembly";
+import { NotificationService } from "../../../common/service/notification/notification.service";
 
 // Passed in via nzData. requestImport resolves true to close the modal, false to keep it open
 // with the user's selection intact (bad file or a retryable failure). A folder is handed over as
@@ -38,12 +40,11 @@ export interface NotebookImportModalData {
   requestImport: (selection: NzUploadFile | NzUploadFile[], model: string) => Promise<boolean>;
 }
 
-// The directory picker reports each file's path with the selected folder as its first segment.
-// Falls back to a count when no path is reported, so the row always says something was picked.
+// Falls back to a count when the picker reported no path, so the row always says something
+// was picked.
 function describeFolderSelection(files: readonly NzUploadFile[]): string {
-  const path = files[0]?.originFileObj?.webkitRelativePath ?? "";
-  const separator = path.indexOf("/");
-  return separator === -1 ? `${files.length} files` : path.slice(0, separator);
+  const count = `${files.length} file${files.length === 1 ? "" : "s"}`;
+  return folderRootName(pickedFilePath(files[0])) ?? count;
 }
 
 /**
@@ -80,6 +81,7 @@ export class NotebookImportModalComponent implements OnDestroy {
   private readonly fb = inject(FormBuilder);
   private readonly modalRef = inject(NzModalRef);
   private readonly notebookMigrationService = inject(NotebookMigrationService);
+  private readonly notificationService = inject(NotificationService);
   private readonly data: NotebookImportModalData = inject(NZ_MODAL_DATA);
 
   public readonly importForm: FormGroup = this.fb.group({
@@ -123,7 +125,31 @@ export class NotebookImportModalComponent implements OnDestroy {
     fileControl?.updateValueAndValidity();
   }
 
+  // A dropped directory arrives one file at a time and ng-zorro attaches no path to any of
+  // them, so a single drop would otherwise stage one arbitrary file and convert it as if it
+  // were the whole project. The message is latched for the whole burst rather than throttled
+  // by a fixed interval, because walking a large directory tree can take longer than any
+  // interval worth picking. The latch releases once the burst goes quiet, so a second drop is
+  // reported again.
+  private dropRejectionTimer: ReturnType<typeof setTimeout> | null = null;
+
+  private rejectFolderDrop(): void {
+    if (this.dropRejectionTimer === null) {
+      this.notificationService.error("Drop is not supported for folders. Use the button to pick a folder.");
+    } else {
+      clearTimeout(this.dropRejectionTimer);
+    }
+    this.dropRejectionTimer = setTimeout(() => (this.dropRejectionTimer = null), 2000);
+  }
+
   public beforeUpload = (file: NzUploadFile, fileList: NzUploadFile[]) => {
+    // Only the directory picker reports a path. No path on the folder tab means this came from a
+    // drop, which cannot be assembled into a folder, so nothing is staged.
+    if (this.isFolderTab && pickedFilePath(file) === "") {
+      this.rejectFolderDrop();
+      return false;
+    }
+
     // A directory pick calls this once per file, handing the same list every time, so the folder
     // tab takes the list and the guard below keeps a large folder from re-validating thousands
     // of times. The other tabs take the single file.
@@ -148,6 +174,9 @@ export class NotebookImportModalComponent implements OnDestroy {
 
   public ngOnDestroy(): void {
     this.stopTimer();
+    if (this.dropRejectionTimer !== null) {
+      clearTimeout(this.dropRejectionTimer);
+    }
   }
 
   public get formattedElapsedTime(): string {

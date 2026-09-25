@@ -44,6 +44,7 @@ import {
   EXAMPLE_OF_MULTIPLE_UDF_CONVERSION_FOLDER,
   FOLDER_WORKFLOW_PROMPT,
   FOLDER_MAPPING_PROMPT,
+  FOLDER_CODE_PROMPT,
 } from "./migration-prompts";
 import { DerivedCell, segmentScript, splitScriptLines } from "./script-segmentation";
 import { FolderDocument } from "./folder-assembly";
@@ -407,10 +408,10 @@ export class NotebookMigrationLLM {
    * Send a folder of Python files, already assembled into one document, to be converted into a
    * workflow, a mapping, and the notebook the mapping is expressed against.
    *
-   * Differs from the script path only in its prompt variant and in the cut points it requires:
-   * each file's banner line is forced into the segmentation so no derived cell holds lines from
-   * two files. The mapping is still keyed on cell uuids, so storage, the Jupyter panel and
-   * highlighting never learn that the input was a folder.
+   * Differs from the script path in its prompt variant, in the cut points it requires (each
+   * file's banner line is forced into the segmentation so no derived cell holds lines from two
+   * files), and in the layout it sends ahead of the code. The mapping is still keyed on cell
+   * uuids, so storage, the Jupyter panel and highlighting never learn the input was a folder.
    */
   public async convertFolderToWorkflow(document: FolderDocument): Promise<SourceConversion> {
     this.assertEnabled();
@@ -423,7 +424,13 @@ export class NotebookMigrationLLM {
       FOLDER_WORKFLOW_PROMPT,
       FOLDER_MAPPING_PROMPT,
       document.source,
-      document.forcedBoundaries
+      {
+        forcedBoundaries: document.forcedBoundaries,
+        // The layout is prompt text, never part of the numbered document: numbering it would
+        // shift every line the model reports, and the segmenter would emit it as a cell of
+        // directory listing in the derived notebook.
+        preamble: `${document.tree}\n\n${FOLDER_CODE_PROMPT}`,
+      }
     );
   }
 
@@ -431,19 +438,22 @@ export class NotebookMigrationLLM {
    * The body shared by every input that arrives without cells: seed the prelude, ask for the
    * workflow, ask for the ranges, then derive the cells from the answer.
    *
-   * A script and a folder differ only in which prompt variant they pass and in whether they
-   * require cut points of their own, so the sequence itself lives here once.
+   * A script and a folder differ only in which prompt variant they pass, in whether they require
+   * cut points of their own, and in whether anything is sent between the prompt and the numbered
+   * code, so the sequence itself lives here once.
    */
   private async convertNumberedSource(
     documentation: string[],
     workflowPrompt: string,
     mappingPrompt: string,
     source: string,
-    forcedBoundaries: readonly number[] = []
+    options: { forcedBoundaries?: readonly number[]; preamble?: string } = {}
   ): Promise<SourceConversion> {
+    const { forcedBoundaries = [], preamble } = options;
     this.seedDocumentation(documentation);
 
-    const workflow = await this.sendPrompt(`${workflowPrompt}\n${numberScriptLines(source)}`);
+    const request = [workflowPrompt, preamble, numberScriptLines(source)].filter(part => part).join("\n");
+    const workflow = await this.sendPrompt(request);
     const mapping = await this.sendPrompt(mappingPrompt);
 
     const udfLLMResponse = this.parseJsonResponse(workflow, "workflow");

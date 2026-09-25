@@ -509,13 +509,21 @@ describe("SavedWorkflowSectionComponent", () => {
     // branch; from the assembled document onward it behaves like the .py path.
     describe("Python folder input", () => {
       const derivedNotebook = { cells: [{ cell_type: "code", metadata: { uuid: "u1" }, source: "x = 1" }] };
-      const assembled = { source: "# ===== FILE: main.py =====\nx = 1", forcedBoundaries: [1], files: [] };
+      const assembled = {
+        source: "# ===== FILE: main.py =====\nx = 1",
+        forcedBoundaries: [1],
+        files: [],
+        tree: "proj/\n  main.py",
+      };
 
-      // Only the File behind an NzUploadFile knows the path the picker reported.
+      // What beforeUpload hands over: ng-zorro attaches a uid to the browser File itself, and only
+      // wraps it in originFileObj later. A fixture that wraps it up front would pass while the
+      // real picker produced no path at all.
       function pickedFile(relativePath: string): NzUploadFile {
         const file = new File([""], relativePath.split("/").pop() ?? relativePath);
         Object.defineProperty(file, "webkitRelativePath", { value: relativePath });
-        return { uid: relativePath, name: file.name, originFileObj: file } as NzUploadFile;
+        (file as unknown as NzUploadFile).uid = relativePath;
+        return file as unknown as NzUploadFile;
       }
 
       const selection = [pickedFile("proj/main.py"), pickedFile("proj/pkg/train.py")];
@@ -540,8 +548,8 @@ describe("SavedWorkflowSectionComponent", () => {
 
         const proceed = await getRequestImport()(selection, "gpt-4");
 
-        // The underlying Files are what carry webkitRelativePath, so those are what get passed on.
-        expect(parseSpy.mock.calls[0][0]).toEqual(selection.map(file => file.originFileObj));
+        // The Files themselves are what carry webkitRelativePath, so those are what get passed on.
+        expect(parseSpy.mock.calls[0][0]).toEqual(selection);
         expect(convertSpy).toHaveBeenCalledWith(assembled, "gpt-4");
         // Named after the selected folder, with no extension to strip.
         expect(persist.createWorkflow.mock.calls[0][1]).toBe("proj_GENERATED_BY_LLM");
@@ -588,6 +596,19 @@ describe("SavedWorkflowSectionComponent", () => {
 
         expect(proceed).toBe(false);
         expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining("simplify the folder"));
+      });
+
+      it("names the workflow after the folder when the file arrives wrapped", async () => {
+        const inner = pickedFile("wrapped_proj/main.py");
+        const { persist } = mockFolderGenerationSuccess();
+        vi.spyOn(TestBed.inject(Router), "navigate").mockResolvedValue(true);
+
+        await getRequestImport()(
+          [{ uid: "1", name: "main.py", originFileObj: inner } as unknown as NzUploadFile],
+          "gpt-4"
+        );
+
+        expect(persist.createWorkflow.mock.calls[0][1]).toBe("wrapped_proj_GENERATED_BY_LLM");
       });
 
       it("falls back to the default workflow name when the picker reported no path", async () => {
