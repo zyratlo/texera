@@ -24,7 +24,7 @@ import { NZ_MODAL_DATA, NzModalRef } from "ng-zorro-antd/modal";
 import { of, Subject } from "rxjs";
 import { NzUploadFile } from "ng-zorro-antd/upload";
 
-import { NotebookImportModalComponent } from "./notebook-import-modal.component";
+import { DROP_REJECTION_LATCH_MS, NotebookImportModalComponent } from "./notebook-import-modal.component";
 import { NotebookMigrationService } from "../../service/notebook-migration/notebook-migration.service";
 import { NotificationService } from "../../../common/service/notification/notification.service";
 import { commonTestProviders } from "../../../common/testing/test-utils";
@@ -558,16 +558,17 @@ describe("NotebookImportModalComponent", () => {
         component.onTabChange(2);
         const error = vi.spyOn(TestBed.inject(NotificationService), "error").mockImplementation(() => {});
 
-        // One slow walk: files keep arriving well past any fixed throttle interval.
+        // One slow walk: files keep arriving, each gap shorter than the latch but the whole
+        // walk far longer, which is what a fixed throttle rate would get wrong.
         for (let index = 0; index < 5; index++) {
           component.beforeUpload(droppedFile(`f${index}.py`), [droppedFile(`f${index}.py`)]);
-          vi.advanceTimersByTime(1500);
+          vi.advanceTimersByTime(DROP_REJECTION_LATCH_MS - 500);
         }
 
         expect(error).toHaveBeenCalledTimes(1);
 
         // Once the burst goes quiet the latch releases, so a second drop is reported again.
-        vi.advanceTimersByTime(2500);
+        vi.advanceTimersByTime(DROP_REJECTION_LATCH_MS + 500);
         component.beforeUpload(droppedFile("again.py"), [droppedFile("again.py")]);
 
         expect(error).toHaveBeenCalledTimes(2);

@@ -42,6 +42,13 @@ export interface NotebookImportModalData {
 
 // Falls back to a count when the picker reported no path, so the row always says something
 // was picked.
+/**
+ * How long after the last rejected file a drop is treated as over. Long enough that walking a
+ * large directory tree stays one burst, short enough that a deliberate second drop is reported
+ * again rather than swallowed.
+ */
+export const DROP_REJECTION_LATCH_MS = 2000;
+
 function describeFolderSelection(files: readonly NzUploadFile[]): string {
   const count = `${files.length} file${files.length === 1 ? "" : "s"}`;
   return folderRootName(pickedFilePath(files[0])) ?? count;
@@ -127,10 +134,8 @@ export class NotebookImportModalComponent implements OnDestroy {
 
   // A dropped directory arrives one file at a time and ng-zorro attaches no path to any of
   // them, so a single drop would otherwise stage one arbitrary file and convert it as if it
-  // were the whole project. The message is latched for the whole burst rather than throttled
-  // by a fixed interval, because walking a large directory tree can take longer than any
-  // interval worth picking. The latch releases once the burst goes quiet, so a second drop is
-  // reported again.
+  // were the whole project. The message is latched for the whole burst rather than throttled at
+  // a fixed rate, because walking a large tree can outlast any rate worth picking.
   private dropRejectionTimer: ReturnType<typeof setTimeout> | null = null;
 
   private rejectFolderDrop(): void {
@@ -139,7 +144,7 @@ export class NotebookImportModalComponent implements OnDestroy {
     } else {
       clearTimeout(this.dropRejectionTimer);
     }
-    this.dropRejectionTimer = setTimeout(() => (this.dropRejectionTimer = null), 2000);
+    this.dropRejectionTimer = setTimeout(() => (this.dropRejectionTimer = null), DROP_REJECTION_LATCH_MS);
   }
 
   public beforeUpload = (file: NzUploadFile, fileList: NzUploadFile[]) => {
