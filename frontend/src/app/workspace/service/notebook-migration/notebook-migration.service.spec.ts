@@ -734,7 +734,7 @@ describe("NotebookMigrationService", () => {
       // The browser reports size without the file being read; a generated .py really can be this big.
       Object.defineProperty(huge, "size", { value: MAX_FOLDER_CHARACTERS * 8 });
 
-      await expect(service.parseFolder([huge])).rejects.toThrow(/bytes/i);
+      await expect(service.parseFolder([huge])).rejects.toThrow(/too large to convert/i);
       expect(readSpy).not.toHaveBeenCalled();
     });
 

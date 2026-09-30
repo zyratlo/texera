@@ -246,9 +246,8 @@ describe("folder cap checks", () => {
     expect(checkFolderDocument(documentOf(0, 0))).toContain("all empty");
   });
 
-  it("reports the count that exceeded each cap", () => {
+  it("reports the count that exceeded each countable cap", () => {
     expect(checkFolderFileCount(MAX_FOLDER_FILES + 1)).toContain((MAX_FOLDER_FILES + 1).toLocaleString());
-    expect(checkFolderByteSize(MAX_FOLDER_BYTES + 1)).toContain((MAX_FOLDER_BYTES + 1).toLocaleString());
     expect(checkFolderDocument(documentOf(MAX_FOLDER_CHARACTERS + 1))).toContain(
       (MAX_FOLDER_CHARACTERS + 1).toLocaleString()
     );
@@ -261,11 +260,13 @@ describe("folder cap checks", () => {
     );
   });
 
-  it("quotes one limit to the user, so the byte guard does not read as a second cap", () => {
+  it("quotes one limit in one unit, so the byte guard does not read as a second cap", () => {
     const message = checkFolderByteSize(MAX_FOLDER_BYTES + 1);
 
     expect(message).toContain(MAX_FOLDER_CHARACTERS.toLocaleString());
+    // Neither the byte bound nor a measured byte figure: both would mix units against the cap.
     expect(message).not.toContain(MAX_FOLDER_BYTES.toLocaleString());
+    expect(message).not.toMatch(/bytes/i);
   });
 });
 

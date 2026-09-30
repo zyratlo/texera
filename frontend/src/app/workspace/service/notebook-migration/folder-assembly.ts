@@ -322,10 +322,10 @@ export function checkFolderFileCount(fileCount: number): string | null {
 
 export function checkFolderByteSize(totalBytes: number): string | null {
   if (totalBytes > MAX_FOLDER_BYTES) {
-    // Names the character cap rather than the byte bound. The byte bound is an internal guard
-    // that only catches large overshoots, and showing two different numbers for what is one
-    // rule to the user reads as two separate limits.
-    return `The selected folder's Python files total ${totalBytes.toLocaleString()} bytes, far more than the ${MAX_FOLDER_CHARACTERS.toLocaleString()} characters this tool converts at once. Select a smaller folder.`;
+    // Quotes the character cap and no byte figure. The byte bound is a pre-read guard for that
+    // same limit, not a second one, and a size on disk is not something the user can act on;
+    // naming both would read as two separate limits in two different units.
+    return `The selected folder is too large to convert. Its Python files hold more than the ${MAX_FOLDER_CHARACTERS.toLocaleString()} characters this tool converts at once. Select a smaller folder.`;
   }
   return null;
 }
