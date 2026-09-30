@@ -176,7 +176,7 @@ export class NotebookMigrationService {
    */
   private async generateFromSource(
     modelType: string,
-    input: string,
+    input: "script" | "folder",
     convert: (migrationLLM: NotebookMigrationLLM) => Promise<SourceConversion>
   ): Promise<GeneratedWorkflowContent> {
     return this.withMigrationLLM(modelType, async migrationLLM => {
