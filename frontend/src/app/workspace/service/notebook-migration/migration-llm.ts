@@ -130,12 +130,10 @@ function toDerivedNotebook(cells: DerivedCell[]): Notebook {
  * resets that history to its documentation prelude at its start, so the same instance can run
  * several conversions, in either mode, without leaking one conversion's context into the next.
  *
- * The modes differ only in framing. A notebook arrives already split into cells and the model
- * is asked to map UDFs onto those cell ids; a script and a folder have no cells, so they are
- * sent with line numbers, the model reports the line ranges each UDF came from, and the cells
- * are derived from that answer. A folder is a folder only in how it is assembled and prompted:
- * by the time it reaches here it is one document, and everything downstream of the model's
- * reply is shared by all three.
+ * The modes differ only in framing. A notebook arrives split into cells and the model maps UDFs
+ * onto those cell ids; a script and a folder have none, so they are sent with line numbers and
+ * the cells are derived from the ranges the model reports. A folder is one document by the time
+ * it reaches here, so everything downstream of the reply is shared.
  *
  * Output column types: intermediate UDFs declare their output columns as `binary` so rich
  * Python objects (DataFrames, arrays, models) round-trip between operators via pickle.
@@ -180,10 +178,8 @@ export class NotebookMigrationLLM {
     doc === EXAMPLE_OF_MULTIPLE_UDF_CONVERSION ? EXAMPLE_OF_MULTIPLE_UDF_CONVERSION_SCRIPT : doc
   );
 
-  // The folder prelude differs from the script prelude in the same single entry, for the same
-  // reason: its worked example shows files concatenated behind banner lines, an entry point that
-  // calls into them, and the definitions it calls inlined into the UDFs rather than imported,
-  // none of which a single script can demonstrate.
+  // Differs from the script prelude in the same single entry: its worked example shows banner
+  // lines, an entry point calling into other files, and definitions inlined rather than imported.
   private static readonly FOLDER_DOCUMENTATION: string[] = NotebookMigrationLLM.SCRIPT_DOCUMENTATION.map(doc =>
     doc === EXAMPLE_OF_MULTIPLE_UDF_CONVERSION_SCRIPT ? EXAMPLE_OF_MULTIPLE_UDF_CONVERSION_FOLDER : doc
   );
@@ -410,19 +406,13 @@ export class NotebookMigrationLLM {
   }
 
   /**
-   * Send a folder of Python files, already assembled into one document, to be converted into a
-   * workflow, a mapping, and the notebook the mapping is expressed against.
+   * Send a folder, already assembled into one document, to be converted into a workflow, a
+   * mapping, and the notebook the mapping is expressed against.
    *
-   * Differs from the script path in its prompt variant, in the layout it sends ahead of the code,
-   * in forcing a cut at each file's banner so no derived cell holds lines from two files, and in
-   * showing only the entry point.
-   *
-   * Every file is converted, but the derived notebook holds the entry point alone: a folder's
-   * other files are function definitions, and a notebook of all of them reads as a wall of code
-   * rather than the story of what the project does. The model names the entry point, and the
-   * mapping it reports is expressed in that file's lines, so clicking an operator highlights the
-   * call that runs it. The mapping is still keyed on cell uuids, so storage, the Jupyter panel
-   * and highlighting never learn the input was a folder.
+   * Every file is converted, but the notebook holds the entry point alone, since the rest are
+   * function definitions and a notebook of all of them is a wall of code. The mapping the model
+   * reports is in that file's lines, so clicking an operator highlights the call that runs it.
+   * Still keyed on cell uuids, so nothing downstream learns the input was a folder.
    */
   public async convertFolderToWorkflow(document: FolderDocument): Promise<SourceConversion> {
     this.assertEnabled();
@@ -456,12 +446,9 @@ export class NotebookMigrationLLM {
   }
 
   /**
-   * The two model calls every cell-less input makes, and the parsing of both replies.
-   *
-   * Stops short of segmenting, because that is where the inputs differ: a script segments its
-   * whole source, a folder cuts at file banners and then narrows to the entry point. Keeping
-   * that out means this method has no folder concept and the untyped reply stays local to the
-   * caller that understands it.
+   * The two model calls every cell-less input makes, and the parsing of both replies. Stops short
+   * of segmenting, which is where the inputs differ, so this has no folder concept and the untyped
+   * reply stays with the caller that understands it.
    */
   private async requestConversion(
     documentation: string[],

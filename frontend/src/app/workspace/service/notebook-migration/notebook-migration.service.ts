@@ -58,8 +58,8 @@ export interface MappingContent {
 
 /**
  * What a conversion yields, whichever input produced it. `notebook` is the uploaded one for an
- * .ipynb, and the one the LLM's line ranges derived for a .py or a folder. Either way it is what
- * gets stored and shown in the Jupyter panel.
+ * .ipynb and the LLM-derived one for a .py or a folder; either way it is what gets stored and
+ * shown in the Jupyter panel.
  */
 export interface GeneratedWorkflowContent {
   workflowContent: WorkflowContent;
@@ -399,9 +399,8 @@ export class NotebookMigrationService {
   /**
    * Read a directory selection into the one document a folder conversion is run against.
    *
-   * Keeps only project Python source, reads it, and assembles it in a fixed order. Rejects when
-   * the selection holds no Python source or exceeds the conversion caps. The file-count and total
-   * byte checks run before anything is read, so an over-broad or oversized selection fails at
+   * Keeps only project Python source, reads it, and assembles it in a fixed order. The file-count
+   * and byte checks run before anything is read, so an over-broad or oversized selection fails at
    * once rather than after thousands of reads or one enormous one.
    */
   public async parseFolder(files: readonly File[]): Promise<FolderDocument> {
@@ -419,8 +418,7 @@ export class NotebookMigrationService {
     );
     const folder = buildFolderDocument(sources, {
       rootName: folderRootName(files[0]?.webkitRelativePath ?? "") ?? "project",
-      // Named in the layout but never read, so the model knows a dataset or a requirements list
-      // exists. Caches and hidden directories stay out entirely: they are noise, not structure.
+      // Named in the layout but never read. Caches and hidden directories stay out entirely.
       otherPaths: picked
         .filter(entry => !isMigratablePythonPath(entry.path) && !isExcludedPath(entry.path))
         .map(entry => entry.path),
@@ -432,8 +430,7 @@ export class NotebookMigrationService {
     return folder;
   }
 
-  // The cap checks report a message or null; this turns the message into the rejection the
-  // caller shows the user as-is.
+  // Turns a cap check's message into the rejection the caller shows the user as-is.
   private refuse(message: string | null): void {
     if (message !== null) {
       throw new Error(message);

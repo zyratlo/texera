@@ -42,11 +42,8 @@ export interface NotebookImportModalData {
 
 // Falls back to a count when the picker reported no path, so the row always says something
 // was picked.
-/**
- * How long after the last rejected file a drop is treated as over. Long enough that walking a
- * large directory tree stays one burst, short enough that a deliberate second drop is reported
- * again rather than swallowed.
- */
+// How long after the last rejected file a drop is treated as over: long enough that a slow
+// directory walk stays one burst, short enough that a second drop is reported again.
 export const DROP_REJECTION_LATCH_MS = 2000;
 
 function describeFolderSelection(files: readonly NzUploadFile[]): string {
@@ -132,10 +129,9 @@ export class NotebookImportModalComponent implements OnDestroy {
     fileControl?.updateValueAndValidity();
   }
 
-  // A dropped directory arrives one file at a time and ng-zorro attaches no path to any of
-  // them, so a single drop would otherwise stage one arbitrary file and convert it as if it
-  // were the whole project. The message is latched for the whole burst rather than throttled at
-  // a fixed rate, because walking a large tree can outlast any rate worth picking.
+  // ng-zorro delivers a dropped directory one pathless file at a time, so accepting one would
+  // convert a single arbitrary file as the whole project. Latched for the burst, not rate-limited,
+  // because walking a large tree outlasts any rate worth picking.
   private dropRejectionTimer: ReturnType<typeof setTimeout> | null = null;
 
   private rejectFolderDrop(): void {
@@ -155,9 +151,8 @@ export class NotebookImportModalComponent implements OnDestroy {
       return false;
     }
 
-    // A directory pick calls this once per file, handing the same list every time, so the folder
-    // tab takes the list and the guard below keeps a large folder from re-validating thousands
-    // of times. The other tabs take the single file.
+    // A directory pick calls this once per file with the same list, so the folder tab takes the
+    // list and the guard below keeps a large folder from re-validating thousands of times.
     const selection = this.isFolderTab ? fileList : file;
     const control = this.importForm.get("file");
     if (control?.value !== selection) {

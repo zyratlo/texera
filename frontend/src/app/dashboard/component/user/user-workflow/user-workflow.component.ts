@@ -303,11 +303,10 @@ export class UserWorkflowComponent implements AfterViewInit, OnDestroy {
 
   /**
    * Generate a workflow from the modal's selection, save it, store the mapping, and open it.
-   * Resolves true on success (modal closes), false to keep the modal open on a bad selection or
-   * a failure.
+   * Resolves true on success (modal closes), false to keep it open on a bad selection or failure.
    *
-   * A folder arrives as the whole picked list, a notebook or script as a single file, so the
-   * shape of the selection is what picks the branch before the extension does.
+   * A folder arrives as the whole picked list, so the selection's shape picks the branch before
+   * the extension does.
    */
   private async generateWorkflowFromSelection(
     selection: NzUploadFile | NzUploadFile[],
@@ -379,17 +378,13 @@ export class UserWorkflowComponent implements AfterViewInit, OnDestroy {
     }
   }
 
-  /**
-   * Read and convert a picked directory. Like the .py path, the notebook comes back derived,
-   * because the folder is one assembled document by the time it is converted.
-   */
+  /** Read and convert a picked directory. The notebook comes back derived, as it does for a .py. */
   private async generateFromFolder(files: NzUploadFile[], model: string): Promise<GeneratedWorkflowContent | null> {
     let folder: FolderDocument;
     try {
       folder = await this.notebookMigrationService.parseFolder(files.map(pickedFileObject));
     } catch (error) {
-      // parseFolder names what was wrong with the selection (no Python source, over a cap), so
-      // its message is shown as-is rather than replaced by a generic one.
+      // parseFolder names what was wrong with the selection, so its message is shown as-is.
       this.notificationService.error(error instanceof Error ? error.message : "Failed to read the selected folder.");
       console.error("Folder read failed:", error);
       return null;
