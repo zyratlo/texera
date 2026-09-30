@@ -219,7 +219,7 @@ Texera requires a unique way of generating visualizations from ML libraries:
 `;
 
 export const EXAMPLE_OF_MULTIPLE_UDF_CONVERSION = `
-Here is an example of breaking up python code into multiple Texera UDFs. Format your response structure exactly like the given example. The "code" key contains a dictionary of the UDF ID's with their respective code. The "edges" key contains a list of pairs that contains the connections between UDFs. The "outputs" key contains a dictionary of the UDF ID's with a list of the output column names of the DataFrame that the UDF yields. The UDFs can branch and merge, it does not have to be a linear chain depending on your implementation.
+Here is an example of breaking up python code into multiple Texera UDFs. Format your response structure exactly like the given example. The "code" key contains a dictionary of the UDF IDs with their respective code. The "edges" key contains a list of pairs that contains the connections between UDFs. The "outputs" key contains a dictionary of the UDF IDs with a list of the output column names of the DataFrame that the UDF yields. The UDFs can branch and merge, it does not have to be a linear chain depending on your implementation.
 
 Original Code:
 \`\`\`python
@@ -371,7 +371,7 @@ They can be defined outside of ProcessTableOperator, ProcessTupleOperator, and P
 Return only the JSON formatted response, do not give any explanation.
 Do not wrap the JSON in markdown code fences. Output raw JSON only.
 Make sure the response is a valid JSON structure, including closing all braces and not including commas after the last element.
-Follow this JSON format (don't reuse the values, this is just the format). 'code', 'edges', and 'outputs' are all their own key's, do not nest any of these in another one and make sure to close their braces:
+Follow this JSON format (don't reuse the values, this is just the format). 'code', 'edges', and 'outputs' are all their own keys, do not nest any of these in another one and make sure to close their braces:
 {
 "code": {
 "UDF1": "code for UDF1 goes here",
@@ -386,7 +386,7 @@ Follow this JSON format (don't reuse the values, this is just the format). 'code
 }
 }
 Make sure only the keys in the code section appear in the edges and outputs sections. Do not include any extraneous fields.
-Do not include any extraneous UDF's in the code field that include empty strings.
+Do not include any extraneous UDFs in the code field that include empty strings.
 Give ALL of the code, do not omit anything or use placeholders for code. Make sure ALL code in the original is translated over.
 The value of each UDF must be a valid JSON string: escape newlines, quotes, and backslashes correctly so that the decoded string is runnable Python. Use whichever quotes the Python code requires.
 Convert following the instructions and examples given. Here is the code:
@@ -413,11 +413,11 @@ Here is an example of a mapping generated between the given example Python code 
 "CELL9"
 ]
 }
-Now create a mapping for the UDFs and the original code. Link the code blocks marked by 'START <cell-uuid>' and 'END <cell-uuid>' with the UDF UUID's. The code between them should be equivalent. Multiple cells can be mapped to the same UDF when that UDF implements the logic of those cells. There could be any number of cells and UDFs, so only create the correct number in the mapping. Only give the mapping.
+Now create a mapping for the UDFs and the original code. Link the code blocks marked by 'START <cell-uuid>' and 'END <cell-uuid>' with the UDF UUIDs. The code between them should be equivalent. Multiple cells can be mapped to the same UDF when that UDF implements the logic of those cells. There could be any number of cells and UDFs, so only create the correct number in the mapping. Only give the mapping.
 `;
 
 export const EXAMPLE_OF_MULTIPLE_UDF_CONVERSION_SCRIPT = `
-Here is an example of breaking up python code into multiple Texera UDFs. Format your response structure exactly like the given example. The "code" key contains a dictionary of the UDF ID's with their respective code. The "edges" key contains a list of pairs that contains the connections between UDFs. The "outputs" key contains a dictionary of the UDF ID's with a list of the output column names of the DataFrame that the UDF yields. The UDFs can branch and merge, it does not have to be a linear chain depending on your implementation.
+Here is an example of breaking up python code into multiple Texera UDFs. Format your response structure exactly like the given example. The "code" key contains a dictionary of the UDF IDs with their respective code. The "edges" key contains a list of pairs that contains the connections between UDFs. The "outputs" key contains a dictionary of the UDF IDs with a list of the output column names of the DataFrame that the UDF yields. The UDFs can branch and merge, it does not have to be a linear chain depending on your implementation.
 
 The original code is shown with each line prefixed by its line number and a '|'. Those prefixes are annotations so that line ranges can be referred to later. They are not part of the code and must never appear in the code you generate.
 
@@ -552,7 +552,7 @@ They can be defined outside of ProcessTableOperator, ProcessTupleOperator, and P
 Return only the JSON formatted response, do not give any explanation.
 Do not wrap the JSON in markdown code fences. Output raw JSON only.
 Make sure the response is a valid JSON structure, including closing all braces and not including commas after the last element.
-Follow this JSON format (don't reuse the values, this is just the format). 'code', 'edges', and 'outputs' are all their own key's, do not nest any of these in another one and make sure to close their braces:
+Follow this JSON format (don't reuse the values, this is just the format). 'code', 'edges', and 'outputs' are all their own keys, do not nest any of these in another one and make sure to close their braces:
 {
 "code": {
 "UDF1": "code for UDF1 goes here",
@@ -567,7 +567,7 @@ Follow this JSON format (don't reuse the values, this is just the format). 'code
 }
 }
 Make sure only the keys in the code section appear in the edges and outputs sections. Do not include any extraneous fields.
-Do not include any extraneous UDF's in the code field that include empty strings.
+Do not include any extraneous UDFs in the code field that include empty strings.
 Give ALL of the code, do not omit anything or use placeholders for code. Make sure ALL code in the original is translated over.
 The value of each UDF must be a valid JSON string: escape newlines, quotes, and backslashes correctly so that the decoded string is runnable Python. Use whichever quotes the Python code requires.
 Each line of the script below is prefixed with its line number followed by '| '. Those prefixes are annotations
@@ -588,7 +588,7 @@ Now create a mapping for the UDFs and the original code you were given. For each
 `;
 
 export const EXAMPLE_OF_MULTIPLE_UDF_CONVERSION_FOLDER = `
-Here is an example of breaking up a folder of Python files into multiple Texera UDFs. Format your response structure exactly like the given example. The "code" key contains a dictionary of the UDF ID's with their respective code. The "edges" key contains a list of pairs that contains the connections between UDFs. The "outputs" key contains a dictionary of the UDF ID's with a list of the output column names of the DataFrame that the UDF yields. The "entry_point" key names the one file that calls the pipeline's steps in order. The UDFs can branch and merge, it does not have to be a linear chain depending on your implementation.
+Here is an example of breaking up a folder of Python files into multiple Texera UDFs. Format your response structure exactly like the given example. The "code" key contains a dictionary of the UDF IDs with their respective code. The "edges" key contains a list of pairs that contains the connections between UDFs. The "outputs" key contains a dictionary of the UDF IDs with a list of the output column names of the DataFrame that the UDF yields. The "entry_point" key names the one file that calls the pipeline's steps in order. The UDFs can branch and merge, it does not have to be a linear chain depending on your implementation.
 
 The folder's files are shown as one document, concatenated in the order given. A line of the form '# ===== FILE: <path> =====' marks where a file begins, and each line is prefixed by its line number and a '|'. Line numbers run continuously across the whole document and do not restart at each file. Both the banners and the number prefixes are annotations so that line ranges can be referred to later. They are not part of the code and must never appear in the code you generate.
 
@@ -752,7 +752,7 @@ They can be defined outside of ProcessTableOperator, ProcessTupleOperator, and P
 Return only the JSON formatted response, do not give any explanation.
 Do not wrap the JSON in markdown code fences. Output raw JSON only.
 Make sure the response is a valid JSON structure, including closing all braces and not including commas after the last element.
-Follow this JSON format (don't reuse the values, this is just the format). 'entry_point', 'code', 'edges', and 'outputs' are all their own key's, do not nest any of these in another one and make sure to close their braces:
+Follow this JSON format (don't reuse the values, this is just the format). 'entry_point', 'code', 'edges', and 'outputs' are all their own keys, do not nest any of these in another one and make sure to close their braces:
 {
 "entry_point": "path/to/main.py",
 "code": {
@@ -776,7 +776,7 @@ and one call is never the right answer.
 Give the path exactly as it appears in the banner and the layout, and name a file that is actually in the
 folder. If no file clearly runs the others, give the one a reader should open first.
 Settle the entry point before you write any UDF code, and give it as the first key of your reply.
-Do not include any extraneous UDF's in the code field that include empty strings.
+Do not include any extraneous UDFs in the code field that include empty strings.
 Give ALL of the code, do not omit anything or use placeholders for code. Make sure ALL code in the original is translated over.
 The value of each UDF must be a valid JSON string: escape newlines, quotes, and backslashes correctly so that the decoded string is runnable Python. Use whichever quotes the Python code requires.
 You are given the folder's layout first, then its Python files as one document. The layout is there so you
