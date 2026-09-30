@@ -612,8 +612,11 @@ describe("SavedWorkflowSectionComponent", () => {
       it("falls back to the default workflow name when the picker reported no path", async () => {
         const { persist } = mockFolderGenerationSuccess();
         vi.spyOn(TestBed.inject(Router), "navigate").mockResolvedValue(true);
+        // A real File, just one carrying no webkitRelativePath, so there is no folder to name it
+        // after. A bare {uid, name} wrapper would be rejected before reaching the naming step.
+        const pathless = new File([""], "main.py") as unknown as NzUploadFile;
 
-        await getRequestImport()([{ uid: "1", name: "main.py" } as NzUploadFile], "gpt-4");
+        await getRequestImport()([pathless], "gpt-4");
 
         expect(persist.createWorkflow.mock.calls[0][1]).toBe(`${DEFAULT_WORKFLOW_NAME}_GENERATED_BY_LLM`);
       });

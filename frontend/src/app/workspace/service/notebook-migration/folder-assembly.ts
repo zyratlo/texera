@@ -117,7 +117,11 @@ export function pickedFilePath(file: PickedFile | undefined): string {
 
 /** The browser File behind a picked file, whichever of the two shapes the control used. */
 export function pickedFileObject(file: PickedFile): File {
-  return (file.originFileObj ?? file) as unknown as File;
+  const candidate = file.originFileObj ?? file;
+  if (!(candidate instanceof Blob)) {
+    throw new Error("The upload control did not provide a readable file.");
+  }
+  return candidate as File;
 }
 
 // A directory picker reports "<selected folder>/<path within it>" for every file.

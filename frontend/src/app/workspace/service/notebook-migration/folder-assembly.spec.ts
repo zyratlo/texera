@@ -31,6 +31,7 @@ import {
   MAX_FOLDER_CHARACTERS,
   MAX_FOLDER_FILES,
   MAX_LISTED_OTHER_FILES,
+  pickedFileObject,
   pickedFilePath,
   renderFolderTree,
   resolveEntryPoint,
@@ -267,6 +268,21 @@ describe("folder cap checks", () => {
     // Neither the byte bound nor a measured byte figure: both would mix units against the cap.
     expect(message).not.toContain(MAX_FOLDER_BYTES.toLocaleString());
     expect(message).not.toMatch(/bytes/i);
+  });
+});
+
+describe("pickedFileObject", () => {
+  it("unwraps both shapes an upload control produces", () => {
+    const file = new File([""], "main.py");
+
+    expect(pickedFileObject(file as never)).toBe(file);
+    expect(pickedFileObject({ originFileObj: file } as never)).toBe(file);
+  });
+
+  it("rejects a wrapper carrying no file, rather than letting FileReader fail later", () => {
+    // ng-zorro produces only the two shapes above, but nzFileList can be set from anywhere, and
+    // an unchecked cast would surface as a TypeError deep inside the read.
+    expect(() => pickedFileObject({ uid: "1", name: "main.py" } as never)).toThrow(/readable file/i);
   });
 });
 
