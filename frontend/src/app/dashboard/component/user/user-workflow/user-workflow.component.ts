@@ -50,6 +50,7 @@ import { LlmRequestTimeoutError, Notebook } from "../../../../workspace/service/
 import {
   FolderDocument,
   folderRootName,
+  pickedFileObject,
   pickedFilePath,
 } from "../../../../workspace/service/notebook-migration/folder-assembly";
 import {
@@ -385,9 +386,7 @@ export class UserWorkflowComponent implements AfterViewInit, OnDestroy {
   private async generateFromFolder(files: NzUploadFile[], model: string): Promise<GeneratedWorkflowContent | null> {
     let folder: FolderDocument;
     try {
-      folder = await this.notebookMigrationService.parseFolder(
-        files.map(file => (file.originFileObj ?? file) as unknown as File)
-      );
+      folder = await this.notebookMigrationService.parseFolder(files.map(pickedFileObject));
     } catch (error) {
       // parseFolder names what was wrong with the selection (no Python source, over a cap), so
       // its message is shown as-is rather than replaced by a generic one.

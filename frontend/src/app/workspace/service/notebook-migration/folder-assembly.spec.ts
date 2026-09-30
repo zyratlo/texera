@@ -19,12 +19,15 @@
 
 import {
   buildFolderDocument,
-  checkFolderLimits,
+  checkFolderByteSize,
+  checkFolderDocument,
+  checkFolderFileCount,
   compareFolderPaths,
   fileBanner,
   folderRootName,
   isExcludedPath,
   isMigratablePythonPath,
+  MAX_FOLDER_BYTES,
   MAX_FOLDER_CHARACTERS,
   MAX_FOLDER_FILES,
   MAX_LISTED_OTHER_FILES,
@@ -214,19 +217,55 @@ describe("buildFolderDocument with segmentScript", () => {
   });
 });
 
-describe("checkFolderLimits", () => {
-  it("passes a folder within both caps", () => {
-    expect(checkFolderLimits(3, 1000)).toBeNull();
-    expect(checkFolderLimits(MAX_FOLDER_FILES, MAX_FOLDER_CHARACTERS)).toBeNull();
+describe("folder cap checks", () => {
+  function documentOf(characters: number, fileCount = 1) {
+    return {
+      source: "a".repeat(characters),
+      forcedBoundaries: [],
+      tree: "proj/",
+      files: Array.from({ length: fileCount }, (_unused, index) => ({
+        path: `f${index}.py`,
+        startLine: 1,
+        endLine: 1,
+      })),
+    };
+  }
+
+  it("passes a folder within every cap", () => {
+    expect(checkFolderFileCount(3)).toBeNull();
+    expect(checkFolderFileCount(MAX_FOLDER_FILES)).toBeNull();
+    expect(checkFolderByteSize(MAX_FOLDER_BYTES)).toBeNull();
+    expect(checkFolderDocument(documentOf(MAX_FOLDER_CHARACTERS))).toBeNull();
   });
 
   it("reports a selection with no Python files", () => {
-    expect(checkFolderLimits(0, 0)).toContain("No Python files");
+    expect(checkFolderFileCount(0)).toContain("No Python files");
   });
 
-  it("reports the counts that exceeded each cap", () => {
-    expect(checkFolderLimits(MAX_FOLDER_FILES + 1, 10)).toContain((MAX_FOLDER_FILES + 1).toLocaleString());
-    expect(checkFolderLimits(1, MAX_FOLDER_CHARACTERS + 1)).toContain((MAX_FOLDER_CHARACTERS + 1).toLocaleString());
+  it("reports an all-empty selection separately from an empty one", () => {
+    expect(checkFolderDocument(documentOf(0, 0))).toContain("all empty");
+  });
+
+  it("reports the count that exceeded each cap", () => {
+    expect(checkFolderFileCount(MAX_FOLDER_FILES + 1)).toContain((MAX_FOLDER_FILES + 1).toLocaleString());
+    expect(checkFolderByteSize(MAX_FOLDER_BYTES + 1)).toContain((MAX_FOLDER_BYTES + 1).toLocaleString());
+    expect(checkFolderDocument(documentOf(MAX_FOLDER_CHARACTERS + 1))).toContain(
+      (MAX_FOLDER_CHARACTERS + 1).toLocaleString()
+    );
+  });
+
+  it("states the limit in every message, not just the measured value", () => {
+    expect(checkFolderFileCount(MAX_FOLDER_FILES + 1)).toContain(MAX_FOLDER_FILES.toLocaleString());
+    expect(checkFolderDocument(documentOf(MAX_FOLDER_CHARACTERS + 1))).toContain(
+      MAX_FOLDER_CHARACTERS.toLocaleString()
+    );
+  });
+
+  it("quotes one limit to the user, so the byte guard does not read as a second cap", () => {
+    const message = checkFolderByteSize(MAX_FOLDER_BYTES + 1);
+
+    expect(message).toContain(MAX_FOLDER_CHARACTERS.toLocaleString());
+    expect(message).not.toContain(MAX_FOLDER_BYTES.toLocaleString());
   });
 });
 

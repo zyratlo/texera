@@ -61,6 +61,14 @@ export const MAX_LISTED_OTHER_FILES = 20;
 export const MAX_FOLDER_FILES = 100;
 export const MAX_FOLDER_CHARACTERS = 60_000;
 
+/**
+ * Byte bound applied before anything is read. UTF-8 never uses fewer bytes than characters, so a
+ * selection this far past the character cap cannot come in under it. Kept separate because the
+ * character cap can only run once the files are read, and reading one huge generated file into
+ * memory would hang the tab before that cap could refuse it.
+ */
+export const MAX_FOLDER_BYTES = MAX_FOLDER_CHARACTERS * 4;
+
 export const FILE_BANNER_PREFIX = "# ===== FILE: ";
 export const FILE_BANNER_SUFFIX = " =====";
 
@@ -134,13 +142,38 @@ export function pickedFilePath(file: PickedFile | undefined): string {
   return file?.originFileObj?.webkitRelativePath ?? file?.webkitRelativePath ?? "";
 }
 
-/**
- * The selected folder's own name, taken from the path a directory picker reported for any file in
- * it, which is "<selected folder>/<path within it>". Null when no path was reported.
- */
-export function folderRootName(webkitRelativePath: string): string | null {
+/** The browser File behind a picked file, whichever of the two shapes the control used. */
+export function pickedFileObject(file: PickedFile): File {
+  return (file.originFileObj ?? file) as unknown as File;
+}
+
+// A directory picker reports "<selected folder>/<path within it>" for every file.
+function splitReportedPath(webkitRelativePath: string): { root: string | null; rest: string } {
   const separator = webkitRelativePath.indexOf("/");
-  return separator === -1 ? null : webkitRelativePath.slice(0, separator);
+  return separator === -1
+    ? { root: null, rest: webkitRelativePath }
+    : { root: webkitRelativePath.slice(0, separator), rest: webkitRelativePath.slice(separator + 1) };
+}
+
+/** The selected folder's own name. Null when the picker reported no path. */
+export function folderRootName(webkitRelativePath: string): string | null {
+  return splitReportedPath(webkitRelativePath).root;
+}
+
+/**
+ * A picked file's path relative to the folder the user selected.
+ *
+ * Dropping the root segment keeps the banners and the model's view relative to the selection, and
+ * stops a selected folder whose own name begins with a dot from excluding everything inside it.
+ * Falls back to the file's own name when no path was reported.
+ */
+export function folderRelativePath(file: { webkitRelativePath?: string; name: string }): string {
+  const full = file.webkitRelativePath;
+  if (!full) {
+    return file.name;
+  }
+  const { root, rest } = splitReportedPath(full);
+  return root === null ? full : rest;
 }
 
 function pathSegments(path: string): string[] {
@@ -268,23 +301,43 @@ export function buildFolderDocument(files: readonly FolderFile[], options: Folde
 }
 
 /**
- * Checks a selection against the caps. Returns the message to show the user, or null when the
- * folder is within limits.
+ * The three checks a folder has to pass, in the order the caller can run them. Each returns the
+ * message to show the user, or null when that check passes.
  *
  * Refusing up front costs the user nothing and says what to do about it. Truncating to fit would
  * instead produce a silently incomplete workflow, which is exactly what the mapping exists to
- * let users catch.
+ * let users catch. They are separate functions because they run at different points: the count
+ * before anything is read, the byte size before anything is read, and the character count only
+ * once the document is assembled.
  */
-export function checkFolderLimits(fileCount: number, characterCount: number): string | null {
+export function checkFolderFileCount(fileCount: number): string | null {
   if (fileCount === 0) {
     return "No Python files were found in the selected folder.";
   }
   if (fileCount > MAX_FOLDER_FILES) {
     return `The selected folder has ${fileCount.toLocaleString()} Python files, more than the ${MAX_FOLDER_FILES.toLocaleString()} this tool converts at once. Select a smaller folder.`;
   }
-  if (characterCount > MAX_FOLDER_CHARACTERS) {
+  return null;
+}
+
+export function checkFolderByteSize(totalBytes: number): string | null {
+  if (totalBytes > MAX_FOLDER_BYTES) {
+    // Names the character cap rather than the byte bound. The byte bound is an internal guard
+    // that only catches large overshoots, and showing two different numbers for what is one
+    // rule to the user reads as two separate limits.
+    return `The selected folder's Python files total ${totalBytes.toLocaleString()} bytes, far more than the ${MAX_FOLDER_CHARACTERS.toLocaleString()} characters this tool converts at once. Select a smaller folder.`;
+  }
+  return null;
+}
+
+export function checkFolderDocument(document: FolderDocument): string | null {
+  if (document.files.length === 0) {
+    // Distinct from finding no Python at all: these were found, and every one held no code.
+    return "The Python files in the selected folder are all empty.";
+  }
+  if (document.source.length > MAX_FOLDER_CHARACTERS) {
     // Counts the assembled document, so it includes the banner line added per file.
-    return `The selected folder's Python code totals ${characterCount.toLocaleString()} characters, more than the ${MAX_FOLDER_CHARACTERS.toLocaleString()} this tool converts at once. Select a smaller folder.`;
+    return `The selected folder's Python code totals ${document.source.length.toLocaleString()} characters, more than the ${MAX_FOLDER_CHARACTERS.toLocaleString()} this tool converts at once. Select a smaller folder.`;
   }
   return null;
 }

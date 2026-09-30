@@ -22,12 +22,14 @@ import { AppSettings } from "../../../common/app-setting";
 import { Notebook, NotebookMigrationLLM, SourceConversion } from "./migration-llm";
 import {
   buildFolderDocument,
-  checkFolderLimits,
+  checkFolderByteSize,
+  checkFolderDocument,
+  checkFolderFileCount,
   FolderDocument,
+  folderRelativePath,
   folderRootName,
   isExcludedPath,
   isMigratablePythonPath,
-  MAX_FOLDER_CHARACTERS,
 } from "./folder-assembly";
 import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { NotificationService } from "src/app/common/service/notification/notification.service";
@@ -65,20 +67,6 @@ export interface GeneratedWorkflowContent {
   notebook: Notebook;
 }
 
-/**
- * The path of a picked file relative to the folder the user selected.
- *
- * webkitRelativePath is "<selected folder>/<path within it>". Dropping the first segment keeps
- * the banners and the model's view relative to the selection, and stops a selected folder whose
- * own name begins with a dot from excluding everything inside it.
- */
-function folderRelativePath(file: File): string {
-  const full = file.webkitRelativePath;
-  if (!full) return file.name;
-  const separator = full.indexOf("/");
-  return separator === -1 ? full : full.slice(separator + 1);
-}
-
 interface StoreNotebookResponse {
   success: boolean;
   message: string;
@@ -89,14 +77,6 @@ interface DeleteNotebookResponse {
   deleted?: number;
   message?: string;
 }
-
-/**
- * Byte bound applied before anything is read. UTF-8 never uses fewer bytes than characters, so a
- * selection this far past the character cap cannot come in under it. Checked separately because
- * the character cap can only run after the files are read, and reading one huge generated file
- * into memory would hang the tab before that cap could refuse it.
- */
-const MAX_FOLDER_BYTES = MAX_FOLDER_CHARACTERS * 4;
 
 // Single source of truth for the mapping cache key, shared with JupyterPanelService so it can't drift.
 export function notebookMappingKey(wid: number | undefined): string {
@@ -427,17 +407,8 @@ export class NotebookMigrationService {
   public async parseFolder(files: readonly File[]): Promise<FolderDocument> {
     const picked = files.map(file => ({ file, path: folderRelativePath(file) }));
     const selected = picked.filter(entry => isMigratablePythonPath(entry.path));
-    const tooMany = checkFolderLimits(selected.length, 0);
-    if (tooMany) {
-      throw new Error(tooMany);
-    }
-
-    const totalBytes = selected.reduce((sum, entry) => sum + entry.file.size, 0);
-    if (totalBytes > MAX_FOLDER_BYTES) {
-      throw new Error(
-        `The selected folder's Python files total ${totalBytes.toLocaleString()} bytes, far more than this tool converts at once. Select a smaller folder.`
-      );
-    }
+    this.refuse(checkFolderFileCount(selected.length));
+    this.refuse(checkFolderByteSize(selected.reduce((sum, entry) => sum + entry.file.size, 0)));
 
     const sources = await Promise.all(
       selected.map(async entry => ({
@@ -455,18 +426,18 @@ export class NotebookMigrationService {
         .map(entry => entry.path),
     });
 
-    // Distinct from finding no Python at all: these were found, and every one held no code.
-    if (folder.files.length === 0) {
-      throw new Error("The Python files in the selected folder are all empty.");
-    }
-
-    // Re-checked against what the document actually holds, since the character cap needs the
-    // assembled size.
-    const overflow = checkFolderLimits(folder.files.length, folder.source.length);
-    if (overflow) {
-      throw new Error(overflow);
-    }
+    // Run against what the document actually holds: blank files are dropped during assembly,
+    // and the character cap needs the assembled size.
+    this.refuse(checkFolderDocument(folder));
     return folder;
+  }
+
+  // The cap checks report a message or null; this turns the message into the rejection the
+  // caller shows the user as-is.
+  private refuse(message: string | null): void {
+    if (message !== null) {
+      throw new Error(message);
+    }
   }
 
   // Reads and parses an .ipynb file, then tags each cell with a uuid (the mapping keys off these).
