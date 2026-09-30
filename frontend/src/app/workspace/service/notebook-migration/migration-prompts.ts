@@ -736,10 +736,10 @@ Current UDF operators can only have one output. Build a dataframe to yield all n
 and data. Ensure proper data flow for each UDF and all information is yielded (including training
 and testing data) if subsequent UDFs need them.
 
-Ensure all necessary imports are included in each UDF code block.
+Ensure all necessary imports are included in each UDF's Python code string in the JSON response.
 
-Each UDF operator should be in its own Python code block. Do not combine them into a single block.
-Ensure import statements cover all used functions and separate them as necessary.
+Each UDF operator should be provided as its own separate Python code string in the JSON response. Do not combine multiple UDF operators into a single string.
+Ensure import statements cover all used functions and keep them separated per UDF as necessary.
 
 It is VERY important that all of the original code in the folder's Python files is represented in the generated workflow.
 Make sure that nothing in the original is removed and that the semantic meaning of what the original code was doing is retained.
