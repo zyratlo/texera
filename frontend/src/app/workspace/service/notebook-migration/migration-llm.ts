@@ -46,8 +46,8 @@ import {
   FOLDER_MAPPING_PROMPT,
   FOLDER_CODE_PROMPT,
 } from "./migration-prompts";
-import { DerivedCell, segmentScript, splitScriptLines } from "./script-segmentation";
-import { FolderDocument } from "./folder-assembly";
+import { DerivedCell, ScriptSegmentation, segmentScript, splitScriptLines } from "./script-segmentation";
+import { FolderDocument, resolveEntryPoint, scopeSegmentationToSpan } from "./folder-assembly";
 
 interface Cell {
   cell_type: string;
@@ -181,8 +181,9 @@ export class NotebookMigrationLLM {
   );
 
   // The folder prelude differs from the script prelude in the same single entry, for the same
-  // reason: its worked example shows files concatenated behind banner lines, and a cross-file
-  // import replaced by an edge, neither of which a single script can demonstrate.
+  // reason: its worked example shows files concatenated behind banner lines, an entry point that
+  // calls into them, and the definitions it calls inlined into the UDFs rather than imported,
+  // none of which a single script can demonstrate.
   private static readonly FOLDER_DOCUMENTATION: string[] = NotebookMigrationLLM.SCRIPT_DOCUMENTATION.map(doc =>
     doc === EXAMPLE_OF_MULTIPLE_UDF_CONVERSION_SCRIPT ? EXAMPLE_OF_MULTIPLE_UDF_CONVERSION_FOLDER : doc
   );
@@ -396,22 +397,32 @@ export class NotebookMigrationLLM {
       throw new Error("LLM session not initialized");
     }
 
-    return this.convertNumberedSource(
+    const { workflowJSON, udfIdToOperatorId, reportedRanges } = await this.requestConversion(
       NotebookMigrationLLM.SCRIPT_DOCUMENTATION,
       SCRIPT_WORKFLOW_PROMPT,
       SCRIPT_MAPPING_PROMPT,
       source
     );
+
+    // segmentScript reconciles whatever the model reported, so a malformed range degrades the
+    // mapping rather than discarding a workflow that already cost a full conversion.
+    return this.finishConversion(workflowJSON, udfIdToOperatorId, segmentScript(source, reportedRanges));
   }
 
   /**
    * Send a folder of Python files, already assembled into one document, to be converted into a
    * workflow, a mapping, and the notebook the mapping is expressed against.
    *
-   * Differs from the script path in its prompt variant, in the cut points it requires (each
-   * file's banner line is forced into the segmentation so no derived cell holds lines from two
-   * files), and in the layout it sends ahead of the code. The mapping is still keyed on cell
-   * uuids, so storage, the Jupyter panel and highlighting never learn the input was a folder.
+   * Differs from the script path in its prompt variant, in the layout it sends ahead of the code,
+   * in forcing a cut at each file's banner so no derived cell holds lines from two files, and in
+   * showing only the entry point.
+   *
+   * Every file is converted, but the derived notebook holds the entry point alone: a folder's
+   * other files are function definitions, and a notebook of all of them reads as a wall of code
+   * rather than the story of what the project does. The model names the entry point, and the
+   * mapping it reports is expressed in that file's lines, so clicking an operator highlights the
+   * call that runs it. The mapping is still keyed on cell uuids, so storage, the Jupyter panel
+   * and highlighting never learn the input was a folder.
    */
   public async convertFolderToWorkflow(document: FolderDocument): Promise<SourceConversion> {
     this.assertEnabled();
@@ -419,55 +430,78 @@ export class NotebookMigrationLLM {
       throw new Error("LLM session not initialized");
     }
 
-    return this.convertNumberedSource(
+    const { workflowJSON, udfIdToOperatorId, workflowResponse, reportedRanges } = await this.requestConversion(
       NotebookMigrationLLM.FOLDER_DOCUMENTATION,
       FOLDER_WORKFLOW_PROMPT,
       FOLDER_MAPPING_PROMPT,
       document.source,
-      {
-        forcedBoundaries: document.forcedBoundaries,
-        // The layout is prompt text, never part of the numbered document: numbering it would
-        // shift every line the model reports, and the segmenter would emit it as a cell of
-        // directory listing in the derived notebook.
-        preamble: `${document.tree}\n\n${FOLDER_CODE_PROMPT}`,
-      }
+      // The layout is prompt text, never part of the numbered document: numbering it would shift
+      // every line the model reports, and the segmenter would emit it as a cell of directory
+      // listing in the derived notebook.
+      `${document.tree}\n\n${FOLDER_CODE_PROMPT}`
+    );
+
+    const segmentation = segmentScript(document.source, reportedRanges, {
+      forcedBoundaries: document.forcedBoundaries,
+    });
+
+    // Resolved against the files actually assembled; an unusable answer leaves the notebook
+    // covering the whole folder, which is worse to read but never empty.
+    const entryPoint = resolveEntryPoint(document.files, workflowResponse?.entry_point);
+    return this.finishConversion(
+      workflowJSON,
+      udfIdToOperatorId,
+      entryPoint ? scopeSegmentationToSpan(segmentation, entryPoint) : segmentation
     );
   }
 
   /**
-   * The body shared by every input that arrives without cells: seed the prelude, ask for the
-   * workflow, ask for the ranges, then derive the cells from the answer.
+   * The two model calls every cell-less input makes, and the parsing of both replies.
    *
-   * A script and a folder differ only in which prompt variant they pass, in whether they require
-   * cut points of their own, and in whether anything is sent between the prompt and the numbered
-   * code, so the sequence itself lives here once.
+   * Stops short of segmenting, because that is where the inputs differ: a script segments its
+   * whole source, a folder cuts at file banners and then narrows to the entry point. Keeping
+   * that out means this method has no folder concept and the untyped reply stays local to the
+   * caller that understands it.
    */
-  private async convertNumberedSource(
+  private async requestConversion(
     documentation: string[],
     workflowPrompt: string,
     mappingPrompt: string,
     source: string,
-    options: { forcedBoundaries?: readonly number[]; preamble?: string } = {}
-  ): Promise<SourceConversion> {
-    const { forcedBoundaries = [], preamble } = options;
+    preamble?: string
+  ): Promise<{
+    workflowJSON: WorkflowJSON;
+    udfIdToOperatorId: Record<string, string>;
+    workflowResponse: any;
+    reportedRanges: any;
+  }> {
     this.seedDocumentation(documentation);
 
     const request = [workflowPrompt, preamble, numberScriptLines(source)].filter(part => part).join("\n");
     const workflow = await this.sendPrompt(request);
     const mapping = await this.sendPrompt(mappingPrompt);
 
-    const udfLLMResponse = this.parseJsonResponse(workflow, "workflow");
-    const { workflowJSON, udfIdToOperatorId } = this.buildWorkflow(udfLLMResponse);
-
-    // segmentScript reconciles whatever the model reported, so a malformed range degrades the
-    // mapping rather than discarding a workflow that already cost a full conversion.
-    const reportedRanges = this.parseJsonResponse(mapping, "mapping");
-    const { cells, udfToCellUuids } = segmentScript(source, reportedRanges, { forcedBoundaries });
+    const workflowResponse = this.parseJsonResponse(workflow, "workflow");
+    const { workflowJSON, udfIdToOperatorId } = this.buildWorkflow(workflowResponse);
 
     return {
       workflowJSON,
-      workflowNotebookMapping: this.buildCombinedMapping(udfToCellUuids, udfIdToOperatorId),
-      notebook: toDerivedNotebook(cells),
+      udfIdToOperatorId,
+      workflowResponse,
+      reportedRanges: this.parseJsonResponse(mapping, "mapping"),
+    };
+  }
+
+  /** Assembles the stored pair: the mapping, and the notebook it is expressed against. */
+  private finishConversion(
+    workflowJSON: WorkflowJSON,
+    udfIdToOperatorId: Record<string, string>,
+    segmentation: ScriptSegmentation
+  ): SourceConversion {
+    return {
+      workflowJSON,
+      workflowNotebookMapping: this.buildCombinedMapping(segmentation.udfToCellUuids, udfIdToOperatorId),
+      notebook: toDerivedNotebook(segmentation.cells),
     };
   }
 

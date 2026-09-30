@@ -804,6 +804,91 @@ describe("NotebookMigrationLLM", () => {
       expect(workflowNotebookMapping.cell_to_operator[uuids[0]]).toBeUndefined();
     });
 
+    describe("entry point", () => {
+      // The document is a.py on lines 1-3 and b.py on lines 4-5.
+      function responseWithEntryPoint(entryPoint: unknown): string {
+        return JSON.stringify({
+          code: { UDF1: "# UDF1", UDF2: "# UDF2" },
+          edges: [["UDF1", "UDF2"]],
+          outputs: { UDF1: ["value"], UDF2: ["result"] },
+          entry_point: entryPoint,
+        });
+      }
+
+      it("shows only the entry point in the derived notebook", async () => {
+        const llm = makeLLM();
+        mockResponses(responseWithEntryPoint("b.py"), JSON.stringify({ UDF2: [[5, 5]] }));
+
+        const { notebook } = await llm.convertFolderToWorkflow(folder);
+
+        // a.py was converted but is not shown. b.py's banner is its own cell because the range
+        // the model reported starts below it, and it stays so the file is still named.
+        expect(notebook.cells.map(cell => cell.source)).toEqual(["# ===== FILE: b.py =====", "print(x)"]);
+      });
+
+      it("maps operators onto the entry point's cells", async () => {
+        const llm = makeLLM();
+        mockResponses(responseWithEntryPoint("b.py"), JSON.stringify({ UDF2: [[5, 5]] }));
+
+        const { workflowNotebookMapping, notebook } = await llm.convertFolderToWorkflow(folder);
+        const [banner, body] = notebook.cells.map(cell => String(cell.metadata.uuid));
+
+        expect(workflowNotebookMapping.operator_to_cell).toEqual({ "PythonUDFV2-1": [body] });
+        expect(workflowNotebookMapping.cell_to_operator).toEqual({ [body]: ["PythonUDFV2-1"] });
+        // The banner cell is shown but maps to nothing, same as any unclaimed cell.
+        expect(workflowNotebookMapping.cell_to_operator[banner]).toBeUndefined();
+      });
+
+      it("drops an operator whose reported lines all sat outside the entry point", async () => {
+        const llm = makeLLM();
+        // UDF1 was reported against a.py, which is no longer shown.
+        mockResponses(
+          responseWithEntryPoint("b.py"),
+          JSON.stringify({
+            UDF1: [[2, 3]],
+            UDF2: [[5, 5]],
+          })
+        );
+
+        const { workflowNotebookMapping } = await llm.convertFolderToWorkflow(folder);
+
+        // Naming a cell the notebook does not contain would leave the two disagreeing.
+        expect(workflowNotebookMapping.operator_to_cell["PythonUDFV2-0"]).toBeUndefined();
+        expect(workflowNotebookMapping.operator_to_cell["PythonUDFV2-1"]).toHaveLength(1);
+      });
+
+      it("resolves an entry point the model named by file name alone", async () => {
+        const llm = makeLLM();
+        mockResponses(responseWithEntryPoint("./A.PY"), JSON.stringify({ UDF1: [[2, 3]] }));
+
+        const { notebook } = await llm.convertFolderToWorkflow(folder);
+
+        expect(notebook.cells.map(cell => cell.source)).toEqual([
+          "# ===== FILE: a.py =====",
+          "import os\nx = compute()",
+        ]);
+      });
+
+      it("falls back to the whole folder when the entry point cannot be resolved", async () => {
+        const llm = makeLLM();
+        mockResponses(responseWithEntryPoint("nowhere.py"), JSON.stringify({ UDF1: [[2, 3]] }));
+
+        const { notebook } = await llm.convertFolderToWorkflow(folder);
+
+        // A long notebook beats an empty one for a conversion that already cost two model calls.
+        expect(notebook.cells).toHaveLength(3);
+      });
+
+      it("falls back to the whole folder when no entry point was reported at all", async () => {
+        const llm = makeLLM();
+        mockResponses(workflowResponse, JSON.stringify({ UDF1: [[2, 3]] }));
+
+        const { notebook } = await llm.convertFolderToWorkflow(folder);
+
+        expect(notebook.cells).toHaveLength(3);
+      });
+    });
+
     it("builds the workflow the same way the other inputs do", async () => {
       const llm = makeLLM();
       mockResponses(workflowResponse, JSON.stringify({ UDF1: [[2, 3]], UDF2: [[5, 5]] }));

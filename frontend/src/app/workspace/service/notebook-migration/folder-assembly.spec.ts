@@ -30,6 +30,8 @@ import {
   MAX_LISTED_OTHER_FILES,
   pickedFilePath,
   renderFolderTree,
+  resolveEntryPoint,
+  scopeSegmentationToSpan,
 } from "./folder-assembly";
 import { segmentScript } from "./script-segmentation";
 
@@ -370,5 +372,128 @@ describe("pickedFilePath", () => {
     expect(pickedFilePath({})).toBe("");
     expect(pickedFilePath(undefined)).toBe("");
     expect(pickedFilePath({ originFileObj: {} })).toBe("");
+  });
+});
+
+describe("resolveEntryPoint", () => {
+  const files = [
+    { path: "main.py", startLine: 1, endLine: 10 },
+    { path: "pkg/train.py", startLine: 11, endLine: 20 },
+  ];
+
+  it("matches the path the model gave", () => {
+    expect(resolveEntryPoint(files, "pkg/train.py")).toEqual(files[1]);
+  });
+
+  it("tolerates the leading-slash and dot-slash forms models drift between", () => {
+    expect(resolveEntryPoint(files, "./main.py")).toEqual(files[0]);
+    expect(resolveEntryPoint(files, "/main.py")).toEqual(files[0]);
+    expect(resolveEntryPoint(files, "  main.py  ")).toEqual(files[0]);
+  });
+
+  it("ignores case", () => {
+    expect(resolveEntryPoint(files, "PKG/Train.PY")).toEqual(files[1]);
+  });
+
+  it("falls back to matching on the file name alone", () => {
+    expect(resolveEntryPoint(files, "train.py")).toEqual(files[1]);
+  });
+
+  it("matches a top-level file when the model prefixed the selected folder's name", () => {
+    // The layout's first line is the folder name, so the model naming "proj/main.py" for a
+    // top-level main.py is the likely answer, not an edge case.
+    expect(resolveEntryPoint(files, "proj/main.py")).toEqual(files[0]);
+    expect(resolveEntryPoint(files, "churn_pipeline/PKG/train.py")).toEqual(files[1]);
+  });
+
+  it("refuses an ambiguous file name rather than guessing between same-named files", () => {
+    const ambiguous = [
+      { path: "a/main.py", startLine: 1, endLine: 5 },
+      { path: "b/main.py", startLine: 6, endLine: 9 },
+    ];
+
+    // Showing the wrong file is worse than falling back to the whole folder.
+    expect(resolveEntryPoint(ambiguous, "main.py")).toBeNull();
+    // An exact path is still unambiguous.
+    expect(resolveEntryPoint(ambiguous, "b/main.py")).toEqual(ambiguous[1]);
+  });
+
+  it("returns null for an answer it cannot match, so the caller shows everything", () => {
+    expect(resolveEntryPoint(files, "nowhere.py")).toBeNull();
+    expect(resolveEntryPoint(files, "")).toBeNull();
+    expect(resolveEntryPoint(files, undefined)).toBeNull();
+    expect(resolveEntryPoint(files, 7)).toBeNull();
+    expect(resolveEntryPoint([], "main.py")).toBeNull();
+  });
+});
+
+describe("scopeSegmentationToSpan", () => {
+  const segmentation = {
+    cells: [
+      { uuid: "c1", source: "a", startLine: 1, endLine: 3 },
+      { uuid: "c2", source: "b", startLine: 4, endLine: 5 },
+      { uuid: "c3", source: "c", startLine: 6, endLine: 8 },
+    ],
+    udfToCellUuids: { UDF1: ["c1"], UDF2: ["c2", "c3"], UDF3: ["c2"] },
+  };
+
+  it("keeps only the cells inside the span", () => {
+    const scoped = scopeSegmentationToSpan(segmentation, { startLine: 4, endLine: 5 });
+
+    expect(scoped.cells.map(cell => cell.uuid)).toEqual(["c2"]);
+  });
+
+  it("drops mapping entries whose cells all fell outside, keeping the rest", () => {
+    const scoped = scopeSegmentationToSpan(segmentation, { startLine: 4, endLine: 5 });
+
+    // UDF1 lived entirely outside the span, so it names no cell rather than a missing one.
+    expect(scoped.udfToCellUuids).toEqual({ UDF2: ["c2"], UDF3: ["c2"] });
+  });
+
+  it("warns for each UDF it drops, since the model was asked to stay inside the span", () => {
+    // spyOn reuses an existing spy, and this file has no restore hook, so clear it per test.
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    warn.mockClear();
+
+    scopeSegmentationToSpan(segmentation, { startLine: 4, endLine: 5 });
+
+    const dropped = warn.mock.calls.filter(call => String(call[0]).includes("Dropping mapping entry"));
+    expect(dropped).toHaveLength(1);
+    expect(dropped[0][0]).toContain("UDF1");
+  });
+
+  it("warns when every surviving operator lands on one cell", () => {
+    // spyOn reuses an existing spy, and this file has no restore hook, so clear it per test.
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    warn.mockClear();
+
+    // A thin launcher ("from app import run" then "run()") puts every operator on one line.
+    scopeSegmentationToSpan(segmentation, { startLine: 4, endLine: 5 });
+
+    const collapsed = warn.mock.calls.filter(call => String(call[0]).includes("thin launcher"));
+    expect(collapsed).toHaveLength(1);
+  });
+
+  it("does not warn about a thin launcher when the operators land on different cells", () => {
+    // spyOn reuses an existing spy, and this file has no restore hook, so clear it per test.
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    warn.mockClear();
+
+    scopeSegmentationToSpan(segmentation, { startLine: 1, endLine: 8 });
+
+    expect(warn.mock.calls.filter(call => String(call[0]).includes("thin launcher"))).toHaveLength(0);
+  });
+
+  it("is a no-op for a span covering everything", () => {
+    const scoped = scopeSegmentationToSpan(segmentation, { startLine: 1, endLine: 8 });
+
+    expect(scoped).toEqual(segmentation);
+  });
+
+  it("returns nothing for a span covering no whole cell", () => {
+    const scoped = scopeSegmentationToSpan(segmentation, { startLine: 2, endLine: 2 });
+
+    expect(scoped.cells).toEqual([]);
+    expect(scoped.udfToCellUuids).toEqual({});
   });
 });

@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { splitScriptLines } from "./script-segmentation";
+import { ScriptSegmentation, splitScriptLines } from "./script-segmentation";
 
 /**
  * Assembles a folder of Python sources into the one numbered document the migration LLM sees.
@@ -75,11 +75,15 @@ export interface FolderFile {
   source: string;
 }
 
-export interface FolderFileSpan {
-  path: string;
-  // 1-indexed and inclusive, spanning the banner line through the file's last line.
+// 1-indexed and inclusive bounds within the assembled document.
+export interface LineSpan {
   startLine: number;
   endLine: number;
+}
+
+// Spans the banner line through the file's last line.
+export interface FolderFileSpan extends LineSpan {
+  path: string;
 }
 
 export interface FolderDocument {
@@ -283,4 +287,71 @@ export function checkFolderLimits(fileCount: number, characterCount: number): st
     return `The selected folder's Python code totals ${characterCount.toLocaleString()} characters, more than the ${MAX_FOLDER_CHARACTERS.toLocaleString()} this tool converts at once. Select a smaller folder.`;
   }
   return null;
+}
+
+/**
+ * Matches the entry point the model named against the files actually assembled.
+ *
+ * The reply is untrusted free text, so matching is tolerant: the exact path first, then the same
+ * path ignoring case, then the file name alone. Null when nothing matches, which the caller reads
+ * as "show the whole folder" rather than "show nothing": a conversion that already cost two model
+ * calls is worth more with a long notebook than with an empty one.
+ */
+export function resolveEntryPoint(files: readonly FolderFileSpan[], reported: unknown): FolderFileSpan | null {
+  if (typeof reported !== "string") return null;
+  // Models drift between "main.py", "./main.py" and "/main.py" for the same file.
+  const wanted = reported.trim().replace(/^\.?\//, "");
+  if (wanted === "") return null;
+
+  const lowered = wanted.toLowerCase();
+  const exact = files.find(file => file.path === wanted) ?? files.find(file => file.path.toLowerCase() === lowered);
+  if (exact) {
+    return exact;
+  }
+
+  // Name-only fallback, which is what catches the model answering with the selected folder's own
+  // name in front of the path. The leading "/" is what lets a top-level file match: a bare
+  // "main.py" never ends with "/main.py". Ambiguity is refused rather than guessed, because
+  // picking the wrong same-named file shows the wrong notebook, while null shows the whole folder.
+  const baseName = lowered.slice(lowered.lastIndexOf("/") + 1);
+  const byName = files.filter(file => `/${file.path.toLowerCase()}`.endsWith(`/${baseName}`));
+  return byName.length === 1 ? byName[0] : null;
+}
+
+/**
+ * Narrows a segmentation to one file's span: the cells inside it, and the UDF mapping restricted
+ * to those cells.
+ *
+ * The derived notebook shows the entry point alone, so a UDF whose reported ranges all fell
+ * outside it drops out of the mapping rather than naming a cell the notebook does not contain.
+ * That keeps the stored mapping and the stored notebook describing the same thing.
+ */
+export function scopeSegmentationToSpan(segmentation: ScriptSegmentation, span: LineSpan): ScriptSegmentation {
+  const cells = segmentation.cells.filter(cell => cell.startLine >= span.startLine && cell.endLine <= span.endLine);
+  const visible = new Set(cells.map(cell => cell.uuid));
+
+  const udfToCellUuids: Record<string, string[]> = {};
+  for (const [udfId, uuids] of Object.entries(segmentation.udfToCellUuids)) {
+    const kept = uuids.filter(uuid => visible.has(uuid));
+    if (kept.length > 0) {
+      udfToCellUuids[udfId] = kept;
+    } else {
+      // Expected to be rare: the model was asked for ranges inside the entry point. The usual
+      // cause is it numbering lines from 1 within each file, which is otherwise invisible.
+      console.warn(`Dropping mapping entry for UDF id ${udfId}: none of its lines fall inside the entry point`);
+    }
+  }
+
+  // A thin launcher (one import, one call) puts every operator on the same line, so the scoped
+  // notebook maps them all to one cell and clicking an operator cannot tell it from the others.
+  // The conversion is still fine; the highlighting is what carries no information.
+  const mappedUdfs = Object.keys(udfToCellUuids);
+  const distinctCells = new Set(Object.values(udfToCellUuids).flat());
+  if (mappedUdfs.length > 1 && distinctCells.size === 1) {
+    console.warn(
+      `All ${mappedUdfs.length} operators mapped to the same cell: the entry point looks like a thin launcher, so cell highlighting will not distinguish them`
+    );
+  }
+
+  return { cells, udfToCellUuids };
 }
