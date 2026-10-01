@@ -773,6 +773,10 @@ describe("NotebookMigrationLLM", () => {
       expect(prompt).not.toContain("| requirements.txt");
       // Numbering still starts at the document's own first line.
       expect(prompt).toContain("1| # ===== FILE: a.py =====");
+      // toContain cannot see order, and the layout is only useful before the code it describes,
+      // with FOLDER_CODE_PROMPT as the label dividing the two.
+      expect(prompt.indexOf("proj/\n  a.py")).toBeLessThan(prompt.indexOf("Here is the code:"));
+      expect(prompt.indexOf("Here is the code:")).toBeLessThan(prompt.indexOf("1| # ===== FILE: a.py ====="));
     });
 
     it("names a non-Python file in the layout without sending its contents", async () => {
