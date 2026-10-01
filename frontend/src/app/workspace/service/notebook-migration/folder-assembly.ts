@@ -48,9 +48,9 @@ export const MAX_LISTED_OTHER_FILES = 20;
 export const MAX_FOLDER_FILES = 100;
 export const MAX_FOLDER_CHARACTERS = 60_000;
 
-// Pre-read guard for the character cap: UTF-8 never uses fewer bytes than characters, so a
-// selection this far over cannot come in under it, and one huge file would otherwise hang the tab
-// before the character cap, which needs the files read, could run.
+// Pre-read guard for the character cap. UTF-8 uses at most four bytes per character, so anything
+// past four times the cap is certainly past the cap, and one huge file would otherwise hang the
+// tab before the character cap, which needs the files read, could run.
 export const MAX_FOLDER_BYTES = MAX_FOLDER_CHARACTERS * 4;
 
 export const FILE_BANNER_PREFIX = "# ===== FILE: ";
