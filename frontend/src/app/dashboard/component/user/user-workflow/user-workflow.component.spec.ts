@@ -71,7 +71,10 @@ import { USER_WORKSPACE } from "../../../../app-routing.constant";
 import { GuiConfigService } from "../../../../common/service/gui-config.service";
 import { MockGuiConfigService } from "../../../../common/service/gui-config.service.mock";
 import { NotebookMigrationService } from "../../../../workspace/service/notebook-migration/notebook-migration.service";
-import { LlmRequestTimeoutError } from "../../../../workspace/service/notebook-migration/migration-llm";
+import {
+  LlmRequestTimeoutError,
+  LlmResponseTruncatedError,
+} from "../../../../workspace/service/notebook-migration/migration-llm";
 import { NotebookImportModalComponent } from "../../../../workspace/component/notebook-import-modal/notebook-import-modal.component";
 import { NzUploadFile } from "ng-zorro-antd/upload";
 import type { Mocked } from "vitest";
@@ -582,6 +585,19 @@ describe("SavedWorkflowSectionComponent", () => {
         expect(proceed).toBe(false);
         expect(errorSpy).toHaveBeenCalledWith("No Python files were found in the selected folder.");
         expect(convertSpy).not.toHaveBeenCalled();
+      });
+
+      it("tells the user the reply was cut off, naming the input", async () => {
+        const migration = TestBed.inject(NotebookMigrationService);
+        vi.spyOn(migration, "parseFolder").mockResolvedValue(assembled as any);
+        vi.spyOn(migration, "sendFolderToAIGenerateWorkflow").mockRejectedValue(new LlmResponseTruncatedError());
+        const errorSpy = vi.spyOn(TestBed.inject(NotificationService), "error").mockImplementation(() => {});
+
+        const proceed = await getRequestImport()(selection, "gpt-4");
+
+        expect(proceed).toBe(false);
+        expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining("cut off"));
+        expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining("folder"));
       });
 
       it("names the folder in the timeout message so the advice matches the input", async () => {

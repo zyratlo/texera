@@ -142,6 +142,22 @@ function toDerivedNotebook(cells: DerivedCell[]): Notebook {
  */
 export const DEFAULT_LLM_REQUEST_TIMEOUT_MINUTES = 10;
 
+// A conversion returns the input as JSON-escaped UDFs, which runs larger than the input: each UDF
+// repeats the operator boilerplate, and shared definitions are inlined into every UDF using them.
+// Without an explicit budget the proxy substitutes its own, well below any shipped model's
+// ceiling. Set under claude-haiku-4.5's 64k output ceiling so it cannot be rejected outright.
+export const MAX_CONVERSION_OUTPUT_TOKENS = 48_000;
+
+// Thrown when the model stopped because it hit the output budget. The reply is truncated, so it
+// would otherwise surface as a JSON parse error with nothing saying why.
+export class LlmResponseTruncatedError extends Error {
+  constructor() {
+    super("The model's reply was cut off before it finished. Try again with a smaller input.");
+    this.name = "LlmResponseTruncatedError";
+    Object.setPrototypeOf(this, LlmResponseTruncatedError.prototype);
+  }
+}
+
 // Thrown when a model request exceeds the configured timeout, so callers can tell a slow-but-timed-out
 // request apart from a genuine transport error and message the user accordingly.
 export class LlmRequestTimeoutError extends Error {
@@ -279,7 +295,7 @@ export class NotebookMigrationLLM {
     messages: ModelMessage[],
     maxOutputTokens?: number,
     abortSignal?: AbortSignal
-  ): Promise<{ text: string }> {
+  ): Promise<{ text: string; finishReason?: string }> {
     return generateText({ model: this.model, messages, maxOutputTokens, abortSignal });
   }
 
@@ -292,7 +308,10 @@ export class NotebookMigrationLLM {
   // Wraps callModel with a hard timeout so a stalled request cannot hang forever. The abort
   // cancels the underlying request when the transport honors it; the race guarantees rejection
   // even if it does not, so the caller's error path always runs.
-  private callModelWithTimeout(messages: ModelMessage[], maxOutputTokens?: number): Promise<{ text: string }> {
+  private callModelWithTimeout(
+    messages: ModelMessage[],
+    maxOutputTokens?: number
+  ): Promise<{ text: string; finishReason?: string }> {
     const minutes = this.timeoutMinutes;
     const controller = new AbortController();
     let timer: ReturnType<typeof setTimeout> | undefined;
@@ -324,7 +343,12 @@ export class NotebookMigrationLLM {
       content: prompt,
     });
 
-    const result = await this.callModelWithTimeout(this.messages);
+    const result = await this.callModelWithTimeout(this.messages, MAX_CONVERSION_OUTPUT_TOKENS);
+    // "length" means the budget ran out mid-reply, so the JSON is incomplete. Reported here
+    // rather than left to the parser, which can only say the JSON was malformed.
+    if (result.finishReason === "length") {
+      throw new LlmResponseTruncatedError();
+    }
 
     this.messages.push({
       role: "assistant",

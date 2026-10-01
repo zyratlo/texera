@@ -18,6 +18,8 @@
  */
 
 import {
+  LlmResponseTruncatedError,
+  MAX_CONVERSION_OUTPUT_TOKENS,
   NotebookMigrationLLM,
   Notebook,
   DEFAULT_LLM_REQUEST_TIMEOUT_MINUTES,
@@ -733,6 +735,27 @@ describe("NotebookMigrationLLM", () => {
       // b.py restarts no numbering: its first line is 4, not 1.
       expect(prompt).toContain("4| # ===== FILE: b.py =====");
       expect(prompt).toContain("5| print(x)");
+    });
+
+    it("gives every conversion call an explicit output budget", async () => {
+      const llm = makeLLM();
+      mockResponses(workflowResponse, JSON.stringify({ UDF1: [[2, 3]] }));
+
+      await llm.convertFolderToWorkflow(folder);
+
+      // Without one the proxy substitutes its own, far below any shipped model's ceiling, and a
+      // large folder comes back as truncated JSON.
+      expect(callModelSpy.mock.calls).toHaveLength(2);
+      expect(callModelSpy.mock.calls[0][1]).toBe(MAX_CONVERSION_OUTPUT_TOKENS);
+      expect(callModelSpy.mock.calls[1][1]).toBe(MAX_CONVERSION_OUTPUT_TOKENS);
+    });
+
+    it("reports a truncated reply instead of letting it surface as a parse error", async () => {
+      const llm = makeLLM();
+      // What the model returns when the output budget runs out mid-reply: valid prefix, no close.
+      callModelSpy.mockResolvedValueOnce({ text: '{"code": {"UDF1": "# UDF', finishReason: "length" });
+
+      await expect(llm.convertFolderToWorkflow(folder)).rejects.toThrow(LlmResponseTruncatedError);
     });
 
     it("sends the layout ahead of the code, and never numbers it", async () => {

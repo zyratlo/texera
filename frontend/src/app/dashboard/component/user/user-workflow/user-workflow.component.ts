@@ -46,7 +46,11 @@ import {
   GeneratedWorkflowContent,
   NotebookMigrationService,
 } from "../../../../workspace/service/notebook-migration/notebook-migration.service";
-import { LlmRequestTimeoutError, Notebook } from "../../../../workspace/service/notebook-migration/migration-llm";
+import {
+  LlmRequestTimeoutError,
+  LlmResponseTruncatedError,
+  Notebook,
+} from "../../../../workspace/service/notebook-migration/migration-llm";
 import {
   FolderDocument,
   folderRootName,
@@ -401,7 +405,9 @@ export class UserWorkflowComponent implements AfterViewInit, OnDestroy {
   // A timeout is worth telling apart from a transport error: the user can act on it by picking
   // a faster model or trimming the input.
   private reportGenerationFailure(error: unknown, input: "notebook" | "script" | "folder"): void {
-    if (error instanceof LlmRequestTimeoutError) {
+    if (error instanceof LlmResponseTruncatedError) {
+      this.notificationService.error(`${error.message} This ${input} may be too large to convert.`);
+    } else if (error instanceof LlmRequestTimeoutError) {
       this.notificationService.error(
         `Generation timed out after ${error.minutes} minutes. Try again, choose a faster model, or simplify the ${input}.`
       );

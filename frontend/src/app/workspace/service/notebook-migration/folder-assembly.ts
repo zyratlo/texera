@@ -42,8 +42,8 @@ export const MAX_LISTED_OTHER_FILES = 20;
 
 /**
  * Caps on one conversion, refused before any request is sent. Sized by the reply, not the prompt:
- * the conversion asks for every line of code back and sets no output budget, so the model's output
- * ceiling binds long before its context does. Raise once a larger folder has been measured.
+ * the conversion asks for every line of code back, so it must fit MAX_CONVERSION_OUTPUT_TOKENS.
+ * Raise once a larger folder has been measured.
  */
 export const MAX_FOLDER_FILES = 100;
 export const MAX_FOLDER_CHARACTERS = 60_000;
