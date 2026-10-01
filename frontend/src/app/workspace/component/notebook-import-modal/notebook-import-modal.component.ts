@@ -40,12 +40,12 @@ export interface NotebookImportModalData {
   requestImport: (selection: NzUploadFile | NzUploadFile[], model: string) => Promise<boolean>;
 }
 
-// Falls back to a count when the picker reported no path, so the row always says something
-// was picked.
 // How long after the last rejected file a drop is treated as over: long enough that a slow
 // directory walk stays one burst, short enough that a second drop is reported again.
 export const DROP_REJECTION_LATCH_MS = 2000;
 
+// Falls back to a count when the picker reported no path, so the row always says something
+// was picked.
 function describeFolderSelection(files: readonly NzUploadFile[]): string {
   const count = `${files.length} file${files.length === 1 ? "" : "s"}`;
   return folderRootName(pickedFilePath(files[0])) ?? count;
