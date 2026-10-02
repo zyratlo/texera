@@ -147,8 +147,7 @@ export function folderRelativePath(file: { webkitRelativePath?: string; name: st
   if (!full) {
     return file.name;
   }
-  const { root, rest } = splitReportedPath(full);
-  return root === null ? full : rest;
+  return splitReportedPath(full).rest;
 }
 
 function pathSegments(path: string): string[] {

@@ -600,6 +600,17 @@ describe("SavedWorkflowSectionComponent", () => {
         expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining("folder"));
       });
 
+      it("falls back to a generic message when something other than an Error is thrown", async () => {
+        const migration = TestBed.inject(NotebookMigrationService);
+        vi.spyOn(migration, "parseFolder").mockRejectedValue("not an Error");
+        const errorSpy = vi.spyOn(TestBed.inject(NotificationService), "error").mockImplementation(() => {});
+
+        const proceed = await getRequestImport()(selection, "gpt-4");
+
+        expect(proceed).toBe(false);
+        expect(errorSpy).toHaveBeenCalledWith("Failed to read the selected folder.");
+      });
+
       it("names the folder in the timeout message so the advice matches the input", async () => {
         const migration = TestBed.inject(NotebookMigrationService);
         vi.spyOn(migration, "parseFolder").mockResolvedValue(assembled as any);

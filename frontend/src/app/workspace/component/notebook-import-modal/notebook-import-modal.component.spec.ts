@@ -596,6 +596,16 @@ describe("NotebookImportModalComponent", () => {
       expect((fixture.nativeElement as HTMLElement).textContent).not.toContain("1 files");
     });
 
+    it("shows nothing for an empty list, rather than naming a folder with no files", async () => {
+      await createWith(of([{ name: "gpt-4" }]));
+      component.onTabChange(2);
+      component.importForm.patchValue({ file: [] });
+      fixture.detectChanges();
+
+      expect(component.selectionSummary).toBeNull();
+      expect((fixture.nativeElement as HTMLElement).textContent).not.toContain("Selected folder");
+    });
+
     it("drops a folder selection when switching away", async () => {
       await createWith(of([{ name: "gpt-4" }]));
       component.onTabChange(2);

@@ -91,6 +91,9 @@ describe("compareFolderPaths", () => {
 
   it("puts a package initializer ahead of its siblings", () => {
     expect(sorted(["pkg/aaa.py", "pkg/__init__.py"])).toEqual(["pkg/__init__.py", "pkg/aaa.py"]);
+    // Both directions, since sort only ever calls the comparator one way round.
+    expect(compareFolderPaths("pkg/__init__.py", "pkg/aaa.py")).toBeLessThan(0);
+    expect(compareFolderPaths("pkg/aaa.py", "pkg/__init__.py")).toBeGreaterThan(0);
   });
 
   it("orders root-level files before files in a subdirectory", () => {
