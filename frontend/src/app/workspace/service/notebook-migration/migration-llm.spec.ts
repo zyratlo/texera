@@ -384,6 +384,19 @@ describe("NotebookMigrationLLM", () => {
       expect(stubUtil.getNewOperatorPredicate).toHaveBeenCalledWith("PythonUDFV2", "UDF1");
       expect(workflowJSON.operators[0].operatorType).toBe("PythonUDFV2");
     });
+
+    it("gives each derived notebook its own metadata", async () => {
+      const llm = makeLLM();
+      mockResponses(workflowResponse, JSON.stringify({ UDF1: [[1, 1]] }));
+      const first = await llm.convertScriptToWorkflow("print(1)");
+      first.notebook.metadata!["kernelspec"].name = "changed";
+
+      mockResponses(workflowResponse, JSON.stringify({ UDF1: [[1, 1]] }));
+      const second = await llm.convertScriptToWorkflow("print(1)");
+
+      expect(second.notebook.metadata).not.toBe(first.notebook.metadata);
+      expect(second.notebook.metadata!["kernelspec"].name).toBe("python3");
+    });
   });
 
   describe("parseJsonResponse", () => {

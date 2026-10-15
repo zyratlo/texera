@@ -111,7 +111,7 @@ function toDerivedNotebook(cells: DerivedCell[], metadata: Notebook["metadata"])
       outputs: [],
       execution_count: null,
     })),
-    metadata,
+    metadata: structuredClone(metadata),
     nbformat: 4,
     nbformat_minor: 4,
   };
