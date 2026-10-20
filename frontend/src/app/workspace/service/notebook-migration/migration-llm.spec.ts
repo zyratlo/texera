@@ -344,6 +344,7 @@ describe("NotebookMigrationLLM", () => {
       EXAMPLE_OF_MULTIPLE_UDF_CONVERSION,
     ];
 
+    // Every call shares one messages array, so the first call's argument holds the whole conversation.
     function contentsFor(role: string): string[] {
       return (callModelSpy.mock.calls[0][0] as { role: string; content: string }[])
         .filter(message => message.role === role)
